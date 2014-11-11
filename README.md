@@ -1,4 +1,4 @@
 Speedy
 ======
 
-Small key value pair database for .NET.
+Small key value pair repository for .NET.
