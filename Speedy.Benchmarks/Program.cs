@@ -12,6 +12,12 @@ namespace Speedy.Benchmarks
 {
 	internal class Program
 	{
+		#region Fields
+
+		private static bool _verboseLog;
+
+		#endregion
+
 		#region Static Methods
 
 		private static void CleanupDirectory(string directory)
@@ -50,22 +56,26 @@ namespace Speedy.Benchmarks
 			var directory = "C:\\SpeedyTest";
 			CleanupDirectory(directory);
 
-			WriteCollection(directory, 10000, 100);
-			WriteCollection(directory, 10000, 1000);
-			WriteCollection(directory, 10000, 2500);
+			var repositorySize = 100000;
+			_verboseLog = false;
+
+			WriteCollection(directory, repositorySize, 100);
+			WriteCollection(directory, repositorySize, 1000);
+			WriteCollection(directory, repositorySize, 2500);
+			WriteCollection(directory, repositorySize, 1000);
 
 			// Populate the random keys.
 			var random = new Random();
 			var randomKeys = new HashSet<string>();
-			for (var i = 0; i < 10; i++)
+			for (var i = 0; i < 100; i++)
 			{
-				randomKeys.Add(random.Next(1, 10000).ToString());
+				randomKeys.Add(random.Next(1, repositorySize).ToString());
 			}
 
 			Log("The random keys are " + string.Join(", ", randomKeys.Select(x => x)));
 
-			RandomReadsIndividually(directory, "DB-10000-AT-100", randomKeys);
-			RandomReadsGroup(directory, "DB-10000-AT-100", randomKeys);
+			RandomReadsIndividually(directory, "DB-" + repositorySize, randomKeys);
+			RandomReadsGroup(directory, "DB-" + repositorySize, randomKeys);
 
 			Log(string.Empty);
 			Log("Press any key to continue...");
@@ -83,7 +93,7 @@ namespace Speedy.Benchmarks
 			var values = repository.Read(randomKeys);
 			foreach (var item in values)
 			{
-				Log("Read " + item.Value + " using key " + item.Key);
+				Verbose("Read " + item.Value + " using key " + item.Key);
 			}
 
 			Log("Total: " + watch.Elapsed);
@@ -103,7 +113,7 @@ namespace Speedy.Benchmarks
 				try
 				{
 					var value = repository.Read(key);
-					Log("Read " + value + " using key " + key + " in " + (watch.Elapsed - previousTime));
+					Verbose("Read " + value + " using key " + key + " in " + (watch.Elapsed - previousTime));
 				}
 				catch (Exception ex)
 				{
@@ -115,20 +125,36 @@ namespace Speedy.Benchmarks
 
 			Log("Total: " + watch.Elapsed);
 		}
-		
+
+		private static void Verbose(string message, bool newLine = true)
+		{
+			if (!_verboseLog)
+			{
+				return;
+			}
+
+			if (newLine)
+			{
+				Console.WriteLine(message);
+				return;
+			}
+
+			Console.Write(message);
+		}
+
 		private static void WriteCollection(string directory, int size, int chunkSize)
 		{
 			Log(string.Empty);
 			Log("Let's create a repository with " + size + " items @ " + chunkSize + " at a time.");
 			var watch = Stopwatch.StartNew();
-			var repository = new Repository(directory, "DB-" + size + "-AT-" + chunkSize);
+			var repository = new Repository(directory, "DB-" + size);
 			var previousTime = new TimeSpan(0);
 
 			for (var i = 1; i <= size; i++)
 			{
 				if (i % (chunkSize / 4) == 0)
 				{
-					Log(".", false);
+					Verbose(".", false);
 				}
 
 				if (i % chunkSize == 0)
@@ -138,11 +164,11 @@ namespace Speedy.Benchmarks
 					if (previousTime.Ticks > 0)
 					{
 						var difference = watch.Elapsed - previousTime;
-						Log(watch.Elapsed + " + " + difference);
+						Verbose(watch.Elapsed + " + " + difference);
 					}
 					else
 					{
-						Log(watch.Elapsed.ToString());
+						Verbose(watch.Elapsed.ToString());
 					}
 
 					previousTime = watch.Elapsed;
