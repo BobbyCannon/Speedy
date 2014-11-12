@@ -239,6 +239,11 @@ namespace Speedy
 		/// <param name="key">The key of the item to remove.</param>
 		public void Remove(string key)
 		{
+			if (_changes.ContainsKey(key))
+			{
+				_changes.Remove(key);
+			}
+
 			_changes.Add(key, null);
 		}
 
@@ -250,7 +255,7 @@ namespace Speedy
 		{
 			foreach (var key in keys)
 			{
-				_changes.Add(key, null);
+				Remove(key);
 			}
 		}
 
