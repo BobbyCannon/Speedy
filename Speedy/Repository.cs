@@ -180,7 +180,7 @@ namespace Speedy
 		/// <exception cref="KeyNotFoundException">Could not find the entry with the key.</exception>
 		public string Read(string key)
 		{
-			var response = Read(new HashSet<string> { key });
+			var response = Read(new HashSet<string> { key }).ToList();
 			if (response.Count <= 0)
 			{
 				throw new KeyNotFoundException("Could not find the entry with the key.");
@@ -194,19 +194,13 @@ namespace Speedy
 		/// </summary>
 		/// <param name="keys">The keys of the items to read.</param>
 		/// <returns>The value for the keys.</returns>
-		public Dictionary<string, string> Read(HashSet<string> keys)
+		public IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys)
 		{
 			Initialize();
 
-			if (keys.Count <= 0)
-			{
-				return new Dictionary<string, string>();
-			}
-
-			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
 			{
 				var reader = new StreamReader(stream);
-				var response = new Dictionary<string, string>(keys.Count + 1);
 
 				while (reader.Peek() > 0)
 				{
@@ -225,11 +219,9 @@ namespace Speedy
 					var readKey = line.Substring(0, delimiter);
 					if (keys.Contains(readKey))
 					{
-						response.Add(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
+						yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
 					}
 				}
-
-				return response;
 			}
 		}
 
@@ -266,9 +258,9 @@ namespace Speedy
 		{
 			Initialize();
 
-			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
 			{
-				using (var stream2 = File.Open(TemporaryFullPath, FileMode.Create, FileAccess.ReadWrite))
+				using (var stream2 = File.Open(TemporaryFullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
 				{
 					var reader = new StreamReader(stream);
 					var writer = new StreamWriter(stream2);
@@ -313,13 +305,12 @@ namespace Speedy
 					}
 
 					writer.Flush();
+					_changes.Clear();
 				}
 			}
 
 			File.Delete(DataFullPath);
 			File.Move(TemporaryFullPath, DataFullPath);
-			
-			_changes.Clear();
 		}
 
 		/// <summary>

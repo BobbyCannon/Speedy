@@ -62,7 +62,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="keys">The keys of the items to read.</param>
 		/// <returns>The value for the keys.</returns>
-		Dictionary<string, string> Read(HashSet<string> keys);
+		IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys);
 
 		/// <summary>
 		/// Removes an item from the repository by the key provided.
