@@ -2,7 +2,7 @@
 
 Small embedded key value pair persistent repository for .NET.
 
-### Code Example
+#### Code Example
 
 ```
 var repository = new Repository("C:\\Speedy", "Items");
@@ -12,9 +12,9 @@ repository.Write("Item3", "Item3");
 repository.Save();
 ```
 
-##### Only requirement
+##### Only Requirement
 
-Keys cannot contain the "|" character
+Keys cannot contain the "|" (pipe) character.
 
 #### Quick Benchmarks
 
