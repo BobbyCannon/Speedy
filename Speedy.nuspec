@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>Speedy</id>
+		<version>1.0</version>
+		<authors>Bobby Cannon</authors>
+		<description>Small embedded key value pair persistant repository for .NET.</description>
+		<projectUrl>http://bobbycannon.github.io/Speedy/</projectUrl>
+		<tags>Embedded key value pair persistant repository database</tags>
+		<dependencies>
+		</dependencies>
+		<references>
+			<reference file="Speedy.dll" />
+		</references>
+	</metadata>
+	<files>
+		<file src="C:\Binaries\Speedy\bin\Speedy.dll" target="lib\net40" />
+	</files>
+</package>

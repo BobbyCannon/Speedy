@@ -1,0 +1,4 @@
+.nuget/NuGet.exe
+packages
+bin
+obj
