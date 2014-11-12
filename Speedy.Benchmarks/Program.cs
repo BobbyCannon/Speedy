@@ -62,7 +62,8 @@ namespace Speedy.Benchmarks
 			WriteCollection(directory, repositorySize, 100);
 			WriteCollection(directory, repositorySize, 1000);
 			WriteCollection(directory, repositorySize, 2500);
-			WriteCollection(directory, repositorySize, 1000);
+			WriteCollection(directory, repositorySize, 10000);
+			WriteCollection(directory, repositorySize, 50000);
 
 			// Populate the random keys.
 			var random = new Random();
