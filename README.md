@@ -1,4 +1,3 @@
-Speedy
-======
+##### Speedy
 
-Small key value pair repository for .NET.
+Small embedded key value pair persistant repository for .NET.
