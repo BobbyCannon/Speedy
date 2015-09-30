@@ -31,6 +31,24 @@ namespace Speedy.Tests
 
 		#region Methods
 
+		public static void AreEqual<T>(T expected, T actual)
+		{
+			var compareObjects = new CompareLogic();
+			compareObjects.Config.MaxDifferences = int.MaxValue;
+
+			var result = compareObjects.Compare(expected, actual);
+			Assert.IsTrue(result.AreEqual, result.DifferencesString);
+		}
+
+		[ClassCleanup]
+		public static void ClassCleanup()
+		{
+			if (Directory.Exists(_directory))
+			{
+				Directory.Delete(_directory, true);
+			}
+		}
+
 		[TestMethod]
 		public void ClearShouldDeleteFile()
 		{
@@ -47,28 +65,6 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void DuplicateKeysShouldNotHappenDuringWrite()
-		{
-			var repository = new Repository(_directory, Guid.NewGuid().ToString());
-			repository.Write("Item1", "Item1");
-			repository.Write("Item2", "Item2");
-			repository.Write("Item3", "Item3");
-			repository.Write("Item1", "Item1");
-			repository.Save();
-
-			var expected = new List<KeyValuePair<string, string>>
-			{
-				new KeyValuePair<string, string>("Item1", "Item1"),
-				new KeyValuePair<string, string>("Item2", "Item2"),
-				new KeyValuePair<string, string>("Item3", "Item3"),
-			};
-
-			var actual = repository.Read().ToList();
-			Assert.AreEqual(3, actual.Count);
-			AreEqual(expected, actual);
-		}
-		
-		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringMultipleWrites()
 		{
 			var repository = new Repository(_directory, Guid.NewGuid().ToString());
@@ -84,7 +80,29 @@ namespace Speedy.Tests
 			{
 				new KeyValuePair<string, string>("Item1", "Item1"),
 				new KeyValuePair<string, string>("Item2", "Item2"),
-				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item3", "Item3")
+			};
+
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(3, actual.Count);
+			AreEqual(expected, actual);
+		}
+
+		[TestMethod]
+		public void DuplicateKeysShouldNotHappenDuringWrite()
+		{
+			var repository = new Repository(_directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Write("Item3", "Item3");
+			repository.Write("Item1", "Item1");
+			repository.Save();
+
+			var expected = new List<KeyValuePair<string, string>>
+			{
+				new KeyValuePair<string, string>("Item1", "Item1"),
+				new KeyValuePair<string, string>("Item2", "Item2"),
+				new KeyValuePair<string, string>("Item3", "Item3")
 			};
 
 			var actual = repository.Read().ToList();
@@ -108,7 +126,7 @@ namespace Speedy.Tests
 			{
 				new KeyValuePair<string, string>("Item1", "Item10"),
 				new KeyValuePair<string, string>("Item2", "Item2"),
-				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item3", "Item3")
 			};
 
 			var actual = repository.Read().ToList();
@@ -131,7 +149,7 @@ namespace Speedy.Tests
 			{
 				new KeyValuePair<string, string>("Item1", "Item10"),
 				new KeyValuePair<string, string>("Item2", "Item2"),
-				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item3", "Item3")
 			};
 
 			var actual = repository.Read().ToList();
@@ -153,34 +171,12 @@ namespace Speedy.Tests
 			{
 				new KeyValuePair<string, string>("Item1", "Item1|Item2"),
 				new KeyValuePair<string, string>("Item2", "Item2|Boo"),
-				new KeyValuePair<string, string>("Item3", "Item3|Foo|Bar|Again"),
+				new KeyValuePair<string, string>("Item3", "Item3|Foo|Bar|Again")
 			};
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
 			AreEqual(expected, actual);
-		}
-
-		#endregion
-
-		#region Static Methods
-
-		public static void AreEqual<T>(T expected, T actual)
-		{
-			var compareObjects = new CompareLogic();
-			compareObjects.Config.MaxDifferences = int.MaxValue;
-
-			var result = compareObjects.Compare(expected, actual);
-			Assert.IsTrue(result.AreEqual, result.DifferencesString);
-		}
-
-		[ClassCleanup]
-		public static void ClassCleanup()
-		{
-			if (Directory.Exists(_directory))
-			{
-				Directory.Delete(_directory, true);
-			}
 		}
 
 		#endregion

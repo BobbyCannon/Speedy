@@ -9,7 +9,7 @@ using System.Linq;
 namespace Speedy
 {
 	/// <summary>
-	/// Represents a repository of key value pairs. 
+	/// Represents a repository of key value pairs.
 	/// </summary>
 	public class Repository : IRepository
 	{
@@ -24,8 +24,8 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates an instance of the Repository class.
 		/// </summary>
-		/// <param name="directory">The directory the repository will reside.</param>
-		/// <param name="name">The name of the repository.</param>
+		/// <param name="directory"> The directory the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
 		public Repository(string directory, string name)
 		{
 			Directory = directory;
@@ -51,18 +51,12 @@ namespace Speedy
 		/// <summary>
 		/// Gets the full path to the repository file.
 		/// </summary>
-		private string DataFullPath
-		{
-			get { return Directory + "\\" + Name + ".data"; }
-		}
+		private string DataFullPath => Directory + "\\" + Name + ".data";
 
 		/// <summary>
 		/// Gets the full path to the temporary repository file.
 		/// </summary>
-		private string TemporaryFullPath
-		{
-			get { return DataFullPath.Replace(".data", ".temp"); }
-		}
+		private string TemporaryFullPath => DataFullPath.Replace(".data", ".temp");
 
 		#endregion
 
@@ -83,8 +77,8 @@ namespace Speedy
 		/// <summary>
 		/// Check the provided keys and returns any keys that are missing.
 		/// </summary>
-		/// <param name="keys">The key that will be tested.</param>
-		/// <returns>A list of key value pairs that were not found in the repository.</returns>
+		/// <param name="keys"> The key that will be tested. </param>
+		/// <returns> A list of key value pairs that were not found in the repository. </returns>
 		public HashSet<string> FindMissingKeys(HashSet<string> keys)
 		{
 			Initialize();
@@ -123,7 +117,7 @@ namespace Speedy
 		/// Loads items directly into the repository. This will not check the keys so we can
 		/// speed up the loading of items. If you need key protection then use Write instead.
 		/// </summary>
-		/// <param name="items">The items to load into the repository.</param>
+		/// <param name="items"> The items to load into the repository. </param>
 		public void Load(Dictionary<string, string> items)
 		{
 			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
@@ -143,7 +137,7 @@ namespace Speedy
 		/// <summary>
 		/// Read the repository using an enumerator.
 		/// </summary>
-		/// <returns>The list of key value pairs to enumerate.</returns>
+		/// <returns> The list of key value pairs to enumerate. </returns>
 		public IEnumerable<KeyValuePair<string, string>> Read()
 		{
 			Initialize();
@@ -175,9 +169,9 @@ namespace Speedy
 		/// <summary>
 		/// Read an item from the repository based on the key provided.
 		/// </summary>
-		/// <param name="key">The key of the item to read.</param>
-		/// <returns>The value for the key.</returns>
-		/// <exception cref="KeyNotFoundException">Could not find the entry with the key.</exception>
+		/// <param name="key"> The key of the item to read. </param>
+		/// <returns> The value for the key. </returns>
+		/// <exception cref="KeyNotFoundException"> Could not find the entry with the key. </exception>
 		public string Read(string key)
 		{
 			var response = Read(new HashSet<string> { key }).ToList();
@@ -192,8 +186,8 @@ namespace Speedy
 		/// <summary>
 		/// Reads a set of items from the repository based on the keys provided.
 		/// </summary>
-		/// <param name="keys">The keys of the items to read.</param>
-		/// <returns>The value for the keys.</returns>
+		/// <param name="keys"> The keys of the items to read. </param>
+		/// <returns> The value for the keys. </returns>
 		public IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys)
 		{
 			Initialize();
@@ -228,7 +222,7 @@ namespace Speedy
 		/// <summary>
 		/// Removes an item from the repository by the key provided.
 		/// </summary>
-		/// <param name="key">The key of the item to remove.</param>
+		/// <param name="key"> The key of the item to remove. </param>
 		public void Remove(string key)
 		{
 			if (_changes.ContainsKey(key))
@@ -242,7 +236,7 @@ namespace Speedy
 		/// <summary>
 		/// Removes items from the repository by the keys provided.
 		/// </summary>
-		/// <param name="keys">The keys of the items to remove.</param>
+		/// <param name="keys"> The keys of the items to remove. </param>
 		public void Remove(HashSet<string> keys)
 		{
 			foreach (var key in keys)
@@ -316,8 +310,8 @@ namespace Speedy
 		/// <summary>
 		/// Writes an item to the repository.
 		/// </summary>
-		/// <param name="key">The key of the item to write.</param>
-		/// <param name="value">The value of the item to write.</param>
+		/// <param name="key"> The key of the item to write. </param>
+		/// <param name="value"> The value of the item to write. </param>
 		public void Write(string key, string value)
 		{
 			if (_changes.ContainsKey(key))
@@ -331,7 +325,7 @@ namespace Speedy
 		/// <summary>
 		/// Writes a collection of items to the repository.
 		/// </summary>
-		/// <param name="items">The list of items to add to the repository.</param>
+		/// <param name="items"> The list of items to add to the repository. </param>
 		public void Write(Dictionary<string, string> items)
 		{
 			foreach (var item in items)

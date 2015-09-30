@@ -18,7 +18,7 @@ namespace Speedy.Benchmarks
 
 		#endregion
 
-		#region Static Methods
+		#region Methods
 
 		private static void CleanupDirectory(string directory)
 		{
