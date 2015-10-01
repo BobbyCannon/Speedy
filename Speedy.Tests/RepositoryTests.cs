@@ -176,14 +176,14 @@ namespace Speedy.Tests
 			var index = 0;
 			var tasks = new[]
 			{
-				Task.Run(() => action(repository, index++, 100 * index)),
-				Task.Run(() => action(repository, index++, 100 * index)),
-				Task.Run(() => action(repository, index++, 100 * index)),
-				Task.Run(() => action(repository, index++, 100 * index)),
-				Task.Run(() => action(repository, index++, 100 * index)),
-				Task.Run(() => action(repository, index++, 100 * index)),
-				Task.Run(() => action(repository, index++, 100 * index)),
-				Task.Run(() => action(repository, index++, 100 * index))
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => action(repository, index++, 100 * index))
 			};
 
 			Task.WaitAll(tasks);
@@ -216,14 +216,14 @@ namespace Speedy.Tests
 			var index = 0;
 			var tasks = new[]
 			{
-				Task.Run(() => writeAction(repository, index++, 100 * index)),
-				Task.Run(() => readAction(repository)),
-				Task.Run(() => writeAction(repository, index++, 100 * index)),
-				Task.Run(() => readAction(repository)),
-				Task.Run(() => writeAction(repository, index++, 100 * index)),
-				Task.Run(() => readAction(repository)),
-				Task.Run(() => writeAction(repository, index++, 100 * index)),
-				Task.Run(() => readAction(repository))
+				Task.Factory.StartNew(() => writeAction(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => readAction(repository)),
+				Task.Factory.StartNew(() => writeAction(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => readAction(repository)),
+				Task.Factory.StartNew(() => writeAction(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => readAction(repository)),
+				Task.Factory.StartNew(() => writeAction(repository, index++, 100 * index)),
+				Task.Factory.StartNew(() => readAction(repository))
 			};
 
 			Task.WaitAll(tasks);
