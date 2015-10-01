@@ -7,8 +7,8 @@
 		<version>1.0</version>
 		<authors>Bobby Cannon</authors>
 		<description>Small thread safe embedded key value pair persistent repository for .NET.</description>
-		<projectUrl>http://bobbycannon.github.io/Speedy/</projectUrl>
-		<iconUrl>https://github.com/BobbyCannon/Speedy/blob/master/Speedy.png</iconUrl>
+		<projectUrl>https://github.com/BobbyCannon/Speedy</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</iconUrl>
 		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
 		<dependencies>
 		</dependencies>
