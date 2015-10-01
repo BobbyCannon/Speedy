@@ -50,6 +50,11 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
+		/// The number of items in the repository.
+		/// </summary>
+		public int Count => FileInfo.LineCount();
+
+		/// <summary>
 		/// The directory the repository will be located.
 		/// </summary>
 		public DirectoryInfo DirectoryInfo { get; }

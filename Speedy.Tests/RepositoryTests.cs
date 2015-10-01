@@ -39,6 +39,33 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void CountShouldReturnCorrectValue()
+		{
+			foreach (var repository in TestHelper.Repositories)
+			{
+				repository.Write("Item1", "Item1");
+				repository.Write("Item2", "Item2");
+				repository.Write("Item3", "Item3");
+				repository.Save();
+
+				Assert.AreEqual(3, repository.Count);
+			}
+		}
+
+		[TestMethod]
+		public void CountShouldReturnZeroWithoutSave()
+		{
+			foreach (var repository in TestHelper.Repositories)
+			{
+				repository.Write("Item1", "Item1");
+				repository.Write("Item2", "Item2");
+				repository.Write("Item3", "Item3");
+
+				Assert.AreEqual(0, repository.Count);
+			}
+		}
+
+		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringMultipleWrites()
 		{
 			foreach (var repository in TestHelper.Repositories)

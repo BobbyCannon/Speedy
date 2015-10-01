@@ -180,8 +180,9 @@ namespace Speedy.Benchmarks
 
 			repository.Save();
 
-			Log(string.Empty);
 			Log("Done: " + watch.Elapsed);
+			Log($"Count: {repository.Count}");
+			Log(string.Empty);
 		}
 
 		#endregion

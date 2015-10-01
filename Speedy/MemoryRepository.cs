@@ -31,6 +31,11 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
+		/// The number of items in the repository.
+		/// </summary>
+		public int Count => _directory.Count;
+
+		/// <summary>
 		/// The name of the repository.
 		/// </summary>
 		public string Name { get; }

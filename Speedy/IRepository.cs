@@ -15,6 +15,11 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
+		/// The number of items in the repository.
+		/// </summary>
+		int Count { get; }
+
+		/// <summary>
 		/// The name of the repository.
 		/// </summary>
 		string Name { get; }
