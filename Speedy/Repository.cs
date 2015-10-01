@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -206,6 +207,16 @@ namespace Speedy
 		/// <returns> The value for the keys. </returns>
 		public IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys)
 		{
+			return Read(keys.Contains);
+		}
+
+		/// <summary>
+		/// Reads a set of items from the repository based on the keys provided.
+		/// </summary>
+		/// <param name="condition"> The condition to test each key against. </param>
+		/// <returns> The value for the keys that match the condition. </returns>
+		public IEnumerable<KeyValuePair<string, string>> Read(Func<string, bool> condition)
+		{
 			Initialize();
 
 			lock (_changes)
@@ -229,7 +240,7 @@ namespace Speedy
 						}
 
 						var readKey = line.Substring(0, delimiter);
-						if (keys.Contains(readKey))
+						if (condition.Invoke(readKey))
 						{
 							yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
 						}

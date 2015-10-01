@@ -1,5 +1,6 @@
 #region References
 
+using System;
 using System.Collections.Generic;
 
 #endregion
@@ -64,6 +65,13 @@ namespace Speedy
 		/// <param name="keys"> The keys of the items to read. </param>
 		/// <returns> The value for the keys. </returns>
 		IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys);
+		
+		/// <summary>
+		/// Reads a set of items from the repository based on the keys provided.
+		/// </summary>
+		/// <param name="condition"> The condition to test each key against. </param>
+		/// <returns> The value for the keys that match the condition. </returns>
+		IEnumerable<KeyValuePair<string, string>> Read(Func<string, bool> condition);
 
 		/// <summary>
 		/// Removes an item from the repository by the key provided.

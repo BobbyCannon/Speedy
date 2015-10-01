@@ -33,7 +33,7 @@ namespace Speedy.Tests
 
 		#region Properties
 
-		public IEnumerable<IRepository> Repositories
+		private static IEnumerable<IRepository> Repositories
 		{
 			get
 			{
@@ -45,15 +45,6 @@ namespace Speedy.Tests
 		#endregion
 
 		#region Methods
-
-		public static void AreEqual<T>(T expected, T actual)
-		{
-			var compareObjects = new CompareLogic();
-			compareObjects.Config.MaxDifferences = int.MaxValue;
-
-			var result = compareObjects.Compare(expected, actual);
-			Assert.IsTrue(result.AreEqual, result.DifferencesString);
-		}
 
 		[ClassCleanup]
 		public static void ClassCleanup()
@@ -255,6 +246,28 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void ReadUsingCondition()
+		{
+			foreach (var repository in Repositories)
+			{
+				repository.Write(repository.Name, "Root object");
+				repository.Write("ChildItem1", "ChildItemValue1");
+				repository.Write("ChildItem2", "ChildItemValue2");
+				repository.Save();
+
+				var expected = new List<KeyValuePair<string, string>>
+				{
+					new KeyValuePair<string, string>("ChildItem1", "ChildItemValue1"),
+					new KeyValuePair<string, string>("ChildItem2", "ChildItemValue2")
+				};
+
+				var actual = repository.Read(key => key != repository.Name).ToList();
+				Assert.AreEqual(2, actual.Count);
+				AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
 		public void RemoveShouldRemoveItem()
 		{
 			foreach (var repository in Repositories)
@@ -300,6 +313,15 @@ namespace Speedy.Tests
 				Assert.AreEqual(3, actual.Count);
 				AreEqual(expected, actual);
 			}
+		}
+
+		private static void AreEqual<T>(T expected, T actual)
+		{
+			var compareObjects = new CompareLogic();
+			compareObjects.Config.MaxDifferences = int.MaxValue;
+
+			var result = compareObjects.Compare(expected, actual);
+			Assert.IsTrue(result.AreEqual, result.DifferencesString);
 		}
 
 		#endregion

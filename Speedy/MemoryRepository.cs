@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -100,6 +101,16 @@ namespace Speedy
 		public IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys)
 		{
 			return _directory.Where(x => keys.Contains(x.Key));
+		}
+
+		/// <summary>
+		/// Reads a set of items from the repository based on the keys provided.
+		/// </summary>
+		/// <param name="condition"> The condition to test each key against. </param>
+		/// <returns> The value for the keys that match the condition. </returns>
+		public IEnumerable<KeyValuePair<string, string>> Read(Func<string, bool> condition)
+		{
+			return _directory.Where(x => condition.Invoke(x.Key));
 		}
 
 		/// <summary>
