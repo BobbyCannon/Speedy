@@ -1,10 +1,8 @@
 ﻿#region References
 
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 
 #endregion
 
@@ -17,7 +15,7 @@ namespace Speedy
 	{
 		#region Fields
 
-		private readonly ConcurrentDictionary<string, string> _changes;
+		private readonly Dictionary<string, string> _changes;
 
 		#endregion
 
@@ -33,7 +31,7 @@ namespace Speedy
 			Directory = directory;
 			Name = name;
 
-			_changes = new ConcurrentDictionary<string, string>();
+			_changes = new Dictionary<string, string>();
 		}
 
 		#endregion
@@ -70,9 +68,13 @@ namespace Speedy
 		public void Clear()
 		{
 			Initialize();
-			if (File.Exists(DataFullPath))
+
+			lock (_changes)
 			{
-				File.Delete(DataFullPath);
+				if (File.Exists(DataFullPath))
+				{
+					File.Delete(DataFullPath);
+				}
 			}
 		}
 
@@ -85,33 +87,36 @@ namespace Speedy
 		{
 			Initialize();
 
-			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+			lock (_changes)
 			{
-				var reader = new StreamReader(stream);
-				var foundKeys = new List<string>();
-
-				while (reader.Peek() > 0)
+				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
 				{
-					var line = reader.ReadLine();
-					if (line == null)
+					var reader = new StreamReader(stream);
+					var foundKeys = new List<string>();
+
+					while (reader.Peek() > 0)
 					{
-						continue;
+						var line = reader.ReadLine();
+						if (line == null)
+						{
+							continue;
+						}
+
+						var delimiter = line.IndexOf("|");
+						if (delimiter <= 0)
+						{
+							continue;
+						}
+
+						var readKey = line.Substring(0, delimiter);
+						if (keys.Contains(readKey))
+						{
+							foundKeys.Add(readKey);
+						}
 					}
 
-					var delimiter = line.IndexOf("|");
-					if (delimiter <= 0)
-					{
-						continue;
-					}
-
-					var readKey = line.Substring(0, delimiter);
-					if (keys.Contains(readKey))
-					{
-						foundKeys.Add(readKey);
-					}
+					return new HashSet<string>(keys.Except(foundKeys));
 				}
-
-				return new HashSet<string>(keys.Except(foundKeys));
 			}
 		}
 
@@ -122,17 +127,20 @@ namespace Speedy
 		/// <param name="items"> The items to load into the repository. </param>
 		public void Load(Dictionary<string, string> items)
 		{
-			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+			lock (_changes)
 			{
-				stream.Position = stream.Length;
-				var writer = new StreamWriter(stream);
-
-				foreach (var item in items)
+				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
 				{
-					writer.WriteLine(item.Key + "|" + item.Value);
-				}
+					stream.Position = stream.Length;
+					var writer = new StreamWriter(stream);
 
-				writer.Flush();
+					foreach (var item in items)
+					{
+						writer.WriteLine(item.Key + "|" + item.Value);
+					}
+
+					writer.Flush();
+				}
 			}
 		}
 
@@ -147,26 +155,29 @@ namespace Speedy
 		{
 			Initialize();
 
-			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+			lock (_changes)
 			{
-				var reader = new StreamReader(stream);
-
-				while (reader.Peek() > 0)
+				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
 				{
-					var line = reader.ReadLine();
-					if (line == null)
-					{
-						continue;
-					}
+					var reader = new StreamReader(stream);
 
-					var delimiter = line.IndexOf("|");
-					if (delimiter <= 0)
+					while (reader.Peek() > 0)
 					{
-						continue;
-					}
+						var line = reader.ReadLine();
+						if (line == null)
+						{
+							continue;
+						}
 
-					var readKey = line.Substring(0, delimiter);
-					yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
+						var delimiter = line.IndexOf("|");
+						if (delimiter <= 0)
+						{
+							continue;
+						}
+
+						var readKey = line.Substring(0, delimiter);
+						yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
+					}
 				}
 			}
 		}
@@ -197,28 +208,31 @@ namespace Speedy
 		{
 			Initialize();
 
-			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+			lock (_changes)
 			{
-				var reader = new StreamReader(stream);
-
-				while (reader.Peek() > 0)
+				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
 				{
-					var line = reader.ReadLine();
-					if (line == null)
-					{
-						continue;
-					}
+					var reader = new StreamReader(stream);
 
-					var delimiter = line.IndexOf("|");
-					if (delimiter <= 0)
+					while (reader.Peek() > 0)
 					{
-						continue;
-					}
+						var line = reader.ReadLine();
+						if (line == null)
+						{
+							continue;
+						}
 
-					var readKey = line.Substring(0, delimiter);
-					if (keys.Contains(readKey))
-					{
-						yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
+						var delimiter = line.IndexOf("|");
+						if (delimiter <= 0)
+						{
+							continue;
+						}
+
+						var readKey = line.Substring(0, delimiter);
+						if (keys.Contains(readKey))
+						{
+							yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
+						}
 					}
 				}
 			}
@@ -230,7 +244,10 @@ namespace Speedy
 		/// <param name="key"> The key of the item to remove. </param>
 		public void Remove(string key)
 		{
-			_changes.AddOrUpdate(key, (string) null, (k, v) => null);
+			lock (_changes)
+			{
+				_changes.AddOrUpdate(key, null);
+			}
 		}
 
 		/// <summary>
@@ -293,8 +310,7 @@ namespace Speedy
 							}
 
 							// Remove the change.
-							string removeValue;
-							_changes.TryRemove(key, out removeValue);
+							_changes.Remove(key);
 						}
 
 						// Append the remaining changes.
@@ -320,7 +336,10 @@ namespace Speedy
 		/// <param name="value"> The value of the item to write. </param>
 		public void Write(string key, string value)
 		{
-			_changes.AddOrUpdate(key, value, (k, v) => value);
+			lock (_changes)
+			{
+				_changes.AddOrUpdate(key, value);
+			}
 		}
 
 		/// <summary>
@@ -340,9 +359,12 @@ namespace Speedy
 		/// </summary>
 		private void Initialize()
 		{
-			if (!System.IO.Directory.Exists(Directory))
+			lock (_changes)
 			{
-				System.IO.Directory.CreateDirectory(Directory);
+				if (!System.IO.Directory.Exists(Directory))
+				{
+					System.IO.Directory.CreateDirectory(Directory);
+				}
 			}
 		}
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -159,7 +160,7 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void MultithreadedTest()
+		public void MultithreadedWriteTest()
 		{
 			var repository = new Repository(_directory, Guid.NewGuid().ToString());
 
@@ -189,6 +190,46 @@ namespace Speedy.Tests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(tasks.Length * 100, actual.Count);
+		}
+
+		[TestMethod]
+		public void MultithreadedWriteAndReadTest()
+		{
+			var repository = new Repository(_directory, Guid.NewGuid().ToString());
+			var random = new Random();
+
+			var readAction = new Action<Repository>((repo) =>
+			{
+				Thread.Sleep(random.Next(750, 2000));
+				repository.Read().ToList();
+			});
+
+			var writeAction = new Action<Repository, int, int>((repo, min, max) =>
+			{
+				for (var i = min; i < max; i++)
+				{
+					repository.Write("Key" + i, "Value" + i);
+					repository.Save();
+				}
+			});
+			
+			var index = 0;
+			var tasks = new[]
+			{
+				Task.Run(() => writeAction(repository, index++, 100 * index)),
+				Task.Run(() => readAction(repository)),
+				Task.Run(() => writeAction(repository, index++, 100 * index)),
+				Task.Run(() => readAction(repository)),
+				Task.Run(() => writeAction(repository, index++, 100 * index)),
+				Task.Run(() => readAction(repository)),
+				Task.Run(() => writeAction(repository, index++, 100 * index)),
+				Task.Run(() => readAction(repository))
+			};
+
+			Task.WaitAll(tasks);
+
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(4 * 100, actual.Count);
 		}
 
 		[TestMethod]

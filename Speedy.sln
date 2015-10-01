@@ -9,11 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Tests", "Speedy.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmarks", "Speedy.Benchmarks\Speedy.Benchmarks.csproj", "{A39791B3-6786-40E6-999F-B3C3F682F68A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{41C72E18-4358-4773-B3B5-420F60F3D405}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{482440A1-EDF1-4557-BC4F-FE8C8554271D}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.md = LICENSE.md

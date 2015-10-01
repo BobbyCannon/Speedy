@@ -24,19 +24,19 @@ I just did a few quick benchmarks.
 
 ```
 Let's create a repository with 100000 items @ 100 at a time.
-Done: 00:00:22.1784658
+Done: 00:00:20.1755566
 
 Let's create a repository with 100000 items @ 1000 at a time.
-Done: 00:00:03.9578598
+Done: 00:00:03.6331656
 
 Let's create a repository with 100000 items @ 2500 at a time.
-Done: 00:00:01.6516540
+Done: 00:00:01.4945963
 
 Let's create a repository with 100000 items @ 10000 at a time.
-Done: 00:00:00.5179291
+Done: 00:00:00.4428109
 
 Let's create a repository with 100000 items @ 50000 at a time.
-Done: 00:00:00.2236425
+Done: 00:00:00.1651762
 ```
 
 You'll need to balance how often to save you repository based on
@@ -51,8 +51,83 @@ Reads using 100 random keys in a repository of 100,000 items.
 
 ```
 Let's read randomly into the DB-100000 repository @ 1 at a time.
-Total: 00:00:02.6879617
+Total: 00:00:02.4962503
 
 Let's read randomly into the DB-100000 repository using all keys.
-Total: 00:00:00.0304988
+Total: 00:00:00.0252966
+```
+
+##### Multiple Threads
+
+Write from mulitple threads.
+
+```
+var repository = new Repository(_directory, Guid.NewGuid().ToString());
+
+var action = new Action<Repository, int, int>((repo, min, max) =>
+{
+	for (var i = min; i < max; i++)
+	{
+		repository.Write("Key" + i, "Value" + i);
+		repository.Save();
+	}
+});
+
+var index = 0;
+var tasks = new[]
+{
+	Task.Run(() => action(repository, index++, 100 * index)),
+	Task.Run(() => action(repository, index++, 100 * index)),
+	Task.Run(() => action(repository, index++, 100 * index)),
+	Task.Run(() => action(repository, index++, 100 * index)),
+	Task.Run(() => action(repository, index++, 100 * index)),
+	Task.Run(() => action(repository, index++, 100 * index)),
+	Task.Run(() => action(repository, index++, 100 * index)),
+	Task.Run(() => action(repository, index++, 100 * index))
+};
+
+Task.WaitAll(tasks);
+
+var actual = repository.Read().ToList();
+Assert.AreEqual(tasks.Length * 100, actual.Count);
+```
+
+Write and read from multiple threads.
+
+```
+var repository = new Repository(_directory, Guid.NewGuid().ToString());
+var random = new Random();
+
+var readAction = new Action<Repository>((repo) =>
+{
+	Thread.Sleep(random.Next(750, 2000));
+	repository.Read().ToList();
+});
+
+var writeAction = new Action<Repository, int, int>((repo, min, max) =>
+{
+	for (var i = min; i < max; i++)
+	{
+		repository.Write("Key" + i, "Value" + i);
+		repository.Save();
+	}
+});
+			
+var index = 0;
+var tasks = new[]
+{
+	Task.Run(() => writeAction(repository, index++, 100 * index)),
+	Task.Run(() => readAction(repository)),
+	Task.Run(() => writeAction(repository, index++, 100 * index)),
+	Task.Run(() => readAction(repository)),
+	Task.Run(() => writeAction(repository, index++, 100 * index)),
+	Task.Run(() => readAction(repository)),
+	Task.Run(() => writeAction(repository, index++, 100 * index)),
+	Task.Run(() => readAction(repository))
+};
+
+Task.WaitAll(tasks);
+
+var actual = repository.Read().ToList();
+Assert.AreEqual(4 * 100, actual.Count);
 ```
