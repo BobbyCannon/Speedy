@@ -10,11 +10,11 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("Speedy.Benchmarks")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Small thread safe embedded key value pair persistent repository for .NET.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Bobby Cannon")]
 [assembly: AssemblyProduct("Speedy.Benchmarks")]
-[assembly: AssemblyCopyright("Copyright © 2014")]
+[assembly: AssemblyCopyright("© Copyright 2014-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
