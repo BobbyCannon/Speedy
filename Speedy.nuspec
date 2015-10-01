@@ -5,9 +5,9 @@
 		<id>Speedy</id>
 		<version>1.0</version>
 		<authors>Bobby Cannon</authors>
-		<description>Small embedded key value pair persistent repository for .NET.</description>
+		<description>Small thread safe embedded key value pair persistent repository for .NET.</description>
 		<projectUrl>http://bobbycannon.github.io/Speedy/</projectUrl>
-		<tags>Embedded key value pair persistent repository database</tags>
+		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
 		<dependencies>
 		</dependencies>
 		<references>

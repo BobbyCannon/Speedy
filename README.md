@@ -1,6 +1,6 @@
 # Speedy
 
-Small embedded key value pair persistent repository for .NET. Oh did I mention it's thread safe?
+Small thread safe embedded key value pair persistent repository for .NET.
 
 #### Code Example
 

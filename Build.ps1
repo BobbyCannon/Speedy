@@ -1,7 +1,5 @@
 param (
     [Parameter()]
-    [switch] $IncludeDocumentation,
-    [Parameter()]
     [string] $Configuration = "Release"
 )
 
@@ -16,7 +14,7 @@ if (Test-Path $destination -PathType Container){
 }
 
 New-Item $destination -ItemType Directory | Out-Null
-New-Item $destination\bin -ItemType Directory | Out-Null
+New-Item $destination\Bin -ItemType Directory | Out-Null
 
 if (!(Test-Path $nugetDestination -PathType Container)){
     New-Item $nugetDestination -ItemType Directory | Out-Null
@@ -25,12 +23,15 @@ if (!(Test-Path $nugetDestination -PathType Container)){
 $build = [Math]::Floor([DateTime]::UtcNow.Subtract([DateTime]::Parse("01/01/2000").Date).TotalDays)
 $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 
-.\IncrementVersion.ps1 Speedy $build $revision
-.\IncrementVersion.ps1 Speedy.Benchmarks $build $revision
-.\IncrementVersion.ps1 Speedy.Tests $build $revision
+.\IncrementVersion.ps1 -Build $build -Revision $revision
 
-$msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-cmd /c $msbuild "$scriptPath\Speedy.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=12.0 /v:m /m
+$msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
+& $msbuild "$scriptPath\Speedy.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=14.0 /v:m /m
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Build has failed! " $watch.Elapsed -ForegroundColor Red
+    exit $LASTEXITCODE
+}
 
 Set-Location $scriptPath
 
@@ -39,12 +40,12 @@ Copy-Item Speedy\bin\$Configuration\Speedy.dll $destination\bin\
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\Speedy.dll")
 $version = $versionInfo.FileVersion.ToString()
 
-cmd /c ".nuget\NuGet.exe" pack Speedy.nuspec -Prop Configuration="$Configuration" -Version $version
-Move-Item "Speedy.$version.nupkg" "$destination" -force
+& "NuGet.exe" pack Speedy.nuspec -Prop Configuration="$Configuration" -Version $version
+Move-Item "Speedy.$version.nupkg" "$destination\Speedy.$version.nupkg" -force
 Copy-Item "$destination\Speedy.$version.nupkg" "$nugetDestination" -force
 
 .\ResetAssemblyInfos.ps1
 
 Write-Host
 Set-Location $scriptPath
-Write-Host "Speedy Build: " $watch.Elapsed
+Write-Host "Speedy Build: " $watch.Elapsed -ForegroundColor Yellow
