@@ -25,9 +25,19 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates an instance of the Repository class.
 		/// </summary>
-		/// <param name="directory"> The directory the repository will reside. </param>
+		/// <param name="directory"> The directory where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
 		public Repository(string directory, string name)
+			: this(new DirectoryInfo(directory), name)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the Repository class.
+		/// </summary>
+		/// <param name="directory"> The directory info where the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
+		public Repository(DirectoryInfo directory, string name)
 		{
 			Directory = directory;
 			Name = name;
@@ -42,7 +52,7 @@ namespace Speedy
 		/// <summary>
 		/// The directory the repository will be located.
 		/// </summary>
-		public string Directory { get; }
+		public DirectoryInfo Directory { get; }
 
 		/// <summary>
 		/// The name of the repository.
@@ -52,12 +62,12 @@ namespace Speedy
 		/// <summary>
 		/// Gets the full path to the repository file.
 		/// </summary>
-		private string DataFullPath => Directory + "\\" + Name + ".data";
+		private string DataFullPath => Directory + "\\" + Name + ".speedy";
 
 		/// <summary>
 		/// Gets the full path to the temporary repository file.
 		/// </summary>
-		private string TemporaryFullPath => DataFullPath.Replace(".data", ".temp");
+		private string TemporaryFullPath => DataFullPath + ".temp";
 
 		#endregion
 
@@ -372,10 +382,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				if (!System.IO.Directory.Exists(Directory))
-				{
-					System.IO.Directory.CreateDirectory(Directory);
-				}
+				Directory.SafeCreate();
 			}
 		}
 

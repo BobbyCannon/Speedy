@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
@@ -18,7 +17,7 @@ namespace Speedy.Tests
 	{
 		#region Fields
 
-		private static readonly string _directory;
+		private static readonly DirectoryInfo _directory;
 
 		#endregion
 
@@ -26,7 +25,7 @@ namespace Speedy.Tests
 
 		static RepositoryTests()
 		{
-			_directory = "C:\\SpeedyTest";
+			_directory = new DirectoryInfo(@"C:\SpeedyTest");
 		}
 
 		#endregion
@@ -47,12 +46,9 @@ namespace Speedy.Tests
 		#region Methods
 
 		[ClassCleanup]
-		public static void ClassCleanup()
+		public static void Cleanup()
 		{
-			if (Directory.Exists(_directory))
-			{
-				Directory.Delete(_directory, true);
-			}
+			_directory.SafeDelete();
 		}
 
 		[TestMethod]
@@ -63,11 +59,11 @@ namespace Speedy.Tests
 			repository.Write("foo", "bar");
 			repository.Save();
 
-			Assert.IsTrue(File.Exists(_directory + "\\" + name + ".data"));
+			Assert.IsTrue(File.Exists(_directory.FullName + "\\" + name + ".speedy"));
 
 			repository.Clear();
 
-			Assert.IsFalse(File.Exists(_directory + "\\" + name + ".data"));
+			Assert.IsFalse(File.Exists(_directory.FullName + "\\" + name + ".speedy"));
 		}
 
 		[TestMethod]
@@ -92,7 +88,7 @@ namespace Speedy.Tests
 
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
-				AreEqual(expected, actual);
+				TestHelper.AreEqual(expected, actual);
 			}
 		}
 
@@ -116,7 +112,7 @@ namespace Speedy.Tests
 
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
-				AreEqual(expected, actual);
+				TestHelper.AreEqual(expected, actual);
 			}
 		}
 
@@ -141,7 +137,7 @@ namespace Speedy.Tests
 
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
-				AreEqual(expected, actual);
+				TestHelper.AreEqual(expected, actual);
 			}
 		}
 
@@ -165,7 +161,7 @@ namespace Speedy.Tests
 
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
-				AreEqual(expected, actual);
+				TestHelper.AreEqual(expected, actual);
 			}
 		}
 
@@ -263,7 +259,7 @@ namespace Speedy.Tests
 
 				var actual = repository.Read(key => key != repository.Name).ToList();
 				Assert.AreEqual(2, actual.Count);
-				AreEqual(expected, actual);
+				TestHelper.AreEqual(expected, actual);
 			}
 		}
 
@@ -311,17 +307,8 @@ namespace Speedy.Tests
 
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
-				AreEqual(expected, actual);
+				TestHelper.AreEqual(expected, actual);
 			}
-		}
-
-		private static void AreEqual<T>(T expected, T actual)
-		{
-			var compareObjects = new CompareLogic();
-			compareObjects.Config.MaxDifferences = int.MaxValue;
-
-			var result = compareObjects.Compare(expected, actual);
-			Assert.IsTrue(result.AreEqual, result.DifferencesString);
 		}
 
 		#endregion

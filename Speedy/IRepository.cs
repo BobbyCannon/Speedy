@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Speedy
 {
 	/// <summary>
-	/// A repository that acts as a first in first out repository.
+	/// Represents a repository of key value pairs.
 	/// </summary>
 	public interface IRepository
 	{
@@ -65,7 +65,7 @@ namespace Speedy
 		/// <param name="keys"> The keys of the items to read. </param>
 		/// <returns> The value for the keys. </returns>
 		IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys);
-		
+
 		/// <summary>
 		/// Reads a set of items from the repository based on the keys provided.
 		/// </summary>
