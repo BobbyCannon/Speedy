@@ -3,10 +3,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>Speedy</id>
+		<title>Speedy</title>
 		<version>1.0</version>
 		<authors>Bobby Cannon</authors>
 		<description>Small thread safe embedded key value pair persistent repository for .NET.</description>
 		<projectUrl>http://bobbycannon.github.io/Speedy/</projectUrl>
+		<iconUrl>https://github.com/BobbyCannon/Speedy/blob/master/Speedy.png</iconUrl>
 		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
 		<dependencies>
 		</dependencies>
