@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -155,6 +156,64 @@ namespace Speedy.Tests
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
 			AreEqual(expected, actual);
+		}
+
+		[TestMethod]
+		public void MultithreadedTest()
+		{
+			var repository = new Repository(_directory, Guid.NewGuid().ToString());
+
+			var action = new Action<Repository, int, int>((repo, min, max) =>
+			{
+				for (var i = min; i < max; i++)
+				{
+					repository.Write("Key" + i, "Value" + i);
+					repository.Save();
+				}
+			});
+
+			var index = 0;
+			var tasks = new[]
+			{
+				Task.Run(() => action(repository, index++, 100 * index)),
+				Task.Run(() => action(repository, index++, 100 * index)),
+				Task.Run(() => action(repository, index++, 100 * index)),
+				Task.Run(() => action(repository, index++, 100 * index)),
+				Task.Run(() => action(repository, index++, 100 * index)),
+				Task.Run(() => action(repository, index++, 100 * index)),
+				Task.Run(() => action(repository, index++, 100 * index)),
+				Task.Run(() => action(repository, index++, 100 * index))
+			};
+
+			Task.WaitAll(tasks);
+
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(tasks.Length * 100, actual.Count);
+		}
+
+		[TestMethod]
+		public void RemoveShouldRemoveItem()
+		{
+			var name = Guid.NewGuid().ToString();
+			var repository = new Repository(_directory, name);
+
+			repository.Write("Item1", "Value1");
+			repository.Write("Item2", "Value2");
+			repository.Write("Item3", "Value3");
+			repository.Save();
+
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(actual.Count, 3);
+
+			repository.Remove(new HashSet<string>(new[] { "Item2" }));
+			repository.Save();
+
+			actual = repository.Read().ToList();
+			Assert.AreEqual(actual.Count, 2);
+			Assert.AreEqual("Item1", actual[0].Key);
+			Assert.AreEqual("Value1", actual[0].Value);
+			Assert.AreEqual("Item3", actual[1].Key);
+			Assert.AreEqual("Value3", actual[1].Value);
 		}
 
 		[TestMethod]

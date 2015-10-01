@@ -1,8 +1,10 @@
 ﻿#region References
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 
 #endregion
 
@@ -15,7 +17,7 @@ namespace Speedy
 	{
 		#region Fields
 
-		private readonly Dictionary<string, string> _changes;
+		private readonly ConcurrentDictionary<string, string> _changes;
 
 		#endregion
 
@@ -31,7 +33,7 @@ namespace Speedy
 			Directory = directory;
 			Name = name;
 
-			_changes = new Dictionary<string, string>();
+			_changes = new ConcurrentDictionary<string, string>();
 		}
 
 		#endregion
@@ -41,12 +43,12 @@ namespace Speedy
 		/// <summary>
 		/// The directory the repository will be located.
 		/// </summary>
-		public string Directory { get; private set; }
+		public string Directory { get; }
 
 		/// <summary>
 		/// The name of the repository.
 		/// </summary>
-		public string Name { get; private set; }
+		public string Name { get; }
 
 		/// <summary>
 		/// Gets the full path to the repository file.
@@ -138,6 +140,9 @@ namespace Speedy
 		/// Read the repository using an enumerator.
 		/// </summary>
 		/// <returns> The list of key value pairs to enumerate. </returns>
+		/// <remarks>
+		/// Must be IEnumerable so we can yield the return.
+		/// </remarks>
 		public IEnumerable<KeyValuePair<string, string>> Read()
 		{
 			Initialize();
@@ -225,12 +230,7 @@ namespace Speedy
 		/// <param name="key"> The key of the item to remove. </param>
 		public void Remove(string key)
 		{
-			if (_changes.ContainsKey(key))
-			{
-				_changes.Remove(key);
-			}
-
-			_changes.Add(key, null);
+			_changes.AddOrUpdate(key, (string) null, (k, v) => null);
 		}
 
 		/// <summary>
@@ -252,59 +252,65 @@ namespace Speedy
 		{
 			Initialize();
 
-			using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+			lock (_changes)
 			{
-				using (var stream2 = File.Open(TemporaryFullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
 				{
-					var reader = new StreamReader(stream);
-					var writer = new StreamWriter(stream2);
-
-					while (reader.Peek() > 0)
+					using (var stream2 = File.Open(TemporaryFullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
 					{
-						var line = reader.ReadLine();
-						if (line == null)
+						var reader = new StreamReader(stream);
+						var writer = new StreamWriter(stream2);
+
+						while (reader.Peek() > 0)
 						{
-							continue;
+							var line = reader.ReadLine();
+							if (line == null)
+							{
+								continue;
+							}
+
+							var delimiter = line.IndexOf("|");
+							if (delimiter <= 0)
+							{
+								continue;
+							}
+
+							var key = line.Substring(0, delimiter);
+
+							// Check to see if we have an update or delete.
+							if (!_changes.ContainsKey(key))
+							{
+								writer.WriteLine(line);
+								continue;
+							}
+
+							// Read the change and see if was an update. If it was a delete (null) just ignore it.
+							var update = _changes[key];
+							if (update != null)
+							{
+								// The change was an update so write it.
+								writer.WriteLine(key + "|" + update);
+							}
+
+							// Remove the change.
+							string removeValue;
+							_changes.TryRemove(key, out removeValue);
 						}
 
-						var delimiter = line.IndexOf("|");
-						if (delimiter <= 0)
+						// Append the remaining changes.
+						foreach (var change in _changes)
 						{
-							continue;
+							writer.WriteLine(change.Key + "|" + change.Value);
 						}
 
-						var key = line.Substring(0, delimiter);
-
-						// Check to see if we have an update or delete.
-						if (!_changes.ContainsKey(key))
-						{
-							writer.WriteLine(line);
-							continue;
-						}
-
-						// Read the change and see if was an update. If it was a delete (null) just ignore it.
-						var update = _changes[key];
-						if (update != null)
-						{
-							// The change was an update so write it.
-							writer.WriteLine(key + "|" + update);
-							_changes.Remove(key);
-						}
+						writer.Flush();
+						_changes.Clear();
 					}
-
-					// Append the remaining changes.
-					foreach (var change in _changes)
-					{
-						writer.WriteLine(change.Key + "|" + change.Value);
-					}
-
-					writer.Flush();
-					_changes.Clear();
 				}
-			}
 
-			File.Delete(DataFullPath);
-			File.Move(TemporaryFullPath, DataFullPath);
+				File.Delete(DataFullPath);
+				File.Move(TemporaryFullPath, DataFullPath);
+			}
 		}
 
 		/// <summary>
@@ -314,12 +320,7 @@ namespace Speedy
 		/// <param name="value"> The value of the item to write. </param>
 		public void Write(string key, string value)
 		{
-			if (_changes.ContainsKey(key))
-			{
-				_changes.Remove(key);
-			}
-
-			_changes.Add(key, value);
+			_changes.AddOrUpdate(key, value, (k, v) => value);
 		}
 
 		/// <summary>

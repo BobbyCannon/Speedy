@@ -1,6 +1,6 @@
 # Speedy
 
-Small embedded key value pair persistent repository for .NET.
+Small embedded key value pair persistent repository for .NET. Oh did I mention it's thread safe?
 
 #### Code Example
 
@@ -24,19 +24,19 @@ I just did a few quick benchmarks.
 
 ```
 Let's create a repository with 100000 items @ 100 at a time.
-Done: 00:00:23.2290542
+Done: 00:00:22.1784658
 
 Let's create a repository with 100000 items @ 1000 at a time.
-Done: 00:00:04.2213932
+Done: 00:00:03.9578598
 
 Let's create a repository with 100000 items @ 2500 at a time.
-Done: 00:00:01.7740462
+Done: 00:00:01.6516540
 
 Let's create a repository with 100000 items @ 10000 at a time.
-Done: 00:00:00.5225688
+Done: 00:00:00.5179291
 
 Let's create a repository with 100000 items @ 50000 at a time.
-Done: 00:00:00.1917974
+Done: 00:00:00.2236425
 ```
 
 You'll need to balance how often to save you repository based on
@@ -51,8 +51,8 @@ Reads using 100 random keys in a repository of 100,000 items.
 
 ```
 Let's read randomly into the DB-100000 repository @ 1 at a time.
-Total: 00:00:02.9124129
+Total: 00:00:02.6879617
 
 Let's read randomly into the DB-100000 repository using all keys.
-Total: 00:00:00.0293204
+Total: 00:00:00.0304988
 ```

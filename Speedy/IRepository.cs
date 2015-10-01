@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace Speedy
 {
+	/// <summary>
+	/// A repository that acts as a first in first out repository.
+	/// </summary>
 	public interface IRepository
 	{
 		#region Properties
@@ -47,6 +50,9 @@ namespace Speedy
 		/// Read the repository using an enumerator.
 		/// </summary>
 		/// <returns> The list of key value pairs to enumerate. </returns>
+		/// <remarks>
+		/// Must be IEnumerable so we can yield the return.
+		/// </remarks>
 		IEnumerable<KeyValuePair<string, string>> Read();
 
 		/// <summary>
