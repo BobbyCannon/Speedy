@@ -35,13 +35,13 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates an instance of the Repository class.
 		/// </summary>
-		/// <param name="directory"> The directory info where the repository will reside. </param>
+		/// <param name="directoryInfo"> The directory info where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
-		public Repository(DirectoryInfo directory, string name)
+		public Repository(DirectoryInfo directoryInfo, string name)
 		{
-			Directory = directory;
+			DirectoryInfo = directoryInfo;
 			Name = name;
-
+			FileInfo = new FileInfo(DirectoryInfo + "\\" + Name + ".speedy");
 			_changes = new Dictionary<string, string>();
 		}
 
@@ -52,7 +52,7 @@ namespace Speedy
 		/// <summary>
 		/// The directory the repository will be located.
 		/// </summary>
-		public DirectoryInfo Directory { get; }
+		public DirectoryInfo DirectoryInfo { get; }
 
 		/// <summary>
 		/// The name of the repository.
@@ -60,14 +60,14 @@ namespace Speedy
 		public string Name { get; }
 
 		/// <summary>
-		/// Gets the full path to the repository file.
+		/// Gets the file info of the repository file.
 		/// </summary>
-		private string DataFullPath => Directory + "\\" + Name + ".speedy";
+		private FileInfo FileInfo { get; }
 
 		/// <summary>
 		/// Gets the full path to the temporary repository file.
 		/// </summary>
-		private string TemporaryFullPath => DataFullPath + ".temp";
+		private string TemporaryFullPath => FileInfo.FullName + ".temp";
 
 		#endregion
 
@@ -82,11 +82,15 @@ namespace Speedy
 
 			lock (_changes)
 			{
-				if (File.Exists(DataFullPath))
-				{
-					File.Delete(DataFullPath);
-				}
+				FileInfo.SafeDelete();
 			}
+		}
+
+		public static IRepository Create(string directiory, string name)
+		{
+			var repository = new Repository(directiory, name);
+			repository.Initialize();
+			return repository;
 		}
 
 		/// <summary>
@@ -100,7 +104,7 @@ namespace Speedy
 
 			lock (_changes)
 			{
-				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
 				{
 					var reader = new StreamReader(stream);
 					var foundKeys = new List<string>();
@@ -140,7 +144,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
 				{
 					stream.Position = stream.Length;
 					var writer = new StreamWriter(stream);
@@ -168,7 +172,7 @@ namespace Speedy
 
 			lock (_changes)
 			{
-				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
 				{
 					var reader = new StreamReader(stream);
 
@@ -231,7 +235,7 @@ namespace Speedy
 
 			lock (_changes)
 			{
-				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
 				{
 					var reader = new StreamReader(stream);
 
@@ -292,7 +296,7 @@ namespace Speedy
 
 			lock (_changes)
 			{
-				using (var stream = File.Open(DataFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
 				{
 					using (var stream2 = File.Open(TemporaryFullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
 					{
@@ -345,8 +349,8 @@ namespace Speedy
 					}
 				}
 
-				File.Delete(DataFullPath);
-				File.Move(TemporaryFullPath, DataFullPath);
+				FileInfo.SafeDelete();
+				File.Move(TemporaryFullPath, FileInfo.FullName);
 			}
 		}
 
@@ -382,7 +386,8 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				Directory.SafeCreate();
+				DirectoryInfo.SafeCreate();
+				FileInfo.SafeCreate();
 			}
 		}
 

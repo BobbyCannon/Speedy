@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.Collections.Generic;
+using System.Linq;
 
 #endregion
 
@@ -34,7 +35,19 @@ namespace Speedy
 		/// <returns> A list of repository names that are available to access. </returns>
 		public IEnumerable<string> AvailableRepositories()
 		{
-			return _repositories.Keys;
+			return _repositories.Keys.ToList();
+		}
+
+		/// <summary>
+		/// Delete a repository by the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the repository to delete. </param>
+		public void DeleteRepository(string name)
+		{
+			if (_repositories.ContainsKey(name))
+			{
+				_repositories.Remove(name);
+			}
 		}
 
 		/// <summary>
@@ -42,7 +55,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
 		/// <returns> The repository. </returns>
-		public IRepository GetRepository(string name)
+		public IRepository OpenRepository(string name)
 		{
 			if (_repositories.ContainsKey(name))
 			{

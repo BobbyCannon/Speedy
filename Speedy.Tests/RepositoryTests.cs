@@ -15,61 +15,33 @@ namespace Speedy.Tests
 	[TestClass]
 	public class RepositoryTests
 	{
-		#region Fields
-
-		private static readonly DirectoryInfo _directory;
-
-		#endregion
-
-		#region Constructors
-
-		static RepositoryTests()
-		{
-			_directory = new DirectoryInfo(@"C:\SpeedyTest");
-		}
-
-		#endregion
-
-		#region Properties
-
-		private static IEnumerable<IRepository> Repositories
-		{
-			get
-			{
-				var guid = Guid.NewGuid().ToString();
-				return new IRepository[] { new MemoryRepository(guid), new Repository(_directory, guid) };
-			}
-		}
-
-		#endregion
-
 		#region Methods
 
 		[ClassCleanup]
 		public static void Cleanup()
 		{
-			_directory.SafeDelete();
+			TestHelper.Directory.SafeDelete();
 		}
 
 		[TestMethod]
 		public void ClearShouldDeleteFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			var repository = new Repository(_directory, name);
+			var repository = new Repository(TestHelper.Directory, name);
 			repository.Write("foo", "bar");
 			repository.Save();
 
-			Assert.IsTrue(File.Exists(_directory.FullName + "\\" + name + ".speedy"));
+			Assert.IsTrue(File.Exists(TestHelper.Directory.FullName + "\\" + name + ".speedy"));
 
 			repository.Clear();
 
-			Assert.IsFalse(File.Exists(_directory.FullName + "\\" + name + ".speedy"));
+			Assert.IsFalse(File.Exists(TestHelper.Directory.FullName + "\\" + name + ".speedy"));
 		}
 
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringMultipleWrites()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -95,7 +67,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringWrite()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -119,7 +91,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void LastActionForKeyShouldWin()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -144,7 +116,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void LastWriteForKeyShouldWin()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -168,7 +140,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void MultithreadedWriteAndReadTest()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				var random = new Random();
 
@@ -210,7 +182,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void MultithreadedWriteTest()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				var action = new Action<IRepository, int, int>((repo, min, max) =>
 				{
@@ -244,7 +216,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void ReadUsingCondition()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				repository.Write(repository.Name, "Root object");
 				repository.Write("ChildItem1", "ChildItemValue1");
@@ -266,7 +238,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RemoveShouldRemoveItem()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				repository.Write("Item1", "Value1");
 				repository.Write("Item2", "Value2");
@@ -291,7 +263,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void WriteItemValueWithPipeCharacter()
 		{
-			foreach (var repository in Repositories)
+			foreach (var repository in TestHelper.Repositories)
 			{
 				repository.Write("Item1", "Item1|Item2");
 				repository.Write("Item2", "Item2|Boo");

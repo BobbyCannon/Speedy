@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
@@ -12,57 +11,63 @@ namespace Speedy.Tests
 	[TestClass]
 	public class RepositoryProviderTests
 	{
-		#region Fields
-
-		private static readonly DirectoryInfo _directory;
-
-		#endregion
-
-		#region Constructors
-
-		static RepositoryProviderTests()
-		{
-			_directory = new DirectoryInfo(@"C:\SpeedyTest");
-		}
-
-		#endregion
-
 		#region Methods
 
 		[TestMethod]
 		public void AvailableRepositoriesShouldReturnMultipleRepository()
 		{
-			var name1 = "Repository1";
-			var name2 = "Repository2";
-			_directory.SafeDelete();
-			_directory.SafeCreate();
-			File.WriteAllText(_directory.FullName + $"\\{name1}.speedy", string.Empty);
-			File.WriteAllText(_directory.FullName + $"\\{name2}.speedy", string.Empty);
-			var expected = new List<string> { name1, name2 };
-			var provider = new RepositoryProvider(_directory);
-			var actual = provider.AvailableRepositories();
+			Cleanup();
 
-			TestHelper.AreEqual(expected, actual);
+			foreach (var provider in TestHelper.RepositoryProviders)
+			{
+				var name1 = "Repository1";
+				var name2 = "Repository2";
+				provider.OpenRepository(name1);
+				provider.OpenRepository(name2);
+				var expected = new List<string> { name1, name2 };
+				var actual = provider.AvailableRepositories();
+				TestHelper.AreEqual(expected, actual);
+			}
 		}
 
 		[TestMethod]
 		public void AvailableRepositoriesShouldReturnRepository()
 		{
-			var name = "Repository1";
-			_directory.SafeDelete();
-			_directory.SafeCreate();
-			File.WriteAllText(_directory.FullName + $"\\{name}.speedy", string.Empty);
-			var expected = new List<string> { name };
-			var provider = new RepositoryProvider(_directory);
-			var actual = provider.AvailableRepositories();
+			Cleanup();
 
-			TestHelper.AreEqual(expected, actual);
+			foreach (var provider in TestHelper.RepositoryProviders)
+			{
+				var name = "Repository1";
+				provider.OpenRepository(name);
+				var expected = new List<string> { name };
+				var actual = provider.AvailableRepositories();
+				TestHelper.AreEqual(expected, actual);
+			}
 		}
 
 		[ClassCleanup]
 		public static void Cleanup()
 		{
-			_directory.SafeDelete();
+			TestHelper.Directory.SafeDelete();
+		}
+
+		[TestMethod]
+		public void DeleteRepositoriesShouldDeleteRepository()
+		{
+			Cleanup();
+
+			foreach (var provider in TestHelper.RepositoryProviders)
+			{
+				var name = "Repository1";
+				provider.OpenRepository(name);
+				var expected = new List<string> { name };
+				var actual = provider.AvailableRepositories();
+				TestHelper.AreEqual(expected, actual);
+				provider.DeleteRepository(name);
+				expected.Clear();
+				actual = provider.AvailableRepositories();
+				TestHelper.AreEqual(expected, actual);
+			}
 		}
 
 		[TestMethod]
@@ -70,11 +75,14 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var name = Guid.NewGuid().ToString();
-			var provider = new RepositoryProvider(_directory);
-			var repository = provider.GetRepository(name);
-			Assert.IsNotNull(repository);
-			Assert.AreEqual(name, repository.Name);
+			foreach (var provider in TestHelper.RepositoryProviders)
+			{
+				TestHelper.Directory.SafeDelete();
+				var name = Guid.NewGuid().ToString();
+				var repository = provider.OpenRepository(name);
+				Assert.IsNotNull(repository);
+				Assert.AreEqual(name, repository.Name);
+			}
 		}
 
 		#endregion

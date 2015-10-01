@@ -48,13 +48,22 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Delete a repository by the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the repository to delete. </param>
+		public void DeleteRepository(string name)
+		{
+			new FileInfo($"{_directory.FullName}\\{name}.speedy").SafeDelete();
+		}
+
+		/// <summary>
 		/// Gets a repository by the provided name. If the repository cannot be found a new one is created and returned.
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
 		/// <returns> The repository. </returns>
-		public IRepository GetRepository(string name)
+		public IRepository OpenRepository(string name)
 		{
-			return new Repository(_directory.FullName, name);
+			return Repository.Create(_directory.FullName, name);
 		}
 
 		#endregion

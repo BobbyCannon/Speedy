@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 
 #endregion
@@ -49,6 +50,22 @@ namespace Speedy
 			});
 		}
 
+		public static void SafeCreate(this FileInfo file)
+		{
+			file.Refresh();
+			if (file.Exists)
+			{
+				return;
+			}
+
+			File.WriteAllText(file.FullName, string.Empty, Encoding.UTF8);
+			Wait(() =>
+			{
+				file.Refresh();
+				return !file.Exists;
+			});
+		}
+
 		public static void SafeDelete(this DirectoryInfo directory)
 		{
 			directory.Refresh();
@@ -62,6 +79,22 @@ namespace Speedy
 			{
 				directory.Refresh();
 				return !directory.Exists;
+			});
+		}
+
+		public static void SafeDelete(this FileInfo file)
+		{
+			file.Refresh();
+			if (!file.Exists)
+			{
+				return;
+			}
+
+			file.Delete();
+			Wait(() =>
+			{
+				file.Refresh();
+				return !file.Exists;
 			});
 		}
 

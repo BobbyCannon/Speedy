@@ -20,11 +20,17 @@ namespace Speedy
 		IEnumerable<string> AvailableRepositories();
 
 		/// <summary>
+		/// Delete a repository by the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the repository to delete. </param>
+		void DeleteRepository(string name);
+
+		/// <summary>
 		/// Gets a repository by the provided name. If the repository cannot be found a new one is created and returned.
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
 		/// <returns> The repository. </returns>
-		IRepository GetRepository(string name);
+		IRepository OpenRepository(string name);
 
 		#endregion
 	}
