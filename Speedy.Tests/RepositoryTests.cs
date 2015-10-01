@@ -261,6 +261,33 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void TryReadInvalidKeyShouldReturnFalse()
+		{
+			foreach (var repository in TestHelper.Repositories)
+			{
+				string value;
+				var actual = repository.TryRead("Blah", out value);
+				Assert.AreEqual(false, actual);
+				Assert.AreEqual(string.Empty, value);
+			}
+		}
+
+		[TestMethod]
+		public void TryReadInvalidKeyShouldReturnTrue()
+		{
+			foreach (var repository in TestHelper.Repositories)
+			{
+				repository.Write("Blah", "Value");
+				repository.Save();
+
+				string value;
+				var actual = repository.TryRead("Blah", out value);
+				Assert.AreEqual(true, actual);
+				Assert.AreEqual("Value", value);
+			}
+		}
+
+		[TestMethod]
 		public void WriteItemValueWithPipeCharacter()
 		{
 			foreach (var repository in TestHelper.Repositories)

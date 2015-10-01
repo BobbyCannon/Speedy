@@ -355,6 +355,25 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Read an item from the repository based on the key provided.
+		/// </summary>
+		/// <param name="key"> The key of the item to read. </param>
+		/// <param name="value"> The value read. </param>
+		/// <returns> True if the key was found or false if otherwise.. </returns>
+		public bool TryRead(string key, out string value)
+		{
+			var response = Read(new HashSet<string> { key }).FirstOrDefault();
+			if (response.Key != key)
+			{
+				value = string.Empty;
+				return false;
+			}
+
+			value = response.Value;
+			return true;
+		}
+
+		/// <summary>
 		/// Writes an item to the repository.
 		/// </summary>
 		/// <param name="key"> The key of the item to write. </param>
