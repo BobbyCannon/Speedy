@@ -13,17 +13,19 @@ namespace Speedy
 		#region Fields
 
 		private readonly Dictionary<string, string> _changes;
-		private readonly Dictionary<string, string> _directory;
+		private readonly MemoryRepositoryProvider _provider;
+		private readonly Dictionary<string, string> _values;
 
 		#endregion
 
 		#region Constructors
 
-		public MemoryRepository(string name)
+		public MemoryRepository(string name, MemoryRepositoryProvider provider = null)
 		{
 			Name = name;
 			_changes = new Dictionary<string, string>();
-			_directory = new Dictionary<string, string>();
+			_values = new Dictionary<string, string>();
+			_provider = provider;
 		}
 
 		#endregion
@@ -33,7 +35,7 @@ namespace Speedy
 		/// <summary>
 		/// The number of items in the repository.
 		/// </summary>
-		public int Count => _directory.Count;
+		public int Count => _values.Count;
 
 		/// <summary>
 		/// The name of the repository.
@@ -49,7 +51,20 @@ namespace Speedy
 		/// </summary>
 		public void Clear()
 		{
-			_directory.Clear();
+			_values.Clear();
+		}
+
+		/// <summary>
+		/// Delete the repository.
+		/// </summary>
+		public void Delete()
+		{
+			lock (_changes)
+			{
+				_changes.Clear();
+				_values.Clear();
+				_provider?.DeleteRepository(Name);
+			}
 		}
 
 		public void Dispose()
@@ -65,7 +80,7 @@ namespace Speedy
 		/// <returns> A list of key value pairs that were not found in the repository. </returns>
 		public HashSet<string> FindMissingKeys(HashSet<string> keys)
 		{
-			return new HashSet<string>(_directory.Keys.Except(keys));
+			return new HashSet<string>(_values.Keys.Except(keys));
 		}
 
 		/// <summary>
@@ -90,7 +105,7 @@ namespace Speedy
 		/// </remarks>
 		public IEnumerable<KeyValuePair<string, string>> Read()
 		{
-			return _directory;
+			return _values;
 		}
 
 		/// <summary>
@@ -101,7 +116,7 @@ namespace Speedy
 		/// <exception cref="KeyNotFoundException"> Could not find the entry with the key. </exception>
 		public string Read(string key)
 		{
-			return _directory[key];
+			return _values[key];
 		}
 
 		/// <summary>
@@ -111,7 +126,7 @@ namespace Speedy
 		/// <returns> The value for the keys. </returns>
 		public IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys)
 		{
-			return _directory.Where(x => keys.Contains(x.Key));
+			return _values.Where(x => keys.Contains(x.Key));
 		}
 
 		/// <summary>
@@ -121,7 +136,7 @@ namespace Speedy
 		/// <returns> The value for the keys that match the condition. </returns>
 		public IEnumerable<KeyValuePair<string, string>> Read(Func<string, bool> condition)
 		{
-			return _directory.Where(x => condition.Invoke(x.Key));
+			return _values.Where(x => condition.Invoke(x.Key));
 		}
 
 		/// <summary>
@@ -157,16 +172,16 @@ namespace Speedy
 			{
 				foreach (var item in _changes.Where(x => x.Value == null).ToList())
 				{
-					if (_directory.ContainsKey(item.Key))
+					if (_values.ContainsKey(item.Key))
 					{
-						_directory.Remove(item.Key);
+						_values.Remove(item.Key);
 						_changes.Remove(item.Key);
 					}
 				}
 
 				foreach (var item in _changes.ToList())
 				{
-					_directory.AddOrUpdate(item.Key, item.Value);
+					_values.AddOrUpdate(item.Key, item.Value);
 					_changes.Remove(item.Key);
 				}
 			}

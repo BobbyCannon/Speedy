@@ -32,7 +32,8 @@ namespace Speedy
 		{
 			DirectoryInfo = directoryInfo;
 			Name = name;
-			FileInfo = new FileInfo(DirectoryInfo + "\\" + Name + ".speedy");
+			FileInfo = new FileInfo($"{DirectoryInfo.FullName}\\{Name}.speedy");
+			TempFileInfo = new FileInfo($"{FileInfo.FullName}.temp");
 			_changes = new Dictionary<string, string>();
 		}
 
@@ -73,7 +74,7 @@ namespace Speedy
 		/// <summary>
 		/// Gets the full path to the temporary repository file.
 		/// </summary>
-		private string TemporaryFullPath => FileInfo.FullName + ".temp";
+		private FileInfo TempFileInfo { get; }
 
 		#endregion
 
@@ -88,6 +89,20 @@ namespace Speedy
 			{
 				_fileStream.SetLength(0);
 				_fileStream.Flush(true);
+			}
+		}
+
+		/// <summary>
+		/// Delete the repository.
+		/// </summary>
+		public void Delete()
+		{
+			lock (_changes)
+			{
+				_changes.Clear();
+				_fileStream.Close();
+				FileInfo.SafeDelete();
+				TempFileInfo.SafeDelete();
 			}
 		}
 
@@ -277,9 +292,9 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				File.Copy(FileInfo.FullName, TemporaryFullPath);
+				File.Copy(FileInfo.FullName, TempFileInfo.FullName);
 				SaveRepository();
-				new FileInfo(TemporaryFullPath).SafeDelete();
+				TempFileInfo.SafeDelete();
 			}
 		}
 
@@ -363,7 +378,8 @@ namespace Speedy
 				_fileStream = FileInfo.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
 
 				// Check to see if we were in the middle of a save.
-				if (File.Exists(TemporaryFullPath))
+				TempFileInfo.Refresh();
+				if (TempFileInfo.Exists)
 				{
 					SaveRepository();
 				}
@@ -372,7 +388,7 @@ namespace Speedy
 
 		private void SaveRepository()
 		{
-			using (var tempStream = File.Open(TemporaryFullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+			using (var tempStream = File.Open(TempFileInfo.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
 			{
 				_fileStream.SetLength(0);
 				_fileStream.Flush(true);

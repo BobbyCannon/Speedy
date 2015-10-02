@@ -34,6 +34,11 @@ namespace Speedy
 		void Clear();
 
 		/// <summary>
+		/// Delete the repository.
+		/// </summary>
+		void Delete();
+
+		/// <summary>
 		/// Check the provided keys and returns any keys that are missing.
 		/// </summary>
 		/// <param name="keys"> The key that will be tested. </param>

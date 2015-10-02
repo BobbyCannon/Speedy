@@ -89,6 +89,30 @@ namespace Speedy.Tests
 			}
 		}
 
+		[TestMethod]
+		public void RepositoryDeleteShouldDeleteRepository()
+		{
+			Cleanup();
+
+			foreach (var provider in TestHelper.RepositoryProviders)
+			{
+				var name = "Repository1";
+				provider.OpenRepository(name).Dispose();
+				var expected = new List<string> { name };
+				var actual = provider.AvailableRepositories();
+				TestHelper.AreEqual(expected, actual);
+
+				using (var repository = provider.OpenRepository(name))
+				{
+					repository.Delete();
+				}
+
+				expected.Clear();
+				actual = provider.AvailableRepositories();
+				TestHelper.AreEqual(expected, actual);
+			}
+		}
+
 		#endregion
 	}
 }

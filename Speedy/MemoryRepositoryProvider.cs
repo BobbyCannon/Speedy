@@ -62,7 +62,7 @@ namespace Speedy
 				return _repositories[name];
 			}
 
-			var repository = new MemoryRepository(name);
+			var repository = new MemoryRepository(name, this);
 			_repositories.Add(name, repository);
 			return repository;
 		}
