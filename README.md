@@ -24,19 +24,19 @@ I just did a few quick benchmarks.
 
 ```
 Let's create a repository with 100000 items @ 100 at a time.
-Done: 00:00:20.1755566
+Done: 00:00:25.8153494
 
 Let's create a repository with 100000 items @ 1000 at a time.
-Done: 00:00:03.6331656
+Done: 00:00:04.0267065
 
 Let's create a repository with 100000 items @ 2500 at a time.
-Done: 00:00:01.4945963
+Done: 00:00:01.6755958
 
 Let's create a repository with 100000 items @ 10000 at a time.
-Done: 00:00:00.4428109
+Done: 00:00:00.5001176
 
 Let's create a repository with 100000 items @ 50000 at a time.
-Done: 00:00:00.1651762
+Done: 00:00:00.1786458
 ```
 
 You'll need to balance how often to save you repository based on
@@ -51,10 +51,10 @@ Reads using 100 random keys in a repository of 100,000 items.
 
 ```
 Let's read randomly into the DB-100000 repository @ 1 at a time.
-Total: 00:00:02.4962503
+Total: 00:00:02.7959685
 
 Let's read randomly into the DB-100000 repository using all keys.
-Total: 00:00:00.0252966
+Total: 00:00:00.0281244
 ```
 
 ##### Multiple Threads

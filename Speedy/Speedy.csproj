@@ -54,9 +54,11 @@
     <Compile Include="IRepositoryProvider.cs" />
     <Compile Include="MemoryRepository.cs" />
     <Compile Include="MemoryRepositoryProvider.cs" />
+    <Compile Include="Streams\NoCloseStreamReader.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryProvider.cs" />
+    <Compile Include="Streams\NoCloseStreamWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.pfx" />

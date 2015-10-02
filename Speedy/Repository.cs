@@ -17,6 +17,7 @@ namespace Speedy
 		#region Fields
 
 		private readonly Dictionary<string, string> _changes;
+		private FileStream _fileStream;
 
 		#endregion
 
@@ -25,24 +26,24 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates an instance of the Repository class.
 		/// </summary>
-		/// <param name="directory"> The directory where the repository will reside. </param>
-		/// <param name="name"> The name of the repository. </param>
-		public Repository(string directory, string name)
-			: this(new DirectoryInfo(directory), name)
-		{
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the Repository class.
-		/// </summary>
 		/// <param name="directoryInfo"> The directory info where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
-		public Repository(DirectoryInfo directoryInfo, string name)
+		private Repository(DirectoryInfo directoryInfo, string name)
 		{
 			DirectoryInfo = directoryInfo;
 			Name = name;
 			FileInfo = new FileInfo(DirectoryInfo + "\\" + Name + ".speedy");
 			_changes = new Dictionary<string, string>();
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the Repository class.
+		/// </summary>
+		/// <param name="directory"> The directory where the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
+		private Repository(string directory, string name)
+			: this(new DirectoryInfo(directory), name)
+		{
 		}
 
 		#endregion
@@ -52,7 +53,7 @@ namespace Speedy
 		/// <summary>
 		/// The number of items in the repository.
 		/// </summary>
-		public int Count => FileInfo.LineCount();
+		public int Count => GetCount();
 
 		/// <summary>
 		/// The directory the repository will be located.
@@ -83,12 +84,16 @@ namespace Speedy
 		/// </summary>
 		public void Clear()
 		{
-			Initialize();
-
 			lock (_changes)
 			{
-				FileInfo.SafeDelete();
+				_fileStream.SetLength(0);
+				_fileStream.Flush(true);
 			}
+		}
+
+		public static IRepository Create(DirectoryInfo directiory, string name)
+		{
+			return Create(directiory.FullName, name);
 		}
 
 		public static IRepository Create(string directiory, string name)
@@ -98,6 +103,12 @@ namespace Speedy
 			return repository;
 		}
 
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
 		/// <summary>
 		/// Check the provided keys and returns any keys that are missing.
 		/// </summary>
@@ -105,38 +116,34 @@ namespace Speedy
 		/// <returns> A list of key value pairs that were not found in the repository. </returns>
 		public HashSet<string> FindMissingKeys(HashSet<string> keys)
 		{
-			Initialize();
-
 			lock (_changes)
 			{
-				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+				_fileStream.Position = 0;
+				var reader = new StreamReader(_fileStream);
+				var foundKeys = new List<string>();
+
+				while (reader.Peek() > 0)
 				{
-					var reader = new StreamReader(stream);
-					var foundKeys = new List<string>();
-
-					while (reader.Peek() > 0)
+					var line = reader.ReadLine();
+					if (line == null)
 					{
-						var line = reader.ReadLine();
-						if (line == null)
-						{
-							continue;
-						}
-
-						var delimiter = line.IndexOf("|");
-						if (delimiter <= 0)
-						{
-							continue;
-						}
-
-						var readKey = line.Substring(0, delimiter);
-						if (keys.Contains(readKey))
-						{
-							foundKeys.Add(readKey);
-						}
+						continue;
 					}
 
-					return new HashSet<string>(keys.Except(foundKeys));
+					var delimiter = line.IndexOf("|");
+					if (delimiter <= 0)
+					{
+						continue;
+					}
+
+					var readKey = line.Substring(0, delimiter);
+					if (keys.Contains(readKey))
+					{
+						foundKeys.Add(readKey);
+					}
 				}
+
+				return new HashSet<string>(keys.Except(foundKeys));
 			}
 		}
 
@@ -149,18 +156,15 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+				_fileStream.Position = _fileStream.Length;
+				var writer = new StreamWriter(_fileStream);
+
+				foreach (var item in items)
 				{
-					stream.Position = stream.Length;
-					var writer = new StreamWriter(stream);
-
-					foreach (var item in items)
-					{
-						writer.WriteLine(item.Key + "|" + item.Value);
-					}
-
-					writer.Flush();
+					writer.WriteLine(item.Key + "|" + item.Value);
 				}
+
+				writer.Flush();
 			}
 		}
 
@@ -173,31 +177,27 @@ namespace Speedy
 		/// </remarks>
 		public IEnumerable<KeyValuePair<string, string>> Read()
 		{
-			Initialize();
-
 			lock (_changes)
 			{
-				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+				_fileStream.Position = 0;
+				var reader = new StreamReader(_fileStream);
+
+				while (reader.Peek() > 0)
 				{
-					var reader = new StreamReader(stream);
-
-					while (reader.Peek() > 0)
+					var line = reader.ReadLine();
+					if (line == null)
 					{
-						var line = reader.ReadLine();
-						if (line == null)
-						{
-							continue;
-						}
-
-						var delimiter = line.IndexOf("|");
-						if (delimiter <= 0)
-						{
-							continue;
-						}
-
-						var readKey = line.Substring(0, delimiter);
-						yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
+						continue;
 					}
+
+					var delimiter = line.IndexOf("|");
+					if (delimiter <= 0)
+					{
+						continue;
+					}
+
+					var readKey = line.Substring(0, delimiter);
+					yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
 				}
 			}
 		}
@@ -236,34 +236,12 @@ namespace Speedy
 		/// <returns> The value for the keys that match the condition. </returns>
 		public IEnumerable<KeyValuePair<string, string>> Read(Func<string, bool> condition)
 		{
-			Initialize();
-
 			lock (_changes)
 			{
-				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read))
+				// todo: be sure this still yields
+				foreach (var item in Read().Where(item => condition.Invoke(item.Key)))
 				{
-					var reader = new StreamReader(stream);
-
-					while (reader.Peek() > 0)
-					{
-						var line = reader.ReadLine();
-						if (line == null)
-						{
-							continue;
-						}
-
-						var delimiter = line.IndexOf("|");
-						if (delimiter <= 0)
-						{
-							continue;
-						}
-
-						var readKey = line.Substring(0, delimiter);
-						if (condition.Invoke(readKey))
-						{
-							yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
-						}
-					}
+					yield return item;
 				}
 			}
 		}
@@ -297,65 +275,11 @@ namespace Speedy
 		/// </summary>
 		public void Save()
 		{
-			Initialize();
-
 			lock (_changes)
 			{
-				using (var stream = File.Open(FileInfo.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
-				{
-					using (var stream2 = File.Open(TemporaryFullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
-					{
-						var reader = new StreamReader(stream);
-						var writer = new StreamWriter(stream2);
-
-						while (reader.Peek() > 0)
-						{
-							var line = reader.ReadLine();
-							if (line == null)
-							{
-								continue;
-							}
-
-							var delimiter = line.IndexOf("|");
-							if (delimiter <= 0)
-							{
-								continue;
-							}
-
-							var key = line.Substring(0, delimiter);
-
-							// Check to see if we have an update or delete.
-							if (!_changes.ContainsKey(key))
-							{
-								writer.WriteLine(line);
-								continue;
-							}
-
-							// Read the change and see if was an update. If it was a delete (null) just ignore it.
-							var update = _changes[key];
-							if (update != null)
-							{
-								// The change was an update so write it.
-								writer.WriteLine(key + "|" + update);
-							}
-
-							// Remove the change.
-							_changes.Remove(key);
-						}
-
-						// Append the remaining changes.
-						foreach (var change in _changes)
-						{
-							writer.WriteLine(change.Key + "|" + change.Value);
-						}
-
-						writer.Flush();
-						_changes.Clear();
-					}
-				}
-
-				FileInfo.SafeDelete();
-				File.Move(TemporaryFullPath, FileInfo.FullName);
+				File.Copy(FileInfo.FullName, TemporaryFullPath);
+				SaveRepository();
+				new FileInfo(TemporaryFullPath).SafeDelete();
 			}
 		}
 
@@ -403,6 +327,29 @@ namespace Speedy
 			}
 		}
 
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_fileStream.Dispose();
+			}
+		}
+
+		private int GetCount()
+		{
+			_fileStream.Position = 0;
+			var reader = new StreamReader(_fileStream);
+			var count = 0;
+
+			while (reader.Peek() > 0)
+			{
+				reader.ReadLine();
+				count++;
+			}
+
+			return count;
+		}
+
 		/// <summary>
 		/// Initializes the path the repository is to be located.
 		/// </summary>
@@ -412,6 +359,70 @@ namespace Speedy
 			{
 				DirectoryInfo.SafeCreate();
 				FileInfo.SafeCreate();
+
+				_fileStream = FileInfo.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+
+				// Check to see if we were in the middle of a save.
+				if (File.Exists(TemporaryFullPath))
+				{
+					SaveRepository();
+				}
+			}
+		}
+
+		private void SaveRepository()
+		{
+			using (var tempStream = File.Open(TemporaryFullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+			{
+				_fileStream.SetLength(0);
+				_fileStream.Flush(true);
+
+				var reader = new NoCloseStreamReader(tempStream);
+				var writer = new NoCloseStreamWriter(_fileStream);
+
+				while (reader.Peek() > 0)
+				{
+					var line = reader.ReadLine();
+					if (line == null)
+					{
+						continue;
+					}
+
+					var delimiter = line.IndexOf("|");
+					if (delimiter <= 0)
+					{
+						continue;
+					}
+
+					var key = line.Substring(0, delimiter);
+
+					// Check to see if we have an update or delete.
+					if (!_changes.ContainsKey(key))
+					{
+						writer.WriteLine(line);
+						continue;
+					}
+
+					// Read the change and see if was an update. If it was a delete (null) just ignore it.
+					var update = _changes[key];
+					if (update != null)
+					{
+						// The change was an update so write it.
+						writer.WriteLine(key + "|" + update);
+					}
+
+					// Remove the change.
+					_changes.Remove(key);
+				}
+
+				// Append the remaining changes.
+				foreach (var change in _changes)
+				{
+					writer.WriteLine(change.Key + "|" + change.Value);
+				}
+
+				writer.Flush();
+				_changes.Clear();
 			}
 		}
 

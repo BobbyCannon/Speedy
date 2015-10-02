@@ -25,12 +25,12 @@ namespace Speedy.Tests
 
 		public static DirectoryInfo Directory { get; set; }
 
-		public static IEnumerable<IRepository> Repositories
+		private static IEnumerable<IRepository> Repositories
 		{
 			get
 			{
 				var guid = Guid.NewGuid().ToString();
-				return new IRepository[] { new MemoryRepository(guid), new Repository(Directory, guid) };
+				return new[] { new MemoryRepository(guid), Repository.Create(Directory, guid) };
 			}
 		}
 
@@ -40,6 +40,22 @@ namespace Speedy.Tests
 
 		#region Methods
 
+		/// <summary>
+		/// Process an action against a new instance of each repository.
+		/// </summary>
+		/// <param name="action"> The action to perform against each repository. </param>
+		public static void ForEachRepository(Action<IRepository> action)
+		{
+			var browsers = Repositories;
+			foreach (var browser in browsers)
+			{
+				using (browser)
+				{
+					action(browser);
+				}
+			}
+		}
+		
 		public static void AreEqual<T>(T expected, T actual)
 		{
 			var compareObjects = new CompareLogic();

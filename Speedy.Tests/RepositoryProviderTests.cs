@@ -22,10 +22,12 @@ namespace Speedy.Tests
 			{
 				var name1 = "Repository1";
 				var name2 = "Repository2";
-				provider.OpenRepository(name1);
-				provider.OpenRepository(name2);
+				var repository1 = provider.OpenRepository(name1);
+				var repository2 = provider.OpenRepository(name2);
 				var expected = new List<string> { name1, name2 };
 				var actual = provider.AvailableRepositories();
+				repository1.Dispose();
+				repository2.Dispose();
 				TestHelper.AreEqual(expected, actual);
 			}
 		}
@@ -38,7 +40,7 @@ namespace Speedy.Tests
 			foreach (var provider in TestHelper.RepositoryProviders)
 			{
 				var name = "Repository1";
-				provider.OpenRepository(name);
+				provider.OpenRepository(name).Dispose();
 				var expected = new List<string> { name };
 				var actual = provider.AvailableRepositories();
 				TestHelper.AreEqual(expected, actual);
@@ -59,7 +61,7 @@ namespace Speedy.Tests
 			foreach (var provider in TestHelper.RepositoryProviders)
 			{
 				var name = "Repository1";
-				provider.OpenRepository(name);
+				provider.OpenRepository(name).Dispose();
 				var expected = new List<string> { name };
 				var actual = provider.AvailableRepositories();
 				TestHelper.AreEqual(expected, actual);
@@ -79,9 +81,11 @@ namespace Speedy.Tests
 			{
 				TestHelper.Directory.SafeDelete();
 				var name = Guid.NewGuid().ToString();
-				var repository = provider.OpenRepository(name);
-				Assert.IsNotNull(repository);
-				Assert.AreEqual(name, repository.Name);
+				using (var repository = provider.OpenRepository(name))
+				{
+					Assert.IsNotNull(repository);
+					Assert.AreEqual(name, repository.Name);
+				}
 			}
 		}
 

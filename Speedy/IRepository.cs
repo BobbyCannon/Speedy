@@ -10,7 +10,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a repository of key value pairs.
 	/// </summary>
-	public interface IRepository
+	public interface IRepository : IDisposable
 	{
 		#region Properties
 

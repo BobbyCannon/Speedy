@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,24 +23,9 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void ClearShouldDeleteFile()
-		{
-			var name = Guid.NewGuid().ToString();
-			var repository = new Repository(TestHelper.Directory, name);
-			repository.Write("foo", "bar");
-			repository.Save();
-
-			Assert.IsTrue(File.Exists(TestHelper.Directory.FullName + "\\" + name + ".speedy"));
-
-			repository.Clear();
-
-			Assert.IsFalse(File.Exists(TestHelper.Directory.FullName + "\\" + name + ".speedy"));
-		}
-
-		[TestMethod]
 		public void CountShouldReturnCorrectValue()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -49,26 +33,26 @@ namespace Speedy.Tests
 				repository.Save();
 
 				Assert.AreEqual(3, repository.Count);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void CountShouldReturnZeroWithoutSave()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
 				repository.Write("Item3", "Item3");
 
 				Assert.AreEqual(0, repository.Count);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringMultipleWrites()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -88,13 +72,13 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
 				TestHelper.AreEqual(expected, actual);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringWrite()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -112,13 +96,13 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
 				TestHelper.AreEqual(expected, actual);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void LastActionForKeyShouldWin()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -137,13 +121,13 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
 				TestHelper.AreEqual(expected, actual);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void LastWriteForKeyShouldWin()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -161,13 +145,13 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
 				TestHelper.AreEqual(expected, actual);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void MultithreadedWriteAndReadTest()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				var random = new Random();
 
@@ -203,13 +187,13 @@ namespace Speedy.Tests
 
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(4 * 100, actual.Count);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void MultithreadedWriteTest()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				var action = new Action<IRepository, int, int>((repo, min, max) =>
 				{
@@ -237,13 +221,13 @@ namespace Speedy.Tests
 
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(tasks.Length * 100, actual.Count);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void ReadUsingCondition()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write(repository.Name, "Root object");
 				repository.Write("ChildItem1", "ChildItemValue1");
@@ -259,13 +243,13 @@ namespace Speedy.Tests
 				var actual = repository.Read(key => key != repository.Name).ToList();
 				Assert.AreEqual(2, actual.Count);
 				TestHelper.AreEqual(expected, actual);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void RemoveShouldRemoveItem()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Value1");
 				repository.Write("Item2", "Value2");
@@ -284,25 +268,25 @@ namespace Speedy.Tests
 				Assert.AreEqual("Value1", actual[0].Value);
 				Assert.AreEqual("Item3", actual[1].Key);
 				Assert.AreEqual("Value3", actual[1].Value);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void TryReadInvalidKeyShouldReturnFalse()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				string value;
 				var actual = repository.TryRead("Blah", out value);
 				Assert.AreEqual(false, actual);
 				Assert.AreEqual(string.Empty, value);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void TryReadInvalidKeyShouldReturnTrue()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Blah", "Value");
 				repository.Save();
@@ -311,13 +295,13 @@ namespace Speedy.Tests
 				var actual = repository.TryRead("Blah", out value);
 				Assert.AreEqual(true, actual);
 				Assert.AreEqual("Value", value);
-			}
+			});
 		}
 
 		[TestMethod]
 		public void WriteItemValueWithPipeCharacter()
 		{
-			foreach (var repository in TestHelper.Repositories)
+			TestHelper.ForEachRepository(repository =>
 			{
 				repository.Write("Item1", "Item1|Item2");
 				repository.Write("Item2", "Item2|Boo");
@@ -334,7 +318,7 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
 				TestHelper.AreEqual(expected, actual);
-			}
+			});
 		}
 
 		#endregion

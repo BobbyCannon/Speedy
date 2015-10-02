@@ -34,12 +34,6 @@ namespace Speedy
 			dictionary.Add(key, value);
 		}
 
-		public static int LineCount(this FileInfo file)
-		{
-			file.Refresh();
-			return file.Exists ? File.ReadAllLines(file.FullName).Length : 0;
-		}
-
 		public static void SafeCreate(this DirectoryInfo directory)
 		{
 			directory.Refresh();
@@ -81,6 +75,7 @@ namespace Speedy
 			}
 
 			directory.Delete(true);
+
 			Wait(() =>
 			{
 				directory.Refresh();
@@ -97,6 +92,7 @@ namespace Speedy
 			}
 
 			file.Delete();
+
 			Wait(() =>
 			{
 				file.Refresh();

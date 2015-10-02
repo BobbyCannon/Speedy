@@ -52,6 +52,12 @@ namespace Speedy
 			_directory.Clear();
 		}
 
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
 		/// <summary>
 		/// Check the provided keys and returns any keys that are missing.
 		/// </summary>
@@ -207,6 +213,13 @@ namespace Speedy
 			lock (_changes)
 			{
 				_changes.AddOrUpdate(items);
+			}
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
 			}
 		}
 
