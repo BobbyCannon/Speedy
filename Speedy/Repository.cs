@@ -163,30 +163,10 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				_fileStream.Position = 0;
-				var reader = new StreamReader(_fileStream);
-				var foundKeys = _cache.Keys.ToList();
-
-				while (reader.Peek() > 0)
-				{
-					var line = reader.ReadLine();
-					if (line == null)
-					{
-						continue;
-					}
-
-					var delimiter = line.IndexOf("|");
-					if (delimiter <= 0)
-					{
-						continue;
-					}
-
-					var readKey = line.Substring(0, delimiter);
-					if (keys.Contains(readKey))
-					{
-						foundKeys.Add(readKey);
-					}
-				}
+				var foundKeys = Read()
+					.Where(item => keys.Contains(item.Key))
+					.Select(item => item.Key)
+					.ToList();
 
 				return new HashSet<string>(keys.Except(foundKeys));
 			}
@@ -222,7 +202,7 @@ namespace Speedy
 			lock (_changes)
 			{
 				_fileStream.Position = _fileStream.Length;
-				var writer = new StreamWriter(_fileStream);
+				var writer = new NoCloseStreamWriter(_fileStream);
 
 				foreach (var item in items)
 				{
@@ -230,6 +210,7 @@ namespace Speedy
 				}
 
 				writer.Flush();
+				writer.Dispose();
 			}
 		}
 
@@ -244,7 +225,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				foreach (var item in _cache.Where(x => x.Value.Item1 != null))
+				foreach (var item in _cache.OrderBy(x => x.Value.Item2).Where(x => x.Value.Item1 != null))
 				{
 					yield return new KeyValuePair<string, string>(item.Key, item.Value.Item1);
 				}
@@ -255,7 +236,7 @@ namespace Speedy
 				while (reader.Peek() > 0)
 				{
 					var line = reader.ReadLine();
-					if (line == null)
+					if (string.IsNullOrWhiteSpace(line))
 					{
 						continue;
 					}
@@ -427,17 +408,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				_fileStream.Position = 0;
-				var reader = new StreamReader(_fileStream);
-				var count = _cache.Count;
-
-				while (reader.Peek() > 0)
-				{
-					reader.ReadLine();
-					count++;
-				}
-
-				return count;
+				return Read().Count();
 			}
 		}
 
@@ -490,25 +461,23 @@ namespace Speedy
 				var writer = new NoCloseStreamWriter(_fileStream);
 
 				// Append the expired cache.
-				var expiredCache = _cache.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null).ToDictionary(x => x.Key, x => x.Value);
-				foreach (var change in expiredCache)
-				{
-					writer.WriteLine(change.Key + "|" + change.Value.Item1);
-					_cache.Remove(change.Key);
-				}
+				var expiredCache = _cache
+					.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null)
+					.OrderBy(x => x.Value.Item2)
+					.ToDictionary(x => x.Key, x => x.Value);
 
-				// Append all items over the cache limit.
-				var overLimit = _cache.Skip(_cacheLimit).Where(x => x.Value.Item1 != null).ToDictionary(x => x.Key, x => x.Value);
-				foreach (var change in overLimit)
-				{
-					writer.WriteLine(change.Key + "|" + change.Value.Item1);
-					_cache.Remove(change.Key);
-				}
+				// Append all add / updates items over the cache limit.
+				var overLimit = _cache
+					.Where(x => x.Value.Item1 != null)
+					.Where(x => !expiredCache.ContainsKey(x.Key))
+					.OrderBy(x => x.Value.Item2)
+					.Take(_cache.Count - _cacheLimit)
+					.ToDictionary(x => x.Key, x => x.Value);
 
 				while (reader.Peek() > 0)
 				{
 					var line = reader.ReadLine();
-					if (line == null)
+					if (string.IsNullOrWhiteSpace(line))
 					{
 						continue;
 					}
@@ -536,7 +505,29 @@ namespace Speedy
 					}
 				}
 
+				// Write all items that have expired in the cache.
+				foreach (var change in expiredCache)
+				{
+					writer.WriteLine(change.Key + "|" + change.Value.Item1);
+					_cache.Remove(change.Key);
+				}
+
+				// Write all items that are over the cache limit.
+				foreach (var change in overLimit)
+				{
+					writer.WriteLine(change.Key + "|" + change.Value.Item1);
+					_cache.Remove(change.Key);
+				}
+
+				// Clear all "remove" actions.
+				foreach (var item in _cache.Where(x => x.Value.Item1 == null).ToList())
+				{
+					_cache.Remove(item.Key);
+				}
+
+				reader.Dispose();
 				writer.Flush();
+				writer.Dispose();
 			}
 		}
 

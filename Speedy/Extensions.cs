@@ -13,9 +13,101 @@ namespace Speedy
 	/// <summary>
 	/// Extensions for all the things.
 	/// </summary>
-	internal static class Extensions
+	public static class Extensions
 	{
 		#region Methods
+
+		/// <summary>
+		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
+		/// provided delay time.
+		/// </summary>
+		/// <typeparam name="T"> The type for this retry. </typeparam>
+		/// <param name="action"> The action to attempt to retry. </param>
+		/// <param name="timeout"> The timeout to stop retrying. </param>
+		/// <param name="delay"> The delay between retries. </param>
+		/// <returns> The response from the action. </returns>
+		public static T Retry<T>(Func<T> action, int timeout, int delay)
+		{
+			var watch = Stopwatch.StartNew();
+
+			try
+			{
+				return action();
+			}
+			catch (Exception)
+			{
+				Thread.Sleep(delay);
+
+				var remaining = (int) (timeout - watch.Elapsed.TotalMilliseconds);
+				if (remaining <= 0)
+				{
+					throw;
+				}
+
+				return Retry(action, remaining, delay);
+			}
+		}
+
+		/// <summary>
+		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
+		/// provided delay time.
+		/// </summary>
+		/// <param name="action"> The action to attempt to retry. </param>
+		/// <param name="timeout"> The timeout to stop retrying. </param>
+		/// <param name="delay"> The delay between retries. </param>
+		/// <returns> The response from the action. </returns>
+		public static void Retry(Action action, int timeout, int delay)
+		{
+			var watch = Stopwatch.StartNew();
+
+			try
+			{
+				action();
+			}
+			catch (Exception)
+			{
+				Thread.Sleep(delay);
+
+				var remaining = (int) (timeout - watch.Elapsed.TotalMilliseconds);
+				if (remaining <= 0)
+				{
+					throw;
+				}
+
+				Retry(action, remaining, delay);
+			}
+		}
+
+		/// <summary>
+		/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
+		/// time.
+		/// </summary>
+		/// <param name="action"> The action to call. </param>
+		/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+		/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
+		/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+		public static bool Wait(Func<bool> action, int timeout, int delay)
+		{
+			var watch = Stopwatch.StartNew();
+			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
+			var result = false;
+
+			while (!result)
+			{
+				if (watch.Elapsed > watchTimeout)
+				{
+					return false;
+				}
+
+				result = action();
+				if (!result)
+				{
+					Thread.Sleep(delay);
+				}
+			}
+
+			return true;
+		}
 
 		/// <summary>
 		/// Add or update a dictionary entry.
@@ -43,26 +135,7 @@ namespace Speedy
 		/// <returns> The stream for the file. </returns>
 		internal static FileStream OpenFile(this FileInfo info)
 		{
-			return Retry(() => File.Open(info.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read), TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
-		}
-		
-		/// <summary>
-		/// Checks to see if the file is already opened.
-		/// </summary>
-		/// <param name="info"> The information for the file. </param>
-		/// <returns> The stream for the file. </returns>
-		internal static bool IsOpen(this FileInfo info)
-		{
-			try
-			{
-				var stream = File.Open(info.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
-				stream.Dispose();
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
+			return Retry(() => File.Open(info.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read), 1000, 50);
 		}
 
 		/// <summary>
@@ -77,13 +150,13 @@ namespace Speedy
 				return;
 			}
 
-			Retry(() => File.Create(file.FullName).Dispose(), TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
+			Retry(() => File.Create(file.FullName).Dispose(), 1000, 10);
 
 			Wait(() =>
 			{
 				file.Refresh();
-				return !file.Exists;
-			});
+				return file.Exists;
+			}, 1000, 10);
 		}
 
 		internal static void SafeCreate(this DirectoryInfo directory)
@@ -94,13 +167,13 @@ namespace Speedy
 				return;
 			}
 
-			Retry(directory.Create, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
+			Retry(directory.Create, 1000, 10);
 
 			Wait(() =>
 			{
 				directory.Refresh();
 				return directory.Exists;
-			});
+			}, 1000, 10);
 		}
 
 		/// <summary>
@@ -115,105 +188,13 @@ namespace Speedy
 				return;
 			}
 
-			Retry(file.Delete, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
+			Retry(file.Delete, 1000, 10);
 
 			Wait(() =>
 			{
 				file.Refresh();
 				return !file.Exists;
-			});
-		}
-
-		/// <summary>
-		/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
-		/// time.
-		/// </summary>
-		/// <param name="action"> The action to call. </param>
-		/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
-		/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
-		/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
-		internal static bool Wait(Func<bool> action, double timeout = 1000, int delay = 50)
-		{
-			var watch = Stopwatch.StartNew();
-			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
-			var result = false;
-
-			while (!result)
-			{
-				if (watch.Elapsed > watchTimeout)
-				{
-					return false;
-				}
-
-				result = action();
-				if (!result)
-				{
-					Thread.Sleep(delay);
-				}
-			}
-
-			return true;
-		}
-
-		/// <summary>
-		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
-		/// provided delay time.
-		/// </summary>
-		/// <typeparam name="T"> The type for this retry. </typeparam>
-		/// <param name="action"> The action to attempt to retry. </param>
-		/// <param name="timeout"> The timeout to stop retrying. </param>
-		/// <param name="delay"> The delay between retries. </param>
-		/// <returns> The response from the action. </returns>
-		private static T Retry<T>(Func<T> action, TimeSpan timeout, TimeSpan delay)
-		{
-			var watch = Stopwatch.StartNew();
-
-			try
-			{
-				return action();
-			}
-			catch (Exception)
-			{
-				Thread.Sleep((int) delay.TotalMilliseconds);
-
-				var remaining = timeout - watch.Elapsed;
-				if (remaining.Ticks >= 0)
-				{
-					return Retry(action, remaining, delay);
-				}
-
-				throw;
-			}
-		}
-
-		/// <summary>
-		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
-		/// provided delay time.
-		/// </summary>
-		/// <param name="action"> The action to attempt to retry. </param>
-		/// <param name="timeout"> The timeout to stop retrying. </param>
-		/// <param name="delay"> The delay between retries. </param>
-		/// <returns> The response from the action. </returns>
-		private static void Retry(Action action, TimeSpan timeout, TimeSpan delay)
-		{
-			var watch = Stopwatch.StartNew();
-
-			try
-			{
-				action();
-			}
-			catch (Exception)
-			{
-				Thread.Sleep((int) delay.TotalMilliseconds);
-
-				var remaining = timeout - watch.Elapsed;
-				if (remaining.Ticks >= 0)
-				{
-					Retry(action, remaining, delay);
-				}
-
-				throw;
-			}
+			}, 1000, 10);
 		}
 
 		#endregion

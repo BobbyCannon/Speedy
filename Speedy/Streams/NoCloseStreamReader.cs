@@ -29,7 +29,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="stream"> The underlying stream to write to. </param>
 		public NoCloseStreamReader(Stream stream)
-			: base(stream)
+			: this(stream, Encoding.UTF8)
 		{
 		}
 

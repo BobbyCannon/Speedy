@@ -70,7 +70,7 @@ namespace Speedy.Tests
 		public void GetRepositoryShouldReturnRepository()
 		{
 			Cleanup();
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new RepositoryProvider(TestHelper.Directory.FullName);
 			Cleanup();
 
 			var name = Guid.NewGuid().ToString();
@@ -97,6 +97,29 @@ namespace Speedy.Tests
 				using (var repository2 = provider.OpenAvailableRepository())
 				{
 					Assert.AreEqual(repository2.Name, "Repository1");
+				}
+			}
+		}
+
+		[TestMethod]
+		public void OpenAvailableRepositoriesShouldReturnNull()
+		{
+			Cleanup();
+
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name1 = "Repository1";
+			var name2 = "Repository2";
+			var repository1 = provider.OpenRepository(name1);
+			var repository2 = provider.OpenRepository(name2);
+
+			using (repository1)
+			{
+				using (repository2)
+				{
+					using (var actual = provider.OpenAvailableRepository())
+					{
+						Assert.IsNull(actual);
+					}
 				}
 			}
 		}

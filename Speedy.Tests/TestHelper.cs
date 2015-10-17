@@ -51,6 +51,24 @@ namespace Speedy.Tests
 			Directory.SafeDelete();
 		}
 
+		public static void ExpectedException<T>(Action work, string errorMessage) where T : Exception
+		{
+			try
+			{
+				work();
+			}
+			catch (T ex)
+			{
+				if (!ex.ToDetailedString().Contains(errorMessage))
+				{
+					Assert.Fail("Expected <" + ex.Message + "> to contain <" + errorMessage + ">.");
+				}
+				return;
+			}
+
+			Assert.Fail("The expected exception was not thrown.");
+		}
+
 		/// <summary>
 		/// Reads all text from the file info. Uses read access and read/write sharing.
 		/// </summary>
@@ -60,16 +78,36 @@ namespace Speedy.Tests
 		{
 			using (var stream = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
-				var data = new byte[stream.Length];
-				var read = stream.Read(data, 0, data.Length);
-				return Encoding.UTF8.GetString(data, 0, read);
+				var reader = new StreamReader(stream, Encoding.UTF8);
+				return reader.ReadToEnd();
 			}
 		}
 
 		/// <summary>
-		/// Safely delete a file.
+		/// Safely delete a directory.
 		/// </summary>
-		/// <param name="directory"> The information of the file to delete. </param>
+		/// <param name="directory"> The information of the directory to create. </param>
+		public static void SafeCreate(this DirectoryInfo directory)
+		{
+			directory.Refresh();
+			if (directory.Exists)
+			{
+				return;
+			}
+
+			directory.Create();
+
+			Wait(() =>
+			{
+				directory.Refresh();
+				return directory.Exists;
+			});
+		}
+
+		/// <summary>
+		/// Safely delete a directory.
+		/// </summary>
+		/// <param name="directory"> The information of the directory to delete. </param>
 		public static void SafeDelete(this DirectoryInfo directory)
 		{
 			directory.Refresh();
@@ -85,6 +123,13 @@ namespace Speedy.Tests
 				directory.Refresh();
 				return !directory.Exists;
 			});
+		}
+
+		public static string ToDetailedString(this Exception ex)
+		{
+			var builder = new StringBuilder();
+			AddExceptionToBuilder(builder, ex);
+			return builder.ToString();
 		}
 
 		/// <summary>
@@ -116,6 +161,16 @@ namespace Speedy.Tests
 			}
 
 			return true;
+		}
+
+		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
+		{
+			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
+
+			if (ex.InnerException != null)
+			{
+				AddExceptionToBuilder(builder, ex.InnerException);
+			}
 		}
 
 		#endregion

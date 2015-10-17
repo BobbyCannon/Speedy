@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,11 +37,26 @@ namespace Speedy.Tests
 
 				// Only Foo1 should be in the file.
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(33, info.Length);
+				Assert.AreEqual(36, info.Length);
 
 				repository.Clear();
 				info.Refresh();
 				Assert.AreEqual(0, info.Length);
+			}
+		}
+
+		[TestMethod]
+		public void CountFromCorruptRepository()
+		{
+			var name = Guid.NewGuid().ToString();
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			info.Directory.SafeCreate();
+			var badData = string.Format("Foo3{0}Bar2|Foo2{0}{0}|{0}Foo1|Bar1{0}", Environment.NewLine);
+			File.WriteAllText(info.FullName, badData, Encoding.UTF8);
+
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				Assert.AreEqual(2, repository.Count);
 			}
 		}
 
@@ -51,10 +67,26 @@ namespace Speedy.Tests
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
+				repository.Remove("Item2");
 				repository.Write("Item3", "Item3");
 				repository.Save();
 
-				Assert.AreEqual(3, repository.Count);
+				Assert.AreEqual(2, repository.Count);
+			}
+		}
+
+		[TestMethod]
+		public void CountShouldReturnZero()
+		{
+			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			{
+				repository.Write("Item1", "Item1");
+				repository.Save();
+				Assert.AreEqual(1, repository.Count);
+
+				repository.Remove("Item1");
+				repository.Save();
+				Assert.AreEqual(0, repository.Count);
 			}
 		}
 
@@ -89,7 +121,7 @@ namespace Speedy.Tests
 			}
 
 			info.Refresh();
-			Assert.AreEqual(39, info.Length);
+			Assert.AreEqual(42, info.Length);
 		}
 
 		[TestMethod]
@@ -98,7 +130,7 @@ namespace Speedy.Tests
 			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
-				repository.Write("Item2", "Item2");
+				repository.Write("Bar2", "Foo2");
 				repository.Write("Item3", "Item3");
 				repository.Save();
 				Assert.AreEqual(3, repository.Count);
@@ -109,9 +141,9 @@ namespace Speedy.Tests
 
 				var expected = new List<KeyValuePair<string, string>>
 				{
-					new KeyValuePair<string, string>("Item1", "Item1"),
-					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3")
+					new KeyValuePair<string, string>("Bar2", "Foo2"),
+					new KeyValuePair<string, string>("Item3", "Item3"),
+					new KeyValuePair<string, string>("Item1", "Item1")
 				};
 
 				var actual = repository.Read().ToList();
@@ -145,6 +177,23 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void FindMissingKeys()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Foo2", "Bar2");
+				repository.Write("Foo3", "Bar3");
+				repository.Save();
+
+				var expected = new HashSet<string> { "Foo4" };
+				var actual = repository.FindMissingKeys(new HashSet<string> { "Foo1", "Foo2", "Foo3", "Foo4" });
+				TestHelper.AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
 		public void FlushShouldWriteAllItems()
 		{
 			var name = Guid.NewGuid().ToString();
@@ -160,7 +209,7 @@ namespace Speedy.Tests
 
 				repository.Flush();
 				info.Refresh();
-				Assert.AreEqual(33, info.Length);
+				Assert.AreEqual(36, info.Length);
 			}
 		}
 
@@ -210,6 +259,21 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
 				TestHelper.AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
+		public void LoadUsingDictionary()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
+			{
+				repository.Load(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
+				Assert.AreEqual(2, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.AreEqual(25, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual("Foo1|Bar1" + Environment.NewLine + "Foo2|Bar2" + Environment.NewLine, actual);
 			}
 		}
 
@@ -341,6 +405,40 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void ReadFromCorruptRepository()
+		{
+			var name = Guid.NewGuid().ToString();
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			info.Directory.SafeCreate();
+			var badData = string.Format("Foo3{0}Bar2|Foo2{0}{0}|{0}Foo1|Bar1{0}", Environment.NewLine);
+			File.WriteAllText(info.FullName, badData, Encoding.UTF8);
+
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				var expected = new List<KeyValuePair<string, string>>
+				{
+					new KeyValuePair<string, string>("Bar2", "Foo2"),
+					new KeyValuePair<string, string>("Foo1", "Bar1")
+				};
+
+				var actual = repository.Read().ToList();
+				Assert.AreEqual(2, actual.Count);
+				TestHelper.AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
+		public void ReadInvalidKeyShouldThrowException()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var context = Repository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
+			{
+				var repository = context;
+				TestHelper.ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), "Could not find the entry with the key.");
+			}
+		}
+
+		[TestMethod]
 		public void ReadItemFromCache()
 		{
 			var name = Guid.NewGuid().ToString();
@@ -348,20 +446,19 @@ namespace Speedy.Tests
 			{
 				repository.Write("Foo1", "Bar1");
 				Thread.Sleep(1500);
-				repository.Write("Foo2", "Bar2");
+				repository.Write("Bar2", "Foo2");
 				repository.Write("Foo3", "Bar3");
 				repository.Save();
 
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(11, info.Length);
+				Assert.AreEqual(14, info.Length);
 
 				// Only Foo1 should be in the file.
 				var expected = "Foo1|Bar1" + Environment.NewLine;
 				var actual = info.ReadAllText();
 				Assert.AreEqual(expected, actual);
-
-				actual = repository.Read("Foo2");
-				Assert.AreEqual("Bar2", actual);
+				actual = repository.Read("Bar2");
+				Assert.AreEqual("Foo2", actual);
 			}
 		}
 
@@ -379,13 +476,74 @@ namespace Speedy.Tests
 
 				// Only Foo1 should be in the file.
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(11, info.Length);
+				Assert.AreEqual(14, info.Length);
 				var expected = "Foo1|Bar1" + Environment.NewLine;
 				var actual = info.ReadAllText();
 				Assert.AreEqual(expected, actual);
-
 				actual = repository.Read("Foo1");
 				Assert.AreEqual("Bar1", actual);
+			}
+		}
+
+		[TestMethod]
+		public void ReadOrderWithCaching()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 10))
+			{
+				repository.Write("Foo4", "Bar4");
+				repository.Write("Bar4", "Foo4");
+				repository.Write("Yo", "Nope");
+				repository.Remove("Yo");
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Bar1", "Foo1");
+				repository.Save();
+
+				Assert.AreEqual(4, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.AreEqual(0, info.Length);
+
+				var expected = new List<KeyValuePair<string, string>>
+				{
+					new KeyValuePair<string, string>("Foo4", "Bar4"),
+					new KeyValuePair<string, string>("Bar4", "Foo4"),
+					new KeyValuePair<string, string>("Foo1", "Bar1"),
+					new KeyValuePair<string, string>("Bar1", "Foo1")
+				};
+
+				var actual = repository.Read().ToList();
+				TestHelper.AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
+		public void ReadOrderWithNoCaching()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				repository.Write("Foo4", "Bar4");
+				repository.Write("Bar4", "Foo4");
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Bar1", "Foo1");
+				repository.Save();
+
+				Assert.AreEqual(4, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.AreEqual(47, info.Length);
+				var actualText = info.ReadAllText();
+				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}Foo1|Bar1{0}Bar1|Foo1{0}", Environment.NewLine), actualText);
+
+				var expected = new List<KeyValuePair<string, string>>
+				{
+					new KeyValuePair<string, string>("Foo4", "Bar4"),
+					new KeyValuePair<string, string>("Bar4", "Foo4"),
+					new KeyValuePair<string, string>("Foo1", "Bar1"),
+					new KeyValuePair<string, string>("Bar1", "Foo1")
+				};
+
+				var actual = repository.Read().ToList();
+				TestHelper.AreEqual(expected, actual);
 			}
 		}
 
@@ -439,6 +597,44 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void RestoreFromCorruptPartialSave()
+		{
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy.temp");
+			tempInfo.Directory.SafeCreate();
+			var badData = string.Format("Foo3{0}Bar2|Foo2{0}{0}|{0}Foo1|Bar1{0}", Environment.NewLine);
+			File.WriteAllText(tempInfo.FullName, badData, Encoding.UTF8);
+
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				Assert.AreEqual(2, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				var expected = string.Format("Bar2|Foo2{0}Foo1|Bar1{0}", Environment.NewLine);
+				var actual = info.ReadAllText();
+				TestHelper.AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
+		public void RestoreFromPartialSave()
+		{
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy.temp");
+			tempInfo.Directory.SafeCreate();
+			var expected = string.Format("Foo3|Bar3{0}Bar2|Foo2{0}Foo1|Bar1{0}", Environment.NewLine);
+			File.WriteAllText(tempInfo.FullName, expected);
+
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				Assert.AreEqual(3, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				var actual = info.ReadAllText();
+				Assert.AreEqual(expected.Length, actual.Length);
+				Assert.AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
 		public void SaveShouldNotWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
@@ -459,17 +655,21 @@ namespace Speedy.Tests
 			var name = Guid.NewGuid().ToString();
 			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 2))
 			{
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Foo2", "Bar2");
 				repository.Write("Foo3", "Bar3");
+				repository.Write("Bar2", "Foo2");
+				repository.Write("Foo1", "Bar1");
 				repository.Save();
 
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(11, info.Length);
+				Assert.AreEqual(14, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual("Foo3|Bar3" + Environment.NewLine, actual);
 
 				repository.Flush();
 				info.Refresh();
-				Assert.AreEqual(33, info.Length);
+				Assert.AreEqual(36, info.Length);
+				actual = info.ReadAllText();
+				Assert.AreEqual(string.Format("Foo3|Bar3{0}Bar2|Foo2{0}Foo1|Bar1{0}", Environment.NewLine), actual);
 			}
 		}
 
@@ -481,21 +681,23 @@ namespace Speedy.Tests
 			{
 				repository.Write("Foo1", "Bar1");
 				Thread.Sleep(1500);
-				repository.Write("Foo2", "Bar2");
+				repository.Write("Bar2", "Foo2");
 				repository.Write("Foo3", "Bar3");
 				repository.Save();
 
 				// Only Foo1 should be in the file.
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(11, info.Length);
+				Assert.AreEqual(14, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual(11, actual.Length);
+				Assert.AreEqual("Foo1|Bar1" + Environment.NewLine, actual);
 
 				repository.Flush();
 				info.Refresh();
-				Assert.AreEqual(33, info.Length);
+				Assert.AreEqual(36, info.Length);
 				actual = info.ReadAllText();
 				Assert.AreEqual(33, actual.Length);
+				actual = info.ReadAllText();
+				Assert.AreEqual(string.Format("Foo1|Bar1{0}Bar2|Foo2{0}Foo3|Bar3{0}", Environment.NewLine), actual);
 			}
 		}
 
@@ -550,6 +752,52 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void WriteOrderWithCachingLimit()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 2))
+			{
+				repository.Write("Foo4", "Bar4");
+				repository.Write("Bar4", "Foo4");
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Bar1", "Foo1");
+				repository.Save();
+
+				Assert.AreEqual(4, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.AreEqual(25, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}", Environment.NewLine), actual);
+
+				repository.Flush();
+				info.Refresh();
+				Assert.AreEqual(47, info.Length);
+				actual = info.ReadAllText();
+				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}Foo1|Bar1{0}Bar1|Foo1{0}", Environment.NewLine), actual);
+			}
+		}
+
+		[TestMethod]
+		public void WriteOrderWithNoCaching()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				repository.Write("Foo4", "Bar4");
+				repository.Write("Bar4", "Foo4");
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Bar1", "Foo1");
+				repository.Save();
+
+				Assert.AreEqual(4, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.AreEqual(47, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}Foo1|Bar1{0}Bar1|Foo1{0}", Environment.NewLine), actual);
+			}
+		}
+
+		[TestMethod]
 		public void WriteUsingDictionary()
 		{
 			var name = Guid.NewGuid().ToString();
@@ -560,7 +808,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(2, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(22, info.Length);
+				Assert.AreEqual(25, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual("Foo1|Bar1" + Environment.NewLine + "Foo2|Bar2" + Environment.NewLine, actual);
 			}
 		}
 
@@ -575,7 +825,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(1, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(9, info.Length);
+				Assert.AreEqual(12, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual("Foo|Bar" + Environment.NewLine, actual);
 			}
 		}
 
@@ -590,7 +842,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(1, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(9, info.Length);
+				Assert.AreEqual(12, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual("Foo|Bar" + Environment.NewLine, actual);
 			}
 		}
 
@@ -605,7 +859,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(1, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(9, info.Length);
+				Assert.AreEqual(12, info.Length);
+				var actual = info.ReadAllText();
+				Assert.AreEqual("Foo|Bar" + Environment.NewLine, actual);
 			}
 		}
 
