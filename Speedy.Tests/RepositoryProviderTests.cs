@@ -82,6 +82,46 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void OpenAvailableRepositoriesShouldReturnFirstRepository()
+		{
+			Cleanup();
+
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name1 = "Repository1";
+			var name2 = "Repository2";
+			provider.OpenRepository(name1).Dispose();
+			var repository = provider.OpenRepository(name2);
+
+			using (repository)
+			{
+				using (var repository2 = provider.OpenAvailableRepository())
+				{
+					Assert.AreEqual(repository2.Name, "Repository1");
+				}
+			}
+		}
+
+		[TestMethod]
+		public void OpenAvailableRepositoriesShouldReturnSecondRepository()
+		{
+			Cleanup();
+
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name1 = "Repository1";
+			var name2 = "Repository2";
+			var repository = provider.OpenRepository(name1);
+			provider.OpenRepository(name2).Dispose();
+
+			using (repository)
+			{
+				using (var repository2 = provider.OpenAvailableRepository())
+				{
+					Assert.AreEqual(repository2.Name, "Repository2");
+				}
+			}
+		}
+
+		[TestMethod]
 		public void RepositoryDeleteShouldDeleteRepository()
 		{
 			Cleanup();

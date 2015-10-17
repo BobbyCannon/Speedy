@@ -45,6 +45,25 @@ namespace Speedy
 		{
 			return Retry(() => File.Open(info.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read), TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
 		}
+		
+		/// <summary>
+		/// Checks to see if the file is already opened.
+		/// </summary>
+		/// <param name="info"> The information for the file. </param>
+		/// <returns> The stream for the file. </returns>
+		internal static bool IsOpen(this FileInfo info)
+		{
+			try
+			{
+				var stream = File.Open(info.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+				stream.Dispose();
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
 
 		/// <summary>
 		/// Safely create a file.

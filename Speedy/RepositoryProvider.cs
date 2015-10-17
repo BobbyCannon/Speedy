@@ -74,6 +74,27 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets the first available repository that is not currently open.
+		/// </summary>
+		/// <returns> The repository that was opened or null if none available. </returns>
+		public IRepository OpenAvailableRepository()
+		{
+			foreach (var repository in AvailableRepositories())
+			{
+				try
+				{
+					return OpenRepository(repository);
+				}
+				catch
+				{
+					// Nothing to do here. Just move on to the next repository.
+				}
+			}
+
+			return null;
+		}
+
+		/// <summary>
 		/// Gets a repository by the provided name. If the repository cannot be found a new one is created and returned.
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
