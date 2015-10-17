@@ -1,5 +1,9 @@
-﻿using System.IO;
+﻿#region References
+
+using System.IO;
 using System.Text;
+
+#endregion
 
 namespace Speedy
 {

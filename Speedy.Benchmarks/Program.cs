@@ -53,7 +53,7 @@ namespace Speedy.Benchmarks
 		{
 			Log("Starting to benchmark Speedy... hold on to your hats!");
 
-			var directory = "C:\\SpeedyTest";
+			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\SpeedyTest";
 			CleanupDirectory(directory);
 
 			var repositorySize = 100000;
@@ -64,6 +64,11 @@ namespace Speedy.Benchmarks
 			WriteCollection(directory, repositorySize, 2500);
 			WriteCollection(directory, repositorySize, 10000);
 			WriteCollection(directory, repositorySize, 50000);
+			WriteCollection(directory, repositorySize, 100, TimeSpan.FromSeconds(30), 1000);
+			WriteCollection(directory, repositorySize, 1000, TimeSpan.FromSeconds(30), 10000);
+			WriteCollection(directory, repositorySize, 2500, TimeSpan.FromSeconds(30), 10000);
+			WriteCollection(directory, repositorySize, 10000, TimeSpan.FromSeconds(30), 25000);
+			WriteCollection(directory, repositorySize, 50000, TimeSpan.FromSeconds(30), 100000);
 
 			// Populate the random keys.
 			var random = new Random();
@@ -75,8 +80,8 @@ namespace Speedy.Benchmarks
 
 			Log("The random keys are " + string.Join(", ", randomKeys.Select(x => x)));
 
-			RandomReadsIndividually(directory, "DB-" + repositorySize, randomKeys);
-			RandomReadsGroup(directory, "DB-" + repositorySize, randomKeys);
+			RandomReadsIndividually(directory, "DB-" + repositorySize + "-0", randomKeys);
+			RandomReadsGroup(directory, "DB-" + repositorySize + "-0", randomKeys);
 
 			Log(string.Empty);
 			Log("Press any key to continue...");
@@ -98,7 +103,7 @@ namespace Speedy.Benchmarks
 					Verbose("Read " + item.Value + " using key " + item.Key);
 				}
 
-				Log("Total: " + watch.Elapsed); 
+				Log("Total: " + watch.Elapsed);
 			}
 		}
 
@@ -127,7 +132,7 @@ namespace Speedy.Benchmarks
 					previousTime = watch.Elapsed;
 				}
 
-				Log("Total: " + watch.Elapsed); 
+				Log("Total: " + watch.Elapsed);
 			}
 		}
 
@@ -147,13 +152,15 @@ namespace Speedy.Benchmarks
 			Console.Write(message);
 		}
 
-		private static void WriteCollection(string directory, int size, int chunkSize)
+		private static void WriteCollection(string directory, int size, int chunkSize, TimeSpan? timeout = null, int limit = 0)
 		{
 			Log(string.Empty);
-			Log("Let's create a repository with " + size + " items @ " + chunkSize + " at a time.");
+			Log(limit <= 0 ? $"Let's create a repository with {size} items @ {chunkSize} at a time."
+				: $"Let's create a repository with {size} items @ {chunkSize} at a time with a cache of {limit} items.");
+
 			var watch = Stopwatch.StartNew();
 
-			using (var repository = Repository.Create(directory, "DB-" + size))
+			using (var repository = Repository.Create(directory, $"DB-{size}-{limit}", timeout, limit))
 			{
 				var previousTime = new TimeSpan(0);
 
@@ -162,6 +169,12 @@ namespace Speedy.Benchmarks
 					if (i % (chunkSize / 4) == 0)
 					{
 						Verbose(".", false);
+					}
+
+					if (limit > 0 && i % limit == 0)
+					{
+						Verbose("Flushing the repository because we hit the limit.");
+						repository.Flush();
 					}
 
 					if (i % chunkSize == 0)
@@ -185,6 +198,7 @@ namespace Speedy.Benchmarks
 				}
 
 				repository.Save();
+				repository.Flush();
 
 				Log("Done: " + watch.Elapsed);
 				Log($"Count: {repository.Count}");

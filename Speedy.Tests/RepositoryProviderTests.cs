@@ -18,18 +18,16 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			foreach (var provider in TestHelper.RepositoryProviders)
-			{
-				var name1 = "Repository1";
-				var name2 = "Repository2";
-				var repository1 = provider.OpenRepository(name1);
-				var repository2 = provider.OpenRepository(name2);
-				var expected = new List<string> { name1, name2 };
-				var actual = provider.AvailableRepositories();
-				repository1.Dispose();
-				repository2.Dispose();
-				TestHelper.AreEqual(expected, actual);
-			}
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name1 = "Repository1";
+			var name2 = "Repository2";
+			var repository1 = provider.OpenRepository(name1);
+			var repository2 = provider.OpenRepository(name2);
+			var expected = new List<string> { name1, name2 };
+			var actual = provider.AvailableRepositories();
+			repository1.Dispose();
+			repository2.Dispose();
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -37,20 +35,18 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			foreach (var provider in TestHelper.RepositoryProviders)
-			{
-				var name = "Repository1";
-				provider.OpenRepository(name).Dispose();
-				var expected = new List<string> { name };
-				var actual = provider.AvailableRepositories();
-				TestHelper.AreEqual(expected, actual);
-			}
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name = "Repository1";
+			provider.OpenRepository(name).Dispose();
+			var expected = new List<string> { name };
+			var actual = provider.AvailableRepositories();
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[ClassCleanup]
 		public static void Cleanup()
 		{
-			TestHelper.Directory.SafeDelete();
+			TestHelper.Cleanup();
 		}
 
 		[TestMethod]
@@ -58,34 +54,30 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			foreach (var provider in TestHelper.RepositoryProviders)
-			{
-				var name = "Repository1";
-				provider.OpenRepository(name).Dispose();
-				var expected = new List<string> { name };
-				var actual = provider.AvailableRepositories();
-				TestHelper.AreEqual(expected, actual);
-				provider.DeleteRepository(name);
-				expected.Clear();
-				actual = provider.AvailableRepositories();
-				TestHelper.AreEqual(expected, actual);
-			}
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name = "Repository1";
+			provider.OpenRepository(name).Dispose();
+			var expected = new List<string> { name };
+			var actual = provider.AvailableRepositories();
+			TestHelper.AreEqual(expected, actual);
+			provider.DeleteRepository(name);
+			expected.Clear();
+			actual = provider.AvailableRepositories();
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void GetRepositoryShouldReturnRepository()
 		{
 			Cleanup();
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			Cleanup();
 
-			foreach (var provider in TestHelper.RepositoryProviders)
+			var name = Guid.NewGuid().ToString();
+			using (var repository = provider.OpenRepository(name))
 			{
-				TestHelper.Directory.SafeDelete();
-				var name = Guid.NewGuid().ToString();
-				using (var repository = provider.OpenRepository(name))
-				{
-					Assert.IsNotNull(repository);
-					Assert.AreEqual(name, repository.Name);
-				}
+				Assert.IsNotNull(repository);
+				Assert.AreEqual(name, repository.Name);
 			}
 		}
 
@@ -94,23 +86,21 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			foreach (var provider in TestHelper.RepositoryProviders)
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name = "Repository1";
+			provider.OpenRepository(name).Dispose();
+			var expected = new List<string> { name };
+			var actual = provider.AvailableRepositories();
+			TestHelper.AreEqual(expected, actual);
+
+			using (var repository = provider.OpenRepository(name))
 			{
-				var name = "Repository1";
-				provider.OpenRepository(name).Dispose();
-				var expected = new List<string> { name };
-				var actual = provider.AvailableRepositories();
-				TestHelper.AreEqual(expected, actual);
-
-				using (var repository = provider.OpenRepository(name))
-				{
-					repository.Delete();
-				}
-
-				expected.Clear();
-				actual = provider.AvailableRepositories();
-				TestHelper.AreEqual(expected, actual);
+				repository.Delete();
 			}
+
+			expected.Clear();
+			actual = provider.AvailableRepositories();
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		#endregion

@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,26 +10,30 @@ using System.Linq;
 namespace Speedy
 {
 	/// <summary>
-	/// A provider for the Repository.
+	/// A provider for the memory / file repository.
 	/// </summary>
 	public class RepositoryProvider : IRepositoryProvider
 	{
 		#region Fields
 
 		private readonly DirectoryInfo _directory;
+		private readonly int _limit;
+		private readonly TimeSpan? _timeout;
 
 		#endregion
 
 		#region Constructors
 
-		public RepositoryProvider(string directory)
-			: this(new DirectoryInfo(directory))
+		public RepositoryProvider(string directory, TimeSpan? timeout = null, int limit = 0)
+			: this(new DirectoryInfo(directory), timeout, limit)
 		{
 		}
 
-		public RepositoryProvider(DirectoryInfo directory)
+		public RepositoryProvider(DirectoryInfo directory, TimeSpan? timeout = null, int limit = 0)
 		{
 			_directory = directory;
+			_timeout = timeout;
+			_limit = limit;
 		}
 
 		#endregion
@@ -63,7 +68,7 @@ namespace Speedy
 		/// <returns> The repository. </returns>
 		public IRepository OpenRepository(string name)
 		{
-			return Repository.Create(_directory.FullName, name);
+			return Repository.Create(_directory.FullName, name, _timeout, _limit);
 		}
 
 		#endregion

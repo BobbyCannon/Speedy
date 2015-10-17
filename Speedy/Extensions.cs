@@ -4,26 +4,28 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
 
 #endregion
 
 namespace Speedy
 {
+	/// <summary>
+	/// Extensions for all the things.
+	/// </summary>
 	public static class Extensions
 	{
 		#region Methods
 
-		public static void AddOrUpdate<T1, T2>(this Dictionary<T1, T2> dictionary, Dictionary<T1, T2> values)
-		{
-			foreach (var item in values)
-			{
-				dictionary.AddOrUpdate(item.Key, item.Value);
-			}
-		}
-
-		public static void AddOrUpdate<T1, T2>(this Dictionary<T1, T2> dictionary, T1 key, T2 value)
+		/// <summary>
+		/// Add or update a dictionary entry.
+		/// </summary>
+		/// <typeparam name="T1"> The type of the key. </typeparam>
+		/// <typeparam name="T2"> The type of the value. </typeparam>
+		/// <param name="dictionary"> The dictionary to update. </param>
+		/// <param name="key"> The value of the key. </param>
+		/// <param name="value"> The value of the value. </param>
+		internal static void AddOrUpdate<T1, T2>(this Dictionary<T1, T2> dictionary, T1 key, T2 value)
 		{
 			if (dictionary.ContainsKey(key))
 			{
@@ -34,23 +36,21 @@ namespace Speedy
 			dictionary.Add(key, value);
 		}
 
-		public static void SafeCreate(this DirectoryInfo directory)
+		/// <summary>
+		/// Open the file with read/write permission with file read share.
+		/// </summary>
+		/// <param name="info"> The information for the file. </param>
+		/// <returns> The stream for the file. </returns>
+		internal static FileStream OpenFile(this FileInfo info)
 		{
-			directory.Refresh();
-			if (directory.Exists)
-			{
-				return;
-			}
-
-			directory.Create();
-			Wait(() =>
-			{
-				directory.Refresh();
-				return directory.Exists;
-			});
+			return Retry(() => File.Open(info.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read), TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
 		}
 
-		public static void SafeCreate(this FileInfo file)
+		/// <summary>
+		/// Safely create a file.
+		/// </summary>
+		/// <param name="file"> The information of the file to create. </param>
+		internal static void SafeCreate(this FileInfo file)
 		{
 			file.Refresh();
 			if (file.Exists)
@@ -58,7 +58,8 @@ namespace Speedy
 				return;
 			}
 
-			File.WriteAllText(file.FullName, string.Empty, Encoding.UTF8);
+			Retry(() => File.Create(file.FullName).Dispose(), TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
+
 			Wait(() =>
 			{
 				file.Refresh();
@@ -66,24 +67,28 @@ namespace Speedy
 			});
 		}
 
-		public static void SafeDelete(this DirectoryInfo directory)
+		internal static void SafeCreate(this DirectoryInfo directory)
 		{
 			directory.Refresh();
-			if (!directory.Exists)
+			if (directory.Exists)
 			{
 				return;
 			}
 
-			directory.Delete(true);
+			Retry(directory.Create, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
 
 			Wait(() =>
 			{
 				directory.Refresh();
-				return !directory.Exists;
+				return directory.Exists;
 			});
 		}
 
-		public static void SafeDelete(this FileInfo file)
+		/// <summary>
+		/// Safely delete a file.
+		/// </summary>
+		/// <param name="file"> The information of the file to delete. </param>
+		internal static void SafeDelete(this FileInfo file)
 		{
 			file.Refresh();
 			if (!file.Exists)
@@ -91,7 +96,7 @@ namespace Speedy
 				return;
 			}
 
-			file.Delete();
+			Retry(file.Delete, TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(50));
 
 			Wait(() =>
 			{
@@ -108,7 +113,7 @@ namespace Speedy
 		/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
 		/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
 		/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
-		public static bool Wait(Func<bool> action, double timeout = 1000, int delay = 50)
+		internal static bool Wait(Func<bool> action, double timeout = 1000, int delay = 50)
 		{
 			var watch = Stopwatch.StartNew();
 			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
@@ -129,6 +134,67 @@ namespace Speedy
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
+		/// provided delay time.
+		/// </summary>
+		/// <typeparam name="T"> The type for this retry. </typeparam>
+		/// <param name="action"> The action to attempt to retry. </param>
+		/// <param name="timeout"> The timeout to stop retrying. </param>
+		/// <param name="delay"> The delay between retries. </param>
+		/// <returns> The response from the action. </returns>
+		private static T Retry<T>(Func<T> action, TimeSpan timeout, TimeSpan delay)
+		{
+			var watch = Stopwatch.StartNew();
+
+			try
+			{
+				return action();
+			}
+			catch (Exception)
+			{
+				Thread.Sleep((int) delay.TotalMilliseconds);
+
+				var remaining = timeout - watch.Elapsed;
+				if (remaining.Ticks >= 0)
+				{
+					return Retry(action, remaining, delay);
+				}
+
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
+		/// provided delay time.
+		/// </summary>
+		/// <param name="action"> The action to attempt to retry. </param>
+		/// <param name="timeout"> The timeout to stop retrying. </param>
+		/// <param name="delay"> The delay between retries. </param>
+		/// <returns> The response from the action. </returns>
+		private static void Retry(Action action, TimeSpan timeout, TimeSpan delay)
+		{
+			var watch = Stopwatch.StartNew();
+
+			try
+			{
+				action();
+			}
+			catch (Exception)
+			{
+				Thread.Sleep((int) delay.TotalMilliseconds);
+
+				var remaining = timeout - watch.Elapsed;
+				if (remaining.Ticks >= 0)
+				{
+					Retry(action, remaining, delay);
+				}
+
+				throw;
+			}
 		}
 
 		#endregion

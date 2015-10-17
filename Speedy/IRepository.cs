@@ -46,6 +46,11 @@ namespace Speedy
 		HashSet<string> FindMissingKeys(HashSet<string> keys);
 
 		/// <summary>
+		/// Flushes all cached items to storage.
+		/// </summary>
+		void Flush();
+
+		/// <summary>
 		/// Loads items directly into the repository. This will not check the keys so we can
 		/// speed up the loading of items. If you need key protection then use Write instead.
 		/// </summary>
