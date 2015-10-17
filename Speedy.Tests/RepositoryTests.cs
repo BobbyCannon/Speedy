@@ -24,6 +24,27 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void ClearItemFromDisk()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Foo2", "Bar2");
+				repository.Write("Foo3", "Bar3");
+				repository.Save();
+
+				// Only Foo1 should be in the file.
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.AreEqual(33, info.Length);
+
+				repository.Clear();
+				info.Refresh();
+				Assert.AreEqual(0, info.Length);
+			}
+		}
+
+		[TestMethod]
 		public void CountShouldReturnCorrectValue()
 		{
 			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
@@ -525,6 +546,21 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(3, actual.Count);
 				TestHelper.AreEqual(expected, actual);
+			}
+		}
+
+		[TestMethod]
+		public void WriteUsingDictionary()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
+			{
+				repository.Write(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
+				repository.Save();
+
+				Assert.AreEqual(2, repository.Count);
+				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.AreEqual(22, info.Length);
 			}
 		}
 

@@ -13,7 +13,7 @@ namespace Speedy
 	/// <summary>
 	/// Extensions for all the things.
 	/// </summary>
-	public static class Extensions
+	internal static class Extensions
 	{
 		#region Methods
 

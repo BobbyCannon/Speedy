@@ -419,6 +419,10 @@ namespace Speedy
 			}
 		}
 
+		/// <summary>
+		/// Gets the count if items in the repository.
+		/// </summary>
+		/// <returns> The number of items in the repository. </returns>
 		private int GetCount()
 		{
 			lock (_changes)
@@ -459,6 +463,10 @@ namespace Speedy
 			}
 		}
 
+		/// <summary>
+		/// Saves items to the repository. Including items over the cache limit and any that have expired due to the cache timeout.
+		/// </summary>
+		/// <param name="threshold"> The date time threshold that was calculated from the cache timeout. </param>
 		private void SaveRepository(DateTime threshold)
 		{
 			FileInfo.Refresh();
