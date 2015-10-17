@@ -44,8 +44,6 @@ $version = $versionInfo.FileVersion.ToString()
 Move-Item "Speedy.$version.nupkg" "$destination\Speedy.$version.nupkg" -force
 Copy-Item "$destination\Speedy.$version.nupkg" "$nugetDestination" -force
 
-.\ResetAssemblyInfos.ps1
-
 Write-Host
 Set-Location $scriptPath
 Write-Host "Speedy Build: " $watch.Elapsed -ForegroundColor Yellow

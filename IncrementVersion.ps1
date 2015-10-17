@@ -102,7 +102,6 @@ function Set-BuildNumbers
         $oldAssemblyVersion = ,($oldAssemblyVersionLine | Get-VersionArray) | Convert-VersionArray
         $newAssemblyVersionLine = $oldAssemblyVersionLine.Replace($oldAssemblyVersion, $newVersionNumber)
         Write-Verbose $newAssemblyVersionLine
-
         $versionPattern2 = $versionPattern1.Replace("AssemblyVersion","AssemblyFileVersion")
         $oldAssemblyFileVersionLine = Get-VersionLine $file $versionPattern2
         Write-Verbose $oldAssemblyFileVersionLine
@@ -110,9 +109,9 @@ function Set-BuildNumbers
         $newAssemblyFileVersionLine = $oldAssemblyFileVersionLine.Replace($oldAssemblyFileVersion, $newVersionNumber)
         Write-Verbose $newAssemblyFileVersionLine
     
-        (Get-Content $file) | % {
+        (Get-Content $file).Trim() | % {
             $_.Replace($oldAssemblyVersionLine, $newAssemblyVersionLine).Replace($oldAssemblyFileVersionLine, $newAssemblyFileVersionLine) 
-        } | Set-Content $file
+        } | Set-Content $file -Encoding UTF8
     }
 }
 
