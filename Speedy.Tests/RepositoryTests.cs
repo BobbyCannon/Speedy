@@ -46,6 +46,65 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void CountCorrectWithCachedAdd()
+		{
+			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			tempInfo.Directory.SafeCreate();
+			var rawData = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2";
+			File.WriteAllText(tempInfo.FullName, rawData, Encoding.UTF8);
+
+			var repository = provider.OpenRepository(name);
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
+
+			Assert.AreEqual(3, repository.Count);
+
+			repository.Dispose();
+		}
+
+		[TestMethod]
+		public void CountCorrectWithCachedRemoves()
+		{
+			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			tempInfo.Directory.SafeCreate();
+			var rawData = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2";
+			File.WriteAllText(tempInfo.FullName, rawData, Encoding.UTF8);
+
+			var repository = provider.OpenRepository(name);
+			var data = repository.Read().Take(1).ToList();
+			var keys = new HashSet<string>(data.Select(x => x.Key));
+			repository.Remove(keys);
+			repository.Save();
+
+			Assert.AreEqual(1, repository.Count);
+
+			repository.Dispose();
+		}
+
+		[TestMethod]
+		public void CountCorrectWithCachedUpdates()
+		{
+			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			tempInfo.Directory.SafeCreate();
+			var rawData = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2";
+			File.WriteAllText(tempInfo.FullName, rawData, Encoding.UTF8);
+
+			var repository = provider.OpenRepository(name);
+			repository.Write("Foo1", "Bar");
+			repository.Save();
+
+			Assert.AreEqual(2, repository.Count);
+
+			repository.Dispose();
+		}
+
+		[TestMethod]
 		public void CountFromCorruptRepository()
 		{
 			var name = Guid.NewGuid().ToString();
@@ -402,6 +461,84 @@ namespace Speedy.Tests
 				var actual = repository.Read().ToList();
 				Assert.AreEqual(tasks.Length + size - 1, actual.Count);
 			}
+		}
+
+		[TestMethod]
+		public void ReadCorrectWithCachedAdd()
+		{
+			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			tempInfo.Directory.SafeCreate();
+			var rawData = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2";
+			File.WriteAllText(tempInfo.FullName, rawData, Encoding.UTF8);
+
+			var repository = provider.OpenRepository(name);
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
+
+			var expected = new[]
+			{
+				new KeyValuePair<string, string>("Foo3", "Bar3"),
+				new KeyValuePair<string, string>("Foo1", "Bar1"),
+				new KeyValuePair<string, string>("Foo2", "Bar2")
+			};
+
+			var actual = repository.Read().ToArray();
+			TestHelper.AreEqual(expected, actual);
+
+			repository.Dispose();
+		}
+
+		[TestMethod]
+		public void ReadCorrectWithCachedRemoves()
+		{
+			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			tempInfo.Directory.SafeCreate();
+			var rawData = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2";
+			File.WriteAllText(tempInfo.FullName, rawData, Encoding.UTF8);
+
+			var repository = provider.OpenRepository(name);
+			var data = repository.Read().Take(1).ToList();
+			var keys = new HashSet<string>(data.Select(x => x.Key));
+			repository.Remove(keys);
+			repository.Save();
+
+			Assert.AreEqual(1, repository.Count);
+
+			var actual = repository.Read().Take(1).First();
+			Assert.AreEqual("Foo2", actual.Key);
+			Assert.AreEqual("Bar2", actual.Value);
+
+			repository.Dispose();
+		}
+
+		[TestMethod]
+		public void ReadCorrectWithCachedUpdate()
+		{
+			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			tempInfo.Directory.SafeCreate();
+			var rawData = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2";
+			File.WriteAllText(tempInfo.FullName, rawData, Encoding.UTF8);
+
+			var repository = provider.OpenRepository(name);
+			repository.Write("Foo1", "1Bar");
+			repository.Save();
+
+			var expected = new[]
+			{
+				new KeyValuePair<string, string>("Foo1", "1Bar"),
+				new KeyValuePair<string, string>("Foo2", "Bar2")
+			};
+
+			var actual = repository.Read().ToArray();
+			TestHelper.AreEqual(expected, actual);
+
+			repository.Dispose();
 		}
 
 		[TestMethod]

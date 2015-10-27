@@ -260,6 +260,12 @@ namespace Speedy
 					}
 
 					var readKey = line.Substring(0, delimiter);
+					if (_cache.ContainsKey(readKey))
+					{
+						// Skip this item because it's in the cache.
+						continue;
+					}
+
 					yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
 				}
 			}
