@@ -18,5 +18,6 @@
 	</metadata>
 	<files>
 		<file src="C:\Binaries\Speedy\bin\Speedy.dll" target="lib\net40" />
+		<file src="C:\Binaries\Speedy\bin\Speedy.pdb" target="lib\net40" />
 	</files>
 </package>

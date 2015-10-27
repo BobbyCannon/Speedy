@@ -36,6 +36,7 @@ if ($LASTEXITCODE -ne 0) {
 Set-Location $scriptPath
 
 Copy-Item Speedy\bin\$Configuration\Speedy.dll $destination\bin\
+Copy-Item Speedy\bin\$Configuration\Speedy.pdb $destination\bin\
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\Speedy.dll")
 $version = $versionInfo.FileVersion.ToString()
