@@ -14,6 +14,23 @@ namespace Speedy.Tests
 		#region Methods
 
 		[TestMethod]
+		public void AvailableRepositoriesShouldExclude()
+		{
+			Cleanup();
+
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name1 = "Repository1";
+			var name2 = "Repository2";
+			var repository1 = provider.OpenRepository(name1);
+			var repository2 = provider.OpenRepository(name2);
+			var expected = new List<string> { name1 };
+			var actual = provider.AvailableRepositories(name2);
+			repository1.Dispose();
+			repository2.Dispose();
+			TestHelper.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
 		public void AvailableRepositoriesShouldReturnMultipleRepository()
 		{
 			Cleanup();
@@ -142,6 +159,22 @@ namespace Speedy.Tests
 					Assert.AreEqual(repository2.Name, "Repository2");
 				}
 			}
+		}
+
+		[TestMethod]
+		public void OpenAvailableRepositoryShouldExclude()
+		{
+			Cleanup();
+
+			var provider = new RepositoryProvider(TestHelper.Directory);
+			var name1 = "Repository1";
+			var name2 = "Repository2";
+			var repository1 = provider.OpenRepository(name1);
+			provider.OpenRepository(name2).Dispose();
+			var actual = provider.OpenAvailableRepository(name1);
+			repository1.Dispose();
+			TestHelper.AreEqual(name2, actual.Name);
+			actual.Dispose();
 		}
 
 		[TestMethod]

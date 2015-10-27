@@ -31,7 +31,10 @@ namespace Speedy
 		/// </summary>
 		/// <param name="directoryInfo"> The directory info where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
-		/// <param name="timeout"> The amount of time to cache items in memory before persisting to disk. Defaults to null and then TimeSpan.Zero is used. </param>
+		/// <param name="timeout">
+		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
+		/// TimeSpan.Zero is used.
+		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
 		private Repository(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
 		{
@@ -50,7 +53,10 @@ namespace Speedy
 		/// </summary>
 		/// <param name="directory"> The directory where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
-		/// <param name="timeout"> The amount of time to cache items in memory before persisting to disk. Defaults to null and then TimeSpan.Zero is used. </param>
+		/// <param name="timeout">
+		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
+		/// TimeSpan.Zero is used.
+		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
 		private Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 			: this(new DirectoryInfo(directory), name, timeout, limit)
@@ -109,7 +115,10 @@ namespace Speedy
 		/// </summary>
 		/// <param name="directoryInfo"> The directory info where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
-		/// <param name="timeout"> The amount of time to cache items in memory before persisting to disk. Defaults to null and then TimeSpan.Zero is used. </param>
+		/// <param name="timeout">
+		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
+		/// TimeSpan.Zero is used.
+		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
 		public static IRepository Create(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
 		{
@@ -121,7 +130,10 @@ namespace Speedy
 		/// </summary>
 		/// <param name="directory"> The directory where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
-		/// <param name="timeout"> The amount of time to cache items in memory before persisting to disk. Defaults to null and then TimeSpan.Zero is used. </param>
+		/// <param name="timeout">
+		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
+		/// TimeSpan.Zero is used.
+		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
 		public static IRepository Create(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 		{

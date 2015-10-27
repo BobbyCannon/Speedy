@@ -16,8 +16,9 @@ namespace Speedy
 		/// <summary>
 		/// Gets a list of names for available repositories.
 		/// </summary>
+		/// <param name="excluding"> The optional repositories to exclude. </param>
 		/// <returns> A list of repository names that are available to access. </returns>
-		IEnumerable<string> AvailableRepositories();
+		IEnumerable<string> AvailableRepositories(params string[] excluding);
 
 		/// <summary>
 		/// Delete a repository by the provided name.
@@ -28,8 +29,9 @@ namespace Speedy
 		/// <summary>
 		/// Gets the first available repository that is not currently open.
 		/// </summary>
+		/// <param name="excluding"> The optional repositories to exclude. </param>
 		/// <returns> The repository that was opened or null if none available. </returns>
-		IRepository OpenAvailableRepository();
+		IRepository OpenAvailableRepository(params string[] excluding);
 
 		/// <summary>
 		/// Gets a repository by the provided name. If the repository cannot be found a new one is created and returned.
