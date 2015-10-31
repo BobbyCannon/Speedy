@@ -29,6 +29,11 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Archives the repository.
+		/// </summary>
+		void Archive();
+
+		/// <summary>
 		/// Clears the repository.
 		/// </summary>
 		void Clear();

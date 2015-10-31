@@ -18,6 +18,35 @@ namespace Speedy.Tests
 	{
 		#region Methods
 
+		[TestMethod]
+		public void Archive()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Foo2", "Bar2");
+				repository.Write("Foo3", "Bar3");
+				repository.Save();
+
+				var archiveFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy.archive");
+				var repositoryFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.IsFalse(archiveFile.Exists);
+				Assert.IsTrue(repositoryFile.Exists);
+
+				repository.Archive();
+				archiveFile.Refresh();
+				repositoryFile.Refresh();
+
+				Assert.IsTrue(archiveFile.Exists);
+				Assert.IsFalse(repositoryFile.Exists);
+
+				var expected = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2{Environment.NewLine}Foo3|Bar3{Environment.NewLine}";
+				var actual = archiveFile.ReadAllText();
+				Assert.AreEqual(expected, actual);
+			}
+		}
+
 		[ClassCleanup]
 		public static void Cleanup()
 		{
@@ -37,6 +66,9 @@ namespace Speedy.Tests
 
 				// Only Foo1 should be in the file.
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				var expected = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2{Environment.NewLine}Foo3|Bar3{Environment.NewLine}";
+				var actual = info.ReadAllText();
+				Assert.AreEqual(expected, actual);
 				Assert.AreEqual(36, info.Length);
 
 				repository.Clear();
@@ -159,6 +191,26 @@ namespace Speedy.Tests
 				repository.Write("Item3", "Item3");
 
 				Assert.AreEqual(0, repository.Count);
+			}
+		}
+
+		[TestMethod]
+		public void Delete()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = Repository.Create(TestHelper.Directory, name))
+			{
+				repository.Write("Foo1", "Bar1");
+				repository.Write("Foo2", "Bar2");
+				repository.Write("Foo3", "Bar3");
+				repository.Save();
+
+				var repositoryFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+				Assert.IsTrue(repositoryFile.Exists);
+
+				repository.Delete();
+				repositoryFile.Refresh();
+				Assert.IsFalse(repositoryFile.Exists);
 			}
 		}
 

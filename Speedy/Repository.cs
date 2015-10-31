@@ -97,6 +97,22 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Archives the repository.
+		/// </summary>
+		public void Archive()
+		{
+			lock (_changes)
+			{
+				_cache.Clear();
+				_changes.Clear();
+				_fileStream.Close();
+				_fileStream = null;
+				FileInfo.SafeMove(new FileInfo(FileInfo.FullName + ".archive"));
+				TempFileInfo.SafeDelete();
+			}
+		}
+
+		/// <summary>
 		/// Clears the repository.
 		/// </summary>
 		public void Clear()
@@ -152,6 +168,7 @@ namespace Speedy
 				_cache.Clear();
 				_changes.Clear();
 				_fileStream.Close();
+				_fileStream = null;
 				FileInfo.SafeDelete();
 				TempFileInfo.SafeDelete();
 			}
@@ -414,7 +431,8 @@ namespace Speedy
 			if (disposing)
 			{
 				Flush();
-				_fileStream.Dispose();
+				_fileStream?.Dispose();
+				_fileStream = null;
 			}
 		}
 
@@ -459,7 +477,7 @@ namespace Speedy
 		private void SaveRepository(DateTime threshold)
 		{
 			FileInfo.Refresh();
-			if (!FileInfo.Exists)
+			if (!FileInfo.Exists || _fileStream == null)
 			{
 				return;
 			}

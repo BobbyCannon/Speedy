@@ -14,6 +14,12 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Archive a repository by the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the repository to archive. </param>
+		void ArchiveRepository(string name);
+
+		/// <summary>
 		/// Gets a list of names for available repositories.
 		/// </summary>
 		/// <param name="excluding"> The optional repositories to exclude. </param>
@@ -39,6 +45,12 @@ namespace Speedy
 		/// <param name="name"> The name of the repository to get. </param>
 		/// <returns> The repository. </returns>
 		IRepository OpenRepository(string name);
+
+		/// <summary>
+		/// Unarchive a repository by the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the repository to unarchive. </param>
+		void UnarchiveRepository(string name);
 
 		#endregion
 	}

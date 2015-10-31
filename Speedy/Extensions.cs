@@ -197,6 +197,29 @@ namespace Speedy
 			}, 1000, 10);
 		}
 
+		/// <summary>
+		/// Safely move a file.
+		/// </summary>
+		/// <param name="fileLocation"> The information of the file to move. </param>
+		/// <param name="newLocation"> The location to move the file to. </param>
+		internal static void SafeMove(this FileInfo fileLocation, FileInfo newLocation)
+		{
+			fileLocation.Refresh();
+			if (!fileLocation.Exists)
+			{
+				throw new FileNotFoundException("The file could not be found.", fileLocation.FullName);
+			}
+
+			Retry(() => fileLocation.MoveTo(newLocation.FullName), 1000, 10);
+
+			Wait(() =>
+			{
+				fileLocation.Refresh();
+				newLocation.Refresh();
+				return !fileLocation.Exists && newLocation.Exists;
+			}, 1000, 10);
+		}
+
 		#endregion
 	}
 }

@@ -59,6 +59,17 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Archive a repository by the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the repository to archive. </param>
+		public void ArchiveRepository(string name)
+		{
+			var from = new FileInfo($"{_directoryInfo.FullName}\\{name}.speedy");
+			var to = new FileInfo($"{_directoryInfo.FullName}\\{name}.speedy.archive");
+			from.SafeMove(to);
+		}
+
+		/// <summary>
 		/// Gets a list of names for available repositories.
 		/// </summary>
 		/// <param name="excluding"> The optional repositories to exclude. </param>
@@ -111,6 +122,17 @@ namespace Speedy
 		public IRepository OpenRepository(string name)
 		{
 			return Repository.Create(_directoryInfo.FullName, name, _timeout, _limit);
+		}
+
+		/// <summary>
+		/// Unarchive a repository by the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the repository to unarchive. </param>
+		public void UnarchiveRepository(string name)
+		{
+			var from = new FileInfo($"{_directoryInfo.FullName}\\{name}.speedy.archive");
+			var to = new FileInfo($"{_directoryInfo.FullName}\\{name}.speedy");
+			from.SafeMove(to);
 		}
 
 		#endregion
