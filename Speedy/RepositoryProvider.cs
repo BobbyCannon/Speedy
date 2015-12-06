@@ -56,6 +56,25 @@ namespace Speedy
 
 		#endregion
 
+		#region Properties
+
+		/// <summary>
+		/// Gets the directory where the repository will reside.
+		/// </summary>
+		public string Directory => _directoryInfo.FullName;
+
+		/// <summary>
+		/// Gets the amount of time to cache items in memory before persisting to disk.
+		/// </summary>
+		public TimeSpan? Timeout => _timeout;
+
+		/// <summary>
+		/// Gets the maximum limit of items to be cached in memory.
+		/// </summary>
+		public int Limit => _limit;
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
