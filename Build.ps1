@@ -25,6 +25,7 @@ $revision = [Math]::Floor([DateTime]::UtcNow.TimeOfDay.TotalSeconds / 2)
 
 .\IncrementVersion.ps1 -Build $build -Revision $revision
 
+& nuget.exe restore "$scriptPath\Speedy.sln"
 $msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
 & $msbuild "$scriptPath\Speedy.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=14.0 /v:m /m
 
