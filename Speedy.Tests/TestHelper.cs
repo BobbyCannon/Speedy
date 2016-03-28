@@ -1,12 +1,17 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
+using System.Data.Entity.Validation;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Speedy.Samples;
+using Speedy.Tests.Properties;
 
 #endregion
 
@@ -24,7 +29,7 @@ namespace Speedy.Tests
 
 		static TestHelper()
 		{
-			Directory = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\SpeedyTest");
+			Directory = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy");
 		}
 
 		#endregion
@@ -41,6 +46,7 @@ namespace Speedy.Tests
 		{
 			var compareObjects = new CompareLogic();
 			compareObjects.Config.MaxDifferences = int.MaxValue;
+			compareObjects.Config.CompareChildren = false;
 
 			var result = compareObjects.Compare(expected, actual);
 			Assert.IsTrue(result.AreEqual, result.DifferencesString);
@@ -59,14 +65,44 @@ namespace Speedy.Tests
 			}
 			catch (T ex)
 			{
-				if (!ex.ToDetailedString().Contains(errorMessage))
+				var details = ex.ToDetailedString();
+				if (!details.Contains(errorMessage))
 				{
-					Assert.Fail("Expected <" + ex.Message + "> to contain <" + errorMessage + ">.");
+					Assert.Fail("Expected <" + details + "> to contain <" + errorMessage + ">.");
 				}
 				return;
 			}
 
 			Assert.Fail("The expected exception was not thrown.");
+		}
+
+		public static IEnumerable<ISampleDatabaseProvider> GetDataContextProviders()
+		{
+			var context1 = new EntityFrameworkSampleDatabase();
+			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+
+			var contextProvider1 = new Mock<ISampleDatabaseProvider>();
+			contextProvider1.Setup(x => x.CreateContext()).Returns(() => new EntityFrameworkSampleDatabase());
+
+			var context2 = new SampleDatabase(Directory.FullName);
+			var contextProvider2 = new Mock<ISampleDatabaseProvider>();
+			contextProvider2.Setup(x => x.CreateContext()).Returns(context2);
+
+			return new[] { contextProvider1.Object, contextProvider2.Object };
+		}
+
+		public static IEnumerable<ISampleDatabase> GetDataContexts()
+		{
+			var context1 = new EntityFrameworkSampleDatabase();
+			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+
+			return new ISampleDatabase[] { context1, new SampleDatabase(Directory.FullName) };
+		}
+
+		public static void Initialize()
+		{
+			Directory.SafeDelete();
+			Directory.SafeCreate();
 		}
 
 		/// <summary>
@@ -104,11 +140,35 @@ namespace Speedy.Tests
 			});
 		}
 
+		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
+		{
+			builder.AppendLine(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
+
+			var entityException = ex as DbEntityValidationException;
+			if (entityException != null)
+			{
+				foreach (var details in entityException.EntityValidationErrors)
+				{
+					foreach (var error in details.ValidationErrors)
+					{
+						builder.AppendLine(details.Entry.Entity.GetType().Name + ": " + error.ErrorMessage);
+					}
+
+					builder.AppendLine();
+				}
+			}
+
+			if (ex.InnerException != null)
+			{
+				AddExceptionToBuilder(builder, ex.InnerException);
+			}
+		}
+
 		/// <summary>
 		/// Safely delete a directory.
 		/// </summary>
 		/// <param name="directory"> The information of the directory to delete. </param>
-		public static void SafeDelete(this DirectoryInfo directory)
+		private static void SafeDelete(this DirectoryInfo directory)
 		{
 			directory.Refresh();
 			if (!directory.Exists)
@@ -125,7 +185,7 @@ namespace Speedy.Tests
 			});
 		}
 
-		public static string ToDetailedString(this Exception ex)
+		private static string ToDetailedString(this Exception ex)
 		{
 			var builder = new StringBuilder();
 			AddExceptionToBuilder(builder, ex);
@@ -140,7 +200,7 @@ namespace Speedy.Tests
 		/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
 		/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
 		/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
-		internal static bool Wait(Func<bool> action, double timeout = 1000, int delay = 50)
+		private static bool Wait(Func<bool> action, double timeout = 1000, int delay = 50)
 		{
 			var watch = Stopwatch.StartNew();
 			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
@@ -161,16 +221,6 @@ namespace Speedy.Tests
 			}
 
 			return true;
-		}
-
-		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
-		{
-			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
-
-			if (ex.InnerException != null)
-			{
-				AddExceptionToBuilder(builder, ex.InnerException);
-			}
 		}
 
 		#endregion

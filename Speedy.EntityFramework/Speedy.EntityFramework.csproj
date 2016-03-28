@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DE1FCAF6-D683-44B7-B8E3-FF6A19569C16}</ProjectGuid>
+    <ProjectGuid>{E1700BBE-066F-4ACC-9ABD-5C9DFB61B5FC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Speedy</RootNamespace>
-    <AssemblyName>Speedy</AssemblyName>
+    <RootNamespace>Speedy.EntityFramework</RootNamespace>
+    <AssemblyName>Speedy.EntityFramework</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -30,54 +30,39 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Key.pfx</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Database.cs" />
-    <Compile Include="Exceptions\ValidationException.cs" />
-    <Compile Include="Storage\EntityComparer.cs" />
-    <Compile Include="Storage\IEntityRepository.cs" />
-    <Compile Include="IEntityRepository.cs" />
-    <Compile Include="Storage\ShouldSerializeContractResolver.cs" />
-    <Compile Include="Entity.cs" />
-    <Compile Include="Storage\EntityState.cs" />
-    <Compile Include="Storage\EntityStateType.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="IDatabase.cs" />
-    <Compile Include="Storage\EntityStore.cs" />
-    <Compile Include="Storage\EntityStoreEnumerator.cs" />
-    <Compile Include="IRepository.cs" />
-    <Compile Include="IRepositoryProvider.cs" />
-    <Compile Include="Repository.cs" />
-    <Compile Include="RepositoryProvider.cs" />
-    <Compile Include="Storage\EntityRepository.cs" />
-    <Compile Include="Storage\RelationshipRepository.cs" />
-    <Compile Include="Streams\NoCloseStreamReader.cs" />
+    <Compile Include="EntityFrameworkDatabase.cs" />
+    <Compile Include="EntityFrameworkRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Streams\NoCloseStreamWriter.cs" />
+    <Compile Include="ReadOnlyEntityFrameworkRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Key.pfx" />
+    <ProjectReference Include="..\Speedy\Speedy.csproj">
+      <Project>{de1fcaf6-d683-44b7-b8e3-ff6a19569c16}</Project>
+      <Name>Speedy</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

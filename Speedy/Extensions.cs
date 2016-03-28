@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -16,6 +17,34 @@ namespace Speedy
 	public static class Extensions
 	{
 		#region Methods
+
+		/// <summary>
+		/// Execute the action on each entity in the collection.
+		/// </summary>
+		/// <typeparam name="T"> The type of item in the collection. </typeparam>
+		/// <param name="items"> The collection of items to process. </param>
+		/// <param name="action"> The action to execute for each item. </param>
+		public static void ForEach(this IEnumerable items, Action<object> action)
+		{
+			foreach (var item in items)
+			{
+				action(item);
+			}
+		}
+
+		/// <summary>
+		/// Execute the action on each entity in the collection.
+		/// </summary>
+		/// <typeparam name="T"> The type of item in the collection. </typeparam>
+		/// <param name="items"> The collection of items to process. </param>
+		/// <param name="action"> The action to execute for each item. </param>
+		public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
+		{
+			foreach (var item in items)
+			{
+				action(item);
+			}
+		}
 
 		/// <summary>
 		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the

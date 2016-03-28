@@ -5,7 +5,7 @@ using System.Text;
 
 #endregion
 
-namespace Speedy
+namespace Speedy.Streams
 {
 	/// <summary>
 	/// Encapsulates a stream writer which does not close the underlying stream.
