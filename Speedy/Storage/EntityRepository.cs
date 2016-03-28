@@ -36,9 +36,17 @@ namespace Speedy.Storage
 
 			_index = 0;
 			_type = typeof (T);
-			_store = new EntityStore<T>($"{directory}\\{typeof (T).Name}", this);
-			_store.UpdateEntityRelationships += OnUpdateEntityRelationships;
-			_query = _store.AsQueryable();
+
+			if (!string.IsNullOrWhiteSpace(directory))
+			{
+				_store = new EntityStore<T>($"{directory}\\{typeof (T).Name}", this);
+				_store.UpdateEntityRelationships += OnUpdateEntityRelationships;
+			}
+
+			_query = _store?.AsQueryable() ?? Cache
+				.Where(x => x.State != EntityStateType.Added)
+				.Select(x => (T)x.Entity)
+				.AsQueryable();
 		}
 
 		#endregion
@@ -227,7 +235,21 @@ namespace Speedy.Storage
 
 		public void Reset()
 		{
-			Cache.Clear();
+			Cache.Where(x => x.State == EntityStateType.Added).ToList()
+				.ForEach(x => Cache.Remove(x));
+
+			if (_store != null)
+			{
+				Cache.Clear();
+			}
+			else
+			{
+				Cache.ForEach(x =>
+				{
+					UpdateEntity(x.Entity, x.OldEntity);
+					x.State = EntityStateType.Unmodified;
+				});
+			}
 		}
 
 		public int SaveChanges()
@@ -237,7 +259,7 @@ namespace Speedy.Storage
 			var removed = Cache.Where(x => x.State == EntityStateType.Removed).ToList();
 			foreach (var item in removed)
 			{
-				_store.Remove(item.Entity.Id);
+				_store?.Remove(item.Entity.Id);
 				Cache.Remove(item);
 			}
 
@@ -248,10 +270,21 @@ namespace Speedy.Storage
 					item.Entity.CreatedOn = item.OldEntity.CreatedOn;
 				}
 
-				_store.Write(item.Entity);
+				if (_store != null)
+				{
+					_store?.Write(item.Entity);
+				}
+				else
+				{
+					item.OldEntity = CloneEntity(item.Entity);
+					item.State = EntityStateType.Unmodified;
+				}
 			}
 
-			Cache.Clear();
+			if (_store != null)
+			{
+				Cache.Clear();
+			}
 
 			return changeCount;
 		}

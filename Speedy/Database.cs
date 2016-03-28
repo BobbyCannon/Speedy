@@ -30,7 +30,7 @@ namespace Speedy
 
 		#region Properties
 
-		private string FilePath { get; set; }
+		private string FilePath { get; }
 
 		private Dictionary<string, object[]> Relationships { get; set; }
 

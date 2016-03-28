@@ -12,7 +12,7 @@ namespace Speedy.Samples
 	{
 		#region Constructors
 
-		public SampleDatabase(string directory)
+		public SampleDatabase(string directory = null)
 			: base(directory)
 		{
 			Addresses = GetRepository<Address>();
@@ -39,18 +39,6 @@ namespace Speedy.Samples
 		public IEntityRepository<Food> Foods { get; }
 
 		public IEntityRepository<Person> People { get; }
-
-		#endregion
-
-		#region Methods
-
-		public void ValidateEntity(Address address)
-		{
-			if (address.Line1 == null)
-			{
-				throw new Exception("Validation failed for one or more entities.");
-			}
-		}
 
 		#endregion
 	}

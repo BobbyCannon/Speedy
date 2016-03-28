@@ -84,11 +84,15 @@ namespace Speedy.Tests
 			var contextProvider1 = new Mock<ISampleDatabaseProvider>();
 			contextProvider1.Setup(x => x.CreateContext()).Returns(() => new EntityFrameworkSampleDatabase());
 
-			var context2 = new SampleDatabase(Directory.FullName);
+			var context2 = new SampleDatabase();
 			var contextProvider2 = new Mock<ISampleDatabaseProvider>();
 			contextProvider2.Setup(x => x.CreateContext()).Returns(context2);
 
-			return new[] { contextProvider1.Object, contextProvider2.Object };
+			var context3 = new SampleDatabase(Directory.FullName);
+			var contextProvider3 = new Mock<ISampleDatabaseProvider>();
+			contextProvider3.Setup(x => x.CreateContext()).Returns(context3);
+
+			return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
 		}
 
 		public static IEnumerable<ISampleDatabase> GetDataContexts()
@@ -96,7 +100,7 @@ namespace Speedy.Tests
 			var context1 = new EntityFrameworkSampleDatabase();
 			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
-			return new ISampleDatabase[] { context1, new SampleDatabase(Directory.FullName) };
+			return new ISampleDatabase[] { context1, new SampleDatabase(), new SampleDatabase(Directory.FullName) };
 		}
 
 		public static void Initialize()
