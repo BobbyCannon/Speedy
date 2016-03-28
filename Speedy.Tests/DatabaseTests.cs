@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Exceptions;
 using Speedy.Samples.Entities;
 
 #endregion

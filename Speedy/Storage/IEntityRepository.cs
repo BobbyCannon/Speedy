@@ -1,4 +1,3 @@
-
 namespace Speedy.Storage
 {
 	internal interface IEntityRepository

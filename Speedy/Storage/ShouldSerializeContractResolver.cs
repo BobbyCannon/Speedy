@@ -21,7 +21,7 @@ namespace Speedy.Storage
 		protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
 		{
 			var property = base.CreateProperty(member, memberSerialization);
-			var propertyInfo = (PropertyInfo)member;
+			var propertyInfo = (PropertyInfo) member;
 			var shouldSerialize = !propertyInfo.GetAccessors()[0].IsVirtual;
 
 			property.ShouldSerialize = instance => shouldSerialize;

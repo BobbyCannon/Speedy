@@ -178,18 +178,6 @@ namespace Speedy.Storage
 		{
 			return GetEnumerable().GetEnumerator();
 		}
-		
-		/// <summary>
-		/// Returns an enumerator that iterates through the collection.
-		/// </summary>
-		/// <returns>
-		/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-		/// </returns>
-		private IEnumerable<T> GetEnumerable()
-		{
-			return _repository.GetRawQueryable(_filter)
-				.Union(_repository.Where(_filter), new EntityComparer<T>());
-		}
 
 		/// <summary>
 		/// Removes the first occurrence of a specific object from the <see cref="T:System.Collections.Generic.ICollection`1" />.
@@ -216,6 +204,18 @@ namespace Speedy.Storage
 		public void UpdateRelationships()
 		{
 			_repository.Where(_filter).ForEach(_updateRelationship);
+		}
+
+		/// <summary>
+		/// Returns an enumerator that iterates through the collection.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
+		/// </returns>
+		private IEnumerable<T> GetEnumerable()
+		{
+			return _repository.GetRawQueryable(_filter)
+				.Union(_repository.Where(_filter), new EntityComparer<T>());
 		}
 
 		/// <summary>

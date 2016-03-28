@@ -17,8 +17,6 @@ namespace Speedy
 		#region Fields
 
 		private readonly DirectoryInfo _directoryInfo;
-		private readonly int _limit;
-		private readonly TimeSpan? _timeout;
 
 		#endregion
 
@@ -50,8 +48,8 @@ namespace Speedy
 		public RepositoryProvider(DirectoryInfo directoryInfo, TimeSpan? timeout = null, int limit = 0)
 		{
 			_directoryInfo = directoryInfo;
-			_timeout = timeout;
-			_limit = limit;
+			Timeout = timeout;
+			Limit = limit;
 		}
 
 		#endregion
@@ -64,14 +62,14 @@ namespace Speedy
 		public string Directory => _directoryInfo.FullName;
 
 		/// <summary>
-		/// Gets the amount of time to cache items in memory before persisting to disk.
-		/// </summary>
-		public TimeSpan? Timeout => _timeout;
-
-		/// <summary>
 		/// Gets the maximum limit of items to be cached in memory.
 		/// </summary>
-		public int Limit => _limit;
+		public int Limit { get; }
+
+		/// <summary>
+		/// Gets the amount of time to cache items in memory before persisting to disk.
+		/// </summary>
+		public TimeSpan? Timeout { get; }
 
 		#endregion
 
@@ -140,7 +138,7 @@ namespace Speedy
 		/// <returns> The repository. </returns>
 		public IRepository OpenRepository(string name)
 		{
-			return Repository.Create(_directoryInfo.FullName, name, _timeout, _limit);
+			return Repository.Create(_directoryInfo.FullName, name, Timeout, Limit);
 		}
 
 		/// <summary>

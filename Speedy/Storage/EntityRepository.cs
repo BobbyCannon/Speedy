@@ -139,12 +139,12 @@ namespace Speedy.Storage
 		/// <summary>
 		/// Returns a raw queryable.
 		/// </summary>
-		/// <param name="filter"></param>
-		/// <returns></returns>
+		/// <param name="filter"> </param>
+		/// <returns> </returns>
 		public IQueryable<T> GetRawQueryable(Func<T, bool> filter)
 		{
 			return Cache
-				.Select(x => (T)x.Entity)
+				.Select(x => (T) x.Entity)
 				.Where(filter)
 				.AsQueryable();
 		}

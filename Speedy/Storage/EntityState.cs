@@ -1,7 +1,3 @@
-#region References
-
-#endregion
-
 namespace Speedy.Storage
 {
 	internal class EntityState

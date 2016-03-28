@@ -1,4 +1,4 @@
-#region References
+﻿#region References
 
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Bobby Cannon")]
 [assembly: AssemblyProduct("Speedy.Benchmarks")]
-[assembly: AssemblyCopyright("© Copyright 2014-2015")]
+[assembly: AssemblyCopyright("© Copyright 2014-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
