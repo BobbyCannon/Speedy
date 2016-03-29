@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Speedy.Samples;
+using Speedy.Samples.Entities;
 
 #endregion
 
@@ -51,13 +53,74 @@ namespace Speedy.Benchmarks
 
 		private static void Main(string[] args)
 		{
-			Log("Starting to benchmark Speedy... hold on to your hats!");
-
+			_verboseLog = false;
+			
 			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\SpeedyTest";
 			CleanupDirectory(directory);
 
+			//TestRepository(directory);
+			TestDatabase(directory);
+
+			Log(string.Empty);
+			Log("Press any key to continue...");
+			Console.ReadKey();
+		}
+
+		private static void TestDatabase(string directory)
+		{
+			Log("Starting to benchmark Speedy Database...");
+
+			var watch = Stopwatch.StartNew();
+
+			using (var database = new SampleDatabase(directory))
+			{
+				var random = new Random();
+
+				for (var i = 0; i < 1000; i++)
+				{
+					var address = new Address
+					{
+						Line1 = "Line " + i,
+						Line2 = "Line " + i,
+						City =  "City " + i,
+						Postal = "Postal " + i,
+						State = "State " + i,
+					};
+
+					if (random.Next(1, 100) % 2 == 0)
+					{
+						address.People.Add(new Person
+						{
+							Name = "Person " + i
+						});
+					}
+					
+					database.Addresses.Add(address);
+				}
+
+				database.SaveChanges();
+
+				Log(watch.Elapsed + " : Save");
+
+				watch.Restart();
+
+				Log($"{database.Addresses.Count()} Addresses : {watch.Elapsed}");
+
+				watch.Restart();
+
+				Log($"{database.People.Count()} People : {watch.Elapsed} ");
+
+				watch.Restart();
+			}
+
+			Log("Done: " + watch.Elapsed);
+		}
+
+		private static void TestRepository(string directory)
+		{
+			Log("Starting to benchmark Speedy Repository...");
+
 			var repositorySize = 100000;
-			_verboseLog = false;
 
 			WriteCollection(directory, repositorySize, 100);
 			WriteCollection(directory, repositorySize, 1000);
@@ -82,10 +145,6 @@ namespace Speedy.Benchmarks
 
 			RandomReadsIndividually(directory, "DB-" + repositorySize + "-0", randomKeys);
 			RandomReadsGroup(directory, "DB-" + repositorySize + "-0", randomKeys);
-
-			Log(string.Empty);
-			Log("Press any key to continue...");
-			Console.ReadKey();
 		}
 
 		private static void RandomReadsGroup(string directory, string name, HashSet<string> randomKeys)

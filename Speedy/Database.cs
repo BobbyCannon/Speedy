@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Speedy.Exceptions;
+using Speedy.Configuration;
 using Speedy.Storage;
 
 #endregion
@@ -21,9 +21,9 @@ namespace Speedy
 		protected Database(string filePath)
 		{
 			FilePath = filePath;
+			Mappings = new List<IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IEntityRepository>();
 			Relationships = new Dictionary<string, object[]>();
-			Validations = new Dictionary<string, Func<object, bool>>();
 		}
 
 		#endregion
@@ -32,11 +32,11 @@ namespace Speedy
 
 		private string FilePath { get; }
 
-		private Dictionary<string, object[]> Relationships { get; set; }
+		private ICollection<IPropertyConfiguration> Mappings { get; }
 
-		private Dictionary<string, IEntityRepository> Repositories { get; set; }
+		private Dictionary<string, object[]> Relationships { get; }
 
-		private Dictionary<string, Func<object, bool>> Validations { get; set; }
+		private Dictionary<string, IEntityRepository> Repositories { get; }
 
 		#endregion
 
@@ -71,20 +71,22 @@ namespace Speedy
 			return response;
 		}
 
-		protected void HasMany<T1, T2>(Expression<Func<T2, T1>> entity, Expression<Func<T2, int>> foreignKey, string key = null)
+		protected void HasMany<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, int>> foreignKey, string key = null)
 			where T1 : Entity
 			where T2 : Entity
 		{
-			var theKey = key ?? typeof (T1).Name + typeof (T2).Name;
-			var repository = Repositories.FirstOrDefault(x => x.Key == typeof (T2).FullName).Value;
+			var theKey = key ?? typeof (T2).Name + typeof (T1).Name;
+			var repository = Repositories.FirstOrDefault(x => x.Key == typeof (T1).FullName).Value;
 			Relationships.Add(theKey, new object[] { repository, entity, foreignKey });
 		}
 
-		protected void HasRequired<T>(Expression<Func<T, object>> expression)
+		protected PropertyConfiguration<T> Property<T>(Expression<Func<T, object>> expression) where T : Entity
 		{
-			var theKey = typeof (T).FullName + ":" + expression.Body;
+			var response = new PropertyConfiguration<T>(expression);
 
-			Validations.Add(theKey, x => expression.Compile().Invoke((T) x) != null);
+			Mappings.Add(response);
+
+			return response;
 		}
 
 		private static void AssignNewValue<T1, T2>(T1 obj, Expression<Func<T1, T2>> expression, T2 value)
@@ -241,28 +243,12 @@ namespace Speedy
 				}
 
 				// Converts the relationship to a relationship (filtered) repository.
-				var currentCollection = ((IEnumerable<Entity>) relationship.GetValue(entity, null)).ToList();
+				var currentCollection = (IEnumerable<Entity>) relationship.GetValue(entity, null);
 				var currentCollectionType = currentCollection.GetType();
 
 				if (currentCollectionType.Name == typeof (RelationshipRepository<>).Name)
 				{
 					// We are already a relationship repository so just update the relationships
-					// ReSharper disable once SuspiciousTypeConversion.Global
-					var relationshipRepository = (IRelationshipRepository) currentCollection;
-					relationshipRepository.UpdateRelationships();
-					continue;
-				}
-
-				// See if the entity has a relationship filter.
-				var key1 = entityType.Name + collectionType.Name;
-				var key2 = entityType.Name + relationship.Name;
-				var relationshipFilter = BuildRelationship(entityType, collectionType, entity, currentCollection, key1)
-					?? BuildRelationship(entityType, collectionType, entity, currentCollection, key2);
-
-				// Check to see if the custom memory context has a filter method.
-				if (relationshipFilter == null)
-				{
-					// No filter so there's nothing to do.
 					continue;
 				}
 
@@ -272,6 +258,20 @@ namespace Speedy
 					//relationshipFilter.AddOrUpdate(item);
 					UpdateEntityChildRelationships(item, entity);
 					UpdateEntityDirectRelationships(item);
+				}
+
+				// See if the entity has a relationship filter.
+				var key1 = entityType.Name + collectionType.Name;
+				var key2 = entityType.Name + relationship.Name;
+
+				var relationshipFilter = BuildRelationship(entityType, collectionType, entity, currentCollection, key1)
+					?? BuildRelationship(entityType, collectionType, entity, currentCollection, key2);
+
+				// Check to see if the custom memory context has a filter method.
+				if (relationshipFilter == null)
+				{
+					// No filter so there's nothing to do.
+					continue;
 				}
 
 				// Update relationship collection to the new filtered collection.
@@ -348,16 +348,9 @@ namespace Speedy
 
 		private void ValidateEntity(Entity entity)
 		{
-			var entityType = entity.GetType();
-
-			foreach (var validation in Validations.Where(x => x.Key.StartsWith(entityType.FullName + ":")))
+			foreach (var validation in Mappings.Where(x => x.IsMappingFor(entity)))
 			{
-				if (!validation.Value.Invoke(entity))
-				{
-					var dValue = validation.Value.Target as dynamic;
-					var memberName = dValue.expression.Body.Member.Name;
-					throw new ValidationException($"{entityType.Name}: The {memberName} field is required.");
-				}
+				validation.Validate(entity);
 			}
 		}
 

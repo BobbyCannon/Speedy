@@ -1,5 +1,21 @@
 # Speedy
 
+Speedy offers a quick embedded way to manage your data. Here are the two options.
+
+* Embedded Database
+* Key Value Repository
+
+
+## Embedded Database
+
+Simple and easy to use embedded relationship database.
+
+```
+More information coming soon ...
+```
+
+## Key Value Repository
+
 Small thread safe embedded key value pair persistent repository for .NET.
 
 #### Code Example

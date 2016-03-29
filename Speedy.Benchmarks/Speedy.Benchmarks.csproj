@@ -49,6 +49,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj">
+      <Project>{a8716e62-358c-44f2-a18e-c5e585d097fd}</Project>
+      <Name>Speedy.Samples</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Speedy\Speedy.csproj">
       <Project>{de1fcaf6-d683-44b7-b8e3-ff6a19569c16}</Project>
       <Name>Speedy</Name>

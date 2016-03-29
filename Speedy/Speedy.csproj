@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\PropertyConfiguration.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="Storage\EntityComparer.cs" />

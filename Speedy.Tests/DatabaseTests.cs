@@ -80,8 +80,11 @@ namespace Speedy.Tests
 					context.SaveChanges();
 
 					Assert.AreEqual(1, context.Addresses.Count());
+					Assert.AreNotEqual(0, context.Addresses.First().Id);
 					Assert.AreEqual(1, context.People.Count());
+					Assert.AreNotEqual(0, context.People.First().Id);
 					Assert.AreEqual(1, context.Addresses.First().People.Count);
+					Assert.AreNotEqual(0, context.Addresses.First().People.First().AddressId);
 				}
 			});
 		}

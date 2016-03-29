@@ -20,12 +20,26 @@ namespace Speedy.Samples
 			FoodRelationships = GetRepository<FoodRelationship>();
 			People = GetRepository<Person>();
 
-			HasRequired<Address>(x => x.Line1);
-			HasMany<Address, Person>(p => p.Address, p => p.AddressId);
-			HasMany<Food, FoodRelationship>(x => x.Parent, x => x.ParentId, "FoodChildren");
-			HasMany<Food, FoodRelationship>(x => x.Child, x => x.ChildId, "FoodParents");
-			HasRequired<FoodRelationship>(x => x.ParentId);
-			HasRequired<FoodRelationship>(x => x.ChildId);
+			// Address Map
+			Property<Address>(x => x.Line1).IsRequired().HasMaxLength(256);
+			Property<Address>(x => x.Line2).IsRequired().HasMaxLength(256);
+			Property<Address>(x => x.City).IsRequired().HasMaxLength(256);
+			Property<Address>(x => x.State).IsRequired().HasMaxLength(128);
+			Property<Address>(x => x.Postal).IsRequired().HasMaxLength(128);
+
+			// Person Map
+			Property<Person>(x => x.Name).IsRequired().HasMaxLength(256);
+			HasMany<Person, Address>(p => p.Address, p => p.AddressId);
+
+			// Food Map
+			Property<Food>(x => x.Name).IsRequired().HasMaxLength(256);
+			
+			// Food Relationship 
+			Property<FoodRelationship>(x => x.Quantity).IsRequired();
+			HasMany<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, "FoodChildren");
+			HasMany<FoodRelationship, Food>(x => x.Child, x => x.ChildId, "FoodParents");
+			Property<FoodRelationship>(x => x.ParentId);
+			Property<FoodRelationship>(x => x.ChildId);
 		}
 
 		#endregion
