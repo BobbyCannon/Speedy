@@ -4,6 +4,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -44,6 +46,22 @@ namespace Speedy.Storage
 		#region Methods
 
 		/// <summary>
+		/// Get entity by ID.
+		/// </summary>
+		/// <param name="id"> The ID of the entity to read. </param>
+		/// <returns> The entity or null. </returns>
+		public Entity GetEntity(int? id)
+		{
+			if (!id.HasValue)
+			{
+				return null;
+			}
+
+			var file = new FileInfo($"{Directory}\\{id}.json");
+			return file.Exists ? ReadEntity(file.FullName) : null;
+		}
+
+		/// <summary>
 		/// Returns an enumerator that iterates through the collection.
 		/// </summary>
 		/// <returns>
@@ -51,9 +69,24 @@ namespace Speedy.Storage
 		/// </returns>
 		public IEnumerator<T> GetEnumerator()
 		{
-			var enumerator = new EntityStoreEnumerator<T>(this, _repository);
-			enumerator.UpdateEntityRelationships += OnUpdateEntityRelationships;
-			return enumerator;
+			return new EntityStoreEnumerator<T>(this);
+		}
+
+		public Entity ReadEntity(string filePath)
+		{
+			using (var reader = new JsonTextReader(new StreamReader(filePath, Encoding.UTF8)))
+			{
+				var readEntity = _serializer.Deserialize<T>(reader);
+				var existing = _repository.Cache.FirstOrDefault(x => x.Entity.Id == readEntity.Id || x.OldEntity.Id == readEntity.Id);
+				if (existing != null)
+				{
+					return (T) existing.Entity;
+				}
+
+				_repository.AddOrUpdate(readEntity);
+				OnUpdateEntityRelationships(readEntity);
+				return readEntity;
+			}
 		}
 
 		/// <summary>

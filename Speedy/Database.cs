@@ -304,8 +304,8 @@ namespace Speedy
 					var otherEntityId = (int?) entityRelationshipIdProperty.GetValue(entity, null);
 					if (otherEntityId.HasValue && otherEntityId != 0 && Repositories.ContainsKey(entityRelationship.PropertyType.FullName))
 					{
-						var repository = (IEnumerable<Entity>) Repositories[entityRelationship.PropertyType.FullName];
-						otherEntity = repository.FirstOrDefault(x => x.Id == otherEntityId);
+						var repository = Repositories[entityRelationship.PropertyType.FullName];
+						otherEntity = repository.GetEntity(otherEntityId);
 						entityRelationship.SetValue(entity, otherEntity, null);
 					}
 				}

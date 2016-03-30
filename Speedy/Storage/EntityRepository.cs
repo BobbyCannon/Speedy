@@ -45,7 +45,7 @@ namespace Speedy.Storage
 
 			_query = _store?.AsQueryable() ?? Cache
 				.Where(x => x.State != EntityStateType.Added)
-				.Select(x => (T)x.Entity)
+				.Select(x => (T) x.Entity)
 				.AsQueryable();
 		}
 
@@ -130,6 +130,17 @@ namespace Speedy.Storage
 			{
 				entityState.Entity.Id = Interlocked.Increment(ref _index);
 			}
+		}
+
+		/// <summary>
+		/// Get entity by ID.
+		/// </summary>
+		/// <param name="id"> </param>
+		/// <returns> The entity or null. </returns>
+		public Entity GetEntity(int? id)
+		{
+			var state = Cache.FirstOrDefault(x => x.Entity.Id == id);
+			return state == null ? _store.GetEntity(id) : state.Entity;
 		}
 
 		/// <summary>

@@ -6,6 +6,8 @@ namespace Speedy.Storage
 
 		void AssignKeys();
 
+		Entity GetEntity(int? id);
+
 		void Reset();
 
 		int SaveChanges();

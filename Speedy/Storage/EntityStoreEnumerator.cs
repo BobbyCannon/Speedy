@@ -1,12 +1,8 @@
 #region References
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
 
 #endregion
 
@@ -18,22 +14,17 @@ namespace Speedy.Storage
 
 		private FileInfo[] _files;
 		private int _index;
-		private readonly EntityRepository<T> _repository;
-		private readonly JsonSerializer _serializer;
 		private readonly EntityStore<T> _store;
 
 		#endregion
 
 		#region Constructors
 
-		public EntityStoreEnumerator(EntityStore<T> store, EntityRepository<T> repository)
+		public EntityStoreEnumerator(EntityStore<T> store)
 		{
 			_store = store;
-			_repository = repository;
 			_files = null;
 			_index = 0;
-			_serializer = new JsonSerializer();
-			_serializer.ContractResolver = new ShouldSerializeContractResolver();
 		}
 
 		#endregion
@@ -97,23 +88,9 @@ namespace Speedy.Storage
 				return false;
 			}
 
-			var filePath = _files[_index++];
-
-			using (var reader = new JsonTextReader(new StreamReader(filePath.FullName, Encoding.UTF8)))
-			{
-				var readEntity = _serializer.Deserialize<T>(reader);
-				var existing = _repository.Cache.FirstOrDefault(x => x.Entity.Id == readEntity.Id || x.OldEntity.Id == readEntity.Id);
-				if (existing != null)
-				{
-					Current = (T) existing.Entity;
-					return true;
-				}
-
-				Current = readEntity;
-				_repository.AddOrUpdate(Current);
-				OnUpdateEntityRelationships(Current);
-				return true;
-			}
+			var fileInfo = _files[_index++];
+			Current = _store.ReadEntity(fileInfo.FullName) as T;
+			return Current != null;
 		}
 
 		/// <summary>
@@ -125,18 +102,6 @@ namespace Speedy.Storage
 			_files = null;
 			_index = 0;
 		}
-
-		protected virtual void OnUpdateEntityRelationships(T obj)
-		{
-			var handler = UpdateEntityRelationships;
-			handler?.Invoke(obj);
-		}
-
-		#endregion
-
-		#region Events
-
-		public event Action<T> UpdateEntityRelationships;
 
 		#endregion
 	}
