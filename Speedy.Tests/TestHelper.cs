@@ -91,8 +91,7 @@ namespace Speedy.Tests
 			var contextProvider3 = new Mock<ISampleDatabaseProvider>();
 			contextProvider3.Setup(x => x.CreateContext()).Returns(() => new SampleDatabase(Directory.FullName));
 
-			//return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
-			return new[] { contextProvider3.Object };
+			return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
 		}
 
 		public static IEnumerable<ISampleDatabase> GetDataContexts()
