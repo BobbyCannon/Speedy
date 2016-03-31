@@ -10,7 +10,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a repository of key value pairs.
 	/// </summary>
-	public interface IRepository<T> : IDisposable
+	public interface IRepository<T> : IEnumerable<T>, IDisposable
 	{
 		#region Properties
 
@@ -42,14 +42,7 @@ namespace Speedy
 		/// Delete the repository.
 		/// </summary>
 		void Delete();
-
-		/// <summary>
-		/// Check the provided keys and returns any keys that are missing.
-		/// </summary>
-		/// <param name="keys"> The key that will be tested. </param>
-		/// <returns> A list of key value pairs that were not found in the repository. </returns>
-		HashSet<string> FindMissingKeys(HashSet<string> keys);
-
+		
 		/// <summary>
 		/// Flushes all cached items to storage.
 		/// </summary>
@@ -94,6 +87,12 @@ namespace Speedy
 		IEnumerable<KeyValuePair<string, T>> Read(Func<string, bool> condition);
 
 		/// <summary>
+		/// Read all the keys from the repository.
+		/// </summary>
+		/// <returns> The keys for the repository. </returns>
+		IEnumerable<string> ReadKeys();
+
+		/// <summary>
 		/// Removes an item from the repository by the key provided.
 		/// </summary>
 		/// <param name="key"> The key of the item to remove. </param>
@@ -130,6 +129,15 @@ namespace Speedy
 		/// </summary>
 		/// <param name="items"> The list of items to add to the repository. </param>
 		void Write(Dictionary<string, T> items);
+
+		#endregion
+
+		#region Events
+
+		/// <summary>
+		/// Event for when an item is enumerated.
+		/// </summary>
+		event Action<T> OnEnumerated;
 
 		#endregion
 	}

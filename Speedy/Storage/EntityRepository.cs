@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -24,7 +23,7 @@ namespace Speedy.Storage
 
 		private int _index;
 		private readonly IQueryable<T> _query;
-		private readonly EntityStore<T> _store;
+		private readonly IRepository<T> _store;
 		private readonly Type _type;
 
 		#endregion
@@ -40,14 +39,12 @@ namespace Speedy.Storage
 
 			if (!string.IsNullOrWhiteSpace(directory))
 			{
-				_store = new EntityStore<T>($"{directory}\\{typeof (T).Name}", this);
-				_store.UpdateEntityRelationships += OnUpdateEntityRelationships;
+				_store = Repository<T>.Create(directory, typeof (T).Name);
+				_store.OnEnumerated += OnUpdateEntityRelationships;
 			}
 
-			_query = _store?.AsQueryable() ?? Cache
-				.Where(x => x.State != EntityStateType.Added)
-				.Select(x => (T) x.Entity)
-				.AsQueryable();
+			_query = _store?.Select(x => (T) Cache.FirstOrDefault(y => y.Entity.Id == x.Id)?.Entity ?? AddOrUpdateCache(x)).AsQueryable()
+				?? Cache.Where(x => x.State != EntityStateType.Added).Select(x => (T) x.Entity).AsQueryable();
 		}
 
 		#endregion
@@ -134,14 +131,26 @@ namespace Speedy.Storage
 		}
 
 		/// <summary>
-		/// Get entity by ID.
+		/// Dispose of the entity store and cleans up all dependencies.
 		/// </summary>
-		/// <param name="id"> </param>
-		/// <returns> The entity or null. </returns>
-		public Entity GetEntity(int? id)
+		public void Dispose()
 		{
-			var state = Cache.FirstOrDefault(x => x.Entity.Id == id);
-			return state == null ? _store.Read(id) : state.Entity;
+			if (_store != null)
+			{
+				Cache.Clear();
+				_store?.Dispose();
+			}
+			else
+			{
+				Cache.Where(x => x.State == EntityStateType.Added).ToList()
+					.ForEach(x => Cache.Remove(x));
+
+				Cache.ForEach(x =>
+				{
+					UpdateEntity(x.Entity, x.OldEntity);
+					x.State = EntityStateType.Unmodified;
+				});
+			}
 		}
 
 		/// <summary>
@@ -194,11 +203,8 @@ namespace Speedy.Storage
 		/// </summary>
 		public void Initialize()
 		{
-			var info = new DirectoryInfo(_store.Directory);
-			info.SafeCreate();
-
-			var infos = info.GetFiles();
-			_index = infos.Length <= 0 ? 0 : infos.Max(x => int.Parse(Path.GetFileNameWithoutExtension(x.Name)));
+			var keys = _store?.ReadKeys().ToList();
+			_index = keys?.Count > 0 ? keys.Max(int.Parse) : 0;
 		}
 
 		/// <summary>
@@ -217,6 +223,17 @@ namespace Speedy.Storage
 			}
 
 			Cache.Insert(indexOf, new EntityState { Entity = entity, OldEntity = CloneEntity(entity), State = EntityStateType.Added });
+		}
+
+		/// <summary>
+		/// Get entity by ID.
+		/// </summary>
+		/// <param name="id"> </param>
+		/// <returns> The entity or null. </returns>
+		public Entity Read(int id)
+		{
+			var state = Cache.FirstOrDefault(x => x.Entity.Id == id);
+			return state == null ? _store.Read(id.ToString()) : state.Entity;
 		}
 
 		/// <summary>
@@ -257,25 +274,6 @@ namespace Speedy.Storage
 				.ForEach(Remove);
 		}
 
-		public void Reset()
-		{
-			Cache.Where(x => x.State == EntityStateType.Added).ToList()
-				.ForEach(x => Cache.Remove(x));
-
-			if (_store != null)
-			{
-				Cache.Clear();
-			}
-			else
-			{
-				Cache.ForEach(x =>
-				{
-					UpdateEntity(x.Entity, x.OldEntity);
-					x.State = EntityStateType.Unmodified;
-				});
-			}
-		}
-
 		public int SaveChanges()
 		{
 			var changeCount = GetChanges().Count();
@@ -283,7 +281,7 @@ namespace Speedy.Storage
 			var removed = Cache.Where(x => x.State == EntityStateType.Removed).ToList();
 			foreach (var item in removed)
 			{
-				_store?.Remove(item.Entity.Id);
+				_store?.Remove(item.Entity.Id.ToString());
 				Cache.Remove(item);
 			}
 
@@ -294,9 +292,16 @@ namespace Speedy.Storage
 					item.Entity.CreatedOn = item.OldEntity.CreatedOn;
 				}
 
+				if (item.Entity.Id == 0)
+				{
+					item.Entity.CreatedOn = DateTime.UtcNow;
+				}
+
+				item.Entity.ModifiedOn = DateTime.UtcNow;
+
 				if (_store != null)
 				{
-					_store?.Write(item.Entity);
+					_store?.Write(item.Entity.Id.ToString(), (T) item.Entity);
 				}
 				else
 				{
@@ -307,6 +312,8 @@ namespace Speedy.Storage
 
 			if (_store != null)
 			{
+				_store.Save();
+				_store.Flush();
 				Cache.Clear();
 			}
 
@@ -335,6 +342,12 @@ namespace Speedy.Storage
 		{
 			var handler = ValidateEntity;
 			handler?.Invoke(obj);
+		}
+
+		private T AddOrUpdateCache(T entity)
+		{
+			AddOrUpdate(entity);
+			return entity;
 		}
 
 		private Entity CloneEntity(Entity entity)

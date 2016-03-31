@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+using Speedy.Storage;
 
 #endregion
 
@@ -22,6 +22,7 @@ namespace Speedy
 	{
 		#region Fields
 
+		private static readonly JsonSerializerSettings _serializationSettings;
 		private static readonly char[] _validJsonStartCharacters;
 
 		#endregion
@@ -31,6 +32,7 @@ namespace Speedy
 		static Extensions()
 		{
 			_validJsonStartCharacters = new[] { '{', '[', '"' };
+			_serializationSettings = GetSerializerSettings();
 		}
 
 		#endregion
@@ -40,7 +42,6 @@ namespace Speedy
 		/// <summary>
 		/// Execute the action on each entity in the collection.
 		/// </summary>
-		/// <typeparam name="T"> The type of item in the collection. </typeparam>
 		/// <param name="items"> The collection of items to process. </param>
 		/// <param name="action"> The action to execute for each item. </param>
 		public static void ForEach(this IEnumerable items, Action<object> action)
@@ -63,13 +64,6 @@ namespace Speedy
 			{
 				action(item);
 			}
-		}
-
-		public static T FromJson<T>(this string item, bool camelCase = false)
-		{
-			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
-				? JsonConvert.DeserializeObject<T>(item, GetSerializerSettings(camelCase))
-				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", GetSerializerSettings(camelCase));
 		}
 
 		/// <summary>
@@ -133,11 +127,6 @@ namespace Speedy
 			}
 		}
 
-		public static string ToJson<T>(this T item, bool camelCase = false)
-		{
-			return JsonConvert.SerializeObject(item, Formatting.None, GetSerializerSettings(camelCase));
-		}
-
 		/// <summary>
 		/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
 		/// time.
@@ -186,6 +175,13 @@ namespace Speedy
 			}
 
 			dictionary.Add(key, value);
+		}
+
+		internal static T FromJson<T>(this string item)
+		{
+			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
+				? JsonConvert.DeserializeObject<T>(item, _serializationSettings)
+				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettings);
 		}
 
 		/// <summary>
@@ -280,18 +276,17 @@ namespace Speedy
 			}, 1000, 10);
 		}
 
-		private static JsonSerializerSettings GetSerializerSettings(bool camelCase = false)
+		internal static string ToJson<T>(this T item)
+		{
+			return JsonConvert.SerializeObject(item, Formatting.None, _serializationSettings);
+		}
+
+		private static JsonSerializerSettings GetSerializerSettings()
 		{
 			var response = new JsonSerializerSettings();
 			response.Converters.Add(new IsoDateTimeConverter());
-			response.ReferenceLoopHandling = ReferenceLoopHandling.Error;
-
-			if (camelCase)
-			{
-				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-				response.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			}
-
+			response.ContractResolver = new ShouldSerializeContractResolver();
+			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			return response;
 		}
 

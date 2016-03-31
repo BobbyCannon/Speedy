@@ -61,7 +61,7 @@ namespace Speedy.Benchmarks
 
 			CleanupDirectory(directory);
 			TestRepository(directory + "\\Repository", iterations);
-			TestDatabase(new SampleDatabaseProvider(directory + "\\Database"), iterations, 1000);
+			TestDatabase(new SampleDatabaseProvider(directory + "\\Database"), iterations, 10000);
 
 			Log(string.Empty);
 			Log("Press any key to continue...");
@@ -174,16 +174,16 @@ namespace Speedy.Benchmarks
 		{
 			Log("Starting to benchmark Speedy Repository...");
 
-			WriteCollection(directory, iterations, 100);
-			WriteCollection(directory, iterations, 1000);
-			WriteCollection(directory, iterations, 2500);
+			//WriteCollection(directory, iterations, 100);
+			//WriteCollection(directory, iterations, 1000);
+			//WriteCollection(directory, iterations, 2500);
 			WriteCollection(directory, iterations, 10000);
-			WriteCollection(directory, iterations, 50000);
-			WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000);
-			WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000);
-			WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000);
-			WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000);
-			WriteCollection(directory, iterations, 50000, TimeSpan.FromSeconds(30), 100000);
+			//WriteCollection(directory, iterations, 50000);
+			//WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000);
+			//WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000);
+			//WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000);
+			//WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000);
+			//WriteCollection(directory, iterations, 50000, TimeSpan.FromSeconds(30), 100000);
 
 			// Populate the random keys.
 			var random = new Random();

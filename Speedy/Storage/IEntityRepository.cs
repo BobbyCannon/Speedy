@@ -1,14 +1,14 @@
+using System;
+
 namespace Speedy.Storage
 {
-	internal interface IEntityRepository
+	internal interface IEntityRepository : IDisposable
 	{
 		#region Methods
 
 		void AssignKeys();
 
-		Entity GetEntity(int? id);
-
-		void Reset();
+		Entity Read(int id);
 
 		int SaveChanges();
 

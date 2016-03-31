@@ -47,7 +47,7 @@ namespace Speedy
 		/// </summary>
 		public void Dispose()
 		{
-			Repositories.Values.ForEach(x => x.Reset());
+			Repositories.Values.ForEach(x => x.Dispose());
 		}
 
 		public IEntityRepository<T> GetReadOnlyRepository<T>() where T : Entity, new()
@@ -306,7 +306,7 @@ namespace Speedy
 					if (otherEntityId.HasValue && otherEntityId != 0 && Repositories.ContainsKey(entityRelationship.PropertyType.FullName))
 					{
 						var repository = Repositories[entityRelationship.PropertyType.FullName];
-						otherEntity = repository.GetEntity(otherEntityId);
+						otherEntity = repository.Read(otherEntityId.Value);
 						entityRelationship.SetValue(entity, otherEntity, null);
 					}
 				}

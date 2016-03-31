@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0) 
+		public Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 			: base(directory, name, timeout, limit)
 		{
 		}
@@ -210,24 +211,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Check the provided keys and returns any keys that are missing.
-		/// </summary>
-		/// <param name="keys"> The key that will be tested. </param>
-		/// <returns> A list of key value pairs that were not found in the repository. </returns>
-		public HashSet<string> FindMissingKeys(HashSet<string> keys)
-		{
-			lock (_changes)
-			{
-				var foundKeys = Read()
-					.Where(item => keys.Contains(item.Key))
-					.Select(item => item.Key)
-					.ToList();
-
-				return new HashSet<string>(keys.Except(foundKeys));
-			}
-		}
-
-		/// <summary>
 		/// Flushes all cached items to storage.
 		/// </summary>
 		public void Flush()
@@ -242,6 +225,21 @@ namespace Speedy
 				{
 					TempFileInfo.SafeDelete();
 				}
+			}
+		}
+
+		/// <summary>
+		/// Returns an enumerator that iterates through the collection.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
+		/// </returns>
+		public IEnumerator<T> GetEnumerator()
+		{
+			foreach (var item in Read())
+			{
+				OnEnumerated?.Invoke(item.Value);
+				yield return item.Value;
 			}
 		}
 
@@ -355,6 +353,15 @@ namespace Speedy
 					yield return item;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Read all the keys from the repository.
+		/// </summary>
+		/// <returns> The keys for the repository. </returns>
+		public IEnumerable<string> ReadKeys()
+		{
+			return Read().Select(x => x.Key);
 		}
 
 		/// <summary>
@@ -472,6 +479,17 @@ namespace Speedy
 			{
 				return Read().Count();
 			}
+		}
+
+		/// <summary>
+		/// Returns an enumerator that iterates through a collection.
+		/// </summary>
+		/// <returns>
+		/// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+		/// </returns>
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 
 		/// <summary>
@@ -604,6 +622,12 @@ namespace Speedy
 				_changes.Remove(change.Key);
 			}
 		}
+
+		#endregion
+
+		#region Events
+
+		public event Action<T> OnEnumerated;
 
 		#endregion
 	}

@@ -88,11 +88,11 @@ namespace Speedy.Tests
 			var contextProvider2 = new Mock<ISampleDatabaseProvider>();
 			contextProvider2.Setup(x => x.CreateContext()).Returns(context2);
 
-			var context3 = new SampleDatabase(Directory.FullName);
 			var contextProvider3 = new Mock<ISampleDatabaseProvider>();
-			contextProvider3.Setup(x => x.CreateContext()).Returns(context3);
+			contextProvider3.Setup(x => x.CreateContext()).Returns(() => new SampleDatabase(Directory.FullName));
 
-			return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
+			//return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
+			return new[] { contextProvider3.Object };
 		}
 
 		public static IEnumerable<ISampleDatabase> GetDataContexts()

@@ -287,22 +287,22 @@ namespace Speedy.Tests
 			}
 		}
 
-		[TestMethod]
-		public void FindMissingKeys()
-		{
-			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name))
-			{
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Foo2", "Bar2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+		//[TestMethod]
+		//public void FindMissingKeys()
+		//{
+		//	var name = Guid.NewGuid().ToString();
+		//	using (var repository = Repository.Create(TestHelper.Directory, name))
+		//	{
+		//		repository.Write("Foo1", "Bar1");
+		//		repository.Write("Foo2", "Bar2");
+		//		repository.Write("Foo3", "Bar3");
+		//		repository.Save();
 
-				var expected = new HashSet<string> { "Foo4" };
-				var actual = repository.FindMissingKeys(new HashSet<string> { "Foo1", "Foo2", "Foo3", "Foo4" });
-				TestHelper.AreEqual(expected, actual);
-			}
-		}
+		//		var expected = new HashSet<string> { "Foo4" };
+		//		var actual = repository.FindMissingKeys(new HashSet<string> { "Foo1", "Foo2", "Foo3", "Foo4" });
+		//		TestHelper.AreEqual(expected, actual);
+		//	}
+		//}
 
 		[TestMethod]
 		public void FlushShouldWriteAllItems()
