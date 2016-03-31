@@ -68,6 +68,7 @@
     <Compile Include="EntityFrameworkSampleDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SampleDatabase.cs" />
+    <Compile Include="SampleDatabaseProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj">

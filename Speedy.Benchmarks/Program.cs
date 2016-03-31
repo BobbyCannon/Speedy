@@ -26,13 +26,15 @@ namespace Speedy.Benchmarks
 		{
 			Log("Cleaning up the test data folder...");
 
+			if (!directory.EndsWith("Speedy"))
+			{
+				throw new ArgumentException("Not valid directory.");
+			}
+
 			if (Directory.Exists(directory))
 			{
-				var directoryInfo = new DirectoryInfo(directory);
-				foreach (var file in directoryInfo.EnumerateFiles())
-				{
-					file.Delete();
-				}
+				Directory.Delete(directory, true);
+				Directory.CreateDirectory(directory);
 			}
 			else
 			{
@@ -54,97 +56,16 @@ namespace Speedy.Benchmarks
 		private static void Main(string[] args)
 		{
 			_verboseLog = false;
-			
-			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\SpeedyTest";
-			CleanupDirectory(directory);
+			var iterations = 100000;
+			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy";
 
-			//TestRepository(directory);
-			TestDatabase(directory);
+			CleanupDirectory(directory);
+			TestRepository(directory + "\\Repository", iterations);
+			TestDatabase(new SampleDatabaseProvider(directory + "\\Database"), iterations, 1000);
 
 			Log(string.Empty);
 			Log("Press any key to continue...");
 			Console.ReadKey();
-		}
-
-		private static void TestDatabase(string directory)
-		{
-			Log("Starting to benchmark Speedy Database...");
-
-			var watch = Stopwatch.StartNew();
-
-			using (var database = new SampleDatabase(directory))
-			{
-				var random = new Random();
-
-				for (var i = 0; i < 1000; i++)
-				{
-					var address = new Address
-					{
-						Line1 = "Line " + i,
-						Line2 = "Line " + i,
-						City =  "City " + i,
-						Postal = "Postal " + i,
-						State = "State " + i,
-					};
-
-					if (random.Next(1, 100) % 2 == 0)
-					{
-						address.People.Add(new Person
-						{
-							Name = "Person " + i
-						});
-					}
-					
-					database.Addresses.Add(address);
-				}
-
-				database.SaveChanges();
-
-				Log(watch.Elapsed + " : Save");
-
-				watch.Restart();
-
-				Log($"{database.Addresses.Count()} Addresses : {watch.Elapsed}");
-
-				watch.Restart();
-
-				Log($"{database.People.Count()} People : {watch.Elapsed} ");
-
-				watch.Restart();
-			}
-
-			Log("Done: " + watch.Elapsed);
-		}
-
-		private static void TestRepository(string directory)
-		{
-			Log("Starting to benchmark Speedy Repository...");
-
-			var repositorySize = 100000;
-
-			WriteCollection(directory, repositorySize, 100);
-			WriteCollection(directory, repositorySize, 1000);
-			WriteCollection(directory, repositorySize, 2500);
-			WriteCollection(directory, repositorySize, 10000);
-			WriteCollection(directory, repositorySize, 50000);
-			WriteCollection(directory, repositorySize, 100, TimeSpan.FromSeconds(30), 1000);
-			WriteCollection(directory, repositorySize, 1000, TimeSpan.FromSeconds(30), 10000);
-			WriteCollection(directory, repositorySize, 2500, TimeSpan.FromSeconds(30), 10000);
-			WriteCollection(directory, repositorySize, 10000, TimeSpan.FromSeconds(30), 25000);
-			WriteCollection(directory, repositorySize, 50000, TimeSpan.FromSeconds(30), 100000);
-
-			// Populate the random keys.
-			var random = new Random();
-			var randomKeys = new HashSet<string>();
-			for (var i = 0; i < 100; i++)
-			{
-				randomKeys.Add(random.Next(1, repositorySize).ToString());
-			}
-
-			Log("The random keys are " + string.Join(", ", randomKeys.Select(x => x)));
-
-			RandomReadsIndividually(directory, "DB-" + repositorySize + "-0", randomKeys);
-			RandomReadsGroup(directory, "DB-" + repositorySize + "-0", randomKeys);
 		}
 
 		private static void RandomReadsGroup(string directory, string name, HashSet<string> randomKeys)
@@ -152,7 +73,7 @@ namespace Speedy.Benchmarks
 			Log(string.Empty);
 			Log("Let's read randomly into the " + name + " repository using all keys.");
 
-			using (var repository = Repository.Create(directory, name))
+			using (var repository = Repository<string>.Create(directory, name))
 			{
 				var watch = Stopwatch.StartNew();
 
@@ -171,7 +92,7 @@ namespace Speedy.Benchmarks
 			Log(string.Empty);
 			Log("Let's read randomly into the " + name + " repository @ 1 at a time.");
 
-			using (var repository = Repository.Create(directory, name))
+			using (var repository = Repository<string>.Create(directory, name))
 			{
 				var previousTime = new TimeSpan(0);
 				var watch = Stopwatch.StartNew();
@@ -193,6 +114,89 @@ namespace Speedy.Benchmarks
 
 				Log("Total: " + watch.Elapsed);
 			}
+		}
+
+		private static void TestDatabase(ISampleDatabaseProvider provider, int total, int chunkSize)
+		{
+			Log("Starting to benchmark Speedy database...");
+
+			var watch = Stopwatch.StartNew();
+			var random = new Random();
+			var count = 0;
+			var loop = 0;
+
+			while (count < total)
+			{
+				using (var database = provider.CreateContext())
+				{
+					for (var i = 0; i < chunkSize; i++)
+					{
+						var address = new Address
+						{
+							Line1 = "Line " + i,
+							Line2 = "Line " + i,
+							City = "City " + i,
+							Postal = "Postal " + i,
+							State = "State " + i
+						};
+
+						if (random.Next(1, 100) % 2 == 0)
+						{
+							address.People.Add(new Person
+							{
+								Name = "Person " + i
+							});
+						}
+
+						database.Addresses.Add(address);
+					}
+
+					count += chunkSize;
+
+					database.SaveChanges();
+
+					Log(".", false);
+
+					if (loop++ >= 80)
+					{
+						Log(string.Empty);
+						loop = 0;
+					}
+				}
+			}
+
+			Log(string.Empty);
+			Log("Done: " + watch.Elapsed);
+			Log(string.Empty);
+		}
+
+		private static void TestRepository(string directory, int iterations)
+		{
+			Log("Starting to benchmark Speedy Repository...");
+
+			WriteCollection(directory, iterations, 100);
+			WriteCollection(directory, iterations, 1000);
+			WriteCollection(directory, iterations, 2500);
+			WriteCollection(directory, iterations, 10000);
+			WriteCollection(directory, iterations, 50000);
+			WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000);
+			WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000);
+			WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000);
+			WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000);
+			WriteCollection(directory, iterations, 50000, TimeSpan.FromSeconds(30), 100000);
+
+			// Populate the random keys.
+			var random = new Random();
+			var randomKeys = new HashSet<string>();
+			for (var i = 0; i < 100; i++)
+			{
+				randomKeys.Add(random.Next(1, iterations).ToString());
+			}
+
+			Log("The random keys are " + string.Join(", ", randomKeys.Select(x => x)));
+
+			RandomReadsIndividually(directory, "DB-" + iterations + "-0", randomKeys);
+			RandomReadsGroup(directory, "DB-" + iterations + "-0", randomKeys);
 		}
 
 		private static void Verbose(string message, bool newLine = true)
@@ -219,7 +223,7 @@ namespace Speedy.Benchmarks
 
 			var watch = Stopwatch.StartNew();
 
-			using (var repository = Repository.Create(directory, $"DB-{size}-{limit}", timeout, limit))
+			using (var repository = Repository<string>.Create(directory, $"DB-{size}-{limit}", timeout, limit))
 			{
 				var previousTime = new TimeSpan(0);
 
@@ -261,6 +265,7 @@ namespace Speedy.Benchmarks
 
 				Log("Done: " + watch.Elapsed);
 				Log($"Count: {repository.Count}");
+				Log(string.Empty);
 			}
 		}
 

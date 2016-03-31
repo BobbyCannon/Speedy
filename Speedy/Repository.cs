@@ -13,7 +13,32 @@ namespace Speedy
 	/// <summary>
 	/// Represents a memory / file repository of key value pairs.
 	/// </summary>
-	public class Repository : IRepository
+	public class Repository : Repository<string>
+	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates an instance of the Repository class.
+		/// </summary>
+		/// <param name="directory"> The directory where the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
+		/// <param name="timeout">
+		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
+		/// TimeSpan.Zero is used.
+		/// </param>
+		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
+		public Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0) 
+			: base(directory, name, timeout, limit)
+		{
+		}
+
+		#endregion
+	}
+
+	/// <summary>
+	/// Represents a memory / file repository of key value pairs.
+	/// </summary>
+	public class Repository<T> : IRepository<T>
 	{
 		#region Fields
 
@@ -26,6 +51,21 @@ namespace Speedy
 		#endregion
 
 		#region Constructors
+
+		/// <summary>
+		/// Instantiates an instance of the Repository class.
+		/// </summary>
+		/// <param name="directory"> The directory where the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
+		/// <param name="timeout">
+		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
+		/// TimeSpan.Zero is used.
+		/// </param>
+		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
+		public Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
+			: this(new DirectoryInfo(directory), name, timeout, limit)
+		{
+		}
 
 		/// <summary>
 		/// Instantiates an instance of the Repository class.
@@ -47,21 +87,6 @@ namespace Speedy
 			_cacheLimit = limit;
 			_cacheTimeout = timeout ?? TimeSpan.Zero;
 			_changes = new Dictionary<string, Tuple<string, DateTime>>();
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the Repository class.
-		/// </summary>
-		/// <param name="directory"> The directory where the repository will reside. </param>
-		/// <param name="name"> The name of the repository. </param>
-		/// <param name="timeout">
-		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
-		/// TimeSpan.Zero is used.
-		/// </param>
-		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		private Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
-			: this(new DirectoryInfo(directory), name, timeout, limit)
-		{
 		}
 
 		#endregion
@@ -137,7 +162,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public static IRepository Create(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
+		public static IRepository<T> Create(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
 		{
 			return Create(directoryInfo.FullName, name, timeout, limit);
 		}
@@ -152,9 +177,9 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public static IRepository Create(string directory, string name, TimeSpan? timeout = null, int limit = 0)
+		public static IRepository<T> Create(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 		{
-			var repository = new Repository(directory, name, timeout, limit);
+			var repository = new Repository<T>(directory, name, timeout, limit);
 			repository.Initialize();
 			return repository;
 		}
@@ -227,7 +252,7 @@ namespace Speedy
 		/// <param name="items"> The items to load into the repository. </param>
 		/// <remarks> Will not be cached. These items will be written directly to disk. </remarks>
 		/// <remarks> If you need key protection then use Write instead. </remarks>
-		public void Load(Dictionary<string, string> items)
+		public void Load(Dictionary<string, T> items)
 		{
 			lock (_changes)
 			{
@@ -251,13 +276,13 @@ namespace Speedy
 		/// <remarks>
 		/// Must be IEnumerable so we can yield the return.
 		/// </remarks>
-		public IEnumerable<KeyValuePair<string, string>> Read()
+		public IEnumerable<KeyValuePair<string, T>> Read()
 		{
 			lock (_changes)
 			{
 				foreach (var item in _cache.OrderBy(x => x.Value.Item2).Where(x => x.Value.Item1 != null))
 				{
-					yield return new KeyValuePair<string, string>(item.Key, item.Value.Item1);
+					yield return new KeyValuePair<string, T>(item.Key, item.Value.Item1.FromJson<T>());
 				}
 
 				_fileStream.Position = 0;
@@ -284,7 +309,7 @@ namespace Speedy
 						continue;
 					}
 
-					yield return new KeyValuePair<string, string>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1));
+					yield return new KeyValuePair<string, T>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1).FromJson<T>());
 				}
 			}
 		}
@@ -295,7 +320,7 @@ namespace Speedy
 		/// <param name="key"> The key of the item to read. </param>
 		/// <returns> The value for the key. </returns>
 		/// <exception cref="KeyNotFoundException"> Could not find the entry with the key. </exception>
-		public string Read(string key)
+		public T Read(string key)
 		{
 			var response = Read(new HashSet<string> { key }).ToList();
 			if (response.Count <= 0)
@@ -311,7 +336,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="keys"> The keys of the items to read. </param>
 		/// <returns> The value for the keys. </returns>
-		public IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys)
+		public IEnumerable<KeyValuePair<string, T>> Read(HashSet<string> keys)
 		{
 			return Read(keys.Contains);
 		}
@@ -321,7 +346,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="condition"> The condition to test each key against. </param>
 		/// <returns> The value for the keys that match the condition. </returns>
-		public IEnumerable<KeyValuePair<string, string>> Read(Func<string, bool> condition)
+		public IEnumerable<KeyValuePair<string, T>> Read(Func<string, bool> condition)
 		{
 			lock (_changes)
 			{
@@ -389,12 +414,12 @@ namespace Speedy
 		/// <param name="key"> The key of the item to read. </param>
 		/// <param name="value"> The value read. </param>
 		/// <returns> True if the key was found or false if otherwise.. </returns>
-		public bool TryRead(string key, out string value)
+		public bool TryRead(string key, out T value)
 		{
 			var response = Read(new HashSet<string> { key }).FirstOrDefault();
 			if (response.Key != key)
 			{
-				value = string.Empty;
+				value = default(T);
 				return false;
 			}
 
@@ -407,11 +432,11 @@ namespace Speedy
 		/// </summary>
 		/// <param name="key"> The key of the item to write. </param>
 		/// <param name="value"> The value of the item to write. </param>
-		public void Write(string key, string value)
+		public void Write(string key, T value)
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value, DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(), DateTime.UtcNow));
 			}
 		}
 
@@ -419,7 +444,7 @@ namespace Speedy
 		/// Writes a collection of items to the repository.
 		/// </summary>
 		/// <param name="items"> The list of items to add to the repository. </param>
-		public void Write(Dictionary<string, string> items)
+		public void Write(Dictionary<string, T> items)
 		{
 			foreach (var item in items)
 			{

@@ -10,7 +10,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a repository of key value pairs.
 	/// </summary>
-	public interface IRepository : IDisposable
+	public interface IRepository<T> : IDisposable
 	{
 		#region Properties
 
@@ -60,7 +60,7 @@ namespace Speedy
 		/// speed up the loading of items. If you need key protection then use Write instead.
 		/// </summary>
 		/// <param name="items"> The items to load into the repository. </param>
-		void Load(Dictionary<string, string> items);
+		void Load(Dictionary<string, T> items);
 
 		/// <summary>
 		/// Read the repository using an enumerator.
@@ -69,7 +69,7 @@ namespace Speedy
 		/// <remarks>
 		/// Must be IEnumerable so we can yield the return.
 		/// </remarks>
-		IEnumerable<KeyValuePair<string, string>> Read();
+		IEnumerable<KeyValuePair<string, T>> Read();
 
 		/// <summary>
 		/// Read an item from the repository based on the key provided.
@@ -77,21 +77,21 @@ namespace Speedy
 		/// <param name="key"> The key of the item to read. </param>
 		/// <returns> The value for the key. </returns>
 		/// <exception cref="KeyNotFoundException"> Could not find the entry with the key. </exception>
-		string Read(string key);
+		T Read(string key);
 
 		/// <summary>
 		/// Reads a set of items from the repository based on the keys provided.
 		/// </summary>
 		/// <param name="keys"> The keys of the items to read. </param>
 		/// <returns> The value for the keys. </returns>
-		IEnumerable<KeyValuePair<string, string>> Read(HashSet<string> keys);
+		IEnumerable<KeyValuePair<string, T>> Read(HashSet<string> keys);
 
 		/// <summary>
 		/// Reads a set of items from the repository based on the keys provided.
 		/// </summary>
 		/// <param name="condition"> The condition to test each key against. </param>
 		/// <returns> The value for the keys that match the condition. </returns>
-		IEnumerable<KeyValuePair<string, string>> Read(Func<string, bool> condition);
+		IEnumerable<KeyValuePair<string, T>> Read(Func<string, bool> condition);
 
 		/// <summary>
 		/// Removes an item from the repository by the key provided.
@@ -116,20 +116,20 @@ namespace Speedy
 		/// <param name="key"> The key of the item to read. </param>
 		/// <param name="value"> The value read. </param>
 		/// <returns> True if the key was found or false if otherwise.. </returns>
-		bool TryRead(string key, out string value);
+		bool TryRead(string key, out T value);
 
 		/// <summary>
 		/// Writes an item to the repository.
 		/// </summary>
 		/// <param name="key"> The key of the item to write. </param>
 		/// <param name="value"> The value of the item to write. </param>
-		void Write(string key, string value);
+		void Write(string key, T value);
 
 		/// <summary>
 		/// Writes a collection of items to the repository.
 		/// </summary>
 		/// <param name="items"> The list of items to add to the repository. </param>
-		void Write(Dictionary<string, string> items);
+		void Write(Dictionary<string, T> items);
 
 		#endregion
 	}

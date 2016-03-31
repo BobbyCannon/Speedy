@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -140,7 +141,7 @@ namespace Speedy.Storage
 		public Entity GetEntity(int? id)
 		{
 			var state = Cache.FirstOrDefault(x => x.Entity.Id == id);
-			return state == null ? _store.GetEntity(id) : state.Entity;
+			return state == null ? _store.Read(id) : state.Entity;
 		}
 
 		/// <summary>
@@ -186,6 +187,18 @@ namespace Speedy.Storage
 		public IQueryable<T> Including(params Expression<Func<T, object>>[] includes)
 		{
 			return _query;
+		}
+
+		/// <summary>
+		/// Initialize the repository.
+		/// </summary>
+		public void Initialize()
+		{
+			var info = new DirectoryInfo(_store.Directory);
+			info.SafeCreate();
+
+			var infos = info.GetFiles();
+			_index = infos.Length <= 0 ? 0 : infos.Max(x => int.Parse(Path.GetFileNameWithoutExtension(x.Name)));
 		}
 
 		/// <summary>

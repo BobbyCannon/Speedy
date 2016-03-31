@@ -187,6 +187,7 @@ namespace Speedy
 			var repository = new EntityRepository<T>(FilePath);
 			repository.UpdateEntityRelationships += UpdateEntityRelationships;
 			repository.ValidateEntity += ValidateEntity;
+			repository.Initialize();
 
 			Repositories.Add(key, repository);
 			return repository;

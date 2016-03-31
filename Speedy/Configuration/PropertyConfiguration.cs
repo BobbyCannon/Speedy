@@ -44,11 +44,6 @@ namespace Speedy.Configuration
 
 		#region Methods
 
-		public bool IsMappingFor(object entity)
-		{
-			return entity is T;
-		}
-
 		public PropertyConfiguration<T> HasMaxLength(int length)
 		{
 			_maxLength = length;
@@ -59,6 +54,11 @@ namespace Speedy.Configuration
 		{
 			_minLength = length;
 			return this;
+		}
+
+		public bool IsMappingFor(object entity)
+		{
+			return entity is T;
 		}
 
 		public PropertyConfiguration<T> IsOptional()

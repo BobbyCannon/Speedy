@@ -5,7 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 #endregion
 
@@ -16,6 +20,21 @@ namespace Speedy
 	/// </summary>
 	public static class Extensions
 	{
+		#region Fields
+
+		private static readonly char[] _validJsonStartCharacters;
+
+		#endregion
+
+		#region Constructors
+
+		static Extensions()
+		{
+			_validJsonStartCharacters = new[] { '{', '[', '"' };
+		}
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
@@ -44,6 +63,13 @@ namespace Speedy
 			{
 				action(item);
 			}
+		}
+
+		public static T FromJson<T>(this string item, bool camelCase = false)
+		{
+			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
+				? JsonConvert.DeserializeObject<T>(item, GetSerializerSettings(camelCase))
+				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", GetSerializerSettings(camelCase));
 		}
 
 		/// <summary>
@@ -105,6 +131,11 @@ namespace Speedy
 
 				Retry(action, remaining, delay);
 			}
+		}
+
+		public static string ToJson<T>(this T item, bool camelCase = false)
+		{
+			return JsonConvert.SerializeObject(item, Formatting.None, GetSerializerSettings(camelCase));
 		}
 
 		/// <summary>
@@ -247,6 +278,21 @@ namespace Speedy
 				newLocation.Refresh();
 				return !fileLocation.Exists && newLocation.Exists;
 			}, 1000, 10);
+		}
+
+		private static JsonSerializerSettings GetSerializerSettings(bool camelCase = false)
+		{
+			var response = new JsonSerializerSettings();
+			response.Converters.Add(new IsoDateTimeConverter());
+			response.ReferenceLoopHandling = ReferenceLoopHandling.Error;
+
+			if (camelCase)
+			{
+				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+				response.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			}
+
+			return response;
 		}
 
 		#endregion

@@ -41,7 +41,7 @@ namespace Speedy.Tests
 				Assert.IsTrue(archiveFile.Exists);
 				Assert.IsFalse(repositoryFile.Exists);
 
-				var expected = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2{Environment.NewLine}Foo3|Bar3{Environment.NewLine}";
+				var expected = string.Format("Foo1|\"Bar1\"{0}Foo2|\"Bar2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine);
 				var actual = archiveFile.ReadAllText();
 				Assert.AreEqual(expected, actual);
 			}
@@ -66,10 +66,10 @@ namespace Speedy.Tests
 
 				// Only Foo1 should be in the file.
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var expected = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2{Environment.NewLine}Foo3|Bar3{Environment.NewLine}";
+				var expected = string.Format("Foo1|\"Bar1\"{0}Foo2|\"Bar2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine);
 				var actual = info.ReadAllText();
 				Assert.AreEqual(expected, actual);
-				Assert.AreEqual(36, info.Length);
+				Assert.AreEqual(42, info.Length);
 
 				repository.Clear();
 				info.Refresh();
@@ -232,7 +232,7 @@ namespace Speedy.Tests
 			}
 
 			info.Refresh();
-			Assert.AreEqual(42, info.Length);
+			Assert.AreEqual(48, info.Length);
 		}
 
 		[TestMethod]
@@ -320,7 +320,7 @@ namespace Speedy.Tests
 
 				repository.Flush();
 				info.Refresh();
-				Assert.AreEqual(36, info.Length);
+				Assert.AreEqual(42, info.Length);
 			}
 		}
 
@@ -396,13 +396,13 @@ namespace Speedy.Tests
 				var repository = context;
 				var random = new Random();
 
-				var readAction = new Action<IRepository>(repo =>
+				var readAction = new Action<IRepository<string>>(repo =>
 				{
 					Thread.Sleep(random.Next(10, 50));
 					repository.Read().ToList();
 				});
 
-				var writeAction = new Action<IRepository, int, int>((repo, min, max) =>
+				var writeAction = new Action<IRepository<string>, int, int>((repo, min, max) =>
 				{
 					for (var i = min; i < max; i++)
 					{
@@ -440,7 +440,7 @@ namespace Speedy.Tests
 			using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
 			{
 				var repository = context;
-				var action = new Action<IRepository, int, int>((repo, min, max) =>
+				var action = new Action<IRepository<string>, int, int>((repo, min, max) =>
 				{
 					for (var i = min; i < max; i++)
 					{
@@ -482,7 +482,7 @@ namespace Speedy.Tests
 			using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
 			{
 				var repository = context;
-				var action = new Action<IRepository, int, int>((repo, min, max) =>
+				var action = new Action<IRepository<string>, int, int>((repo, min, max) =>
 				{
 					for (var i = min; i < max; i++)
 					{
@@ -640,10 +640,10 @@ namespace Speedy.Tests
 				repository.Save();
 
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(14, info.Length);
+				Assert.AreEqual(16, info.Length);
 
 				// Only Foo1 should be in the file.
-				var expected = "Foo1|Bar1" + Environment.NewLine;
+				var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
 				var actual = info.ReadAllText();
 				Assert.AreEqual(expected, actual);
 				actual = repository.Read("Bar2");
@@ -652,7 +652,26 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void ReadItemFromDisk()
+		public void ReadItemsFromDisk()
+		{
+			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var name = Guid.NewGuid().ToString();
+			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			tempInfo.Directory.SafeCreate();
+			var rawData = $"Foo1|Bar1{Environment.NewLine}Foo2|Bar2";
+			File.WriteAllText(tempInfo.FullName, rawData, Encoding.UTF8);
+
+			var repository = provider.OpenRepository(name);
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
+
+			Assert.AreEqual(3, repository.Count);
+
+			repository.Dispose();
+		}
+
+		[TestMethod]
+		public void ReadOnlyWrittenItemsFromDisk()
 		{
 			var name = Guid.NewGuid().ToString();
 			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
@@ -665,8 +684,8 @@ namespace Speedy.Tests
 
 				// Only Foo1 should be in the file.
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(14, info.Length);
-				var expected = "Foo1|Bar1" + Environment.NewLine;
+				Assert.AreEqual(16, info.Length);
+				var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
 				var actual = info.ReadAllText();
 				Assert.AreEqual(expected, actual);
 				actual = repository.Read("Foo1");
@@ -719,9 +738,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(4, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(47, info.Length);
+				Assert.AreEqual(55, info.Length);
 				var actualText = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}Foo1|Bar1{0}Bar1|Foo1{0}", Environment.NewLine), actualText);
+				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actualText);
 
 				var expected = new List<KeyValuePair<string, string>>
 				{
@@ -850,15 +869,15 @@ namespace Speedy.Tests
 				repository.Save();
 
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(14, info.Length);
+				Assert.AreEqual(16, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo3|Bar3" + Environment.NewLine, actual);
+				Assert.AreEqual("Foo3|\"Bar3\"" + Environment.NewLine, actual);
 
 				repository.Flush();
 				info.Refresh();
-				Assert.AreEqual(36, info.Length);
+				Assert.AreEqual(42, info.Length);
 				actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo3|Bar3{0}Bar2|Foo2{0}Foo1|Bar1{0}", Environment.NewLine), actual);
+				Assert.AreEqual(string.Format("Foo3|\"Bar3\"{0}Bar2|\"Foo2\"{0}Foo1|\"Bar1\"{0}", Environment.NewLine), actual);
 			}
 		}
 
@@ -876,17 +895,17 @@ namespace Speedy.Tests
 
 				// Only Foo1 should be in the file.
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(14, info.Length);
+				Assert.AreEqual(16, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo1|Bar1" + Environment.NewLine, actual);
+				Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine, actual);
 
 				repository.Flush();
 				info.Refresh();
-				Assert.AreEqual(36, info.Length);
+				Assert.AreEqual(42, info.Length);
 				actual = info.ReadAllText();
-				Assert.AreEqual(33, actual.Length);
+				Assert.AreEqual(39, actual.Length);
 				actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo1|Bar1{0}Bar2|Foo2{0}Foo3|Bar3{0}", Environment.NewLine), actual);
+				Assert.AreEqual(string.Format("Foo1|\"Bar1\"{0}Bar2|\"Foo2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine), actual);
 			}
 		}
 
@@ -898,7 +917,7 @@ namespace Speedy.Tests
 				string value;
 				var actual = repository.TryRead("Blah", out value);
 				Assert.AreEqual(false, actual);
-				Assert.AreEqual(string.Empty, value);
+				Assert.AreEqual(null, value);
 			}
 		}
 
@@ -954,15 +973,15 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(4, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(25, info.Length);
+				Assert.AreEqual(29, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}", Environment.NewLine), actual);
+				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}", Environment.NewLine), actual);
 
 				repository.Flush();
 				info.Refresh();
-				Assert.AreEqual(47, info.Length);
+				Assert.AreEqual(55, info.Length);
 				actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}Foo1|Bar1{0}Bar1|Foo1{0}", Environment.NewLine), actual);
+				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actual);
 			}
 		}
 
@@ -980,9 +999,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(4, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(47, info.Length);
+				Assert.AreEqual(55, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|Bar4{0}Bar4|Foo4{0}Foo1|Bar1{0}Bar1|Foo1{0}", Environment.NewLine), actual);
+				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actual);
 			}
 		}
 
@@ -997,9 +1016,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(2, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(25, info.Length);
+				Assert.AreEqual(29, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo1|Bar1" + Environment.NewLine + "Foo2|Bar2" + Environment.NewLine, actual);
+				Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine + "Foo2|\"Bar2\"" + Environment.NewLine, actual);
 			}
 		}
 
@@ -1014,9 +1033,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(1, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(12, info.Length);
+				Assert.AreEqual(14, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo|Bar" + Environment.NewLine, actual);
+				Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
 			}
 		}
 
@@ -1031,9 +1050,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(1, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(12, info.Length);
+				Assert.AreEqual(14, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo|Bar" + Environment.NewLine, actual);
+				Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
 			}
 		}
 
@@ -1048,9 +1067,9 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(1, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(12, info.Length);
+				Assert.AreEqual(14, info.Length);
 				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo|Bar" + Environment.NewLine, actual);
+				Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
 			}
 		}
 

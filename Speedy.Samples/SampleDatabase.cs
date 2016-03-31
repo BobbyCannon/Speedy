@@ -33,7 +33,7 @@ namespace Speedy.Samples
 
 			// Food Map
 			Property<Food>(x => x.Name).IsRequired().HasMaxLength(256);
-			
+
 			// Food Relationship 
 			Property<FoodRelationship>(x => x.Quantity).IsRequired();
 			HasMany<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, "FoodChildren");
