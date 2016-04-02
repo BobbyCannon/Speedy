@@ -29,17 +29,17 @@ namespace Speedy.Samples
 
 			// Person Map
 			Property<Person>(x => x.Name).IsRequired().HasMaxLength(256);
-			HasMany<Person, Address>(p => p.Address, p => p.AddressId);
+			HasMany<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
 
 			// Food Map
 			Property<Food>(x => x.Name).IsRequired().HasMaxLength(256);
 
 			// Food Relationship 
 			Property<FoodRelationship>(x => x.Quantity).IsRequired();
-			HasMany<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, "FoodChildren");
-			HasMany<FoodRelationship, Food>(x => x.Child, x => x.ChildId, "FoodParents");
-			Property<FoodRelationship>(x => x.ParentId);
-			Property<FoodRelationship>(x => x.ChildId);
+			HasMany<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, x => x.Children);
+			HasMany<FoodRelationship, Food>(x => x.Child, x => x.ChildId, x => x.Parents);
+			Property<FoodRelationship>(x => x.ParentId).IsRequired();
+			Property<FoodRelationship>(x => x.ChildId).IsRequired();
 		}
 
 		#endregion

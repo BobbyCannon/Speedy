@@ -229,8 +229,8 @@ namespace Speedy.Tests
 					context.SaveChanges();
 
 					Assert.AreEqual(2, context.Addresses.Count());
-					Assert.AreEqual(1, context.Addresses.First().People.Count);
 					Assert.AreEqual(2, context.People.Count());
+					Assert.AreEqual(1, context.Addresses.First().People.Count);
 				}
 			});
 

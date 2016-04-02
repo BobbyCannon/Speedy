@@ -60,7 +60,7 @@ namespace Speedy.Benchmarks
 			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy";
 
 			CleanupDirectory(directory);
-			TestRepository(directory + "\\Repository", iterations);
+			//TestRepository(directory + "\\Repository", iterations);
 			TestDatabase(new SampleDatabaseProvider(directory + "\\Database"), iterations, 10000);
 
 			Log(string.Empty);

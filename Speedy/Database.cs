@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -25,7 +26,7 @@ namespace Speedy
 			Repositories = new Dictionary<string, IEntityRepository>();
 			Relationships = new Dictionary<string, object[]>();
 		}
-
+		
 		#endregion
 
 		#region Properties
@@ -71,13 +72,13 @@ namespace Speedy
 			return response;
 		}
 
-		protected void HasMany<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, int>> foreignKey, string key = null)
+		protected void HasMany<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, int>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey)
 			where T1 : Entity
 			where T2 : Entity
 		{
-			var theKey = key ?? typeof (T2).Name + typeof (T1).Name;
+			var key = typeof (T2).Name + (collectionKey as dynamic).Body.Member.Name;
 			var repository = Repositories.FirstOrDefault(x => x.Key == typeof (T1).FullName).Value;
-			Relationships.Add(theKey, new object[] { repository, entity, foreignKey });
+			Relationships.Add(key, new object[] { repository, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
 		}
 
 		protected PropertyConfiguration<T> Property<T>(Expression<Func<T, object>> expression) where T : Entity
@@ -131,9 +132,9 @@ namespace Speedy
 			var value = Relationships[key];
 			var repository = (IEntityRepository<T2>) value[0];
 			var foreignEntity = (Expression<Func<T2, T1>>) value[1];
-			var foreignKey = (Expression<Func<T2, int>>) value[2];
-			var entityFunction = foreignEntity.Compile();
-			var keyFunction = foreignKey.Compile();
+			var entityFunction = (Func<T2, T1>) value[2];
+			var foreignKey = (Expression<Func<T2, int>>) value[3];
+			var keyFunction = (Func<T2, int>) value[4];
 
 			var response = new RelationshipRepository<T2>((EntityRepository<T2>) repository, x =>
 			{
@@ -195,14 +196,17 @@ namespace Speedy
 
 		private static MethodInfo GetGenericMethod(string methodName, Type[] typeArgs, params Type[] argTypes)
 		{
-			var methods1 = typeof (Database).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
-			var methods = methods1.Where(m => m.Name == methodName
-				&& typeArgs.Length == m.GetGenericArguments().Length
-				&& argTypes.Length == m.GetParameters().Length);
+			var myType = typeof (Database);
+			var methodInfos = myType.GetCachedMethods(BindingFlags.NonPublic | BindingFlags.Instance);
+
+			var methods = methodInfos.Where(m => m.Name == methodName
+				&& typeArgs.Length == m.GetCachedGenericArguments().Count
+				&& argTypes.Length == m.GetCachedParameters().Count)
+				.ToList();
 
 			foreach (var method in methods)
 			{
-				var m = method.MakeGenericMethod(typeArgs);
+				var m = method.CachedMakeGenericMethod(typeArgs);
 				if (m.GetParameters().Select((p, i) => p.ParameterType == argTypes[i]).All(x => x))
 				{
 					return m;
@@ -214,9 +218,9 @@ namespace Speedy
 
 		private void UpdateEntityChildRelationships(Entity item, Entity entity)
 		{
-			var entityType = entity.GetType();
 			var itemType = item.GetType();
-			var properties = itemType.GetProperties().ToList();
+			var entityType = entity.GetType();
+			var properties = itemType.GetCachedProperties();
 
 			var entityRelationship = properties.FirstOrDefault(x => x.Name == entityType.Name);
 			entityRelationship?.SetValue(item, entity, null);
@@ -225,11 +229,11 @@ namespace Speedy
 			entityRelationshipId?.SetValue(item, entity.Id, null);
 		}
 
-		private void UpdateEntityCollectionRelationships(Entity entity, IEnumerable<PropertyInfo> properties, Type entityType)
+		private void UpdateEntityCollectionRelationships(Entity entity, Type entityType, IEnumerable<PropertyInfo> properties)
 		{
 			var enumerableType = typeof (IEnumerable);
 			var collectionRelationships = properties
-				.Where(x => x.GetAccessors()[0].IsVirtual)
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
 				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
 				.Where(x => x.PropertyType.IsGenericType)
 				.ToList();
@@ -237,7 +241,7 @@ namespace Speedy
 			foreach (var relationship in collectionRelationships)
 			{
 				// Check to see if we have a repository for the generic type.
-				var collectionType = relationship.PropertyType.GetGenericArguments()[0];
+				var collectionType = relationship.PropertyType.GetCachedGenericArguments()[0];
 				if (!Repositories.ContainsKey(collectionType.FullName))
 				{
 					continue;
@@ -283,15 +287,16 @@ namespace Speedy
 		private void UpdateEntityDirectRelationships(Entity entity)
 		{
 			var entityType = entity.GetType();
-			var properties = entityType.GetProperties().ToList();
-			UpdateEntityDirectRelationships(entity, properties, entityType);
+			var properties = entityType.GetCachedProperties();
+
+			UpdateEntityDirectRelationships(entity, entityType, properties);
 		}
 
-		private void UpdateEntityDirectRelationships(Entity entity, ICollection<PropertyInfo> properties, Type entityType)
+		private void UpdateEntityDirectRelationships(Entity entity, Type entityType, ICollection<PropertyInfo> properties)
 		{
 			var baseEntityType = typeof (Entity);
 			var entityRelationships = properties
-				.Where(x => x.GetAccessors()[0].IsVirtual)
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
 				.Where(x => baseEntityType.IsAssignableFrom(x.PropertyType))
 				.ToList();
 
@@ -341,10 +346,10 @@ namespace Speedy
 		private void UpdateEntityRelationships(Entity entity)
 		{
 			var entityType = entity.GetType();
-			var properties = entityType.GetProperties().ToList();
+			var properties = entityType.GetCachedProperties();
 
-			UpdateEntityDirectRelationships(entity, properties, entityType);
-			UpdateEntityCollectionRelationships(entity, properties, entityType);
+			UpdateEntityDirectRelationships(entity, entityType, properties);
+			UpdateEntityCollectionRelationships(entity, entityType, properties);
 		}
 
 		private void ValidateEntity(Entity entity)

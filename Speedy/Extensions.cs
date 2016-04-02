@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -22,7 +24,12 @@ namespace Speedy
 	{
 		#region Fields
 
+		private static readonly ConcurrentDictionary<string, MethodInfo[]> _methodInfos;
+		private static readonly ConcurrentDictionary<string, MethodInfo> _genericMethods;
+		private static readonly ConcurrentDictionary<string, ParameterInfo[]> _parameterInfos;
+		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
 		private static readonly JsonSerializerSettings _serializationSettings;
+		private static readonly ConcurrentDictionary<string, Type[]> _types;
 		private static readonly char[] _validJsonStartCharacters;
 
 		#endregion
@@ -33,11 +40,35 @@ namespace Speedy
 		{
 			_validJsonStartCharacters = new[] { '{', '[', '"' };
 			_serializationSettings = GetSerializerSettings();
+			_types = new ConcurrentDictionary<string, Type[]>();
+			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
+			_genericMethods = new ConcurrentDictionary<string, MethodInfo>();
+			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
+			_parameterInfos = new ConcurrentDictionary<string, ParameterInfo[]>();
 		}
 
 		#endregion
 
 		#region Methods
+
+		public static MethodInfo CachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
+		{
+			MethodInfo response;
+			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			var key = info.ToString().Replace(info.Name, fullName)
+				+ string.Join(", ", arguments.Select(x => x.FullName));
+
+			if (_genericMethods.ContainsKey(key))
+			{
+				if (_genericMethods.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.MakeGenericMethod(arguments);
+			return _genericMethods.AddOrUpdate(key, response, (s, i) => response);
+		}
 
 		/// <summary>
 		/// Execute the action on each entity in the collection.
@@ -64,6 +95,107 @@ namespace Speedy
 			{
 				action(item);
 			}
+		}
+
+		public static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
+		{
+			MethodInfo[] response;
+			var key = info.ReflectedType?.FullName + "." + info.Name;
+
+			if (_methodInfos.ContainsKey(key))
+			{
+				if (_methodInfos.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.GetAccessors();
+			return _methodInfos.AddOrUpdate(key, response, (s, infos) => response);
+		}
+
+		public static IList<Type> GetCachedGenericArguments(this MethodInfo info)
+		{
+			Type[] response;
+			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			var key = info.ToString().Replace(info.Name, fullName);
+
+			if (_types.ContainsKey(key))
+			{
+				if (_types.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.GetGenericArguments();
+			return _types.AddOrUpdate(key, response, (s, types) => response);
+		}
+
+		public static IList<Type> GetCachedGenericArguments(this Type type)
+		{
+			Type[] response;
+
+			if (_types.ContainsKey(type.FullName))
+			{
+				if (_types.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetGenericArguments();
+			return _types.AddOrUpdate(type.FullName, response, (s, types) => response);
+		}
+
+		public static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags flags)
+		{
+			MethodInfo[] response;
+
+			if (_methodInfos.ContainsKey(type.FullName))
+			{
+				if (_methodInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetMethods(flags);
+			return _methodInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		public static IList<ParameterInfo> GetCachedParameters(this MethodInfo info)
+		{
+			ParameterInfo[] response;
+			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			var key = info.ToString().Replace(info.Name, fullName);
+
+			if (_parameterInfos.ContainsKey(key))
+			{
+				if (_parameterInfos.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.GetParameters();
+			return _parameterInfos.AddOrUpdate(key, response, (s, infos) => response);
+		}
+
+		public static IList<PropertyInfo> GetCachedProperties(this Type type)
+		{
+			PropertyInfo[] response;
+
+			if (_propertyInfos.ContainsKey(type.FullName))
+			{
+				if (_propertyInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetProperties();
+			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 
 		/// <summary>
