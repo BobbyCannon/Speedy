@@ -24,7 +24,7 @@ namespace Speedy.Samples.Mappings
 			ToTable("Addresses");
 			Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 			Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(t => t.Line1).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
+			Property(t => t.Line1).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
 			Property(t => t.Line2).IsRequired().HasMaxLength(256);
 			Property(t => t.City).IsRequired().HasMaxLength(256);
 			Property(t => t.State).IsRequired().HasMaxLength(128);

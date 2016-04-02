@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy", "Speedy\Speedy.csproj", "{DE1FCAF6-D683-44B7-B8E3-FF6A19569C16}"
 EndProject
@@ -13,12 +13,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		Speedy.EntityFramework.nuspec = Speedy.EntityFramework.nuspec
 		Speedy.nuspec = Speedy.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.EntityFramework", "Speedy.EntityFramework\Speedy.EntityFramework.csproj", "{E1700BBE-066F-4ACC-9ABD-5C9DFB61B5FC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples", "Speedy.Samples\Speedy.Samples.csproj", "{A8716E62-358C-44F2-A18E-C5E585D097FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{F1A7E526-B6CD-4FFA-9149-B469DA2819E3}"
+	ProjectSection(SolutionItems) = preProject
+		Build.ps1 = Build.ps1
+		IncrementVersion.ps1 = IncrementVersion.ps1
+		Publish.ps1 = Publish.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

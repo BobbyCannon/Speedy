@@ -46,7 +46,7 @@ namespace Speedy.Samples.Migrations
 				})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Addresses", t => t.LinkedAddressId)
-				.Index(t => t.Line1, unique: true)
+				.Index(t => t.Line1)
 				.Index(t => t.LinkedAddressId);
 
 			CreateTable(

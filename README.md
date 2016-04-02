@@ -5,13 +5,26 @@ Speedy offers a quick embedded way to manage your data. Here are the two options
 * Embedded Database
 * Key Value Repository
 
-
 ## Embedded Database
 
 Simple and easy to use embedded relationship database.
 
+#### Write of 10,000 items
+
 ```
-More information coming soon ...
+JSON
+09:197 : 150 chunks.
+05:309 : 300 chunks.
+03:443 : 600 chunks.
+02:844 : 1200 chunks.
+03:098 : 2400 chunks.
+
+Entity Framework
+08:212 : 150 chunks.
+11:303 : 300 chunks.
+18:439 : 600 chunks.
+36:521 : 1200 chunks.
+16:954 : 2400 chunks.
 ```
 
 ## Key Value Repository
@@ -39,41 +52,20 @@ I just did a few quick benchmarks. The first set is without caching. The second 
 #### Writes
 
 ```
+Starting to benchmark Speedy Repository writing 100000...
+No Caching
+41:431: 100 at a time.
+04:422: 1000 at a time.
+02:031: 2500 at a time.
+00:756: 10000 at a time.
+00:406: 50000 at a time.
 
-Let's create a repository with 100000 items @ 100 at a time.
-Done: 00:00:21.4885609
-
-Let's create a repository with 100000 items @ 1000 at a time.
-Done: 00:00:04.0543204
-
-Let's create a repository with 100000 items @ 2500 at a time.
-Done: 00:00:01.7953596
-
-Let's create a repository with 100000 items @ 10000 at a time.
-Done: 00:00:00.5891991
-
-Let's create a repository with 100000 items @ 50000 at a time.
-Done: 00:00:00.2776635
-
-```
-
-#### Writes With Cache Limits
-```
-
-Let's create a repository with 100000 items @ 100 at a time with a cache of 1000 items.
-Done: 00:00:03.4236623
-
-Let's create a repository with 100000 items @ 1000 at a time with a cache of 10000 items.
-Done: 00:00:01.3811429
-
-Let's create a repository with 100000 items @ 2500 at a time with a cache of 10000 items.
-Done: 00:00:00.6092164
-
-Let's create a repository with 100000 items @ 10000 at a time with a cache of 25000 items.
-Done: 00:00:01.2549856
-
-Let's create a repository with 100000 items @ 50000 at a time with a cache of 100000 items.
-Done: 00:00:01.1356382
+Caching
+05:125: 100 at a time with a cache of 1000 items.
+00:782: 1000 at a time with a cache of 10000 items.
+00:767: 2500 at a time with a cache of 10000 items.
+00:516: 10000 at a time with a cache of 25000 items.
+00:323: 50000 at a time with a cache of 100000 items.
 ```
 
 You'll need to balance how often to save you repository based on
@@ -88,10 +80,10 @@ Reads using 100 random keys in a repository of 100,000 items.
 
 ```
 Let's read randomly into the DB-100000 repository @ 1 at a time.
-Total: 00:00:02.7959685
+Total: 02.7959685
 
 Let's read randomly into the DB-100000 repository using all keys.
-Total: 00:00:00.0281244
+Total: 00.0281244
 ```
 
 ##### Multiple Threads

@@ -24,8 +24,10 @@ namespace Speedy
 	{
 		#region Fields
 
-		private static readonly ConcurrentDictionary<string, MethodInfo[]> _methodInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _genericMethods;
+
+		private static readonly ConcurrentDictionary<string, MethodInfo[]> _methodInfos;
+		private static readonly ConcurrentDictionary<string, MethodInfo> _methods;
 		private static readonly ConcurrentDictionary<string, ParameterInfo[]> _parameterInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
 		private static readonly JsonSerializerSettings _serializationSettings;
@@ -43,6 +45,7 @@ namespace Speedy
 			_types = new ConcurrentDictionary<string, Type[]>();
 			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
 			_genericMethods = new ConcurrentDictionary<string, MethodInfo>();
+			_methods = new ConcurrentDictionary<string, MethodInfo>();
 			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_parameterInfos = new ConcurrentDictionary<string, ParameterInfo[]>();
 		}
@@ -50,6 +53,23 @@ namespace Speedy
 		#endregion
 
 		#region Methods
+
+		public static MethodInfo CachedGetMethod(this Type type, string name)
+		{
+			MethodInfo response;
+			var key = type.FullName + "." + name;
+
+			if (_methods.ContainsKey(key))
+			{
+				if (_methods.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetMethod(name);
+			return _methods.AddOrUpdate(key, response, (s, infos) => response);
+		}
 
 		public static MethodInfo CachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
 		{

@@ -53,6 +53,7 @@
     <Compile Include="Entities\Food.cs" />
     <Compile Include="Entities\FoodRelationship.cs" />
     <Compile Include="Entities\Person.cs" />
+    <Compile Include="EntityFrameworkSampleDatabaseProvider.cs" />
     <Compile Include="ISampleDatabaseProvider.cs" />
     <Compile Include="ISampleDatabase.cs" />
     <Compile Include="Mappings\AddressMap.cs" />

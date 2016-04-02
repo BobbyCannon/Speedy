@@ -32,7 +32,7 @@ namespace Speedy.Storage
 
 		public EntityRepository(string directory)
 		{
-			Cache = new List<EntityState>();
+			Cache = new List<EntityState>(4096);
 
 			_index = 0;
 			_type = typeof (T);
@@ -69,11 +69,8 @@ namespace Speedy.Storage
 		/// <param name="entity"> The entity to be added. </param>
 		public void Add(T entity)
 		{
-			var entry = Cache.FirstOrDefault(x => x.Entity == entity);
-			if (entry != null)
+			if (Cache.Any(x => entity == x.Entity))
 			{
-				// The entity is already in the cache, just make sure it's marked as added.
-				entry.State = EntityStateType.Added;
 				return;
 			}
 

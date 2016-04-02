@@ -17,16 +17,33 @@ namespace Speedy.Benchmarks
 		#region Fields
 
 		private static bool _verboseLog;
+		private static string _timeFormat;
 
 		#endregion
 
 		#region Methods
 
+		private static void CleanupDatabase(string connectionString)
+		{
+			Log("Cleaning up the test database...");
+
+			using (var database = new EntityFrameworkSampleDatabase(connectionString))
+			{
+				var script = @"EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
+				EXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'
+				EXEC sp_MSForEachTable 'IF ''?'' NOT LIKE ''%MigrationHistory%'' DELETE FROM ?'
+				EXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'
+				EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'";
+
+				database.Database.ExecuteSqlCommand(script);
+			}
+		}
+
 		private static void CleanupDirectory(string directory)
 		{
 			Log("Cleaning up the test data folder...");
 
-			if (!directory.EndsWith("Speedy"))
+			if (!directory.EndsWith("Database"))
 			{
 				throw new ArgumentException("Not valid directory.");
 			}
@@ -56,16 +73,45 @@ namespace Speedy.Benchmarks
 		private static void Main(string[] args)
 		{
 			_verboseLog = false;
-			var iterations = 100000;
-			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy";
+			_timeFormat = "ss\\:fff";
 
-			CleanupDirectory(directory);
-			//TestRepository(directory + "\\Repository", iterations);
-			TestDatabase(new SampleDatabaseProvider(directory + "\\Database"), iterations, 10000);
+			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy";
+			var connectionString = "server=localhost;database=speedy;integrated security=true;";
+			var results = new List<string>();
+			
+			TestRepository(results, directory + "\\Repository", 100000);
+			TestDatabase(results, directory + "\\Database", connectionString, 10000);
 
 			Log(string.Empty);
+			results.ForEach(x => Log(x));
 			Log("Press any key to continue...");
 			Console.ReadKey();
+		}
+
+		private static void TestDatabase(List<string> results, string directory, string connectionString, int iterations)
+		{
+			Log($"Starting to benchmark Speedy Database writing {iterations}...");
+			results.Add($"Starting to benchmark Speedy Database writing {iterations}...");
+
+			var chunks = new[] { 150, 300, 600, 1200, 2400 };
+
+			Log("JSON");
+			results.Add("JSON");
+
+			foreach (var chunk in chunks)
+			{
+				CleanupDirectory(directory);
+				results.Add(TestDatabase(new SampleDatabaseProvider(directory), iterations, chunk));
+			}
+
+			Log("Entity Framework");
+			results.Add("Entity Framework");
+
+			foreach (var chunk in chunks)
+			{
+				CleanupDatabase(connectionString);
+				results.Add(TestDatabase(new EntityFrameworkSampleDatabaseProvider(connectionString), iterations, chunk));
+			}
 		}
 
 		private static void RandomReadsGroup(string directory, string name, HashSet<string> randomKeys)
@@ -116,9 +162,9 @@ namespace Speedy.Benchmarks
 			}
 		}
 
-		private static void TestDatabase(ISampleDatabaseProvider provider, int total, int chunkSize)
+		private static string TestDatabase(ISampleDatabaseProvider provider, int total, int chunkSize)
 		{
-			Log("Starting to benchmark Speedy database...");
+			Log($"Starting to benchmark Speedy database with {chunkSize} chunks...");
 
 			var watch = Stopwatch.StartNew();
 			var random = new Random();
@@ -129,7 +175,7 @@ namespace Speedy.Benchmarks
 			{
 				using (var database = provider.CreateContext())
 				{
-					for (var i = 0; i < chunkSize; i++)
+					for (var i = count; i < count + chunkSize; i++)
 					{
 						var address = new Address
 						{
@@ -165,25 +211,30 @@ namespace Speedy.Benchmarks
 				}
 			}
 
+			var elapsed = watch.Elapsed.ToString(_timeFormat);
+
 			Log(string.Empty);
-			Log("Done: " + watch.Elapsed);
+			Log($"Done: {elapsed}");
 			Log(string.Empty);
+
+			return $"{elapsed} : {chunkSize} chunks.";
 		}
 
-		private static void TestRepository(string directory, int iterations)
+		private static void TestRepository(List<string> results, string directory, int iterations)
 		{
-			Log("Starting to benchmark Speedy Repository...");
+			Log($"Starting to benchmark Speedy Repository writing {iterations}...");
+			results.Add($"Starting to benchmark Speedy Repository writing {iterations}...");
 
-			//WriteCollection(directory, iterations, 100);
-			//WriteCollection(directory, iterations, 1000);
-			//WriteCollection(directory, iterations, 2500);
-			WriteCollection(directory, iterations, 10000);
-			//WriteCollection(directory, iterations, 50000);
-			//WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000);
-			//WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000);
-			//WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000);
-			//WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000);
-			//WriteCollection(directory, iterations, 50000, TimeSpan.FromSeconds(30), 100000);
+			results.Add(WriteCollection(directory, iterations, 100));
+			results.Add(WriteCollection(directory, iterations, 1000));
+			results.Add(WriteCollection(directory, iterations, 2500));
+			results.Add(WriteCollection(directory, iterations, 10000));
+			results.Add(WriteCollection(directory, iterations, 50000));
+			results.Add(WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000));
+			results.Add(WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000));
+			results.Add(WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000));
+			results.Add(WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000));
+			results.Add(WriteCollection(directory, iterations, 50000, TimeSpan.FromSeconds(30), 100000));
 
 			// Populate the random keys.
 			var random = new Random();
@@ -215,7 +266,7 @@ namespace Speedy.Benchmarks
 			Console.Write(message);
 		}
 
-		private static void WriteCollection(string directory, int size, int chunkSize, TimeSpan? timeout = null, int limit = 0)
+		private static string WriteCollection(string directory, int size, int chunkSize, TimeSpan? timeout = null, int limit = 0)
 		{
 			Log(string.Empty);
 			Log(limit <= 0 ? $"Let's create a repository with {size} items @ {chunkSize} at a time."
@@ -263,9 +314,13 @@ namespace Speedy.Benchmarks
 				repository.Save();
 				repository.Flush();
 
-				Log("Done: " + watch.Elapsed);
-				Log($"Count: {repository.Count}");
+				var elapsed = watch.Elapsed.ToString(_timeFormat);
+
+				Log($"Count: {repository.Count} : {elapsed}");
 				Log(string.Empty);
+
+				return limit <= 0 ? $"{elapsed}: {chunkSize} at a time."
+					: $"{elapsed}: {chunkSize} at a time with a cache of {limit} items.";
 			}
 		}
 

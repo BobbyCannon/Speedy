@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using Speedy.Configuration;
 using Speedy.Storage;
@@ -207,7 +208,7 @@ namespace Speedy
 			foreach (var method in methods)
 			{
 				var m = method.CachedMakeGenericMethod(typeArgs);
-				if (m.GetParameters().Select((p, i) => p.ParameterType == argTypes[i]).All(x => x))
+				if (m.GetCachedParameters().Select((p, i) => p.ParameterType == argTypes[i]).All(x => x))
 				{
 					return m;
 				}
@@ -325,11 +326,12 @@ namespace Speedy
 
 						if (otherEntity.GetType() == entityType)
 						{
-							repositoryType.GetMethod("InsertBefore").Invoke(repository, new object[] { otherEntity, entity });
+							repositoryType.CachedGetMethod("InsertBefore").Invoke(repository, new object[] { otherEntity, entity });
 						}
 						else
 						{
-							repositoryType.GetMethod("Add").Invoke(repository, new object[] { otherEntity });
+							// Still adding 400ms per 10000 items, why?
+							repositoryType.CachedGetMethod("Add").Invoke(repository, new object[] { otherEntity });
 						}
 					}
 
