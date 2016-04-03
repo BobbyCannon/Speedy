@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 
 namespace Speedy.EntityFramework
 {
-	public class EntityFrameworkRepository<T> : IEntityRepository<T> where T : Entity, new()
+	public class EntityFrameworkRepository<T> : IRepository<T> where T : Entity, new()
 	{
 		#region Fields
 

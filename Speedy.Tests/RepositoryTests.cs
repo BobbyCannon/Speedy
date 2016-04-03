@@ -22,7 +22,7 @@ namespace Speedy.Tests
 		public void Archive()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				repository.Write("Foo1", "Bar1");
 				repository.Write("Foo2", "Bar2");
@@ -57,7 +57,7 @@ namespace Speedy.Tests
 		public void ClearItemFromDisk()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				repository.Write("Foo1", "Bar1");
 				repository.Write("Foo2", "Bar2");
@@ -80,7 +80,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void CountCorrectWithCachedAdd()
 		{
-			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
 			var name = Guid.NewGuid().ToString();
 			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			tempInfo.Directory.SafeCreate();
@@ -99,7 +99,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void CountCorrectWithCachedRemoves()
 		{
-			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
 			var name = Guid.NewGuid().ToString();
 			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			tempInfo.Directory.SafeCreate();
@@ -120,7 +120,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void CountCorrectWithCachedUpdates()
 		{
-			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
 			var name = Guid.NewGuid().ToString();
 			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			tempInfo.Directory.SafeCreate();
@@ -145,7 +145,7 @@ namespace Speedy.Tests
 			var badData = string.Format("Foo3{0}Bar2|Foo2{0}{0}|{0}Foo1|Bar1{0}", Environment.NewLine);
 			File.WriteAllText(info.FullName, badData, Encoding.UTF8);
 
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				Assert.AreEqual(2, repository.Count);
 			}
@@ -154,7 +154,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void CountShouldReturnCorrectValue()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -169,7 +169,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void CountShouldReturnZero()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Save();
@@ -184,7 +184,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void CountShouldReturnZeroWithoutSave()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -198,7 +198,7 @@ namespace Speedy.Tests
 		public void Delete()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				repository.Write("Foo1", "Bar1");
 				repository.Write("Foo2", "Bar2");
@@ -220,7 +220,7 @@ namespace Speedy.Tests
 			var name = Guid.NewGuid().ToString();
 			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 10))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -238,7 +238,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringMultipleWrites()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Bar2", "Foo2");
@@ -266,7 +266,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringWrite()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -308,7 +308,7 @@ namespace Speedy.Tests
 		public void FlushShouldWriteAllItems()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 20))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 20))
 			{
 				repository.Write("Foo1", "Bar1");
 				repository.Write("Foo2", "Bar2");
@@ -327,7 +327,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void LastActionForKeyShouldWin()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -352,7 +352,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void LastWriteForKeyShouldWin()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1");
 				repository.Write("Item2", "Item2");
@@ -377,7 +377,7 @@ namespace Speedy.Tests
 		public void LoadUsingDictionary()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
 			{
 				repository.Load(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
 				Assert.AreEqual(2, repository.Count);
@@ -391,18 +391,18 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void MultithreadedWriteAndReadTest()
 		{
-			using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 10))
+			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 10))
 			{
 				var repository = context;
 				var random = new Random();
 
-				var readAction = new Action<IRepository<string>>(repo =>
+				var readAction = new Action<IKeyValueRepository<string>>(repo =>
 				{
 					Thread.Sleep(random.Next(10, 50));
 					repository.Read().ToList();
 				});
 
-				var writeAction = new Action<IRepository<string>, int, int>((repo, min, max) =>
+				var writeAction = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
 				{
 					for (var i = min; i < max; i++)
 					{
@@ -437,10 +437,10 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void MultithreadedWriteTest()
 		{
-			using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
+			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
 			{
 				var repository = context;
-				var action = new Action<IRepository<string>, int, int>((repo, min, max) =>
+				var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
 				{
 					for (var i = min; i < max; i++)
 					{
@@ -479,10 +479,10 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void MultithreadedWriteTestOverlappingEvents()
 		{
-			using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
+			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
 			{
 				var repository = context;
-				var action = new Action<IRepository<string>, int, int>((repo, min, max) =>
+				var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
 				{
 					for (var i = min; i < max; i++)
 					{
@@ -518,7 +518,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void ReadCorrectWithCachedAdd()
 		{
-			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
 			var name = Guid.NewGuid().ToString();
 			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			tempInfo.Directory.SafeCreate();
@@ -545,7 +545,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void ReadCorrectWithCachedRemoves()
 		{
-			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
 			var name = Guid.NewGuid().ToString();
 			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			tempInfo.Directory.SafeCreate();
@@ -570,7 +570,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void ReadCorrectWithCachedUpdate()
 		{
-			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
 			var name = Guid.NewGuid().ToString();
 			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			tempInfo.Directory.SafeCreate();
@@ -602,7 +602,7 @@ namespace Speedy.Tests
 			var badData = string.Format("Foo3{0}Bar2|Foo2{0}{0}|{0}Foo1|Bar1{0}", Environment.NewLine);
 			File.WriteAllText(info.FullName, badData, Encoding.UTF8);
 
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				var expected = new List<KeyValuePair<string, string>>
 				{
@@ -620,7 +620,7 @@ namespace Speedy.Tests
 		public void ReadInvalidKeyShouldThrowException()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var context = Repository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
+			using (var context = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
 			{
 				var repository = context;
 				TestHelper.ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), "Could not find the entry with the key.");
@@ -631,7 +631,7 @@ namespace Speedy.Tests
 		public void ReadItemFromCache()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
 			{
 				repository.Write("Foo1", "Bar1");
 				Thread.Sleep(1500);
@@ -654,7 +654,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void ReadItemsFromDisk()
 		{
-			var provider = new RepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory, TimeSpan.FromDays(1), 10000);
 			var name = Guid.NewGuid().ToString();
 			var tempInfo = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			tempInfo.Directory.SafeCreate();
@@ -674,7 +674,7 @@ namespace Speedy.Tests
 		public void ReadOnlyWrittenItemsFromDisk()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
 			{
 				repository.Write("Foo1", "Bar1");
 				Thread.Sleep(1500);
@@ -697,7 +697,7 @@ namespace Speedy.Tests
 		public void ReadOrderWithCaching()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 10))
 			{
 				repository.Write("Foo4", "Bar4");
 				repository.Write("Bar4", "Foo4");
@@ -728,7 +728,7 @@ namespace Speedy.Tests
 		public void ReadOrderWithNoCaching()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				repository.Write("Foo4", "Bar4");
 				repository.Write("Bar4", "Foo4");
@@ -758,7 +758,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void ReadUsingCondition()
 		{
-			using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				var repository = context;
 
@@ -782,7 +782,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RemoveShouldRemoveItem()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Value1");
 				repository.Write("Item2", "Value2");
@@ -813,7 +813,7 @@ namespace Speedy.Tests
 			var badData = string.Format("Foo3{0}Bar2|Foo2{0}{0}|{0}Foo1|Bar1{0}", Environment.NewLine);
 			File.WriteAllText(tempInfo.FullName, badData, Encoding.UTF8);
 
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				Assert.AreEqual(2, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
@@ -832,7 +832,7 @@ namespace Speedy.Tests
 			var expected = string.Format("Foo3|Bar3{0}Bar2|Foo2{0}Foo1|Bar1{0}", Environment.NewLine);
 			File.WriteAllText(tempInfo.FullName, expected);
 
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				Assert.AreEqual(3, repository.Count);
 				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
@@ -846,7 +846,7 @@ namespace Speedy.Tests
 		public void SaveShouldNotWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 10))
 			{
 				repository.Write("Foo", "Bar");
 				repository.Save();
@@ -861,7 +861,7 @@ namespace Speedy.Tests
 		public void SaveShouldOnlyWriteItemsOverLimitToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 2))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 2))
 			{
 				repository.Write("Foo3", "Bar3");
 				repository.Write("Bar2", "Foo2");
@@ -885,7 +885,7 @@ namespace Speedy.Tests
 		public void SaveShouldOnlyWriteItemsOverTimeoutToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
 			{
 				repository.Write("Foo1", "Bar1");
 				Thread.Sleep(1500);
@@ -912,7 +912,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void TryReadInvalidKeyShouldReturnFalse()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				string value;
 				var actual = repository.TryRead("Blah", out value);
@@ -924,7 +924,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void TryReadInvalidKeyShouldReturnTrue()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Blah", "Value");
 				repository.Save();
@@ -939,7 +939,7 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void WriteItemValueWithPipeCharacter()
 		{
-			using (var repository = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
 				repository.Write("Item1", "Item1|Item2");
 				repository.Write("Item2", "Item2|Boo");
@@ -963,7 +963,7 @@ namespace Speedy.Tests
 		public void WriteOrderWithCachingLimit()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 2))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 2))
 			{
 				repository.Write("Foo4", "Bar4");
 				repository.Write("Bar4", "Foo4");
@@ -989,7 +989,7 @@ namespace Speedy.Tests
 		public void WriteOrderWithNoCaching()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
 			{
 				repository.Write("Foo4", "Bar4");
 				repository.Write("Bar4", "Foo4");
@@ -1009,7 +1009,7 @@ namespace Speedy.Tests
 		public void WriteUsingDictionary()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
 			{
 				repository.Write(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
 				repository.Save();
@@ -1026,7 +1026,7 @@ namespace Speedy.Tests
 		public void ZeroLimitShouldSaveShouldWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
 			{
 				repository.Write("Foo", "Bar");
 				repository.Save();
@@ -1043,7 +1043,7 @@ namespace Speedy.Tests
 		public void ZeroTimeoutShouldSaveShouldWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, TimeSpan.Zero, 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.Zero, 10))
 			{
 				repository.Write("Foo", "Bar");
 				repository.Save();
@@ -1060,7 +1060,7 @@ namespace Speedy.Tests
 		public void ZeroTimeoutViaNullShouldSaveShouldWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = Repository.Create(TestHelper.Directory, name, null, 10))
+			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, null, 10))
 			{
 				repository.Write("Foo", "Bar");
 				repository.Save();

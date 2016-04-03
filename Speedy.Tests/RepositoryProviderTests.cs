@@ -19,7 +19,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			provider.OpenRepository(name1).Dispose();
 			Assert.IsTrue(File.Exists($"{TestHelper.Directory}\\{name1}.speedy"));
@@ -33,7 +33,7 @@ namespace Speedy.Tests
 		public void ArchiveRepositoryInvalidName()
 		{
 			Cleanup();
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			TestHelper.ExpectedException<FileNotFoundException>(() => provider.ArchiveRepository("Repository1"), "The file could not be found.");
 		}
 
@@ -42,7 +42,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			var name2 = "Repository2";
 			var repository1 = provider.OpenRepository(name1);
@@ -59,7 +59,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			var name2 = "Repository2";
 			var repository1 = provider.OpenRepository(name1);
@@ -76,7 +76,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name = "Repository1";
 			provider.OpenRepository(name).Dispose();
 			var expected = new List<string> { name };
@@ -95,7 +95,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name = "Repository1";
 			provider.OpenRepository(name).Dispose();
 			var expected = new List<string> { name };
@@ -111,7 +111,7 @@ namespace Speedy.Tests
 		public void GetRepositoryShouldReturnRepository()
 		{
 			Cleanup();
-			var provider = new RepositoryProvider(TestHelper.Directory.FullName);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory.FullName);
 			var name = Guid.NewGuid().ToString();
 
 			using (var repository = provider.OpenRepository(name))
@@ -126,7 +126,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			var name2 = "Repository2";
 			provider.OpenRepository(name1).Dispose();
@@ -146,7 +146,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			var name2 = "Repository2";
 			var repository1 = provider.OpenRepository(name1);
@@ -169,7 +169,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			var name2 = "Repository2";
 			var repository = provider.OpenRepository(name1);
@@ -189,7 +189,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			var name2 = "Repository2";
 			var repository1 = provider.OpenRepository(name1);
@@ -205,7 +205,7 @@ namespace Speedy.Tests
 		{
 			Cleanup();
 
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name = "Repository1";
 			provider.OpenRepository(name).Dispose();
 			var expected = new List<string> { name };
@@ -228,7 +228,7 @@ namespace Speedy.Tests
 			Cleanup();
 
 			TestHelper.Directory.SafeCreate();
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			var name1 = "Repository1";
 			File.CreateText($"{TestHelper.Directory}\\{name1}.speedy.archive").Dispose();
 			Assert.IsFalse(File.Exists($"{TestHelper.Directory}\\{name1}.speedy"));
@@ -242,7 +242,7 @@ namespace Speedy.Tests
 		public void UnarchiveRepositoryInvalidName()
 		{
 			Cleanup();
-			var provider = new RepositoryProvider(TestHelper.Directory);
+			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
 			TestHelper.ExpectedException<FileNotFoundException>(() => provider.UnarchiveRepository("Repository1"), "The file could not be found.");
 		}
 

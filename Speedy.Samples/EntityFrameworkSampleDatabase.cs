@@ -27,15 +27,15 @@ namespace Speedy.Samples
 
 		#region Properties
 
-		public IEntityRepository<Address> Addresses => GetRepository<Address>();
+		public IRepository<Address> Addresses => GetRepository<Address>();
 
-		public IEntityRepository<FoodRelationship> FoodRelationships => GetRepository<FoodRelationship>();
+		public IRepository<FoodRelationship> FoodRelationships => GetRepository<FoodRelationship>();
 
-		public IEntityRepository<Food> Foods => GetRepository<Food>();
+		public IRepository<Food> Foods => GetRepository<Food>();
 
-		public IEntityRepository<LogEvent> LogEvents => GetRepository<LogEvent>();
+		public IRepository<LogEvent> LogEvents => GetRepository<LogEvent>();
 
-		public IEntityRepository<Person> People => GetRepository<Person>();
+		public IRepository<Person> People => GetRepository<Person>();
 
 		#endregion
 	}

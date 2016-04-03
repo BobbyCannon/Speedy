@@ -1,4 +1,4 @@
-﻿#region References
+#region References
 
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("3.0.5936.27314")]
-[assembly: AssemblyFileVersion("3.0.5936.27314")]
+[assembly: AssemblyVersion("3.0.5937.25423")]
+[assembly: AssemblyFileVersion("3.0.5937.25423")]

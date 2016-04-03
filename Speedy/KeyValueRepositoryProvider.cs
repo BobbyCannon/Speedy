@@ -12,7 +12,7 @@ namespace Speedy
 	/// <summary>
 	/// A provider for the memory / file repository.
 	/// </summary>
-	public class RepositoryProvider : RepositoryProvider<string>
+	public class KeyValueRepositoryProvider : KeyValueRepositoryProvider<string>
 	{
 		#region Constructors
 
@@ -25,7 +25,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public RepositoryProvider(string directory, TimeSpan? timeout = null, int limit = 0)
+		public KeyValueRepositoryProvider(string directory, TimeSpan? timeout = null, int limit = 0)
 			: base(directory, timeout, limit)
 		{
 		}
@@ -39,7 +39,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public RepositoryProvider(DirectoryInfo directoryInfo, TimeSpan? timeout = null, int limit = 0)
+		public KeyValueRepositoryProvider(DirectoryInfo directoryInfo, TimeSpan? timeout = null, int limit = 0)
 			: base(directoryInfo, timeout, limit)
 		{
 		}
@@ -50,7 +50,7 @@ namespace Speedy
 	/// <summary>
 	/// A provider for the memory / file repository.
 	/// </summary>
-	public class RepositoryProvider<T> : IRepositoryProvider<T>
+	public class KeyValueRepositoryProvider<T> : IKeyValueRepositoryProvider<T>
 	{
 		#region Fields
 
@@ -69,7 +69,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public RepositoryProvider(string directory, TimeSpan? timeout = null, int limit = 0)
+		public KeyValueRepositoryProvider(string directory, TimeSpan? timeout = null, int limit = 0)
 			: this(new DirectoryInfo(directory), timeout, limit)
 		{
 		}
@@ -83,7 +83,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public RepositoryProvider(DirectoryInfo directoryInfo, TimeSpan? timeout = null, int limit = 0)
+		public KeyValueRepositoryProvider(DirectoryInfo directoryInfo, TimeSpan? timeout = null, int limit = 0)
 		{
 			_directoryInfo = directoryInfo;
 			Timeout = timeout;
@@ -152,7 +152,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="excluding"> The optional repositories to exclude. </param>
 		/// <returns> The repository that was opened or null if none available. </returns>
-		public IRepository<T> OpenAvailableRepository(params string[] excluding)
+		public IKeyValueRepository<T> OpenAvailableRepository(params string[] excluding)
 		{
 			foreach (var repository in AvailableRepositories(excluding))
 			{
@@ -174,9 +174,9 @@ namespace Speedy
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
 		/// <returns> The repository. </returns>
-		public IRepository<T> OpenRepository(string name)
+		public IKeyValueRepository<T> OpenRepository(string name)
 		{
-			return Repository<T>.Create(_directoryInfo.FullName, name, Timeout, Limit);
+			return KeyValueRepository<T>.Create(_directoryInfo.FullName, name, Timeout, Limit);
 		}
 
 		/// <summary>

@@ -13,7 +13,7 @@ using System.Linq.Expressions;
 namespace Speedy.EntityFramework
 {
 	[ExcludeFromCodeCoverage]
-	public class ReadOnlyEntityFrameworkRepository<T> : IEntityRepository<T> where T : Entity
+	public class ReadOnlyEntityFrameworkRepository<T> : IRepository<T> where T : Entity
 	{
 		#region Fields
 

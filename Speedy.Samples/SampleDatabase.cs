@@ -50,15 +50,15 @@ namespace Speedy.Samples
 
 		#region Properties
 
-		public IEntityRepository<Address> Addresses { get; }
+		public IRepository<Address> Addresses { get; }
 
-		public IEntityRepository<FoodRelationship> FoodRelationships { get; }
+		public IRepository<FoodRelationship> FoodRelationships { get; }
 
-		public IEntityRepository<Food> Foods { get; }
+		public IRepository<Food> Foods { get; }
 
-		public IEntityRepository<LogEvent> LogEvents { get; }
+		public IRepository<LogEvent> LogEvents { get; }
 
-		public IEntityRepository<Person> People { get; }
+		public IRepository<Person> People { get; }
 
 		#endregion
 	}

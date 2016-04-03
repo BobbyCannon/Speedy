@@ -14,7 +14,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a memory / file repository of key value pairs.
 	/// </summary>
-	public class Repository : Repository<string>
+	public class KeyValueRepository : KeyValueRepository<string>
 	{
 		#region Constructors
 
@@ -28,7 +28,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
+		public KeyValueRepository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 			: base(directory, name, timeout, limit)
 		{
 		}
@@ -39,7 +39,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a memory / file repository of key value pairs.
 	/// </summary>
-	public class Repository<T> : IRepository<T>
+	public class KeyValueRepository<T> : IKeyValueRepository<T>
 	{
 		#region Fields
 
@@ -63,7 +63,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public Repository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
+		public KeyValueRepository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 			: this(new DirectoryInfo(directory), name, timeout, limit)
 		{
 		}
@@ -78,7 +78,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		private Repository(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
+		private KeyValueRepository(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
 		{
 			DirectoryInfo = directoryInfo;
 			Name = name;
@@ -163,7 +163,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public static IRepository<T> Create(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
+		public static IKeyValueRepository<T> Create(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
 		{
 			return Create(directoryInfo.FullName, name, timeout, limit);
 		}
@@ -178,9 +178,9 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		public static IRepository<T> Create(string directory, string name, TimeSpan? timeout = null, int limit = 0)
+		public static IKeyValueRepository<T> Create(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 		{
-			var repository = new Repository<T>(directory, name, timeout, limit);
+			var repository = new KeyValueRepository<T>(directory, name, timeout, limit);
 			repository.Initialize();
 			return repository;
 		}

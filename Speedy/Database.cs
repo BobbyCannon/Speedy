@@ -23,7 +23,7 @@ namespace Speedy
 			FilePath = filePath;
 			Options = options ?? DatabaseOptions.GetDefaults();
 			Mappings = new List<IPropertyConfiguration>();
-			Repositories = new Dictionary<string, IEntityRepository>();
+			Repositories = new Dictionary<string, IRepository>();
 			Relationships = new Dictionary<string, object[]>();
 		}
 
@@ -39,7 +39,7 @@ namespace Speedy
 
 		private Dictionary<string, object[]> Relationships { get; }
 
-		private Dictionary<string, IEntityRepository> Repositories { get; }
+		private Dictionary<string, IRepository> Repositories { get; }
 
 		#endregion
 
@@ -53,12 +53,12 @@ namespace Speedy
 			Repositories.Values.ForEach(x => x.Dispose());
 		}
 
-		public IEntityRepository<T> GetReadOnlyRepository<T>() where T : Entity, new()
+		public IRepository<T> GetReadOnlyRepository<T>() where T : Entity, new()
 		{
 			return GetEntityRepository<T>();
 		}
 
-		public IEntityRepository<T> GetRepository<T>() where T : Entity, new()
+		public IRepository<T> GetRepository<T>() where T : Entity, new()
 		{
 			return GetEntityRepository<T>();
 		}
@@ -132,13 +132,13 @@ namespace Speedy
 			}
 
 			var value = Relationships[key];
-			var repository = (IEntityRepository<T2>) value[0];
+			var repository = (IRepository<T2>) value[0];
 			var foreignEntity = (Expression<Func<T2, T1>>) value[1];
 			var entityFunction = (Func<T2, T1>) value[2];
 			var foreignKey = (Expression<Func<T2, int>>) value[3];
 			var keyFunction = (Func<T2, int>) value[4];
 
-			var response = new RelationshipRepository<T2>((EntityRepository<T2>) repository, x =>
+			var response = new RelationshipRepository<T2>((Repository<T2>) repository, x =>
 			{
 				var invokedKey = keyFunction.Invoke(x);
 				if (invokedKey == entity.Id)
@@ -177,17 +177,17 @@ namespace Speedy
 			return response;
 		}
 
-		private EntityRepository<T> GetEntityRepository<T>() where T : Entity, new()
+		private Repository<T> GetEntityRepository<T>() where T : Entity, new()
 		{
 			var type = typeof (T);
 			var key = type.FullName;
 
 			if (Repositories.ContainsKey(key))
 			{
-				return (EntityRepository<T>) Repositories[key];
+				return (Repository<T>) Repositories[key];
 			}
 
-			var repository = new EntityRepository<T>(this);
+			var repository = new Repository<T>(this);
 			repository.UpdateEntityRelationships += UpdateEntityRelationships;
 			repository.ValidateEntity += ValidateEntity;
 			repository.Initialize();

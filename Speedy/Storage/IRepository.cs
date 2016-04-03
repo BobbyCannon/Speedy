@@ -6,7 +6,7 @@ using System;
 
 namespace Speedy.Storage
 {
-	internal interface IEntityRepository : IDisposable
+	internal interface IRepository : IDisposable
 	{
 		#region Methods
 

@@ -35,16 +35,16 @@ namespace Speedy.Storage
 
 		private readonly Func<T, bool> _filter;
 		private readonly Action<T> _newItem;
-		private readonly EntityRepository<T> _repository;
+		private readonly Repository<T> _repository;
 		private readonly Action<T> _updateRelationship;
 
 		#endregion
 
 		#region Constructors
 
-		public RelationshipRepository(IEntityRepository<T> repository, Func<T, bool> filter, Action<T> newItem, Action<T> updateRelationship)
+		public RelationshipRepository(IRepository<T> repository, Func<T, bool> filter, Action<T> newItem, Action<T> updateRelationship)
 		{
-			_repository = (EntityRepository<T>) repository;
+			_repository = (Repository<T>) repository;
 			_filter = filter;
 			_newItem = newItem;
 			_updateRelationship = updateRelationship;

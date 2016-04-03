@@ -17,7 +17,7 @@ namespace Speedy.Storage
 	/// </summary>
 	/// <typeparam name="T"> The type contained in the repository. </typeparam>
 	[Serializable]
-	internal class EntityRepository<T> : IEntityRepository, IEntityRepository<T> where T : Entity, new()
+	internal class Repository<T> : IRepository, IRepository<T> where T : Entity, new()
 	{
 		#region Fields
 
@@ -25,14 +25,14 @@ namespace Speedy.Storage
 		private readonly Database _database;
 		private int _index;
 		private readonly IQueryable<T> _query;
-		private readonly IRepository<T> _store;
+		private readonly IKeyValueRepository<T> _store;
 		private readonly Type _type;
 
 		#endregion
 
 		#region Constructors
 
-		public EntityRepository(Database database)
+		public Repository(Database database)
 		{
 			_database = database;
 			_cache = new List<EntityState>(4096);
@@ -41,7 +41,7 @@ namespace Speedy.Storage
 
 			if (!string.IsNullOrWhiteSpace(_database.FilePath))
 			{
-				_store = Repository<T>.Create(_database.FilePath, typeof (T).Name);
+				_store = KeyValueRepository<T>.Create(_database.FilePath, typeof (T).Name);
 				_store.OnEnumerated += OnUpdateEntityRelationships;
 			}
 

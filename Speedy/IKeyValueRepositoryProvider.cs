@@ -9,7 +9,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents provider for a repository of key value pairs.
 	/// </summary>
-	public interface IRepositoryProvider<T>
+	public interface IKeyValueRepositoryProvider<T>
 	{
 		#region Methods
 
@@ -37,14 +37,14 @@ namespace Speedy
 		/// </summary>
 		/// <param name="excluding"> The optional repositories to exclude. </param>
 		/// <returns> The repository that was opened or null if none available. </returns>
-		IRepository<T> OpenAvailableRepository(params string[] excluding);
+		IKeyValueRepository<T> OpenAvailableRepository(params string[] excluding);
 
 		/// <summary>
 		/// Gets a repository by the provided name. If the repository cannot be found a new one is created and returned.
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
 		/// <returns> The repository. </returns>
-		IRepository<T> OpenRepository(string name);
+		IKeyValueRepository<T> OpenRepository(string name);
 
 		/// <summary>
 		/// Unarchive a repository by the provided name.

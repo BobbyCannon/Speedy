@@ -94,7 +94,7 @@ namespace Speedy.Benchmarks
 			Log(string.Empty);
 			Log("Let's read the randomly selected keys from the " + name + " repository all at once.");
 
-			using (var repository = Repository<string>.Create(directory, name))
+			using (var repository = KeyValueRepository<string>.Create(directory, name))
 			{
 				var watch = Stopwatch.StartNew();
 
@@ -113,7 +113,7 @@ namespace Speedy.Benchmarks
 			Log(string.Empty);
 			Log("Let's read the randomly selected keys from the " + name + " repository one at a time.");
 
-			using (var repository = Repository<string>.Create(directory, name))
+			using (var repository = KeyValueRepository<string>.Create(directory, name))
 			{
 				var previousTime = new TimeSpan(0);
 				var watch = Stopwatch.StartNew();
@@ -276,7 +276,7 @@ namespace Speedy.Benchmarks
 
 			var watch = Stopwatch.StartNew();
 
-			using (var repository = Repository<string>.Create(directory, $"DB-{size}-{limit}", timeout, limit))
+			using (var repository = KeyValueRepository<string>.Create(directory, $"DB-{size}-{limit}", timeout, limit))
 			{
 				var previousTime = new TimeSpan(0);
 

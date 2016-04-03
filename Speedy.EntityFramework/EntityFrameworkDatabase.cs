@@ -36,7 +36,7 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
 		/// <returns> The repository of entities requested. </returns>
-		public IEntityRepository<T> GetReadOnlyRepository<T>() where T : Entity, new()
+		public IRepository<T> GetReadOnlyRepository<T>() where T : Entity, new()
 		{
 			return new ReadOnlyEntityFrameworkRepository<T>(Set<T>());
 		}
@@ -46,7 +46,7 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
 		/// <returns> The repository of entities requested. </returns>
-		public IEntityRepository<T> GetRepository<T>() where T : Entity, new()
+		public IRepository<T> GetRepository<T>() where T : Entity, new()
 		{
 			return new EntityFrameworkRepository<T>(Set<T>());
 		}
