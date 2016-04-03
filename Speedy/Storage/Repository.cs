@@ -41,7 +41,8 @@ namespace Speedy.Storage
 
 			if (!string.IsNullOrWhiteSpace(_database.FilePath))
 			{
-				_store = KeyValueRepository<T>.Create(_database.FilePath, typeof (T).Name);
+				var options = new KeyValueRepositoryOptions { IgnoreVirtualMembers = true };
+				_store = KeyValueRepository<T>.Create(_database.FilePath, typeof (T).Name, options);
 				_store.OnEnumerated += OnUpdateEntityRelationships;
 			}
 

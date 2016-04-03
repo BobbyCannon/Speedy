@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Samples.Entities;
 
 #endregion
 
@@ -801,6 +802,26 @@ namespace Speedy.Tests
 				Assert.AreEqual("Value1", actual[0].Value);
 				Assert.AreEqual("Item3", actual[1].Key);
 				Assert.AreEqual("Value3", actual[1].Value);
+			}
+		}
+
+		[TestMethod]
+		public void RepositoryWithComplexRelationship()
+		{
+			var name = Guid.NewGuid().ToString();
+			using (var repository = KeyValueRepository<Person>.Create(TestHelper.Directory, name))
+			{
+				var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+				var expected = new Person { Address = address, Name = "Bob Smith" };
+				var id = Guid.NewGuid().ToString();
+
+				repository.Write(id, expected);
+				repository.Save();
+				repository.Flush();
+
+				var actual = repository.Read(id);
+
+				TestHelper.AreEqual(expected, actual);
 			}
 		}
 

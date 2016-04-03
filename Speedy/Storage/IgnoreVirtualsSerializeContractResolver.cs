@@ -8,11 +8,11 @@ using Newtonsoft.Json.Serialization;
 
 namespace Speedy.Storage
 {
-	internal class ShouldSerializeContractResolver : DefaultContractResolver
+	internal class IgnoreVirtualsSerializeContractResolver : DefaultContractResolver
 	{
 		#region Fields
 
-		public static readonly ShouldSerializeContractResolver Instance = new ShouldSerializeContractResolver();
+		public static readonly IgnoreVirtualsSerializeContractResolver Instance = new IgnoreVirtualsSerializeContractResolver();
 
 		#endregion
 

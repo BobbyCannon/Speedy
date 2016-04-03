@@ -57,11 +57,12 @@
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseOptions.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
+    <Compile Include="KeyValueRepositoryOptions.cs" />
     <Compile Include="ModifiableEntity.cs" />
     <Compile Include="Storage\EntityComparer.cs" />
     <Compile Include="Storage\IRepository.cs" />
     <Compile Include="IRepository.cs" />
-    <Compile Include="Storage\ShouldSerializeContractResolver.cs" />
+    <Compile Include="Storage\IgnoreVirtualsSerializeContractResolver.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Storage\EntityState.cs" />
     <Compile Include="Storage\EntityStateType.cs" />

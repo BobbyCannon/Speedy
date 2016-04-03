@@ -25,12 +25,12 @@ namespace Speedy
 		#region Fields
 
 		private static readonly ConcurrentDictionary<string, MethodInfo> _genericMethods;
-
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _methodInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _methods;
 		private static readonly ConcurrentDictionary<string, ParameterInfo[]> _parameterInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
 		private static readonly JsonSerializerSettings _serializationSettings;
+		private static readonly JsonSerializerSettings _serializationSettingsNoVirtuals;
 		private static readonly ConcurrentDictionary<string, Type[]> _types;
 		private static readonly char[] _validJsonStartCharacters;
 
@@ -41,7 +41,8 @@ namespace Speedy
 		static Extensions()
 		{
 			_validJsonStartCharacters = new[] { '{', '[', '"' };
-			_serializationSettings = GetSerializerSettings();
+			_serializationSettings = GetSerializerSettings(true);
+			_serializationSettingsNoVirtuals = GetSerializerSettings(false);
 			_types = new ConcurrentDictionary<string, Type[]>();
 			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
 			_genericMethods = new ConcurrentDictionary<string, MethodInfo>();
@@ -332,8 +333,8 @@ namespace Speedy
 		internal static T FromJson<T>(this string item)
 		{
 			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
-				? JsonConvert.DeserializeObject<T>(item, _serializationSettings)
-				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettings);
+				? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals)
+				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
 		}
 
 		/// <summary>
@@ -428,17 +429,22 @@ namespace Speedy
 			}, 1000, 10);
 		}
 
-		internal static string ToJson<T>(this T item)
+		internal static string ToJson<T>(this T item, bool ignoreVirtuals)
 		{
-			return JsonConvert.SerializeObject(item, Formatting.None, _serializationSettings);
+			return JsonConvert.SerializeObject(item, Formatting.None, ignoreVirtuals ? _serializationSettings : _serializationSettingsNoVirtuals);
 		}
 
-		private static JsonSerializerSettings GetSerializerSettings()
+		private static JsonSerializerSettings GetSerializerSettings(bool ignoreVirtuals)
 		{
 			var response = new JsonSerializerSettings();
 			response.Converters.Add(new IsoDateTimeConverter());
-			response.ContractResolver = new ShouldSerializeContractResolver();
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+
+			if (ignoreVirtuals)
+			{
+				response.ContractResolver = new IgnoreVirtualsSerializeContractResolver();
+			}
+
 			return response;
 		}
 

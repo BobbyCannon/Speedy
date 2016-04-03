@@ -42,11 +42,12 @@ namespace Speedy.Tests
 		/// <typeparam name="T"> The type of the object. </typeparam>
 		/// <param name="expected"> The item that is expected. </param>
 		/// <param name="actual"> The item that is to be tested. </param>
-		public static void AreEqual<T>(T expected, T actual)
+		/// <param name="includeChildren"> True to include child complex types. </param>
+		public static void AreEqual<T>(T expected, T actual, bool includeChildren = true)
 		{
 			var compareObjects = new CompareLogic();
 			compareObjects.Config.MaxDifferences = int.MaxValue;
-			compareObjects.Config.CompareChildren = false;
+			compareObjects.Config.CompareChildren = includeChildren;
 
 			var result = compareObjects.Compare(expected, actual);
 			Assert.IsTrue(result.AreEqual, result.DifferencesString);

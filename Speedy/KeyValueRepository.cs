@@ -33,6 +33,17 @@ namespace Speedy
 		{
 		}
 
+		/// <summary>
+		/// Instantiates an instance of the Repository class.
+		/// </summary>
+		/// <param name="directory"> The directory where the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
+		/// <param name="options"> The options for the repository. </param>
+		public KeyValueRepository(string directory, string name, KeyValueRepositoryOptions options)
+			: base(directory, name, options)
+		{
+		}
+
 		#endregion
 	}
 
@@ -44,14 +55,24 @@ namespace Speedy
 		#region Fields
 
 		private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
-		private readonly int _cacheLimit;
-		private readonly TimeSpan _cacheTimeout;
 		private readonly Dictionary<string, Tuple<string, DateTime>> _changes;
 		private FileStream _fileStream;
+		private readonly KeyValueRepositoryOptions _options;
 
 		#endregion
 
 		#region Constructors
+
+		/// <summary>
+		/// Instantiates an instance of the Repository class.
+		/// </summary>
+		/// <param name="directory"> The directory where the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
+		/// <param name="options"> The options for the repository. </param>
+		public KeyValueRepository(string directory, string name, KeyValueRepositoryOptions options)
+			: this(new DirectoryInfo(directory), name, options)
+		{
+		}
 
 		/// <summary>
 		/// Instantiates an instance of the Repository class.
@@ -64,7 +85,7 @@ namespace Speedy
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
 		public KeyValueRepository(string directory, string name, TimeSpan? timeout = null, int limit = 0)
-			: this(new DirectoryInfo(directory), name, timeout, limit)
+			: this(directory, name, new KeyValueRepositoryOptions { Limit = limit, Timeout = timeout ?? TimeSpan.Zero })
 		{
 		}
 
@@ -73,21 +94,17 @@ namespace Speedy
 		/// </summary>
 		/// <param name="directoryInfo"> The directory info where the repository will reside. </param>
 		/// <param name="name"> The name of the repository. </param>
-		/// <param name="timeout">
-		/// The amount of time to cache items in memory before persisting to disk. Defaults to null and then
-		/// TimeSpan.Zero is used.
-		/// </param>
-		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
-		private KeyValueRepository(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
+		/// <param name="options"> The options for the repository. </param>
+		protected KeyValueRepository(DirectoryInfo directoryInfo, string name, KeyValueRepositoryOptions options)
 		{
+			_options = options;
+			_cache = new Dictionary<string, Tuple<string, DateTime>>(_options.Limit);
+			_changes = new Dictionary<string, Tuple<string, DateTime>>();
+
 			DirectoryInfo = directoryInfo;
 			Name = name;
 			FileInfo = new FileInfo($"{DirectoryInfo.FullName}\\{Name}.speedy");
 			TempFileInfo = new FileInfo($"{FileInfo.FullName}.temp");
-			_cache = new Dictionary<string, Tuple<string, DateTime>>(limit);
-			_cacheLimit = limit;
-			_cacheTimeout = timeout ?? TimeSpan.Zero;
-			_changes = new Dictionary<string, Tuple<string, DateTime>>();
 		}
 
 		#endregion
@@ -180,7 +197,19 @@ namespace Speedy
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
 		public static IKeyValueRepository<T> Create(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 		{
-			var repository = new KeyValueRepository<T>(directory, name, timeout, limit);
+			var options = new KeyValueRepositoryOptions { Limit = limit, Timeout = timeout ?? TimeSpan.Zero };
+			return Create(directory, name, options);
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the Repository class.
+		/// </summary>
+		/// <param name="directory"> The directory where the repository will reside. </param>
+		/// <param name="name"> The name of the repository. </param>
+		/// <param name="options"> The options for the repository. </param>
+		public static IKeyValueRepository<T> Create(string directory, string name, KeyValueRepositoryOptions options)
+		{
+			var repository = new KeyValueRepository<T>(directory, name, options);
 			repository.Initialize();
 			return repository;
 		}
@@ -397,8 +426,8 @@ namespace Speedy
 			{
 				UpdateCache();
 
-				var threshold = DateTime.UtcNow - _cacheTimeout;
-				if (_cache.Count <= _cacheLimit && !_cache.Any(x => x.Value.Item2 <= threshold))
+				var threshold = DateTime.UtcNow - _options.Timeout;
+				if (_cache.Count <= _options.Limit && !_cache.Any(x => x.Value.Item2 <= threshold))
 				{
 					return;
 				}
@@ -443,7 +472,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(), DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(_options.IgnoreVirtualMembers), DateTime.UtcNow));
 			}
 		}
 
@@ -551,7 +580,7 @@ namespace Speedy
 					.Where(x => x.Value.Item1 != null)
 					.Where(x => !expiredCache.ContainsKey(x.Key))
 					.OrderBy(x => x.Value.Item2)
-					.Take(_cache.Count - _cacheLimit)
+					.Take(_cache.Count - _options.Limit)
 					.ToDictionary(x => x.Key, x => x.Value);
 
 				while (reader.Peek() > 0)
