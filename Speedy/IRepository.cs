@@ -42,7 +42,7 @@ namespace Speedy
 		/// Delete the repository.
 		/// </summary>
 		void Delete();
-		
+
 		/// <summary>
 		/// Flushes all cached items to storage.
 		/// </summary>

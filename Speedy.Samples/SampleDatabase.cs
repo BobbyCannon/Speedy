@@ -12,8 +12,8 @@ namespace Speedy.Samples
 	{
 		#region Constructors
 
-		public SampleDatabase(string directory = null)
-			: base(directory)
+		public SampleDatabase(string directory = null, DatabaseOptions options = null)
+			: base(directory, options)
 		{
 			Addresses = GetRepository<Address>();
 			Foods = GetRepository<Food>();

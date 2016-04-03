@@ -320,13 +320,13 @@ namespace Speedy
 		/// <exception cref="KeyNotFoundException"> Could not find the entry with the key. </exception>
 		public T Read(string key)
 		{
-			var response = Read(new HashSet<string> { key }).ToList();
-			if (response.Count <= 0)
+			var response = Read(new HashSet<string> { key }).FirstOrDefault();
+			if (response.Key == null)
 			{
 				throw new KeyNotFoundException("Could not find the entry with the key.");
 			}
 
-			return response.First().Value;
+			return response.Value;
 		}
 
 		/// <summary>

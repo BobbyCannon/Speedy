@@ -3,7 +3,12 @@
 Speedy offers a quick embedded way to manage your data. Here are the two options.
 
 * Embedded Database
+	* Memory
+	* Disk
+	* SQL (Entity Framework)
+
 * Key Value Repository
+
 
 ## Embedded Database
 
@@ -12,19 +17,19 @@ Simple and easy to use embedded relationship database.
 #### Write of 10,000 items
 
 ```
-JSON
-09:197 : 150 chunks.
-05:309 : 300 chunks.
-03:443 : 600 chunks.
-02:844 : 1200 chunks.
-03:098 : 2400 chunks.
+On Disk
+10:277 : 150 chunks.
+05:957 : 300 chunks.
+03:886 : 600 chunks.
+03:222 : 1200 chunks.
+03:455 : 2400 chunks.
 
-Entity Framework
-08:212 : 150 chunks.
-11:303 : 300 chunks.
-18:439 : 600 chunks.
-36:521 : 1200 chunks.
-16:954 : 2400 chunks.
+SQL
+08:574 : 150 chunks.
+11:985 : 300 chunks.
+19:598 : 600 chunks.
+36:905 : 1200 chunks.
+20:363 : 2400 chunks.
 ```
 
 ## Key Value Repository
@@ -54,36 +59,36 @@ I just did a few quick benchmarks. The first set is without caching. The second 
 ```
 Starting to benchmark Speedy Repository writing 100000...
 No Caching
-41:431: 100 at a time.
-04:422: 1000 at a time.
-02:031: 2500 at a time.
-00:756: 10000 at a time.
-00:406: 50000 at a time.
+22:318: 100 at a time.
+04:382: 1000 at a time.
+01:926: 2500 at a time.
+00:776: 10000 at a time.
+00:414: 50000 at a time.
 
 Caching
-05:125: 100 at a time with a cache of 1000 items.
-00:782: 1000 at a time with a cache of 10000 items.
-00:767: 2500 at a time with a cache of 10000 items.
-00:516: 10000 at a time with a cache of 25000 items.
-00:323: 50000 at a time with a cache of 100000 items.
+02:780: 100 at a time with a cache of 1000 items.
+00:529: 1000 at a time with a cache of 10000 items.
+00:756: 2500 at a time with a cache of 10000 items.
+00:365: 10000 at a time with a cache of 25000 items.
+00:255: 50000 at a time with a cache of 100000 items.
 ```
 
-You'll need to balance how often to save you repository based on
-how much memory you want to use. More items written before saving
-will help speed but will require more memory. If you have low memory
-requirements then save often but it'll take longer to write the 
+You'll need to balance how often to save you repository based on how much memory you want to use. More items written before saving
+will help speed but will require more memory. If you have low memory requirements then save often but it'll take longer to write the 
 full repository.
 
 ##### Reads
 
 Reads using 100 random keys in a repository of 100,000 items.
 
-```
-Let's read randomly into the DB-100000 repository @ 1 at a time.
-Total: 02.7959685
+*Note:* The times will fluctuate as they keys are selected at random.
 
-Let's read randomly into the DB-100000 repository using all keys.
-Total: 00.0281244
+```
+Let's read the randomly selected keys from the DB-100000 repository one at a time.
+Total: 07:567
+
+Let's read the randomly selected keys from the DB-100000 repository all at once.
+Total: 00:132
 ```
 
 ##### Multiple Threads

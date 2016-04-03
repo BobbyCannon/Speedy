@@ -1,4 +1,8 @@
+#region References
+
 using System;
+
+#endregion
 
 namespace Speedy.Storage
 {

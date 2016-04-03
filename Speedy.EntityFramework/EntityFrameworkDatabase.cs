@@ -15,10 +15,17 @@ namespace Speedy.EntityFramework
 	{
 		#region Constructors
 
-		protected EntityFrameworkDatabase(string nameOrConnectionString)
+		protected EntityFrameworkDatabase(string nameOrConnectionString, DatabaseOptions options)
 			: base(nameOrConnectionString)
 		{
+			Options = options ?? DatabaseOptions.GetDefaults();
 		}
+
+		#endregion
+
+		#region Properties
+
+		public DatabaseOptions Options { get; }
 
 		#endregion
 
@@ -123,35 +130,37 @@ namespace Speedy.EntityFramework
 			}
 
 			var entity = entry.Entity as Entity;
-			if (entity != null)
+			if (entity == null || !Options.MaintainDates)
 			{
-				var modifiableEntity = entity as ModifiableEntity;
+				return;
+			}
 
-				// Check to see if the entity was added.
-				if (entry.State == EntityState.Added)
+			var modifiableEntity = entity as ModifiableEntity;
+
+			// Check to see if the entity was added.
+			if (entry.State == EntityState.Added)
+			{
+				// Make sure the modified on value matches created on for new items.
+				entity.CreatedOn = DateTime.UtcNow;
+				if (modifiableEntity != null)
 				{
-					// Make sure the modified on value matches created on for new items.
-					entity.CreatedOn = DateTime.UtcNow;
-					if (modifiableEntity != null)
-					{
-						modifiableEntity.ModifiedOn = entity.CreatedOn;
-					}
+					modifiableEntity.ModifiedOn = entity.CreatedOn;
+				}
+			}
+
+			// Check to see if the entity was modified.
+			if (entry.State == EntityState.Modified)
+			{
+				if (entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
+				{
+					// Do not allow created on to change for entities.
+					entity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
 				}
 
-				// Check to see if the entity was modified.
-				if (entry.State == EntityState.Modified)
+				if (modifiableEntity != null)
 				{
-					if (entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
-					{
-						// Do not allow created on to change for entities.
-						entity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
-					}
-
-					if (modifiableEntity != null)
-					{
-						// Update modified to now for new entities.
-						modifiableEntity.ModifiedOn = DateTime.UtcNow;
-					}
+					// Update modified to now for new entities.
+					modifiableEntity.ModifiedOn = DateTime.UtcNow;
 				}
 			}
 		}

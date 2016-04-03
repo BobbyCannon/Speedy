@@ -44,35 +44,6 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void AddNonModifiableEntity()
-		{
-			TestHelper.GetDataContexts().ForEach(context =>
-			{
-				using (context)
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var expected = new LogEvent { Message = "The new log message that is really important."};
-
-					using (context)
-					{
-						context.LogEvents.Add(expected);
-						var actual = context.LogEvents.FirstOrDefault();
-						Assert.IsNull(actual);
-
-						context.SaveChanges();
-
-						actual = context.LogEvents.FirstOrDefault();
-						Assert.IsNotNull(actual);
-						Assert.AreNotEqual(0, actual.Id);
-						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual);
-					}
-				}
-			});
-		}
-
-		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
 			TestHelper.GetDataContexts().ForEach(context =>
@@ -87,6 +58,36 @@ namespace Speedy.Tests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "Address: The Line1 field is required.");
+				}
+			});
+		}
+
+		[TestMethod]
+		public void AddEntityWithoutMaintainDatesDatabaseOption()
+		{
+			TestHelper.GetDataContexts().ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+					context.Options.MaintainDates = false;
+
+					var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+
+					using (context)
+					{
+						context.Addresses.Add(expected);
+						var actual = context.Addresses.FirstOrDefault();
+						Assert.IsNull(actual);
+
+						context.SaveChanges();
+
+						actual = context.Addresses.FirstOrDefault();
+						Assert.IsNotNull(actual);
+						Assert.AreNotEqual(0, actual.Id);
+						Assert.AreEqual(default(DateTime), actual.CreatedOn);
+						TestHelper.AreEqual(expected, actual);
+					}
 				}
 			});
 		}
@@ -115,6 +116,35 @@ namespace Speedy.Tests
 					Assert.AreNotEqual(0, context.People.First().Id);
 					Assert.AreEqual(1, context.Addresses.First().People.Count);
 					Assert.AreNotEqual(0, context.Addresses.First().People.First().AddressId);
+				}
+			});
+		}
+
+		[TestMethod]
+		public void AddNonModifiableEntity()
+		{
+			TestHelper.GetDataContexts().ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var expected = new LogEvent { Message = "The new log message that is really important." };
+
+					using (context)
+					{
+						context.LogEvents.Add(expected);
+						var actual = context.LogEvents.FirstOrDefault();
+						Assert.IsNull(actual);
+
+						context.SaveChanges();
+
+						actual = context.LogEvents.FirstOrDefault();
+						Assert.IsNotNull(actual);
+						Assert.AreNotEqual(0, actual.Id);
+						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
+						TestHelper.AreEqual(expected, actual);
+					}
 				}
 			});
 		}

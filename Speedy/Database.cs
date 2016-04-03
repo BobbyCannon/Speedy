@@ -2,11 +2,9 @@
 
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
 using System.Reflection;
 using Speedy.Configuration;
 using Speedy.Storage;
@@ -20,19 +18,22 @@ namespace Speedy
 	{
 		#region Constructors
 
-		protected Database(string filePath)
+		protected Database(string filePath, DatabaseOptions options)
 		{
 			FilePath = filePath;
+			Options = options ?? DatabaseOptions.GetDefaults();
 			Mappings = new List<IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IEntityRepository>();
 			Relationships = new Dictionary<string, object[]>();
 		}
-		
+
 		#endregion
 
 		#region Properties
 
-		private string FilePath { get; }
+		public DatabaseOptions Options { get; }
+
+		internal string FilePath { get; }
 
 		private ICollection<IPropertyConfiguration> Mappings { get; }
 
@@ -186,7 +187,7 @@ namespace Speedy
 				return (EntityRepository<T>) Repositories[key];
 			}
 
-			var repository = new EntityRepository<T>(FilePath);
+			var repository = new EntityRepository<T>(this);
 			repository.UpdateEntityRelationships += UpdateEntityRelationships;
 			repository.ValidateEntity += ValidateEntity;
 			repository.Initialize();

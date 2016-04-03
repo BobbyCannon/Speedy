@@ -16,8 +16,9 @@ namespace Speedy.Benchmarks
 	{
 		#region Fields
 
-		private static bool _verboseLog;
 		private static string _timeFormat;
+
+		private static bool _verboseLog;
 
 		#endregion
 
@@ -78,7 +79,7 @@ namespace Speedy.Benchmarks
 			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy";
 			var connectionString = "server=localhost;database=speedy;integrated security=true;";
 			var results = new List<string>();
-			
+
 			TestRepository(results, directory + "\\Repository", 100000);
 			TestDatabase(results, directory + "\\Database", connectionString, 10000);
 
@@ -86,6 +87,54 @@ namespace Speedy.Benchmarks
 			results.ForEach(x => Log(x));
 			Log("Press any key to continue...");
 			Console.ReadKey();
+		}
+
+		private static void RandomReadsGroup(string directory, string name, HashSet<string> randomKeys)
+		{
+			Log(string.Empty);
+			Log("Let's read the randomly selected keys from the " + name + " repository all at once.");
+
+			using (var repository = Repository<string>.Create(directory, name))
+			{
+				var watch = Stopwatch.StartNew();
+
+				var values = repository.Read(randomKeys);
+				foreach (var item in values)
+				{
+					Verbose("Read " + item.Value + " using key " + item.Key);
+				}
+
+				Log("Total: " + watch.Elapsed.ToString(_timeFormat));
+			}
+		}
+
+		private static void RandomReadsIndividually(string directory, string name, IEnumerable<string> randomKeys)
+		{
+			Log(string.Empty);
+			Log("Let's read the randomly selected keys from the " + name + " repository one at a time.");
+
+			using (var repository = Repository<string>.Create(directory, name))
+			{
+				var previousTime = new TimeSpan(0);
+				var watch = Stopwatch.StartNew();
+
+				foreach (var key in randomKeys)
+				{
+					try
+					{
+						var value = repository.Read(key);
+						Verbose("Read " + value + " using key " + key + " in " + (watch.Elapsed - previousTime));
+					}
+					catch (Exception ex)
+					{
+						Log("Failed to read key " + key + ". " + ex.Message);
+					}
+
+					previousTime = watch.Elapsed;
+				}
+
+				Log("Total: " + watch.Elapsed.ToString(_timeFormat));
+			}
 		}
 
 		private static void TestDatabase(List<string> results, string directory, string connectionString, int iterations)
@@ -111,54 +160,6 @@ namespace Speedy.Benchmarks
 			{
 				CleanupDatabase(connectionString);
 				results.Add(TestDatabase(new EntityFrameworkSampleDatabaseProvider(connectionString), iterations, chunk));
-			}
-		}
-
-		private static void RandomReadsGroup(string directory, string name, HashSet<string> randomKeys)
-		{
-			Log(string.Empty);
-			Log("Let's read randomly into the " + name + " repository using all keys.");
-
-			using (var repository = Repository<string>.Create(directory, name))
-			{
-				var watch = Stopwatch.StartNew();
-
-				var values = repository.Read(randomKeys);
-				foreach (var item in values)
-				{
-					Verbose("Read " + item.Value + " using key " + item.Key);
-				}
-
-				Log("Total: " + watch.Elapsed);
-			}
-		}
-
-		private static void RandomReadsIndividually(string directory, string name, IEnumerable<string> randomKeys)
-		{
-			Log(string.Empty);
-			Log("Let's read randomly into the " + name + " repository @ 1 at a time.");
-
-			using (var repository = Repository<string>.Create(directory, name))
-			{
-				var previousTime = new TimeSpan(0);
-				var watch = Stopwatch.StartNew();
-
-				foreach (var key in randomKeys)
-				{
-					try
-					{
-						var value = repository.Read(key);
-						Verbose("Read " + value + " using key " + key + " in " + (watch.Elapsed - previousTime));
-					}
-					catch (Exception ex)
-					{
-						Log("Failed to read key " + key + ". " + ex.Message);
-					}
-
-					previousTime = watch.Elapsed;
-				}
-
-				Log("Total: " + watch.Elapsed);
 			}
 		}
 
@@ -239,6 +240,7 @@ namespace Speedy.Benchmarks
 			// Populate the random keys.
 			var random = new Random();
 			var randomKeys = new HashSet<string>();
+
 			for (var i = 0; i < 100; i++)
 			{
 				randomKeys.Add(random.Next(1, iterations).ToString());

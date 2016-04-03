@@ -14,12 +14,12 @@ namespace Speedy.Samples
 		#region Constructors
 
 		public EntityFrameworkSampleDatabase()
-			: this("name=DefaultConnection")
+			: this("name=DefaultConnection", new DatabaseOptions { MaintainDates = true })
 		{
 		}
 
-		public EntityFrameworkSampleDatabase(string nameOrConnectionString)
-			: base(nameOrConnectionString)
+		public EntityFrameworkSampleDatabase(string nameOrConnectionString, DatabaseOptions options = null)
+			: base(nameOrConnectionString, options)
 		{
 		}
 

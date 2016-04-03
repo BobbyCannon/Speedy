@@ -8,6 +8,12 @@ namespace Speedy
 {
 	public interface IDatabase : IDisposable
 	{
+		#region Properties
+
+		DatabaseOptions Options { get; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
