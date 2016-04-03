@@ -12,6 +12,10 @@ using System.Linq.Expressions;
 
 namespace Speedy.EntityFramework
 {
+	/// <summary>
+	/// Represents a read only collection of entities for a Speedy database.
+	/// </summary>
+	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
 	[ExcludeFromCodeCoverage]
 	public class ReadOnlyEntityFrameworkRepository<T> : IRepository<T> where T : Entity
 	{
@@ -23,6 +27,10 @@ namespace Speedy.EntityFramework
 
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates a repository.
+		/// </summary>
+		/// <param name="set"> The database set this repository is for. </param>
 		public ReadOnlyEntityFrameworkRepository(DbSet<T> set)
 		{
 			_query = set.AsNoTracking().AsQueryable();

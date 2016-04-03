@@ -6,10 +6,16 @@ using System;
 
 namespace Speedy
 {
+	/// <summary>
+	/// The interfaces for a Speedy database.
+	/// </summary>
 	public interface IDatabase : IDisposable
 	{
 		#region Properties
 
+		/// <summary>
+		/// Gets the options for this database.
+		/// </summary>
 		DatabaseOptions Options { get; }
 
 		#endregion

@@ -8,17 +8,33 @@ using Speedy.Exceptions;
 
 namespace Speedy.Configuration
 {
+	/// <summary>
+	/// The interface for the property configuration.
+	/// </summary>
 	public interface IPropertyConfiguration
 	{
 		#region Methods
 
+		/// <summary>
+		/// Checks to see if this configuration is for the provided entity.
+		/// </summary>
+		/// <param name="entity"> The entity to test against. </param>
+		/// <returns> True if this configuration is for the entity and false if otherwise. </returns>
 		bool IsMappingFor(object entity);
 
+		/// <summary>
+		/// Validates the entity using this configuration.
+		/// </summary>
+		/// <param name="entity"> The entity to validate. </param>
 		void Validate(object entity);
 
 		#endregion
 	}
 
+	/// <summary>
+	/// The configuration for an entity property.
+	/// </summary>
+	/// <typeparam name="T"> The entity this configuration is for. </typeparam>
 	public class PropertyConfiguration<T> : IPropertyConfiguration where T : Entity
 	{
 		#region Fields
@@ -34,6 +50,10 @@ namespace Speedy.Configuration
 
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates an instance of the property configuration.
+		/// </summary>
+		/// <param name="property"> The property expression this configuration is for. </param>
 		public PropertyConfiguration(Expression<Func<T, object>> property)
 		{
 			_entityType = typeof (T);
@@ -48,35 +68,60 @@ namespace Speedy.Configuration
 
 		#region Methods
 
-		public PropertyConfiguration<T> HasMaxLength(int length)
+		/// <summary>
+		/// Sets the maximum length of the member.
+		/// </summary>
+		/// <returns> The configuration after updated. </returns>
+		public PropertyConfiguration<T> HasMaximumLength(int length)
 		{
 			_maxLength = length;
 			return this;
 		}
 
-		public PropertyConfiguration<T> HasMinLength(int length)
+		/// <summary>
+		/// Sets the minimum length of the member.
+		/// </summary>
+		/// <returns> The configuration after updated. </returns>
+		public PropertyConfiguration<T> HasMinimumLength(int length)
 		{
 			_minLength = length;
 			return this;
 		}
 
+		/// <summary>
+		/// Checks to see if this configuration is for the provided entity.
+		/// </summary>
+		/// <param name="entity"> The entity to test against. </param>
+		/// <returns> True if this configuration is for the entity and false if otherwise. </returns>
 		public bool IsMappingFor(object entity)
 		{
 			return entity is T;
 		}
 
+		/// <summary>
+		/// Marks the property as an optional member.
+		/// </summary>
+		/// <returns> The configuration after updated. </returns>
 		public PropertyConfiguration<T> IsOptional()
 		{
 			_isNullable = true;
 			return this;
 		}
 
+		/// <summary>
+		/// Marks the property as a required member.
+		/// </summary>
+		/// <returns> The configuration after updated. </returns>
 		public PropertyConfiguration<T> IsRequired()
 		{
 			_isNullable = false;
 			return this;
 		}
 
+		/// <summary>
+		/// Validates the entity using this configuration.
+		/// </summary>
+		/// <param name="entity"> The entity to validate. </param>
 		public void Validate(T entity)
 		{
 			if (entity == null)
@@ -105,6 +150,10 @@ namespace Speedy.Configuration
 			}
 		}
 
+		/// <summary>
+		/// Validates the entity using this configuration.
+		/// </summary>
+		/// <param name="entity"> The entity to validate. </param>
 		public void Validate(object entity)
 		{
 			Validate(entity as T);

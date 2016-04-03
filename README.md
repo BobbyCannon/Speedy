@@ -14,6 +14,30 @@ Speedy offers a quick embedded way to manage your data. Here are the two options
 
 Simple and easy to use embedded relationship database.
 
+#### Code Example
+
+```
+using (var database = provider.CreateContext())
+{
+	for (var i = count; i < count + chunkSize; i++)
+	{
+		var address = new Address { Line1 = "Line " + i, Line2 = "Line " + i, City = "City " + i, Postal = "Postal " + i, State = "State " + i };
+
+		if (random.Next(1, 100) % 2 == 0)
+		{
+			address.People.Add(new Person
+			{
+				Name = "Person " + i
+			});
+		}
+
+		database.Addresses.Add(address);
+	}
+
+	database.SaveChanges();
+}
+```
+
 #### Write of 10,000 items
 
 ```

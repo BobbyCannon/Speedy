@@ -12,6 +12,10 @@ using System.Linq.Expressions;
 
 namespace Speedy.EntityFramework
 {
+	/// <summary>
+	/// Represents a collection of entities for a Speedy database.
+	/// </summary>
+	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
 	public class EntityFrameworkRepository<T> : IRepository<T> where T : Entity, new()
 	{
 		#region Fields
@@ -22,6 +26,10 @@ namespace Speedy.EntityFramework
 
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates a repository.
+		/// </summary>
+		/// <param name="set"> The database set this repository is for. </param>
 		public EntityFrameworkRepository(DbSet<T> set)
 		{
 			_set = set;

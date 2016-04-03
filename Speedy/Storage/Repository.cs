@@ -13,7 +13,7 @@ using System.Threading;
 namespace Speedy.Storage
 {
 	/// <summary>
-	/// This collection servers as an in memory repository for unit testing.
+	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The type contained in the repository. </typeparam>
 	[Serializable]

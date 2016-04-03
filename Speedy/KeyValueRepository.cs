@@ -488,6 +488,10 @@ namespace Speedy
 			}
 		}
 
+		/// <summary>
+		/// Disposes of the repository.
+		/// </summary>
+		/// <param name="disposing"> True to dispose managed objects. </param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)
@@ -656,6 +660,9 @@ namespace Speedy
 
 		#region Events
 
+		/// <summary>
+		/// Will be called on each item when this repository is enumerated.
+		/// </summary>
 		public event Action<T> OnEnumerated;
 
 		#endregion

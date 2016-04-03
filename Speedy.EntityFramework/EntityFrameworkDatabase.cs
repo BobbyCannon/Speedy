@@ -11,10 +11,18 @@ using System.Reflection;
 
 namespace Speedy.EntityFramework
 {
+	/// <summary>
+	/// Represents an Entity Framework Speedy database.
+	/// </summary>
 	public abstract class EntityFrameworkDatabase : DbContext, IDatabase
 	{
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates an instance of the database.
+		/// </summary>
+		/// <param name="nameOrConnectionString"> The name of the connection string or the actually connection string. </param>
+		/// <param name="options"> The options for this database. </param>
 		protected EntityFrameworkDatabase(string nameOrConnectionString, DatabaseOptions options)
 			: base(nameOrConnectionString)
 		{
@@ -25,6 +33,9 @@ namespace Speedy.EntityFramework
 
 		#region Properties
 
+		/// <summary>
+		/// Gets the options for this database.
+		/// </summary>
 		public DatabaseOptions Options { get; }
 
 		#endregion

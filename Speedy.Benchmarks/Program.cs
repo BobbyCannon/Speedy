@@ -178,14 +178,7 @@ namespace Speedy.Benchmarks
 				{
 					for (var i = count; i < count + chunkSize; i++)
 					{
-						var address = new Address
-						{
-							Line1 = "Line " + i,
-							Line2 = "Line " + i,
-							City = "City " + i,
-							Postal = "Postal " + i,
-							State = "State " + i
-						};
+						var address = new Address { Line1 = "Line " + i, Line2 = "Line " + i, City = "City " + i, Postal = "Postal " + i, State = "State " + i };
 
 						if (random.Next(1, 100) % 2 == 0)
 						{

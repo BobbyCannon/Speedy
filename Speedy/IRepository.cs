@@ -8,6 +8,10 @@ using System.Linq.Expressions;
 
 namespace Speedy
 {
+	/// <summary>
+	/// Represents a collection of entities for a Speedy database.
+	/// </summary>
+	/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
 	public interface IRepository<T> : IQueryable<T> where T : Entity
 	{
 		#region Methods

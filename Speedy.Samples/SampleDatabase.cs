@@ -22,14 +22,14 @@ namespace Speedy.Samples
 			People = GetRepository<Person>();
 
 			// Address Map
-			Property<Address>(x => x.Line1).IsRequired().HasMaxLength(256);
-			Property<Address>(x => x.Line2).IsRequired().HasMaxLength(256);
-			Property<Address>(x => x.City).IsRequired().HasMaxLength(256);
-			Property<Address>(x => x.State).IsRequired().HasMaxLength(128);
-			Property<Address>(x => x.Postal).IsRequired().HasMaxLength(128);
+			Property<Address>(x => x.Line1).IsRequired().HasMaximumLength(256);
+			Property<Address>(x => x.Line2).IsRequired().HasMaximumLength(256);
+			Property<Address>(x => x.City).IsRequired().HasMaximumLength(256);
+			Property<Address>(x => x.State).IsRequired().HasMaximumLength(128);
+			Property<Address>(x => x.Postal).IsRequired().HasMaximumLength(128);
 
 			// Food Map
-			Property<Food>(x => x.Name).IsRequired().HasMaxLength(256);
+			Property<Food>(x => x.Name).IsRequired().HasMaximumLength(256);
 
 			// Food Relationship 
 			Property<FoodRelationship>(x => x.Quantity).IsRequired();
@@ -39,10 +39,10 @@ namespace Speedy.Samples
 			Property<FoodRelationship>(x => x.ChildId).IsRequired();
 
 			// LogEvent Map
-			Property<LogEvent>(x => x.Message).IsRequired().HasMaxLength(900);
+			Property<LogEvent>(x => x.Message).IsRequired().HasMaximumLength(900);
 
 			// Person Map
-			Property<Person>(x => x.Name).IsRequired().HasMaxLength(256);
+			Property<Person>(x => x.Name).IsRequired().HasMaximumLength(256);
 			HasMany<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
 		}
 

@@ -13,11 +13,19 @@ using Speedy.Storage;
 
 namespace Speedy
 {
+	/// <summary>
+	/// Represents a Speedy database.
+	/// </summary>
 	[Serializable]
 	public abstract class Database : IDatabase
 	{
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates an instance of the database class.
+		/// </summary>
+		/// <param name="filePath"> The path to store the database files. </param>
+		/// <param name="options"> The options for this database. </param>
 		protected Database(string filePath, DatabaseOptions options)
 		{
 			FilePath = filePath;
@@ -31,6 +39,9 @@ namespace Speedy
 
 		#region Properties
 
+		/// <summary>
+		/// Gets the options for this database.
+		/// </summary>
 		public DatabaseOptions Options { get; }
 
 		internal string FilePath { get; }
@@ -53,16 +64,30 @@ namespace Speedy
 			Repositories.Values.ForEach(x => x.Dispose());
 		}
 
+		/// <summary>
+		/// Gets a read only repository for the provided type.
+		/// </summary>
+		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
+		/// <returns> The repository for the type. </returns>
 		public IRepository<T> GetReadOnlyRepository<T>() where T : Entity, new()
 		{
 			return GetEntityRepository<T>();
 		}
 
+		/// <summary>
+		/// Gets a repository for the provided type.
+		/// </summary>
+		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
+		/// <returns> The repository for the type. </returns>
 		public IRepository<T> GetRepository<T>() where T : Entity, new()
 		{
 			return GetEntityRepository<T>();
 		}
 
+		/// <summary>
+		/// Save the data to the data store.
+		/// </summary>
+		/// <returns> The number of items saved. </returns>
 		public virtual int SaveChanges()
 		{
 			var response = 0;
@@ -74,6 +99,14 @@ namespace Speedy
 			return response;
 		}
 
+		/// <summary>
+		/// Creates a configuration that represent a one to many relationship.
+		/// </summary>
+		/// <param name="entity"> The entity to relate to. </param>
+		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
+		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
+		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
+		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
 		protected void HasMany<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, int>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey)
 			where T1 : Entity
 			where T2 : Entity
@@ -83,6 +116,12 @@ namespace Speedy
 			Relationships.Add(key, new object[] { repository, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
 		}
 
+		/// <summary>
+		/// Creates a configuration for an entity property.
+		/// </summary>
+		/// <param name="expression"> The expression for the property. </param>
+		/// <typeparam name="T"> The entity for the configuration. </typeparam>
+		/// <returns> The configuration for the entity property. </returns>
 		protected PropertyConfiguration<T> Property<T>(Expression<Func<T, object>> expression) where T : Entity
 		{
 			var response = new PropertyConfiguration<T>(expression);

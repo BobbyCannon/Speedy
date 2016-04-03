@@ -1,5 +1,8 @@
 namespace Speedy
 {
+	/// <summary>
+	/// Represents options for a Speedy database.
+	/// </summary>
 	public class DatabaseOptions
 	{
 		#region Properties
