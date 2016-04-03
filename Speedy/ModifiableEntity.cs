@@ -6,13 +6,11 @@ using System;
 
 namespace Speedy
 {
-	public abstract class Entity
+	public abstract class ModifiableEntity : Entity
 	{
 		#region Properties
 
-		public DateTime CreatedOn { get; set; }
-
-		public int Id { get; set; }
+		public DateTime ModifiedOn { get; set; }
 
 		#endregion
 	}

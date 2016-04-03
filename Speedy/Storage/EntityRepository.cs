@@ -51,7 +51,7 @@ namespace Speedy.Storage
 
 		#region Properties
 
-		public IList<EntityState> Cache { get; }
+		private IList<EntityState> Cache { get; }
 
 		Type IQueryable.ElementType => _query.ElementType;
 
@@ -282,28 +282,44 @@ namespace Speedy.Storage
 				Cache.Remove(item);
 			}
 
-			foreach (var item in Cache)
+			foreach (var entry in Cache)
 			{
-				if (item.OldEntity != null)
+				var entity = entry.Entity;
+				var modifiableEntity = entity as ModifiableEntity;
+
+				// Check to see if the entity was added.
+				if (entry.State == EntityStateType.Added)
 				{
-					item.Entity.CreatedOn = item.OldEntity.CreatedOn;
+					// Make sure the modified on value matches created on for new items.
+					entity.CreatedOn = DateTime.UtcNow;
+
+					if (modifiableEntity != null)
+					{
+						modifiableEntity.ModifiedOn = entity.CreatedOn;
+					}
 				}
 
-				if (item.Entity.Id == 0)
+				// Check to see if the entity was modified.
+				if (entry.State == EntityStateType.Modified)
 				{
-					item.Entity.CreatedOn = DateTime.UtcNow;
-				}
+					// Do not allow created on to change for entities.
+					entity.CreatedOn = entry.OldEntity.CreatedOn;
 
-				item.Entity.ModifiedOn = DateTime.UtcNow;
+					if (modifiableEntity != null)
+					{
+						// Update modified to now for new entities.
+						modifiableEntity.ModifiedOn = DateTime.UtcNow;
+					}
+				}
 
 				if (_store != null)
 				{
-					_store?.Write(item.Entity.Id.ToString(), (T) item.Entity);
+					_store?.Write(entry.Entity.Id.ToString(), (T) entry.Entity);
 				}
 				else
 				{
-					item.OldEntity = CloneEntity(item.Entity);
-					item.State = EntityStateType.Unmodified;
+					entry.OldEntity = CloneEntity(entry.Entity);
+					entry.State = EntityStateType.Unmodified;
 				}
 			}
 

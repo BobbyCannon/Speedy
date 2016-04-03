@@ -33,6 +33,8 @@ namespace Speedy.Samples
 
 		public IEntityRepository<Food> Foods => GetRepository<Food>();
 
+		public IEntityRepository<LogEvent> LogEvents => GetRepository<LogEvent>();
+
 		public IEntityRepository<Person> People => GetRepository<Person>();
 
 		#endregion

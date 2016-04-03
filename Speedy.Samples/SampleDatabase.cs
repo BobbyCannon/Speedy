@@ -18,6 +18,7 @@ namespace Speedy.Samples
 			Addresses = GetRepository<Address>();
 			Foods = GetRepository<Food>();
 			FoodRelationships = GetRepository<FoodRelationship>();
+			LogEvents = GetRepository<LogEvent>();
 			People = GetRepository<Person>();
 
 			// Address Map
@@ -26,10 +27,6 @@ namespace Speedy.Samples
 			Property<Address>(x => x.City).IsRequired().HasMaxLength(256);
 			Property<Address>(x => x.State).IsRequired().HasMaxLength(128);
 			Property<Address>(x => x.Postal).IsRequired().HasMaxLength(128);
-
-			// Person Map
-			Property<Person>(x => x.Name).IsRequired().HasMaxLength(256);
-			HasMany<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
 
 			// Food Map
 			Property<Food>(x => x.Name).IsRequired().HasMaxLength(256);
@@ -40,6 +37,13 @@ namespace Speedy.Samples
 			HasMany<FoodRelationship, Food>(x => x.Child, x => x.ChildId, x => x.Parents);
 			Property<FoodRelationship>(x => x.ParentId).IsRequired();
 			Property<FoodRelationship>(x => x.ChildId).IsRequired();
+
+			// LogEvent Map
+			Property<LogEvent>(x => x.Message).IsRequired().HasMaxLength(900);
+
+			// Person Map
+			Property<Person>(x => x.Name).IsRequired().HasMaxLength(256);
+			HasMany<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
 		}
 
 		#endregion
@@ -51,6 +55,8 @@ namespace Speedy.Samples
 		public IEntityRepository<FoodRelationship> FoodRelationships { get; }
 
 		public IEntityRepository<Food> Foods { get; }
+
+		public IEntityRepository<LogEvent> LogEvents { get; }
 
 		public IEntityRepository<Person> People { get; }
 

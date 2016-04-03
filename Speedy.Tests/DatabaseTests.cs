@@ -36,6 +36,36 @@ namespace Speedy.Tests
 						actual = context.Addresses.FirstOrDefault();
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
+						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
+						TestHelper.AreEqual(expected, actual);
+					}
+				}
+			});
+		}
+
+		[TestMethod]
+		public void AddNonModifiableEntity()
+		{
+			TestHelper.GetDataContexts().ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var expected = new LogEvent { Message = "The new log message that is really important."};
+
+					using (context)
+					{
+						context.LogEvents.Add(expected);
+						var actual = context.LogEvents.FirstOrDefault();
+						Assert.IsNull(actual);
+
+						context.SaveChanges();
+
+						actual = context.LogEvents.FirstOrDefault();
+						Assert.IsNotNull(actual);
+						Assert.AreNotEqual(0, actual.Id);
+						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
 						TestHelper.AreEqual(expected, actual);
 					}
 				}

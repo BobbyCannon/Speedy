@@ -21,9 +21,9 @@ namespace Speedy.Configuration
 
 	public class PropertyConfiguration<T> : IPropertyConfiguration where T : Entity
 	{
-		private Type _entityType;
 		#region Fields
 
+		private readonly Type _entityType;
 		private bool? _isNullable;
 		private int _maxLength;
 		private int _minLength;
@@ -36,7 +36,7 @@ namespace Speedy.Configuration
 
 		public PropertyConfiguration(Expression<Func<T, object>> property)
 		{
-			_entityType = typeof(T);
+			_entityType = typeof (T);
 			_property = property;
 			_propertyFunction = _property.Compile();
 			_isNullable = null;
@@ -84,7 +84,6 @@ namespace Speedy.Configuration
 				throw new ArgumentNullException(nameof(entity));
 			}
 
-			
 			var property = _propertyFunction.Invoke(entity);
 			var dValue = _property as dynamic;
 			var memberName = dValue.Body.Member.Name;

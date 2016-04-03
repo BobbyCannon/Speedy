@@ -56,9 +56,11 @@
     <Compile Include="EntityFrameworkSampleDatabaseProvider.cs" />
     <Compile Include="ISampleDatabaseProvider.cs" />
     <Compile Include="ISampleDatabase.cs" />
+    <Compile Include="Mappings\LogEventMap.cs" />
     <Compile Include="Mappings\AddressMap.cs" />
     <Compile Include="Mappings\FoodMap.cs" />
     <Compile Include="Mappings\FoodRelationshipMap.cs" />
+    <Compile Include="Entities\LogEvent.cs" />
     <Compile Include="Mappings\PersonMap.cs" />
     <Compile Include="Migrations\201603281304179_InitialDatabase.cs" />
     <Compile Include="Migrations\201603281304179_InitialDatabase.Designer.cs">

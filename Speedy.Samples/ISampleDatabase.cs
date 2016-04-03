@@ -16,6 +16,8 @@ namespace Speedy.Samples
 
 		IEntityRepository<Food> Foods { get; }
 
+		IEntityRepository<LogEvent> LogEvents { get; }
+
 		IEntityRepository<Person> People { get; }
 
 		#endregion

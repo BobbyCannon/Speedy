@@ -7,7 +7,7 @@ using System;
 namespace Speedy.Samples.Entities
 {
 	[Serializable]
-	public class Person : Entity
+	public class Person : ModifiableEntity
 	{
 		#region Properties
 

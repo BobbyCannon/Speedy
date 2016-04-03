@@ -26,10 +26,21 @@ namespace Speedy.Samples.Migrations
 			DropTable("dbo.Foods");
 			DropTable("dbo.People");
 			DropTable("dbo.Addresses");
+			DropTable("dbo.LogEvents");
 		}
 
 		public override void Up()
 		{
+			CreateTable(
+				"dbo.LogEvents",
+				c => new
+				{
+					Id = c.Int(false, true),
+					Message = c.String(),
+					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+				})
+				.PrimaryKey(t => t.Id);
+
 			CreateTable(
 				"dbo.Addresses",
 				c => new
@@ -41,8 +52,8 @@ namespace Speedy.Samples.Migrations
 					LinkedAddressId = c.Int(),
 					Postal = c.String(false, 128),
 					State = c.String(false, 128),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2")
+					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Addresses", t => t.LinkedAddressId)
@@ -56,8 +67,8 @@ namespace Speedy.Samples.Migrations
 					Id = c.Int(false, true),
 					AddressId = c.Int(false),
 					Name = c.String(false, 256),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2")
+					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Addresses", t => t.AddressId, true)
@@ -70,8 +81,8 @@ namespace Speedy.Samples.Migrations
 				{
 					Id = c.Int(false, true),
 					Name = c.String(false, 256),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2")
+					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
 				.PrimaryKey(t => t.Id);
 
@@ -83,8 +94,8 @@ namespace Speedy.Samples.Migrations
 					ChildId = c.Int(false),
 					ParentId = c.Int(false),
 					Quantity = c.Decimal(false, 18, 2),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2")
+					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Foods", t => t.ChildId)

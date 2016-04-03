@@ -125,12 +125,17 @@ namespace Speedy.EntityFramework
 			var entity = entry.Entity as Entity;
 			if (entity != null)
 			{
+				var modifiableEntity = entity as ModifiableEntity;
+
 				// Check to see if the entity was added.
 				if (entry.State == EntityState.Added)
 				{
 					// Make sure the modified on value matches created on for new items.
 					entity.CreatedOn = DateTime.UtcNow;
-					entity.ModifiedOn = entity.CreatedOn;
+					if (modifiableEntity != null)
+					{
+						modifiableEntity.ModifiedOn = entity.CreatedOn;
+					}
 				}
 
 				// Check to see if the entity was modified.
@@ -142,8 +147,11 @@ namespace Speedy.EntityFramework
 						entity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
 					}
 
-					// Update modified to now for new entities.
-					entity.ModifiedOn = DateTime.UtcNow;
+					if (modifiableEntity != null)
+					{
+						// Update modified to now for new entities.
+						modifiableEntity.ModifiedOn = DateTime.UtcNow;
+					}
 				}
 			}
 		}
