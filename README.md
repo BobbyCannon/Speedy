@@ -202,9 +202,9 @@ using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToSt
 }
 ```
 
-#### Versions
+## Versions
 
-v4 Upgraded to .NET 4.5.2
-v3 Database, Repository, .NET 4
-v2 Repository only, .NET 4
-v1 Original release, .NET 4
+- v4 Upgraded to .NET 4.5.2
+- v3 Database, Repository, .NET 4
+- v2 Repository only, .NET 4
+- v1 Original release, .NET 4
