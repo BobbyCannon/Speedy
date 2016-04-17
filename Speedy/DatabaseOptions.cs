@@ -5,6 +5,19 @@ namespace Speedy
 	/// </summary>
 	public class DatabaseOptions
 	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates an instance of the database options class.
+		/// </summary>
+		public DatabaseOptions()
+		{
+			MaintainDates = true;
+			MaintainSyncId = true;
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
@@ -12,20 +25,22 @@ namespace Speedy
 		/// </summary>
 		public bool MaintainDates { get; set; }
 
+		/// <summary>
+		/// Gets or sets the flag to manage the sync ID for sync entities.
+		/// </summary>
+		public bool MaintainSyncId { get; set; }
+
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Gets the defaults that all base database clases will use.
+		/// Gets the defaults that all base database classes will use.
 		/// </summary>
 		/// <returns> The default values databases use. </returns>
 		public static DatabaseOptions GetDefaults()
 		{
-			return new DatabaseOptions
-			{
-				MaintainDates = true
-			};
+			return new DatabaseOptions();
 		}
 
 		#endregion

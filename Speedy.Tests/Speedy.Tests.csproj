@@ -74,6 +74,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Mocks\MockSyncClient.cs" />
+    <Compile Include="Mocks\MockSyncServer.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -82,6 +84,7 @@
     <Compile Include="RepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryProviderTests.cs" />
+    <Compile Include="SyncEngineTests.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="ExtensionTests.cs" />
     <Compile Include="DatabaseTests.cs" />

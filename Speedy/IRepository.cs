@@ -3,11 +3,20 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Speedy.Sync;
 
 #endregion
 
 namespace Speedy
 {
+	/// <summary>
+	/// Represents a collection of entities for a Speedy database.
+	/// </summary>
+	/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
+	public interface ISyncableRepository<T> : ISyncableRepository, IRepository<T> where T : SyncEntity
+	{
+	}
+
 	/// <summary>
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>

@@ -1,11 +1,14 @@
 #region References
 
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Reflection;
+using Speedy.EntityFramework.Internal;
+using Speedy.Sync;
 
 #endregion
 
@@ -63,6 +66,31 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
+		/// Gets a syncable repository of the requested entity.
+		/// </summary>
+		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+		/// <returns> The repository of entities requested. </returns>
+		public ISyncableRepository<T> GetSyncableRepository<T>() where T : SyncEntity, new()
+		{
+			return new EntityFrameworkSyncableRepository<T>(Set<T>());
+		}
+
+		/// <summary>
+		/// Gets a syncable repository of the requested entity.
+		/// </summary>
+		/// <returns> The repository of entities requested. </returns>
+		public ISyncableRepository GetSyncableRepository(Type type)
+		{
+			var methods = GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
+			var setMethod = methods.First(x => x.Name == "Set" && x.IsGenericMethodDefinition);
+			var method = setMethod.MakeGenericMethod(type);
+			var entitySet = method.Invoke(this, null);
+			var repositoryType = typeof(EntityFrameworkSyncableRepository<>).MakeGenericType(type);
+			var repository = Activator.CreateInstance(repositoryType, entitySet);
+			return repository as ISyncableRepository;
+		}
+
+		/// <summary>
 		/// Saves all changes made in this context to the underlying database.
 		/// </summary>
 		/// <returns>
@@ -88,6 +116,40 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
+		/// Sync a list of entities changes.
+		/// </summary>
+		/// <param name="entities"> The list of entity that have changed. </param>
+		public void SyncChanges(IEnumerable<SyncEntity> entities)
+		{
+			var methods = GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
+			var setMethod = methods.First(x => x.Name == "Set" && x.IsGenericMethodDefinition);
+
+			foreach (var entity in entities)
+			{
+				var type = entity.GetType();
+				var method = setMethod.MakeGenericMethod(type);
+				var result = method.Invoke(this, null);
+				var repoType = typeof(EntityFrameworkSyncableRepository<>).MakeGenericType(type);
+				var repository2 = Activator.CreateInstance(repoType, result);
+				var repository = repository2 as ISyncableRepository;
+				var foundEntity = repository?.Read(entity.SyncId);
+
+				if (foundEntity == null)
+				{
+					entity.Id = 0;
+					repository?.Add(entity);
+				}
+
+				if (foundEntity?.ModifiedOn < entity.ModifiedOn)
+				{
+					foundEntity.Update(entity);
+				}
+			}
+
+			SaveChanges();
+		}
+
+		/// <summary>
 		/// This method is called when the model for a derived context has been initialized, but before the model has been locked
 		/// down and used to initialize
 		/// the context. The default implementation of this method does nothing, but it can be overridden in a derived class such
@@ -108,7 +170,7 @@ namespace Speedy.EntityFramework
 		{
 			var assembly = Assembly.GetAssembly(GetType());
 			var typesToRegister = assembly.GetTypes()
-				.Where(type => type.BaseType != null && (type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof (EntityTypeConfiguration<>)));
+				.Where(type => type.BaseType != null && (type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>)));
 
 			foreach (var type in typesToRegister)
 			{
@@ -141,19 +203,34 @@ namespace Speedy.EntityFramework
 			}
 
 			var entity = entry.Entity as Entity;
-			if (entity == null || !Options.MaintainDates)
+			if (entity == null)
 			{
 				return;
 			}
 
 			var modifiableEntity = entity as ModifiableEntity;
+			var syncableEntity = entity as SyncEntity;
 
 			// Check to see if the entity was added.
 			if (entry.State == EntityState.Added)
 			{
-				// Make sure the modified on value matches created on for new items.
-				entity.CreatedOn = DateTime.UtcNow;
-				if (modifiableEntity != null)
+				if (Options.MaintainDates)
+				{
+					// Make sure the modified on value matches created on for new items.
+					entity.CreatedOn = DateTime.UtcNow;
+				}
+
+				if (syncableEntity != null)
+				{
+					if (Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
+					{
+						syncableEntity.SyncId = Guid.NewGuid();
+					}
+
+					syncableEntity.SyncStatus = SyncStatus.Added;
+				}
+
+				if (modifiableEntity != null && Options.MaintainDates)
 				{
 					modifiableEntity.ModifiedOn = entity.CreatedOn;
 				}
@@ -162,13 +239,24 @@ namespace Speedy.EntityFramework
 			// Check to see if the entity was modified.
 			if (entry.State == EntityState.Modified)
 			{
-				if (entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
+				if (Options.MaintainDates && entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
 				{
 					// Do not allow created on to change for entities.
 					entity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
 				}
 
-				if (modifiableEntity != null)
+				if (syncableEntity != null)
+				{
+					// Do not allow sync ID to change for entities.
+					if (Options.MaintainSyncId && entry.CurrentValues.PropertyNames.Contains("SyncId"))
+					{
+						syncableEntity.SyncId = (Guid) entry.OriginalValues["SyncId"];
+					}
+
+					syncableEntity.SyncStatus = SyncStatus.Modified;
+				}
+
+				if (modifiableEntity != null && Options.MaintainDates)
 				{
 					// Update modified to now for new entities.
 					modifiableEntity.ModifiedOn = DateTime.UtcNow;

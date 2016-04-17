@@ -56,7 +56,7 @@ namespace Speedy.Configuration
 		/// <param name="property"> The property expression this configuration is for. </param>
 		public PropertyConfiguration(Expression<Func<T, object>> property)
 		{
-			_entityType = typeof (T);
+			_entityType = typeof(T);
 			_property = property;
 			_propertyFunction = _property.Compile();
 			_isNullable = null;

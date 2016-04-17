@@ -68,6 +68,10 @@
     <Compile Include="Migrations\201603281304179_InitialDatabase.Designer.cs">
       <DependentUpon>201603281304179_InitialDatabase.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201604170130020_AddedSyncEntity.cs" />
+    <Compile Include="Migrations\201604170130020_AddedSyncEntity.Designer.cs">
+      <DependentUpon>201604170130020_AddedSyncEntity.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="EntityFrameworkSampleDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -91,6 +95,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201603281304179_InitialDatabase.resx">
       <DependentUpon>201603281304179_InitialDatabase.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604170130020_AddedSyncEntity.resx">
+      <DependentUpon>201604170130020_AddedSyncEntity.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

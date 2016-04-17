@@ -54,6 +54,8 @@
   <ItemGroup>
     <Compile Include="EntityFrameworkDatabase.cs" />
     <Compile Include="EntityFrameworkRepository.cs" />
+    <Compile Include="Internal\Extensions.cs" />
+    <Compile Include="EntityFrameworkSyncableRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadOnlyEntityFrameworkRepository.cs" />
   </ItemGroup>

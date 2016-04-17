@@ -12,6 +12,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Speedy.Storage;
+using Speedy.Sync;
 
 #endregion
 
@@ -56,6 +57,18 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Deep clone the item.
+		/// </summary>
+		/// <typeparam name="T"> The type to clone. </typeparam>
+		/// <param name="item"> The item to clone. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
+		/// <returns> The clone of the item. </returns>
+		public static T DeepClone<T>(this T item, bool ignoreVirtuals)
+		{
+			return FromJson<T>(item.ToJson(ignoreVirtuals));
+		}
+
+		/// <summary>
 		/// Execute the action on each entity in the collection.
 		/// </summary>
 		/// <param name="items"> The collection of items to process. </param>
@@ -80,6 +93,17 @@ namespace Speedy
 			{
 				action(item);
 			}
+		}
+
+		/// <summary>
+		/// Convert the string into an object.
+		/// </summary>
+		/// <typeparam name="T"> The type to convert into. </typeparam>
+		/// <param name="item"> The JSON data to deserialize. </param>
+		/// <returns> The deserialized object. </returns>
+		public static T FromJson<T>(this string item)
+		{
+			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0]) ? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals) : JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
 		}
 
 		/// <summary>
@@ -141,6 +165,75 @@ namespace Speedy
 
 				Retry(action, remaining, delay);
 			}
+		}
+
+		/// <summary>
+		/// Sync a list of entities changes.
+		/// </summary>
+		/// <param name="database"> The database to sync changes for. </param>
+		/// <param name="entities"> The list of entity that have changed. </param>
+		public static void SyncChanges(this IDatabase database, IEnumerable<SyncEntity> entities)
+		{
+			foreach (var entity in entities)
+			{
+				var type = entity.GetType();
+				var repository = database.GetSyncableRepository(type);
+				if (repository == null)
+				{
+					throw new InvalidDataException("Failed to find a syncable repository for the entity.");
+				}
+
+				var foundEntity = repository.Read(entity.SyncId);
+				var syncStatus = entity.SyncStatus;
+
+				if (foundEntity != null && entity.SyncStatus == SyncStatus.Added)
+				{
+					syncStatus = SyncStatus.Modified;
+				}
+				else if (foundEntity == null && entity.SyncStatus == SyncStatus.Modified)
+				{
+					syncStatus = SyncStatus.Added;
+				}
+
+				switch (syncStatus)
+				{
+					case SyncStatus.Added:
+						entity.Id = 0;
+						repository.Add(entity);
+						break;
+
+					case SyncStatus.Modified:
+						if (foundEntity?.ModifiedOn < entity.ModifiedOn)
+						{
+							foundEntity.Update(entity);
+						}
+						break;
+
+					case SyncStatus.Deleted:
+						if (foundEntity != null)
+						{
+							repository.Remove(foundEntity);
+						}
+						break;
+
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+
+			database.SaveChanges();
+		}
+
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToJson<T>(this T item, bool ignoreVirtuals)
+		{
+			return JsonConvert.SerializeObject(item, Formatting.None, ignoreVirtuals ? _serializationSettings : _serializationSettingsNoVirtuals);
 		}
 
 		/// <summary>
@@ -214,8 +307,7 @@ namespace Speedy
 		{
 			MethodInfo response;
 			var fullName = info.ReflectedType?.FullName + "." + info.Name;
-			var key = info.ToString().Replace(info.Name, fullName)
-				+ string.Join(", ", arguments.Select(x => x.FullName));
+			var key = info.ToString().Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
 
 			if (_genericMethods.ContainsKey(key))
 			{
@@ -227,13 +319,6 @@ namespace Speedy
 
 			response = info.MakeGenericMethod(arguments);
 			return _genericMethods.AddOrUpdate(key, response, (s, i) => response);
-		}
-
-		internal static T FromJson<T>(this string item)
-		{
-			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
-				? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals)
-				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
 		}
 
 		internal static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
@@ -427,11 +512,6 @@ namespace Speedy
 				newLocation.Refresh();
 				return !fileLocation.Exists && newLocation.Exists;
 			}, 1000, 10);
-		}
-
-		internal static string ToJson<T>(this T item, bool ignoreVirtuals)
-		{
-			return JsonConvert.SerializeObject(item, Formatting.None, ignoreVirtuals ? _serializationSettings : _serializationSettingsNoVirtuals);
 		}
 
 		private static JsonSerializerSettings GetSerializerSettings(bool ignoreVirtuals)

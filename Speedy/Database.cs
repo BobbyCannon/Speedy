@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Speedy.Configuration;
 using Speedy.Storage;
+using Speedy.Sync;
 
 #endregion
 
@@ -85,6 +86,25 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a syncable repository for the provided type.
+		/// </summary>
+		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
+		/// <returns> The repository for the type. </returns>
+		public ISyncableRepository<T> GetSyncableRepository<T>() where T : SyncEntity, new()
+		{
+			return GetSyncableEntityRepository<T>();
+		}
+
+		/// <summary>
+		/// Gets a syncable repository of the requested entity.
+		/// </summary>
+		/// <returns> The repository of entities requested. </returns>
+		public ISyncableRepository GetSyncableRepository(Type type)
+		{
+			return Repositories.FirstOrDefault(x => x.Key == type.FullName).Value as ISyncableRepository;
+		}
+
+		/// <summary>
 		/// Save the data to the data store.
 		/// </summary>
 		/// <returns> The number of items saved. </returns>
@@ -111,8 +131,8 @@ namespace Speedy
 			where T1 : Entity
 			where T2 : Entity
 		{
-			var key = typeof (T2).Name + (collectionKey as dynamic).Body.Member.Name;
-			var repository = Repositories.FirstOrDefault(x => x.Key == typeof (T1).FullName).Value;
+			var key = typeof(T2).Name + (collectionKey as dynamic).Body.Member.Name;
+			var repository = Repositories.FirstOrDefault(x => x.Key == typeof(T1).FullName).Value;
 			Relationships.Add(key, new object[] { repository, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
 		}
 
@@ -133,7 +153,7 @@ namespace Speedy
 
 		private static void AssignNewValue<T1, T2>(T1 obj, Expression<Func<T1, T2>> expression, T2 value)
 		{
-			var valueParameterExpression = Expression.Parameter(typeof (T2));
+			var valueParameterExpression = Expression.Parameter(typeof(T2));
 			var targetExpression = (expression.Body as UnaryExpression)?.Operand ?? expression.Body;
 
 			var assign = Expression.Lambda<Action<T1, T2>>
@@ -147,7 +167,7 @@ namespace Speedy
 
 		private IEnumerable<Entity> BuildRelationship(Type entityType, Type collectionType, Entity entity, IEnumerable collection, string key)
 		{
-			var genericMethod = GetGenericMethod("BuildRelationship", new[] { entityType, collectionType }, entityType, typeof (IEnumerable), typeof (string));
+			var genericMethod = GetGenericMethod("BuildRelationship", new[] { entityType, collectionType }, entityType, typeof(IEnumerable), typeof(string));
 			return (IEnumerable<Entity>) genericMethod.Invoke(this, new object[] { entity, collection, key });
 		}
 
@@ -218,7 +238,7 @@ namespace Speedy
 
 		private Repository<T> GetEntityRepository<T>() where T : Entity, new()
 		{
-			var type = typeof (T);
+			var type = typeof(T);
 			var key = type.FullName;
 
 			if (Repositories.ContainsKey(key))
@@ -237,7 +257,7 @@ namespace Speedy
 
 		private static MethodInfo GetGenericMethod(string methodName, Type[] typeArgs, params Type[] argTypes)
 		{
-			var myType = typeof (Database);
+			var myType = typeof(Database);
 			var methodInfos = myType.GetCachedMethods(BindingFlags.NonPublic | BindingFlags.Instance);
 
 			var methods = methodInfos.Where(m => m.Name == methodName
@@ -257,6 +277,25 @@ namespace Speedy
 			return null;
 		}
 
+		private SyncableRepository<T> GetSyncableEntityRepository<T>() where T : SyncEntity, new()
+		{
+			var type = typeof(T);
+			var key = type.FullName;
+
+			if (Repositories.ContainsKey(key))
+			{
+				return (SyncableRepository<T>) Repositories[key];
+			}
+
+			var repository = new SyncableRepository<T>(this);
+			repository.UpdateEntityRelationships += UpdateEntityRelationships;
+			repository.ValidateEntity += ValidateEntity;
+			repository.Initialize();
+
+			Repositories.Add(key, repository);
+			return repository;
+		}
+
 		private void UpdateEntityChildRelationships(Entity item, Entity entity)
 		{
 			var itemType = item.GetType();
@@ -272,7 +311,7 @@ namespace Speedy
 
 		private void UpdateEntityCollectionRelationships(Entity entity, Type entityType, IEnumerable<PropertyInfo> properties)
 		{
-			var enumerableType = typeof (IEnumerable);
+			var enumerableType = typeof(IEnumerable);
 			var collectionRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
 				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
@@ -292,7 +331,7 @@ namespace Speedy
 				var currentCollection = (IEnumerable<Entity>) relationship.GetValue(entity, null);
 				var currentCollectionType = currentCollection.GetType();
 
-				if (currentCollectionType.Name == typeof (RelationshipRepository<>).Name)
+				if (currentCollectionType.Name == typeof(RelationshipRepository<>).Name)
 				{
 					// We are already a relationship repository so just update the relationships
 					continue;
@@ -335,7 +374,7 @@ namespace Speedy
 
 		private void UpdateEntityDirectRelationships(Entity entity, Type entityType, ICollection<PropertyInfo> properties)
 		{
-			var baseEntityType = typeof (Entity);
+			var baseEntityType = typeof(Entity);
 			var entityRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
 				.Where(x => baseEntityType.IsAssignableFrom(x.PropertyType))

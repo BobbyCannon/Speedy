@@ -1,4 +1,4 @@
-#region References
+﻿#region References
 
 using System.Reflection;
 using System.Runtime.InteropServices;

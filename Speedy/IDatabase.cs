@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using Speedy.Sync;
 
 #endregion
 
@@ -35,6 +36,19 @@ namespace Speedy
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
 		/// <returns> The repository of entities requested. </returns>
 		IRepository<T> GetRepository<T>() where T : Entity, new();
+
+		/// <summary>
+		/// Gets a syncable repository of the requested entity.
+		/// </summary>
+		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+		/// <returns> The repository of entities requested. </returns>
+		ISyncableRepository<T> GetSyncableRepository<T>() where T : SyncEntity, new();
+
+		/// <summary>
+		/// Gets a syncable repository of the requested entity.
+		/// </summary>
+		/// <returns> The repository of entities requested. </returns>
+		ISyncableRepository GetSyncableRepository(Type type);
 
 		/// <summary>
 		/// Saves all changes made in this context to the underlying database.

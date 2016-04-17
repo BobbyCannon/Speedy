@@ -4,13 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Samples.Entities
 {
 	[Serializable]
-	public class Address : ModifiableEntity
+	public class Address : SyncEntity
 	{
 		#region Constructors
 

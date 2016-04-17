@@ -15,11 +15,11 @@ namespace Speedy.Samples
 		public SampleDatabase(string directory = null, DatabaseOptions options = null)
 			: base(directory, options)
 		{
-			Addresses = GetRepository<Address>();
+			Addresses = GetSyncableRepository<Address>();
 			Foods = GetRepository<Food>();
 			FoodRelationships = GetRepository<FoodRelationship>();
 			LogEvents = GetRepository<LogEvent>();
-			People = GetRepository<Person>();
+			People = GetSyncableRepository<Person>();
 
 			// Address Map
 			Property<Address>(x => x.Line1).IsRequired().HasMaximumLength(256);

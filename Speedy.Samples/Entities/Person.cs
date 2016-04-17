@@ -1,13 +1,14 @@
 ﻿#region References
 
 using System;
+using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Samples.Entities
 {
 	[Serializable]
-	public class Person : ModifiableEntity
+	public class Person : SyncEntity
 	{
 		#region Properties
 
