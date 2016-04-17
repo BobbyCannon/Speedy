@@ -105,6 +105,26 @@ namespace Speedy
 		{
 			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0]) ? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals) : JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
 		}
+		
+		/// <summary>
+		/// Gets the changes from the database.
+		/// </summary>
+		/// <param name="database"> The database to query. </param>
+		/// <param name="since"> The date and time get changes for. </param>
+		/// <returns> The list of changes from the server. </returns>
+		public static IEnumerable<SyncEntity> GetSyncChanges(this IDatabase database, DateTime since)
+		{
+			var response = new List<SyncEntity>();
+
+			response.AddRange(database.GetSyncTombstones(x => x.CreatedOn >= since).ToList().Select(x => x.ToSyncEntity()));
+
+			foreach (var repository in database.GetSyncableRepositories())
+			{
+				response.AddRange(repository.GetChanges(since));
+			}
+
+			return response;
+		}
 
 		/// <summary>
 		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
@@ -176,6 +196,11 @@ namespace Speedy
 		{
 			foreach (var entity in entities)
 			{
+				if (database.GetSyncTombstones(x => x.SyncId == entity.SyncId).Any())
+				{
+					continue;
+				}
+
 				var type = entity.GetType();
 				var repository = database.GetSyncableRepository(type);
 				if (repository == null)

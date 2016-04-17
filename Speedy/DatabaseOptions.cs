@@ -1,3 +1,9 @@
+#region References
+
+using System;
+
+#endregion
+
 namespace Speedy
 {
 	/// <summary>
@@ -12,13 +18,20 @@ namespace Speedy
 		/// </summary>
 		public DatabaseOptions()
 		{
+			DetectSyncableRepositories = true;
 			MaintainDates = true;
 			MaintainSyncId = true;
+			SyncTombstoneTimeout = TimeSpan.FromDays(7);
 		}
 
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// Gets or sets the flag to automatically detect syncable repositories.
+		/// </summary>
+		public bool DetectSyncableRepositories { get; set; }
 
 		/// <summary>
 		/// Gets or sets the flag to manage the CreatedOn and optional ModifiedOn properties.
@@ -29,6 +42,11 @@ namespace Speedy
 		/// Gets or sets the flag to manage the sync ID for sync entities.
 		/// </summary>
 		public bool MaintainSyncId { get; set; }
+
+		/// <summary>
+		/// The timespan before an entity tombstone will expire.
+		/// </summary>
+		public TimeSpan SyncTombstoneTimeout { get; set; }
 
 		#endregion
 

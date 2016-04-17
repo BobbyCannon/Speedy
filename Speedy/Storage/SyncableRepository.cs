@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Speedy.Sync;
 
@@ -38,6 +39,16 @@ namespace Speedy.Storage
 			}
 
 			base.Add(entityCheck);
+		}
+
+		/// <summary>
+		/// Gets the changes from the repository.
+		/// </summary>
+		/// <param name="since"> The date and time get changes for. </param>
+		/// <returns> The list of changes from the repository. </returns>
+		public IEnumerable<SyncEntity> GetChanges(DateTime since)
+		{
+			return this.Where(x => x.ModifiedOn >= since).ToList().DeepClone(true).ToList();
 		}
 
 		/// <summary>

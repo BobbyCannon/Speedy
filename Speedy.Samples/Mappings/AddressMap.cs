@@ -29,7 +29,7 @@ namespace Speedy.Samples.Mappings
 			Property(t => t.City).IsRequired().HasMaxLength(256);
 			Property(t => t.State).IsRequired().HasMaxLength(128);
 			Property(t => t.Postal).IsRequired().HasMaxLength(128);
-			Property(t => t.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(t => t.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
 
 			// Relationships
 			HasOptional(x => x.LinkedAddress)

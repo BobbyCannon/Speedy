@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
@@ -55,11 +54,7 @@ namespace Speedy.Tests.Mocks
 
 		public IEnumerable<SyncEntity> GetChanges()
 		{
-			return _database.GetReadOnlyRepository<Address>()
-				.Where(x => x.ModifiedOn > LastSyncedOn)
-				.ToList()
-				.Select(x => x.DeepClone(true))
-				.ToList();
+			return _database.GetSyncChanges(LastSyncedOn);
 		}
 
 		public void SaveChanges()

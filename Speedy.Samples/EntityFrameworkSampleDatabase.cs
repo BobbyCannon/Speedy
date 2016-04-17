@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
+using Speedy.Sync;
 
 #endregion
 
@@ -27,7 +28,7 @@ namespace Speedy.Samples
 
 		#region Properties
 
-		public IRepository<Address> Addresses => GetRepository<Address>();
+		public IRepository<Address> Addresses => GetSyncableRepository<Address>();
 
 		public IRepository<FoodRelationship> FoodRelationships => GetRepository<FoodRelationship>();
 
@@ -35,7 +36,9 @@ namespace Speedy.Samples
 
 		public IRepository<LogEvent> LogEvents => GetRepository<LogEvent>();
 
-		public IRepository<Person> People => GetRepository<Person>();
+		public IRepository<Person> People => GetSyncableRepository<Person>();
+
+		public IRepository<SyncTombstone> SyncTombstones => GetRepository<SyncTombstone>();
 
 		#endregion
 	}

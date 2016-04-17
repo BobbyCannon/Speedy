@@ -60,11 +60,7 @@ namespace Speedy.Tests.Mocks
 
 		public IEnumerable<SyncEntity> GetChanges(DateTime since)
 		{
-			return _database.GetReadOnlyRepository<Address>()
-				.Where(x => x.ModifiedOn > since)
-				.ToList()
-				.Select(x => x.DeepClone(true))
-				.ToList();
+			return _database.GetSyncChanges(since);
 		}
 
 		public void SaveChanges()

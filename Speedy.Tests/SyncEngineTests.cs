@@ -138,6 +138,81 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void SyncEngineDeleteItemOnClient()
+		{
+			var client = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
+			var server = MockSyncServer.Create(client.Addresses.First());
+
+			client.Addresses.RemoveRange(x => x.Id > 0);
+			client.SaveChanges();
+
+			Assert.AreEqual(0, client.Addresses.Count());
+			Assert.AreEqual(1, server.Addresses.Count());
+
+			SyncEngine.PullAndPushChanges(client, server);
+
+			client.SaveChanges();
+			server.SaveChanges();
+
+			Assert.AreEqual(0, client.Addresses.Count());
+			Assert.AreEqual(0, server.Addresses.Count());
+		}
+
+		[TestMethod]
+		public void SyncEngineDeleteItemOnServer()
+		{
+			var client = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
+			var server = MockSyncServer.Create(client.Addresses.First());
+
+			server.Addresses.RemoveRange(x => x.Id > 0);
+			server.SaveChanges();
+
+			Assert.AreEqual(1, client.Addresses.Count());
+			Assert.AreEqual(0, server.Addresses.Count());
+
+			SyncEngine.PullAndPushChanges(client, server);
+
+			client.SaveChanges();
+			server.SaveChanges();
+
+			Assert.AreEqual(0, client.Addresses.Count());
+			Assert.AreEqual(0, server.Addresses.Count());
+		}
+
+		[TestMethod]
+		public void SyncEngineDeleteItemOnServerAndThenToTwoClients()
+		{
+			var client1 = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
+			var client2 = MockSyncClient.Create(client1.Addresses.First());
+			var server = MockSyncServer.Create(client1.Addresses.First());
+
+			server.Addresses.RemoveRange(x => x.Id > 0);
+			server.SaveChanges();
+
+			Assert.AreEqual(1, client1.Addresses.Count());
+			Assert.AreEqual(1, client2.Addresses.Count());
+			Assert.AreEqual(0, server.Addresses.Count());
+
+			SyncEngine.PullAndPushChanges(client1, server);
+
+			client1.SaveChanges();
+			server.SaveChanges();
+
+			Assert.AreEqual(0, client1.Addresses.Count());
+			Assert.AreEqual(1, client2.Addresses.Count());
+			Assert.AreEqual(0, server.Addresses.Count());
+
+			SyncEngine.PullAndPushChanges(client2, server);
+
+			client2.SaveChanges();
+			server.SaveChanges();
+
+			Assert.AreEqual(0, client1.Addresses.Count());
+			Assert.AreEqual(0, client2.Addresses.Count());
+			Assert.AreEqual(0, server.Addresses.Count());
+		}
+
+		[TestMethod]
 		public void SyncEngineUpdateItemOnClientThenServer()
 		{
 			var client = MockSyncClient.Create(NewAddress("Foo", "Foo2"));

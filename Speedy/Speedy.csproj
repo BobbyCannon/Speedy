@@ -87,6 +87,7 @@
     <Compile Include="Sync\ISyncClient.cs" />
     <Compile Include="Sync\ISyncServer.cs" />
     <Compile Include="Sync\SyncStatus.cs" />
+    <Compile Include="Sync\SyncTombstone.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.pfx" />

@@ -20,6 +20,12 @@ namespace Speedy
 	[Serializable]
 	public abstract class Database : IDatabase
 	{
+		#region Fields
+
+		private int _saveChangeCount;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -46,6 +52,8 @@ namespace Speedy
 		public DatabaseOptions Options { get; }
 
 		internal string FilePath { get; }
+
+		internal IRepository<SyncTombstone> SyncTombstones { get; private set; }
 
 		private ICollection<IPropertyConfiguration> Mappings { get; }
 
@@ -86,6 +94,18 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a list of syncable repositories.
+		/// </summary>
+		/// <returns> The list of syncable repositories. </returns>
+		public IEnumerable<ISyncableRepository> GetSyncableRepositories()
+		{
+			return Repositories.Values
+				.Where(x => x is ISyncableRepository)
+				.Cast<ISyncableRepository>()
+				.ToList();
+		}
+
+		/// <summary>
 		/// Gets a syncable repository for the provided type.
 		/// </summary>
 		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
@@ -105,18 +125,57 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a list of sync tombstones that represent deleted entities.
+		/// </summary>
+		/// <param name="filter"> </param>
+		/// <returns> The list of sync tombstones. </returns>
+		public IQueryable<SyncTombstone> GetSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
+		{
+			return SyncTombstones.Where(filter);
+		}
+
+		/// <summary>
 		/// Save the data to the data store.
 		/// </summary>
 		/// <returns> The number of items saved. </returns>
 		public virtual int SaveChanges()
 		{
+			if (_saveChangeCount++ > 2)
+			{
+				throw new OverflowException("Database save changes stuck in a processing loop.");
+			}
+
 			var response = 0;
 			Repositories.Values.ForEach(x => x.ValidateEntities());
 			Repositories.Values.ForEach(x => x.UpdateRelationships());
 			Repositories.Values.ForEach(x => x.AssignKeys());
 			Repositories.Values.ForEach(x => x.UpdateRelationships());
 			Repositories.Values.ForEach(x => response += x.SaveChanges());
+
+			if (Repositories.Any(x => x.Value.HasChanges()))
+			{
+				response += SaveChanges();
+			}
+
+			_saveChangeCount = 0;
 			return response;
+		}
+
+		/// <summary>
+		/// Gets a repository to track deleted entities.
+		/// </summary>
+		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
+		/// <returns> The repository to track deletions. </returns>
+		protected IRepository<T> GetSyncTombstonesRepository<T>() where T : SyncTombstone, new()
+		{
+			if (SyncTombstones != null)
+			{
+				throw new InvalidOperationException("The sync tombstone repository has already been set.");
+			}
+
+			var repository = GetEntityRepository<T>();
+			SyncTombstones = (IRepository<SyncTombstone>) repository;
+			return repository;
 		}
 
 		/// <summary>

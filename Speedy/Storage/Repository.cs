@@ -178,6 +178,15 @@ namespace Speedy.Storage
 		}
 
 		/// <summary>
+		/// Determines if the repository has changes.
+		/// </summary>
+		/// <returns> </returns>
+		public bool HasChanges()
+		{
+			return GetChanges().Any();
+		}
+
+		/// <summary>
 		/// Configures the query to include related entities in the results.
 		/// </summary>
 		/// <param name="include"> The related entities to include. </param>
@@ -280,6 +289,12 @@ namespace Speedy.Storage
 
 			foreach (var item in removed)
 			{
+				var syncableEntity = item.Entity as SyncEntity;
+				if (syncableEntity != null)
+				{
+					_database.SyncTombstones?.Add(syncableEntity.CreateTombstone());
+				}
+
 				Store?.Remove(item.Entity.Id.ToString());
 				Cache.Remove(item);
 			}
@@ -290,56 +305,55 @@ namespace Speedy.Storage
 				var modifiableEntity = entity as ModifiableEntity;
 				var syncableEntity = entity as SyncEntity;
 
-				// Check to see if the entity was added.
-				if (entry.State == EntityStateType.Added)
+				switch (entry.State)
 				{
-					if (_database.Options.MaintainDates)
-					{
-						// Make sure the modified on value matches created on for new items.
-						entity.CreatedOn = DateTime.UtcNow;
-					}
-
-					if (syncableEntity != null)
-					{
-						if (_database.Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
+					case EntityStateType.Added:
+						if (_database.Options.MaintainDates)
 						{
-							syncableEntity.SyncId = Guid.NewGuid();
+							// Make sure the modified on value matches created on for new items.
+							entity.CreatedOn = DateTime.UtcNow;
 						}
 
-						syncableEntity.SyncStatus = SyncStatus.Added;
-					}
-
-					if (modifiableEntity != null && _database.Options.MaintainDates)
-					{
-						modifiableEntity.ModifiedOn = entity.CreatedOn;
-					}
-				}
-
-				// Check to see if the entity was modified.
-				if (entry.State == EntityStateType.Modified)
-				{
-					if (_database.Options.MaintainDates)
-					{
-						// Do not allow created on to change for entities.
-						entity.CreatedOn = entry.OldEntity.CreatedOn;
-					}
-
-					if (syncableEntity != null)
-					{
-						// Do not allow sync ID to change for entities.
-						if (_database.Options.MaintainSyncId)
+						if (syncableEntity != null)
 						{
-							syncableEntity.SyncId = ((SyncEntity) entry.OldEntity).SyncId;
+							if (_database.Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
+							{
+								syncableEntity.SyncId = Guid.NewGuid();
+							}
+
+							syncableEntity.SyncStatus = SyncStatus.Added;
 						}
 
-						syncableEntity.SyncStatus = SyncStatus.Added;
-					}
+						if (modifiableEntity != null && _database.Options.MaintainDates)
+						{
+							modifiableEntity.ModifiedOn = entity.CreatedOn;
+						}
+						break;
 
-					if (modifiableEntity != null && _database.Options.MaintainDates)
-					{
-						// Update modified to now for new entities.
-						modifiableEntity.ModifiedOn = DateTime.UtcNow;
-					}
+					case EntityStateType.Modified:
+						if (_database.Options.MaintainDates)
+						{
+							// Do not allow created on to change for entities.
+							entity.CreatedOn = entry.OldEntity.CreatedOn;
+						}
+
+						if (syncableEntity != null)
+						{
+							// Do not allow sync ID to change for entities.
+							if (_database.Options.MaintainSyncId)
+							{
+								syncableEntity.SyncId = ((SyncEntity) entry.OldEntity).SyncId;
+							}
+
+							syncableEntity.SyncStatus = SyncStatus.Added;
+						}
+
+						if (modifiableEntity != null && _database.Options.MaintainDates)
+						{
+							// Update modified to now for new entities.
+							modifiableEntity.ModifiedOn = DateTime.UtcNow;
+						}
+						break;
 				}
 
 				if (Store != null)

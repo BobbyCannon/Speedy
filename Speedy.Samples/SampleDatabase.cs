@@ -2,6 +2,7 @@
 
 using System;
 using Speedy.Samples.Entities;
+using Speedy.Sync;
 
 #endregion
 
@@ -20,6 +21,7 @@ namespace Speedy.Samples
 			FoodRelationships = GetRepository<FoodRelationship>();
 			LogEvents = GetRepository<LogEvent>();
 			People = GetSyncableRepository<Person>();
+			SyncTombstones = GetSyncTombstonesRepository<SyncTombstone>();
 
 			// Address Map
 			Property<Address>(x => x.Line1).IsRequired().HasMaximumLength(256);
@@ -59,6 +61,8 @@ namespace Speedy.Samples
 		public IRepository<LogEvent> LogEvents { get; }
 
 		public IRepository<Person> People { get; }
+
+		public IRepository<SyncTombstone> SyncTombstones { get; }
 
 		#endregion
 	}

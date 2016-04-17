@@ -1,6 +1,7 @@
 #region References
 
 using System;
+using System.Collections.Generic;
 using Speedy.Sync;
 
 #endregion
@@ -19,6 +20,13 @@ namespace Speedy
 		/// </summary>
 		/// <param name="entity"> The entity to be added. </param>
 		void Add(SyncEntity entity);
+
+		/// <summary>
+		/// Gets the changes from the repository.
+		/// </summary>
+		/// <param name="since"> The date and time get changes for. </param>
+		/// <returns> The list of changes from the repository. </returns>
+		IEnumerable<SyncEntity> GetChanges(DateTime since);
 
 		/// <summary>
 		/// Gets the sync entity by the ID.

@@ -48,6 +48,17 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
+		/// Creates a tombstone for this entity.
+		/// </summary>
+		/// <returns> The tombstone for this entity. </returns>
+		public SyncTombstone CreateTombstone()
+		{
+			var entityType = GetType();
+			var typeFullName = entityType.FullName + "," + entityType.Assembly.GetName().Name;
+			return new SyncTombstone { CreatedOn = DateTime.UtcNow, TypeFullName = typeFullName, SyncId = SyncId };
+		}
+
+		/// <summary>
 		/// Update the entity with the changes.
 		/// </summary>
 		/// <param name="update"> The entity with the changes. </param>

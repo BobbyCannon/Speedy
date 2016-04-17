@@ -1,11 +1,13 @@
 #region References
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Speedy.EntityFramework.Internal;
 using Speedy.Sync;
@@ -19,6 +21,15 @@ namespace Speedy.EntityFramework
 	/// </summary>
 	public abstract class EntityFrameworkDatabase : DbContext, IDatabase
 	{
+		#region Fields
+
+		private int _saveChangeCount;
+
+		private readonly ConcurrentDictionary<string, ISyncableRepository> _syncableRepositories;
+		private IRepository<SyncTombstone> _syncTombstones;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -30,6 +41,13 @@ namespace Speedy.EntityFramework
 			: base(nameOrConnectionString)
 		{
 			Options = options ?? DatabaseOptions.GetDefaults();
+
+			_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
+
+			if (Options.DetectSyncableRepositories)
+			{
+				DetectSyncableRepositories();
+			}
 		}
 
 		#endregion
@@ -66,6 +84,15 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
+		/// Gets a list of syncable repositories.
+		/// </summary>
+		/// <returns> The list of syncable repositories. </returns>
+		public IEnumerable<ISyncableRepository> GetSyncableRepositories()
+		{
+			return _syncableRepositories.Values;
+		}
+
+		/// <summary>
 		/// Gets a syncable repository of the requested entity.
 		/// </summary>
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
@@ -81,13 +108,47 @@ namespace Speedy.EntityFramework
 		/// <returns> The repository of entities requested. </returns>
 		public ISyncableRepository GetSyncableRepository(Type type)
 		{
+			ISyncableRepository repository;
+			if (_syncableRepositories.TryGetValue(type.FullName, out repository))
+			{
+				return repository;
+			}
+
 			var methods = GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
 			var setMethod = methods.First(x => x.Name == "Set" && x.IsGenericMethodDefinition);
 			var method = setMethod.MakeGenericMethod(type);
 			var entitySet = method.Invoke(this, null);
 			var repositoryType = typeof(EntityFrameworkSyncableRepository<>).MakeGenericType(type);
-			var repository = Activator.CreateInstance(repositoryType, entitySet);
-			return repository as ISyncableRepository;
+			repository = Activator.CreateInstance(repositoryType, entitySet) as ISyncableRepository;
+
+			_syncableRepositories.AddOrUpdate(type.FullName, repository, (k, v) => repository);
+
+			return repository;
+		}
+
+		/// <summary>
+		/// Gets a list of sync tombstones that represent deleted entities.
+		/// </summary>
+		/// <param name="filter"> The filter to use. </param>
+		/// <returns> The list of sync tombstones. </returns>
+		public IQueryable<SyncTombstone> GetSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
+		{
+			return _syncTombstones.Where(filter);
+		}
+
+		/// <summary>
+		/// Gets a list of sync tombstones that represent deleted entities.
+		/// </summary>
+		/// <param name="since"> The date and time get changes for. </param>
+		/// <returns> The list of sync tombstones. </returns>
+		public IEnumerable<SyncEntity> GetSyncTombstones(DateTime since)
+		{
+			return _syncTombstones
+				.Where(x => x.CreatedOn >= since)
+				.ToList()
+				.Select(x => x.ToSyncEntity())
+				.Where(x => x != null)
+				.ToList();
 		}
 
 		/// <summary>
@@ -99,6 +160,11 @@ namespace Speedy.EntityFramework
 		/// <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
 		public override int SaveChanges()
 		{
+			if (_saveChangeCount++ > 2)
+			{
+				throw new OverflowException("Database save changes stuck in a processing loop.");
+			}
+
 			try
 			{
 				foreach (var entry in ChangeTracker.Entries())
@@ -106,47 +172,21 @@ namespace Speedy.EntityFramework
 					ProcessEntity(entry);
 				}
 
-				return base.SaveChanges();
+				var response = base.SaveChanges();
+
+				if (ChangeTracker.Entries().Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged))
+				{
+					response += SaveChanges();
+				}
+
+				_saveChangeCount = 0;
+				return response;
 			}
 			catch (Exception ex)
 			{
 				ProcessException(ex);
 				throw;
 			}
-		}
-
-		/// <summary>
-		/// Sync a list of entities changes.
-		/// </summary>
-		/// <param name="entities"> The list of entity that have changed. </param>
-		public void SyncChanges(IEnumerable<SyncEntity> entities)
-		{
-			var methods = GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
-			var setMethod = methods.First(x => x.Name == "Set" && x.IsGenericMethodDefinition);
-
-			foreach (var entity in entities)
-			{
-				var type = entity.GetType();
-				var method = setMethod.MakeGenericMethod(type);
-				var result = method.Invoke(this, null);
-				var repoType = typeof(EntityFrameworkSyncableRepository<>).MakeGenericType(type);
-				var repository2 = Activator.CreateInstance(repoType, result);
-				var repository = repository2 as ISyncableRepository;
-				var foundEntity = repository?.Read(entity.SyncId);
-
-				if (foundEntity == null)
-				{
-					entity.Id = 0;
-					repository?.Add(entity);
-				}
-
-				if (foundEntity?.ModifiedOn < entity.ModifiedOn)
-				{
-					foundEntity.Update(entity);
-				}
-			}
-
-			SaveChanges();
 		}
 
 		/// <summary>
@@ -170,7 +210,7 @@ namespace Speedy.EntityFramework
 		{
 			var assembly = Assembly.GetAssembly(GetType());
 			var typesToRegister = assembly.GetTypes()
-				.Where(type => type.BaseType != null && (type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>)));
+				.Where(type => type.BaseType != null && type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>));
 
 			foreach (var type in typesToRegister)
 			{
@@ -187,6 +227,40 @@ namespace Speedy.EntityFramework
 		/// <param name="exception"> The exception that occurred when trying to save changes. </param>
 		protected virtual void ProcessException(Exception exception)
 		{
+		}
+
+		/// <summary>
+		/// Reads all repositories and puts all the syncable ones in an internal list.
+		/// </summary>
+		private void DetectSyncableRepositories()
+		{
+			var type = GetType();
+			var test = type.GetCachedProperties();
+			var properties = test
+				.Where(x => x.PropertyType.Name == typeof(IRepository<>).Name)
+				.ToList();
+
+			_syncableRepositories.Clear();
+			var syncEntityType = typeof(SyncEntity);
+			var syncTombstoneType = typeof(SyncTombstone);
+
+			foreach (var property in properties)
+			{
+				var genericType = property.PropertyType.GetGenericArguments().First();
+
+				if (syncTombstoneType.IsAssignableFrom(genericType))
+				{
+					_syncTombstones = (IRepository<SyncTombstone>) property.GetValue(this, null);
+					continue;
+				}
+
+				if (!syncEntityType.IsAssignableFrom(genericType))
+				{
+					continue;
+				}
+
+				GetSyncableRepository(genericType);
+			}
 		}
 
 		/// <summary>
@@ -212,55 +286,62 @@ namespace Speedy.EntityFramework
 			var syncableEntity = entity as SyncEntity;
 
 			// Check to see if the entity was added.
-			if (entry.State == EntityState.Added)
+			switch (entry.State)
 			{
-				if (Options.MaintainDates)
-				{
-					// Make sure the modified on value matches created on for new items.
-					entity.CreatedOn = DateTime.UtcNow;
-				}
-
-				if (syncableEntity != null)
-				{
-					if (Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
+				case EntityState.Added:
+					if (Options.MaintainDates)
 					{
-						syncableEntity.SyncId = Guid.NewGuid();
+						// Make sure the modified on value matches created on for new items.
+						entity.CreatedOn = DateTime.UtcNow;
 					}
 
-					syncableEntity.SyncStatus = SyncStatus.Added;
-				}
-
-				if (modifiableEntity != null && Options.MaintainDates)
-				{
-					modifiableEntity.ModifiedOn = entity.CreatedOn;
-				}
-			}
-
-			// Check to see if the entity was modified.
-			if (entry.State == EntityState.Modified)
-			{
-				if (Options.MaintainDates && entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
-				{
-					// Do not allow created on to change for entities.
-					entity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
-				}
-
-				if (syncableEntity != null)
-				{
-					// Do not allow sync ID to change for entities.
-					if (Options.MaintainSyncId && entry.CurrentValues.PropertyNames.Contains("SyncId"))
+					if (syncableEntity != null)
 					{
-						syncableEntity.SyncId = (Guid) entry.OriginalValues["SyncId"];
+						if (Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
+						{
+							syncableEntity.SyncId = Guid.NewGuid();
+						}
+
+						syncableEntity.SyncStatus = SyncStatus.Added;
 					}
 
-					syncableEntity.SyncStatus = SyncStatus.Modified;
-				}
+					if (modifiableEntity != null && Options.MaintainDates)
+					{
+						modifiableEntity.ModifiedOn = entity.CreatedOn;
+					}
+					break;
 
-				if (modifiableEntity != null && Options.MaintainDates)
-				{
-					// Update modified to now for new entities.
-					modifiableEntity.ModifiedOn = DateTime.UtcNow;
-				}
+				case EntityState.Modified:
+					if (Options.MaintainDates && entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
+					{
+						// Do not allow created on to change for entities.
+						entity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
+					}
+
+					if (syncableEntity != null)
+					{
+						// Do not allow sync ID to change for entities.
+						if (Options.MaintainSyncId && entry.CurrentValues.PropertyNames.Contains("SyncId"))
+						{
+							syncableEntity.SyncId = (Guid) entry.OriginalValues["SyncId"];
+						}
+
+						syncableEntity.SyncStatus = SyncStatus.Modified;
+					}
+
+					if (modifiableEntity != null && Options.MaintainDates)
+					{
+						// Update modified to now for new entities.
+						modifiableEntity.ModifiedOn = DateTime.UtcNow;
+					}
+					break;
+
+				case EntityState.Deleted:
+					if (syncableEntity != null)
+					{
+						_syncTombstones?.Add(syncableEntity.CreateTombstone());
+					}
+					break;
 			}
 		}
 

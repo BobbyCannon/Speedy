@@ -63,6 +63,7 @@
     <Compile Include="Mappings\FoodMap.cs" />
     <Compile Include="Mappings\FoodRelationshipMap.cs" />
     <Compile Include="Entities\LogEvent.cs" />
+    <Compile Include="Mappings\SyncTombstoneMap.cs" />
     <Compile Include="Mappings\PersonMap.cs" />
     <Compile Include="Migrations\201603281304179_InitialDatabase.cs" />
     <Compile Include="Migrations\201603281304179_InitialDatabase.Designer.cs">

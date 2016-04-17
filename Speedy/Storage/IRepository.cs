@@ -12,6 +12,8 @@ namespace Speedy.Storage
 
 		void AssignKeys();
 
+		bool HasChanges();
+
 		Entity Read(int id);
 
 		int SaveChanges();

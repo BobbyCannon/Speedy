@@ -14,6 +14,7 @@ namespace Speedy.EntityFramework.Internal
 		#region Fields
 
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _methodInfos;
+		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
 
 		#endregion
 
@@ -22,6 +23,7 @@ namespace Speedy.EntityFramework.Internal
 		static Extensions()
 		{
 			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
+			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 		}
 
 		#endregion
@@ -42,6 +44,22 @@ namespace Speedy.EntityFramework.Internal
 
 			response = type.GetMethods(flags);
 			return _methodInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		internal static IList<PropertyInfo> GetCachedProperties(this Type type)
+		{
+			PropertyInfo[] response;
+
+			if (_propertyInfos.ContainsKey(type.FullName))
+			{
+				if (_propertyInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetProperties();
+			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 
 		#endregion

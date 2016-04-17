@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Speedy.Samples.Entities;
+using Speedy.Sync;
 
 #endregion
 
@@ -19,6 +20,8 @@ namespace Speedy.Samples
 		IRepository<LogEvent> LogEvents { get; }
 
 		IRepository<Person> People { get; }
+
+		IRepository<SyncTombstone> SyncTombstones { get; }
 
 		#endregion
 	}

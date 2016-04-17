@@ -122,6 +122,7 @@
 EXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'
 EXEC sp_MSForEachTable 'IF ''?'' NOT LIKE ''%MigrationHistory%'' DELETE FROM ?'
 EXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'
-EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'</value>
+EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'
+EXEC sp_MSForEachTable 'IF OBJECTPROPERTY(object_id(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'</value>
   </data>
 </root>
