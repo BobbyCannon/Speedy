@@ -41,19 +41,19 @@ using (var database = provider.CreateContext())
 #### Write of 10,000 items
 
 ```
-On Disk
-10:277 : 150 chunks.
-05:957 : 300 chunks.
-03:886 : 600 chunks.
-03:222 : 1200 chunks.
-03:455 : 2400 chunks.
+JSON
+13:573 : 150 chunks.
+08:080 : 300 chunks.
+04:588 : 600 chunks.
+03:514 : 1200 chunks.
+03:608 : 2400 chunks.
 
-SQL
-08:574 : 150 chunks.
-11:985 : 300 chunks.
-19:598 : 600 chunks.
-36:905 : 1200 chunks.
-20:363 : 2400 chunks.
+Entity Framework
+09:245 : 150 chunks.
+13:279 : 300 chunks.
+21:551 : 600 chunks.
+41:057 : 1200 chunks.
+28:570 : 2400 chunks.
 ```
 
 ## Key Value Repository
@@ -83,18 +83,18 @@ I just did a few quick benchmarks. The first set is without caching. The second 
 ```
 Starting to benchmark Speedy Repository writing 100000...
 No Caching
-22:318: 100 at a time.
-04:382: 1000 at a time.
-01:926: 2500 at a time.
-00:776: 10000 at a time.
-00:414: 50000 at a time.
+49:578: 100 at a time.
+05:389: 1000 at a time.
+02:332: 2500 at a time.
+00:880: 10000 at a time.
+00:422: 50000 at a time.
 
 Caching
-02:780: 100 at a time with a cache of 1000 items.
-00:529: 1000 at a time with a cache of 10000 items.
-00:756: 2500 at a time with a cache of 10000 items.
-00:365: 10000 at a time with a cache of 25000 items.
-00:255: 50000 at a time with a cache of 100000 items.
+05:369: 100 at a time with a cache of 1000 items.
+00:861: 1000 at a time with a cache of 10000 items.
+00:829: 2500 at a time with a cache of 10000 items.
+00:563: 10000 at a time with a cache of 25000 items.
+00:319: 50000 at a time with a cache of 100000 items.
 ```
 
 You'll need to balance how often to save you repository based on how much memory you want to use. More items written before saving
@@ -204,6 +204,7 @@ using (var context = Repository.Create(TestHelper.Directory, Guid.NewGuid().ToSt
 
 ## Versions
 
+- v4.1 Added Syncing Framework, .NET 4.5.2
 - v4 Upgraded to .NET 4.5.2
 - v3 Database, Repository, .NET 4
 - v2 Repository only, .NET 4

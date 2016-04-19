@@ -49,8 +49,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -62,6 +62,7 @@
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="KeyValueRepositoryOptions.cs" />
     <Compile Include="ModifiableEntity.cs" />
+    <Compile Include="Net\SyncServerClient.cs" />
     <Compile Include="Storage\EntityComparer.cs" />
     <Compile Include="Storage\IRepository.cs" />
     <Compile Include="IRepository.cs" />
@@ -86,8 +87,10 @@
     <Compile Include="Sync\SyncEngine.cs" />
     <Compile Include="Sync\ISyncClient.cs" />
     <Compile Include="Sync\ISyncServer.cs" />
+    <Compile Include="Sync\SyncObject.cs" />
     <Compile Include="Sync\SyncStatus.cs" />
     <Compile Include="Sync\SyncTombstone.cs" />
+    <Compile Include="Net\WebClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.pfx" />

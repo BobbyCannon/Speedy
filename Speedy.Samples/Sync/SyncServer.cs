@@ -2,30 +2,28 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using Speedy.Samples;
 using Speedy.Samples.Entities;
+using Speedy.Samples.Properties;
 using Speedy.Sync;
-using Speedy.Tests.Properties;
 
 #endregion
 
-namespace Speedy.Tests.Mocks
+namespace Speedy.Samples.Sync
 {
-	public class MockSyncServer : ISyncServer
+	public class SyncServer : ISyncServer
 	{
 		#region Fields
 
-		private readonly EntityFrameworkSampleDatabase _database;
+		private readonly EntityFrameworkContosoDatabase _database;
 
 		#endregion
 
 		#region Constructors
 
-		public MockSyncServer(bool clearDatabase = true)
+		public SyncServer(bool clearDatabase = true)
 		{
-			_database = new EntityFrameworkSampleDatabase();
+			_database = new EntityFrameworkContosoDatabase();
 
 			if (clearDatabase)
 			{
@@ -43,22 +41,22 @@ namespace Speedy.Tests.Mocks
 
 		#region Methods
 
-		public DateTime ApplyChanges(IEnumerable<SyncEntity> changes)
+		public DateTime ApplyChanges(IEnumerable<SyncObject> changes)
 		{
-			_database.SyncChanges(changes);
+			_database.ApplySyncChanges(changes);
 			SaveChanges();
 			return DateTime.UtcNow;
 		}
 
-		public static MockSyncServer Create(Address address)
+		public static SyncServer Create(Address address)
 		{
-			var server = new MockSyncServer();
+			var server = new SyncServer();
 			server.Addresses.Add(address.DeepClone(false));
 			server.SaveChanges();
 			return server;
 		}
 
-		public IEnumerable<SyncEntity> GetChanges(DateTime since)
+		public IEnumerable<SyncObject> GetChanges(DateTime since)
 		{
 			return _database.GetSyncChanges(since);
 		}

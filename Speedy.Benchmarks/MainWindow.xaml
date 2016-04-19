@@ -1,0 +1,27 @@
+﻿<Window x:Class="Speed.Benchmarks.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Title="Speedy Benchmarks" Height="350" Width="525" Icon="Speedy.ico"
+		WindowStartupLocation="CenterScreen">
+	<Window.Resources>
+		<Style x:Key="Button" TargetType="Button">
+			<Setter Property="Margin" Value="4" />
+			<Setter Property="MinHeight" Value="26" />
+			<Setter Property="MinWidth" Value="60" />
+		</Style>
+	</Window.Resources>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<StackPanel Grid.Row="0" Orientation="Horizontal">
+			<Button Style="{StaticResource Button}" Content="Sync" Click="SyncOnClick" />
+		</StackPanel>
+		<ScrollViewer Grid.Row="1">
+			<TextBox x:Name="Output" IsReadOnly="true" TextWrapping="Wrap" />
+		</ScrollViewer>
+	</Grid>
+</Window>

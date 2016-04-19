@@ -24,6 +24,15 @@ namespace Speedy.Storage
 
 		#endregion
 
+		#region Properties
+
+		/// <summary>
+		/// The type name this repository is for. Will be in assembly name format.
+		/// </summary>
+		public string TypeName => typeof(T).ToAssemblyName();
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
@@ -46,9 +55,13 @@ namespace Speedy.Storage
 		/// </summary>
 		/// <param name="since"> The date and time get changes for. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		public IEnumerable<SyncEntity> GetChanges(DateTime since)
+		public IEnumerable<SyncObject> GetChanges(DateTime since)
 		{
-			return this.Where(x => x.ModifiedOn >= since).ToList().DeepClone(true).ToList();
+			return this.Where(x => x.ModifiedOn >= since)
+				.ToList()
+				.Select(x => x.ToSyncObject())
+				.Where(x => x != null)
+				.ToList();
 		}
 
 		/// <summary>

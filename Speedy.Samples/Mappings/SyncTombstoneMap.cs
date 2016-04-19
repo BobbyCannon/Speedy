@@ -25,7 +25,6 @@ namespace Speedy.Samples.Mappings
 			Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 			Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
 			Property(t => t.SyncId).IsRequired();
-			Property(t => t.TypeFullName).IsRequired();
 		}
 
 		#endregion

@@ -46,7 +46,7 @@ namespace Speedy.EntityFramework.Internal
 			return _methodInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 
-		internal static IList<PropertyInfo> GetCachedProperties(this Type type)
+		internal static IEnumerable<PropertyInfo> GetCachedProperties(this Type type)
 		{
 			PropertyInfo[] response;
 

@@ -31,6 +31,11 @@ namespace Speedy.EntityFramework
 		#region Methods
 
 		/// <summary>
+		/// The type name this repository is for. Will be in assembly name format.
+		/// </summary>
+		public string TypeName => typeof(T).ToAssemblyName();
+
+		/// <summary>
 		/// Add an entity to the repository. The ID of the entity must be the default value.
 		/// </summary>
 		/// <param name="entity"> The entity to be added. </param>
@@ -44,9 +49,12 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <param name="since"> The date and time get changes for. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		public IEnumerable<SyncEntity> GetChanges(DateTime since)
+		public IEnumerable<SyncObject> GetChanges(DateTime since)
 		{
-			return Set.Where(x => x.ModifiedOn >= since).ToList().DeepClone(true).ToList();
+			return Set.Where(x => x.ModifiedOn >= since)
+				.ToList()
+				.Select(x => x.ToSyncObject())
+				.ToList();
 		}
 
 		/// <summary>

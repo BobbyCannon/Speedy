@@ -1,6 +1,6 @@
 ﻿namespace Speedy.Samples
 {
-	public class SampleDatabaseProvider : ISampleDatabaseProvider
+	public class ContosoDatabaseProvider : IContosoDatabaseProvider
 	{
 		#region Fields
 
@@ -10,7 +10,7 @@
 
 		#region Constructors
 
-		public SampleDatabaseProvider(string directory = null)
+		public ContosoDatabaseProvider(string directory = null)
 		{
 			_directory = directory;
 		}
@@ -19,9 +19,9 @@
 
 		#region Methods
 
-		public ISampleDatabase CreateContext()
+		public IContosoDatabase CreateContext()
 		{
-			return new SampleDatabase(_directory);
+			return new ContosoDatabase(_directory);
 		}
 
 		#endregion

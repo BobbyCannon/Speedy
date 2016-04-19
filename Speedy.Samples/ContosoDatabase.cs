@@ -9,11 +9,17 @@ using Speedy.Sync;
 namespace Speedy.Samples
 {
 	[Serializable]
-	public class SampleDatabase : Database, ISampleDatabase
+	public class ContosoDatabase : Database, IContosoDatabase
 	{
+		#region Fields
+
+		public static readonly string[] SyncOrder;
+
+		#endregion
+
 		#region Constructors
 
-		public SampleDatabase(string directory = null, DatabaseOptions options = null)
+		public ContosoDatabase(string directory = null, DatabaseOptions options = null)
 			: base(directory, options)
 		{
 			Addresses = GetSyncableRepository<Address>();
@@ -22,6 +28,9 @@ namespace Speedy.Samples
 			LogEvents = GetRepository<LogEvent>();
 			People = GetSyncableRepository<Person>();
 			SyncTombstones = GetSyncTombstonesRepository<SyncTombstone>();
+
+			// Setup options.
+			Options.SyncOrder = SyncOrder;
 
 			// Address Map
 			Property<Address>(x => x.Line1).IsRequired().HasMaximumLength(256);
@@ -46,6 +55,15 @@ namespace Speedy.Samples
 			// Person Map
 			Property<Person>(x => x.Name).IsRequired().HasMaximumLength(256);
 			HasMany<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
+		}
+
+		static ContosoDatabase()
+		{
+			SyncOrder = new[]
+			{
+				typeof(Address).FullName,
+				typeof(Person).FullName
+			};
 		}
 
 		#endregion

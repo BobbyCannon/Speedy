@@ -18,8 +18,6 @@ namespace Speedy.Benchmarks
 
 		private static string _timeFormat;
 
-		private static bool _verboseLog;
-
 		#endregion
 
 		#region Methods
@@ -34,7 +32,8 @@ namespace Speedy.Benchmarks
 				EXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'
 				EXEC sp_MSForEachTable 'IF ''?'' NOT LIKE ''%MigrationHistory%'' DELETE FROM ?'
 				EXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'
-				EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'";
+				EXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'
+				EXEC sp_MSForEachTable 'IF OBJECTPROPERTY(object_id(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'";
 
 				database.Database.ExecuteSqlCommand(script);
 			}
@@ -60,8 +59,10 @@ namespace Speedy.Benchmarks
 			}
 		}
 
-		private static void Log(string message, bool newLine = true)
+		private static void Log(string message, bool newLine = true, ICollection<string> results = null)
 		{
+			results?.Add(message);
+
 			if (newLine)
 			{
 				Console.WriteLine(message);
@@ -73,15 +74,14 @@ namespace Speedy.Benchmarks
 
 		private static void Main(string[] args)
 		{
-			_verboseLog = false;
 			_timeFormat = "ss\\:fff";
 
 			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy";
 			var connectionString = "server=localhost;database=speedy;integrated security=true;";
 			var results = new List<string>();
 
-			TestRepository(results, directory + "\\Repository", 100000);
 			TestDatabase(results, directory + "\\Database", connectionString, 10000);
+			TestRepository(results, directory + "\\Repository", 100000);
 
 			Log(string.Empty);
 			results.ForEach(x => Log(x));
@@ -97,12 +97,7 @@ namespace Speedy.Benchmarks
 			using (var repository = KeyValueRepository<string>.Create(directory, name))
 			{
 				var watch = Stopwatch.StartNew();
-
-				var values = repository.Read(randomKeys);
-				foreach (var item in values)
-				{
-					Verbose("Read " + item.Value + " using key " + item.Key);
-				}
+				repository.Read(randomKeys);
 
 				Log("Total: " + watch.Elapsed.ToString(_timeFormat));
 			}
@@ -115,37 +110,30 @@ namespace Speedy.Benchmarks
 
 			using (var repository = KeyValueRepository<string>.Create(directory, name))
 			{
-				var previousTime = new TimeSpan(0);
 				var watch = Stopwatch.StartNew();
 
 				foreach (var key in randomKeys)
 				{
 					try
 					{
-						var value = repository.Read(key);
-						Verbose("Read " + value + " using key " + key + " in " + (watch.Elapsed - previousTime));
+						repository.Read(key);
 					}
 					catch (Exception ex)
 					{
 						Log("Failed to read key " + key + ". " + ex.Message);
 					}
-
-					previousTime = watch.Elapsed;
 				}
 
 				Log("Total: " + watch.Elapsed.ToString(_timeFormat));
 			}
 		}
 
-		private static void TestDatabase(List<string> results, string directory, string connectionString, int iterations)
+		private static void TestDatabase(ICollection<string> results, string directory, string connectionString, int iterations)
 		{
-			Log($"Starting to benchmark Speedy Database writing {iterations}...");
-			results.Add($"Starting to benchmark Speedy Database writing {iterations}...");
-
 			var chunks = new[] { 150, 300, 600, 1200, 2400 };
 
-			Log("JSON");
-			results.Add("JSON");
+			Log($"Starting to benchmark Speedy Database writing {iterations}...", true, results);
+			Log("JSON", true, results);
 
 			foreach (var chunk in chunks)
 			{
@@ -153,14 +141,16 @@ namespace Speedy.Benchmarks
 				results.Add(TestDatabase(new SampleDatabaseProvider(directory), iterations, chunk));
 			}
 
-			Log("Entity Framework");
-			results.Add("Entity Framework");
+			Log(string.Empty, true, results);
+			Log("Entity Framework", true, results);
 
 			foreach (var chunk in chunks)
 			{
 				CleanupDatabase(connectionString);
 				results.Add(TestDatabase(new EntityFrameworkSampleDatabaseProvider(connectionString), iterations, chunk));
 			}
+
+			Log(string.Empty, true, results);
 		}
 
 		private static string TestDatabase(ISampleDatabaseProvider provider, int total, int chunkSize)
@@ -170,7 +160,6 @@ namespace Speedy.Benchmarks
 			var watch = Stopwatch.StartNew();
 			var random = new Random();
 			var count = 0;
-			var loop = 0;
 
 			while (count < total)
 			{
@@ -194,30 +183,18 @@ namespace Speedy.Benchmarks
 					count += chunkSize;
 
 					database.SaveChanges();
-
-					Log(".", false);
-
-					if (loop++ >= 80)
-					{
-						Log(string.Empty);
-						loop = 0;
-					}
 				}
 			}
 
 			var elapsed = watch.Elapsed.ToString(_timeFormat);
-
-			Log(string.Empty);
 			Log($"Done: {elapsed}");
 			Log(string.Empty);
-
 			return $"{elapsed} : {chunkSize} chunks.";
 		}
 
-		private static void TestRepository(List<string> results, string directory, int iterations)
+		private static void TestRepository(ICollection<string> results, string directory, int iterations)
 		{
-			Log($"Starting to benchmark Speedy Repository writing {iterations}...");
-			results.Add($"Starting to benchmark Speedy Repository writing {iterations}...");
+			Log($"Starting to benchmark Speedy Repository writing {iterations}...", true, results);
 
 			results.Add(WriteCollection(directory, iterations, 100));
 			results.Add(WriteCollection(directory, iterations, 1000));
@@ -245,22 +222,6 @@ namespace Speedy.Benchmarks
 			RandomReadsGroup(directory, "DB-" + iterations + "-0", randomKeys);
 		}
 
-		private static void Verbose(string message, bool newLine = true)
-		{
-			if (!_verboseLog)
-			{
-				return;
-			}
-
-			if (newLine)
-			{
-				Console.WriteLine(message);
-				return;
-			}
-
-			Console.Write(message);
-		}
-
 		private static string WriteCollection(string directory, int size, int chunkSize, TimeSpan? timeout = null, int limit = 0)
 		{
 			Log(string.Empty);
@@ -271,36 +232,16 @@ namespace Speedy.Benchmarks
 
 			using (var repository = KeyValueRepository<string>.Create(directory, $"DB-{size}-{limit}", timeout, limit))
 			{
-				var previousTime = new TimeSpan(0);
-
 				for (var i = 1; i <= size; i++)
 				{
-					if (i % (chunkSize / 4) == 0)
-					{
-						Verbose(".", false);
-					}
-
 					if (limit > 0 && i % limit == 0)
 					{
-						Verbose("Flushing the repository because we hit the limit.");
 						repository.Flush();
 					}
 
 					if (i % chunkSize == 0)
 					{
 						repository.Save();
-
-						if (previousTime.Ticks > 0)
-						{
-							var difference = watch.Elapsed - previousTime;
-							Verbose(watch.Elapsed + " + " + difference);
-						}
-						else
-						{
-							Verbose(watch.Elapsed.ToString());
-						}
-
-						previousTime = watch.Elapsed;
 					}
 
 					repository.Write(i.ToString(), i.ToString());
@@ -310,9 +251,7 @@ namespace Speedy.Benchmarks
 				repository.Flush();
 
 				var elapsed = watch.Elapsed.ToString(_timeFormat);
-
 				Log($"Count: {repository.Count} : {elapsed}");
-				Log(string.Empty);
 
 				return limit <= 0 ? $"{elapsed}: {chunkSize} at a time."
 					: $"{elapsed}: {chunkSize} at a time with a cache of {limit} items.";

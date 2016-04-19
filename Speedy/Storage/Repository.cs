@@ -292,7 +292,7 @@ namespace Speedy.Storage
 				var syncableEntity = item.Entity as SyncEntity;
 				if (syncableEntity != null)
 				{
-					_database.SyncTombstones?.Add(syncableEntity.CreateTombstone());
+					_database.SyncTombstones?.Add(syncableEntity.ToSyncTombstone());
 				}
 
 				Store?.Remove(item.Entity.Id.ToString());
@@ -320,8 +320,6 @@ namespace Speedy.Storage
 							{
 								syncableEntity.SyncId = Guid.NewGuid();
 							}
-
-							syncableEntity.SyncStatus = SyncStatus.Added;
 						}
 
 						if (modifiableEntity != null && _database.Options.MaintainDates)
@@ -344,8 +342,6 @@ namespace Speedy.Storage
 							{
 								syncableEntity.SyncId = ((SyncEntity) entry.OldEntity).SyncId;
 							}
-
-							syncableEntity.SyncStatus = SyncStatus.Added;
 						}
 
 						if (modifiableEntity != null && _database.Options.MaintainDates)
@@ -380,6 +376,16 @@ namespace Speedy.Storage
 		public void UpdateRelationships()
 		{
 			Cache.ToList().ForEach(x => OnUpdateEntityRelationships((T) x.Entity));
+		}
+
+		public void UpdateLocalSyncIds()
+		{
+			foreach (var entry in Cache)
+			{
+				// The local relationships may have changed. We need keep our sync IDs in sync with 
+				// any relationships that may have changed.
+				(entry.Entity as SyncEntity)?.UpdateLocalSyncIds();
+			}
 		}
 
 		public void ValidateEntities()

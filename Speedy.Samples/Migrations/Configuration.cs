@@ -6,7 +6,7 @@ using System.Data.Entity.Migrations;
 
 namespace Speedy.Samples.Migrations
 {
-	internal sealed class Configuration : DbMigrationsConfiguration<EntityFrameworkSampleDatabase>
+	internal sealed class Configuration : DbMigrationsConfiguration<EntityFrameworkContosoDatabase>
 	{
 		#region Constructors
 
@@ -19,7 +19,7 @@ namespace Speedy.Samples.Migrations
 
 		#region Methods
 
-		protected override void Seed(EntityFrameworkSampleDatabase context)
+		protected override void Seed(EntityFrameworkContosoDatabase context)
 		{
 		}
 

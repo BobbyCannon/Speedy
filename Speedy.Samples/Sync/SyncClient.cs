@@ -3,27 +3,26 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.Tests.Mocks
+namespace Speedy.Samples.Sync
 {
-	public class MockSyncClient : ISyncClient
+	public class SyncClient : ISyncClient
 	{
 		#region Fields
 
-		private readonly SampleDatabase _database;
+		private readonly ContosoDatabase _database;
 
 		#endregion
 
 		#region Constructors
 
-		public MockSyncClient()
+		public SyncClient()
 		{
-			_database = new SampleDatabase();
+			_database = new ContosoDatabase();
 		}
 
 		#endregion
@@ -34,25 +33,27 @@ namespace Speedy.Tests.Mocks
 
 		public DateTime LastSyncedOn { get; set; }
 
+		public IRepository<Person> People => _database.People;
+
 		#endregion
 
 		#region Methods
 
-		public void ApplyChanges(IEnumerable<SyncEntity> changes)
+		public void ApplyChanges(IEnumerable<SyncObject> changes)
 		{
-			_database.SyncChanges(changes);
+			_database.ApplySyncChanges(changes);
 			SaveChanges();
 		}
 
-		public static MockSyncClient Create(Address item)
+		public static SyncClient Create(Address item)
 		{
-			var client = new MockSyncClient();
+			var client = new SyncClient();
 			client.Addresses.Add(item.DeepClone(false));
 			client.SaveChanges();
 			return client;
 		}
 
-		public IEnumerable<SyncEntity> GetChanges()
+		public IEnumerable<SyncObject> GetChanges()
 		{
 			return _database.GetSyncChanges(LastSyncedOn);
 		}

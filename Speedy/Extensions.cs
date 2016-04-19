@@ -57,6 +57,42 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Add multiple items to a hash set.
+		/// </summary>
+		/// <param name="set"> The set to add items to. </param>
+		/// <param name="items"> The items to add. </param>
+		/// <typeparam name="T"> The type of the items in the hash set. </typeparam>
+		public static void AddRange<T>(this HashSet<T> set, params T[] items)
+		{
+			foreach (var item in items)
+			{
+				set.Add(item);
+			}
+		}
+
+		/// <summary>
+		/// Sync a list of entities changes.
+		/// </summary>
+		/// <param name="database"> The database to sync changes for. </param>
+		/// <param name="objects"> The list of objects that have changed. </param>
+		public static void ApplySyncChanges(this IDatabase database, IEnumerable<SyncObject> objects)
+		{
+			var groups = objects.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
+
+			if (database.Options.SyncOrder.Any())
+			{
+				groups = groups.OrderBy(x => x.Key == database.Options.SyncOrder[0]);
+				groups = database.Options.SyncOrder.Skip(1).Aggregate(groups, (current, typeName) => current.ThenBy(x => x.Key == typeName));
+			}
+
+			groups.ForEach(x =>
+			{
+				ProcessGroup(database, x);
+				database.SaveChanges();
+			});
+		}
+
+		/// <summary>
 		/// Deep clone the item.
 		/// </summary>
 		/// <typeparam name="T"> The type to clone. </typeparam>
@@ -105,18 +141,41 @@ namespace Speedy
 		{
 			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0]) ? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals) : JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
 		}
-		
+
+		/// <summary>
+		/// Convert the string into an object.
+		/// </summary>
+		/// <param name="item"> The JSON data to deserialize. </param>
+		/// <param name="type"> The type to convert into. </param>
+		/// <returns> The deserialized object. </returns>
+		public static object FromJson(this string item, Type type)
+		{
+			return string.IsNullOrWhiteSpace(item) ? null : JsonConvert.DeserializeObject(item, type, _serializationSettingsNoVirtuals);
+		}
+
+		/// <summary>
+		/// Gets the real type of the entity. For use with proxy entities.
+		/// </summary>
+		/// <param name="item"> The object to process. </param>
+		/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
+		public static Type GetRealType(this object item)
+		{
+			var type = item.GetType();
+			var isProxy = type.FullName.Contains("System.Data.Entity.DynamicProxies");
+			return isProxy ? type.BaseType : type;
+		}
+
 		/// <summary>
 		/// Gets the changes from the database.
 		/// </summary>
 		/// <param name="database"> The database to query. </param>
 		/// <param name="since"> The date and time get changes for. </param>
 		/// <returns> The list of changes from the server. </returns>
-		public static IEnumerable<SyncEntity> GetSyncChanges(this IDatabase database, DateTime since)
+		public static IEnumerable<SyncObject> GetSyncChanges(this IDatabase database, DateTime since)
 		{
-			var response = new List<SyncEntity>();
+			var response = new List<SyncObject>();
 
-			response.AddRange(database.GetSyncTombstones(x => x.CreatedOn >= since).ToList().Select(x => x.ToSyncEntity()));
+			response.AddRange(database.GetSyncTombstones(x => x.CreatedOn >= since).ToList().Select(x => x.ToSyncObject()));
 
 			foreach (var repository in database.GetSyncableRepositories())
 			{
@@ -188,65 +247,13 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Sync a list of entities changes.
+		/// Converts the type to an assembly name. Does not include version.
 		/// </summary>
-		/// <param name="database"> The database to sync changes for. </param>
-		/// <param name="entities"> The list of entity that have changed. </param>
-		public static void SyncChanges(this IDatabase database, IEnumerable<SyncEntity> entities)
+		/// <param name="type"> The type to get the assembly name for. </param>
+		/// <returns> The assembly name for the provided type. </returns>
+		public static string ToAssemblyName(this Type type)
 		{
-			foreach (var entity in entities)
-			{
-				if (database.GetSyncTombstones(x => x.SyncId == entity.SyncId).Any())
-				{
-					continue;
-				}
-
-				var type = entity.GetType();
-				var repository = database.GetSyncableRepository(type);
-				if (repository == null)
-				{
-					throw new InvalidDataException("Failed to find a syncable repository for the entity.");
-				}
-
-				var foundEntity = repository.Read(entity.SyncId);
-				var syncStatus = entity.SyncStatus;
-
-				if (foundEntity != null && entity.SyncStatus == SyncStatus.Added)
-				{
-					syncStatus = SyncStatus.Modified;
-				}
-				else if (foundEntity == null && entity.SyncStatus == SyncStatus.Modified)
-				{
-					syncStatus = SyncStatus.Added;
-				}
-
-				switch (syncStatus)
-				{
-					case SyncStatus.Added:
-						entity.Id = 0;
-						repository.Add(entity);
-						break;
-
-					case SyncStatus.Modified:
-						if (foundEntity?.ModifiedOn < entity.ModifiedOn)
-						{
-							foundEntity.Update(entity);
-						}
-						break;
-
-					case SyncStatus.Deleted:
-						if (foundEntity != null)
-						{
-							repository.Remove(foundEntity);
-						}
-						break;
-
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
-			}
-
-			database.SaveChanges();
+			return type.FullName + "," + type.Assembly.GetName().Name;
 		}
 
 		/// <summary>
@@ -259,6 +266,19 @@ namespace Speedy
 		public static string ToJson<T>(this T item, bool ignoreVirtuals)
 		{
 			return JsonConvert.SerializeObject(item, Formatting.None, ignoreVirtuals ? _serializationSettings : _serializationSettingsNoVirtuals);
+		}
+
+		/// <summary>
+		/// Runs action if the test is true.
+		/// </summary>
+		/// <param name="item"> The item to process. (does nothing) </param>
+		/// <param name="test"> The test to validate. </param>
+		/// <param name="action"> The action to run if test is true. </param>
+		/// <typeparam name="T"> The type the function returns </typeparam>
+		/// <returns> The result of the action or default(T). </returns>
+		public static T UpdateIf<T>(this object item, Func<bool> test, Func<T> action)
+		{
+			return test() ? action() : default(T);
 		}
 
 		/// <summary>
@@ -311,7 +331,7 @@ namespace Speedy
 			dictionary.Add(key, value);
 		}
 
-		internal static MethodInfo CachedGetMethod(this Type type, string name)
+		internal static MethodInfo CachedGetMethod(this Type type, string name, params Type[] types)
 		{
 			MethodInfo response;
 			var key = type.FullName + "." + name;
@@ -324,7 +344,7 @@ namespace Speedy
 				}
 			}
 
-			response = type.GetMethod(name);
+			response = types.Any() ? type.GetMethod(name, types) : type.GetMethod(name);
 			return _methods.AddOrUpdate(key, response, (s, infos) => response);
 		}
 
@@ -539,6 +559,12 @@ namespace Speedy
 			}, 1000, 10);
 		}
 
+		private static object GetPropertyValue(dynamic item, string name)
+		{
+			Type t = item.GetType();
+			return t.GetCachedProperties().First(x => x.Name == name).GetValue(item, null);
+		}
+
 		private static JsonSerializerSettings GetSerializerSettings(bool ignoreVirtuals)
 		{
 			var response = new JsonSerializerSettings();
@@ -551,6 +577,79 @@ namespace Speedy
 			}
 
 			return response;
+		}
+
+		private static void ProcessGroup(IDatabase database, IEnumerable<SyncObject> objects)
+		{
+			foreach (var entity in objects)
+			{
+				var syncEntity = entity.ToSyncEntity();
+				if (database.GetSyncTombstones(x => x.SyncId == syncEntity.SyncId).Any())
+				{
+					continue;
+				}
+
+				var type = syncEntity.GetType();
+				var repository = database.GetSyncableRepository(type);
+				if (repository == null)
+				{
+					throw new InvalidDataException("Failed to find a syncable repository for the entity.");
+				}
+
+				var foundEntity = repository.Read(syncEntity.SyncId);
+				var syncStatus = entity.Status;
+
+				if (foundEntity != null && entity.Status == SyncStatus.Added)
+				{
+					syncStatus = SyncStatus.Modified;
+				}
+				else if (foundEntity == null && entity.Status == SyncStatus.Modified)
+				{
+					syncStatus = SyncStatus.Added;
+				}
+
+				switch (syncStatus)
+				{
+					case SyncStatus.Added:
+						syncEntity.Id = 0;
+						syncEntity.UpdateLocalRelationships(database);
+						repository.Add(syncEntity);
+						break;
+
+					case SyncStatus.Modified:
+						if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn)
+						{
+							foundEntity.UpdateLocalRelationships(database);
+							foundEntity.Update(syncEntity, database);
+						}
+						break;
+
+					case SyncStatus.Deleted:
+						if (foundEntity != null)
+						{
+							repository.Remove(foundEntity);
+						}
+						break;
+
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+
+			database.SaveChanges();
+		}
+
+		private static IEnumerable<SyncObject> SortBy(this IEnumerable<SyncObject> objects, IReadOnlyList<string> order)
+		{
+			if (!order.Any())
+			{
+				return objects;
+			}
+
+			var ordered = objects.OrderBy(x => x.TypeName == order[0]);
+			ordered = order.Skip(1).Aggregate(ordered, (current, typeName) => current.ThenBy(x => x.TypeName == typeName));
+
+			return ordered;
 		}
 
 		#endregion

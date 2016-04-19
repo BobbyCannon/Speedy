@@ -21,6 +21,7 @@ namespace Speedy
 			DetectSyncableRepositories = true;
 			MaintainDates = true;
 			MaintainSyncId = true;
+			SyncOrder = new string[0];
 			SyncTombstoneTimeout = TimeSpan.FromDays(7);
 		}
 
@@ -42,6 +43,11 @@ namespace Speedy
 		/// Gets or sets the flag to manage the sync ID for sync entities.
 		/// </summary>
 		public bool MaintainSyncId { get; set; }
+
+		/// <summary>
+		/// Gets the sync order of the syncable repositories.
+		/// </summary>
+		public string[] SyncOrder { get; set; }
 
 		/// <summary>
 		/// The timespan before an entity tombstone will expire.

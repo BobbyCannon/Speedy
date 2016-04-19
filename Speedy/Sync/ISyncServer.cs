@@ -19,14 +19,14 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="changes"> The changes to write to the server. </param>
 		/// <returns> The date and time for the sync process. </returns>
-		DateTime ApplyChanges(IEnumerable<SyncEntity> changes);
+		DateTime ApplyChanges(IEnumerable<SyncObject> changes);
 
 		/// <summary>
 		/// Gets the changes from the server.
 		/// </summary>
 		/// <param name="since"> The date and time get changes for. </param>
 		/// <returns> The list of changes from the server. </returns>
-		IEnumerable<SyncEntity> GetChanges(DateTime since);
+		IEnumerable<SyncObject> GetChanges(DateTime since);
 
 		#endregion
 	}

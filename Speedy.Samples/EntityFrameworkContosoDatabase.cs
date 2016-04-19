@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System.Data.Entity;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
@@ -10,18 +11,25 @@ using Speedy.Sync;
 namespace Speedy.Samples
 {
 	[ExcludeFromCodeCoverage]
-	public class EntityFrameworkSampleDatabase : EntityFrameworkDatabase, ISampleDatabase
+	public class EntityFrameworkContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
 	{
 		#region Constructors
 
-		public EntityFrameworkSampleDatabase()
-			: this("name=DefaultConnection", new DatabaseOptions { MaintainDates = true })
+		public EntityFrameworkContosoDatabase()
+			: this("name=DefaultConnection", DatabaseOptions.GetDefaults())
 		{
 		}
 
-		public EntityFrameworkSampleDatabase(string nameOrConnectionString, DatabaseOptions options = null)
+		public EntityFrameworkContosoDatabase(string nameOrConnectionString, DatabaseOptions options = null)
 			: base(nameOrConnectionString, options)
 		{
+			// Setup options.
+			Options.SyncOrder = ContosoDatabase.SyncOrder;
+		}
+
+		static EntityFrameworkContosoDatabase()
+		{
+			System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersion<EntityFrameworkContosoDatabase, Migrations.Configuration>());
 		}
 
 		#endregion

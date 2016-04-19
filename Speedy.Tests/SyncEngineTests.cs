@@ -3,8 +3,8 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Entities;
+using Speedy.Samples.Sync;
 using Speedy.Sync;
-using Speedy.Tests.Mocks;
 
 #endregion
 
@@ -21,8 +21,8 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineAddItemToClient()
 		{
-			var client = new MockSyncClient();
-			var server = new MockSyncServer();
+			var client = new SyncClient();
+			var server = new SyncServer();
 
 			client.Addresses.Add(NewAddress("Blah"));
 			client.SaveChanges();
@@ -39,8 +39,8 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineAddItemToClientAndServer()
 		{
-			var client = new MockSyncClient();
-			var server = new MockSyncServer();
+			var client = new SyncClient();
+			var server = new SyncServer();
 
 			client.Addresses.Add(NewAddress("Foo"));
 			client.SaveChanges();
@@ -60,9 +60,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineAddItemToClientThenSyncAnotherClient()
 		{
-			var client1 = new MockSyncClient();
-			var client2 = new MockSyncClient();
-			var server = new MockSyncServer();
+			var client1 = new SyncClient();
+			var client2 = new SyncClient();
+			var server = new SyncServer();
 
 			client1.Addresses.Add(NewAddress("Blah"));
 			client1.SaveChanges();
@@ -87,8 +87,8 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineAddItemToServer()
 		{
-			var client = new MockSyncClient();
-			var server = new MockSyncServer();
+			var client = new SyncClient();
+			var server = new SyncServer();
 
 			server.Addresses.Add(NewAddress("Blah"));
 			server.SaveChanges();
@@ -105,9 +105,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineAddItemToServerThenSyncToTwoClients()
 		{
-			var client1 = new MockSyncClient();
-			var client2 = new MockSyncClient();
-			var server = new MockSyncServer();
+			var client1 = new SyncClient();
+			var client2 = new SyncClient();
+			var server = new SyncServer();
 
 			server.Addresses.Add(NewAddress("Blah", "Blah2"));
 			server.SaveChanges();
@@ -140,8 +140,8 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineDeleteItemOnClient()
 		{
-			var client = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
-			var server = MockSyncServer.Create(client.Addresses.First());
+			var client = SyncClient.Create(NewAddress("Foo", "Foo2"));
+			var server = SyncServer.Create(client.Addresses.First());
 
 			client.Addresses.RemoveRange(x => x.Id > 0);
 			client.SaveChanges();
@@ -161,8 +161,8 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineDeleteItemOnServer()
 		{
-			var client = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
-			var server = MockSyncServer.Create(client.Addresses.First());
+			var client = SyncClient.Create(NewAddress("Foo", "Foo2"));
+			var server = SyncServer.Create(client.Addresses.First());
 
 			server.Addresses.RemoveRange(x => x.Id > 0);
 			server.SaveChanges();
@@ -182,9 +182,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineDeleteItemOnServerAndThenToTwoClients()
 		{
-			var client1 = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
-			var client2 = MockSyncClient.Create(client1.Addresses.First());
-			var server = MockSyncServer.Create(client1.Addresses.First());
+			var client1 = SyncClient.Create(NewAddress("Foo", "Foo2"));
+			var client2 = SyncClient.Create(client1.Addresses.First());
+			var server = SyncServer.Create(client1.Addresses.First());
 
 			server.Addresses.RemoveRange(x => x.Id > 0);
 			server.SaveChanges();
@@ -215,8 +215,8 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineUpdateItemOnClientThenServer()
 		{
-			var client = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
-			var server = MockSyncServer.Create(client.Addresses.First());
+			var client = SyncClient.Create(NewAddress("Foo", "Foo2"));
+			var server = SyncServer.Create(client.Addresses.First());
 
 			client.Addresses.First().Line1 = "Foo Client";
 			client.SaveChanges();
@@ -241,8 +241,8 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineUpdateItemOnServerThenClient()
 		{
-			var client = MockSyncClient.Create(NewAddress("Foo", "Foo2"));
-			var server = MockSyncServer.Create(client.Addresses.First());
+			var client = SyncClient.Create(NewAddress("Foo", "Foo2"));
+			var server = SyncServer.Create(client.Addresses.First());
 
 			server.Addresses.First().Line1 = "Foo Server";
 			server.Addresses.First().Line2 = "Foo Server2";

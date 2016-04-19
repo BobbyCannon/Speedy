@@ -10,6 +10,7 @@ using System.Threading;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Speedy.EntityFramework;
 using Speedy.Samples;
 using Speedy.Tests.Properties;
 
@@ -58,6 +59,12 @@ namespace Speedy.Tests
 			Directory.SafeDelete();
 		}
 
+		public static T ClearDatabase<T>(this T database) where T : EntityFrameworkDatabase
+		{
+			database.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+			return database;
+		}
+
 		public static void ExpectedException<T>(Action work, string errorMessage) where T : Exception
 		{
 			try
@@ -77,30 +84,30 @@ namespace Speedy.Tests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
-		public static IEnumerable<ISampleDatabaseProvider> GetDataContextProviders()
+		public static IEnumerable<IContosoDatabaseProvider> GetDataContextProviders()
 		{
-			var context1 = new EntityFrameworkSampleDatabase();
+			var context1 = new EntityFrameworkContosoDatabase();
 			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
-			var contextProvider1 = new Mock<ISampleDatabaseProvider>();
-			contextProvider1.Setup(x => x.CreateContext()).Returns(() => new EntityFrameworkSampleDatabase());
+			var contextProvider1 = new Mock<IContosoDatabaseProvider>();
+			contextProvider1.Setup(x => x.CreateContext()).Returns(() => new EntityFrameworkContosoDatabase());
 
-			var context2 = new SampleDatabase();
-			var contextProvider2 = new Mock<ISampleDatabaseProvider>();
+			var context2 = new ContosoDatabase();
+			var contextProvider2 = new Mock<IContosoDatabaseProvider>();
 			contextProvider2.Setup(x => x.CreateContext()).Returns(context2);
 
-			var contextProvider3 = new Mock<ISampleDatabaseProvider>();
-			contextProvider3.Setup(x => x.CreateContext()).Returns(() => new SampleDatabase(Directory.FullName));
+			var contextProvider3 = new Mock<IContosoDatabaseProvider>();
+			contextProvider3.Setup(x => x.CreateContext()).Returns(() => new ContosoDatabase(Directory.FullName));
 
 			return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
 		}
 
-		public static IEnumerable<ISampleDatabase> GetDataContexts()
+		public static IEnumerable<IContosoDatabase> GetDataContexts()
 		{
-			var context1 = new EntityFrameworkSampleDatabase();
+			var context1 = new EntityFrameworkContosoDatabase();
 			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
-			return new ISampleDatabase[] { context1, new SampleDatabase(), new SampleDatabase(Directory.FullName) };
+			return new IContosoDatabase[] { context1, new ContosoDatabase(), new ContosoDatabase(Directory.FullName) };
 		}
 
 		public static void Initialize()

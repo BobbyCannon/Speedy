@@ -23,6 +23,7 @@ namespace Speedy.Samples.Mappings
 			// Table & Column Mappings
 			ToTable("People");
 			Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(t => t.AddressSyncId).IsRequired();
 			Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 			Property(t => t.Name).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
 			Property(t => t.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));

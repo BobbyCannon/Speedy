@@ -7,7 +7,7 @@ using Speedy.Sync;
 
 namespace Speedy.Samples
 {
-	public interface ISampleDatabase : IDatabase
+	public interface IContosoDatabase : IDatabase
 	{
 		#region Properties
 

@@ -13,17 +13,14 @@ namespace Speedy.Sync
 	/// </summary>
 	public abstract class SyncEntity : ModifiableEntity
 	{
-		#region Fields
-
-		private static readonly HashSet<string> _ignoreProperties;
-
-		#endregion
-
 		#region Constructors
 
-		static SyncEntity()
+		/// <summary>
+		/// Instantiates a sync entity.
+		/// </summary>
+		protected SyncEntity()
 		{
-			_ignoreProperties = new HashSet<string>(new[] { "Id", "SyncId" });
+			IgnoreProperties = new HashSet<string>(new[] { "Id", "SyncId" });
 		}
 
 		#endregion
@@ -39,35 +36,53 @@ namespace Speedy.Sync
 		public Guid SyncId { get; set; }
 
 		/// <summary>
-		/// Gets or sets the sync status for the sync entity.
+		/// Properties to ignore when updating.
 		/// </summary>
-		public SyncStatus SyncStatus { get; set; }
+		protected HashSet<string> IgnoreProperties { get; }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
+		/// Converts the entity into an object to transmit.
+		/// </summary>
+		/// <returns> The sync object for this entity. </returns>
+		public SyncObject ToSyncObject()
+		{
+			var json = this.ToJson(true);
+			var type = this.GetRealType();
+
+			return new SyncObject
+			{
+				Data = json,
+				SyncId = SyncId,
+				TypeName = type.ToAssemblyName(),
+				Status = CreatedOn == ModifiedOn ? SyncStatus.Added : SyncStatus.Modified
+			};
+		}
+
+		/// <summary>
 		/// Creates a tombstone for this entity.
 		/// </summary>
 		/// <returns> The tombstone for this entity. </returns>
-		public SyncTombstone CreateTombstone()
+		public SyncTombstone ToSyncTombstone()
 		{
-			var entityType = GetType();
-			var typeFullName = entityType.FullName + "," + entityType.Assembly.GetName().Name;
-			return new SyncTombstone { CreatedOn = DateTime.UtcNow, TypeFullName = typeFullName, SyncId = SyncId };
+			return new SyncTombstone { CreatedOn = DateTime.UtcNow, TypeName = this.GetRealType().ToAssemblyName(), SyncId = SyncId };
 		}
 
 		/// <summary>
 		/// Update the entity with the changes.
 		/// </summary>
 		/// <param name="update"> The entity with the changes. </param>
-		public void Update(SyncEntity update)
+		/// <param name="database"> The database to use for relationships. </param>
+		public virtual void Update(SyncEntity update, IDatabase database)
 		{
-			var type = GetType();
-			var updateType = update.GetType();
+			var type = this.GetRealType();
+			var typeName = type.ToAssemblyName();
+			var updateTypeName = update.GetRealType().ToAssemblyName();
 
-			if (type.FullName != updateType.FullName)
+			if (typeName != updateTypeName)
 			{
 				throw new DataException("Trying update a sync entity with a mismatched type.");
 			}
@@ -75,7 +90,7 @@ namespace Speedy.Sync
 			var properties = type.GetCachedProperties();
 			foreach (var property in properties)
 			{
-				if (_ignoreProperties.Contains(property.Name))
+				if (IgnoreProperties.Contains(property.Name))
 				{
 					continue;
 				}
@@ -83,6 +98,16 @@ namespace Speedy.Sync
 				property.SetValue(this, property.GetValue(update));
 			}
 		}
+
+		/// <summary>
+		/// Updates the relation ids using the sync ids.
+		/// </summary>
+		public abstract void UpdateLocalRelationships(IDatabase database);
+
+		/// <summary>
+		/// Updates the sync ids using relationships.
+		/// </summary>
+		public abstract void UpdateLocalSyncIds();
 
 		#endregion
 	}

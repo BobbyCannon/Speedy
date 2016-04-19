@@ -20,6 +20,8 @@ namespace Speedy.Storage
 
 		void UpdateRelationships();
 
+		void UpdateLocalSyncIds();
+
 		void ValidateEntities();
 
 		#endregion

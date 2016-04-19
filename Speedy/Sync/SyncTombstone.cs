@@ -21,7 +21,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// The type full name.
 		/// </summary>
-		public string TypeFullName { get; set; }
+		public string TypeName { get; set; }
 
 		#endregion
 
@@ -31,23 +31,20 @@ namespace Speedy.Sync
 		/// Converts the tombstone back into the original entity.
 		/// </summary>
 		/// <returns> The sync entity as a deleted entity. </returns>
-		public SyncEntity ToSyncEntity()
+		public SyncObject ToSyncObject()
 		{
-			var type = Type.GetType(TypeFullName);
+			var type = Type.GetType(TypeName);
 			if (type == null)
 			{
 				return null;
 			}
 
-			var instance = Activator.CreateInstance(type) as SyncEntity;
-			if (instance == null)
+			return new SyncObject
 			{
-				return null;
-			}
-
-			instance.SyncId = SyncId;
-			instance.SyncStatus = SyncStatus.Deleted;
-			return instance;
+				TypeName = TypeName,
+				SyncId = SyncId,
+				Status = SyncStatus.Deleted
+			};
 		}
 
 		#endregion

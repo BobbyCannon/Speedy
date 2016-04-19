@@ -13,6 +13,15 @@ namespace Speedy
 	/// </summary>
 	public interface ISyncableRepository
 	{
+		#region Properties
+
+		/// <summary>
+		/// The type name this repository is for. Will be in assembly name format.
+		/// </summary>
+		string TypeName { get; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
@@ -26,7 +35,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="since"> The date and time get changes for. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		IEnumerable<SyncEntity> GetChanges(DateTime since);
+		IEnumerable<SyncObject> GetChanges(DateTime since);
 
 		/// <summary>
 		/// Gets the sync entity by the ID.

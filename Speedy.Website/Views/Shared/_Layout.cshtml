@@ -1,0 +1,16 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Speedy - @ViewBag.Title</title>
+		@Styles.Render("~/Styles/css")
+	</head>
+	<body>
+		<div class="container body-content">
+			@RenderBody()
+		</div>
+		@Scripts.Render("~/Scripts/js")
+		@RenderSection("scripts", false)
+	</body>
+</html>

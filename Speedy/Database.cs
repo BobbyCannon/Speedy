@@ -99,12 +99,21 @@ namespace Speedy
 		/// <returns> The list of syncable repositories. </returns>
 		public IEnumerable<ISyncableRepository> GetSyncableRepositories()
 		{
-			return Repositories.Values
-				.Where(x => x is ISyncableRepository)
-				.Cast<ISyncableRepository>()
-				.ToList();
-		}
+			var syncableRepositories = Repositories.Where(x => x.Value is ISyncableRepository).Select(x => x.Value);
 
+			if (Options.SyncOrder.Length <= 0)
+			{
+				return syncableRepositories.Cast<ISyncableRepository>();
+			}
+
+			var query = Repositories
+				.Where(x => x.Value is ISyncableRepository)
+				.OrderBy(x => x.Key == Options.SyncOrder[0]);
+
+			query = Options.SyncOrder.Skip(1).Aggregate(query, (current, key) => current.ThenBy(x => x.Key == key));
+			return query.Select(x => x.Value).Cast<ISyncableRepository>();
+		}
+		
 		/// <summary>
 		/// Gets a syncable repository for the provided type.
 		/// </summary>
@@ -149,6 +158,7 @@ namespace Speedy
 			Repositories.Values.ForEach(x => x.ValidateEntities());
 			Repositories.Values.ForEach(x => x.UpdateRelationships());
 			Repositories.Values.ForEach(x => x.AssignKeys());
+			Repositories.Values.ForEach(x => x.UpdateLocalSyncIds());
 			Repositories.Values.ForEach(x => x.UpdateRelationships());
 			Repositories.Values.ForEach(x => response += x.SaveChanges());
 
@@ -469,7 +479,7 @@ namespace Speedy
 						else
 						{
 							// Still adding 400ms per 10000 items, why?
-							repositoryType.CachedGetMethod("Add").Invoke(repository, new object[] { otherEntity });
+							repositoryType.CachedGetMethod("Add", otherEntity.GetType()).Invoke(repository, new object[] { otherEntity });
 						}
 					}
 

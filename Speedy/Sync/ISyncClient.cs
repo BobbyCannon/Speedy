@@ -27,13 +27,13 @@ namespace Speedy.Sync
 		/// Apply changes from the server.
 		/// </summary>
 		/// <param name="changes"> The changes from the server. </param>
-		void ApplyChanges(IEnumerable<SyncEntity> changes);
+		void ApplyChanges(IEnumerable<SyncObject> changes);
 
 		/// <summary>
 		/// Gets the changes from the client.
 		/// </summary>
 		/// <returns> The list of changes from the client. </returns>
-		IEnumerable<SyncEntity> GetChanges();
+		IEnumerable<SyncObject> GetChanges();
 
 		#endregion
 	}

@@ -84,14 +84,22 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
-		/// Gets a list of syncable repositories.
+		/// Gets a list of syncable repositories. The repositories will be ordered base on DatabaseOptions.SyncOrder.
 		/// </summary>
 		/// <returns> The list of syncable repositories. </returns>
 		public IEnumerable<ISyncableRepository> GetSyncableRepositories()
 		{
-			return _syncableRepositories.Values;
-		}
+			if (Options.SyncOrder.Length <= 0)
+			{
+				return _syncableRepositories.Values;
+			}
 
+			var ordered = _syncableRepositories.OrderBy(x => x.Key == Options.SyncOrder[0]);
+			ordered = Options.SyncOrder.Skip(1).Aggregate(ordered, (current, key) => current.ThenBy(x => x.Key == key));
+
+			return ordered.Select(x => x.Value);
+		}
+		
 		/// <summary>
 		/// Gets a syncable repository of the requested entity.
 		/// </summary>
@@ -141,12 +149,12 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <param name="since"> The date and time get changes for. </param>
 		/// <returns> The list of sync tombstones. </returns>
-		public IEnumerable<SyncEntity> GetSyncTombstones(DateTime since)
+		public IEnumerable<SyncObject> GetSyncTombstones(DateTime since)
 		{
 			return _syncTombstones
 				.Where(x => x.CreatedOn >= since)
 				.ToList()
-				.Select(x => x.ToSyncEntity())
+				.Select(x => x.ToSyncObject())
 				.Where(x => x != null)
 				.ToList();
 		}
@@ -167,10 +175,11 @@ namespace Speedy.EntityFramework
 
 			try
 			{
-				foreach (var entry in ChangeTracker.Entries())
-				{
-					ProcessEntity(entry);
-				}
+				ChangeTracker.Entries().ForEach(ProcessEntity);
+
+				// The local relationships may have changed. We need keep our sync IDs in sync with 
+				// any relationships that may have changed.
+				ChangeTracker.Entries().ForEach(x => (x.Entity as SyncEntity)?.UpdateLocalSyncIds());
 
 				var response = base.SaveChanges();
 
@@ -301,8 +310,6 @@ namespace Speedy.EntityFramework
 						{
 							syncableEntity.SyncId = Guid.NewGuid();
 						}
-
-						syncableEntity.SyncStatus = SyncStatus.Added;
 					}
 
 					if (modifiableEntity != null && Options.MaintainDates)
@@ -325,8 +332,6 @@ namespace Speedy.EntityFramework
 						{
 							syncableEntity.SyncId = (Guid) entry.OriginalValues["SyncId"];
 						}
-
-						syncableEntity.SyncStatus = SyncStatus.Modified;
 					}
 
 					if (modifiableEntity != null && Options.MaintainDates)
@@ -339,7 +344,7 @@ namespace Speedy.EntityFramework
 				case EntityState.Deleted:
 					if (syncableEntity != null)
 					{
-						_syncTombstones?.Add(syncableEntity.CreateTombstone());
+						_syncTombstones?.Add(syncableEntity.ToSyncTombstone());
 					}
 					break;
 			}
