@@ -22,7 +22,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets or sets the status of this sync object.
 		/// </summary>
-		public SyncStatus Status { get; set; }
+		public SyncObjectStatus Status { get; set; }
 
 		/// <summary>
 		/// Gets or sets the ID of the sync object.
@@ -50,7 +50,7 @@ namespace Speedy.Sync
 				throw new InvalidDataException("The sync object has an invalid type name.");
 			}
 
-			if (Status != SyncStatus.Deleted)
+			if (Status != SyncObjectStatus.Deleted)
 			{
 				return Data.FromJson(type) as SyncEntity;
 			}

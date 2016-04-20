@@ -19,7 +19,7 @@ namespace Speedy.Sync
 		public Guid SyncId { get; set; }
 
 		/// <summary>
-		/// The type full name.
+		/// The type full name in assembly name format. Ex. System.String,mscorlib
 		/// </summary>
 		public string TypeName { get; set; }
 
@@ -43,7 +43,7 @@ namespace Speedy.Sync
 			{
 				TypeName = TypeName,
 				SyncId = SyncId,
-				Status = SyncStatus.Deleted
+				Status = SyncObjectStatus.Deleted
 			};
 		}
 

@@ -3,8 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" Title="Speedy Benchmarks" Height="350" Width="525" Icon="Speedy.ico"
-		WindowStartupLocation="CenterScreen">
+        xmlns:benchmarks="clr-namespace:Speed.Benchmarks"
+        mc:Ignorable="d" Title="Speedy Benchmarks" Height="350" Width="525"
+		WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
+		d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}">
 	<Window.Resources>
 		<Style x:Key="Button" TargetType="Button">
 			<Setter Property="Margin" Value="4" />
@@ -15,13 +17,29 @@
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<StackPanel Grid.Row="0" Orientation="Horizontal">
-			<Button Style="{StaticResource Button}" Content="Sync" Click="SyncOnClick" />
+			<Button Style="{StaticResource Button}" Content="{Binding SyncStatus}" Click="SyncOnClick" />
 		</StackPanel>
-		<ScrollViewer Grid.Row="1">
-			<TextBox x:Name="Output" IsReadOnly="true" TextWrapping="Wrap" />
+		<ItemsControl Grid.Row="1" ItemsSource="{Binding SyncClients}">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel Orientation="Horizontal"/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<StackPanel Margin="10">
+						<TextBlock Text="{Binding Name}"></TextBlock>
+						<TextBlock Text="{Binding LastSyncedOn}"></TextBlock>
+					</StackPanel>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+		<ScrollViewer Grid.Row="2">
+			<TextBox IsReadOnly="true" TextWrapping="Wrap" Text="{Binding Output}" />
 		</ScrollViewer>
 	</Grid>
 </Window>

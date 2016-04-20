@@ -28,12 +28,16 @@ namespace Speedy.EntityFramework
 
 		#endregion
 
-		#region Methods
+		#region Properties
 
 		/// <summary>
 		/// The type name this repository is for. Will be in assembly name format.
 		/// </summary>
 		public string TypeName => typeof(T).ToAssemblyName();
+
+		#endregion
+
+		#region Methods
 
 		/// <summary>
 		/// Add an entity to the repository. The ID of the entity must be the default value.
@@ -45,13 +49,27 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
+		/// Gets the count of changes from the repository.
+		/// </summary>
+		/// <param name="since"> The start date and time get changes for. </param>
+		/// <param name="until"> The end date and time get changes for. </param>
+		/// <returns> The count of changes from the repository. </returns>
+		public int GetChangeCount(DateTime since, DateTime until)
+		{
+			return Set.Count(x => x.ModifiedOn >= since && x.ModifiedOn < until);
+		}
+
+		/// <summary>
 		/// Gets the changes from the repository.
 		/// </summary>
-		/// <param name="since"> The date and time get changes for. </param>
+		/// <param name="since"> The start date and time get changes for. </param>
+		/// <param name="until"> The end date and time get changes for. </param>
+		/// <param name="take"> The number of items to take. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		public IEnumerable<SyncObject> GetChanges(DateTime since)
+		public IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int take)
 		{
-			return Set.Where(x => x.ModifiedOn >= since)
+			return Set.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+				.Take(take)
 				.ToList()
 				.Select(x => x.ToSyncObject())
 				.ToList();

@@ -62,7 +62,7 @@
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="KeyValueRepositoryOptions.cs" />
     <Compile Include="ModifiableEntity.cs" />
-    <Compile Include="Net\SyncServerClient.cs" />
+    <Compile Include="Net\WebSyncClient.cs" />
     <Compile Include="Storage\EntityComparer.cs" />
     <Compile Include="Storage\IRepository.cs" />
     <Compile Include="IRepository.cs" />
@@ -83,12 +83,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\NoCloseStreamWriter.cs" />
     <Compile Include="ISyncableRepository.cs" />
+    <Compile Include="Sync\SyncEngineStatus.cs" />
+    <Compile Include="Sync\SyncEngineStatusArgs.cs" />
     <Compile Include="Sync\SyncEntity.cs" />
     <Compile Include="Sync\SyncEngine.cs" />
     <Compile Include="Sync\ISyncClient.cs" />
-    <Compile Include="Sync\ISyncServer.cs" />
     <Compile Include="Sync\SyncObject.cs" />
-    <Compile Include="Sync\SyncStatus.cs" />
+    <Compile Include="Sync\SyncObjectStatus.cs" />
+    <Compile Include="Sync\SyncRequest.cs" />
     <Compile Include="Sync\SyncTombstone.cs" />
     <Compile Include="Net\WebClient.cs" />
   </ItemGroup>

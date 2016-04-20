@@ -58,7 +58,7 @@ namespace Speedy.Sync
 				Data = json,
 				SyncId = SyncId,
 				TypeName = type.ToAssemblyName(),
-				Status = CreatedOn == ModifiedOn ? SyncStatus.Added : SyncStatus.Modified
+				Status = CreatedOn == ModifiedOn ? SyncObjectStatus.Added : SyncObjectStatus.Modified
 			};
 		}
 

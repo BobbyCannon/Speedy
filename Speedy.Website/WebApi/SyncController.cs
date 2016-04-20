@@ -10,17 +10,29 @@ using Speedy.Sync;
 
 namespace Speedy.Website.WebApi
 {
-	public class SyncController : BaseController, ISyncServer
+	public class SyncController : BaseController, ISyncClient
 	{
 		#region Constructors
 
-		public SyncController() : this(new EntityFrameworkContosoDatabase())
+		public SyncController()
+			: this(new EntityFrameworkContosoDatabase())
 		{
 		}
 
-		public SyncController(IContosoDatabase database) : base(database)
+		public SyncController(IContosoDatabase database)
+			: base(database)
 		{
+			Name = Guid.NewGuid().ToString();
 		}
+
+		#endregion
+
+		#region Properties
+
+		/// <summary>
+		/// Gets or sets the name of the sync client.
+		/// </summary>
+		public string Name { get; }
 
 		#endregion
 
@@ -32,23 +44,32 @@ namespace Speedy.Website.WebApi
 		/// <param name="changes"> The changes to write to the server. </param>
 		/// <returns> The date and time for the sync process. </returns>
 		[HttpPost]
-		public DateTime ApplyChanges([FromBody] IEnumerable<SyncObject> changes)
+		public void ApplyChanges([FromBody] IEnumerable<SyncObject> changes)
 		{
-			var response = DateTime.UtcNow;
 			Database.ApplySyncChanges(changes);
 			Database.SaveChanges();
-			return response;
 		}
 
 		/// <summary>
 		/// Gets the changes from the server.
 		/// </summary>
-		/// <param name="since"> The date and time get changes for. </param>
+		/// <param name="request"> The details for the request. </param>
 		/// <returns> The list of changes from the server. </returns>
 		[HttpPost]
-		public IEnumerable<SyncObject> GetChanges([FromBody] DateTime since)
+		public int GetChangeCount([FromBody] SyncRequest request)
 		{
-			return Database.GetSyncChanges(since);
+			return Database.GetSyncChangeCount(request);
+		}
+
+		/// <summary>
+		/// Gets the changes from the server.
+		/// </summary>
+		/// <param name="request"> The details for the request. </param>
+		/// <returns> The list of changes from the server. </returns>
+		[HttpPost]
+		public IEnumerable<SyncObject> GetChanges([FromBody] SyncRequest request)
+		{
+			return Database.GetSyncChanges(request);
 		}
 
 		#endregion

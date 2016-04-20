@@ -83,8 +83,7 @@
     </Compile>
     <Compile Include="ContosoDatabase.cs" />
     <Compile Include="ContosoDatabaseProvider.cs" />
-    <Compile Include="Sync\SyncClient.cs" />
-    <Compile Include="Sync\SyncServer.cs" />
+    <Compile Include="Sync\ContosoDatabaseSyncClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj">

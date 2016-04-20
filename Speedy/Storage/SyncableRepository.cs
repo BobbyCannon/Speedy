@@ -51,13 +51,27 @@ namespace Speedy.Storage
 		}
 
 		/// <summary>
+		/// Gets the count of changes from the repository.
+		/// </summary>
+		/// <param name="since"> The start date and time get changes for. </param>
+		/// <param name="until"> The end date and time get changes for. </param>
+		/// <returns> The count of changes from the repository. </returns>
+		public int GetChangeCount(DateTime since, DateTime until)
+		{
+			return this.Count(x => x.ModifiedOn >= since && x.ModifiedOn < until);
+		}
+
+		/// <summary>
 		/// Gets the changes from the repository.
 		/// </summary>
-		/// <param name="since"> The date and time get changes for. </param>
+		/// <param name="since"> The start date and time get changes for. </param>
+		/// <param name="until"> The end date and time get changes for. </param>
+		/// <param name="take"> The number of items to take. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		public IEnumerable<SyncObject> GetChanges(DateTime since)
+		public IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int take)
 		{
-			return this.Where(x => x.ModifiedOn >= since)
+			return this.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+				.Take(take)
 				.ToList()
 				.Select(x => x.ToSyncObject())
 				.Where(x => x != null)

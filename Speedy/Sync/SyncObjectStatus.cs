@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Represents the sync state of an entity
 	/// </summary>
-	public enum SyncStatus
+	public enum SyncObjectStatus
 	{
 		/// <summary>
 		/// This entity was added.

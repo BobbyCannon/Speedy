@@ -31,11 +31,21 @@ namespace Speedy
 		void Add(SyncEntity entity);
 
 		/// <summary>
+		/// Gets the count of changes from the repository.
+		/// </summary>
+		/// <param name="since"> The start date and time get changes for. </param>
+		/// <param name="until"> The end date and time get changes for. </param>
+		/// <returns> The count of changes from the repository. </returns>
+		int GetChangeCount(DateTime since, DateTime until);
+
+		/// <summary>
 		/// Gets the changes from the repository.
 		/// </summary>
-		/// <param name="since"> The date and time get changes for. </param>
+		/// <param name="since"> The start date and time get changes for. </param>
+		/// <param name="until"> The end date and time get changes for. </param>
+		/// <param name="take"> The number of items to take. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		IEnumerable<SyncObject> GetChanges(DateTime since);
+		IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int take);
 
 		/// <summary>
 		/// Gets the sync entity by the ID.

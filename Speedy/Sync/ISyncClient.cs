@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System;
 using System.Collections.Generic;
 
 #endregion
@@ -15,25 +14,34 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <summary>
-		/// Gets or sets the last date and time the client synced.
+		/// Gets or sets the name of the sync client.
 		/// </summary>
-		DateTime LastSyncedOn { get; set; }
+		string Name { get; }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Apply changes from the server.
+		/// Sends changes to a server.
 		/// </summary>
-		/// <param name="changes"> The changes from the server. </param>
+		/// <param name="changes"> The changes to write to the server. </param>
+		/// <returns> The date and time for the sync process. </returns>
 		void ApplyChanges(IEnumerable<SyncObject> changes);
 
 		/// <summary>
-		/// Gets the changes from the client.
+		/// Gets the changes from the server.
 		/// </summary>
-		/// <returns> The list of changes from the client. </returns>
-		IEnumerable<SyncObject> GetChanges();
+		/// <param name="request"> The details for the request. </param>
+		/// <returns> The list of changes from the server. </returns>
+		int GetChangeCount(SyncRequest request);
+
+		/// <summary>
+		/// Gets the changes from the server.
+		/// </summary>
+		/// <param name="request"> The details for the request. </param>
+		/// <returns> The list of changes from the server. </returns>
+		IEnumerable<SyncObject> GetChanges(SyncRequest request);
 
 		#endregion
 	}

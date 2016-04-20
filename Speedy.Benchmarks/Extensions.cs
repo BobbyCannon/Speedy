@@ -1,5 +1,7 @@
 ﻿#region References
 
+using System;
+using System.Collections.ObjectModel;
 using Speed.Benchmarks.Properties;
 using Speedy.EntityFramework;
 
@@ -15,6 +17,19 @@ namespace Speed.Benchmarks
 		{
 			database.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 			return database;
+		}
+
+		public static T GetRandomItem<T>(this ObservableCollection<T> collection, T exclude = null) where T : class
+		{
+			var random = new Random();
+			var index = random.Next(0, collection.Count - 1);
+
+			while (collection[index] == exclude)
+			{
+				index = random.Next(0, collection.Count - 1);
+			}
+
+			return collection[index];
 		}
 
 		#endregion

@@ -166,20 +166,64 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets count of changes from the database.
+		/// </summary>
+		/// <param name="database"> The database to query. </param>
+		/// <param name="request"> The details of the request. </param>
+		/// <returns> The count of changes from the server. </returns>
+		public static int GetSyncChangeCount(this IDatabase database, SyncRequest request)
+		{
+			return database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until).Count()
+				+ database.GetSyncableRepositories().Sum(repository => repository.GetChangeCount(request.Since, request.Until));
+		}
+
+		/// <summary>
 		/// Gets the changes from the database.
 		/// </summary>
 		/// <param name="database"> The database to query. </param>
-		/// <param name="since"> The date and time get changes for. </param>
+		/// <param name="request"> The details of the request. </param>
 		/// <returns> The list of changes from the server. </returns>
-		public static IEnumerable<SyncObject> GetSyncChanges(this IDatabase database, DateTime since)
+		public static IEnumerable<SyncObject> GetSyncChanges(this IDatabase database, SyncRequest request)
 		{
 			var response = new List<SyncObject>();
+			var count = 0;
+			var tombstoneQuery = database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until);
+			var tombstoneCount = tombstoneQuery.Count();
 
-			response.AddRange(database.GetSyncTombstones(x => x.CreatedOn >= since).ToList().Select(x => x.ToSyncObject()));
+			if (tombstoneCount > request.Skip)
+			{
+				var tombStones = tombstoneQuery
+					.Take(request.Take)
+					.ToList()
+					.Select(x => x.ToSyncObject())
+					.ToList();
+
+				response.AddRange(tombStones);
+				count += tombStones.Count;
+			}
+
+			if (count >= request.Take)
+			{
+				return response;
+			}
 
 			foreach (var repository in database.GetSyncableRepositories())
 			{
-				response.AddRange(repository.GetChanges(since));
+				var changeCount = repository.GetChangeCount(request.Since, request.Until);
+				if (changeCount + count <= request.Skip)
+				{
+					count += changeCount;
+					continue;
+				}
+
+				var items = repository.GetChanges(request.Since, request.Until, request.Take).ToList();
+				response.AddRange(items);
+				count += items.Count;
+
+				if (count >= request.Take)
+				{
+					return response;
+				}
 			}
 
 			return response;
@@ -247,7 +291,7 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Converts the type to an assembly name. Does not include version.
+		/// Converts the type to an assembly name. Does not include version. Ex. System.String,mscorlib
 		/// </summary>
 		/// <param name="type"> The type to get the assembly name for. </param>
 		/// <returns> The assembly name for the provided type. </returns>
@@ -599,24 +643,24 @@ namespace Speedy
 				var foundEntity = repository.Read(syncEntity.SyncId);
 				var syncStatus = entity.Status;
 
-				if (foundEntity != null && entity.Status == SyncStatus.Added)
+				if (foundEntity != null && entity.Status == SyncObjectStatus.Added)
 				{
-					syncStatus = SyncStatus.Modified;
+					syncStatus = SyncObjectStatus.Modified;
 				}
-				else if (foundEntity == null && entity.Status == SyncStatus.Modified)
+				else if (foundEntity == null && entity.Status == SyncObjectStatus.Modified)
 				{
-					syncStatus = SyncStatus.Added;
+					syncStatus = SyncObjectStatus.Added;
 				}
 
 				switch (syncStatus)
 				{
-					case SyncStatus.Added:
+					case SyncObjectStatus.Added:
 						syncEntity.Id = 0;
 						syncEntity.UpdateLocalRelationships(database);
 						repository.Add(syncEntity);
 						break;
 
-					case SyncStatus.Modified:
+					case SyncObjectStatus.Modified:
 						if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn)
 						{
 							foundEntity.UpdateLocalRelationships(database);
@@ -624,7 +668,7 @@ namespace Speedy
 						}
 						break;
 
-					case SyncStatus.Deleted:
+					case SyncObjectStatus.Deleted:
 						if (foundEntity != null)
 						{
 							repository.Remove(foundEntity);

@@ -1,9 +1,11 @@
 ﻿#region References
 
 using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Net;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
@@ -24,18 +26,54 @@ namespace Speed.Benchmarks
 		public MainWindow()
 		{
 			InitializeComponent();
+			ViewModel = new MainWindowModel();
+			DataContext = ViewModel;
+
+			Worker = new BackgroundWorker();
+			Worker.WorkerReportsProgress = true;
+			Worker.WorkerSupportsCancellation = true;
+			Worker.DoWork += WorkerOnDoWork;
+			Worker.ProgressChanged += WorkerOnProgressChanged;
 		}
+
+		#endregion
+
+		#region Properties
+
+		public MainWindowModel ViewModel { get; }
+
+		public BackgroundWorker Worker { get; set; }
 
 		#endregion
 
 		#region Methods
 
-		private Address NewAddress(string line1, string line2 = "")
+		private static Address NewAddress(string line1, string line2 = "")
 		{
 			return new Address { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
 		}
 
 		private void SyncOnClick(object sender, RoutedEventArgs e)
+		{
+			switch (ViewModel.SyncStatus)
+			{
+				case "Sync":
+					ViewModel.SyncClients.Add(new ContosoDatabaseSyncClient("Client1", new ContosoDatabase()));
+					ViewModel.SyncClients.Add(new ContosoDatabaseSyncClient("Client2", new ContosoDatabase()));
+					ViewModel.SyncClients.Add(new ContosoDatabaseSyncClient("Client3", new ContosoDatabase()));
+					Worker.RunWorkerAsync(ViewModel.SyncClients);
+					break;
+
+				default:
+					Worker.CancelAsync();
+					ViewModel.SyncClients.Clear();
+					break;
+			}
+
+			ViewModel.SyncStatus = ViewModel.SyncStatus == "Sync" ? "Stop" : "Sync";
+		}
+
+		private void SyncOnClick2(object sender, RoutedEventArgs e)
 		{
 			try
 			{
@@ -50,13 +88,14 @@ namespace Speed.Benchmarks
 					database.SaveChanges();
 				}
 
-				var client = new SyncClient();
-				var server = new SyncServerClient("http://localhost");
+				var client = new ContosoDatabaseSyncClient("EF", new EntityFrameworkContosoDatabase());
+				var server = new WebSyncClient("http://localhost");
 
 				client.Addresses.Add(NewAddress("Blah"));
 				client.SaveChanges();
-				
-				SyncEngine.PullAndPushChanges(client, server);
+
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 				client.SaveChanges();
 
 				using (var serverDatabase = new EntityFrameworkContosoDatabase())
@@ -76,9 +115,35 @@ namespace Speed.Benchmarks
 			}
 		}
 
+		private static void WorkerOnDoWork(object sender, DoWorkEventArgs args)
+		{
+			var worker = (BackgroundWorker) sender;
+			var timeout = DateTime.UtcNow;
+			var collection = (ObservableCollection<ISyncClient>) args.Argument;
+
+			while (!worker.CancellationPending)
+			{
+				if (timeout < DateTime.UtcNow)
+				{
+					Thread.Sleep(100);
+					continue;
+				}
+
+				var first = collection.GetRandomItem();
+				var next = collection.GetRandomItem(first);
+
+				//SyncEngine.PullAndPushChanges(first, next);
+			}
+		}
+
+		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs args)
+		{
+			
+		}
+
 		private void WriteLine(string message)
 		{
-			Output.Text += message + Environment.NewLine;
+			ViewModel.Output += message + Environment.NewLine;
 		}
 
 		#endregion

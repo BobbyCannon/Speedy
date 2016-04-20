@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Net;
@@ -32,13 +33,13 @@ namespace Speedy.Tests
 				database.SaveChanges();
 			}
 
-			var client = new SyncClient();
-			var server = new SyncServerClient("http://localhost");
+			var client = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
+			var server = new WebSyncClient("http://localhost");
 
 			client.Addresses.Add(NewAddress("Blah"));
 			client.SaveChanges();
 
-			SyncEngine.PullAndPushChanges(client, server);
+			var engine = new SyncEngine(client, server, DateTime.MinValue); engine.Run();
 			client.SaveChanges();
 
 			using (var serverDatabase = new EntityFrameworkContosoDatabase())
