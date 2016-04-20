@@ -1,9 +1,11 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using Speedy.Net;
@@ -120,10 +122,11 @@ namespace Speed.Benchmarks
 			var worker = (BackgroundWorker) sender;
 			var timeout = DateTime.UtcNow;
 			var collection = (ObservableCollection<ISyncClient>) args.Argument;
+			var lastSynced = new Dictionary<string, DateTime>();
 
 			while (!worker.CancellationPending)
 			{
-				if (timeout < DateTime.UtcNow)
+				if (timeout > DateTime.UtcNow)
 				{
 					Thread.Sleep(100);
 					continue;
@@ -131,14 +134,27 @@ namespace Speed.Benchmarks
 
 				var first = collection.GetRandomItem();
 				var next = collection.GetRandomItem(first);
+				var key = first.Name + next.Name;
+				var lastSyncedOn = lastSynced.ContainsKey(key) ? lastSynced[key] : DateTime.MinValue;
 
-				//SyncEngine.PullAndPushChanges(first, next);
+				var engine = new SyncEngine(first, next, lastSyncedOn);
+				engine.SyncStatusChanged += (o, a) => worker.ReportProgress((int) a.Percent, a);
+				engine.Run();
+				
+				while (engine.Status != SyncEngineStatus.Stopped && !worker.CancellationPending)
+				{
+					Thread.Sleep(100);
+				}
+
+				engine.Stop();
+				timeout = DateTime.UtcNow.AddSeconds(5);
 			}
 		}
 
 		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs args)
 		{
-			
+			var status = (SyncEngineStatusArgs) args.UserState;
+			WriteLine($"{args.ProgressPercentage}:{status.Status}");
 		}
 
 		private void WriteLine(string message)

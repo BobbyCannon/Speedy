@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 #endregion
 
@@ -13,6 +14,12 @@ namespace Speedy.Sync
 	/// </summary>
 	public class SyncEngine
 	{
+		#region Fields
+
+		private bool _cancelPending;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -23,6 +30,8 @@ namespace Speedy.Sync
 		/// <param name="lastSyncedOn"> The last date and time the database synced. </param>
 		public SyncEngine(ISyncClient client, ISyncClient server, DateTime lastSyncedOn)
 		{
+			_cancelPending = false;
+
 			Client = client;
 			Server = server;
 			LastSyncedOn = lastSyncedOn;
@@ -62,18 +71,44 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
-		/// Start to sync the systems.
+		/// Start to sync process.
 		/// </summary>
-		public void Run()
+		public async void Run()
 		{
 			Status = SyncEngineStatus.Starting;
-			StartTime = DateTime.UtcNow;
 
-			Status = SyncEngineStatus.Pulling;
-			Process(Server, Client);
+			await Extensions.Wrap(() =>
+			{
+				StartTime = DateTime.UtcNow;
 
-			Status = SyncEngineStatus.Pushing;
-			Process(Client, Server);
+				if (!_cancelPending)
+				{
+					Status = SyncEngineStatus.Pulling;
+					Process(Server, Client);
+				}
+
+				if (!_cancelPending)
+				{
+					Status = SyncEngineStatus.Pushing;
+					Process(Client, Server);
+				}
+
+				Status = SyncEngineStatus.Stopped;
+			});
+		}
+
+		/// <summary>
+		/// Stops the sync process.
+		/// </summary>
+		public void Stop()
+		{
+			_cancelPending = true;
+			var timeOut = DateTime.UtcNow.AddSeconds(30);
+
+			while (Status != SyncEngineStatus.Stopped && DateTime.UtcNow <= timeOut)
+			{
+				Thread.Sleep(10);
+			}
 		}
 
 		private void OnSyncStatusChanged(SyncEngineStatusArgs args)
@@ -91,16 +126,14 @@ namespace Speedy.Sync
 			List<SyncObject> changes;
 			var request = new SyncRequest { Since = LastSyncedOn, Until = StartTime, Skip = 0, Take = 512 };
 			var total = getClient.GetChangeCount(request);
-			
+
 			do
 			{
 				changes = getClient.GetChanges(request).ToList();
-				OnSyncStatusChanged(new SyncEngineStatusArgs { Count = request.Skip, Total = total, Status = Status });
 				applyClient.ApplyChanges(changes);
+				OnSyncStatusChanged(new SyncEngineStatusArgs { Count = request.Skip, Total = total, Status = Status });
 				request.Skip += changes.Count;
-			} while (changes.Count > 0 || request.Skip < total);
-
-			OnSyncStatusChanged(new SyncEngineStatusArgs { Count = request.Skip, Total = total, Status = Status });
+			} while (!_cancelPending && (changes.Count > 0 || request.Skip < total));
 		}
 
 		#endregion

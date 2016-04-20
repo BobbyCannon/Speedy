@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Speedy.Storage;
@@ -694,6 +695,11 @@ namespace Speedy
 			ordered = order.Skip(1).Aggregate(ordered, (current, typeName) => current.ThenBy(x => x.TypeName == typeName));
 
 			return ordered;
+		}
+
+		internal static Task Wrap(Action action)
+		{
+			return Task.Factory.StartNew(action);
 		}
 
 		#endregion

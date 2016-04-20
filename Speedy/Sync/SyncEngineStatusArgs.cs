@@ -31,7 +31,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets the percentage of progress. Ranging from [0.00] to [100.00].
 		/// </summary>
-		public decimal Percent => Math.Round((decimal) Count / Total * 100, 2);
+		public decimal Percent => Total == 0 ? 0 : Math.Round((decimal) Count / Total * 100, 2);
 
 		#endregion
 	}
