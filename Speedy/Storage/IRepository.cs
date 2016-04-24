@@ -18,11 +18,13 @@ namespace Speedy.Storage
 
 		int SaveChanges();
 
-		void UpdateRelationships();
-
 		void UpdateLocalSyncIds();
 
+		void UpdateRelationships();
+
 		void ValidateEntities();
+
+		bool HasDependentRelationship(object[] value, int id);
 
 		#endregion
 	}

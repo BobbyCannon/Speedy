@@ -68,7 +68,7 @@ namespace Speedy
 		/// Removes a set of entities from the repository.
 		/// </summary>
 		/// <param name="filter"> The filter of the entities to remove. </param>
-		void RemoveRange(Expression<Func<T, bool>> filter);
+		void Remove(Expression<Func<T, bool>> filter);
 
 		#endregion
 	}

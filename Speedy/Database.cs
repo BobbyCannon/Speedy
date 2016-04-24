@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -106,14 +107,15 @@ namespace Speedy
 				return syncableRepositories.Cast<ISyncableRepository>();
 			}
 
+			var order = Options.SyncOrder.Reverse().ToList();
 			var query = Repositories
 				.Where(x => x.Value is ISyncableRepository)
-				.OrderBy(x => x.Key == Options.SyncOrder[0]);
+				.OrderBy(x => x.Key == order[0]);
 
-			query = Options.SyncOrder.Skip(1).Aggregate(query, (current, key) => current.ThenBy(x => x.Key == key));
+			query = order.Skip(1).Aggregate(query, (current, key) => current.ThenBy(x => x.Key == key));
 			return query.Select(x => x.Value).Cast<ISyncableRepository>();
 		}
-		
+
 		/// <summary>
 		/// Gets a syncable repository for the provided type.
 		/// </summary>
@@ -154,13 +156,13 @@ namespace Speedy
 				throw new OverflowException("Database save changes stuck in a processing loop.");
 			}
 
-			var response = 0;
 			Repositories.Values.ForEach(x => x.ValidateEntities());
 			Repositories.Values.ForEach(x => x.UpdateRelationships());
 			Repositories.Values.ForEach(x => x.AssignKeys());
 			Repositories.Values.ForEach(x => x.UpdateLocalSyncIds());
 			Repositories.Values.ForEach(x => x.UpdateRelationships());
-			Repositories.Values.ForEach(x => response += x.SaveChanges());
+
+			var response = Repositories.Values.Sum(x => x.SaveChanges());
 
 			if (Repositories.Any(x => x.Value.HasChanges()))
 			{
@@ -261,14 +263,14 @@ namespace Speedy
 
 			var value = Relationships[key];
 			var repository = (IRepository<T2>) value[0];
-			var foreignEntity = (Expression<Func<T2, T1>>) value[1];
+			var entityExpression = (Expression<Func<T2, T1>>) value[1];
 			var entityFunction = (Func<T2, T1>) value[2];
-			var foreignKey = (Expression<Func<T2, int>>) value[3];
-			var keyFunction = (Func<T2, int>) value[4];
+			var foreignKeyExpression = (Expression<Func<T2, int>>) value[3];
+			var foreignKeyFunction = (Func<T2, int>) value[4];
 
 			var response = new RelationshipRepository<T2>((Repository<T2>) repository, x =>
 			{
-				var invokedKey = keyFunction.Invoke(x);
+				var invokedKey = foreignKeyFunction.Invoke(x);
 				if (invokedKey == entity.Id)
 				{
 					return true;
@@ -280,11 +282,11 @@ namespace Speedy
 			{
 				if (entity?.Id > 0)
 				{
-					AssignNewValue(x, foreignKey, entity.Id);
+					AssignNewValue(x, foreignKeyExpression, entity.Id);
 				}
 				else
 				{
-					AssignNewValue(x, foreignEntity, entity);
+					AssignNewValue(x, entityExpression, entity);
 				}
 			}, x =>
 			{
@@ -294,7 +296,7 @@ namespace Speedy
 					return;
 				}
 
-				var invokedKey = keyFunction.Invoke(x);
+				var invokedKey = foreignKeyFunction.Invoke(x);
 				if (invokedKey != invokedEntity.Id)
 				{
 					invokedEntity.Id = invokedKey;
@@ -303,6 +305,25 @@ namespace Speedy
 
 			collection.ForEach(x => response.AddOrUpdate((T2) x));
 			return response;
+		}
+
+		private void DeletingEntity(Entity entity)
+		{
+			var key = entity.GetRealType().Name;
+
+			foreach (var relationship in Relationships.Where(x => x.Key.StartsWith(key)))
+			{
+				Debug.WriteLine(relationship.Key);
+
+				var repository = (IRepository) relationship.Value[0];
+				if (!repository.HasDependentRelationship(relationship.Value, entity.Id))
+				{
+					continue;
+				}
+
+				var message = "The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.";
+				throw new InvalidOperationException(message);
+			}
 		}
 
 		private Repository<T> GetEntityRepository<T>() where T : Entity, new()
@@ -316,6 +337,7 @@ namespace Speedy
 			}
 
 			var repository = new Repository<T>(this);
+			repository.DeletingEntity += DeletingEntity;
 			repository.UpdateEntityRelationships += UpdateEntityRelationships;
 			repository.ValidateEntity += ValidateEntity;
 			repository.Initialize();
@@ -357,6 +379,7 @@ namespace Speedy
 			}
 
 			var repository = new SyncableRepository<T>(this);
+			repository.DeletingEntity += DeletingEntity;
 			repository.UpdateEntityRelationships += UpdateEntityRelationships;
 			repository.ValidateEntity += ValidateEntity;
 			repository.Initialize();

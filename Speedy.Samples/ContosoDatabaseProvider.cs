@@ -1,4 +1,6 @@
-﻿namespace Speedy.Samples
+﻿using System;
+
+namespace Speedy.Samples
 {
 	public class ContosoDatabaseProvider : IContosoDatabaseProvider
 	{
@@ -13,15 +15,20 @@
 		public ContosoDatabaseProvider(string directory = null)
 		{
 			_directory = directory;
+			MemoryDatabase = new Lazy<ContosoDatabase>(() => new ContosoDatabase(), true);
 		}
 
 		#endregion
 
+		private Lazy<ContosoDatabase> MemoryDatabase { get; }
+
 		#region Methods
 
-		public IContosoDatabase CreateContext()
+		public IContosoDatabase GetDatabase()
 		{
-			return new ContosoDatabase(_directory);
+			return string.IsNullOrEmpty(_directory)
+				? MemoryDatabase.Value
+				: new ContosoDatabase(_directory);
 		}
 
 		#endregion

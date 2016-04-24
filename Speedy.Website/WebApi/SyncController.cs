@@ -44,10 +44,9 @@ namespace Speedy.Website.WebApi
 		/// <param name="changes"> The changes to write to the server. </param>
 		/// <returns> The date and time for the sync process. </returns>
 		[HttpPost]
-		public void ApplyChanges([FromBody] IEnumerable<SyncObject> changes)
+		public IEnumerable<SyncIssue> ApplyChanges([FromBody] IEnumerable<SyncObject> changes)
 		{
-			Database.ApplySyncChanges(changes);
-			Database.SaveChanges();
+			return Database.ApplySyncChanges(changes);
 		}
 
 		/// <summary>

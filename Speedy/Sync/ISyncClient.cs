@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 
 #endregion
@@ -27,7 +28,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="changes"> The changes to write to the server. </param>
 		/// <returns> The date and time for the sync process. </returns>
-		void ApplyChanges(IEnumerable<SyncObject> changes);
+		IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes);
 
 		/// <summary>
 		/// Gets the changes from the server.

@@ -19,12 +19,11 @@ namespace Speedy.EntityFramework
 	/// <summary>
 	/// Represents an Entity Framework Speedy database.
 	/// </summary>
-	public abstract class EntityFrameworkDatabase : DbContext, IDatabase
+	public abstract class EntityFrameworkDatabase : DbContext, ISyncableDatabase
 	{
 		#region Fields
 
 		private int _saveChangeCount;
-
 		private readonly ConcurrentDictionary<string, ISyncableRepository> _syncableRepositories;
 		private IRepository<SyncTombstone> _syncTombstones;
 
@@ -94,8 +93,9 @@ namespace Speedy.EntityFramework
 				return _syncableRepositories.Values;
 			}
 
-			var ordered = _syncableRepositories.OrderBy(x => x.Key == Options.SyncOrder[0]);
-			ordered = Options.SyncOrder.Skip(1).Aggregate(ordered, (current, key) => current.ThenBy(x => x.Key == key));
+			var order = Options.SyncOrder.Reverse().ToList();
+			var ordered = _syncableRepositories.OrderBy(x => x.Key == order[0]);
+			ordered = order.Skip(1).Aggregate(ordered, (current, key) => current.ThenBy(x => x.Key == key));
 
 			return ordered.Select(x => x.Value);
 		}

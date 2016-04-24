@@ -35,7 +35,8 @@ namespace Speedy.Samples.Mappings
 			// Relationships
 			HasOptional(x => x.LinkedAddress)
 				.WithMany()
-				.HasForeignKey(x => x.LinkedAddressId);
+				.HasForeignKey(x => x.LinkedAddressId)
+				.WillCascadeOnDelete(false);
 		}
 
 		#endregion

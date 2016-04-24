@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -17,6 +19,7 @@ namespace Speedy.Sync
 		#region Fields
 
 		private bool _cancelPending;
+		private readonly List<SyncIssue> _syncIssues;
 
 		#endregion
 
@@ -31,6 +34,7 @@ namespace Speedy.Sync
 		public SyncEngine(ISyncClient client, ISyncClient server, DateTime lastSyncedOn)
 		{
 			_cancelPending = false;
+			_syncIssues = new List<SyncIssue>();
 
 			Client = client;
 			Server = server;
@@ -66,6 +70,11 @@ namespace Speedy.Sync
 		/// </summary>
 		public SyncEngineStatus Status { get; set; }
 
+		/// <summary>
+		/// Gets the list of issues that happened during syncing.
+		/// </summary>
+		public IReadOnlyList<SyncIssue> SyncIssues => new ReadOnlyCollection<SyncIssue>(_syncIssues);
+
 		#endregion
 
 		#region Methods
@@ -73,28 +82,39 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Start to sync process.
 		/// </summary>
-		public async void Run()
+		public void Run()
+		{
+			_cancelPending = false;
+			_syncIssues.Clear();
+
+			Status = SyncEngineStatus.Starting;
+			NotifyOfStatusChange();
+
+			StartTime = DateTime.UtcNow;
+
+			if (!_cancelPending)
+			{
+				Status = SyncEngineStatus.Pulling;
+				Process(Server, Client, StartTime);
+			}
+
+			if (!_cancelPending)
+			{
+				Status = SyncEngineStatus.Pushing;
+				Process(Client, Server, DateTime.UtcNow);
+			}
+
+			Status = SyncEngineStatus.Stopped;
+			NotifyOfStatusChange();
+		}
+
+		/// <summary>
+		/// Start to sync process.
+		/// </summary>
+		public async void RunAsync()
 		{
 			Status = SyncEngineStatus.Starting;
-
-			await Extensions.Wrap(() =>
-			{
-				StartTime = DateTime.UtcNow;
-
-				if (!_cancelPending)
-				{
-					Status = SyncEngineStatus.Pulling;
-					Process(Server, Client);
-				}
-
-				if (!_cancelPending)
-				{
-					Status = SyncEngineStatus.Pushing;
-					Process(Client, Server);
-				}
-
-				Status = SyncEngineStatus.Stopped;
-			});
+			await Extensions.Wrap(Run);
 		}
 
 		/// <summary>
@@ -111,6 +131,15 @@ namespace Speedy.Sync
 			}
 		}
 
+		/// <summary>
+		/// Notify that the global status has changed.
+		/// </summary>
+		private void NotifyOfStatusChange()
+		{
+			OnSyncStatusChanged(new SyncEngineStatusArgs { Name = Client.Name, Count = -1, Total = -1, Status = Status });
+			OnSyncStatusChanged(new SyncEngineStatusArgs { Name = Server.Name, Count = -1, Total = -1, Status = Status });
+		}
+
 		private void OnSyncStatusChanged(SyncEngineStatusArgs args)
 		{
 			SyncStatusChanged?.Invoke(this, args);
@@ -121,19 +150,26 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="getClient"> The client to get changes from. </param>
 		/// <param name="applyClient"> The client to apply change to. </param>
-		private void Process(ISyncClient getClient, ISyncClient applyClient)
+		/// <param name="until"> The end date and time to get changes for. </param>
+		private void Process(ISyncClient getClient, ISyncClient applyClient, DateTime until)
 		{
 			List<SyncObject> changes;
-			var request = new SyncRequest { Since = LastSyncedOn, Until = StartTime, Skip = 0, Take = 512 };
+			var request = new SyncRequest { Since = LastSyncedOn, Until = until, Skip = 0, Take = 1 };
 			var total = getClient.GetChangeCount(request);
+			Debug.WriteLine("\r\nSEP: " + getClient.Name + " -> " + applyClient.Name + " for Total = " + total + " Since: " + request.Since + " Until: " + request.Until);
 
 			do
 			{
 				changes = getClient.GetChanges(request).ToList();
-				applyClient.ApplyChanges(changes);
-				OnSyncStatusChanged(new SyncEngineStatusArgs { Count = request.Skip, Total = total, Status = Status });
+				_syncIssues.AddRange(applyClient.ApplyChanges(changes));
+				OnSyncStatusChanged(new SyncEngineStatusArgs { Name = applyClient.Name, Count = request.Skip, Total = total, Status = Status });
 				request.Skip += changes.Count;
-			} while (!_cancelPending && (changes.Count > 0 || request.Skip < total));
+			} while (!_cancelPending && changes.Count > 0 && request.Skip < total);
+
+			if (request.Skip != total)
+			{
+				Debug.WriteLine("\r\n\r\n **** Incomplete Sync ****");
+			}
 		}
 
 		#endregion

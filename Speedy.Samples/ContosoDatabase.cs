@@ -25,6 +25,8 @@ namespace Speedy.Samples
 			Addresses = GetSyncableRepository<Address>();
 			Foods = GetRepository<Food>();
 			FoodRelationships = GetRepository<FoodRelationship>();
+			GroupMembers = GetSyncableRepository<GroupMember>();
+			Groups = GetSyncableRepository<Group>();
 			LogEvents = GetRepository<LogEvent>();
 			People = GetSyncableRepository<Person>();
 			SyncTombstones = GetSyncTombstonesRepository<SyncTombstone>();
@@ -42,12 +44,16 @@ namespace Speedy.Samples
 			// Food Map
 			Property<Food>(x => x.Name).IsRequired().HasMaximumLength(256);
 
-			// Food Relationship 
+			// Food Relationship Map
 			Property<FoodRelationship>(x => x.Quantity).IsRequired();
 			HasMany<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, x => x.Children);
 			HasMany<FoodRelationship, Food>(x => x.Child, x => x.ChildId, x => x.Parents);
 			Property<FoodRelationship>(x => x.ParentId).IsRequired();
 			Property<FoodRelationship>(x => x.ChildId).IsRequired();
+
+			// Group Member Map
+			HasMany<GroupMember, Person>(p => p.Member, p => p.MemberId, a => a.Groups);
+			HasMany<GroupMember, Group>(p => p.Group, p => p.GroupId, a => a.Members);
 
 			// LogEvent Map
 			Property<LogEvent>(x => x.Message).IsRequired().HasMaximumLength(900);
@@ -62,7 +68,9 @@ namespace Speedy.Samples
 			SyncOrder = new[]
 			{
 				typeof(Address).FullName,
-				typeof(Person).FullName
+				typeof(Person).FullName,
+				typeof(Group).FullName,
+				typeof(GroupMember).FullName
 			};
 		}
 
@@ -75,6 +83,10 @@ namespace Speedy.Samples
 		public IRepository<FoodRelationship> FoodRelationships { get; }
 
 		public IRepository<Food> Foods { get; }
+
+		public IRepository<GroupMember> GroupMembers { get; }
+
+		public IRepository<Group> Groups { get; }
 
 		public IRepository<LogEvent> LogEvents { get; }
 

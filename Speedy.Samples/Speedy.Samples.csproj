@@ -55,14 +55,18 @@
     <Compile Include="Entities\Food.cs" />
     <Compile Include="Entities\FoodRelationship.cs" />
     <Compile Include="Entities\Person.cs" />
+    <Compile Include="Entities\Group.cs" />
+    <Compile Include="Entities\GroupMember.cs" />
     <Compile Include="EntityFrameworkContosoDatabaseProvider.cs" />
     <Compile Include="IContosoDatabaseProvider.cs" />
     <Compile Include="IContosoDatabase.cs" />
+    <Compile Include="Mappings\GroupMemberMap.cs" />
     <Compile Include="Mappings\LogEventMap.cs" />
     <Compile Include="Mappings\AddressMap.cs" />
     <Compile Include="Mappings\FoodMap.cs" />
     <Compile Include="Mappings\FoodRelationshipMap.cs" />
     <Compile Include="Entities\LogEvent.cs" />
+    <Compile Include="Mappings\GroupMap.cs" />
     <Compile Include="Mappings\SyncTombstoneMap.cs" />
     <Compile Include="Mappings\PersonMap.cs" />
     <Compile Include="Migrations\201603281304179_InitialDatabase.cs" />
@@ -72,6 +76,10 @@
     <Compile Include="Migrations\201604170130020_AddedSyncEntity.cs" />
     <Compile Include="Migrations\201604170130020_AddedSyncEntity.Designer.cs">
       <DependentUpon>201604170130020_AddedSyncEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201604231709518_AddedGroupEntities.cs" />
+    <Compile Include="Migrations\201604231709518_AddedGroupEntities.Designer.cs">
+      <DependentUpon>201604231709518_AddedGroupEntities.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="EntityFrameworkContosoDatabase.cs" />
@@ -83,7 +91,9 @@
     </Compile>
     <Compile Include="ContosoDatabase.cs" />
     <Compile Include="ContosoDatabaseProvider.cs" />
-    <Compile Include="Sync\ContosoDatabaseSyncClient.cs" />
+    <Compile Include="Sync\ContosoSyncClient.cs" />
+    <Compile Include="Sync\ContosoWebSyncClient.cs" />
+    <Compile Include="Sync\IContosoSyncClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj">
@@ -105,6 +115,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201604170130020_AddedSyncEntity.resx">
       <DependentUpon>201604170130020_AddedSyncEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201604231709518_AddedGroupEntities.resx">
+      <DependentUpon>201604231709518_AddedGroupEntities.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

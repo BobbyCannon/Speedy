@@ -1,41 +1,38 @@
 ﻿#region References
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using Speedy.Samples.Entities;
 using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Samples.Sync
 {
-	public class ContosoDatabaseSyncClient : ISyncClient
+	public class ContosoSyncClient : IContosoSyncClient
 	{
 		#region Fields
 
-		private readonly IContosoDatabase _database;
+		private readonly IContosoDatabaseProvider _provider;
 
 		#endregion
 
 		#region Constructors
 
-		public ContosoDatabaseSyncClient(string name, IContosoDatabase database)
+		public ContosoSyncClient(string name, IContosoDatabaseProvider provider)
 		{
+			_provider = provider;
+
 			Name = name;
-			_database = database;
+			Database = _provider.GetDatabase();
 		}
 
 		#endregion
 
 		#region Properties
 
-		public IRepository<Address> Addresses => _database.Addresses;
+		public IContosoDatabase Database { get; }
 
 		public string Name { get; }
-
-		public IRepository<Person> People => _database.People;
 
 		#endregion
 
@@ -46,18 +43,9 @@ namespace Speedy.Samples.Sync
 		/// </summary>
 		/// <param name="changes"> The changes to write to the server. </param>
 		/// <returns> The date and time for the sync process. </returns>
-		public void ApplyChanges(IEnumerable<SyncObject> changes)
+		public IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes)
 		{
-			_database.ApplySyncChanges(changes);
-			SaveChanges();
-		}
-
-		public static ContosoDatabaseSyncClient Create(string name, IContosoDatabase database, Address item)
-		{
-			var client = new ContosoDatabaseSyncClient(name, database);
-			client.Addresses.Add(item.DeepClone(false));
-			client.SaveChanges();
-			return client;
+			return Database.ApplySyncChanges(changes);
 		}
 
 		/// <summary>
@@ -67,7 +55,7 @@ namespace Speedy.Samples.Sync
 		/// <returns> The list of changes from the server. </returns>
 		public int GetChangeCount(SyncRequest request)
 		{
-			return _database.GetSyncChangeCount(request);
+			return Database.GetSyncChangeCount(request);
 		}
 
 		/// <summary>
@@ -77,12 +65,17 @@ namespace Speedy.Samples.Sync
 		/// <returns> The list of changes from the server. </returns>
 		public IEnumerable<SyncObject> GetChanges(SyncRequest request)
 		{
-			return _database.GetSyncChanges(request);
+			return Database.GetSyncChanges(request);
+		}
+
+		public IContosoDatabase GetDatabase()
+		{
+			return _provider.GetDatabase();
 		}
 
 		public void SaveChanges()
 		{
-			_database.SaveChanges();
+			Database.SaveChanges();
 			Thread.Sleep(1);
 		}
 

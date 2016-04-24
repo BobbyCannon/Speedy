@@ -19,7 +19,7 @@
 
 		#region Methods
 
-		public IContosoDatabase CreateContext()
+		public IContosoDatabase GetDatabase()
 		{
 			return new EntityFrameworkContosoDatabase(_connectionString);
 		}

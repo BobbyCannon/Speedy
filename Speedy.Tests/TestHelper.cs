@@ -12,6 +12,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Speedy.EntityFramework;
 using Speedy.Samples;
+using Speedy.Samples.Sync;
+using Speedy.Sync;
 using Speedy.Tests.Properties;
 
 #endregion
@@ -36,6 +38,13 @@ namespace Speedy.Tests
 		#endregion
 
 		#region Methods
+
+		public static void AddAndSaveChanges<T>(this IContosoDatabase database, T item) where T : SyncEntity
+		{
+			var repository = database.GetSyncableRepository(item.GetType());
+			repository.Add(item);
+			database.SaveChanges();
+		}
 
 		/// <summary>
 		/// Compares two objects to see if they are equal.
@@ -90,30 +99,43 @@ namespace Speedy.Tests
 			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
 			var contextProvider1 = new Mock<IContosoDatabaseProvider>();
-			contextProvider1.Setup(x => x.CreateContext()).Returns(() => new EntityFrameworkContosoDatabase());
+			contextProvider1.Setup(x => x.GetDatabase()).Returns(() => new EntityFrameworkContosoDatabase());
 
 			var context2 = new ContosoDatabase();
 			var contextProvider2 = new Mock<IContosoDatabaseProvider>();
-			contextProvider2.Setup(x => x.CreateContext()).Returns(context2);
+			contextProvider2.Setup(x => x.GetDatabase()).Returns(context2);
 
 			var contextProvider3 = new Mock<IContosoDatabaseProvider>();
-			contextProvider3.Setup(x => x.CreateContext()).Returns(() => new ContosoDatabase(Directory.FullName));
+			contextProvider3.Setup(x => x.GetDatabase()).Returns(() => new ContosoDatabase(Directory.FullName));
 
 			return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
 		}
 
-		public static IEnumerable<IContosoDatabase> GetDataContexts()
+		public static IEnumerable<IContosoDatabase> GetDataContexts(DatabaseOptions options = null)
 		{
-			var context1 = new EntityFrameworkContosoDatabase();
+			var context1 = new EntityFrameworkContosoDatabase(options);
 			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
-			return new IContosoDatabase[] { context1, new ContosoDatabase(), new ContosoDatabase(Directory.FullName) };
+			yield return context1;
+			yield return new ContosoDatabase(null, options);
+			yield return new ContosoDatabase(Directory.FullName, options);
 		}
 
 		public static void Initialize()
 		{
-			Directory.SafeDelete();
-			Directory.SafeCreate();
+			Wait(() =>
+			{
+				try
+				{
+					Directory.SafeDelete();
+					Directory.SafeCreate();
+					return true;
+				}
+				catch
+				{
+					return false;
+				}
+			});
 		}
 
 		/// <summary>
@@ -151,6 +173,15 @@ namespace Speedy.Tests
 			});
 		}
 
+		public static void TestServerAndClients(Action<IContosoSyncClient, IContosoSyncClient> action)
+		{
+			GetServerClientScenerios().ForEach(x =>
+			{
+				Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
+				action(x.Item1, x.Item2);
+			});
+		}
+
 		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
 		{
 			builder.AppendLine(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
@@ -173,6 +204,23 @@ namespace Speedy.Tests
 			{
 				AddExceptionToBuilder(builder, ex.InnerException);
 			}
+		}
+
+		private static IContosoDatabaseProvider GetEntityFrameworkProvider()
+		{
+			using (var database = new EntityFrameworkContosoDatabase())
+			{
+				database.ClearDatabase();
+				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
+			}
+		}
+
+		private static IEnumerable<Tuple<IContosoSyncClient, IContosoSyncClient>> GetServerClientScenerios()
+		{
+			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (MEM)", new ContosoDatabaseProvider()), new ContosoSyncClient("Client (EF)", GetEntityFrameworkProvider()));
+			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (MEM)", new ContosoDatabaseProvider()), new ContosoWebSyncClient("Client (WEB)", GetEntityFrameworkProvider()));
+			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (EF)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (MEM)", new ContosoDatabaseProvider()));
+			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoWebSyncClient("Server (WEB)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (MEM)", new ContosoDatabaseProvider()));
 		}
 
 		/// <summary>

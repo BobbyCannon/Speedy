@@ -152,7 +152,7 @@ namespace Speedy.EntityFramework
 		/// Removes a set of entities from the repository.
 		/// </summary>
 		/// <param name="filter"> The filter of the entities to remove. </param>
-		public void RemoveRange(Expression<Func<T, bool>> filter)
+		public void Remove(Expression<Func<T, bool>> filter)
 		{
 			Set.RemoveRange(Set.Where(filter));
 		}

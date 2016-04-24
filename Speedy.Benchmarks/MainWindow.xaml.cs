@@ -1,14 +1,14 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using Speedy.Net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Samples.Sync;
@@ -35,6 +35,7 @@ namespace Speed.Benchmarks
 			Worker.WorkerReportsProgress = true;
 			Worker.WorkerSupportsCancellation = true;
 			Worker.DoWork += WorkerOnDoWork;
+			Worker.RunWorkerCompleted += WorkerOnRunWorkerCompleted;
 			Worker.ProgressChanged += WorkerOnProgressChanged;
 		}
 
@@ -50,9 +51,28 @@ namespace Speed.Benchmarks
 
 		#region Methods
 
-		private static Address NewAddress(string line1, string line2 = "")
+		private void Clear()
 		{
-			return new Address { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
+			if (!Dispatcher.CheckAccess())
+			{
+				Dispatcher.Invoke(Clear);
+				return;
+			}
+
+			ViewModel.Output = string.Empty;
+		}
+
+		private static void CompareClients(IContosoSyncClient client, IContosoSyncClient server)
+		{
+			Assert.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
+			Assert.AreEqual(server.Database.People.Count(), client.Database.People.Count());
+			Extensions.AreEqual(server.Database.Addresses, client.Database.Addresses);
+			Extensions.AreEqual(server.Database.People, client.Database.People);
+		}
+
+		private void MainWindowOnClosing(object sender, CancelEventArgs e)
+		{
+			Worker.CancelAsync();
 		}
 
 		private void SyncOnClick(object sender, RoutedEventArgs e)
@@ -60,9 +80,13 @@ namespace Speed.Benchmarks
 			switch (ViewModel.SyncStatus)
 			{
 				case "Sync":
-					ViewModel.SyncClients.Add(new ContosoDatabaseSyncClient("Client1", new ContosoDatabase()));
-					ViewModel.SyncClients.Add(new ContosoDatabaseSyncClient("Client2", new ContosoDatabase()));
-					ViewModel.SyncClients.Add(new ContosoDatabaseSyncClient("Client3", new ContosoDatabase()));
+					ViewModel.SyncClients.Clear();
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Server", new ContosoDatabaseProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 1", new ContosoDatabaseProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 2", new ContosoDatabaseProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 3", new ContosoDatabaseProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 4", new ContosoDatabaseProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 5", new ContosoDatabaseProvider())));
 					Worker.RunWorkerAsync(ViewModel.SyncClients);
 					break;
 
@@ -75,54 +99,89 @@ namespace Speed.Benchmarks
 			ViewModel.SyncStatus = ViewModel.SyncStatus == "Sync" ? "Stop" : "Sync";
 		}
 
-		private void SyncOnClick2(object sender, RoutedEventArgs e)
+		private bool UpdateClient(ContosoSyncClient client, bool forceAdd = false)
 		{
-			try
+			var number = Extensions.Random.Next(0, 100);
+			var result = false;
+
+			if (number % 5 == 0) // 20%
 			{
-				using (var database = new EntityFrameworkContosoDatabase())
+				// Delete Person or Address?
+				if (number > 50)
 				{
-					database.ClearDatabase();
-
-					var address = NewAddress("Foo");
-					var person = new Person { Address = address, Name = "John Smith" };
-
-					database.People.Add(person);
-					database.SaveChanges();
+					var person = client.Database.People.GetRandomItem();
+					if (person != null)
+					{
+						Debug.WriteLine("Delete P: " + person.SyncId + " on " + client.Name);
+						client.Database.People.Remove(person);
+					}
 				}
-
-				var client = new ContosoDatabaseSyncClient("EF", new EntityFrameworkContosoDatabase());
-				var server = new WebSyncClient("http://localhost");
-
-				client.Addresses.Add(NewAddress("Blah"));
-				client.SaveChanges();
-
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
-				engine.Run();
-				client.SaveChanges();
-
-				using (var serverDatabase = new EntityFrameworkContosoDatabase())
+				else
 				{
-					WriteLine($"{client.Addresses.Count()} Client Addresses");
-					WriteLine($"{serverDatabase.Addresses.Count()} Server Addresses");
-
-					var failed = client.Addresses.Count() != 1 || serverDatabase.Addresses.Count() != 1;
-					var message = failed ? "failed" : "succeeded";
-
-					WriteLine($"Sync {message}!");
+					var address = client.Database.Addresses.Where(x => !x.People.Any()).GetRandomItem();
+					if (address != null)
+					{
+						Debug.WriteLine("Delete A: " + address.SyncId + " on " + client.Name);
+						client.Database.Addresses.Remove(address);
+					}
 				}
 			}
-			catch (Exception ex)
+
+			if (number % 2 == 0) // 50%
 			{
-				WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+				// Change Person or Address?
+				if (number > 50 && client.Database.People.Any())
+				{
+					var person = client.Database.People.GetRandomItem();
+					person.Name = Extensions.LoremIpsumWord() + " " + Extensions.LoremIpsumWord();
+
+					// 25% to change address.
+					if (number % 4 == 0)
+					{
+						var address = client.Database.Addresses.GetRandomItem(person.Address);
+
+						Debug.WriteLine("Updating P: " + person.SyncId + " to A: " + address.SyncId);
+						person.Address = address;
+					}
+				}
 			}
+
+			if (number % 4 == 0 || forceAdd) // 25%
+			{
+				if (number > 50 && client.Database.Addresses.Any())
+				{
+					// Add Person?
+					var address = client.Database.Addresses.GetRandomItem();
+					client.Database.People.Add(new Person
+					{
+						Name = Extensions.LoremIpsumWord() + " " + Extensions.LoremIpsumWord(),
+						AddressId = address.Id
+					});
+				}
+				else
+				{
+					client.Database.Addresses.Add(new Address
+					{
+						City = Extensions.LoremIpsumWord(),
+						Line1 = Extensions.Random.Next(0, 999) + " " + Extensions.LoremIpsumWord(),
+						Line2 = string.Empty,
+						Postal = Extensions.Random.Next(0, 999999).ToString("000000"),
+						State = Extensions.LoremIpsumWord().Substring(0, 2)
+					});
+				}
+
+				result = true;
+			}
+
+			client.SaveChanges();
+			return result;
 		}
 
-		private static void WorkerOnDoWork(object sender, DoWorkEventArgs args)
+		private void WorkerOnDoWork(object sender, DoWorkEventArgs args)
 		{
 			var worker = (BackgroundWorker) sender;
 			var timeout = DateTime.UtcNow;
-			var collection = (ObservableCollection<ISyncClient>) args.Argument;
-			var lastSynced = new Dictionary<string, DateTime>();
+			var collection = (ObservableCollection<SyncClientState>) args.Argument;
 
 			while (!worker.CancellationPending)
 			{
@@ -132,33 +191,91 @@ namespace Speed.Benchmarks
 					continue;
 				}
 
-				var first = collection.GetRandomItem();
-				var next = collection.GetRandomItem(first);
-				var key = first.Name + next.Name;
-				var lastSyncedOn = lastSynced.ContainsKey(key) ? lastSynced[key] : DateTime.MinValue;
+				var server = collection[0];
+				var client = collection.GetRandomItem(server);
 
-				var engine = new SyncEngine(first, next, lastSyncedOn);
+				Clear();
+
+				WriteLine("Updating " + client.Client.Name);
+				var forceAdd = UpdateClient(client.Client);
+
+				WriteLine("Updating " + server.Client.Name);
+				UpdateClient(server.Client, forceAdd);
+
+				//Thread.Sleep(1000);
+
+				var engine = new SyncEngine(client.Client, server.Client, client.LastSyncedOn);
 				engine.SyncStatusChanged += (o, a) => worker.ReportProgress((int) a.Percent, a);
-				engine.Run();
-				
+				engine.RunAsync();
+
 				while (engine.Status != SyncEngineStatus.Stopped && !worker.CancellationPending)
 				{
 					Thread.Sleep(100);
 				}
 
 				engine.Stop();
-				timeout = DateTime.UtcNow.AddSeconds(5);
+
+				//Thread.Sleep(1000);
+
+				try
+				{
+					CompareClients(client.Client, server.Client);
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine("Boom: " + client.LastSyncedOn.TimeOfDay + "\r\n\r\n");
+					Debug.WriteLine("Client");
+					client.Client.Database.Addresses.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("A: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
+					client.Client.Database.People.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("P: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
+					Debug.WriteLine("\r\n\r\nServer");
+					server.Client.Database.Addresses.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("A: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
+					server.Client.Database.People.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("P: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
+
+					WriteLine(ex.Message);
+					worker.CancelAsync();
+				}
+
+				timeout = DateTime.UtcNow.AddMilliseconds(250);
 			}
 		}
 
 		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs args)
 		{
 			var status = (SyncEngineStatusArgs) args.UserState;
-			WriteLine($"{args.ProgressPercentage}:{status.Status}");
+			//WriteLine($"{status.Name}: {status.Count}/{status.Total} {args.ProgressPercentage} {status.Status}");
+
+			var clientState = ViewModel.SyncClients.FirstOrDefault(x => x.Client.Name == status.Name);
+			if (clientState == null)
+			{
+				return;
+			}
+
+			clientState.Status = status.Status;
+			ViewModel.Progress = (int) status.Percent;
+
+			if (clientState.Status == SyncEngineStatus.Stopped)
+			{
+				clientState.AddressCount = clientState.Client.Database.Addresses.Count();
+				clientState.PeopleCount = clientState.Client.Database.People.Count();
+				clientState.PreviousSyncedOn = clientState.LastSyncedOn;
+				clientState.LastSyncedOn = DateTime.UtcNow;
+				ViewModel.Progress = 0;
+			}
+		}
+
+		private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs args)
+		{
+			ViewModel.SyncStatus = "Sync";
 		}
 
 		private void WriteLine(string message)
 		{
+			if (!Dispatcher.CheckAccess())
+			{
+				Dispatcher.Invoke(() => WriteLine(message));
+				return;
+			}
+
 			ViewModel.Output += message + Environment.NewLine;
 		}
 

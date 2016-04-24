@@ -14,6 +14,7 @@ namespace Speedy.Net
 	{
 		#region Fields
 
+		private readonly string _serverUri;
 		private readonly int _timeout;
 
 		#endregion
@@ -23,11 +24,13 @@ namespace Speedy.Net
 		/// <summary>
 		/// Instantiates an instance of the class.
 		/// </summary>
+		/// <param name="name"> The name of the client. </param>
 		/// <param name="serverUri"> The server to send data to. </param>
 		/// <param name="timeout"> The timeout for each transaction. </param>
-		public WebSyncClient(string serverUri, int timeout = 10000)
+		public WebSyncClient(string name, string serverUri, int timeout = 10000)
 		{
-			Name = serverUri;
+			Name = name;
+			_serverUri = serverUri;
 			_timeout = timeout;
 		}
 
@@ -49,9 +52,9 @@ namespace Speedy.Net
 		/// </summary>
 		/// <param name="changes"> The changes to write to the server. </param>
 		/// <returns> The date and time for the sync process. </returns>
-		public void ApplyChanges(IEnumerable<SyncObject> changes)
+		public IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes)
 		{
-			WebClient.Post(Name, $"api/Sync/{nameof(ApplyChanges)}", changes, _timeout);
+			return WebClient.Post<IEnumerable<SyncObject>, IEnumerable<SyncIssue>>(_serverUri, $"api/Sync/{nameof(ApplyChanges)}", changes, _timeout);
 		}
 
 		/// <summary>
@@ -61,7 +64,7 @@ namespace Speedy.Net
 		/// <returns> The list of changes from the server. </returns>
 		public int GetChangeCount(SyncRequest request)
 		{
-			return WebClient.Post<SyncRequest, int>(Name, $"api/Sync/{nameof(GetChangeCount)}", request, _timeout);
+			return WebClient.Post<SyncRequest, int>(_serverUri, $"api/Sync/{nameof(GetChangeCount)}", request, _timeout);
 		}
 
 		/// <summary>
@@ -71,7 +74,7 @@ namespace Speedy.Net
 		/// <returns> The list of changes from the server. </returns>
 		public IEnumerable<SyncObject> GetChanges(SyncRequest request)
 		{
-			return WebClient.Post<SyncRequest, IEnumerable<SyncObject>>(Name, $"api/Sync/{nameof(GetChanges)}", request, _timeout);
+			return WebClient.Post<SyncRequest, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetChanges)}", request, _timeout);
 		}
 
 		#endregion

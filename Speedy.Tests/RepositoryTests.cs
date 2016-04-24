@@ -341,7 +341,7 @@ namespace Speedy.Tests
 				{
 					new KeyValuePair<string, string>("Item1", "Item10"),
 					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3")
+					new KeyValuePair<string, string>("Item3", "Item3"),
 				};
 
 				var actual = repository.Read().ToList();

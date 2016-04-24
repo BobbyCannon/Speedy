@@ -7,7 +7,7 @@ using Speedy.Sync;
 
 namespace Speedy.Samples
 {
-	public interface IContosoDatabase : IDatabase
+	public interface IContosoDatabase : ISyncableDatabase
 	{
 		#region Properties
 
@@ -16,6 +16,10 @@ namespace Speedy.Samples
 		IRepository<FoodRelationship> FoodRelationships { get; }
 
 		IRepository<Food> Foods { get; }
+
+		IRepository<GroupMember> GroupMembers { get; }
+
+		IRepository<Group> Groups { get; }
 
 		IRepository<LogEvent> LogEvents { get; }
 

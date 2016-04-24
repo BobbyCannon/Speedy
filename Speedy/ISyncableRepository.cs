@@ -43,9 +43,10 @@ namespace Speedy
 		/// </summary>
 		/// <param name="since"> The start date and time get changes for. </param>
 		/// <param name="until"> The end date and time get changes for. </param>
+		/// <param name="skip"> The number of items to skip. </param>
 		/// <param name="take"> The number of items to take. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int take);
+		IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int skip, int take);
 
 		/// <summary>
 		/// Gets the sync entity by the ID.

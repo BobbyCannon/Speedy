@@ -58,7 +58,7 @@ namespace Speedy.Storage
 		/// <returns> The count of changes from the repository. </returns>
 		public int GetChangeCount(DateTime since, DateTime until)
 		{
-			return this.Count(x => x.ModifiedOn >= since && x.ModifiedOn < until);
+			return GetChangesQuery(since, until).Count();
 		}
 
 		/// <summary>
@@ -66,16 +66,31 @@ namespace Speedy.Storage
 		/// </summary>
 		/// <param name="since"> The start date and time get changes for. </param>
 		/// <param name="until"> The end date and time get changes for. </param>
+		/// <param name="skip"> The number of items to skip. </param>
 		/// <param name="take"> The number of items to take. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		public IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int take)
+		public IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int skip, int take)
 		{
-			return this.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+			var query = GetChangesQuery(since, until);
+
+			if (skip > 0)
+			{
+				query = query.Skip(skip);
+			}
+			
+			return query
 				.Take(take)
 				.ToList()
 				.Select(x => x.ToSyncObject())
-				.Where(x => x != null)
-				.ToList();
+				.Where(x => x != null);
+		}
+
+		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)
+		{
+			return this.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+				.OrderBy(x => x.ModifiedOn)
+				.ThenBy(x => x.Id)
+				.AsQueryable();
 		}
 
 		/// <summary>

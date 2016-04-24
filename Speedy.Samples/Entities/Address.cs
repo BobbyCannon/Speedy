@@ -20,6 +20,7 @@ namespace Speedy.Samples.Entities
 		public Address()
 		{
 			People = new Collection<Person>();
+			IgnoreProperties.AddRange(nameof(LinkedAddress), nameof(LinkedAddressId), nameof(People));
 		}
 
 		#endregion
@@ -41,28 +42,9 @@ namespace Speedy.Samples.Entities
 		#region Methods
 
 		/// <summary>
-		/// Update the entity with the changes.
-		/// </summary>
-		/// <param name="update"> The entity with the changes. </param>
-		/// <param name="database"> The database to use for relationships. </param>
-		public override void Update(SyncEntity update, IDatabase database)
-		{
-			var entity = update as Address;
-			if (entity == null)
-			{
-				throw new ArgumentException("The update is not an address.", nameof(update));
-			}
-
-			IgnoreProperties.AddRange(nameof(LinkedAddress), nameof(LinkedAddressId));
-			base.Update(update, database);
-
-			UpdateLocalRelationships(database);
-		}
-
-		/// <summary>
 		/// Updates the relation ids using the sync ids.
 		/// </summary>
-		public override void UpdateLocalRelationships(IDatabase database)
+		public override void UpdateLocalRelationships(ISyncableDatabase database)
 		{
 			this.UpdateIf(() => LinkedAddressSyncId != null, () => LinkedAddress = database.GetRepository<Address>().First(x => x.SyncId == LinkedAddressSyncId));
 		}
@@ -72,7 +54,7 @@ namespace Speedy.Samples.Entities
 		/// </summary>
 		public override void UpdateLocalSyncIds()
 		{
-			this.UpdateIf(() => LinkedAddress != null && LinkedAddress.SyncId != LinkedAddressSyncId, () => LinkedAddressSyncId = LinkedAddressSyncId);
+			this.UpdateIf(() => LinkedAddress != null && LinkedAddress.SyncId != LinkedAddressSyncId, () => LinkedAddressSyncId = LinkedAddress.SyncId);
 		}
 
 		#endregion

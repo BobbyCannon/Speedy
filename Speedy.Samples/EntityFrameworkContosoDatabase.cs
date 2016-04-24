@@ -20,6 +20,11 @@ namespace Speedy.Samples
 		{
 		}
 
+		public EntityFrameworkContosoDatabase(DatabaseOptions options)
+			: this("name=DefaultConnection", options)
+		{
+		}
+
 		public EntityFrameworkContosoDatabase(string nameOrConnectionString, DatabaseOptions options = null)
 			: base(nameOrConnectionString, options)
 		{
@@ -41,6 +46,10 @@ namespace Speedy.Samples
 		public IRepository<FoodRelationship> FoodRelationships => GetRepository<FoodRelationship>();
 
 		public IRepository<Food> Foods => GetRepository<Food>();
+
+		public IRepository<GroupMember> GroupMembers => GetSyncableRepository<GroupMember>();
+
+		public IRepository<Group> Groups => GetSyncableRepository<Group>();
 
 		public IRepository<LogEvent> LogEvents => GetRepository<LogEvent>();
 

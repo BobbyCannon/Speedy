@@ -56,10 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\IPropertyConfiguration.cs" />
     <Compile Include="Configuration\PropertyConfiguration.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseOptions.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
+    <Compile Include="ISyncableDatabase.cs" />
     <Compile Include="KeyValueRepositoryOptions.cs" />
     <Compile Include="ModifiableEntity.cs" />
     <Compile Include="Net\WebSyncClient.cs" />
@@ -88,6 +90,8 @@
     <Compile Include="Sync\SyncEntity.cs" />
     <Compile Include="Sync\SyncEngine.cs" />
     <Compile Include="Sync\ISyncClient.cs" />
+    <Compile Include="Sync\SyncIssue.cs" />
+    <Compile Include="Sync\SyncIssueType.cs" />
     <Compile Include="Sync\SyncObject.cs" />
     <Compile Include="Sync\SyncObjectStatus.cs" />
     <Compile Include="Sync\SyncRequest.cs" />

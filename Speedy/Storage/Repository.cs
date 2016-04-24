@@ -126,6 +126,17 @@ namespace Speedy.Storage
 			foreach (var entityState in Cache.Where(entityState => entityState.Entity.Id == 0))
 			{
 				entityState.Entity.Id = Interlocked.Increment(ref _index);
+
+				var syncableEntity = entityState.Entity as SyncEntity;
+				if (syncableEntity == null)
+				{
+					continue;
+				}
+
+				if (_database.Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
+				{
+					syncableEntity.SyncId = Guid.NewGuid();
+				}
 			}
 		}
 
@@ -184,6 +195,12 @@ namespace Speedy.Storage
 		public bool HasChanges()
 		{
 			return GetChanges().Any();
+		}
+
+		public bool HasDependentRelationship(object[] value, int id)
+		{
+			var foreignKeyFunction = (Func<T, int>) value[4];
+			return this.Any(x => foreignKeyFunction.Invoke(x) == id);
 		}
 
 		/// <summary>
@@ -274,7 +291,7 @@ namespace Speedy.Storage
 		/// Removes a set of entities from the repository.
 		/// </summary>
 		/// <param name="filter"> The filter of the entities to remove. </param>
-		public void RemoveRange(Expression<Func<T, bool>> filter)
+		public void Remove(Expression<Func<T, bool>> filter)
 		{
 			Cache.Select(x => x.Entity)
 				.Cast<T>()
@@ -312,14 +329,6 @@ namespace Speedy.Storage
 						{
 							// Make sure the modified on value matches created on for new items.
 							entity.CreatedOn = DateTime.UtcNow;
-						}
-
-						if (syncableEntity != null)
-						{
-							if (_database.Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
-							{
-								syncableEntity.SyncId = Guid.NewGuid();
-							}
 						}
 
 						if (modifiableEntity != null && _database.Options.MaintainDates)
@@ -373,11 +382,6 @@ namespace Speedy.Storage
 			return changeCount;
 		}
 
-		public void UpdateRelationships()
-		{
-			Cache.ToList().ForEach(x => OnUpdateEntityRelationships((T) x.Entity));
-		}
-
 		public void UpdateLocalSyncIds()
 		{
 			foreach (var entry in Cache)
@@ -388,11 +392,26 @@ namespace Speedy.Storage
 			}
 		}
 
+		public void UpdateRelationships()
+		{
+			Cache.ToList().ForEach(x => OnUpdateEntityRelationships((T) x.Entity));
+		}
+
 		public void ValidateEntities()
 		{
 			Cache.Where(x => x.State == EntityStateType.Added || x.State == EntityStateType.Modified)
 				.ToList()
 				.ForEach(x => OnValidateEntity((T) x.Entity));
+
+			Cache.Where(x => x.State == EntityStateType.Removed)
+				.ToList()
+				.ForEach(x => OnDeletingEntity((T) x.Entity));
+		}
+
+		protected virtual void OnDeletingEntity(T obj)
+		{
+			var handler = DeletingEntity;
+			handler?.Invoke(obj);
 		}
 
 		protected virtual void OnUpdateEntityRelationships(T obj)
@@ -533,6 +552,7 @@ namespace Speedy.Storage
 
 		#region Events
 
+		public event Action<T> DeletingEntity;
 		public event Action<T> UpdateEntityRelationships;
 		public event Action<T> ValidateEntity;
 

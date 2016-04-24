@@ -4,7 +4,7 @@
 	{
 		#region Methods
 
-		IContosoDatabase CreateContext();
+		IContosoDatabase GetDatabase();
 
 		#endregion
 	}

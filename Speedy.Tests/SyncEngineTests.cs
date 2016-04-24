@@ -3,9 +3,7 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Samples;
 using Speedy.Samples.Entities;
-using Speedy.Samples.Sync;
 using Speedy.Sync;
 
 #endregion
@@ -23,272 +21,323 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SyncEngineAddItemToClient()
 		{
-			var client = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
-			var server = new ContosoDatabaseSyncClient("EF", GetEntityFrameworkDatabase(true));
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				server.Database.AddAndSaveChanges(NewAddress("Blah"));
+				client.SaveChanges();
 
-			client.Addresses.Add(NewAddress("Blah"));
-			client.SaveChanges();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			var engine = new SyncEngine(client, server, DateTime.MinValue);
-			engine.Run();
-
-			client.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(1, client.Addresses.Count());
-			Assert.AreEqual(1, server.Addresses.Count());
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+			});
 		}
 
 		[TestMethod]
 		public void SyncEngineAddItemToClientAndServer()
 		{
-			var client = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
-			var server = new ContosoDatabaseSyncClient("EF", GetEntityFrameworkDatabase(true));
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				server.Database.AddAndSaveChanges(NewAddress("Foo"));
+				client.SaveChanges();
 
-			client.Addresses.Add(NewAddress("Foo"));
-			client.SaveChanges();
+				server.Database.Addresses.Add(NewAddress("Bar"));
+				server.SaveChanges();
 
-			server.Addresses.Add(NewAddress("Bar"));
-			server.SaveChanges();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			var engine = new SyncEngine(client, server, DateTime.MinValue);
-			engine.Run();
-
-			client.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(2, client.Addresses.Count());
-			Assert.AreEqual(2, server.Addresses.Count());
+				Assert.AreEqual(2, client.Database.Addresses.Count());
+				Assert.AreEqual(2, server.Database.Addresses.Count());
+			});
 		}
 
+		/// <summary>
+		/// This test will force both sides to have a local address with ID of 1 then sync.
+		/// This means the engine should sync over the client address as 2 and update the
+		/// relationship to point to ID 2 instead of the old local relatioship of 1.
+		/// </summary>
 		[TestMethod]
-		public void SyncEngineAddItemToClientThenSyncAnotherClient()
+		public void SyncEngineAddItemToClientAndServerForceRelationshipUpdate()
 		{
-			var client1 = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
-			var client2 = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
-			var server = new ContosoDatabaseSyncClient("EF", GetEntityFrameworkDatabase(true));
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				client.Database.People.Add(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				client.SaveChanges();
 
-			client1.Addresses.Add(NewAddress("Blah"));
-			client1.SaveChanges();
+				server.Database.Addresses.Add(NewAddress("Bar"));
+				server.SaveChanges();
 
-			var engine = new SyncEngine(client1, server, DateTime.MinValue);
-			engine.Run();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			client1.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(1, client1.Addresses.Count());
-			Assert.AreEqual(1, server.Addresses.Count());
-
-			engine = new SyncEngine(client2, server, DateTime.MinValue);
-			engine.Run();
-
-			client2.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(1, client2.Addresses.Count());
-			Assert.AreEqual(1, server.Addresses.Count());
+				Assert.AreEqual(2, server.Database.People.First().Address.Id);
+				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
+				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
+				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
+			});
 		}
 
 		[TestMethod]
 		public void SyncEngineAddItemToServer()
 		{
-			var client = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
-			var server = new ContosoDatabaseSyncClient("EF", GetEntityFrameworkDatabase(true));
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				server.Database.Addresses.Add(NewAddress("Blah"));
+				server.SaveChanges();
 
-			server.Addresses.Add(NewAddress("Blah"));
-			server.SaveChanges();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			var engine = new SyncEngine(client, server, DateTime.MinValue);
-			engine.Run();
-
-			client.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(1, client.Addresses.Count());
-			Assert.AreEqual(1, server.Addresses.Count());
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+			});
 		}
 
 		[TestMethod]
-		public void SyncEngineAddItemToServerThenSyncToTwoClients()
+		public void SyncEngineAddItemWithRelationshipToClientAndServer()
 		{
-			var client1 = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
-			var client2 = new ContosoDatabaseSyncClient("MEM", new ContosoDatabase());
-			var server = new ContosoDatabaseSyncClient("EF", GetEntityFrameworkDatabase(true));
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				client.Database.People.Add(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				client.SaveChanges();
 
-			server.Addresses.Add(NewAddress("Blah", "Blah2"));
-			server.SaveChanges();
+				server.Database.People.Add(new Person { Address = NewAddress("Bar"), Name = "Bar Foo" });
+				server.SaveChanges();
 
-			var engine = new SyncEngine(client1, server, DateTime.MinValue);
-			engine.Run();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			client1.SaveChanges();
-			server.SaveChanges();
+				Assert.AreEqual(2, client.Database.Addresses.Count());
+				Assert.AreEqual(2, client.Database.People.Count());
+				Assert.AreEqual(2, server.Database.Addresses.Count());
+				Assert.AreEqual(2, server.Database.People.Count());
+			});
+		}
 
-			Assert.AreEqual(1, client1.Addresses.Count());
-			Assert.AreEqual("Blah", client1.Addresses.First().Line1);
-			Assert.AreEqual("Blah2", client1.Addresses.First().Line2);
-			Assert.AreEqual(1, server.Addresses.Count());
-			Assert.AreEqual("Blah", server.Addresses.First().Line1);
-			Assert.AreEqual("Blah2", server.Addresses.First().Line2);
+		[TestMethod]
+		public void SyncEngineAddItemWithServerAndClientWithSameItem()
+		{
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				var person = new Person { Address = NewAddress("Foo"), Name = "Foo Bar" };
 
-			engine = new SyncEngine(client2, server, DateTime.MinValue);
-			engine.Run();
+				client.Database.People.Add(person);
+				client.SaveChanges();
 
-			client2.SaveChanges();
-			server.SaveChanges();
+				server.Database.People.Add(person);
+				server.SaveChanges();
 
-			Assert.AreEqual(1, client2.Addresses.Count());
-			Assert.AreEqual("Blah", client2.Addresses.First().Line1);
-			Assert.AreEqual("Blah2", client2.Addresses.First().Line2);
-			Assert.AreEqual(1, server.Addresses.Count());
-			Assert.AreEqual("Blah", server.Addresses.First().Line1);
-			Assert.AreEqual("Blah2", server.Addresses.First().Line2);
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
+
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, client.Database.People.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.People.Count());
+			});
 		}
 
 		[TestMethod]
 		public void SyncEngineDeleteItemOnClient()
 		{
-			var client = ContosoDatabaseSyncClient.Create("MEM", new ContosoDatabase(), NewAddress("Foo", "Foo2"));
-			var server = ContosoDatabaseSyncClient.Create("EF", GetEntityFrameworkDatabase(true), client.Addresses.First());
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				var address = NewAddress("123 Elm Street");
+				server.Database.AddAndSaveChanges(address);
+				client.Database.AddAndSaveChanges(address);
 
-			client.Addresses.RemoveRange(x => x.Id > 0);
-			client.SaveChanges();
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
 
-			Assert.AreEqual(0, client.Addresses.Count());
-			Assert.AreEqual(1, server.Addresses.Count());
+				client.Database.Addresses.Remove(address);
+				client.SaveChanges();
 
-			var engine = new SyncEngine(client, server, DateTime.MinValue);
-			engine.Run();
+				Assert.AreEqual(0, client.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
 
-			client.SaveChanges();
-			server.SaveChanges();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			Assert.AreEqual(0, client.Addresses.Count());
-			Assert.AreEqual(0, server.Addresses.Count());
+				Assert.AreEqual(0, client.Database.Addresses.Count());
+				Assert.AreEqual(0, server.Database.Addresses.Count());
+			});
 		}
 
 		[TestMethod]
 		public void SyncEngineDeleteItemOnServer()
 		{
-			var client = ContosoDatabaseSyncClient.Create("MEM", new ContosoDatabase(), NewAddress("Foo", "Foo2"));
-			var server = ContosoDatabaseSyncClient.Create("EF", GetEntityFrameworkDatabase(true), client.Addresses.First());
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				var address = NewAddress("123 Elm Street");
+				server.Database.AddAndSaveChanges(address);
+				client.Database.AddAndSaveChanges(address);
 
-			server.Addresses.RemoveRange(x => x.Id > 0);
-			server.SaveChanges();
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
 
-			Assert.AreEqual(1, client.Addresses.Count());
-			Assert.AreEqual(0, server.Addresses.Count());
+				server.Database.Addresses.Remove(x => x.Id > 0);
+				server.SaveChanges();
 
-			var engine = new SyncEngine(client, server, DateTime.MinValue);
-			engine.Run();
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(0, server.Database.Addresses.Count());
 
-			client.SaveChanges();
-			server.SaveChanges();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			Assert.AreEqual(0, client.Addresses.Count());
-			Assert.AreEqual(0, server.Addresses.Count());
-		}
-
-		[TestMethod]
-		public void SyncEngineDeleteItemOnServerAndThenToTwoClients()
-		{
-			var client1 = ContosoDatabaseSyncClient.Create("MEM", new ContosoDatabase(), NewAddress("Foo", "Foo2"));
-			var client2 = ContosoDatabaseSyncClient.Create("MEM", new ContosoDatabase(), client1.Addresses.First());
-			var server = ContosoDatabaseSyncClient.Create("EF", GetEntityFrameworkDatabase(true), client1.Addresses.First());
-
-			server.Addresses.RemoveRange(x => x.Id > 0);
-			server.SaveChanges();
-
-			Assert.AreEqual(1, client1.Addresses.Count());
-			Assert.AreEqual(1, client2.Addresses.Count());
-			Assert.AreEqual(0, server.Addresses.Count());
-
-			var engine = new SyncEngine(client1, server, DateTime.MinValue);
-			engine.Run();
-
-			client1.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(0, client1.Addresses.Count());
-			Assert.AreEqual(1, client2.Addresses.Count());
-			Assert.AreEqual(0, server.Addresses.Count());
-
-			engine = new SyncEngine(client2, server, DateTime.MinValue);
-			engine.Run();
-
-			client2.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(0, client1.Addresses.Count());
-			Assert.AreEqual(0, client2.Addresses.Count());
-			Assert.AreEqual(0, server.Addresses.Count());
+				Assert.AreEqual(0, client.Database.Addresses.Count());
+				Assert.AreEqual(0, server.Database.Addresses.Count());
+			});
 		}
 
 		[TestMethod]
 		public void SyncEngineUpdateItemOnClientThenServer()
 		{
-			var client = ContosoDatabaseSyncClient.Create("MEM", new ContosoDatabase(), NewAddress("Foo", "Foo2"));
-			var server = ContosoDatabaseSyncClient.Create("EF", GetEntityFrameworkDatabase(true), client.Addresses.First());
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				var address = NewAddress("123 Elm Street");
+				server.Database.AddAndSaveChanges(address);
+				client.Database.AddAndSaveChanges(address);
 
-			client.Addresses.First().Line1 = "Foo Client";
-			client.SaveChanges();
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
 
-			server.Addresses.First().Line1 = "Foo Server";
-			server.Addresses.First().Line2 = "Foo Server2";
-			server.SaveChanges();
+				client.Database.Addresses.First().Line1 = "Foo Client";
+				client.SaveChanges();
 
-			var engine = new SyncEngine(client, server, DateTime.MinValue);
-			engine.Run();
+				server.Database.Addresses.First().Line1 = "Foo Server";
+				server.Database.Addresses.First().Line2 = "Foo Server2";
+				server.SaveChanges();
 
-			client.SaveChanges();
-			server.SaveChanges();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			Assert.AreEqual(1, client.Addresses.Count());
-			Assert.AreEqual("Foo Server", client.Addresses.First().Line1);
-			Assert.AreEqual("Foo Server2", client.Addresses.First().Line2);
-			Assert.AreEqual(1, server.Addresses.Count());
-			Assert.AreEqual("Foo Server", server.Addresses.First().Line1);
-			Assert.AreEqual("Foo Server2", server.Addresses.First().Line2);
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual("Foo Server", client.Database.Addresses.First().Line1);
+				Assert.AreEqual("Foo Server2", client.Database.Addresses.First().Line2);
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+				Assert.AreEqual("Foo Server", server.Database.Addresses.First().Line1);
+				Assert.AreEqual("Foo Server2", server.Database.Addresses.First().Line2);
+			});
 		}
 
 		[TestMethod]
 		public void SyncEngineUpdateItemOnServerThenClient()
 		{
-			var client = ContosoDatabaseSyncClient.Create("MEM", new ContosoDatabase(), NewAddress("Foo", "Foo2"));
-			var server = ContosoDatabaseSyncClient.Create("EF", GetEntityFrameworkDatabase(true), client.Addresses.First());
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				var address = NewAddress("123 Elm Street");
+				server.Database.AddAndSaveChanges(address);
+				client.Database.AddAndSaveChanges(address);
 
-			server.Addresses.First().Line1 = "Foo Server";
-			server.Addresses.First().Line2 = "Foo Server2";
-			server.SaveChanges();
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+				
+				server.Database.Addresses.First().Line1 = "123 Server Street";
+				server.Database.Addresses.First().Line2 = "Server2";
+				server.SaveChanges();
 
-			client.Addresses.First().Line1 = "Foo Client";
-			client.SaveChanges();
+				client.Database.Addresses.First().Line1 = "123 Client Street";
+				client.SaveChanges();
 
-			var engine = new SyncEngine(client, server, DateTime.MinValue);
-			engine.Run();
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
 
-			client.SaveChanges();
-			server.SaveChanges();
-
-			Assert.AreEqual(1, client.Addresses.Count());
-			Assert.AreEqual("Foo Client", client.Addresses.First().Line1);
-			Assert.AreEqual("Foo2", client.Addresses.First().Line2);
-			Assert.AreEqual(1, server.Addresses.Count());
-			Assert.AreEqual("Foo Client", server.Addresses.First().Line1);
-			Assert.AreEqual("Foo2", server.Addresses.First().Line2);
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual("123 Client Street", client.Database.Addresses.First().Line1);
+				Assert.AreEqual("Server2", client.Database.Addresses.First().Line2);
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+				Assert.AreEqual("123 Client Street", server.Database.Addresses.First().Line1);
+				Assert.AreEqual("Server2", server.Database.Addresses.First().Line2);
+			});
 		}
 
-		private IContosoDatabase GetEntityFrameworkDatabase(bool clearDatabase = false)
+		[TestMethod]
+		public void SyncEngineUseItemOnClientAndServerDeletesIt()
 		{
-			var database = new EntityFrameworkContosoDatabase();
-
-			if (clearDatabase)
+			TestHelper.TestServerAndClients((server, client) =>
 			{
-				database.ClearDatabase();
-			}
+				client.Database.AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				server.Database.AddAndSaveChanges(NewAddress("Bar"));
 
-			return database;
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, client.Database.People.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+				Assert.AreEqual(0, server.Database.People.Count());
+
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
+
+				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
+				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
+				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
+				Assert.AreEqual(2, client.Database.Addresses.Count());
+				Assert.AreEqual(1, client.Database.People.Count());
+				Assert.AreEqual(2, server.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.People.Count());
+
+				var person = client.Database.People.First();
+				person.Address = client.Database.Addresses.First(x => x.Line1 == "Bar");
+				client.SaveChanges();
+
+				var removedAddress = server.Database.Addresses.First(x => x.Line1 == "Bar");
+				server.Database.Addresses.Remove(removedAddress);
+				server.SaveChanges();
+
+				engine.Run();
+
+				var expected = new[] { new SyncIssue { Id = removedAddress.SyncId, TypeName = removedAddress.GetRealType().ToAssemblyName(), IssueType = SyncIssueType.RelationshipConstraint } };
+				TestHelper.AreEqual(expected, engine.SyncIssues.ToArray());
+				
+				using (var clientDatabase = client.GetDatabase())
+				{
+					Assert.AreEqual("Bar", clientDatabase.People.First().Address.Line1);
+				}
+			});
+		}
+
+		[TestMethod]
+		public void SyncEngineUseItemOnServerAndClientDeletesIt()
+		{
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				client.Database.AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				server.Database.AddAndSaveChanges(NewAddress("Bar"));
+
+				Assert.AreEqual(1, client.Database.Addresses.Count());
+				Assert.AreEqual(1, client.Database.People.Count());
+				Assert.AreEqual(1, server.Database.Addresses.Count());
+				Assert.AreEqual(0, server.Database.People.Count());
+
+				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				engine.Run();
+
+				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
+				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
+				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
+				Assert.AreEqual(2, client.Database.Addresses.Count());
+				Assert.AreEqual(1, client.Database.People.Count());
+				Assert.AreEqual(2, server.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.People.Count());
+
+				server.Database.People.First().Address = server.Database.Addresses.First(x => x.Line1 == "Bar");
+				server.SaveChanges();
+
+				var removedAddress = client.Database.Addresses.First(x => x.Line1 == "Bar");
+				client.Database.Addresses.Remove(removedAddress);
+				client.SaveChanges();
+
+				engine.Run();
+
+				var expected = new[] { new SyncIssue { Id = removedAddress.SyncId, TypeName = removedAddress.GetRealType().ToAssemblyName(), IssueType = SyncIssueType.RelationshipConstraint } };
+				TestHelper.AreEqual(expected, engine.SyncIssues.ToArray());
+
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual("Bar", serverDatabase.People.First().Address.Line1);
+				}
+			});
 		}
 
 		private static Address NewAddress(string line1, string line2 = "")

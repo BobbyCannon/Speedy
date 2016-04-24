@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:benchmarks="clr-namespace:Speed.Benchmarks"
-        mc:Ignorable="d" Title="Speedy Benchmarks" Height="350" Width="525"
+        mc:Ignorable="d" Title="Speedy Benchmarks" Height="800" Width="600"
 		WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
-		d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}">
+		d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}" 
+		Closing="MainWindowOnClosing">
 	<Window.Resources>
 		<Style x:Key="Button" TargetType="Button">
 			<Setter Property="Margin" Value="4" />
@@ -19,6 +20,7 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 		<StackPanel Grid.Row="0" Orientation="Horizontal">
 			<Button Style="{StaticResource Button}" Content="{Binding SyncStatus}" Click="SyncOnClick" />
@@ -31,9 +33,19 @@
 			</ItemsControl.ItemsPanel>
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<StackPanel Margin="10">
-						<TextBlock Text="{Binding Name}"></TextBlock>
+					<StackPanel Margin="10" Width="160">
+						<TextBlock Text="{Binding Client.Name}"></TextBlock>
+						<TextBlock Text="{Binding PreviousSyncedOn}"></TextBlock>
 						<TextBlock Text="{Binding LastSyncedOn}"></TextBlock>
+						<TextBlock Text="{Binding Status}"></TextBlock>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Margin="0,0,4,0">A: </TextBlock>
+							<TextBlock Text="{Binding AddressCount}"></TextBlock>
+						</StackPanel>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Margin="0,0,4,0">P: </TextBlock>
+							<TextBlock Text="{Binding PeopleCount}"></TextBlock>
+						</StackPanel>
 					</StackPanel>
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
@@ -41,5 +53,6 @@
 		<ScrollViewer Grid.Row="2">
 			<TextBox IsReadOnly="true" TextWrapping="Wrap" Text="{Binding Output}" />
 		</ScrollViewer>
+		<ProgressBar Grid.Row="3" Height="6" Value="{Binding Progress}" Minimum="0" Maximum="100"></ProgressBar>
 	</Grid>
 </Window>
