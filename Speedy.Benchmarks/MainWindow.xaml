@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:benchmarks="clr-namespace:Speed.Benchmarks"
-        mc:Ignorable="d" Title="Speedy Benchmarks" Height="800" Width="600"
+        mc:Ignorable="d" Title="Speedy Benchmarks" Height="600" Width="600"
 		WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
 		d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}" 
 		Closing="MainWindowOnClosing">
@@ -19,8 +19,9 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<StackPanel Grid.Row="0" Orientation="Horizontal">
 			<Button Style="{StaticResource Button}" Content="{Binding SyncStatus}" Click="SyncOnClick" />
@@ -50,9 +51,12 @@
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 		</ItemsControl>
-		<ScrollViewer Grid.Row="2">
+		<ScrollViewer Grid.Row="2" Height="100">
 			<TextBox IsReadOnly="true" TextWrapping="Wrap" Text="{Binding Output}" />
 		</ScrollViewer>
-		<ProgressBar Grid.Row="3" Height="6" Value="{Binding Progress}" Minimum="0" Maximum="100"></ProgressBar>
+		<ProgressBar Grid.Row="3" Height="10" Value="{Binding Progress}" Minimum="0" Maximum="100"></ProgressBar>
+		<ScrollViewer Grid.Row="4">
+			<TextBox IsReadOnly="true" TextWrapping="Wrap" Text="{Binding Errors}" />
+		</ScrollViewer>
 	</Grid>
 </Window>

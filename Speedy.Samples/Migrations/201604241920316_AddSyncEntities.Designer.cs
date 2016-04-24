@@ -7,13 +7,13 @@ namespace Speedy.Samples.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddedSyncEntity : IMigrationMetadata
+    public sealed partial class AddSyncEntities : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedSyncEntity));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddSyncEntities));
         
         string IMigrationMetadata.Id
         {
-            get { return "201604170130020_AddedSyncEntity"; }
+            get { return "201604241920316_AddSyncEntities"; }
         }
         
         string IMigrationMetadata.Source

@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 
@@ -153,22 +153,25 @@ namespace Speedy.Sync
 		/// <param name="until"> The end date and time to get changes for. </param>
 		private void Process(ISyncClient getClient, ISyncClient applyClient, DateTime until)
 		{
-			List<SyncObject> changes;
+			List<SyncObject> syncObjects;
+			var issues = new List<SyncIssue>();
 			var request = new SyncRequest { Since = LastSyncedOn, Until = until, Skip = 0, Take = 1 };
 			var total = getClient.GetChangeCount(request);
-			Debug.WriteLine("\r\nSEP: " + getClient.Name + " -> " + applyClient.Name + " for Total = " + total + " Since: " + request.Since + " Until: " + request.Until);
 
 			do
 			{
-				changes = getClient.GetChanges(request).ToList();
-				_syncIssues.AddRange(applyClient.ApplyChanges(changes));
+				syncObjects = getClient.GetChanges(request).ToList();
+				issues.AddRange(applyClient.ApplyChanges(syncObjects));
 				OnSyncStatusChanged(new SyncEngineStatusArgs { Name = applyClient.Name, Count = request.Skip, Total = total, Status = Status });
-				request.Skip += changes.Count;
-			} while (!_cancelPending && changes.Count > 0 && request.Skip < total);
+				request.Skip += syncObjects.Count;
+			} while (!_cancelPending && syncObjects.Count > 0 && request.Skip < total);
 
-			if (request.Skip != total)
+			while (!_cancelPending && issues.Any())
 			{
-				Debug.WriteLine("\r\n\r\n **** Incomplete Sync ****");
+				var issuesToProcess = issues.Take(1).ToList();
+				syncObjects = applyClient.GetCorrections(issuesToProcess).ToList();
+				_syncIssues.AddRange(getClient.ApplyCorrections(syncObjects));
+				issuesToProcess.ForEach(x => issues.Remove(x));
 			}
 		}
 

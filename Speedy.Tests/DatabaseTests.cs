@@ -55,25 +55,22 @@ namespace Speedy.Tests
 				{
 					Console.WriteLine(context.GetType().Name);
 
-					using (context)
-					{
-						var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = DateTime.Parse("04/23/2016 2:30 PM"), ModifiedOn = DateTime.Parse("04/23/2016 2:30 PM") };
-						var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-						var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-						var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = DateTime.Parse("04/23/2016 2:30 PM"), ModifiedOn = DateTime.Parse("04/23/2016 2:30 PM") };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
 
-						context.Addresses.Add(address1);
-						context.Addresses.Add(address2);
-						context.Addresses.Add(address3);
-						context.Addresses.Add(address4);
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
-						var actual = context.GetSyncChanges(request).ToList();
-						Assert.AreEqual(1,actual.Count);
-						Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-					}
+					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(1, actual.Count);
+					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
 				}
 			});
 		}
@@ -89,25 +86,22 @@ namespace Speedy.Tests
 				{
 					Console.WriteLine(context.GetType().Name);
 
-					using (context)
-					{
-						var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-						var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-						var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-						var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
 
-						context.Addresses.Add(address1);
-						context.Addresses.Add(address2);
-						context.Addresses.Add(address3);
-						context.Addresses.Add(address4);
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
-						var actual = context.GetSyncChanges(request).ToList();
-						Assert.AreEqual(1,actual.Count);
-						Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-					}
+					var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(1, actual.Count);
+					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
 				}
 			});
 		}
@@ -123,32 +117,29 @@ namespace Speedy.Tests
 				{
 					Console.WriteLine(context.GetType().Name);
 
-					using (context)
-					{
-						var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-						var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-						var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-						var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
 
-						context.Addresses.Add(address1);
-						context.Addresses.Add(address2);
-						context.Addresses.Add(address3);
-						context.Addresses.Add(address4);
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
-						var actual = context.GetSyncChanges(request).ToList();
-						Assert.AreEqual(2,actual.Count);
-						Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-						Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
 
-						request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
-						actual = context.GetSyncChanges(request).ToList();
-						Assert.AreEqual(2,actual.Count);
-						Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-						Assert.AreEqual(address4.ToJson(true), actual[1].Data);
-					}
+					request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
+					actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address4.ToJson(true), actual[1].Data);
 				}
 			});
 		}
@@ -164,26 +155,23 @@ namespace Speedy.Tests
 				{
 					Console.WriteLine(context.GetType().Name);
 
-					using (context)
-					{
-						var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-						var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-						var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-						var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
 
-						context.Addresses.Add(address1);
-						context.Addresses.Add(address2);
-						context.Addresses.Add(address3);
-						context.Addresses.Add(address4);
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-						var actual = context.GetSyncChanges(request).ToList();
-						Assert.AreEqual(2,actual.Count);
-						Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-						Assert.AreEqual(address2.ToJson(true), actual[1].Data);
-					}
+					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
 				}
 			});
 		}
@@ -199,26 +187,23 @@ namespace Speedy.Tests
 				{
 					Console.WriteLine(context.GetType().Name);
 
-					using (context)
-					{
-						var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-						var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-						var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-						var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
 
-						context.Addresses.Add(address1);
-						context.Addresses.Add(address2);
-						context.Addresses.Add(address3);
-						context.Addresses.Add(address4);
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-						var actual = context.GetSyncChanges(request).ToList();
-						Assert.AreEqual(2,actual.Count);
-						Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-						Assert.AreEqual(address2.ToJson(true), actual[1].Data);
-					}
+					var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
 				}
 			});
 		}
@@ -254,20 +239,17 @@ namespace Speedy.Tests
 
 					var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
-					using (context)
-					{
-						context.Addresses.Add(expected);
-						var actual = context.Addresses.FirstOrDefault();
-						Assert.IsNull(actual);
+					context.Addresses.Add(expected);
+					var actual = context.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						actual = context.Addresses.FirstOrDefault();
-						Assert.IsNotNull(actual);
-						Assert.AreNotEqual(0, actual.Id);
-						Assert.AreEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual);
-					}
+					actual = context.Addresses.FirstOrDefault();
+					Assert.IsNotNull(actual);
+					Assert.AreNotEqual(0, actual.Id);
+					Assert.AreEqual(default(DateTime), actual.CreatedOn);
+					TestHelper.AreEqual(expected, actual);
 				}
 			});
 		}
@@ -311,20 +293,17 @@ namespace Speedy.Tests
 
 					var expected = new LogEvent { Message = "The new log message that is really important." };
 
-					using (context)
-					{
-						context.LogEvents.Add(expected);
-						var actual = context.LogEvents.FirstOrDefault();
-						Assert.IsNull(actual);
+					context.LogEvents.Add(expected);
+					var actual = context.LogEvents.FirstOrDefault();
+					Assert.IsNull(actual);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						actual = context.LogEvents.FirstOrDefault();
-						Assert.IsNotNull(actual);
-						Assert.AreNotEqual(0, actual.Id);
-						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual);
-					}
+					actual = context.LogEvents.FirstOrDefault();
+					Assert.IsNotNull(actual);
+					Assert.AreNotEqual(0, actual.Id);
+					Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
+					TestHelper.AreEqual(expected, actual);
 				}
 			});
 		}

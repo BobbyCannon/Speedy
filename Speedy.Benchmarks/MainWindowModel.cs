@@ -27,13 +27,15 @@ namespace Speed.Benchmarks
 
 		#region Properties
 
+		public string Errors { get; set; }
+
 		public string Output { get; set; }
+
+		public int Progress { get; set; }
 
 		public ObservableCollection<SyncClientState> SyncClients { get; set; }
 
 		public string SyncStatus { get; set; }
-
-		public int Progress { get; set; }
 
 		#endregion
 	}

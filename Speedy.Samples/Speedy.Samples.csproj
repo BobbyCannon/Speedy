@@ -73,13 +73,9 @@
     <Compile Include="Migrations\201603281304179_InitialDatabase.Designer.cs">
       <DependentUpon>201603281304179_InitialDatabase.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201604170130020_AddedSyncEntity.cs" />
-    <Compile Include="Migrations\201604170130020_AddedSyncEntity.Designer.cs">
-      <DependentUpon>201604170130020_AddedSyncEntity.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604231709518_AddedGroupEntities.cs" />
-    <Compile Include="Migrations\201604231709518_AddedGroupEntities.Designer.cs">
-      <DependentUpon>201604231709518_AddedGroupEntities.cs</DependentUpon>
+    <Compile Include="Migrations\201604241920316_AddSyncEntities.cs" />
+    <Compile Include="Migrations\201604241920316_AddSyncEntities.Designer.cs">
+      <DependentUpon>201604241920316_AddSyncEntities.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="EntityFrameworkContosoDatabase.cs" />
@@ -113,11 +109,8 @@
     <EmbeddedResource Include="Migrations\201603281304179_InitialDatabase.resx">
       <DependentUpon>201603281304179_InitialDatabase.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604170130020_AddedSyncEntity.resx">
-      <DependentUpon>201604170130020_AddedSyncEntity.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604231709518_AddedGroupEntities.resx">
-      <DependentUpon>201604231709518_AddedGroupEntities.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201604241920316_AddSyncEntities.resx">
+      <DependentUpon>201604241920316_AddSyncEntities.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

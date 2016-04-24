@@ -177,8 +177,16 @@ namespace Speedy.Tests
 		{
 			GetServerClientScenerios().ForEach(x =>
 			{
-				Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
-				action(x.Item1, x.Item2);
+				try
+				{
+					Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
+					action(x.Item1, x.Item2);
+				}
+				finally
+				{
+					x.Item1.Database.Dispose();
+					x.Item2.Database.Dispose();
+				}
 			});
 		}
 

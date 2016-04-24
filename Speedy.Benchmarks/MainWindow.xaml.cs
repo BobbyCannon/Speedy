@@ -101,50 +101,8 @@ namespace Speed.Benchmarks
 
 		private bool UpdateClient(ContosoSyncClient client, bool forceAdd = false)
 		{
-			var number = Extensions.Random.Next(0, 100);
+			var number = Extensions.Random.Next(1, 101);
 			var result = false;
-
-			if (number % 5 == 0) // 20%
-			{
-				// Delete Person or Address?
-				if (number > 50)
-				{
-					var person = client.Database.People.GetRandomItem();
-					if (person != null)
-					{
-						Debug.WriteLine("Delete P: " + person.SyncId + " on " + client.Name);
-						client.Database.People.Remove(person);
-					}
-				}
-				else
-				{
-					var address = client.Database.Addresses.Where(x => !x.People.Any()).GetRandomItem();
-					if (address != null)
-					{
-						Debug.WriteLine("Delete A: " + address.SyncId + " on " + client.Name);
-						client.Database.Addresses.Remove(address);
-					}
-				}
-			}
-
-			if (number % 2 == 0) // 50%
-			{
-				// Change Person or Address?
-				if (number > 50 && client.Database.People.Any())
-				{
-					var person = client.Database.People.GetRandomItem();
-					person.Name = Extensions.LoremIpsumWord() + " " + Extensions.LoremIpsumWord();
-
-					// 25% to change address.
-					if (number % 4 == 0)
-					{
-						var address = client.Database.Addresses.GetRandomItem(person.Address);
-
-						Debug.WriteLine("Updating P: " + person.SyncId + " to A: " + address.SyncId);
-						person.Address = address;
-					}
-				}
-			}
 
 			if (number % 4 == 0 || forceAdd) // 25%
 			{
@@ -171,9 +129,32 @@ namespace Speed.Benchmarks
 				}
 
 				result = true;
+				client.SaveChanges();
+			}
+			
+			if (number % 10 == 0) // 10%
+			{
+				// Delete Person or Address?
+				if (number > 50)
+				{
+					var person = client.Database.People.GetRandomItem();
+					if (person != null)
+					{
+						client.Database.People.Remove(person);
+					}
+				}
+				else
+				{
+					var address = client.Database.Addresses.Where(x => !x.People.Any()).GetRandomItem();
+					if (address != null)
+					{
+						client.Database.Addresses.Remove(address);
+					}
+				}
+
+				client.SaveChanges();
 			}
 
-			client.SaveChanges();
 			return result;
 		}
 
@@ -196,45 +177,30 @@ namespace Speed.Benchmarks
 
 				Clear();
 
-				WriteLine("Updating " + client.Client.Name);
-				var forceAdd = UpdateClient(client.Client);
-
-				WriteLine("Updating " + server.Client.Name);
-				UpdateClient(server.Client, forceAdd);
-
-				//Thread.Sleep(1000);
-
-				var engine = new SyncEngine(client.Client, server.Client, client.LastSyncedOn);
-				engine.SyncStatusChanged += (o, a) => worker.ReportProgress((int) a.Percent, a);
-				engine.RunAsync();
-
-				while (engine.Status != SyncEngineStatus.Stopped && !worker.CancellationPending)
-				{
-					Thread.Sleep(100);
-				}
-
-				engine.Stop();
-
-				//Thread.Sleep(1000);
-
 				try
 				{
-					CompareClients(client.Client, server.Client);
+					WriteLine("Updating " + client.Client.Name);
+					var forceAdd = UpdateClient(client.Client);
+
+					WriteLine("Updating " + server.Client.Name);
+					UpdateClient(server.Client, forceAdd);
 				}
 				catch (Exception ex)
 				{
-					Debug.WriteLine("Boom: " + client.LastSyncedOn.TimeOfDay + "\r\n\r\n");
-					Debug.WriteLine("Client");
-					client.Client.Database.Addresses.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("A: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
-					client.Client.Database.People.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("P: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
-					Debug.WriteLine("\r\n\r\nServer");
-					server.Client.Database.Addresses.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("A: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
-					server.Client.Database.People.OrderBy(x => x.SyncId).ForEach(x => Debug.WriteLine("P: " + x.SyncId + " : " + x.ModifiedOn.TimeOfDay));
-
-					WriteLine(ex.Message);
-					worker.CancelAsync();
+					// Write message but ignore them for now...
+					WriteError(ex.Message);
 				}
 
+				var engine = new SyncEngine(client.Client, server.Client, client.LastSyncedOn);
+				engine.SyncStatusChanged += (o, a) => worker.ReportProgress((int) a.Percent, a);
+				engine.Run();
+
+				foreach (var item in engine.SyncIssues)
+				{
+					WriteError(item.Id + " - " + item.IssueType + " : " + item.TypeName);
+				}
+
+				CompareClients(client.Client, server.Client);
 				timeout = DateTime.UtcNow.AddMilliseconds(250);
 			}
 		}
@@ -242,8 +208,6 @@ namespace Speed.Benchmarks
 		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs args)
 		{
 			var status = (SyncEngineStatusArgs) args.UserState;
-			//WriteLine($"{status.Name}: {status.Count}/{status.Total} {args.ProgressPercentage} {status.Status}");
-
 			var clientState = ViewModel.SyncClients.FirstOrDefault(x => x.Client.Name == status.Name);
 			if (clientState == null)
 			{
@@ -277,6 +241,17 @@ namespace Speed.Benchmarks
 			}
 
 			ViewModel.Output += message + Environment.NewLine;
+		}
+
+		private void WriteError(string message)
+		{
+			if (!Dispatcher.CheckAccess())
+			{
+				Dispatcher.Invoke(() => WriteError(message));
+				return;
+			}
+
+			ViewModel.Errors += message + Environment.NewLine;
 		}
 
 		#endregion

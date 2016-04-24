@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -146,6 +145,15 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Removes sync tombstones that represent match the filter.
+		/// </summary>
+		/// <param name="filter"> The filter to use. </param>
+		public void RemoveSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
+		{
+			SyncTombstones.Remove(filter);
+		}
+
+		/// <summary>
 		/// Save the data to the data store.
 		/// </summary>
 		/// <returns> The number of items saved. </returns>
@@ -156,21 +164,27 @@ namespace Speedy
 				throw new OverflowException("Database save changes stuck in a processing loop.");
 			}
 
-			Repositories.Values.ForEach(x => x.ValidateEntities());
-			Repositories.Values.ForEach(x => x.UpdateRelationships());
-			Repositories.Values.ForEach(x => x.AssignKeys());
-			Repositories.Values.ForEach(x => x.UpdateLocalSyncIds());
-			Repositories.Values.ForEach(x => x.UpdateRelationships());
-
-			var response = Repositories.Values.Sum(x => x.SaveChanges());
-
-			if (Repositories.Any(x => x.Value.HasChanges()))
+			try
 			{
-				response += SaveChanges();
-			}
+				Repositories.Values.ForEach(x => x.ValidateEntities());
+				Repositories.Values.ForEach(x => x.UpdateRelationships());
+				Repositories.Values.ForEach(x => x.AssignKeys());
+				Repositories.Values.ForEach(x => x.UpdateLocalSyncIds());
+				Repositories.Values.ForEach(x => x.UpdateRelationships());
 
-			_saveChangeCount = 0;
-			return response;
+				var response = Repositories.Values.Sum(x => x.SaveChanges());
+
+				if (Repositories.Any(x => x.Value.HasChanges()))
+				{
+					response += SaveChanges();
+				}
+
+				return response;
+			}
+			finally
+			{
+				_saveChangeCount = 0;
+			}
 		}
 
 		/// <summary>
@@ -313,8 +327,6 @@ namespace Speedy
 
 			foreach (var relationship in Relationships.Where(x => x.Key.StartsWith(key)))
 			{
-				Debug.WriteLine(relationship.Key);
-
 				var repository = (IRepository) relationship.Value[0];
 				if (!repository.HasDependentRelationship(relationship.Value, entity.Id))
 				{

@@ -145,6 +145,15 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
+		/// Removes sync tombstones that represent match the filter.
+		/// </summary>
+		/// <param name="filter"> The filter to use. </param>
+		public void RemoveSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
+		{
+			_syncTombstones.Remove(filter);
+		}
+
+		/// <summary>
 		/// Gets a list of sync tombstones that represent deleted entities.
 		/// </summary>
 		/// <param name="since"> The date and time get changes for. </param>
@@ -188,13 +197,16 @@ namespace Speedy.EntityFramework
 					response += SaveChanges();
 				}
 
-				_saveChangeCount = 0;
 				return response;
 			}
 			catch (Exception ex)
 			{
 				ProcessException(ex);
 				throw;
+			}
+			finally
+			{
+				_saveChangeCount = 0;
 			}
 		}
 

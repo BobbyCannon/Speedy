@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -78,7 +77,8 @@ namespace Speedy
 		/// </summary>
 		/// <param name="database"> The database to sync changes for. </param>
 		/// <param name="objects"> The list of objects that have changed. </param>
-		public static IEnumerable<SyncIssue> ApplySyncChanges(this ISyncableDatabase database, IEnumerable<SyncObject> objects)
+		/// <param name="corrections"> True if applying corrections or if applying changes. Defaults to false (changes). </param>
+		public static IEnumerable<SyncIssue> ApplySyncChanges(this ISyncableDatabase database, IEnumerable<SyncObject> objects, bool corrections = false)
 		{
 			var groups = objects.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
 
@@ -91,10 +91,20 @@ namespace Speedy
 
 			var response = new List<SyncIssue>();
 
-			groups.ForEach(x => ProcessSyncObjects(database, x.Where(y => y.Status != SyncObjectStatus.Deleted), response));
-			groups.Reverse().ForEach(x => ProcessSyncObjects(database, x.Where(y => y.Status == SyncObjectStatus.Deleted), response));
+			groups.ForEach(x => ProcessSyncObjects(database, x.Where(y => y.Status != SyncObjectStatus.Deleted), response, corrections));
+			groups.Reverse().ForEach(x => ProcessSyncObjects(database, x.Where(y => y.Status == SyncObjectStatus.Deleted), response, corrections));
 
 			return response;
+		}
+
+		/// <summary>
+		/// Sync a list of entities changes.
+		/// </summary>
+		/// <param name="database"> The database to sync changes for. </param>
+		/// <param name="objects"> The list of objects that have changed. </param>
+		public static IEnumerable<SyncIssue> ApplySyncCorrections(this ISyncableDatabase database, IEnumerable<SyncObject> objects)
+		{
+			return ApplySyncChanges(database, objects, true);
 		}
 
 		/// <summary>
@@ -236,6 +246,37 @@ namespace Speedy
 				.ToList();
 
 			response.AddRange(tombStones);
+			return response;
+		}
+
+		/// <summary>
+		/// Gets the correction sync objects for the sync issues.
+		/// </summary>
+		/// <param name="database"> The database to query. </param>
+		/// <param name="issues"> The issues to try and correct. </param>
+		/// <returns> The list of changes from the server. </returns>
+		public static IEnumerable<SyncObject> GetSyncCorrections(this ISyncableDatabase database, IEnumerable<SyncIssue> issues)
+		{
+			var response = new List<SyncObject>();
+
+			foreach (var issue in issues)
+			{
+				switch (issue.IssueType)
+				{
+					case SyncIssueType.RelationshipConstraint:
+						// Assuming this is because the entity was deleted but then used in another
+						// client or server. This means we should sync it again.
+						var repository = database.GetSyncableRepository(Type.GetType(issue.TypeName));
+						var entity = repository.Read(issue.Id);
+
+						if (entity != null)
+						{
+							response.Add(entity.ToSyncObject());
+						}
+						break;
+				}
+			}
+
 			return response;
 		}
 
@@ -613,6 +654,21 @@ namespace Speedy
 			}, 1000, 10);
 		}
 
+		internal static Task Wrap(Action action)
+		{
+			return Task.Factory.StartNew(action);
+		}
+
+		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
+		{
+			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
+
+			if (ex.InnerException != null)
+			{
+				AddExceptionToBuilder(builder, ex.InnerException);
+			}
+		}
+
 		private static object GetPropertyValue(dynamic item, string name)
 		{
 			Type t = item.GetType();
@@ -633,84 +689,17 @@ namespace Speedy
 			return response;
 		}
 
-		private static void ProcessSyncObjects(ISyncableDatabase database, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues)
-		{
-			var syncObjectList = syncObjects.ToList();
-			syncObjectList.ForEach(x => ProcessSyncObject(x, database));
-			
-			try
-			{
-				database.SaveChanges();
-			}
-			catch
-			{
-				ProcessSyncObjectsIndividually(database, syncObjectList, issues);
-			}
-		}
-
-		private static void ProcessSyncObjectsIndividually(ISyncableDatabase database, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues)
-		{
-			foreach (var syncObject in syncObjects)
-			{
-				ProcessSyncObject(syncObject, database);
-
-				try
-				{
-					database.SaveChanges();
-				}
-				catch (InvalidOperationException)
-				{
-					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
-				}
-				catch (Exception ex)
-				{
-					var details = ex.ToDetailedString();
-
-					// Cannot catch the DbUpdateException without reference EntityFramework.
-					if (details.Contains("conflicted with the FOREIGN KEY constraint")
-						|| details.Contains("The DELETE statement conflicted with the REFERENCE constraint"))
-					{
-						issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
-						continue;
-					}
-
-					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.Unknown, TypeName = syncObject.TypeName });
-				}
-			}
-		}
-
-		/// <summary>
-		/// Gets a detailed string of the exception. Includes messages of all exceptions.
-		/// </summary>
-		/// <param name="ex"> The exception to process. </param>
-		/// <returns> The detailed string of the exception. </returns>
-		private static string ToDetailedString(this Exception ex)
-		{
-			var builder = new StringBuilder();
-			AddExceptionToBuilder(builder, ex);
-			return builder.ToString();
-		}
-
-		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
-		{
-			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
-
-			if (ex.InnerException != null)
-			{
-				AddExceptionToBuilder(builder, ex.InnerException);
-			}
-		}
-
-		private static void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database)
+		private static void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction)
 		{
 			var syncEntity = syncObject.ToSyncEntity();
-
-			Debug.WriteLine("ProcessGroup: " + syncEntity.GetRealType() + " : " + syncEntity.SyncId + " - " + syncObject.Status + " on " + syncEntity.ModifiedOn.TimeOfDay);
-
 			if (database.GetSyncTombstones(x => x.SyncId == syncEntity.SyncId).Any())
 			{
-				Debug.WriteLine("Tombstoned Already: " + syncEntity.SyncId);
-				return;
+				if (!correction)
+				{
+					return;
+				}
+
+				database.RemoveSyncTombstones(x => x.SyncId == syncEntity.SyncId);
 			}
 
 			var type = syncEntity.GetType();
@@ -741,14 +730,10 @@ namespace Speedy
 					break;
 
 				case SyncObjectStatus.Modified:
-					if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn)
+					if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn || correction)
 					{
-						foundEntity.UpdateLocalRelationships(database);
-						foundEntity.Update(syncEntity, database);
-					}
-					else
-					{
-						Debug.WriteLine("Skipping : " + syncEntity.SyncId);
+						foundEntity?.UpdateLocalRelationships(database);
+						foundEntity?.Update(syncEntity, database);
 					}
 					break;
 
@@ -757,14 +742,55 @@ namespace Speedy
 					{
 						repository.Remove(foundEntity);
 					}
-					else
-					{
-						Debug.WriteLine("Delete Failed, Not Found: " + syncEntity.SyncId);
-					}
 					break;
 
 				default:
 					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		private static void ProcessSyncObjects(ISyncableDatabase database, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
+		{
+			var syncObjectList = syncObjects.ToList();
+
+			try
+			{
+				syncObjectList.ForEach(x => ProcessSyncObject(x, database, corrections));
+				database.SaveChanges();
+			}
+			catch
+			{
+				ProcessSyncObjectsIndividually(database, syncObjectList, issues, corrections);
+			}
+		}
+
+		private static void ProcessSyncObjectsIndividually(ISyncableDatabase database, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
+		{
+			foreach (var syncObject in syncObjects)
+			{
+				try
+				{
+					ProcessSyncObject(syncObject, database, corrections);
+					database.SaveChanges();
+				}
+				catch (InvalidOperationException)
+				{
+					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
+				}
+				catch (Exception ex)
+				{
+					var details = ex.ToDetailedString();
+
+					// Cannot catch the DbUpdateException without reference EntityFramework.
+					if (details.Contains("conflicted with the FOREIGN KEY constraint")
+						|| details.Contains("The DELETE statement conflicted with the REFERENCE constraint"))
+					{
+						issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
+						continue;
+					}
+
+					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.Unknown, TypeName = syncObject.TypeName });
+				}
 			}
 		}
 
@@ -781,9 +807,16 @@ namespace Speedy
 			return ordered;
 		}
 
-		internal static Task Wrap(Action action)
+		/// <summary>
+		/// Gets a detailed string of the exception. Includes messages of all exceptions.
+		/// </summary>
+		/// <param name="ex"> The exception to process. </param>
+		/// <returns> The detailed string of the exception. </returns>
+		private static string ToDetailedString(this Exception ex)
 		{
-			return Task.Factory.StartNew(action);
+			var builder = new StringBuilder();
+			AddExceptionToBuilder(builder, ex);
+			return builder.ToString();
 		}
 
 		#endregion

@@ -37,11 +37,17 @@ namespace Speedy
 		ISyncableRepository GetSyncableRepository(Type type);
 
 		/// <summary>
-		/// Gets a list of sync tombstones that represent deleted entities.
+		/// Gets a list of sync tombstones that matches the filter.
 		/// </summary>
 		/// <param name="filter"> The filter to use. </param>
 		/// <returns> The list of sync tombstones. </returns>
 		IQueryable<SyncTombstone> GetSyncTombstones(Expression<Func<SyncTombstone, bool>> filter);
+
+		/// <summary>
+		/// Removes sync tombstones that represent match the filter.
+		/// </summary>
+		/// <param name="filter"> The filter to use. </param>
+		void RemoveSyncTombstones(Expression<Func<SyncTombstone, bool>> filter);
 
 		#endregion
 	}

@@ -287,13 +287,13 @@ namespace Speedy.Tests
 
 				engine.Run();
 
-				var expected = new[] { new SyncIssue { Id = removedAddress.SyncId, TypeName = removedAddress.GetRealType().ToAssemblyName(), IssueType = SyncIssueType.RelationshipConstraint } };
-				TestHelper.AreEqual(expected, engine.SyncIssues.ToArray());
-				
-				using (var clientDatabase = client.GetDatabase())
-				{
-					Assert.AreEqual("Bar", clientDatabase.People.First().Address.Line1);
-				}
+				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
+				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
+				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
+				Assert.AreEqual(2, client.Database.Addresses.Count());
+				Assert.AreEqual(1, client.Database.People.Count());
+				Assert.AreEqual(2, server.Database.Addresses.Count());
+				Assert.AreEqual(1, server.Database.People.Count());
 			});
 		}
 
@@ -330,12 +330,15 @@ namespace Speedy.Tests
 
 				engine.Run();
 
-				var expected = new[] { new SyncIssue { Id = removedAddress.SyncId, TypeName = removedAddress.GetRealType().ToAssemblyName(), IssueType = SyncIssueType.RelationshipConstraint } };
-				TestHelper.AreEqual(expected, engine.SyncIssues.ToArray());
-
 				using (var serverDatabase = server.GetDatabase())
 				{
 					Assert.AreEqual("Bar", serverDatabase.People.First().Address.Line1);
+					TestHelper.AreEqual(serverDatabase.Addresses.Count(), client.Database.Addresses.Count());
+					TestHelper.AreEqual(serverDatabase.People.Count(), client.Database.People.Count());
+					Assert.AreEqual(2, client.Database.Addresses.Count());
+					Assert.AreEqual(1, client.Database.People.Count());
+					Assert.AreEqual(2, serverDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.People.Count());
 				}
 			});
 		}
