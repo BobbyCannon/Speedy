@@ -1,4 +1,8 @@
-﻿using System;
+﻿#region References
+
+using System;
+
+#endregion
 
 namespace Speedy.Samples
 {
@@ -20,7 +24,11 @@ namespace Speedy.Samples
 
 		#endregion
 
+		#region Properties
+
 		private Lazy<ContosoDatabase> MemoryDatabase { get; }
+
+		#endregion
 
 		#region Methods
 

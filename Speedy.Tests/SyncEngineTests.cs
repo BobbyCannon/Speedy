@@ -233,7 +233,7 @@ namespace Speedy.Tests
 
 				Assert.AreEqual(1, client.Database.Addresses.Count());
 				Assert.AreEqual(1, server.Database.Addresses.Count());
-				
+
 				server.Database.Addresses.First().Line1 = "123 Server Street";
 				server.Database.Addresses.First().Line2 = "Server2";
 				server.SaveChanges();

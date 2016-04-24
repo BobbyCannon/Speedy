@@ -77,20 +77,12 @@ namespace Speedy.Storage
 			{
 				query = query.Skip(skip);
 			}
-			
+
 			return query
 				.Take(take)
 				.ToList()
 				.Select(x => x.ToSyncObject())
 				.Where(x => x != null);
-		}
-
-		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)
-		{
-			return this.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
-				.OrderBy(x => x.ModifiedOn)
-				.ThenBy(x => x.Id)
-				.AsQueryable();
 		}
 
 		/// <summary>
@@ -117,6 +109,14 @@ namespace Speedy.Storage
 			}
 
 			base.Remove(entityCheck);
+		}
+
+		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)
+		{
+			return this.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+				.OrderBy(x => x.ModifiedOn)
+				.ThenBy(x => x.Id)
+				.AsQueryable();
 		}
 
 		#endregion

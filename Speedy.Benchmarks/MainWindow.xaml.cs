@@ -3,12 +3,10 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Samples.Sync;
@@ -131,7 +129,7 @@ namespace Speed.Benchmarks
 				result = true;
 				client.SaveChanges();
 			}
-			
+
 			if (number % 10 == 0) // 10%
 			{
 				// Delete Person or Address?
@@ -232,17 +230,6 @@ namespace Speed.Benchmarks
 			ViewModel.SyncStatus = "Sync";
 		}
 
-		private void WriteLine(string message)
-		{
-			if (!Dispatcher.CheckAccess())
-			{
-				Dispatcher.Invoke(() => WriteLine(message));
-				return;
-			}
-
-			ViewModel.Output += message + Environment.NewLine;
-		}
-
 		private void WriteError(string message)
 		{
 			if (!Dispatcher.CheckAccess())
@@ -252,6 +239,17 @@ namespace Speed.Benchmarks
 			}
 
 			ViewModel.Errors += message + Environment.NewLine;
+		}
+
+		private void WriteLine(string message)
+		{
+			if (!Dispatcher.CheckAccess())
+			{
+				Dispatcher.Invoke(() => WriteLine(message));
+				return;
+			}
+
+			ViewModel.Output += message + Environment.NewLine;
 		}
 
 		#endregion

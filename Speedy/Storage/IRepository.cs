@@ -14,6 +14,8 @@ namespace Speedy.Storage
 
 		bool HasChanges();
 
+		bool HasDependentRelationship(object[] value, int id);
+
 		Entity Read(int id);
 
 		int SaveChanges();
@@ -23,8 +25,6 @@ namespace Speedy.Storage
 		void UpdateRelationships();
 
 		void ValidateEntities();
-
-		bool HasDependentRelationship(object[] value, int id);
 
 		#endregion
 	}

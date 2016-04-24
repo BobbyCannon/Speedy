@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Linq.Expressions;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
 

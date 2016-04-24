@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using KellermanSoftware.CompareNetObjects;
@@ -70,7 +68,7 @@ namespace Speed.Benchmarks
 			database.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 			return database;
 		}
-		
+
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
 		{
 			var list = collection.ToList();

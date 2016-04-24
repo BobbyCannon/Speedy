@@ -45,170 +45,6 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void GetSyncChangesWithSkipTake()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(context =>
-			{
-				using (context)
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = DateTime.Parse("04/23/2016 2:30 PM"), ModifiedOn = DateTime.Parse("04/23/2016 2:30 PM") };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-
-					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(1, actual.Count);
-					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-				}
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactSince()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(context =>
-			{
-				using (context)
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-
-					var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(1, actual.Count);
-					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-				}
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactSinceWithManyExactCreated()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(context =>
-			{
-				using (context)
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-
-					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
-
-					request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
-					actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address4.ToJson(true), actual[1].Data);
-				}
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactUntil()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(context =>
-			{
-				using (context)
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-
-					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
-				}
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactSinceAndUntil()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(context =>
-			{
-				using (context)
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-
-					var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
-				}
-			});
-		}
-
-		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
 			TestHelper.GetDataContexts().ForEach(context =>
@@ -391,6 +227,170 @@ namespace Speedy.Tests
 					Assert.AreEqual(2, context.Addresses.Count());
 					Assert.AreEqual(1, context.Addresses.First().People.Count);
 					Assert.AreEqual(1, context.People.Count());
+				}
+			});
+		}
+
+		[TestMethod]
+		public void GetSyncChangesWithExactSince()
+		{
+			var options = new DatabaseOptions { MaintainDates = false };
+
+			TestHelper.GetDataContexts(options).ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
+
+					context.SaveChanges();
+
+					var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(1, actual.Count);
+					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
+				}
+			});
+		}
+
+		[TestMethod]
+		public void GetSyncChangesWithExactSinceAndUntil()
+		{
+			var options = new DatabaseOptions { MaintainDates = false };
+
+			TestHelper.GetDataContexts(options).ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
+
+					context.SaveChanges();
+
+					var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+				}
+			});
+		}
+
+		[TestMethod]
+		public void GetSyncChangesWithExactSinceWithManyExactCreated()
+		{
+			var options = new DatabaseOptions { MaintainDates = false };
+
+			TestHelper.GetDataContexts(options).ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
+
+					context.SaveChanges();
+
+					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+
+					request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
+					actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address4.ToJson(true), actual[1].Data);
+				}
+			});
+		}
+
+		[TestMethod]
+		public void GetSyncChangesWithExactUntil()
+		{
+			var options = new DatabaseOptions { MaintainDates = false };
+
+			TestHelper.GetDataContexts(options).ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
+
+					context.SaveChanges();
+
+					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(2, actual.Count);
+					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+				}
+			});
+		}
+
+		[TestMethod]
+		public void GetSyncChangesWithSkipTake()
+		{
+			var options = new DatabaseOptions { MaintainDates = false };
+
+			TestHelper.GetDataContexts(options).ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = DateTime.Parse("04/23/2016 2:30 PM"), ModifiedOn = DateTime.Parse("04/23/2016 2:30 PM") };
+					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+
+					context.Addresses.Add(address1);
+					context.Addresses.Add(address2);
+					context.Addresses.Add(address3);
+					context.Addresses.Add(address4);
+
+					context.SaveChanges();
+
+					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
+					var actual = context.GetSyncChanges(request).ToList();
+					Assert.AreEqual(1, actual.Count);
+					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
 				}
 			});
 		}
@@ -583,6 +583,36 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void RemoveSingleEntityDependantRelationship()
+		{
+			TestHelper.GetDataContexts().ForEach(context =>
+			{
+				using (context)
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					address.People.Add(new Person { Name = "John Doe" });
+					context.Addresses.Add(address);
+
+					Assert.AreEqual(0, context.Addresses.Count());
+					Assert.AreEqual(0, context.People.Count());
+
+					context.SaveChanges();
+
+					Assert.AreEqual(1, context.Addresses.Count());
+					Assert.AreEqual(1, context.Addresses.First().People.Count);
+					Assert.AreEqual(1, context.People.Count());
+
+					context.Addresses.Remove(address);
+
+					var expected = "The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.";
+					TestHelper.ExpectedException<InvalidOperationException>(() => context.SaveChanges(), expected);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void RemoveSingleEntityRelationship()
 		{
 			TestHelper.GetDataContexts().ForEach(context =>
@@ -610,36 +640,6 @@ namespace Speedy.Tests
 					Assert.AreEqual(1, context.Addresses.Count());
 					Assert.AreEqual(0, context.Addresses.First().People.Count);
 					Assert.AreEqual(0, context.People.Count());
-				}
-			});
-		}
-
-		[TestMethod]
-		public void RemoveSingleEntityDependantRelationship()
-		{
-			TestHelper.GetDataContexts().ForEach(context =>
-			{
-				using (context)
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					address.People.Add(new Person { Name = "John Doe" });
-					context.Addresses.Add(address);
-
-					Assert.AreEqual(0, context.Addresses.Count());
-					Assert.AreEqual(0, context.People.Count());
-
-					context.SaveChanges();
-
-					Assert.AreEqual(1, context.Addresses.Count());
-					Assert.AreEqual(1, context.Addresses.First().People.Count);
-					Assert.AreEqual(1, context.People.Count());
-
-					context.Addresses.Remove(address);
-
-					var expected = "The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.";
-					TestHelper.ExpectedException<InvalidOperationException>(() => context.SaveChanges(), expected);
 				}
 			});
 		}

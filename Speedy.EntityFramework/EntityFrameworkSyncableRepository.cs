@@ -83,14 +83,6 @@ namespace Speedy.EntityFramework
 				.ToList();
 		}
 
-		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)
-		{
-			return Set.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
-				.OrderBy(x => x.ModifiedOn)
-				.ThenBy(x => x.Id)
-				.AsQueryable();
-		}
-
 		/// <summary>
 		/// Gets the sync entity by the ID.
 		/// </summary>
@@ -108,6 +100,14 @@ namespace Speedy.EntityFramework
 		public void Remove(SyncEntity entity)
 		{
 			base.Remove((T) entity);
+		}
+
+		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)
+		{
+			return Set.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+				.OrderBy(x => x.ModifiedOn)
+				.ThenBy(x => x.Id)
+				.AsQueryable();
 		}
 
 		#endregion
