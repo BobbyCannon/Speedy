@@ -26,20 +26,17 @@ namespace Speedy.Tests
 
 					var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
-					using (context)
-					{
-						context.Addresses.Add(expected);
-						var actual = context.Addresses.FirstOrDefault();
-						Assert.IsNull(actual);
+					context.Addresses.Add(expected);
+					var actual = context.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
 
-						context.SaveChanges();
+					context.SaveChanges();
 
-						actual = context.Addresses.FirstOrDefault();
-						Assert.IsNotNull(actual);
-						Assert.AreNotEqual(0, actual.Id);
-						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual);
-					}
+					actual = context.Addresses.FirstOrDefault();
+					Assert.IsNotNull(actual);
+					Assert.AreNotEqual(0, actual.Id);
+					Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
+					TestHelper.AreEqual(expected, actual);
 				}
 			});
 		}

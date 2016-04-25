@@ -57,7 +57,7 @@ namespace Speed.Benchmarks
 			var compareObjects = new CompareLogic();
 			compareObjects.Config.MaxDifferences = int.MaxValue;
 			compareObjects.Config.CompareChildren = includeChildren;
-			//compareObjects.Config.MembersToIgnore = new List<string>(new[] { "Id" });
+			compareObjects.Config.IgnoreObjectTypes = true;
 
 			var result = compareObjects.Compare(expected, actual);
 			Assert.IsTrue(result.AreEqual, result.DifferencesString);

@@ -10,6 +10,11 @@
 
 		#region Constructors
 
+		public EntityFrameworkContosoDatabaseProvider()
+			: this("name=DefaultConnection")
+		{
+		}
+
 		public EntityFrameworkContosoDatabaseProvider(string connectionString)
 		{
 			_connectionString = connectionString;

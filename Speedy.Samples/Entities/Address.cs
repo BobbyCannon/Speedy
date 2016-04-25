@@ -46,7 +46,7 @@ namespace Speedy.Samples.Entities
 		/// </summary>
 		public override void UpdateLocalRelationships(ISyncableDatabase database)
 		{
-			this.UpdateIf(() => LinkedAddressSyncId != null, () => LinkedAddress = database.GetRepository<Address>().First(x => x.SyncId == LinkedAddressSyncId));
+			this.UpdateIf(() => LinkedAddressSyncId != null, () => LinkedAddress.Id = database.GetRepository<Address>().First(x => x.SyncId == LinkedAddressSyncId).Id);
 		}
 
 		/// <summary>

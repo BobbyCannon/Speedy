@@ -34,7 +34,7 @@ namespace Speedy.Samples
 
 		static EntityFrameworkContosoDatabase()
 		{
-			System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersion<EntityFrameworkContosoDatabase, Migrations.Configuration>());
+			System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersionByContext<EntityFrameworkContosoDatabase, Migrations.Configuration>());
 		}
 
 		#endregion

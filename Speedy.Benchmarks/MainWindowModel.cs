@@ -45,7 +45,7 @@ namespace Speed.Benchmarks
 	{
 		#region Constructors
 
-		public SyncClientState(ContosoSyncClient syncClient)
+		public SyncClientState(IContosoSyncClient syncClient)
 		{
 			Client = syncClient;
 			PreviousSyncedOn = DateTime.MinValue;
@@ -59,7 +59,7 @@ namespace Speed.Benchmarks
 
 		public int AddressCount { get; set; }
 
-		public ContosoSyncClient Client { get; }
+		public IContosoSyncClient Client { get; }
 
 		public DateTime LastSyncedOn { get; set; }
 

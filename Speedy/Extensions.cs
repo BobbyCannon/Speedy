@@ -78,7 +78,7 @@ namespace Speedy
 		/// <param name="database"> The database to sync changes for. </param>
 		/// <param name="objects"> The list of objects that have changed. </param>
 		/// <param name="corrections"> True if applying corrections or if applying changes. Defaults to false (changes). </param>
-		public static IEnumerable<SyncIssue> ApplySyncChanges(this ISyncableDatabase database, IEnumerable<SyncObject> objects, bool corrections = false)
+		public static IEnumerable<SyncIssue> ApplySyncChanges(this IDatabase database, IEnumerable<SyncObject> objects, bool corrections = false)
 		{
 			var groups = objects.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
 
@@ -730,9 +730,10 @@ namespace Speedy
 					break;
 
 				case SyncObjectStatus.Modified:
+					foundEntity?.UpdateLocalRelationships(database);
+
 					if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn || correction)
 					{
-						foundEntity?.UpdateLocalRelationships(database);
 						foundEntity?.Update(syncEntity, database);
 					}
 					break;

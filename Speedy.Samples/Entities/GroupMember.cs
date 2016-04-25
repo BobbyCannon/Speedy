@@ -38,8 +38,19 @@ namespace Speedy.Samples.Entities
 		/// </summary>
 		public override void UpdateLocalRelationships(ISyncableDatabase database)
 		{
-			this.UpdateIf(() => Group != null, () => Group = database.GetRepository<Group>().First(x => x.SyncId == GroupSyncId));
-			this.UpdateIf(() => Member != null, () => Member = database.GetRepository<Person>().First(x => x.SyncId == MemberSyncId));
+			this.UpdateIf(() => Group != null, () =>
+			{
+				Group = database.GetRepository<Group>().First(x => x.SyncId == GroupSyncId);
+				GroupId = Group.Id;
+				return true;
+			});
+
+			this.UpdateIf(() => Member != null, () =>
+			{
+				Member = database.GetRepository<Person>().First(x => x.SyncId == MemberSyncId);
+				MemberId = Member.Id;
+				return true;
+			});
 		}
 
 		/// <summary>

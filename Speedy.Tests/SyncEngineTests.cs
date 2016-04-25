@@ -1,7 +1,7 @@
 ﻿#region References
 
-using System;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
@@ -23,14 +23,19 @@ namespace Speedy.Tests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				server.Database.AddAndSaveChanges(NewAddress("Blah"));
-				client.SaveChanges();
+				server.GetDatabase().AddAndSaveChanges(NewAddress("Blah"));
 
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
+				Assert.AreEqual(0, engine.SyncIssues.Count);
+
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+				}
 			});
 		}
 
@@ -39,17 +44,18 @@ namespace Speedy.Tests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				server.Database.AddAndSaveChanges(NewAddress("Foo"));
-				client.SaveChanges();
+				server.GetDatabase().AddAndSaveChanges(NewAddress("Foo"));
+				server.GetDatabase().AddAndSaveChanges(NewAddress("Bar"));
 
-				server.Database.Addresses.Add(NewAddress("Bar"));
-				server.SaveChanges();
-
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(2, client.Database.Addresses.Count());
-				Assert.AreEqual(2, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(2, clientDatabase.Addresses.Count());
+					Assert.AreEqual(2, serverDatabase.Addresses.Count());
+				}
 			});
 		}
 
@@ -63,19 +69,20 @@ namespace Speedy.Tests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				client.Database.People.Add(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
-				client.SaveChanges();
+				client.GetDatabase().AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				server.GetDatabase().AddAndSaveChanges(NewAddress("Bar"));
 
-				server.Database.Addresses.Add(NewAddress("Bar"));
-				server.SaveChanges();
-
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(2, server.Database.People.First().Address.Id);
-				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
-				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
-				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(2, serverDatabase.People.First().Address.Id);
+					Assert.AreEqual("Foo", serverDatabase.People.First().Address.Line1);
+					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
+				}
 			});
 		}
 
@@ -84,14 +91,17 @@ namespace Speedy.Tests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				server.Database.Addresses.Add(NewAddress("Blah"));
-				server.SaveChanges();
+				server.GetDatabase().AddAndSaveChanges(NewAddress("Blah"));
 
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+				}
 			});
 		}
 
@@ -100,19 +110,20 @@ namespace Speedy.Tests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				client.Database.People.Add(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
-				client.SaveChanges();
+				client.GetDatabase().AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				server.GetDatabase().AddAndSaveChanges(new Person { Address = NewAddress("Bar"), Name = "Bar Foo" });
 
-				server.Database.People.Add(new Person { Address = NewAddress("Bar"), Name = "Bar Foo" });
-				server.SaveChanges();
-
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(2, client.Database.Addresses.Count());
-				Assert.AreEqual(2, client.Database.People.Count());
-				Assert.AreEqual(2, server.Database.Addresses.Count());
-				Assert.AreEqual(2, server.Database.People.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(2, clientDatabase.Addresses.Count());
+					Assert.AreEqual(2, clientDatabase.People.Count());
+					Assert.AreEqual(2, serverDatabase.Addresses.Count());
+					Assert.AreEqual(2, serverDatabase.People.Count());
+				}
 			});
 		}
 
@@ -123,19 +134,20 @@ namespace Speedy.Tests
 			{
 				var person = new Person { Address = NewAddress("Foo"), Name = "Foo Bar" };
 
-				client.Database.People.Add(person);
-				client.SaveChanges();
+				client.GetDatabase().AddAndSaveChanges(person);
+				server.GetDatabase().AddAndSaveChanges(person);
 
-				server.Database.People.Add(person);
-				server.SaveChanges();
-
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, client.Database.People.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.People.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.People.Count());
+				}
 			});
 		}
 
@@ -145,23 +157,31 @@ namespace Speedy.Tests
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				var address = NewAddress("123 Elm Street");
-				server.Database.AddAndSaveChanges(address);
-				client.Database.AddAndSaveChanges(address);
+				server.GetDatabase().AddAndSaveChanges(address);
+				client.GetDatabase().AddAndSaveChanges(address);
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
 
-				client.Database.Addresses.Remove(address);
-				client.SaveChanges();
+					clientDatabase.Addresses.Remove(x => x.SyncId == address.SyncId);
+					clientDatabase.SaveChanges();
 
-				Assert.AreEqual(0, client.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
+					Assert.AreEqual(0, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+				}
 
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(0, client.Database.Addresses.Count());
-				Assert.AreEqual(0, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(0, clientDatabase.Addresses.Count());
+					Assert.AreEqual(0, serverDatabase.Addresses.Count());
+				}
 			});
 		}
 
@@ -171,23 +191,31 @@ namespace Speedy.Tests
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				var address = NewAddress("123 Elm Street");
-				server.Database.AddAndSaveChanges(address);
-				client.Database.AddAndSaveChanges(address);
+				server.GetDatabase().AddAndSaveChanges(address);
+				client.GetDatabase().AddAndSaveChanges(address);
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
 
-				server.Database.Addresses.Remove(x => x.Id > 0);
-				server.SaveChanges();
+					serverDatabase.Addresses.Remove(x => x.Id > 0);
+					serverDatabase.SaveChanges();
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(0, server.Database.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(0, serverDatabase.Addresses.Count());
+				}
 
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(0, client.Database.Addresses.Count());
-				Assert.AreEqual(0, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(0, clientDatabase.Addresses.Count());
+					Assert.AreEqual(0, serverDatabase.Addresses.Count());
+				}
 			});
 		}
 
@@ -197,28 +225,36 @@ namespace Speedy.Tests
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				var address = NewAddress("123 Elm Street");
-				server.Database.AddAndSaveChanges(address);
-				client.Database.AddAndSaveChanges(address);
+				server.GetDatabase().AddAndSaveChanges(address);
+				client.GetDatabase().AddAndSaveChanges(address);
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
 
-				client.Database.Addresses.First().Line1 = "Foo Client";
-				client.SaveChanges();
+					clientDatabase.Addresses.First().Line1 = "Foo Client";
+					clientDatabase.SaveChanges();
 
-				server.Database.Addresses.First().Line1 = "Foo Server";
-				server.Database.Addresses.First().Line2 = "Foo Server2";
-				server.SaveChanges();
+					serverDatabase.Addresses.First().Line1 = "Foo Server";
+					serverDatabase.Addresses.First().Line2 = "Foo Server2";
+					serverDatabase.SaveChanges();
+				}
 
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual("Foo Server", client.Database.Addresses.First().Line1);
-				Assert.AreEqual("Foo Server2", client.Database.Addresses.First().Line2);
-				Assert.AreEqual(1, server.Database.Addresses.Count());
-				Assert.AreEqual("Foo Server", server.Database.Addresses.First().Line1);
-				Assert.AreEqual("Foo Server2", server.Database.Addresses.First().Line2);
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual("Foo Server", clientDatabase.Addresses.First().Line1);
+					Assert.AreEqual("Foo Server2", clientDatabase.Addresses.First().Line2);
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+					Assert.AreEqual("Foo Server", serverDatabase.Addresses.First().Line1);
+					Assert.AreEqual("Foo Server2", serverDatabase.Addresses.First().Line2);
+				}
 			});
 		}
 
@@ -228,28 +264,36 @@ namespace Speedy.Tests
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				var address = NewAddress("123 Elm Street");
-				server.Database.AddAndSaveChanges(address);
-				client.Database.AddAndSaveChanges(address);
+				server.GetDatabase().AddAndSaveChanges(address);
+				client.GetDatabase().AddAndSaveChanges(address);
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
 
-				server.Database.Addresses.First().Line1 = "123 Server Street";
-				server.Database.Addresses.First().Line2 = "Server2";
-				server.SaveChanges();
+					serverDatabase.Addresses.First().Line1 = "123 Server Street";
+					serverDatabase.Addresses.First().Line2 = "Server2";
+					serverDatabase.SaveChanges();
 
-				client.Database.Addresses.First().Line1 = "123 Client Street";
-				client.SaveChanges();
+					clientDatabase.Addresses.First().Line1 = "123 Client Street";
+					clientDatabase.SaveChanges();
+				}
 
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual("123 Client Street", client.Database.Addresses.First().Line1);
-				Assert.AreEqual("Server2", client.Database.Addresses.First().Line2);
-				Assert.AreEqual(1, server.Database.Addresses.Count());
-				Assert.AreEqual("123 Client Street", server.Database.Addresses.First().Line1);
-				Assert.AreEqual("Server2", server.Database.Addresses.First().Line2);
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual("123 Client Street", clientDatabase.Addresses.First().Line1);
+					Assert.AreEqual("", clientDatabase.Addresses.First().Line2);
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+					Assert.AreEqual("123 Client Street", serverDatabase.Addresses.First().Line1);
+					Assert.AreEqual("", serverDatabase.Addresses.First().Line2);
+				}
 			});
 		}
 
@@ -258,42 +302,53 @@ namespace Speedy.Tests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				client.Database.AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
-				server.Database.AddAndSaveChanges(NewAddress("Bar"));
+				client.GetDatabase().AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				server.GetDatabase().AddAndSaveChanges(NewAddress("Bar"));
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, client.Database.People.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
-				Assert.AreEqual(0, server.Database.People.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+					Assert.AreEqual(0, serverDatabase.People.Count());
+				}
 
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
-				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
-				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
-				Assert.AreEqual(2, client.Database.Addresses.Count());
-				Assert.AreEqual(1, client.Database.People.Count());
-				Assert.AreEqual(2, server.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.People.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual("Foo", serverDatabase.People.First().Address.Line1);
+					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
+					Assert.AreEqual(2, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(2, serverDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.People.Count());
 
-				var person = client.Database.People.First();
-				person.Address = client.Database.Addresses.First(x => x.Line1 == "Bar");
-				client.SaveChanges();
+					var person = client.GetDatabase().People.First();
+					person.Address = clientDatabase.Addresses.First(x => x.Line1 == "Bar");
+					clientDatabase.SaveChanges();
 
-				var removedAddress = server.Database.Addresses.First(x => x.Line1 == "Bar");
-				server.Database.Addresses.Remove(removedAddress);
-				server.SaveChanges();
-
+					var removedAddress = serverDatabase.Addresses.First(x => x.Line1 == "Bar");
+					serverDatabase.Addresses.Remove(removedAddress);
+					serverDatabase.SaveChanges();
+				}
 				engine.Run();
 
-				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
-				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
-				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
-				Assert.AreEqual(2, client.Database.Addresses.Count());
-				Assert.AreEqual(1, client.Database.People.Count());
-				Assert.AreEqual(2, server.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.People.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual("Foo", serverDatabase.People.First().Address.Line1);
+					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
+					Assert.AreEqual(2, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(2, serverDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.People.Count());
+				}
 			});
 		}
 
@@ -302,41 +357,48 @@ namespace Speedy.Tests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				client.Database.AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
-				server.Database.AddAndSaveChanges(NewAddress("Bar"));
+				client.GetDatabase().AddAndSaveChanges(new Person { Address = NewAddress("Foo"), Name = "Foo Bar" });
+				server.GetDatabase().AddAndSaveChanges(NewAddress("Bar"));
 
-				Assert.AreEqual(1, client.Database.Addresses.Count());
-				Assert.AreEqual(1, client.Database.People.Count());
-				Assert.AreEqual(1, server.Database.Addresses.Count());
-				Assert.AreEqual(0, server.Database.People.Count());
-
-				var engine = new SyncEngine(client, server, DateTime.MinValue);
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual(1, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(1, serverDatabase.Addresses.Count());
+					Assert.AreEqual(0, serverDatabase.People.Count());
+				}
+				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				Assert.AreEqual("Foo", server.Database.People.First().Address.Line1);
-				TestHelper.AreEqual(server.Database.Addresses.Count(), client.Database.Addresses.Count());
-				TestHelper.AreEqual(server.Database.People.Count(), client.Database.People.Count());
-				Assert.AreEqual(2, client.Database.Addresses.Count());
-				Assert.AreEqual(1, client.Database.People.Count());
-				Assert.AreEqual(2, server.Database.Addresses.Count());
-				Assert.AreEqual(1, server.Database.People.Count());
+				using (var clientDatabase = client.GetDatabase())
+				using (var serverDatabase = server.GetDatabase())
+				{
+					Assert.AreEqual("Foo", serverDatabase.People.First().Address.Line1);
+					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
+					Assert.AreEqual(2, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(2, serverDatabase.Addresses.Count());
+					Assert.AreEqual(1, serverDatabase.People.Count());
 
-				server.Database.People.First().Address = server.Database.Addresses.First(x => x.Line1 == "Bar");
-				server.SaveChanges();
-
-				var removedAddress = client.Database.Addresses.First(x => x.Line1 == "Bar");
-				client.Database.Addresses.Remove(removedAddress);
-				client.SaveChanges();
+					serverDatabase.People.First().Address = serverDatabase.Addresses.First(x => x.Line1 == "Bar");
+					serverDatabase.SaveChanges();
+					var removedAddress = clientDatabase.Addresses.First(x => x.Line1 == "Bar");
+					clientDatabase.Addresses.Remove(removedAddress);
+					clientDatabase.SaveChanges();
+				}
 
 				engine.Run();
 
+				using (var clientDatabase = client.GetDatabase())
 				using (var serverDatabase = server.GetDatabase())
 				{
 					Assert.AreEqual("Bar", serverDatabase.People.First().Address.Line1);
-					TestHelper.AreEqual(serverDatabase.Addresses.Count(), client.Database.Addresses.Count());
-					TestHelper.AreEqual(serverDatabase.People.Count(), client.Database.People.Count());
-					Assert.AreEqual(2, client.Database.Addresses.Count());
-					Assert.AreEqual(1, client.Database.People.Count());
+					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
+					Assert.AreEqual(2, clientDatabase.Addresses.Count());
+					Assert.AreEqual(1, clientDatabase.People.Count());
 					Assert.AreEqual(2, serverDatabase.Addresses.Count());
 					Assert.AreEqual(1, serverDatabase.People.Count());
 				}

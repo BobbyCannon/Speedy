@@ -29,15 +29,15 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="client"> The client to sync from. </param>
 		/// <param name="server"> The server to sync to. </param>
-		/// <param name="lastSyncedOn"> The last date and time the database synced. </param>
-		public SyncEngine(ISyncClient client, ISyncClient server, DateTime lastSyncedOn)
+		/// <param name="options"> The options for the sync engine. </param>
+		public SyncEngine(ISyncClient client, ISyncClient server, SyncOptions options)
 		{
 			_cancelPending = false;
 			_syncIssues = new List<SyncIssue>();
 
 			Client = client;
 			Server = server;
-			LastSyncedOn = lastSyncedOn;
+			Options = options;
 		}
 
 		#endregion
@@ -50,9 +50,9 @@ namespace Speedy.Sync
 		public ISyncClient Client { get; }
 
 		/// <summary>
-		/// Gets or sets the last synced on date and time.
+		/// Gets the options for the sync engine.
 		/// </summary>
-		public DateTime LastSyncedOn { get; set; }
+		public SyncOptions Options { get; set; }
 
 		/// <summary>
 		/// The server.
@@ -88,6 +88,7 @@ namespace Speedy.Sync
 
 			Status = SyncEngineStatus.Starting;
 			NotifyOfStatusChange();
+			Thread.Sleep(10);
 
 			StartTime = DateTime.UtcNow;
 
@@ -97,12 +98,15 @@ namespace Speedy.Sync
 				Process(Server, Client, StartTime);
 			}
 
+			Thread.Sleep(10);
+
 			if (!_cancelPending)
 			{
 				Status = SyncEngineStatus.Pushing;
 				Process(Client, Server, DateTime.UtcNow);
 			}
 
+			Thread.Sleep(10);
 			Status = SyncEngineStatus.Stopped;
 			NotifyOfStatusChange();
 		}
@@ -154,7 +158,7 @@ namespace Speedy.Sync
 		{
 			List<SyncObject> syncObjects;
 			var issues = new List<SyncIssue>();
-			var request = new SyncRequest { Since = LastSyncedOn, Until = until, Skip = 0, Take = 1 };
+			var request = new SyncRequest { Since = Options.LastSyncedOn, Until = until, Skip = 0, Take = Options.ItemsPerSyncRequest };
 			var total = getClient.GetChangeCount(request);
 
 			do
@@ -167,7 +171,7 @@ namespace Speedy.Sync
 
 			while (!_cancelPending && issues.Any())
 			{
-				var issuesToProcess = issues.Take(1).ToList();
+				var issuesToProcess = issues.Take(Options.ItemsPerSyncRequest).ToList();
 				syncObjects = applyClient.GetCorrections(issuesToProcess).ToList();
 				_syncIssues.AddRange(getClient.ApplyCorrections(syncObjects));
 				issuesToProcess.ForEach(x => issues.Remove(x));

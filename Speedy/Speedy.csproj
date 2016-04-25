@@ -94,6 +94,7 @@
     <Compile Include="Sync\SyncIssueType.cs" />
     <Compile Include="Sync\SyncObject.cs" />
     <Compile Include="Sync\SyncObjectStatus.cs" />
+    <Compile Include="Sync\SyncOptions.cs" />
     <Compile Include="Sync\SyncRequest.cs" />
     <Compile Include="Sync\SyncTombstone.cs" />
     <Compile Include="Net\WebClient.cs" />

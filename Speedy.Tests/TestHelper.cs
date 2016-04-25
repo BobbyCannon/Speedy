@@ -44,6 +44,7 @@ namespace Speedy.Tests
 			var repository = database.GetSyncableRepository(item.GetType());
 			repository.Add(item);
 			database.SaveChanges();
+			database.Dispose();
 		}
 
 		/// <summary>
@@ -177,16 +178,8 @@ namespace Speedy.Tests
 		{
 			GetServerClientScenerios().ForEach(x =>
 			{
-				try
-				{
-					Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
-					action(x.Item1, x.Item2);
-				}
-				finally
-				{
-					x.Item1.Database.Dispose();
-					x.Item2.Database.Dispose();
-				}
+				Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
+				action(x.Item1, x.Item2);
 			});
 		}
 

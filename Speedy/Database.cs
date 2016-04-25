@@ -70,7 +70,8 @@ namespace Speedy
 		/// </summary>
 		public void Dispose()
 		{
-			Repositories.Values.ForEach(x => x.Dispose());
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
@@ -184,6 +185,18 @@ namespace Speedy
 			finally
 			{
 				_saveChangeCount = 0;
+			}
+		}
+
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing"> true if managed resources should be disposed; otherwise, false. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				Repositories.Values.ForEach(x => x.Dispose());
 			}
 		}
 

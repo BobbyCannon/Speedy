@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System.Collections.Generic;
-using System.Threading;
 using Speedy.Sync;
 
 #endregion
@@ -21,16 +20,12 @@ namespace Speedy.Samples.Sync
 		public ContosoSyncClient(string name, IContosoDatabaseProvider provider)
 		{
 			_provider = provider;
-
 			Name = name;
-			Database = _provider.GetDatabase();
 		}
 
 		#endregion
 
 		#region Properties
-
-		public IContosoDatabase Database { get; }
 
 		public string Name { get; }
 
@@ -45,7 +40,10 @@ namespace Speedy.Samples.Sync
 		/// <returns> The date and time for the sync process. </returns>
 		public IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes)
 		{
-			return Database.ApplySyncChanges(changes);
+			using (var database = GetDatabase())
+			{
+				return database.ApplySyncChanges(changes);
+			}
 		}
 
 		/// <summary>
@@ -55,7 +53,10 @@ namespace Speedy.Samples.Sync
 		/// <returns> A list of sync issues if there were any. </returns>
 		public IEnumerable<SyncIssue> ApplyCorrections(IEnumerable<SyncObject> corrections)
 		{
-			return Database.ApplySyncCorrections(corrections);
+			using (var database = GetDatabase())
+			{
+				return database.ApplySyncCorrections(corrections);
+			}
 		}
 
 		/// <summary>
@@ -65,7 +66,10 @@ namespace Speedy.Samples.Sync
 		/// <returns> The list of changes from the server. </returns>
 		public int GetChangeCount(SyncRequest request)
 		{
-			return Database.GetSyncChangeCount(request);
+			using (var database = GetDatabase())
+			{
+				return database.GetSyncChangeCount(request);
+			}
 		}
 
 		/// <summary>
@@ -75,7 +79,10 @@ namespace Speedy.Samples.Sync
 		/// <returns> The list of changes from the server. </returns>
 		public IEnumerable<SyncObject> GetChanges(SyncRequest request)
 		{
-			return Database.GetSyncChanges(request);
+			using (var database = GetDatabase())
+			{
+				return database.GetSyncChanges(request);
+			}
 		}
 
 		/// <summary>
@@ -85,18 +92,15 @@ namespace Speedy.Samples.Sync
 		/// <returns> The sync objects to resolve the issues. </returns>
 		public IEnumerable<SyncObject> GetCorrections(IEnumerable<SyncIssue> issues)
 		{
-			return Database.GetSyncCorrections(issues);
+			using (var database = GetDatabase())
+			{
+				return database.GetSyncCorrections(issues);
+			}
 		}
 
 		public IContosoDatabase GetDatabase()
 		{
 			return _provider.GetDatabase();
-		}
-
-		public void SaveChanges()
-		{
-			Database.SaveChanges();
-			Thread.Sleep(1);
 		}
 
 		#endregion
