@@ -55,18 +55,5 @@ namespace Speedy
 		public TimeSpan SyncTombstoneTimeout { get; set; }
 
 		#endregion
-
-		#region Methods
-
-		/// <summary>
-		/// Gets the defaults that all base database classes will use.
-		/// </summary>
-		/// <returns> The default values databases use. </returns>
-		public static DatabaseOptions GetDefaults()
-		{
-			return new DatabaseOptions();
-		}
-
-		#endregion
 	}
 }

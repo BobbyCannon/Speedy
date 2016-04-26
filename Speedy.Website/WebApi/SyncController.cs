@@ -12,16 +12,23 @@ namespace Speedy.Website.WebApi
 {
 	public class SyncController : BaseController, ISyncClient
 	{
+		#region Fields
+
+		private readonly IContosoDatabaseProvider _provider;
+
+		#endregion
+
 		#region Constructors
 
 		public SyncController()
-			: this(new EntityFrameworkContosoDatabase())
+			: this(new EntityFrameworkContosoDatabaseProvider())
 		{
 		}
 
-		public SyncController(IContosoDatabase database)
-			: base(database)
+		public SyncController(IContosoDatabaseProvider provider)
+			: base(provider.GetDatabase())
 		{
+			_provider = provider;
 			Name = Guid.NewGuid().ToString();
 		}
 
@@ -46,7 +53,7 @@ namespace Speedy.Website.WebApi
 		[HttpPost]
 		public IEnumerable<SyncIssue> ApplyChanges([FromBody] IEnumerable<SyncObject> changes)
 		{
-			return Database.ApplySyncChanges(changes);
+			return _provider.ApplySyncChanges(changes);
 		}
 
 		/// <summary>
@@ -57,7 +64,7 @@ namespace Speedy.Website.WebApi
 		[HttpPost]
 		public IEnumerable<SyncIssue> ApplyCorrections([FromBody] IEnumerable<SyncObject> corrections)
 		{
-			return Database.ApplySyncCorrections(corrections);
+			return _provider.ApplySyncCorrections(corrections);
 		}
 
 		/// <summary>
@@ -68,7 +75,7 @@ namespace Speedy.Website.WebApi
 		[HttpPost]
 		public int GetChangeCount([FromBody] SyncRequest request)
 		{
-			return Database.GetSyncChangeCount(request);
+			return _provider.GetSyncChangeCount(request);
 		}
 
 		/// <summary>
@@ -79,7 +86,7 @@ namespace Speedy.Website.WebApi
 		[HttpPost]
 		public IEnumerable<SyncObject> GetChanges([FromBody] SyncRequest request)
 		{
-			return Database.GetSyncChanges(request);
+			return _provider.GetSyncChanges(request);
 		}
 
 		/// <summary>
@@ -90,7 +97,7 @@ namespace Speedy.Website.WebApi
 		[HttpPost]
 		public IEnumerable<SyncObject> GetCorrections([FromBody] IEnumerable<SyncIssue> issues)
 		{
-			return Database.GetSyncCorrections(issues);
+			return _provider.GetSyncCorrections(issues);
 		}
 
 		#endregion

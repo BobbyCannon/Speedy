@@ -40,10 +40,7 @@ namespace Speedy.Samples.Sync
 		/// <returns> The date and time for the sync process. </returns>
 		public IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes)
 		{
-			using (var database = GetDatabase())
-			{
-				return database.ApplySyncChanges(changes);
-			}
+			return _provider.ApplySyncChanges(changes);
 		}
 
 		/// <summary>
@@ -53,10 +50,7 @@ namespace Speedy.Samples.Sync
 		/// <returns> A list of sync issues if there were any. </returns>
 		public IEnumerable<SyncIssue> ApplyCorrections(IEnumerable<SyncObject> corrections)
 		{
-			using (var database = GetDatabase())
-			{
-				return database.ApplySyncCorrections(corrections);
-			}
+			return _provider.ApplySyncCorrections(corrections);
 		}
 
 		/// <summary>
@@ -66,10 +60,7 @@ namespace Speedy.Samples.Sync
 		/// <returns> The list of changes from the server. </returns>
 		public int GetChangeCount(SyncRequest request)
 		{
-			using (var database = GetDatabase())
-			{
-				return database.GetSyncChangeCount(request);
-			}
+			return _provider.GetSyncChangeCount(request);
 		}
 
 		/// <summary>
@@ -79,10 +70,7 @@ namespace Speedy.Samples.Sync
 		/// <returns> The list of changes from the server. </returns>
 		public IEnumerable<SyncObject> GetChanges(SyncRequest request)
 		{
-			using (var database = GetDatabase())
-			{
-				return database.GetSyncChanges(request);
-			}
+			return _provider.GetSyncChanges(request);
 		}
 
 		/// <summary>
@@ -92,10 +80,7 @@ namespace Speedy.Samples.Sync
 		/// <returns> The sync objects to resolve the issues. </returns>
 		public IEnumerable<SyncObject> GetCorrections(IEnumerable<SyncIssue> issues)
 		{
-			using (var database = GetDatabase())
-			{
-				return database.GetSyncCorrections(issues);
-			}
+			return _provider.GetSyncCorrections(issues);
 		}
 
 		public IContosoDatabase GetDatabase()

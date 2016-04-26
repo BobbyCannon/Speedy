@@ -83,10 +83,13 @@ namespace Speed.Benchmarks
 			switch (ViewModel.SyncStatus)
 			{
 				case "Sync":
+					ViewModel.Errors = string.Empty;
 					ViewModel.SyncClients.Clear();
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Server", GetEntityFrameworkProvider())));
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 1", GetEntityFrameworkProvider("server=localhost;database=Speedy2;integrated security=true;"))));
-					//ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 2", new ContosoDatabaseProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 2", new ContosoDatabaseProvider())));
+					// Not valid as long as the progress report has to open the database again...
+					//ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 3", new ContosoDatabaseProvider(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\Speedy"))));
 					Worker.RunWorkerAsync(ViewModel.SyncClients);
 					break;
 
@@ -228,7 +231,10 @@ namespace Speed.Benchmarks
 				}
 				catch (Exception ex)
 				{
+					WriteError("StartTime: " + engine.StartTime);
+					WriteError("LastSyncedOn: " + options.LastSyncedOn);
 					WriteError(ex?.Message ?? "null?");
+					worker.CancelAsync();
 				}
 
 				timeout = DateTime.UtcNow.AddMilliseconds(250);

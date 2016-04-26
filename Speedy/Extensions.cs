@@ -75,24 +75,24 @@ namespace Speedy
 		/// <summary>
 		/// Sync a list of entities changes.
 		/// </summary>
-		/// <param name="database"> The database to sync changes for. </param>
+		/// <param name="provider"> The database provider  to sync changes for. </param>
 		/// <param name="objects"> The list of objects that have changed. </param>
 		/// <param name="corrections"> True if applying corrections or if applying changes. Defaults to false (changes). </param>
-		public static IEnumerable<SyncIssue> ApplySyncChanges(this IDatabase database, IEnumerable<SyncObject> objects, bool corrections = false)
+		public static IEnumerable<SyncIssue> ApplySyncChanges(this ISyncableDatabaseProvider provider, IEnumerable<SyncObject> objects, bool corrections = false)
 		{
 			var groups = objects.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
 
-			if (database.Options.SyncOrder.Any())
+			if (provider.Options.SyncOrder.Any())
 			{
-				var order = database.Options.SyncOrder;
+				var order = provider.Options.SyncOrder;
 				groups = groups.OrderBy(x => x.Key == order[0]);
 				groups = order.Skip(1).Aggregate(groups, (current, typeName) => current.ThenBy(x => x.Key == typeName));
 			}
 
 			var response = new List<SyncIssue>();
 
-			groups.ForEach(x => ProcessSyncObjects(database, x.Where(y => y.Status != SyncObjectStatus.Deleted), response, corrections));
-			groups.Reverse().ForEach(x => ProcessSyncObjects(database, x.Where(y => y.Status == SyncObjectStatus.Deleted), response, corrections));
+			groups.ForEach(x => ProcessSyncObjects(provider, x.Where(y => y.Status != SyncObjectStatus.Deleted), response, corrections));
+			groups.Reverse().ForEach(x => ProcessSyncObjects(provider, x.Where(y => y.Status == SyncObjectStatus.Deleted), response, corrections));
 
 			return response;
 		}
@@ -100,11 +100,11 @@ namespace Speedy
 		/// <summary>
 		/// Sync a list of entities changes.
 		/// </summary>
-		/// <param name="database"> The database to sync changes for. </param>
+		/// <param name="provider"> The database provider to sync changes for. </param>
 		/// <param name="objects"> The list of objects that have changed. </param>
-		public static IEnumerable<SyncIssue> ApplySyncCorrections(this ISyncableDatabase database, IEnumerable<SyncObject> objects)
+		public static IEnumerable<SyncIssue> ApplySyncCorrections(this ISyncableDatabaseProvider provider, IEnumerable<SyncObject> objects)
 		{
-			return ApplySyncChanges(database, objects, true);
+			return ApplySyncChanges(provider, objects, true);
 		}
 
 		/// <summary>
@@ -183,101 +183,110 @@ namespace Speedy
 		/// <summary>
 		/// Gets count of changes from the database.
 		/// </summary>
-		/// <param name="database"> The database to query. </param>
+		/// <param name="provider"> The database provider to query. </param>
 		/// <param name="request"> The details of the request. </param>
 		/// <returns> The count of changes from the server. </returns>
-		public static int GetSyncChangeCount(this ISyncableDatabase database, SyncRequest request)
+		public static int GetSyncChangeCount(this ISyncableDatabaseProvider provider, SyncRequest request)
 		{
-			return database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until).Count()
-				+ database.GetSyncableRepositories().Sum(repository => repository.GetChangeCount(request.Since, request.Until));
+			using (var database = provider.GetDatabase())
+			{
+				return database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until).Count()
+					+ database.GetSyncableRepositories().Sum(repository => repository.GetChangeCount(request.Since, request.Until));
+			}
 		}
 
 		/// <summary>
 		/// Gets the changes from the database.
 		/// </summary>
-		/// <param name="database"> The database to query. </param>
+		/// <param name="provider"> The database provider to query. </param>
 		/// <param name="request"> The details of the request. </param>
 		/// <returns> The list of changes from the server. </returns>
-		public static IEnumerable<SyncObject> GetSyncChanges(this ISyncableDatabase database, SyncRequest request)
+		public static IEnumerable<SyncObject> GetSyncChanges(this ISyncableDatabaseProvider provider, SyncRequest request)
 		{
 			var response = new List<SyncObject>();
 			var currentSkippedCount = 0;
 
-			foreach (var repository in database.GetSyncableRepositories())
+			using (var database = provider.GetDatabase())
 			{
-				var changeCount = repository.GetChangeCount(request.Since, request.Until);
-				if (changeCount + currentSkippedCount <= request.Skip)
+				foreach (var repository in database.GetSyncableRepositories())
 				{
-					currentSkippedCount += changeCount;
-					continue;
+					var changeCount = repository.GetChangeCount(request.Since, request.Until);
+					if (changeCount + currentSkippedCount <= request.Skip)
+					{
+						currentSkippedCount += changeCount;
+						continue;
+					}
+
+					var items = repository.GetChanges(request.Since, request.Until, request.Skip - currentSkippedCount, request.Take).ToList();
+					response.AddRange(items);
+					currentSkippedCount += items.Count;
+
+					if (response.Count >= request.Take)
+					{
+						return response;
+					}
 				}
 
-				var items = repository.GetChanges(request.Since, request.Until, request.Skip - currentSkippedCount, request.Take).ToList();
-				response.AddRange(items);
-				currentSkippedCount += items.Count;
-
-				if (response.Count >= request.Take)
+				var tombstoneQuery = database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until);
+				var tombstoneCount = tombstoneQuery.Count();
+				if (tombstoneCount + currentSkippedCount <= request.Skip)
 				{
 					return response;
 				}
-			}
 
-			var tombstoneQuery = database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until);
-			var tombstoneCount = tombstoneQuery.Count();
-			if (tombstoneCount + currentSkippedCount <= request.Skip)
-			{
+				tombstoneQuery = tombstoneQuery
+					.OrderBy(x => x.CreatedOn)
+					.ThenBy(x => x.Id)
+					.AsQueryable();
+
+				if (request.Skip - currentSkippedCount > 0)
+				{
+					tombstoneQuery = tombstoneQuery.Skip(request.Skip - currentSkippedCount);
+				}
+
+				var tombStones = tombstoneQuery
+					.Take(request.Take)
+					.ToList()
+					.Select(x => x.ToSyncObject())
+					.ToList();
+
+				response.AddRange(tombStones);
 				return response;
 			}
-
-			tombstoneQuery = tombstoneQuery
-				.OrderBy(x => x.CreatedOn)
-				.ThenBy(x => x.Id)
-				.AsQueryable();
-
-			if (request.Skip - currentSkippedCount > 0)
-			{
-				tombstoneQuery = tombstoneQuery.Skip(request.Skip - currentSkippedCount);
-			}
-
-			var tombStones = tombstoneQuery
-				.Take(request.Take)
-				.ToList()
-				.Select(x => x.ToSyncObject())
-				.ToList();
-
-			response.AddRange(tombStones);
-			return response;
 		}
 
 		/// <summary>
 		/// Gets the correction sync objects for the sync issues.
 		/// </summary>
-		/// <param name="database"> The database to query. </param>
+		/// <param name="provider"> The database provider to query. </param>
 		/// <param name="issues"> The issues to try and correct. </param>
 		/// <returns> The list of changes from the server. </returns>
-		public static IEnumerable<SyncObject> GetSyncCorrections(this ISyncableDatabase database, IEnumerable<SyncIssue> issues)
+		public static IEnumerable<SyncObject> GetSyncCorrections(this ISyncableDatabaseProvider provider, IEnumerable<SyncIssue> issues)
 		{
 			var response = new List<SyncObject>();
 
-			foreach (var issue in issues)
+			using (var database = provider.GetDatabase())
 			{
-				switch (issue.IssueType)
+				foreach (var issue in issues)
 				{
-					case SyncIssueType.RelationshipConstraint:
-						// Assuming this is because the entity was deleted but then used in another
-						// client or server. This means we should sync it again.
-						var repository = database.GetSyncableRepository(Type.GetType(issue.TypeName));
-						var entity = repository.Read(issue.Id);
+					switch (issue.IssueType)
+					{
+						case SyncIssueType.RelationshipConstraint:
+							// Assuming this is because the entity was deleted but then used in another
+							// client or server. This means we should sync it again.
+							var repository = database.GetSyncableRepository(Type.GetType(issue.TypeName));
+							var entity = repository.Read(issue.Id);
 
-						if (entity != null)
-						{
-							response.Add(entity.ToSyncObject());
-						}
-						break;
+							if (entity != null)
+							{
+								response.Add(entity.ToSyncObject());
+							}
+							break;
+					}
 				}
-			}
 
-			return response;
+				return response;
+			}
 		}
 
 		/// <summary>
@@ -669,12 +678,6 @@ namespace Speedy
 			}
 		}
 
-		private static object GetPropertyValue(dynamic item, string name)
-		{
-			Type t = item.GetType();
-			return t.GetCachedProperties().First(x => x.Name == name).GetValue(item, null);
-		}
-
 		private static JsonSerializerSettings GetSerializerSettings(bool ignoreVirtuals)
 		{
 			var response = new JsonSerializerSettings();
@@ -750,29 +753,35 @@ namespace Speedy
 			}
 		}
 
-		private static void ProcessSyncObjects(ISyncableDatabase database, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
+		private static void ProcessSyncObjects(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
 		{
 			var syncObjectList = syncObjects.ToList();
 
 			try
 			{
-				syncObjectList.ForEach(x => ProcessSyncObject(x, database, corrections));
-				database.SaveChanges();
+				using (var database = provider.GetDatabase())
+				{
+					syncObjectList.ForEach(x => ProcessSyncObject(x, database, corrections));
+					database.SaveChanges();
+				}
 			}
 			catch
 			{
-				ProcessSyncObjectsIndividually(database, syncObjectList, issues, corrections);
+				ProcessSyncObjectsIndividually(provider, syncObjectList, issues, corrections);
 			}
 		}
 
-		private static void ProcessSyncObjectsIndividually(ISyncableDatabase database, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
+		private static void ProcessSyncObjectsIndividually(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
 		{
 			foreach (var syncObject in syncObjects)
 			{
 				try
 				{
-					ProcessSyncObject(syncObject, database, corrections);
-					database.SaveChanges();
+					using (var database = provider.GetDatabase())
+					{
+						ProcessSyncObject(syncObject, database, corrections);
+						database.SaveChanges();
+					}
 				}
 				catch (InvalidOperationException)
 				{
@@ -793,19 +802,6 @@ namespace Speedy
 					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.Unknown, TypeName = syncObject.TypeName });
 				}
 			}
-		}
-
-		private static IEnumerable<SyncObject> SortBy(this IEnumerable<SyncObject> objects, IReadOnlyList<string> order)
-		{
-			if (!order.Any())
-			{
-				return objects;
-			}
-
-			var ordered = objects.OrderBy(x => x.TypeName == order[0]);
-			ordered = order.Skip(1).Aggregate(ordered, (current, typeName) => current.ThenBy(x => x.TypeName == typeName));
-
-			return ordered;
 		}
 
 		/// <summary>

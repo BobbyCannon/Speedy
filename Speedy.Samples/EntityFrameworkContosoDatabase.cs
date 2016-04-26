@@ -16,7 +16,7 @@ namespace Speedy.Samples
 		#region Constructors
 
 		public EntityFrameworkContosoDatabase()
-			: this("name=DefaultConnection", DatabaseOptions.GetDefaults())
+			: this("name=DefaultConnection", new DatabaseOptions())
 		{
 		}
 

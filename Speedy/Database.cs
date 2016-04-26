@@ -36,7 +36,7 @@ namespace Speedy
 		protected Database(string filePath, DatabaseOptions options)
 		{
 			FilePath = filePath;
-			Options = options ?? DatabaseOptions.GetDefaults();
+			Options = options ?? new DatabaseOptions();
 			Mappings = new List<IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IRepository>();
 			Relationships = new Dictionary<string, object[]>();

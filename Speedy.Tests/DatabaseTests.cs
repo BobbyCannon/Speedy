@@ -18,9 +18,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddEntity()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -44,9 +44,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -63,9 +63,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddEntityWithoutMaintainDatesDatabaseOption()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 					context.Options.MaintainDates = false;
@@ -90,9 +90,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddMultipleEntitiesUsingRelationship()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -118,9 +118,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddNonModifiableEntity()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -144,9 +144,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddSingleEntity()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -172,9 +172,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddSingleEntityMissingRequiredProperty()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -196,9 +196,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void AddSingleEntityUsingRelationship()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -233,16 +233,16 @@ namespace Speedy.Tests
 		{
 			var options = new DatabaseOptions { MaintainDates = false };
 
-			TestHelper.GetDataContexts(options).ForEach(context =>
+			TestHelper.GetDataContexts(options).ForEach(provider =>
 			{
-				using (context)
+				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
 
 					context.Addresses.Add(address1);
 					context.Addresses.Add(address2);
@@ -250,12 +250,12 @@ namespace Speedy.Tests
 					context.Addresses.Add(address4);
 
 					context.SaveChanges();
-
-					var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(1, actual.Count);
-					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
 				}
+
+				var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
+				var actual = provider.GetSyncChanges(request).ToList();
+				Assert.AreEqual(1, actual.Count);
+				Assert.AreEqual(address3.ToJson(true), actual[0].Data);
 			});
 		}
 
@@ -264,16 +264,16 @@ namespace Speedy.Tests
 		{
 			var options = new DatabaseOptions { MaintainDates = false };
 
-			TestHelper.GetDataContexts(options).ForEach(context =>
+			TestHelper.GetDataContexts(options).ForEach(provider =>
 			{
-				using (context)
+				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
 
 					context.Addresses.Add(address1);
 					context.Addresses.Add(address2);
@@ -281,13 +281,13 @@ namespace Speedy.Tests
 					context.Addresses.Add(address4);
 
 					context.SaveChanges();
-
-					var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
 				}
+
+				var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
+				var actual = provider.GetSyncChanges(request).ToList();
+				Assert.AreEqual(2, actual.Count);
+				Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+				Assert.AreEqual(address2.ToJson(true), actual[1].Data);
 			});
 		}
 
@@ -296,16 +296,16 @@ namespace Speedy.Tests
 		{
 			var options = new DatabaseOptions { MaintainDates = false };
 
-			TestHelper.GetDataContexts(options).ForEach(context =>
+			TestHelper.GetDataContexts(options).ForEach(provider =>
 			{
-				using (context)
+				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
 
 					context.Addresses.Add(address1);
 					context.Addresses.Add(address2);
@@ -313,19 +313,19 @@ namespace Speedy.Tests
 					context.Addresses.Add(address4);
 
 					context.SaveChanges();
-
-					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
-
-					request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
-					actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address4.ToJson(true), actual[1].Data);
 				}
+
+				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
+				var actual = provider.GetSyncChanges(request).ToList();
+				Assert.AreEqual(2, actual.Count);
+				Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+				Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+
+				request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
+				actual = provider.GetSyncChanges(request).ToList();
+				Assert.AreEqual(2, actual.Count);
+				Assert.AreEqual(address3.ToJson(true), actual[0].Data);
+				Assert.AreEqual(address4.ToJson(true), actual[1].Data);
 			});
 		}
 
@@ -334,16 +334,16 @@ namespace Speedy.Tests
 		{
 			var options = new DatabaseOptions { MaintainDates = false };
 
-			TestHelper.GetDataContexts(options).ForEach(context =>
+			TestHelper.GetDataContexts(options).ForEach(provider =>
 			{
-				using (context)
+				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
+				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
+				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
+				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
+
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
 
 					context.Addresses.Add(address1);
 					context.Addresses.Add(address2);
@@ -351,13 +351,13 @@ namespace Speedy.Tests
 					context.Addresses.Add(address4);
 
 					context.SaveChanges();
-
-					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(2, actual.Count);
-					Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-					Assert.AreEqual(address2.ToJson(true), actual[1].Data);
 				}
+
+				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
+				var actual = provider.GetSyncChanges(request).ToList();
+				Assert.AreEqual(2, actual.Count);
+				Assert.AreEqual(address1.ToJson(true), actual[0].Data);
+				Assert.AreEqual(address2.ToJson(true), actual[1].Data);
 			});
 		}
 
@@ -366,16 +366,16 @@ namespace Speedy.Tests
 		{
 			var options = new DatabaseOptions { MaintainDates = false };
 
-			TestHelper.GetDataContexts(options).ForEach(context =>
+			TestHelper.GetDataContexts(options).ForEach(provider =>
 			{
-				using (context)
+				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = DateTime.Parse("04/23/2016 2:30 PM"), ModifiedOn = DateTime.Parse("04/23/2016 2:30 PM") };
+				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
+
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
-
-					var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = DateTime.Parse("04/23/2016 2:30 PM"), ModifiedOn = DateTime.Parse("04/23/2016 2:30 PM") };
-					var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-					var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-					var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
 
 					context.Addresses.Add(address1);
 					context.Addresses.Add(address2);
@@ -383,12 +383,12 @@ namespace Speedy.Tests
 					context.Addresses.Add(address4);
 
 					context.SaveChanges();
-
-					var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
-					var actual = context.GetSyncChanges(request).ToList();
-					Assert.AreEqual(1, actual.Count);
-					Assert.AreEqual(address3.ToJson(true), actual[0].Data);
 				}
+
+				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
+				var actual = provider.GetSyncChanges(request).ToList();
+				Assert.AreEqual(1, actual.Count);
+				Assert.AreEqual(address3.ToJson(true), actual[0].Data);
 			});
 		}
 
@@ -401,9 +401,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void OptionalDirectRelationship()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -468,9 +468,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RelationshipCollectionsShouldFilter()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -497,9 +497,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RemoveEntity()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -522,9 +522,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RemoveEntityById()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -582,9 +582,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RemoveSingleEntityDependantRelationship()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -612,9 +612,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RemoveSingleEntityRelationship()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -644,9 +644,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void RepositorySyncOrder()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					var actual = context.GetSyncableRepositories().Select(x => x.TypeName).ToArray();
 					var expected = new[]
@@ -665,9 +665,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void SubRelationships()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 
@@ -701,9 +701,9 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void UpdateEntityCreatedOnShouldReset()
 		{
-			TestHelper.GetDataContexts().ForEach(context =>
+			TestHelper.GetDataContexts().ForEach(provider =>
 			{
-				using (context)
+				using (var context = provider.GetDatabase())
 				{
 					Console.WriteLine(context.GetType().Name);
 

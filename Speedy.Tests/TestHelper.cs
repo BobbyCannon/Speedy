@@ -112,14 +112,14 @@ namespace Speedy.Tests
 			return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
 		}
 
-		public static IEnumerable<IContosoDatabase> GetDataContexts(DatabaseOptions options = null)
+		public static IEnumerable<IContosoDatabaseProvider> GetDataContexts(DatabaseOptions options = null)
 		{
 			var context1 = new EntityFrameworkContosoDatabase(options);
 			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
-			yield return context1;
-			yield return new ContosoDatabase(null, options);
-			yield return new ContosoDatabase(Directory.FullName, options);
+			yield return new EntityFrameworkContosoDatabaseProvider(options);
+			yield return new ContosoDatabaseProvider(null, options);
+			yield return new ContosoDatabaseProvider(Directory.FullName, options);
 		}
 
 		public static void Initialize()

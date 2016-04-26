@@ -39,7 +39,7 @@ namespace Speedy.EntityFramework
 		protected EntityFrameworkDatabase(string nameOrConnectionString, DatabaseOptions options)
 			: base(nameOrConnectionString)
 		{
-			Options = options ?? DatabaseOptions.GetDefaults();
+			Options = options ?? new DatabaseOptions();
 
 			_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
 
