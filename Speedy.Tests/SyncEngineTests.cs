@@ -3,6 +3,7 @@
 using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
 
@@ -336,6 +337,7 @@ namespace Speedy.Tests
 					serverDatabase.Addresses.Remove(removedAddress);
 					serverDatabase.SaveChanges();
 				}
+
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase())
@@ -346,8 +348,10 @@ namespace Speedy.Tests
 					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
 					Assert.AreEqual(2, clientDatabase.Addresses.Count());
 					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(0, clientDatabase.SyncTombstones.Count());
 					Assert.AreEqual(2, serverDatabase.Addresses.Count());
 					Assert.AreEqual(1, serverDatabase.People.Count());
+					Assert.AreEqual(0, serverDatabase.SyncTombstones.Count());
 				}
 			});
 		}
@@ -399,8 +403,10 @@ namespace Speedy.Tests
 					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
 					Assert.AreEqual(2, clientDatabase.Addresses.Count());
 					Assert.AreEqual(1, clientDatabase.People.Count());
+					Assert.AreEqual(0, clientDatabase.SyncTombstones.Count());
 					Assert.AreEqual(2, serverDatabase.Addresses.Count());
 					Assert.AreEqual(1, serverDatabase.People.Count());
+					Assert.AreEqual(0, serverDatabase.SyncTombstones.Count());
 				}
 			});
 		}

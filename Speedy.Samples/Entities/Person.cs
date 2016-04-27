@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Speedy.Sync;
 
 #endregion
@@ -36,14 +35,6 @@ namespace Speedy.Samples.Entities
 		#endregion
 
 		#region Methods
-
-		/// <summary>
-		/// Updates the relation using the sync ids.
-		/// </summary>
-		public override void UpdateLocalRelationships(ISyncableDatabase database)
-		{
-			AddressId = database.GetRepository<Address>().First(x => x.SyncId == AddressSyncId).Id;
-		}
 
 		/// <summary>
 		/// Updates the sync ids of relationships.

@@ -42,6 +42,32 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void UniqueConstraints()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
+					context.People.Add(expected);
+					context.SaveChanges();
+					
+					expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
+					context.People.Add(expected);
+
+					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "The duplicate key value is");
+				}
+			});
+		}
+
+		private static Address NewAddress(string line1, string line2 = "")
+		{
+			return new Address { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
+		}
+
+		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>

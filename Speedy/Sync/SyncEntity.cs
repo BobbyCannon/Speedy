@@ -75,8 +75,7 @@ namespace Speedy.Sync
 		/// Update the entity with the changes.
 		/// </summary>
 		/// <param name="update"> The entity with the changes. </param>
-		/// <param name="database"> The database to use for relationships. </param>
-		public virtual void Update(SyncEntity update, ISyncableDatabase database)
+		public void Update(SyncEntity update)
 		{
 			var type = this.GetRealType();
 			var typeName = type.ToAssemblyName();
@@ -100,14 +99,11 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Updates the relation ids using the sync ids.
-		/// </summary>
-		public abstract void UpdateLocalRelationships(ISyncableDatabase database);
-
-		/// <summary>
 		/// Updates the sync ids using relationships.
 		/// </summary>
-		public abstract void UpdateLocalSyncIds();
+		public virtual void UpdateLocalSyncIds()
+		{
+		}
 
 		#endregion
 	}

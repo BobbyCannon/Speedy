@@ -37,9 +37,9 @@ namespace Speedy
 		{
 			FilePath = filePath;
 			Options = options ?? new DatabaseOptions();
-			Mappings = new List<IPropertyConfiguration>();
+			PropertyConfigurations = new List<IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IRepository>();
-			Relationships = new Dictionary<string, object[]>();
+			OneToManyRelationships = new Dictionary<string, object[]>();
 		}
 
 		#endregion
@@ -55,9 +55,9 @@ namespace Speedy
 
 		internal IRepository<SyncTombstone> SyncTombstones { get; private set; }
 
-		private ICollection<IPropertyConfiguration> Mappings { get; }
+		private Dictionary<string, object[]> OneToManyRelationships { get; }
 
-		private Dictionary<string, object[]> Relationships { get; }
+		private ICollection<IPropertyConfiguration> PropertyConfigurations { get; }
 
 		private Dictionary<string, IRepository> Repositories { get; }
 
@@ -231,7 +231,7 @@ namespace Speedy
 		{
 			var key = typeof(T2).Name + (collectionKey as dynamic).Body.Member.Name;
 			var repository = Repositories.FirstOrDefault(x => x.Key == typeof(T1).FullName).Value;
-			Relationships.Add(key, new object[] { repository, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+			OneToManyRelationships.Add(key, new object[] { repository, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
 		}
 
 		/// <summary>
@@ -243,9 +243,7 @@ namespace Speedy
 		protected PropertyConfiguration<T> Property<T>(Expression<Func<T, object>> expression) where T : Entity
 		{
 			var response = new PropertyConfiguration<T>(expression);
-
-			Mappings.Add(response);
-
+			PropertyConfigurations.Add(response);
 			return response;
 		}
 
@@ -283,12 +281,12 @@ namespace Speedy
 			where T1 : Entity, new()
 			where T2 : Entity, new()
 		{
-			if (!Relationships.ContainsKey(key))
+			if (!OneToManyRelationships.ContainsKey(key))
 			{
 				return null;
 			}
 
-			var value = Relationships[key];
+			var value = OneToManyRelationships[key];
 			var repository = (IRepository<T2>) value[0];
 			var entityExpression = (Expression<Func<T2, T1>>) value[1];
 			var entityFunction = (Func<T2, T1>) value[2];
@@ -338,7 +336,7 @@ namespace Speedy
 		{
 			var key = entity.GetRealType().Name;
 
-			foreach (var relationship in Relationships.Where(x => x.Key.StartsWith(key)))
+			foreach (var relationship in OneToManyRelationships.Where(x => x.Key.StartsWith(key)))
 			{
 				var repository = (IRepository) relationship.Value[0];
 				if (!repository.HasDependentRelationship(relationship.Value, entity.Id))
@@ -550,11 +548,11 @@ namespace Speedy
 			UpdateEntityCollectionRelationships(entity, entityType, properties);
 		}
 
-		private void ValidateEntity(Entity entity)
+		private void ValidateEntity<T>(T entity, IRepository<T> repository) where T : Entity
 		{
-			foreach (var validation in Mappings.Where(x => x.IsMappingFor(entity)))
+			foreach (var validation in PropertyConfigurations.Where(x => x.IsMappingFor(entity)))
 			{
-				validation.Validate(entity);
+				validation.Validate(entity, repository);
 			}
 		}
 

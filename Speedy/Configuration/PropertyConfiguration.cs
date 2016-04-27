@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Speedy.Exceptions;
 
@@ -18,6 +19,7 @@ namespace Speedy.Configuration
 
 		private readonly Type _entityType;
 		private bool? _isNullable;
+		private bool? _isUnique;
 		private int _maxLength;
 		private int _minLength;
 		private readonly Expression<Func<T, object>> _property;
@@ -37,6 +39,7 @@ namespace Speedy.Configuration
 			_property = property;
 			_propertyFunction = _property.Compile();
 			_isNullable = null;
+			_isUnique = null;
 			_maxLength = -1;
 			_minLength = -1;
 		}
@@ -96,23 +99,42 @@ namespace Speedy.Configuration
 		}
 
 		/// <summary>
+		/// Marks the property as a required member.
+		/// </summary>
+		/// <returns> The configuration after updated. </returns>
+		public PropertyConfiguration<T> IsUnique()
+		{
+			_isUnique = true;
+			return this;
+		}
+
+		/// <summary>
 		/// Validates the entity using this configuration.
 		/// </summary>
 		/// <param name="entity"> The entity to validate. </param>
-		public void Validate(T entity)
+		/// <param name="repository"> The repository of entities. </param>
+		public void Validate(object entity, IQueryable repository)
 		{
-			if (entity == null)
+			var typedEntity = entity as T;
+			if (typedEntity == null)
 			{
-				throw new ArgumentNullException(nameof(entity));
+				throw new ArgumentNullException(nameof(typedEntity));
 			}
 
-			var property = _propertyFunction.Invoke(entity);
+			var entityRepository = repository.Cast<T>().AsQueryable();
+			var property = _propertyFunction.Invoke(typedEntity);
+			var propertyValue = property?.ToString();
 			var dValue = _property as dynamic;
 			var memberName = dValue.Body.Member.Name;
 
 			if (_isNullable.HasValue && _isNullable.Value == false && property == null)
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
+			}
+
+			if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => _propertyFunction.Invoke(x).ToString() == propertyValue))
+			{
+				throw new ValidationException($"{_entityType.Name}: The {memberName} field must be unique. The duplicate key value is ({propertyValue}).");
 			}
 
 			var stringEntity = property as string;
@@ -125,15 +147,6 @@ namespace Speedy.Configuration
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is too short.");
 			}
-		}
-
-		/// <summary>
-		/// Validates the entity using this configuration.
-		/// </summary>
-		/// <param name="entity"> The entity to validate. </param>
-		public void Validate(object entity)
-		{
-			Validate(entity as T);
 		}
 
 		#endregion

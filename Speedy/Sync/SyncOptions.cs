@@ -19,7 +19,7 @@ namespace Speedy.Sync
 		public SyncOptions()
 		{
 			LastSyncedOn = DateTime.MinValue;
-			ItemsPerSyncRequest = 300;
+			ItemsPerSyncRequest = 1;
 		}
 
 		#endregion

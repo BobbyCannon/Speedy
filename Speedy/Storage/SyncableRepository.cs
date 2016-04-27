@@ -93,7 +93,7 @@ namespace Speedy.Storage
 		public SyncEntity Read(Guid syncId)
 		{
 			var state = Cache.FirstOrDefault(x => ((SyncEntity) x.Entity).SyncId == syncId);
-			return state == null ? Store?.Read(syncId.ToString()) : (SyncEntity) state.Entity;
+			return state == null ? Store?.FirstOrDefault(x => x.SyncId == syncId) : (SyncEntity) state.Entity;
 		}
 
 		/// <summary>

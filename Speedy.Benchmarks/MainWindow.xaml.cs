@@ -3,10 +3,13 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Samples.Sync;
@@ -65,11 +68,17 @@ namespace Speed.Benchmarks
 			using (var clientDatabase = client.GetDatabase())
 			using (var serverDatabase = server.GetDatabase())
 			{
-				Assert.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
-				Assert.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
-				// Fails when comparing two EF context?
-				//Extensions.AreEqual(serverDatabase.Addresses, clientDatabase.Addresses);
-				//Extensions.AreEqual(serverDatabase.People, clientDatabase.People);
+				var serverAddresses = serverDatabase.GetReadOnlyRepository<Address>()
+					.OrderBy(x => x.Line1).ToList().Select(x => x.DeepClone(true)).ToList();
+				var serverPeople = serverDatabase.GetReadOnlyRepository<Person>()
+					.OrderBy(x => x.Name).ToList().Select(x => x.DeepClone(true)).ToList();
+				var clientAddresses = clientDatabase.GetReadOnlyRepository<Address>()
+					.OrderBy(x => x.Line1).ToList().Select(x => x.DeepClone(true)).ToList();
+				var clientPeople = clientDatabase.GetReadOnlyRepository<Person>()
+					.OrderBy(x => x.Name).ToList().Select(x => x.DeepClone(true)).ToList();
+
+				Extensions.AreEqual(serverAddresses, clientAddresses, false, nameof(Address.Id), nameof(Address.LinkedAddressId));
+				Extensions.AreEqual(serverPeople, clientPeople, false, nameof(Person.Id), nameof(Person.AddressId));
 			}
 		}
 
@@ -80,16 +89,23 @@ namespace Speed.Benchmarks
 
 		private void SyncOnClick(object sender, RoutedEventArgs e)
 		{
+			var directory = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\Speedy");
+
 			switch (ViewModel.SyncStatus)
 			{
 				case "Sync":
+					if (directory.Exists)
+					{
+						directory.Delete(true);
+						directory.Create();
+					}
+					
 					ViewModel.Errors = string.Empty;
 					ViewModel.SyncClients.Clear();
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Server", GetEntityFrameworkProvider())));
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 1", GetEntityFrameworkProvider("server=localhost;database=Speedy2;integrated security=true;"))));
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 2", new ContosoDatabaseProvider())));
-					// Not valid as long as the progress report has to open the database again...
-					//ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 3", new ContosoDatabaseProvider(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\Speedy"))));
+					//ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 3", new ContosoDatabaseProvider(directory.FullName))));
 					Worker.RunWorkerAsync(ViewModel.SyncClients);
 					break;
 
@@ -116,34 +132,49 @@ namespace Speed.Benchmarks
 			var number = Extensions.Random.Next(1, 101);
 			var result = false;
 
-			if (number % 4 == 0 || forceAdd) // 25%
+			if (number % 1 == 0 || forceAdd) // 25%
 			{
 				using (var clientDatabase = client.GetDatabase())
 				{
+					Address address = null;
+					Person person = null;
+
 					if (number > 50 && clientDatabase.Addresses.Any())
 					{
-						// Add Person?
-						var address = clientDatabase.Addresses.GetRandomItem();
-						clientDatabase.People.Add(new Person
+						address = clientDatabase.Addresses.GetRandomItem();
+						person = new Person
 						{
 							Name = Extensions.LoremIpsumWord() + " " + Extensions.LoremIpsumWord(),
 							AddressId = address.Id
-						});
+						};
+
+						clientDatabase.People.Add(person);
 					}
 					else
 					{
-						clientDatabase.Addresses.Add(new Address
+						address = new Address
 						{
 							City = Extensions.LoremIpsumWord(),
 							Line1 = Extensions.Random.Next(0, 999) + " " + Extensions.LoremIpsumWord(),
 							Line2 = string.Empty,
 							Postal = Extensions.Random.Next(0, 999999).ToString("000000"),
 							State = Extensions.LoremIpsumWord().Substring(0, 2)
-						});
+						};
+
+						clientDatabase.Addresses.Add(address);
 					}
 
 					result = true;
 					clientDatabase.SaveChanges();
+
+					if (person != null)
+					{
+						Debug.WriteLine("+P: " + person.ToJson(true));
+					}
+					else
+					{
+						Debug.WriteLine("+A: " + address.ToJson(true));
+					}
 				}
 			}
 
@@ -152,11 +183,12 @@ namespace Speed.Benchmarks
 				using (var clientDatabase = client.GetDatabase())
 				{
 					// Delete Person or Address?
-					if (number > 50)
+					if (number % 4 == 0)
 					{
 						var person = clientDatabase.People.GetRandomItem();
 						if (person != null)
 						{
+							Debug.WriteLine("-P: " + person.ToJson(true));
 							clientDatabase.People.Remove(person);
 						}
 					}
@@ -165,6 +197,7 @@ namespace Speed.Benchmarks
 						var address = clientDatabase.Addresses.Where(x => !x.People.Any()).GetRandomItem();
 						if (address != null)
 						{
+							Debug.WriteLine("-A: " + address.ToJson(true));
 							clientDatabase.Addresses.Remove(address);
 						}
 					}
@@ -211,36 +244,89 @@ namespace Speed.Benchmarks
 					WriteError(ex.Message);
 				}
 
-				//Thread.Sleep(300);
-
 				options.LastSyncedOn = client.LastSyncedOn;
+
 				var engine = new SyncEngine(client.Client, server.Client, options);
+
+				UpdateDisplay(client, engine);
+				Debug.WriteLine("A: " + client.AddressCount + " P: " + client.PeopleCount + " " + client.Client.Name);
+
+				UpdateDisplay(server, engine);
+				Debug.WriteLine("A: " + server.AddressCount + " P: " + server.PeopleCount + " " + server.Client.Name);
+
 				engine.SyncStatusChanged += (o, a) => worker.ReportProgress((int) a.Percent, a);
 				engine.Run();
-
+				
 				foreach (var item in engine.SyncIssues)
 				{
 					WriteError(item.Id + " - " + item.IssueType + " : " + item.TypeName);
 				}
 
-				//Thread.Sleep(300);
-
 				try
 				{
+					UpdateDisplay(client, engine);
+					Debug.WriteLine("A: " + client.AddressCount + " P: " + client.PeopleCount + " " + client.Client.Name);
+
+					UpdateDisplay(server, engine);
+					Debug.WriteLine("A: " + server.AddressCount + " P: " + server.PeopleCount + " " + server.Client.Name);
+
+					CheckClient(client.Client);
+					CheckClient(server.Client);
 					CompareClients(client.Client, server.Client);
 				}
 				catch (Exception ex)
 				{
-					WriteError("StartTime: " + engine.StartTime);
-					WriteError("LastSyncedOn: " + options.LastSyncedOn);
+					WriteError("StartTime: " + engine.StartTime.TimeOfDay);
+					WriteError("LastSyncedOn: " + options.LastSyncedOn.TimeOfDay);
 					WriteError(ex?.Message ?? "null?");
-					worker.CancelAsync();
+					//worker.CancelAsync();
+					client.LastSyncedOn = DateTime.MinValue;
+					using (var database = client.Client.GetDatabase())
+					{
+						database.SyncTombstones.Remove(x => x.Id > 0);
+						database.SaveChanges();
+					}
+					using (var database = server.Client.GetDatabase())
+					{
+						database.SyncTombstones.Remove(x => x.Id > 0);
+						database.SaveChanges();
+					}
 				}
 
 				timeout = DateTime.UtcNow.AddMilliseconds(250);
 			}
 
 			WriteError("Worker Ending");
+		}
+
+		private void CheckClient(IContosoSyncClient client)
+		{
+			using (var database = client.GetDatabase())
+			{
+				Assert.IsFalse(database.Addresses.Join(database.SyncTombstones, x => x.SyncId, x => x.SyncId, (a, t) => new { a, t }).Any());
+				Assert.IsFalse(database.People.Join(database.SyncTombstones, x => x.SyncId, x => x.SyncId, (p, t) => new { p, t }).Any());
+			}
+		}
+
+		private void UpdateDisplay(SyncClientState state, SyncEngine engine)
+		{
+			if (!Dispatcher.CheckAccess())
+			{
+				Dispatcher.Invoke(() => UpdateDisplay(state, engine));
+				return;
+			}
+
+			using (var database = state.Client.GetDatabase())
+			{
+				state.AddressCount = database.Addresses.Count();
+				state.PeopleCount = database.People.Count();
+				state.PreviousSyncedOn = state.LastSyncedOn;
+				if (engine.StartTime != DateTime.MinValue)
+				{
+					state.LastSyncedOn = engine.StartTime;
+				}
+				ViewModel.Progress = 0;
+			}
 		}
 
 		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs args)
@@ -254,18 +340,6 @@ namespace Speed.Benchmarks
 
 			clientState.Status = status.Status;
 			ViewModel.Progress = (int) status.Percent;
-
-			if (clientState.Status == SyncEngineStatus.Stopped)
-			{
-				using (var database = clientState.Client.GetDatabase())
-				{
-					clientState.AddressCount = database.Addresses.Count();
-					clientState.PeopleCount = database.People.Count();
-					clientState.PreviousSyncedOn = clientState.LastSyncedOn;
-					clientState.LastSyncedOn = DateTime.UtcNow;
-					ViewModel.Progress = 0;
-				}
-			}
 		}
 
 		private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs args)

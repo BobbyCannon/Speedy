@@ -52,12 +52,14 @@ namespace Speed.Benchmarks
 		/// <param name="expected"> The item that is expected. </param>
 		/// <param name="actual"> The item that is to be tested. </param>
 		/// <param name="includeChildren"> True to include child complex types. </param>
-		public static void AreEqual<T>(T expected, T actual, bool includeChildren = true)
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static void AreEqual<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
 		{
 			var compareObjects = new CompareLogic();
 			compareObjects.Config.MaxDifferences = int.MaxValue;
 			compareObjects.Config.CompareChildren = includeChildren;
 			compareObjects.Config.IgnoreObjectTypes = true;
+			compareObjects.Config.MembersToIgnore = new List<string>(membersToIgnore);
 
 			var result = compareObjects.Compare(expected, actual);
 			Assert.IsTrue(result.AreEqual, result.DifferencesString);

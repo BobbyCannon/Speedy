@@ -9,6 +9,7 @@ using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Speedy.Configuration;
 using Speedy.EntityFramework.Internal;
 using Speedy.Sync;
 
@@ -23,6 +24,7 @@ namespace Speedy.EntityFramework
 	{
 		#region Fields
 
+		private DbModelBuilder _modelBuilder;
 		private int _saveChangeCount;
 		private readonly ConcurrentDictionary<string, ISyncableRepository> _syncableRepositories;
 		private IRepository<SyncTombstone> _syncTombstones;
@@ -239,6 +241,7 @@ namespace Speedy.EntityFramework
 				modelBuilder.Configurations.Add(instance);
 			}
 
+			_modelBuilder = modelBuilder;
 			base.OnModelCreating(modelBuilder);
 		}
 

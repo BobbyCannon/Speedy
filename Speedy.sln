@@ -30,6 +30,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{F1A7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Website", "Speedy.Website\Speedy.Website.csproj", "{174AEA21-07A7-4DFC-A171-D31B10D06008}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmarks2", "Speedy.Benchmarks2\Speedy.Benchmarks2.csproj", "{A39791B3-6786-40E6-999F-B3C3F682F68A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,10 @@ Global
 		{174AEA21-07A7-4DFC-A171-D31B10D06008}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{174AEA21-07A7-4DFC-A171-D31B10D06008}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{174AEA21-07A7-4DFC-A171-D31B10D06008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A39791B3-6786-40E6-999F-B3C3F682F68A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A39791B3-6786-40E6-999F-B3C3F682F68A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A39791B3-6786-40E6-999F-B3C3F682F68A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A39791B3-6786-40E6-999F-B3C3F682F68A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

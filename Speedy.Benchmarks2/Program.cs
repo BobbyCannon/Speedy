@@ -26,7 +26,7 @@ namespace Speedy.Benchmarks
 		{
 			Log("Cleaning up the test database...");
 
-			using (var database = new EntityFrameworkSampleDatabase(connectionString))
+			using (var database = new EntityFrameworkContosoDatabase(connectionString))
 			{
 				var script = @"EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
 				EXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'
@@ -138,7 +138,7 @@ namespace Speedy.Benchmarks
 			foreach (var chunk in chunks)
 			{
 				CleanupDirectory(directory);
-				results.Add(TestDatabase(new SampleDatabaseProvider(directory), iterations, chunk));
+				results.Add(TestDatabase(new ContosoDatabaseProvider(directory), iterations, chunk));
 			}
 
 			Log(string.Empty, true, results);
@@ -147,13 +147,13 @@ namespace Speedy.Benchmarks
 			foreach (var chunk in chunks)
 			{
 				CleanupDatabase(connectionString);
-				results.Add(TestDatabase(new EntityFrameworkSampleDatabaseProvider(connectionString), iterations, chunk));
+				results.Add(TestDatabase(new EntityFrameworkContosoDatabaseProvider(connectionString), iterations, chunk));
 			}
 
 			Log(string.Empty, true, results);
 		}
 
-		private static string TestDatabase(ISampleDatabaseProvider provider, int total, int chunkSize)
+		private static string TestDatabase(IContosoDatabaseProvider provider, int total, int chunkSize)
 		{
 			Log($"Starting to benchmark Speedy database with {chunkSize} chunks...");
 
@@ -163,7 +163,7 @@ namespace Speedy.Benchmarks
 
 			while (count < total)
 			{
-				using (var database = provider.CreateContext())
+				using (var database = provider.GetDatabase())
 				{
 					for (var i = count; i < count + chunkSize; i++)
 					{

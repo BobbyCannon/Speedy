@@ -42,7 +42,7 @@ namespace Speedy.Samples
 			Property<Address>(x => x.Postal).IsRequired().HasMaximumLength(128);
 
 			// Food Map
-			Property<Food>(x => x.Name).IsRequired().HasMaximumLength(256);
+			Property<Food>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
 
 			// Food Relationship Map
 			Property<FoodRelationship>(x => x.Quantity).IsRequired();
@@ -59,7 +59,7 @@ namespace Speedy.Samples
 			Property<LogEvent>(x => x.Message).IsRequired().HasMaximumLength(900);
 
 			// Person Map
-			Property<Person>(x => x.Name).IsRequired().HasMaximumLength(256);
+			Property<Person>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
 			HasMany<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
 		}
 

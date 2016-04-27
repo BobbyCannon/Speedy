@@ -13,6 +13,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Speedy.Configuration;
+using Speedy.Exceptions;
 using Speedy.Storage;
 using Speedy.Sync;
 
@@ -271,9 +273,9 @@ namespace Speedy
 				{
 					switch (issue.IssueType)
 					{
-						case SyncIssueType.RelationshipConstraint:
-							// Assuming this is because the entity was deleted but then used in another
-							// client or server. This means we should sync it again.
+						default:
+							// Assuming this is because this entity or a relationship it depends on was deleted but then used 
+							// in another client or server. This means we should sync it again.
 							var repository = database.GetSyncableRepository(Type.GetType(issue.TypeName));
 							var entity = repository.Read(issue.Id);
 
@@ -695,10 +697,12 @@ namespace Speedy
 		private static void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction)
 		{
 			var syncEntity = syncObject.ToSyncEntity();
-			if (database.GetSyncTombstones(x => x.SyncId == syncEntity.SyncId).Any())
+			var tombstone = database.GetSyncTombstones(x => x.SyncId == syncEntity.SyncId).FirstOrDefault();
+			if (tombstone != null)
 			{
 				if (!correction)
 				{
+					Debug.WriteLine("Tombstoned: " + syncEntity.SyncId);
 					return;
 				}
 
@@ -737,7 +741,7 @@ namespace Speedy
 
 					if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn || correction)
 					{
-						foundEntity?.Update(syncEntity, database);
+						foundEntity?.Update(syncEntity);
 					}
 					break;
 
@@ -761,6 +765,7 @@ namespace Speedy
 			{
 				using (var database = provider.GetDatabase())
 				{
+					database.Options.MaintainDates = false;
 					syncObjectList.ForEach(x => ProcessSyncObject(x, database, corrections));
 					database.SaveChanges();
 				}
@@ -779,9 +784,15 @@ namespace Speedy
 				{
 					using (var database = provider.GetDatabase())
 					{
+						database.Options.MaintainDates = false;
 						ProcessSyncObject(syncObject, database, corrections);
 						database.SaveChanges();
 					}
+				}
+				catch (SyncIssueException ex)
+				{
+					ex.Issues.ForEach(issues.Add);
+					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
 				}
 				catch (InvalidOperationException)
 				{
@@ -802,6 +813,67 @@ namespace Speedy
 					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.Unknown, TypeName = syncObject.TypeName });
 				}
 			}
+		}
+
+		/// <summary>
+		/// Updates the entities local relationships.
+		/// </summary>
+		/// <param name="entity"> The entity to update. </param>
+		/// <param name="database"> The database with the relationship repositories. </param>
+		/// <exception cref="SyncIssueException"> An exception will all sync issues. </exception>
+		private static void UpdateLocalRelationships(this SyncEntity entity, ISyncableDatabase database)
+		{
+			var response = new List<SyncIssue>();
+
+			foreach (var relationship in GetRelationshipConfigurations(entity))
+			{
+				if (!relationship.SyncId.HasValue)
+				{
+					continue;
+				}
+
+				var foundEntity = database.GetSyncableRepository(relationship.Type)?.Read(relationship.SyncId.Value);
+				if (foundEntity != null)
+				{
+					relationship.IdPropertyInfo.SetValue(entity, foundEntity.Id);
+					continue;
+				}
+
+				response.Add(new SyncIssue { Id = relationship.SyncId.Value, IssueType = SyncIssueType.RelationshipConstraint, TypeName = relationship.Type.ToAssemblyName() });
+			}
+
+			if (response.Any(x => x != null))
+			{
+				throw new SyncIssueException("This entity has relationship issues.", response.Where(x => x != null));
+			}
+		}
+
+		private static IEnumerable<Relationship> GetRelationshipConfigurations(SyncEntity entity)
+		{
+			var syncEntityType = typeof(SyncEntity);
+			var properties = entity.GetRealType().GetProperties();
+			var syncProperties = properties
+				.Where(x => syncEntityType.IsAssignableFrom(x.PropertyType))
+				.Select(x => new
+				{
+					IdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "Id"),
+					SyncIdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "SyncId"),
+					Type = x.PropertyType
+				})
+				.ToList();
+
+			var response = syncProperties
+				.Where(x => x.IdProperty != null)
+				.Where(x => x.SyncIdProperty != null)
+				.Select(x => new Relationship
+				{
+					IdPropertyInfo = x.IdProperty,
+					SyncId = (Guid?) x.SyncIdProperty.GetValue(entity),
+					Type = x.Type
+				})
+				.ToList();
+
+			return response;
 		}
 
 		/// <summary>

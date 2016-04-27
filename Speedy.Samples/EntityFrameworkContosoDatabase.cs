@@ -28,7 +28,6 @@ namespace Speedy.Samples
 		public EntityFrameworkContosoDatabase(string nameOrConnectionString, DatabaseOptions options = null)
 			: base(nameOrConnectionString, options)
 		{
-			// Setup options.
 			Options.SyncOrder = ContosoDatabase.SyncOrder;
 		}
 

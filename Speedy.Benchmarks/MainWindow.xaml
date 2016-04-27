@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:benchmarks="clr-namespace:Speed.Benchmarks"
-        mc:Ignorable="d" Title="Speedy Benchmarks" Height="600" Width="600"
+        mc:Ignorable="d" Title="Speedy Benchmarks" Height="600" Width="750"
 		WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
 		d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}" 
 		Closing="MainWindowOnClosing">

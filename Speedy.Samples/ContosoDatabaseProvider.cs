@@ -22,7 +22,7 @@ namespace Speedy.Samples
 			_directory = directory;
 			Options = options ?? new DatabaseOptions();
 
-			_memoryDatabase = new Lazy<ContosoDatabase>(() => new ContosoDatabase(null, options), true);
+			_memoryDatabase = new Lazy<ContosoDatabase>(() => new ContosoDatabase(null, Options.DeepClone(false)), true);
 		}
 
 		#endregion
@@ -40,9 +40,14 @@ namespace Speedy.Samples
 
 		public IContosoDatabase GetDatabase()
 		{
-			return string.IsNullOrEmpty(_directory)
-				? _memoryDatabase.Value
-				: new ContosoDatabase(_directory, Options);
+			if (!string.IsNullOrEmpty(_directory))
+			{
+				return new ContosoDatabase(_directory, Options.DeepClone(false));
+			}
+
+			// todo: do this better. Basically we don't want this to change.
+			_memoryDatabase.Value.Options.MaintainDates = Options.MaintainDates;
+			return _memoryDatabase.Value;
 		}
 
 		/// <summary>

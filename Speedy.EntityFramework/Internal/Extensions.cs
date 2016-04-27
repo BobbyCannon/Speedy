@@ -13,6 +13,7 @@ namespace Speedy.EntityFramework.Internal
 	{
 		#region Fields
 
+		private static readonly ConcurrentDictionary<string, FieldInfo[]> _fieldInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _methodInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
 
@@ -22,6 +23,7 @@ namespace Speedy.EntityFramework.Internal
 
 		static Extensions()
 		{
+			_fieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
 			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
 			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 		}
@@ -30,7 +32,23 @@ namespace Speedy.EntityFramework.Internal
 
 		#region Methods
 
-		internal static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags flags)
+		internal static IEnumerable<FieldInfo> GetCachedFields(this Type type, BindingFlags flags)
+		{
+			FieldInfo[] response;
+
+			if (_fieldInfos.ContainsKey(type.FullName))
+			{
+				if (_fieldInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetFields(flags);
+			return _fieldInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		internal static IEnumerable<MethodInfo> GetCachedMethods(this Type type, BindingFlags flags)
 		{
 			MethodInfo[] response;
 

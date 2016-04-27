@@ -42,14 +42,6 @@ namespace Speedy.Samples.Entities
 		#region Methods
 
 		/// <summary>
-		/// Updates the relation ids using the sync ids.
-		/// </summary>
-		public override void UpdateLocalRelationships(ISyncableDatabase database)
-		{
-			this.UpdateIf(() => LinkedAddressSyncId != null, () => LinkedAddress.Id = database.GetRepository<Address>().First(x => x.SyncId == LinkedAddressSyncId).Id);
-		}
-
-		/// <summary>
 		/// Updates the sync ids of relationships.
 		/// </summary>
 		public override void UpdateLocalSyncIds()

@@ -1,4 +1,6 @@
-﻿namespace Speedy.Configuration
+﻿using System.Linq;
+
+namespace Speedy.Configuration
 {
 	/// <summary>
 	/// The interface for the property configuration.
@@ -18,7 +20,8 @@
 		/// Validates the entity using this configuration.
 		/// </summary>
 		/// <param name="entity"> The entity to validate. </param>
-		void Validate(object entity);
+		/// <param name="repository"> The entity repository. </param>
+		void Validate(object entity, IQueryable repository);
 
 		#endregion
 	}

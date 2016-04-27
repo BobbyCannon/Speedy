@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -103,10 +104,11 @@ namespace Speedy.Sync
 			if (!_cancelPending)
 			{
 				Status = SyncEngineStatus.Pushing;
-				Process(Client, Server, DateTime.UtcNow);
+				Process(Client, Server, StartTime);
 			}
 
 			Thread.Sleep(10);
+			Options.LastSyncedOn = StartTime;
 			Status = SyncEngineStatus.Stopped;
 			NotifyOfStatusChange();
 		}
@@ -161,9 +163,16 @@ namespace Speedy.Sync
 			var request = new SyncRequest { Since = Options.LastSyncedOn, Until = until, Skip = 0, Take = Options.ItemsPerSyncRequest };
 			var total = getClient.GetChangeCount(request);
 
+			Debug.WriteLine("S: " + Options.LastSyncedOn.TimeOfDay + " U: " + until.TimeOfDay + " T: " + total + " " + getClient.Name + " -> " + applyClient.Name);
+			
 			do
 			{
 				syncObjects = getClient.GetChanges(request).ToList();
+				foreach (var syncObject in syncObjects)
+				{
+					Debug.WriteLine("   SO: " + syncObject.SyncId + " " + syncObject.Status + " - " + syncObject.Data);
+				}
+
 				issues.AddRange(applyClient.ApplyChanges(syncObjects));
 				OnSyncStatusChanged(new SyncEngineStatusArgs { Name = applyClient.Name, Count = request.Skip, Total = total, Status = Status });
 				request.Skip += syncObjects.Count;
@@ -172,8 +181,25 @@ namespace Speedy.Sync
 			while (!_cancelPending && issues.Any())
 			{
 				var issuesToProcess = issues.Take(Options.ItemsPerSyncRequest).ToList();
+
+				syncObjects = getClient.GetCorrections(issuesToProcess).ToList();
+
+				if (syncObjects.Any())
+				{
+					_syncIssues.AddRange(applyClient.ApplyCorrections(syncObjects));
+					issuesToProcess.ForEach(x => issues.Remove(x));
+					continue;
+				}
+
 				syncObjects = applyClient.GetCorrections(issuesToProcess).ToList();
-				_syncIssues.AddRange(getClient.ApplyCorrections(syncObjects));
+
+				if (syncObjects.Any())
+				{
+					_syncIssues.AddRange(getClient.ApplyCorrections(syncObjects));
+					issuesToProcess.ForEach(x => issues.Remove(x));
+					continue;
+				}
+
 				issuesToProcess.ForEach(x => issues.Remove(x));
 			}
 		}

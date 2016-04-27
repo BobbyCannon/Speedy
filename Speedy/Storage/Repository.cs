@@ -423,7 +423,7 @@ namespace Speedy.Storage
 		protected virtual void OnValidateEntity(T obj)
 		{
 			var handler = ValidateEntity;
-			handler?.Invoke(obj);
+			handler?.Invoke(obj, this);
 		}
 
 		private T AddOrUpdateCache(T entity)
@@ -554,7 +554,7 @@ namespace Speedy.Storage
 
 		public event Action<T> DeletingEntity;
 		public event Action<T> UpdateEntityRelationships;
-		public event Action<T> ValidateEntity;
+		public event Action<T, IRepository<T>> ValidateEntity;
 
 		#endregion
 	}

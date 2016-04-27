@@ -31,25 +31,5 @@ namespace Speedy.Samples.Entities
 		public string Name { get; set; }
 
 		#endregion
-
-		#region Methods
-
-		/// <summary>
-		/// Updates the relation ids using the sync ids.
-		/// </summary>
-		public override void UpdateLocalRelationships(ISyncableDatabase database)
-		{
-			// Nothing to do because group has no other direct relationships.
-		}
-
-		/// <summary>
-		/// Updates the sync ids using relationships.
-		/// </summary>
-		public override void UpdateLocalSyncIds()
-		{
-			// Nothing to do because group has no other direct relationships.
-		}
-
-		#endregion
 	}
 }
