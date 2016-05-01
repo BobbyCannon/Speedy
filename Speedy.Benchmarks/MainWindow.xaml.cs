@@ -3,7 +3,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -32,25 +31,46 @@ namespace Speed.Benchmarks
 			ViewModel = new MainWindowModel();
 			DataContext = ViewModel;
 
-			Worker = new BackgroundWorker();
-			Worker.WorkerReportsProgress = true;
-			Worker.WorkerSupportsCancellation = true;
-			Worker.DoWork += WorkerOnDoWork;
-			Worker.RunWorkerCompleted += WorkerOnRunWorkerCompleted;
-			Worker.ProgressChanged += WorkerOnProgressChanged;
+			SyncWorker = new BackgroundWorker();
+			SyncWorker.WorkerReportsProgress = true;
+			SyncWorker.WorkerSupportsCancellation = true;
+			SyncWorker.DoWork += SyncWorkerOnDoWork;
+			SyncWorker.RunWorkerCompleted += SyncWorkerOnRunWorkerCompleted;
+			SyncWorker.ProgressChanged += SyncWorkerOnProgressChanged;
+
+			RepositoryWorker = new BackgroundWorker();
+			RepositoryWorker.WorkerReportsProgress = true;
+			RepositoryWorker.WorkerSupportsCancellation = true;
+			RepositoryWorker.DoWork += RepositoryWorkerOnDoWork;
+			RepositoryWorker.RunWorkerCompleted += RepositoryWorkerOnRunWorkerCompleted;
+			RepositoryWorker.ProgressChanged += RepositoryWorkerOnProgressChanged;
 		}
 
 		#endregion
 
 		#region Properties
 
-		public MainWindowModel ViewModel { get; }
+		public BackgroundWorker RepositoryWorker { get; set; }
 
-		public BackgroundWorker Worker { get; set; }
+		public BackgroundWorker SyncWorker { get; set; }
+
+		public MainWindowModel ViewModel { get; }
 
 		#endregion
 
 		#region Methods
+
+		private void CheckClient(IContosoSyncClient client)
+		{
+			using (var database = client.GetDatabase())
+			{
+				Assert.IsFalse(database.Addresses.Any(x => x.SyncId == Guid.Empty), "Address with empty GUID...");
+				Assert.IsFalse(database.Addresses.Join(database.SyncTombstones, x => x.SyncId, x => x.SyncId, (a, t) => new { a, t }).Any(), "Address have duplicate tombstones.");
+				Assert.IsFalse(database.People.Any(x => x.SyncId == Guid.Empty), "Person with empty GUID...");
+				Assert.IsFalse(database.People.Join(database.SyncTombstones, x => x.SyncId, x => x.SyncId, (p, t) => new { p, t }).Any(), "Person have duplicate tombstones.");
+				Assert.IsFalse(database.SyncTombstones.Any(x => x.SyncId == Guid.Empty), "Tombstone with empty GUID...");
+			}
+		}
 
 		private void Clear()
 		{
@@ -69,11 +89,13 @@ namespace Speed.Benchmarks
 			using (var serverDatabase = server.GetDatabase())
 			{
 				var serverAddresses = serverDatabase.GetReadOnlyRepository<Address>()
-					.OrderBy(x => x.Line1).ToList().Select(x => x.DeepClone(true)).ToList();
+					.OrderBy(x => x.Line1).ThenBy(x => x.Line2).ThenBy(x => x.City).ThenBy(x => x.State)
+					.ToList().Select(x => x.DeepClone(true)).ToList();
 				var serverPeople = serverDatabase.GetReadOnlyRepository<Person>()
 					.OrderBy(x => x.Name).ToList().Select(x => x.DeepClone(true)).ToList();
 				var clientAddresses = clientDatabase.GetReadOnlyRepository<Address>()
-					.OrderBy(x => x.Line1).ToList().Select(x => x.DeepClone(true)).ToList();
+					.OrderBy(x => x.Line1).ThenBy(x => x.Line2).ThenBy(x => x.City).ThenBy(x => x.State)
+					.ToList().Select(x => x.DeepClone(true)).ToList();
 				var clientPeople = clientDatabase.GetReadOnlyRepository<Person>()
 					.OrderBy(x => x.Name).ToList().Select(x => x.DeepClone(true)).ToList();
 
@@ -82,9 +104,46 @@ namespace Speed.Benchmarks
 			}
 		}
 
+		private static IContosoDatabaseProvider GetEntityFrameworkProvider(string connectionString = null)
+		{
+			using (var database = new EntityFrameworkContosoDatabase(connectionString ?? "name=DefaultConnection"))
+			{
+				database.ClearDatabase();
+				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
+			}
+		}
+
 		private void MainWindowOnClosing(object sender, CancelEventArgs e)
 		{
-			Worker.CancelAsync();
+			SyncWorker.CancelAsync();
+		}
+
+		private void RepositoryOnClick(object sender, RoutedEventArgs e)
+		{
+			switch (ViewModel.RepositoryStatus)
+			{
+				case "Repository":
+					RepositoryWorker.RunWorkerAsync();
+					ViewModel.RepositoryStatus = "Stop";
+					break;
+
+				default:
+					RepositoryWorker.CancelAsync();
+					break;
+			}
+		}
+
+		private void RepositoryWorkerOnDoWork(object sender, DoWorkEventArgs e)
+		{
+		}
+
+		private void RepositoryWorkerOnProgressChanged(object sender, ProgressChangedEventArgs e)
+		{
+		}
+
+		private void RepositoryWorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			ViewModel.RepositoryStatus = "Repository";
 		}
 
 		private void SyncOnClick(object sender, RoutedEventArgs e)
@@ -99,32 +158,124 @@ namespace Speed.Benchmarks
 						directory.Delete(true);
 						directory.Create();
 					}
-					
+
 					ViewModel.Errors = string.Empty;
 					ViewModel.SyncClients.Clear();
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Server", GetEntityFrameworkProvider())));
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 1", GetEntityFrameworkProvider("server=localhost;database=Speedy2;integrated security=true;"))));
 					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 2", new ContosoDatabaseProvider())));
-					//ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 3", new ContosoDatabaseProvider(directory.FullName))));
-					Worker.RunWorkerAsync(ViewModel.SyncClients);
+					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 3", new ContosoDatabaseProvider(directory.FullName))));
+					SyncWorker.RunWorkerAsync(ViewModel.SyncClients);
+					ViewModel.SyncStatus = "Stop";
 					break;
 
 				default:
-					Worker.CancelAsync();
-					ViewModel.SyncClients.Clear();
+					SyncWorker.CancelAsync();
 					break;
 			}
-
-			ViewModel.SyncStatus = ViewModel.SyncStatus == "Sync" ? "Stop" : "Sync";
 		}
 
-		private static IContosoDatabaseProvider GetEntityFrameworkProvider(string connectionString = null)
+		private void SyncWorkerOnDoWork(object sender, DoWorkEventArgs args)
 		{
-			using (var database = new EntityFrameworkContosoDatabase(connectionString ?? "name=DefaultConnection"))
+			var worker = (BackgroundWorker) sender;
+			var timeout = DateTime.UtcNow;
+			var collection = (ObservableCollection<SyncClientState>) args.Argument;
+			var options = new SyncOptions();
+			WriteError("Worker Started");
+
+			while (!worker.CancellationPending)
 			{
-				database.ClearDatabase();
-				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
+				if (timeout > DateTime.UtcNow)
+				{
+					Thread.Sleep(100);
+					continue;
+				}
+
+				var server = collection[0];
+				var client = collection.GetRandomItem(server);
+
+				Clear();
+
+				try
+				{
+					WriteLine("Updating " + client.Client.Name);
+					var forceAdd = UpdateClient(client.Client);
+
+					WriteLine("Updating " + server.Client.Name);
+					UpdateClient(server.Client, forceAdd);
+				}
+				catch (Exception ex)
+				{
+					// Write message but ignore them for now...
+					WriteError(ex.Message);
+				}
+
+				options.LastSyncedOn = client.LastSyncedOn;
+
+				var engine = new SyncEngine(client.Client, server.Client, options);
+
+				UpdateDisplay(client, engine);
+				UpdateDisplay(server, engine);
+
+				engine.SyncStatusChanged += (o, a) => worker.ReportProgress((int) a.Percent, a);
+				engine.Run();
+
+				foreach (var item in engine.SyncIssues)
+				{
+					WriteError(item.Id + " - " + item.IssueType + " : " + item.TypeName);
+				}
+
+				try
+				{
+					UpdateDisplay(client, engine);
+					UpdateDisplay(server, engine);
+					CheckClient(client.Client);
+					CheckClient(server.Client);
+					CompareClients(client.Client, server.Client);
+				}
+				catch (Exception ex)
+				{
+					WriteError("StartTime: " + engine.StartTime.TimeOfDay);
+					WriteError("LastSyncedOn: " + options.LastSyncedOn.TimeOfDay);
+					WriteError(ex?.Message ?? "null?");
+					//worker.CancelAsync();
+
+					client.LastSyncedOn = DateTime.MinValue;
+					using (var database = client.Client.GetDatabase())
+					{
+						database.SyncTombstones.Remove(x => x.Id > 0);
+						database.SaveChanges();
+					}
+					using (var database = server.Client.GetDatabase())
+					{
+						database.SyncTombstones.Remove(x => x.Id > 0);
+						database.SaveChanges();
+					}
+				}
+
+				timeout = DateTime.UtcNow.AddMilliseconds(250);
 			}
+
+			WriteError("Worker Ending");
+		}
+
+		private void SyncWorkerOnProgressChanged(object sender, ProgressChangedEventArgs args)
+		{
+			var status = (SyncEngineStatusArgs) args.UserState;
+			var clientState = ViewModel.SyncClients.FirstOrDefault(x => x.Client.Name == status.Name);
+			if (clientState == null)
+			{
+				return;
+			}
+
+			clientState.Status = status.Status;
+			ViewModel.Progress = (int) status.Percent;
+		}
+
+		private void SyncWorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs args)
+		{
+			ViewModel.SyncStatus = "Sync";
+			ViewModel.SyncClients.Clear();
 		}
 
 		private static bool UpdateClient(IContosoSyncClient client, bool forceAdd = false)
@@ -166,15 +317,6 @@ namespace Speed.Benchmarks
 
 					result = true;
 					clientDatabase.SaveChanges();
-
-					if (person != null)
-					{
-						Debug.WriteLine("+P: " + person.ToJson(true));
-					}
-					else
-					{
-						Debug.WriteLine("+A: " + address.ToJson(true));
-					}
 				}
 			}
 
@@ -188,7 +330,6 @@ namespace Speed.Benchmarks
 						var person = clientDatabase.People.GetRandomItem();
 						if (person != null)
 						{
-							Debug.WriteLine("-P: " + person.ToJson(true));
 							clientDatabase.People.Remove(person);
 						}
 					}
@@ -197,7 +338,6 @@ namespace Speed.Benchmarks
 						var address = clientDatabase.Addresses.Where(x => !x.People.Any()).GetRandomItem();
 						if (address != null)
 						{
-							Debug.WriteLine("-A: " + address.ToJson(true));
 							clientDatabase.Addresses.Remove(address);
 						}
 					}
@@ -207,105 +347,6 @@ namespace Speed.Benchmarks
 			}
 
 			return result;
-		}
-
-		private void WorkerOnDoWork(object sender, DoWorkEventArgs args)
-		{
-			var worker = (BackgroundWorker) sender;
-			var timeout = DateTime.UtcNow;
-			var collection = (ObservableCollection<SyncClientState>) args.Argument;
-			var options = new SyncOptions();
-			WriteError("Worker Started");
-
-			while (!worker.CancellationPending)
-			{
-				if (timeout > DateTime.UtcNow)
-				{
-					Thread.Sleep(100);
-					continue;
-				}
-
-				var server = collection[0];
-				var client = collection.GetRandomItem(server);
-
-				Clear();
-
-				try
-				{
-					WriteLine("Updating " + client.Client.Name);
-					var forceAdd = UpdateClient(client.Client);
-
-					WriteLine("Updating " + server.Client.Name);
-					UpdateClient(server.Client, forceAdd);
-				}
-				catch (Exception ex)
-				{
-					// Write message but ignore them for now...
-					WriteError(ex.Message);
-				}
-
-				options.LastSyncedOn = client.LastSyncedOn;
-
-				var engine = new SyncEngine(client.Client, server.Client, options);
-
-				UpdateDisplay(client, engine);
-				Debug.WriteLine("A: " + client.AddressCount + " P: " + client.PeopleCount + " " + client.Client.Name);
-
-				UpdateDisplay(server, engine);
-				Debug.WriteLine("A: " + server.AddressCount + " P: " + server.PeopleCount + " " + server.Client.Name);
-
-				engine.SyncStatusChanged += (o, a) => worker.ReportProgress((int) a.Percent, a);
-				engine.Run();
-				
-				foreach (var item in engine.SyncIssues)
-				{
-					WriteError(item.Id + " - " + item.IssueType + " : " + item.TypeName);
-				}
-
-				try
-				{
-					UpdateDisplay(client, engine);
-					Debug.WriteLine("A: " + client.AddressCount + " P: " + client.PeopleCount + " " + client.Client.Name);
-
-					UpdateDisplay(server, engine);
-					Debug.WriteLine("A: " + server.AddressCount + " P: " + server.PeopleCount + " " + server.Client.Name);
-
-					CheckClient(client.Client);
-					CheckClient(server.Client);
-					CompareClients(client.Client, server.Client);
-				}
-				catch (Exception ex)
-				{
-					WriteError("StartTime: " + engine.StartTime.TimeOfDay);
-					WriteError("LastSyncedOn: " + options.LastSyncedOn.TimeOfDay);
-					WriteError(ex?.Message ?? "null?");
-					//worker.CancelAsync();
-					client.LastSyncedOn = DateTime.MinValue;
-					using (var database = client.Client.GetDatabase())
-					{
-						database.SyncTombstones.Remove(x => x.Id > 0);
-						database.SaveChanges();
-					}
-					using (var database = server.Client.GetDatabase())
-					{
-						database.SyncTombstones.Remove(x => x.Id > 0);
-						database.SaveChanges();
-					}
-				}
-
-				timeout = DateTime.UtcNow.AddMilliseconds(250);
-			}
-
-			WriteError("Worker Ending");
-		}
-
-		private void CheckClient(IContosoSyncClient client)
-		{
-			using (var database = client.GetDatabase())
-			{
-				Assert.IsFalse(database.Addresses.Join(database.SyncTombstones, x => x.SyncId, x => x.SyncId, (a, t) => new { a, t }).Any());
-				Assert.IsFalse(database.People.Join(database.SyncTombstones, x => x.SyncId, x => x.SyncId, (p, t) => new { p, t }).Any());
-			}
 		}
 
 		private void UpdateDisplay(SyncClientState state, SyncEngine engine)
@@ -327,24 +368,6 @@ namespace Speed.Benchmarks
 				}
 				ViewModel.Progress = 0;
 			}
-		}
-
-		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs args)
-		{
-			var status = (SyncEngineStatusArgs) args.UserState;
-			var clientState = ViewModel.SyncClients.FirstOrDefault(x => x.Client.Name == status.Name);
-			if (clientState == null)
-			{
-				return;
-			}
-
-			clientState.Status = status.Status;
-			ViewModel.Progress = (int) status.Percent;
-		}
-
-		private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs args)
-		{
-			ViewModel.SyncStatus = "Sync";
 		}
 
 		private void WriteError(string message)

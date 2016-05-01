@@ -1,4 +1,8 @@
-﻿using System.Linq;
+﻿#region References
+
+using System.Linq;
+
+#endregion
 
 namespace Speedy.Configuration
 {

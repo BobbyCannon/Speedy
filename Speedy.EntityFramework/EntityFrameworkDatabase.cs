@@ -9,7 +9,6 @@ using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Speedy.Configuration;
 using Speedy.EntityFramework.Internal;
 using Speedy.Sync;
 
@@ -24,10 +23,8 @@ namespace Speedy.EntityFramework
 	{
 		#region Fields
 
-		private DbModelBuilder _modelBuilder;
 		private int _saveChangeCount;
 		private readonly ConcurrentDictionary<string, ISyncableRepository> _syncableRepositories;
-		private IRepository<SyncTombstone> _syncTombstones;
 
 		#endregion
 
@@ -42,6 +39,7 @@ namespace Speedy.EntityFramework
 			: base(nameOrConnectionString)
 		{
 			Options = options ?? new DatabaseOptions();
+			SyncTombstones = GetRepository<SyncTombstone>();
 
 			_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
 
@@ -59,6 +57,11 @@ namespace Speedy.EntityFramework
 		/// Gets the options for this database.
 		/// </summary>
 		public DatabaseOptions Options { get; }
+
+		/// <summary>
+		/// Gets the sync tombstone repository.
+		/// </summary>
+		public IRepository<SyncTombstone> SyncTombstones { get; }
 
 		#endregion
 
@@ -143,7 +146,7 @@ namespace Speedy.EntityFramework
 		/// <returns> The list of sync tombstones. </returns>
 		public IQueryable<SyncTombstone> GetSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
 		{
-			return _syncTombstones.Where(filter);
+			return SyncTombstones.Where(filter);
 		}
 
 		/// <summary>
@@ -153,7 +156,7 @@ namespace Speedy.EntityFramework
 		/// <returns> The list of sync tombstones. </returns>
 		public IEnumerable<SyncObject> GetSyncTombstones(DateTime since)
 		{
-			return _syncTombstones
+			return SyncTombstones
 				.Where(x => x.CreatedOn >= since)
 				.ToList()
 				.Select(x => x.ToSyncObject())
@@ -167,7 +170,7 @@ namespace Speedy.EntityFramework
 		/// <param name="filter"> The filter to use. </param>
 		public void RemoveSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
 		{
-			_syncTombstones.Remove(filter);
+			SyncTombstones.Remove(filter);
 		}
 
 		/// <summary>
@@ -241,7 +244,6 @@ namespace Speedy.EntityFramework
 				modelBuilder.Configurations.Add(instance);
 			}
 
-			_modelBuilder = modelBuilder;
 			base.OnModelCreating(modelBuilder);
 		}
 
@@ -272,13 +274,7 @@ namespace Speedy.EntityFramework
 			{
 				var genericType = property.PropertyType.GetGenericArguments().First();
 
-				if (syncTombstoneType.IsAssignableFrom(genericType))
-				{
-					_syncTombstones = (IRepository<SyncTombstone>) property.GetValue(this, null);
-					continue;
-				}
-
-				if (!syncEntityType.IsAssignableFrom(genericType))
+				if (syncTombstoneType.IsAssignableFrom(genericType) || !syncEntityType.IsAssignableFrom(genericType))
 				{
 					continue;
 				}
@@ -359,7 +355,12 @@ namespace Speedy.EntityFramework
 				case EntityState.Deleted:
 					if (syncableEntity != null)
 					{
-						_syncTombstones?.Add(syncableEntity.ToSyncTombstone());
+						if (syncableEntity.SyncId == Guid.Empty)
+						{
+							throw new InvalidOperationException("Cannot tombstone this entity because the sync ID has not been set.");
+						}
+
+						SyncTombstones?.Add(syncableEntity.ToSyncTombstone());
 					}
 					break;
 			}

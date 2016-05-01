@@ -24,6 +24,11 @@ namespace Speedy
 		public int Limit { get; set; }
 
 		/// <summary>
+		/// Gets or sets the flag to determine if this repository is read only.
+		/// </summary>
+		public bool ReadOnly { get; set; }
+
+		/// <summary>
 		/// Gets or sets the maximum time to cache items.
 		/// </summary>
 		public TimeSpan Timeout { get; set; }

@@ -10,6 +10,7 @@
 		Closing="MainWindowOnClosing">
 	<Window.Resources>
 		<Style x:Key="Button" TargetType="Button">
+			<Setter Property="Padding" Value="10,4" />
 			<Setter Property="Margin" Value="4" />
 			<Setter Property="MinHeight" Value="26" />
 			<Setter Property="MinWidth" Value="60" />
@@ -25,6 +26,7 @@
 		</Grid.RowDefinitions>
 		<StackPanel Grid.Row="0" Orientation="Horizontal">
 			<Button Style="{StaticResource Button}" Content="{Binding SyncStatus}" Click="SyncOnClick" />
+			<Button Style="{StaticResource Button}" Content="{Binding RepositoryStatus}" Click="RepositoryOnClick" />
 		</StackPanel>
 		<ItemsControl Grid.Row="1" ItemsSource="{Binding SyncClients}">
 			<ItemsControl.ItemsPanel>

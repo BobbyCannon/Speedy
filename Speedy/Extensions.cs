@@ -680,6 +680,34 @@ namespace Speedy
 			}
 		}
 
+		private static IEnumerable<Relationship> GetRelationshipConfigurations(SyncEntity entity)
+		{
+			var syncEntityType = typeof(SyncEntity);
+			var properties = entity.GetRealType().GetProperties();
+			var syncProperties = properties
+				.Where(x => syncEntityType.IsAssignableFrom(x.PropertyType))
+				.Select(x => new
+				{
+					IdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "Id"),
+					SyncIdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "SyncId"),
+					Type = x.PropertyType
+				})
+				.ToList();
+
+			var response = syncProperties
+				.Where(x => x.IdProperty != null)
+				.Where(x => x.SyncIdProperty != null)
+				.Select(x => new Relationship
+				{
+					IdPropertyInfo = x.IdProperty,
+					SyncId = (Guid?) x.SyncIdProperty.GetValue(entity),
+					Type = x.Type
+				})
+				.ToList();
+
+			return response;
+		}
+
 		private static JsonSerializerSettings GetSerializerSettings(bool ignoreVirtuals)
 		{
 			var response = new JsonSerializerSettings();
@@ -702,7 +730,6 @@ namespace Speedy
 			{
 				if (!correction)
 				{
-					Debug.WriteLine("Tombstoned: " + syncEntity.SyncId);
 					return;
 				}
 
@@ -816,6 +843,18 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a detailed string of the exception. Includes messages of all exceptions.
+		/// </summary>
+		/// <param name="ex"> The exception to process. </param>
+		/// <returns> The detailed string of the exception. </returns>
+		private static string ToDetailedString(this Exception ex)
+		{
+			var builder = new StringBuilder();
+			AddExceptionToBuilder(builder, ex);
+			return builder.ToString();
+		}
+
+		/// <summary>
 		/// Updates the entities local relationships.
 		/// </summary>
 		/// <param name="entity"> The entity to update. </param>
@@ -846,46 +885,6 @@ namespace Speedy
 			{
 				throw new SyncIssueException("This entity has relationship issues.", response.Where(x => x != null));
 			}
-		}
-
-		private static IEnumerable<Relationship> GetRelationshipConfigurations(SyncEntity entity)
-		{
-			var syncEntityType = typeof(SyncEntity);
-			var properties = entity.GetRealType().GetProperties();
-			var syncProperties = properties
-				.Where(x => syncEntityType.IsAssignableFrom(x.PropertyType))
-				.Select(x => new
-				{
-					IdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "Id"),
-					SyncIdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "SyncId"),
-					Type = x.PropertyType
-				})
-				.ToList();
-
-			var response = syncProperties
-				.Where(x => x.IdProperty != null)
-				.Where(x => x.SyncIdProperty != null)
-				.Select(x => new Relationship
-				{
-					IdPropertyInfo = x.IdProperty,
-					SyncId = (Guid?) x.SyncIdProperty.GetValue(entity),
-					Type = x.Type
-				})
-				.ToList();
-
-			return response;
-		}
-
-		/// <summary>
-		/// Gets a detailed string of the exception. Includes messages of all exceptions.
-		/// </summary>
-		/// <param name="ex"> The exception to process. </param>
-		/// <returns> The detailed string of the exception. </returns>
-		private static string ToDetailedString(this Exception ex)
-		{
-			var builder = new StringBuilder();
-			AddExceptionToBuilder(builder, ex);
-			return builder.ToString();
 		}
 
 		#endregion

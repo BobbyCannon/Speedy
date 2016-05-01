@@ -42,32 +42,6 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void UniqueConstraints()
-		{
-			TestHelper.GetDataContexts().ForEach(provider =>
-			{
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
-					context.People.Add(expected);
-					context.SaveChanges();
-					
-					expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
-					context.People.Add(expected);
-
-					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "The duplicate key value is");
-				}
-			});
-		}
-
-		private static Address NewAddress(string line1, string line2 = "")
-		{
-			return new Address { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
-		}
-
-		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>
@@ -492,6 +466,40 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void QueryUsingRecursiveRelationshipsUsingExtensionMethods()
+		{
+			TestHelper.GetDataContextProviders().ForEach(provider =>
+			{
+				var length = 20;
+
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					for (var i = 0; i < length; i++)
+					{
+						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						address.People.Add(new Person { Name = "John Doe #" + i, Address = address });
+						context.Addresses.Add(address);
+					}
+
+					context.SaveChanges();
+					Assert.AreEqual(length, context.Addresses.Count());
+					Assert.AreEqual(length, context.People.Count());
+				}
+
+				using (var context = provider.GetDatabase())
+				{
+					var address = context.Addresses
+						.Where(x => x.People.Any())
+						.GetRandomItem();
+
+					Assert.IsNotNull(address);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void RelationshipCollectionsShouldFilter()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>
@@ -630,6 +638,8 @@ namespace Speedy.Tests
 					context.Addresses.Remove(address);
 
 					var expected = "The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.";
+
+					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => context.SaveChanges(), expected);
 				}
 			});
@@ -720,6 +730,28 @@ namespace Speedy.Tests
 					Assert.AreEqual(2, children.Count);
 					Assert.AreEqual(pepper.Name, children[0].Child.Name);
 					Assert.AreEqual(salt.Name, children[1].Child.Name);
+				}
+			});
+		}
+
+		[TestMethod]
+		public void UniqueConstraints()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
+					context.People.Add(expected);
+					context.SaveChanges();
+
+					expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
+					context.People.Add(expected);
+
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "The duplicate key value is");
 				}
 			});
 		}
@@ -832,6 +864,11 @@ namespace Speedy.Tests
 					Assert.AreEqual("Line One", address1.Line1);
 				}
 			});
+		}
+
+		private static Address NewAddress(string line1, string line2 = "")
+		{
+			return new Address { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
 		}
 
 		#endregion

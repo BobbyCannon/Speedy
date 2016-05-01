@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Linq;
 using Speedy.Sync;
 
 #endregion

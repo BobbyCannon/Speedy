@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Speedy.Configuration;
 using Speedy.Sync;
 
 #endregion
@@ -16,6 +15,15 @@ namespace Speedy
 	/// </summary>
 	public interface ISyncableDatabase : IDatabase
 	{
+		#region Properties
+
+		/// <summary>
+		/// Gets the sync tombstone repository.
+		/// </summary>
+		IRepository<SyncTombstone> SyncTombstones { get; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>

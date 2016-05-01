@@ -18,9 +18,10 @@ namespace Speed.Benchmarks
 		public MainWindowModel()
 		{
 			Output = string.Empty;
+			Progress = 0;
+			RepositoryStatus = "Repository";
 			SyncClients = new ObservableCollection<SyncClientState>();
 			SyncStatus = "Sync";
-			Progress = 0;
 		}
 
 		#endregion
@@ -32,6 +33,8 @@ namespace Speed.Benchmarks
 		public string Output { get; set; }
 
 		public int Progress { get; set; }
+
+		public string RepositoryStatus { get; set; }
 
 		public ObservableCollection<SyncClientState> SyncClients { get; set; }
 

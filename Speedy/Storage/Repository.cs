@@ -309,6 +309,11 @@ namespace Speedy.Storage
 				var syncableEntity = item.Entity as SyncEntity;
 				if (syncableEntity != null)
 				{
+					if (syncableEntity.SyncId == Guid.Empty)
+					{
+						throw new InvalidOperationException("Cannot tombstone this entity because the sync ID has not been set.");
+					}
+
 					_database.SyncTombstones?.Add(syncableEntity.ToSyncTombstone());
 				}
 

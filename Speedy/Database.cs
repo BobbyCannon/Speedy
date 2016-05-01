@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -36,10 +37,11 @@ namespace Speedy
 		protected Database(string filePath, DatabaseOptions options)
 		{
 			FilePath = filePath;
+			OneToManyRelationships = new Dictionary<string, object[]>();
 			Options = options ?? new DatabaseOptions();
 			PropertyConfigurations = new List<IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IRepository>();
-			OneToManyRelationships = new Dictionary<string, object[]>();
+			SyncTombstones = GetRepository<SyncTombstone>();
 		}
 
 		#endregion
@@ -51,9 +53,12 @@ namespace Speedy
 		/// </summary>
 		public DatabaseOptions Options { get; }
 
-		internal string FilePath { get; }
+		/// <summary>
+		/// Gets the sync tombstone repository.
+		/// </summary>
+		public IRepository<SyncTombstone> SyncTombstones { get; }
 
-		internal IRepository<SyncTombstone> SyncTombstones { get; private set; }
+		internal string FilePath { get; }
 
 		private Dictionary<string, object[]> OneToManyRelationships { get; }
 
@@ -81,7 +86,7 @@ namespace Speedy
 		/// <returns> The repository for the type. </returns>
 		public IRepository<T> GetReadOnlyRepository<T>() where T : Entity, new()
 		{
-			return GetEntityRepository<T>();
+			return GetRepository<T>();
 		}
 
 		/// <summary>
@@ -91,7 +96,17 @@ namespace Speedy
 		/// <returns> The repository for the type. </returns>
 		public IRepository<T> GetRepository<T>() where T : Entity, new()
 		{
-			return GetEntityRepository<T>();
+			var type = typeof(T);
+			var key = type.FullName;
+
+			if (Repositories.ContainsKey(key))
+			{
+				return (Repository<T>) Repositories[key];
+			}
+
+			var repository = CreateRepository<T>();
+			Repositories.Add(key, repository);
+			return repository;
 		}
 
 		/// <summary>
@@ -136,9 +151,9 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Gets a list of sync tombstones that represent deleted entities.
+		/// Gets a list of sync tombstones that matches the filter.
 		/// </summary>
-		/// <param name="filter"> </param>
+		/// <param name="filter"> The filter to use. </param>
 		/// <returns> The list of sync tombstones. </returns>
 		public IQueryable<SyncTombstone> GetSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
 		{
@@ -201,23 +216,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Gets a repository to track deleted entities.
-		/// </summary>
-		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
-		/// <returns> The repository to track deletions. </returns>
-		protected IRepository<T> GetSyncTombstonesRepository<T>() where T : SyncTombstone, new()
-		{
-			if (SyncTombstones != null)
-			{
-				throw new InvalidOperationException("The sync tombstone repository has already been set.");
-			}
-
-			var repository = GetEntityRepository<T>();
-			SyncTombstones = (IRepository<SyncTombstone>) repository;
-			return repository;
-		}
-
-		/// <summary>
 		/// Creates a configuration that represent a one to many relationship.
 		/// </summary>
 		/// <param name="entity"> The entity to relate to. </param>
@@ -226,12 +224,12 @@ namespace Speedy
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
 		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
 		protected void HasMany<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, int>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey)
-			where T1 : Entity
+			where T1 : Entity, new()
 			where T2 : Entity
 		{
 			var key = typeof(T2).Name + (collectionKey as dynamic).Body.Member.Name;
-			var repository = Repositories.FirstOrDefault(x => x.Key == typeof(T1).FullName).Value;
-			OneToManyRelationships.Add(key, new object[] { repository, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+			var repositoryFactory = GetRepository<T1>();
+			OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
 		}
 
 		/// <summary>
@@ -332,6 +330,26 @@ namespace Speedy
 			return response;
 		}
 
+		private Repository<T> CreateRepository<T>() where T : Entity, new()
+		{
+			var repository = new Repository<T>(this);
+			repository.DeletingEntity += DeletingEntity;
+			repository.UpdateEntityRelationships += UpdateEntityRelationships;
+			repository.ValidateEntity += ValidateEntity;
+			repository.Initialize();
+			return repository;
+		}
+
+		private SyncableRepository<T> CreateSyncableRepository<T>() where T : SyncEntity, new()
+		{
+			var repository = new SyncableRepository<T>(this);
+			repository.DeletingEntity += DeletingEntity;
+			repository.UpdateEntityRelationships += UpdateEntityRelationships;
+			repository.ValidateEntity += ValidateEntity;
+			repository.Initialize();
+			return repository;
+		}
+
 		private void DeletingEntity(Entity entity)
 		{
 			var key = entity.GetRealType().Name;
@@ -347,26 +365,6 @@ namespace Speedy
 				var message = "The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.";
 				throw new InvalidOperationException(message);
 			}
-		}
-
-		private Repository<T> GetEntityRepository<T>() where T : Entity, new()
-		{
-			var type = typeof(T);
-			var key = type.FullName;
-
-			if (Repositories.ContainsKey(key))
-			{
-				return (Repository<T>) Repositories[key];
-			}
-
-			var repository = new Repository<T>(this);
-			repository.DeletingEntity += DeletingEntity;
-			repository.UpdateEntityRelationships += UpdateEntityRelationships;
-			repository.ValidateEntity += ValidateEntity;
-			repository.Initialize();
-
-			Repositories.Add(key, repository);
-			return repository;
 		}
 
 		private static MethodInfo GetGenericMethod(string methodName, Type[] typeArgs, params Type[] argTypes)
@@ -401,12 +399,7 @@ namespace Speedy
 				return (SyncableRepository<T>) Repositories[key];
 			}
 
-			var repository = new SyncableRepository<T>(this);
-			repository.DeletingEntity += DeletingEntity;
-			repository.UpdateEntityRelationships += UpdateEntityRelationships;
-			repository.ValidateEntity += ValidateEntity;
-			repository.Initialize();
-
+			var repository = CreateSyncableRepository<T>();
 			Repositories.Add(key, repository);
 			return repository;
 		}
@@ -424,6 +417,7 @@ namespace Speedy
 			entityRelationshipId?.SetValue(item, entity.Id, null);
 		}
 
+		[SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
 		private void UpdateEntityCollectionRelationships(Entity entity, Type entityType, IEnumerable<PropertyInfo> properties)
 		{
 			var enumerableType = typeof(IEnumerable);

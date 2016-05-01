@@ -2,7 +2,6 @@
 
 using System;
 using Speedy.Samples.Entities;
-using Speedy.Sync;
 
 #endregion
 
@@ -29,7 +28,6 @@ namespace Speedy.Samples
 			Groups = GetSyncableRepository<Group>();
 			LogEvents = GetRepository<LogEvent>();
 			People = GetSyncableRepository<Person>();
-			SyncTombstones = GetSyncTombstonesRepository<SyncTombstone>();
 
 			// Setup options.
 			Options.SyncOrder = SyncOrder;
@@ -91,8 +89,6 @@ namespace Speedy.Samples
 		public IRepository<LogEvent> LogEvents { get; }
 
 		public IRepository<Person> People { get; }
-
-		public IRepository<SyncTombstone> SyncTombstones { get; }
 
 		#endregion
 	}

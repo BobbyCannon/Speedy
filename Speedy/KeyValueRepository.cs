@@ -312,31 +312,33 @@ namespace Speedy
 					yield return new KeyValuePair<string, T>(item.Key, item.Value.Item1.FromJson<T>());
 				}
 
-				_fileStream.Position = 0;
-				var reader = new StreamReader(_fileStream);
-
-				while (reader.Peek() > 0)
+				using (var stream = FileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 				{
-					var line = reader.ReadLine();
-					if (string.IsNullOrWhiteSpace(line))
-					{
-						continue;
-					}
+					var reader = new StreamReader(stream);
 
-					var delimiter = line.IndexOf("|");
-					if (delimiter <= 0)
+					while (reader.Peek() > 0)
 					{
-						continue;
-					}
+						var line = reader.ReadLine();
+						if (string.IsNullOrWhiteSpace(line))
+						{
+							continue;
+						}
 
-					var readKey = line.Substring(0, delimiter);
-					if (_cache.ContainsKey(readKey))
-					{
-						// Skip this item because it's in the cache.
-						continue;
-					}
+						var delimiter = line.IndexOf("|");
+						if (delimiter <= 0)
+						{
+							continue;
+						}
 
-					yield return new KeyValuePair<string, T>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1).FromJson<T>());
+						var readKey = line.Substring(0, delimiter);
+						if (_cache.ContainsKey(readKey))
+						{
+							// Skip this item because it's in the cache.
+							continue;
+						}
+
+						yield return new KeyValuePair<string, T>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1).FromJson<T>());
+					}
 				}
 			}
 		}
@@ -535,7 +537,9 @@ namespace Speedy
 				DirectoryInfo.SafeCreate();
 				FileInfo.SafeCreate();
 
-				_fileStream = FileInfo.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+				var access = _options.ReadOnly ? FileAccess.Read : FileAccess.ReadWrite;
+				var mode = _options.ReadOnly ? FileMode.Open : FileMode.OpenOrCreate;
+				_fileStream = FileInfo.Open(mode, access, FileShare.Read);
 
 				// Check to see if we were in the middle of a save.
 				TempFileInfo.Refresh();
@@ -553,6 +557,11 @@ namespace Speedy
 		/// <param name="threshold"> The date time threshold that was calculated from the cache timeout. </param>
 		private void SaveRepository(DateTime threshold)
 		{
+			if (_options.ReadOnly)
+			{
+				return;
+			}
+
 			FileInfo.Refresh();
 			if (!FileInfo.Exists || _fileStream == null)
 			{

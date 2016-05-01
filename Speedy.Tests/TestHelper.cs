@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
@@ -120,6 +121,30 @@ namespace Speedy.Tests
 			yield return new EntityFrameworkContosoDatabaseProvider(options);
 			yield return new ContosoDatabaseProvider(null, options);
 			yield return new ContosoDatabaseProvider(Directory.FullName, options);
+		}
+
+		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
+		{
+			var random = new Random();
+			var list = collection.ToList();
+			if (!list.Any() || (exclude != null && list.Count == 1))
+			{
+				return null;
+			}
+
+			var index = random.Next(0, list.Count);
+
+			while (list[index] == exclude)
+			{
+				index++;
+
+				if (index >= list.Count)
+				{
+					index = 0;
+				}
+			}
+
+			return list[index];
 		}
 
 		public static void Initialize()

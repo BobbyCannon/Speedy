@@ -1,9 +1,7 @@
 ﻿#region References
 
 using System.Linq;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
 
@@ -329,7 +327,7 @@ namespace Speedy.Tests
 					Assert.AreEqual(2, serverDatabase.Addresses.Count());
 					Assert.AreEqual(1, serverDatabase.People.Count());
 
-					var person = client.GetDatabase().People.First();
+					var person = clientDatabase.People.First();
 					person.Address = clientDatabase.Addresses.First(x => x.Line1 == "Bar");
 					clientDatabase.SaveChanges();
 

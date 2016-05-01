@@ -108,7 +108,15 @@ namespace Speedy.Storage
 				throw new ArgumentException("The entity is not of the correct type.");
 			}
 
-			base.Remove(entityCheck);
+			var foundEntity = Cache.FirstOrDefault(x => x.Entity.Id == entity.Id);
+
+			if (foundEntity == null)
+			{
+				foundEntity = new EntityState { Entity = new T { Id = entity.Id, SyncId = entity.SyncId } };
+				Cache.Add(foundEntity);
+			}
+
+			foundEntity.State = EntityStateType.Removed;
 		}
 
 		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)

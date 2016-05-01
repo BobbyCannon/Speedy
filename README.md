@@ -42,18 +42,18 @@ using (var database = provider.CreateContext())
 
 ```
 JSON
-13:573 : 150 chunks.
-08:080 : 300 chunks.
-04:588 : 600 chunks.
-03:514 : 1200 chunks.
-03:608 : 2400 chunks.
+14:083 : 150 chunks.
+08:056 : 300 chunks.
+05:179 : 600 chunks.
+04:109 : 1200 chunks.
+04:384 : 2400 chunks.
 
 Entity Framework
-09:245 : 150 chunks.
-13:279 : 300 chunks.
-21:551 : 600 chunks.
-41:057 : 1200 chunks.
-28:570 : 2400 chunks.
+10:105 : 150 chunks.
+13:954 : 300 chunks.
+22:536 : 600 chunks.
+43:167 : 1200 chunks.
+34:818 : 2400 chunks.
 ```
 
 ## Key Value Repository
@@ -83,18 +83,18 @@ I just did a few quick benchmarks. The first set is without caching. The second 
 ```
 Starting to benchmark Speedy Repository writing 100000...
 No Caching
-49:578: 100 at a time.
-05:389: 1000 at a time.
-02:332: 2500 at a time.
-00:880: 10000 at a time.
-00:422: 50000 at a time.
+25:319: 100 at a time.
+05:133: 1000 at a time.
+02:237: 2500 at a time.
+00:816: 10000 at a time.
+00:426: 50000 at a time.
 
 Caching
-05:369: 100 at a time with a cache of 1000 items.
-00:861: 1000 at a time with a cache of 10000 items.
-00:829: 2500 at a time with a cache of 10000 items.
-00:563: 10000 at a time with a cache of 25000 items.
-00:319: 50000 at a time with a cache of 100000 items.
+02:808: 100 at a time with a cache of 1000 items.
+00:536: 1000 at a time with a cache of 10000 items.
+00:779: 2500 at a time with a cache of 10000 items.
+00:406: 10000 at a time with a cache of 25000 items.
+00:253: 50000 at a time with a cache of 100000 items.
 ```
 
 You'll need to balance how often to save you repository based on how much memory you want to use. More items written before saving
@@ -109,7 +109,7 @@ Reads using 100 random keys in a repository of 100,000 items.
 
 ```
 Let's read the randomly selected keys from the DB-100000 repository one at a time.
-Total: 07:567
+Total: 06:470
 
 Let's read the randomly selected keys from the DB-100000 repository all at once.
 Total: 00:132

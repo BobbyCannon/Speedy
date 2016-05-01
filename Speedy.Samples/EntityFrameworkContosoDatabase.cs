@@ -1,10 +1,8 @@
 ﻿#region References
 
-using System.Data.Entity;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
-using Speedy.Sync;
 
 #endregion
 
@@ -53,8 +51,6 @@ namespace Speedy.Samples
 		public IRepository<LogEvent> LogEvents => GetRepository<LogEvent>();
 
 		public IRepository<Person> People => GetSyncableRepository<Person>();
-
-		public IRepository<SyncTombstone> SyncTombstones => GetRepository<SyncTombstone>();
 
 		#endregion
 	}
