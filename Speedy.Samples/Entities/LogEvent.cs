@@ -1,6 +1,6 @@
 ﻿namespace Speedy.Samples.Entities
 {
-	public class LogEvent : Entity
+	public class LogEvent : Entity, ILogEvent
 	{
 		#region Properties
 

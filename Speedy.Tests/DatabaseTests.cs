@@ -797,6 +797,29 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void EntitiesWithInterfaceShouldStillSerialize()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				var expected = new LogEvent { Message = "This is a test." };
+
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					context.LogEvents.Add(expected);
+					context.SaveChanges();
+				}
+
+				using (var context = provider.GetDatabase())
+				{
+					var actual = context.LogEvents.First();
+					TestHelper.AreEqual(expected, actual);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void UpdateEntityCreatedOnShouldReset()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>
