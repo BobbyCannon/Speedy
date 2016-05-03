@@ -32,11 +32,11 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates an instance of the database class.
 		/// </summary>
-		/// <param name="filePath"> The path to store the database files. </param>
+		/// <param name="directory"> The directory to store the database files. </param>
 		/// <param name="options"> The options for this database. </param>
-		protected Database(string filePath, DatabaseOptions options)
+		protected Database(string directory, DatabaseOptions options)
 		{
-			FilePath = filePath;
+			Directory = directory;
 			OneToManyRelationships = new Dictionary<string, object[]>();
 			Options = options ?? new DatabaseOptions();
 			PropertyConfigurations = new List<IPropertyConfiguration>();
@@ -58,7 +58,7 @@ namespace Speedy
 		/// </summary>
 		public IRepository<SyncTombstone> SyncTombstones { get; }
 
-		internal string FilePath { get; }
+		internal string Directory { get; }
 
 		private Dictionary<string, object[]> OneToManyRelationships { get; }
 

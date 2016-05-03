@@ -500,6 +500,46 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void RelationshipCollectionsCountShouldBeCorrect()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var person = new Person { Name = "John Doe" };
+					var group = new Group { Description = "For those who are epic and code.", Name = "Epic Coders" };
+					person.Groups.Add(new GroupMember { Role = "Leader", Group = group });
+					address.People.Add(person);
+					context.Addresses.Add(address);
+
+					Assert.AreEqual(1, address.People.Count);
+					Assert.AreEqual(1, person.Groups.Count);
+					Assert.AreEqual(1, group.Members.Count);
+					Assert.AreEqual(0, context.Addresses.Count());
+					Assert.AreEqual(0, context.People.Count());
+					Assert.AreEqual(0, context.GroupMembers.Count());
+					Assert.AreEqual(0, context.Groups.Count());
+
+					context.SaveChanges();
+
+					Assert.AreEqual(1, context.Addresses.Count());
+					Assert.AreNotEqual(0, context.Addresses.First().Id);
+					Assert.AreEqual(1, context.Addresses.First().People.Count);
+					Assert.AreEqual(1, context.People.Count());
+					Assert.AreNotEqual(0, context.People.First().Id);
+					Assert.AreEqual(1, context.People.First().Groups.Count);
+					Assert.AreEqual(1, context.GroupMembers.Count());
+					Assert.AreNotEqual(0, context.GroupMembers.First().Id);
+					Assert.AreEqual(1, context.Groups.Count());
+					Assert.AreNotEqual(0, context.Groups.First().Id);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void RelationshipCollectionsShouldFilter()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>

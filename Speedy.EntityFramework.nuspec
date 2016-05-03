@@ -11,7 +11,7 @@
 		<iconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</iconUrl>
 		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
 		<dependencies>
-			<dependency id="Speedy" version="4.1.5965.21980" />
+			<dependency id="Speedy" version="4.1.5966.36945" />
 			<dependency id="EntityFramework" version="6.1.3" />
 		</dependencies>
 		<references>
@@ -26,11 +26,3 @@
 		<file src="C:\Binaries\Speedy\bin\Speedy.EntityFramework.pdb" target="lib\net452" />
 	</files>
 </package>
-
-
-
-
-
-
-
-

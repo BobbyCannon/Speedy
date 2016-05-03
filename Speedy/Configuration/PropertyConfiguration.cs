@@ -125,6 +125,12 @@ namespace Speedy.Configuration
 			var property = _propertyFunction.Invoke(typedEntity);
 			var propertyValue = property?.ToString();
 			var dValue = _property as dynamic;
+
+			if (dValue.Body.NodeType.ToString() != "MemberAccess")
+			{
+				return;
+			}
+
 			var memberName = dValue.Body.Member.Name;
 
 			if (_isNullable.HasValue && _isNullable.Value == false && property == null)

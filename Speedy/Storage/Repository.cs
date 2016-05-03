@@ -40,10 +40,10 @@ namespace Speedy.Storage
 			_index = 0;
 			_type = typeof(T);
 
-			if (!string.IsNullOrWhiteSpace(_database.FilePath))
+			if (!string.IsNullOrWhiteSpace(_database.Directory))
 			{
 				var options = new KeyValueRepositoryOptions { IgnoreVirtualMembers = true };
-				Store = KeyValueRepository<T>.Create(_database.FilePath, typeof(T).Name, options);
+				Store = KeyValueRepository<T>.Create(_database.Directory, typeof(T).Name, options);
 				Store.OnEnumerated += OnUpdateEntityRelationships;
 			}
 
@@ -77,6 +77,7 @@ namespace Speedy.Storage
 			}
 
 			Cache.Add(new EntityState { Entity = entity, OldEntity = CloneEntity(entity), State = EntityStateType.Added });
+			OnUpdateEntityRelationships(entity);
 		}
 
 		/// <summary>
@@ -96,6 +97,7 @@ namespace Speedy.Storage
 			if (foundItem == null)
 			{
 				Cache.Add(new EntityState { Entity = entity, OldEntity = CloneEntity(entity), State = EntityStateType.Unmodified });
+				OnUpdateEntityRelationships(entity);
 				return;
 			}
 
@@ -239,6 +241,11 @@ namespace Speedy.Storage
 		/// <param name="targetEntity"> The entity to locate insert point. </param>
 		public void InsertBefore(T entity, T targetEntity)
 		{
+			if (Cache.Any(x => entity == x.Entity))
+			{
+				return;
+			}
+
 			var state = Cache.FirstOrDefault(x => x.Entity == targetEntity);
 			var indexOf = Cache.IndexOf(state);
 
