@@ -22,7 +22,7 @@ namespace Speedy.Samples
 			_directory = directory;
 			Options = options ?? new DatabaseOptions();
 
-			_memoryDatabase = new Lazy<ContosoDatabase>(() => new ContosoDatabase(null, Options.DeepClone(false)), true);
+			_memoryDatabase = new Lazy<ContosoDatabase>(() => new ContosoDatabase(null, Options.DeepClone()), true);
 		}
 
 		#endregion
@@ -42,7 +42,7 @@ namespace Speedy.Samples
 		{
 			if (!string.IsNullOrEmpty(_directory))
 			{
-				return new ContosoDatabase(_directory, Options.DeepClone(false));
+				return new ContosoDatabase(_directory, Options.DeepClone());
 			}
 
 			// todo: do this better. Basically we don't want this to change.

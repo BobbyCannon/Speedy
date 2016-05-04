@@ -36,7 +36,7 @@
 
 		public IContosoDatabase GetDatabase()
 		{
-			return new EntityFrameworkContosoDatabase(_connectionString, Options.DeepClone(false));
+			return new EntityFrameworkContosoDatabase(_connectionString, Options.DeepClone());
 		}
 
 		/// <summary>

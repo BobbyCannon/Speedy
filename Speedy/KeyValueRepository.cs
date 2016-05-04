@@ -474,7 +474,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(_options.IgnoreVirtualMembers), DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(ignoreVirtuals: _options.IgnoreVirtualMembers), DateTime.UtcNow));
 			}
 		}
 

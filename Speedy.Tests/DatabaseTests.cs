@@ -229,6 +229,29 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void EntitiesWithInterfaceShouldStillSerialize()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				var expected = new LogEvent { Message = "This is a test." };
+
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					context.LogEvents.Add(expected);
+					context.SaveChanges();
+				}
+
+				using (var context = provider.GetDatabase())
+				{
+					var actual = context.LogEvents.First();
+					TestHelper.AreEqual(expected, actual);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void GetSyncChangesWithExactSince()
 		{
 			var options = new DatabaseOptions { MaintainDates = false };
@@ -255,7 +278,7 @@ namespace Speedy.Tests
 				var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
 				var actual = provider.GetSyncChanges(request).ToList();
 				Assert.AreEqual(1, actual.Count);
-				Assert.AreEqual(address3.ToJson(true), actual[0].Data);
+				Assert.AreEqual(address3.ToJson(ignoreVirtuals: true), actual[0].Data);
 			});
 		}
 
@@ -286,8 +309,8 @@ namespace Speedy.Tests
 				var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
 				var actual = provider.GetSyncChanges(request).ToList();
 				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-				Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+				Assert.AreEqual(address1.ToJson(ignoreVirtuals: true), actual[0].Data);
+				Assert.AreEqual(address2.ToJson(ignoreVirtuals: true), actual[1].Data);
 			});
 		}
 
@@ -318,14 +341,14 @@ namespace Speedy.Tests
 				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
 				var actual = provider.GetSyncChanges(request).ToList();
 				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-				Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+				Assert.AreEqual(address1.ToJson(ignoreVirtuals: true), actual[0].Data);
+				Assert.AreEqual(address2.ToJson(ignoreVirtuals: true), actual[1].Data);
 
 				request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
 				actual = provider.GetSyncChanges(request).ToList();
 				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address3.ToJson(true), actual[0].Data);
-				Assert.AreEqual(address4.ToJson(true), actual[1].Data);
+				Assert.AreEqual(address3.ToJson(ignoreVirtuals: true), actual[0].Data);
+				Assert.AreEqual(address4.ToJson(ignoreVirtuals: true), actual[1].Data);
 			});
 		}
 
@@ -356,8 +379,8 @@ namespace Speedy.Tests
 				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
 				var actual = provider.GetSyncChanges(request).ToList();
 				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address1.ToJson(true), actual[0].Data);
-				Assert.AreEqual(address2.ToJson(true), actual[1].Data);
+				Assert.AreEqual(address1.ToJson(ignoreVirtuals: true), actual[0].Data);
+				Assert.AreEqual(address2.ToJson(ignoreVirtuals: true), actual[1].Data);
 			});
 		}
 
@@ -388,7 +411,7 @@ namespace Speedy.Tests
 				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
 				var actual = provider.GetSyncChanges(request).ToList();
 				Assert.AreEqual(1, actual.Count);
-				Assert.AreEqual(address3.ToJson(true), actual[0].Data);
+				Assert.AreEqual(address3.ToJson(ignoreVirtuals: true), actual[0].Data);
 			});
 		}
 
@@ -792,29 +815,6 @@ namespace Speedy.Tests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "The duplicate key value is");
-				}
-			});
-		}
-
-		[TestMethod]
-		public void EntitiesWithInterfaceShouldStillSerialize()
-		{
-			TestHelper.GetDataContexts().ForEach(provider =>
-			{
-				var expected = new LogEvent { Message = "This is a test." };
-
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					context.LogEvents.Add(expected);
-					context.SaveChanges();
-				}
-
-				using (var context = provider.GetDatabase())
-				{
-					var actual = context.LogEvents.First();
-					TestHelper.AreEqual(expected, actual);
 				}
 			});
 		}

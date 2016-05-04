@@ -76,7 +76,7 @@ namespace Speedy.Net
 				client.Timeout = TimeSpan.FromMilliseconds(timeout);
 
 				HttpResponseMessage response;
-				using (HttpContent httpContent = new StringContent((content ?? new object()).ToJson(true)))
+				using (HttpContent httpContent = new StringContent((content ?? new object()).ToJson(ignoreVirtuals: true)))
 				{
 					httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 					response = client.PostAsync(location, httpContent).Result;
@@ -107,7 +107,7 @@ namespace Speedy.Net
 				client.Timeout = TimeSpan.FromMilliseconds(timeout);
 
 				HttpResponseMessage response;
-				var json = content.ToJson(true);
+				var json = content.ToJson(ignoreVirtuals: true);
 
 				using (HttpContent httpContent = new StringContent(json))
 				{

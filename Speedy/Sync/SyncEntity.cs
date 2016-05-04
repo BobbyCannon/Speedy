@@ -50,7 +50,7 @@ namespace Speedy.Sync
 		/// <returns> The sync object for this entity. </returns>
 		public SyncObject ToSyncObject()
 		{
-			var json = this.ToJson(true);
+			var json = this.ToJson(ignoreVirtuals: true);
 			var type = this.GetRealType();
 
 			return new SyncObject

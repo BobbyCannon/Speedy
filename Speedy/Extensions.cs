@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Speedy.Configuration;
 using Speedy.Exceptions;
 using Speedy.Storage;
@@ -34,7 +35,6 @@ namespace Speedy
 		private static readonly ConcurrentDictionary<string, MethodInfo> _methods;
 		private static readonly ConcurrentDictionary<string, ParameterInfo[]> _parameterInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
-		private static readonly JsonSerializerSettings _serializationSettings;
 		private static readonly JsonSerializerSettings _serializationSettingsNoVirtuals;
 		private static readonly ConcurrentDictionary<string, Type[]> _types;
 		private static readonly char[] _validJsonStartCharacters;
@@ -46,14 +46,13 @@ namespace Speedy
 		static Extensions()
 		{
 			_validJsonStartCharacters = new[] { '{', '[', '"' };
-			_serializationSettings = GetSerializerSettings(true);
-			_serializationSettingsNoVirtuals = GetSerializerSettings(false);
 			_types = new ConcurrentDictionary<string, Type[]>();
 			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
 			_genericMethods = new ConcurrentDictionary<string, MethodInfo>();
 			_methods = new ConcurrentDictionary<string, MethodInfo>();
 			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_parameterInfos = new ConcurrentDictionary<string, ParameterInfo[]>();
+			_serializationSettingsNoVirtuals = GetSerializerSettings(false, true);
 		}
 
 		#endregion
@@ -116,9 +115,9 @@ namespace Speedy
 		/// <param name="item"> The item to clone. </param>
 		/// <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
 		/// <returns> The clone of the item. </returns>
-		public static T DeepClone<T>(this T item, bool ignoreVirtuals)
+		public static T DeepClone<T>(this T item, bool ignoreVirtuals = false)
 		{
-			return FromJson<T>(item.ToJson(ignoreVirtuals));
+			return FromJson<T>(item.ToJson(ignoreVirtuals: ignoreVirtuals));
 		}
 
 		/// <summary>
@@ -156,7 +155,9 @@ namespace Speedy
 		/// <returns> The deserialized object. </returns>
 		public static T FromJson<T>(this string item)
 		{
-			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0]) ? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals) : JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
+			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
+				? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals)
+				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
 		}
 
 		/// <summary>
@@ -367,11 +368,14 @@ namespace Speedy
 		/// </summary>
 		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
 		/// <param name="item"> The object to serialize. </param>
-		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. </param>
+		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
+		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
-		public static string ToJson<T>(this T item, bool ignoreVirtuals)
+		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreVirtuals = false)
 		{
-			return JsonConvert.SerializeObject(item, Formatting.None, ignoreVirtuals ? _serializationSettings : _serializationSettingsNoVirtuals);
+			var settings = GetSerializerSettings(camelCase, ignoreVirtuals);
+			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
 		}
 
 		/// <summary>
@@ -708,11 +712,18 @@ namespace Speedy
 			return response;
 		}
 
-		private static JsonSerializerSettings GetSerializerSettings(bool ignoreVirtuals)
+		private static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreVirtuals)
 		{
 			var response = new JsonSerializerSettings();
 			response.Converters.Add(new IsoDateTimeConverter());
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+
+			if (camelCase)
+			{
+				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+				response.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			}
 
 			if (ignoreVirtuals)
 			{
