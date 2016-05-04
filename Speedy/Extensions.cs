@@ -184,6 +184,33 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Get the serialization settings.
+		/// </summary>
+		/// <param name="camelCase"> True to camelCase or else use PascalCase. </param>
+		/// <param name="ignoreVirtuals"> True to ignore virtual members else include them. </param>
+		/// <returns> </returns>
+		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreVirtuals)
+		{
+			var response = new JsonSerializerSettings();
+			response.Converters.Add(new IsoDateTimeConverter());
+			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+
+			if (camelCase)
+			{
+				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
+				response.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			}
+
+			if (ignoreVirtuals)
+			{
+				response.ContractResolver = new IgnoreVirtualsSerializeContractResolver();
+			}
+
+			return response;
+		}
+
+		/// <summary>
 		/// Gets count of changes from the database.
 		/// </summary>
 		/// <param name="provider"> The database provider to query. </param>
@@ -708,27 +735,6 @@ namespace Speedy
 					Type = x.Type
 				})
 				.ToList();
-
-			return response;
-		}
-
-		private static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreVirtuals)
-		{
-			var response = new JsonSerializerSettings();
-			response.Converters.Add(new IsoDateTimeConverter());
-			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-
-			if (camelCase)
-			{
-				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-				response.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			}
-
-			if (ignoreVirtuals)
-			{
-				response.ContractResolver = new IgnoreVirtualsSerializeContractResolver();
-			}
 
 			return response;
 		}
