@@ -381,6 +381,98 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Safely create a directory.
+		/// </summary>
+		/// <param name="info"> The information on the directory to create. </param>
+		public static void SafeCreate(this DirectoryInfo info)
+		{
+			Retry(() =>
+			{
+				info.Refresh();
+
+				if (!info.Exists)
+				{
+					info.Create();
+				}
+			}, 1000, 10);
+
+			Wait(() =>
+			{
+				info.Refresh();
+				return info.Exists;
+			}, 1000, 10);
+		}
+
+		/// <summary>
+		/// Safely delete a file.
+		/// </summary>
+		/// <param name="info"> The information of the file to delete. </param>
+		public static void SafeDelete(this FileInfo info)
+		{
+			Retry(() =>
+			{
+				info.Refresh();
+
+				if (info.Exists)
+				{
+					info.Delete();
+				}
+			}, 1000, 10);
+
+			Wait(() =>
+			{
+				info.Refresh();
+				return !info.Exists;
+			}, 1000, 10);
+		}
+
+		/// <summary>
+		/// Safely delete a directory.
+		/// </summary>
+		/// <param name="info"> The information of the directory to delete. </param>
+		public static void SafeDelete(this DirectoryInfo info)
+		{
+			Retry(() =>
+			{
+				info.Refresh();
+
+				if (info.Exists)
+				{
+					info.Delete(true);
+				}
+			}, 1000, 10);
+
+			Wait(() =>
+			{
+				info.Refresh();
+				return !info.Exists;
+			}, 1000, 10);
+		}
+
+		/// <summary>
+		/// Safely move a file.
+		/// </summary>
+		/// <param name="fileLocation"> The information of the file to move. </param>
+		/// <param name="newLocation"> The location to move the file to. </param>
+		public static void SafeMove(this FileInfo fileLocation, FileInfo newLocation)
+		{
+			fileLocation.Refresh();
+			if (!fileLocation.Exists)
+			{
+				throw new FileNotFoundException("The file could not be found.", fileLocation.FullName);
+			}
+
+			Retry(() => fileLocation.MoveTo(newLocation.FullName), 1000, 10);
+
+			Wait(() =>
+			{
+				fileLocation.Refresh();
+				newLocation.Refresh();
+				return !fileLocation.Exists && newLocation.Exists;
+			}, 1000, 10);
+		}
+
+		/// <summary>
 		/// Converts the type to an assembly name. Does not include version. Ex. System.String,mscorlib
 		/// </summary>
 		/// <param name="type"> The type to get the assembly name for. </param>
@@ -501,6 +593,19 @@ namespace Speedy
 
 			response = info.MakeGenericMethod(arguments);
 			return _genericMethods.AddOrUpdate(key, response, (s, i) => response);
+		}
+
+		internal static FileStream CopyToAndOpen(this FileStream from, FileInfo to, int timeout)
+		{
+			lock (from)
+			{
+				var response = Retry(() => File.Open(to.FullName, FileMode.Create, FileAccess.ReadWrite, FileShare.None), timeout, 50);
+				from.Position = 0;
+				from.CopyTo(response);
+				response.Flush(true);
+				response.Position = 0;
+				return response;
+			}
 		}
 
 		internal static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
@@ -626,73 +731,20 @@ namespace Speedy
 				return;
 			}
 
-			Retry(() => File.Create(file.FullName).Dispose(), 1000, 10);
+			Retry(() =>
+			{
+				if (file.Exists)
+				{
+					return;
+				}
+
+				File.Create(file.FullName).Dispose();
+			}, 1000, 10);
 
 			Wait(() =>
 			{
 				file.Refresh();
 				return file.Exists;
-			}, 1000, 10);
-		}
-
-		internal static void SafeCreate(this DirectoryInfo directory)
-		{
-			directory.Refresh();
-			if (directory.Exists)
-			{
-				return;
-			}
-
-			Retry(directory.Create, 1000, 10);
-
-			Wait(() =>
-			{
-				directory.Refresh();
-				return directory.Exists;
-			}, 1000, 10);
-		}
-
-		/// <summary>
-		/// Safely delete a file.
-		/// </summary>
-		/// <param name="file"> The information of the file to delete. </param>
-		internal static void SafeDelete(this FileInfo file)
-		{
-			file.Refresh();
-			if (!file.Exists)
-			{
-				return;
-			}
-
-			Retry(file.Delete, 1000, 10);
-
-			Wait(() =>
-			{
-				file.Refresh();
-				return !file.Exists;
-			}, 1000, 10);
-		}
-
-		/// <summary>
-		/// Safely move a file.
-		/// </summary>
-		/// <param name="fileLocation"> The information of the file to move. </param>
-		/// <param name="newLocation"> The location to move the file to. </param>
-		internal static void SafeMove(this FileInfo fileLocation, FileInfo newLocation)
-		{
-			fileLocation.Refresh();
-			if (!fileLocation.Exists)
-			{
-				throw new FileNotFoundException("The file could not be found.", fileLocation.FullName);
-			}
-
-			Retry(() => fileLocation.MoveTo(newLocation.FullName), 1000, 10);
-
-			Wait(() =>
-			{
-				fileLocation.Refresh();
-				newLocation.Refresh();
-				return !fileLocation.Exists && newLocation.Exists;
 			}, 1000, 10);
 		}
 

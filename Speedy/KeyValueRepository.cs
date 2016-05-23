@@ -56,7 +56,6 @@ namespace Speedy
 
 		private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
 		private readonly Dictionary<string, Tuple<string, DateTime>> _changes;
-		private FileStream _fileStream;
 		private readonly KeyValueRepositoryOptions _options;
 
 		#endregion
@@ -149,8 +148,6 @@ namespace Speedy
 			{
 				_cache.Clear();
 				_changes.Clear();
-				_fileStream.Close();
-				_fileStream = null;
 				FileInfo.SafeMove(new FileInfo(FileInfo.FullName + ".archive"));
 				TempFileInfo.SafeDelete();
 			}
@@ -165,8 +162,12 @@ namespace Speedy
 			{
 				_cache.Clear();
 				_changes.Clear();
-				_fileStream.SetLength(0);
-				_fileStream.Flush(true);
+
+				using (var stream = OpenFile(FileInfo, false))
+				{
+					stream.SetLength(0);
+					stream.Flush(true);
+				}
 			}
 		}
 
@@ -180,6 +181,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
+		/// <returns> The repository. </returns>
 		public static IKeyValueRepository<T> Create(DirectoryInfo directoryInfo, string name, TimeSpan? timeout = null, int limit = 0)
 		{
 			return Create(directoryInfo.FullName, name, timeout, limit);
@@ -195,6 +197,7 @@ namespace Speedy
 		/// TimeSpan.Zero is used.
 		/// </param>
 		/// <param name="limit"> The maximum limit of items to be cached in memory. Defaults to a limit of 0. </param>
+		/// <returns> The repository. </returns>
 		public static IKeyValueRepository<T> Create(string directory, string name, TimeSpan? timeout = null, int limit = 0)
 		{
 			var options = new KeyValueRepositoryOptions { Limit = limit, Timeout = timeout ?? TimeSpan.Zero };
@@ -223,8 +226,6 @@ namespace Speedy
 			{
 				_cache.Clear();
 				_changes.Clear();
-				_fileStream.Close();
-				_fileStream = null;
 				FileInfo.SafeDelete();
 				TempFileInfo.SafeDelete();
 			}
@@ -283,16 +284,19 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				_fileStream.Position = _fileStream.Length;
-				var writer = new NoCloseStreamWriter(_fileStream);
-
-				foreach (var item in items)
+				using (var stream = OpenFile(FileInfo, false))
 				{
-					writer.WriteLine(item.Key + "|" + item.Value);
-				}
+					stream.Position = stream.Length;
+					var writer = new NoCloseStreamWriter(stream);
 
-				writer.Flush();
-				writer.Dispose();
+					foreach (var item in items)
+					{
+						writer.WriteLine(item.Key + "|" + item.Value);
+					}
+
+					writer.Flush();
+					writer.Dispose();
+				}
 			}
 		}
 
@@ -312,7 +316,7 @@ namespace Speedy
 					yield return new KeyValuePair<string, T>(item.Key, item.Value.Item1.FromJson<T>());
 				}
 
-				using (var stream = FileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+				using (var stream = OpenFile(FileInfo, true))
 				{
 					var reader = new StreamReader(stream);
 
@@ -429,7 +433,7 @@ namespace Speedy
 				UpdateCache();
 
 				var threshold = DateTime.UtcNow - _options.Timeout;
-				if (_cache.Count <= _options.Limit && !_cache.Any(x => x.Value.Item2 <= threshold))
+				if ((_cache.Count <= _options.Limit) && !_cache.Any(x => x.Value.Item2 <= threshold))
 				{
 					return;
 				}
@@ -499,8 +503,6 @@ namespace Speedy
 			if (disposing)
 			{
 				Flush();
-				_fileStream?.Dispose();
-				_fileStream = null;
 			}
 		}
 
@@ -537,10 +539,6 @@ namespace Speedy
 				DirectoryInfo.SafeCreate();
 				FileInfo.SafeCreate();
 
-				var access = _options.ReadOnly ? FileAccess.Read : FileAccess.ReadWrite;
-				var mode = _options.ReadOnly ? FileMode.Open : FileMode.OpenOrCreate;
-				_fileStream = FileInfo.Open(mode, access, FileShare.Read);
-
 				// Check to see if we were in the middle of a save.
 				TempFileInfo.Refresh();
 				if (TempFileInfo.Exists)
@@ -549,6 +547,13 @@ namespace Speedy
 					SaveRepository(DateTime.UtcNow);
 				}
 			}
+		}
+
+		private FileStream OpenFile(FileInfo info, bool reading)
+		{
+			var fileAccess = reading ? FileAccess.Read : FileAccess.ReadWrite;
+			var fileShare = reading ? FileShare.Read : FileShare.None;
+			return Extensions.Retry(() => info.Open(FileMode.OpenOrCreate, fileAccess, fileShare), (int) _options.Timeout.TotalMilliseconds, 50);
 		}
 
 		/// <summary>
@@ -563,93 +568,94 @@ namespace Speedy
 			}
 
 			FileInfo.Refresh();
-			if (!FileInfo.Exists || _fileStream == null)
+
+			if (!FileInfo.Exists)
 			{
+				// Will only happen if someone has deleted the repository.
 				return;
 			}
 
-			TempFileInfo.Refresh();
-			if (!TempFileInfo.Exists)
+			using (var fileStream = OpenFile(FileInfo, false))
 			{
-				File.Copy(FileInfo.FullName, TempFileInfo.FullName);
-			}
+				var tempStream = TempFileInfo.Exists ? TempFileInfo.OpenRead() : fileStream.CopyToAndOpen(TempFileInfo, (int) _options.Timeout.TotalMilliseconds);
 
-			using (var tempStream = TempFileInfo.OpenFile())
-			{
-				_fileStream.SetLength(0);
-				_fileStream.Flush(true);
-
-				var reader = new NoCloseStreamReader(tempStream);
-				var writer = new NoCloseStreamWriter(_fileStream);
-
-				// Append the expired cache.
-				var expiredCache = _cache
-					.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null)
-					.OrderBy(x => x.Value.Item2)
-					.ToDictionary(x => x.Key, x => x.Value);
-
-				// Append all add / updates items over the cache limit.
-				var overLimit = _cache
-					.Where(x => x.Value.Item1 != null)
-					.Where(x => !expiredCache.ContainsKey(x.Key))
-					.OrderBy(x => x.Value.Item2)
-					.Take(_cache.Count - _options.Limit)
-					.ToDictionary(x => x.Key, x => x.Value);
-
-				while (reader.Peek() > 0)
+				using (tempStream)
 				{
-					var line = reader.ReadLine();
-					if (string.IsNullOrWhiteSpace(line))
+					fileStream.SetLength(0);
+					fileStream.Flush(true);
+
+					var reader = new NoCloseStreamReader(tempStream);
+					var writer = new NoCloseStreamWriter(fileStream);
+
+					// Append the expired cache.
+					var expiredCache = _cache
+						.Where(x => (x.Value.Item2 <= threshold) && (x.Value.Item1 != null))
+						.OrderBy(x => x.Value.Item2)
+						.ToDictionary(x => x.Key, x => x.Value);
+
+					// Append all add / updates items over the cache limit.
+					var overLimit = _cache
+						.Where(x => x.Value.Item1 != null)
+						.Where(x => !expiredCache.ContainsKey(x.Key))
+						.OrderBy(x => x.Value.Item2)
+						.Take(_cache.Count - _options.Limit)
+						.ToDictionary(x => x.Key, x => x.Value);
+
+					while (reader.Peek() > 0)
 					{
-						continue;
+						var line = reader.ReadLine();
+						if (string.IsNullOrWhiteSpace(line))
+						{
+							continue;
+						}
+
+						var delimiter = line.IndexOf("|");
+						if (delimiter <= 0)
+						{
+							continue;
+						}
+
+						var key = line.Substring(0, delimiter);
+
+						// See if this was already in the over limit group.
+						if (expiredCache.ContainsKey(key) || overLimit.ContainsKey(key))
+						{
+							// We've already written these items so skip it.
+							continue;
+						}
+
+						// Check to see if we have an update or delete.
+						if (!_cache.ContainsKey(key))
+						{
+							// We do not have an update or delete so keep the line.
+							writer.WriteLine(line);
+						}
 					}
 
-					var delimiter = line.IndexOf("|");
-					if (delimiter <= 0)
+					// Write all items that have expired in the cache.
+					foreach (var change in expiredCache)
 					{
-						continue;
+						writer.WriteLine(change.Key + "|" + change.Value.Item1);
+						_cache.Remove(change.Key);
 					}
 
-					var key = line.Substring(0, delimiter);
-
-					// See if this was already in the over limit group.
-					if (expiredCache.ContainsKey(key) || overLimit.ContainsKey(key))
+					// Write all items that are over the cache limit.
+					foreach (var change in overLimit)
 					{
-						// We've already written these items so skip it.
-						continue;
+						writer.WriteLine(change.Key + "|" + change.Value.Item1);
+						_cache.Remove(change.Key);
 					}
 
-					// Check to see if we have an update or delete.
-					if (!_cache.ContainsKey(key))
+					// Clear all "remove" actions.
+					foreach (var item in _cache.Where(x => x.Value.Item1 == null).ToList())
 					{
-						// We do not have an update or delete so keep the line.
-						writer.WriteLine(line);
+						_cache.Remove(item.Key);
 					}
-				}
 
-				// Write all items that have expired in the cache.
-				foreach (var change in expiredCache)
-				{
-					writer.WriteLine(change.Key + "|" + change.Value.Item1);
-					_cache.Remove(change.Key);
+					reader.Dispose();
+					writer.Flush();
+					writer.Dispose();
 				}
-
-				// Write all items that are over the cache limit.
-				foreach (var change in overLimit)
-				{
-					writer.WriteLine(change.Key + "|" + change.Value.Item1);
-					_cache.Remove(change.Key);
-				}
-
-				// Clear all "remove" actions.
-				foreach (var item in _cache.Where(x => x.Value.Item1 == null).ToList())
-				{
-					_cache.Remove(item.Key);
-				}
-
-				reader.Dispose();
-				writer.Flush();
-				writer.Dispose();
 			}
 		}
 

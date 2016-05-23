@@ -42,7 +42,7 @@ namespace Speedy.Storage
 
 			if (!string.IsNullOrWhiteSpace(_database.Directory))
 			{
-				var options = new KeyValueRepositoryOptions { IgnoreVirtualMembers = true };
+				var options = new KeyValueRepositoryOptions { IgnoreVirtualMembers = true, Timeout = database.Options.Timeout };
 				Store = KeyValueRepository<T>.Create(_database.Directory, typeof(T).Name, options);
 				Store.OnEnumerated += OnUpdateEntityRelationships;
 			}

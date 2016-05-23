@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -31,6 +32,8 @@ namespace Speed.Benchmarks
 			ViewModel = new MainWindowModel();
 			DataContext = ViewModel;
 
+			DatabaseWorkers = new List<BackgroundWorker>();
+
 			SyncWorker = new BackgroundWorker();
 			SyncWorker.WorkerReportsProgress = true;
 			SyncWorker.WorkerSupportsCancellation = true;
@@ -50,15 +53,53 @@ namespace Speed.Benchmarks
 
 		#region Properties
 
-		public BackgroundWorker RepositoryWorker { get; set; }
+		public List<BackgroundWorker> DatabaseWorkers { get; }
 
-		public BackgroundWorker SyncWorker { get; set; }
+		public BackgroundWorker RepositoryWorker { get; }
+
+		public BackgroundWorker SyncWorker { get; }
 
 		public MainWindowModel ViewModel { get; }
 
 		#endregion
 
 		#region Methods
+
+		private static void AddToDatabase(IContosoDatabase clientDatabase)
+		{
+			Address address;
+			var number = Extensions.Random.Next(0, 101);
+
+			if ((number % 2 == 0) && clientDatabase.Addresses.Any())
+			{
+				address = clientDatabase.Addresses.GetRandomItem();
+				if (address == null)
+				{
+					return;
+				}
+
+				var person = new Person
+				{
+					Name = Extensions.LoremIpsumWord() + " " + Extensions.LoremIpsumWord(),
+					AddressId = address.Id
+				};
+
+				clientDatabase.People.Add(person);
+			}
+			else
+			{
+				address = new Address
+				{
+					City = Extensions.LoremIpsumWord(),
+					Line1 = Extensions.Random.Next(0, 999) + " " + Extensions.LoremIpsumWord(),
+					Line2 = string.Empty,
+					Postal = Extensions.Random.Next(0, 999999).ToString("000000"),
+					State = Extensions.LoremIpsumWord().Substring(0, 2)
+				};
+
+				clientDatabase.Addresses.Add(address);
+			}
+		}
 
 		private void CheckClient(IContosoSyncClient client)
 		{
@@ -104,6 +145,72 @@ namespace Speed.Benchmarks
 			}
 		}
 
+		private void DatabaseOnClick(object sender, RoutedEventArgs e)
+		{
+			switch (ViewModel.DatabaseStatus)
+			{
+				case "Database":
+					new DirectoryInfo("C:\\Users\\Bobby\\Desktop\\Contoso").SafeDelete();
+
+					for (var i = 0; i < 2; i++)
+					{
+						var worker = new BackgroundWorker();
+						var client = new DatabaseClient();
+						worker.WorkerSupportsCancellation = true;
+						worker.DoWork += DatabaseWorkerDoWork;
+						worker.RunWorkerCompleted += DatabaseWorkerCompleted;
+						worker.RunWorkerAsync(client);
+						ViewModel.DatabaseClients.Add(client);
+						DatabaseWorkers.Add(worker);
+					}
+
+					ViewModel.DatabaseStatus = "Stop";
+					break;
+
+				default:
+					DatabaseWorkers.ForEach(x => x.CancelAsync());
+					ViewModel.DatabaseStatus = "Database";
+					break;
+			}
+		}
+
+		private void DatabaseWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+		{
+			ViewModel.DatabaseClients.Remove((DatabaseClient) e.Result);
+			DatabaseWorkers.Remove((BackgroundWorker) sender);
+		}
+
+		private void DatabaseWorkerDoWork(object sender, DoWorkEventArgs e)
+		{
+			var client = (DatabaseClient) e.Argument;
+			var worker = (BackgroundWorker) sender;
+			var threadId = Thread.CurrentThread.ManagedThreadId;
+			
+			using (var database = new ContosoDatabase("C:\\Users\\Bobby\\Desktop\\Contoso"))
+			{
+				while (!worker.CancellationPending)
+				{
+					AddToDatabase(database);
+					database.SaveChanges();
+
+					var addressCount = database.Addresses.Count();
+					var peopleCount = database.People.Count();
+
+					Dispatcher.Invoke(() =>
+					{
+						client.Name = "Thread: " + threadId;
+						client.LastProcessedOn = DateTime.Now;
+						client.AddressCount = addressCount;
+						client.PeopleCount = peopleCount;
+					});
+
+					Thread.Sleep(Extensions.Random.Next(10, 100));
+				}
+			}
+
+			e.Result = client;
+		}
+
 		private static IContosoDatabaseProvider GetEntityFrameworkProvider(string connectionString = null)
 		{
 			using (var database = new EntityFrameworkContosoDatabase(connectionString ?? "name=DefaultConnection"))
@@ -116,6 +223,27 @@ namespace Speed.Benchmarks
 		private void MainWindowOnClosing(object sender, CancelEventArgs e)
 		{
 			SyncWorker.CancelAsync();
+		}
+
+		private static void RemoveFromDatabase(int number, IContosoDatabase clientDatabase)
+		{
+			// Delete Person or Address?
+			if (number % 4 == 0)
+			{
+				var person = clientDatabase.People.GetRandomItem();
+				if (person != null)
+				{
+					clientDatabase.People.Remove(person);
+				}
+			}
+			else
+			{
+				var address = clientDatabase.Addresses.Where(x => !x.People.Any()).GetRandomItem();
+				if (address != null)
+				{
+					clientDatabase.Addresses.Remove(address);
+				}
+			}
 		}
 
 		private void RepositoryOnClick(object sender, RoutedEventArgs e)
@@ -283,40 +411,13 @@ namespace Speed.Benchmarks
 			var number = Extensions.Random.Next(1, 101);
 			var result = false;
 
-			if (number % 1 == 0 || forceAdd) // 25%
+			if ((number % 1 == 0) || forceAdd) // 25%
 			{
 				using (var clientDatabase = client.GetDatabase())
 				{
-					Address address = null;
-					Person person = null;
-
-					if (number > 50 && clientDatabase.Addresses.Any())
-					{
-						address = clientDatabase.Addresses.GetRandomItem();
-						person = new Person
-						{
-							Name = Extensions.LoremIpsumWord() + " " + Extensions.LoremIpsumWord(),
-							AddressId = address.Id
-						};
-
-						clientDatabase.People.Add(person);
-					}
-					else
-					{
-						address = new Address
-						{
-							City = Extensions.LoremIpsumWord(),
-							Line1 = Extensions.Random.Next(0, 999) + " " + Extensions.LoremIpsumWord(),
-							Line2 = string.Empty,
-							Postal = Extensions.Random.Next(0, 999999).ToString("000000"),
-							State = Extensions.LoremIpsumWord().Substring(0, 2)
-						};
-
-						clientDatabase.Addresses.Add(address);
-					}
-
-					result = true;
+					AddToDatabase(clientDatabase);
 					clientDatabase.SaveChanges();
+					result = true;
 				}
 			}
 
@@ -324,24 +425,7 @@ namespace Speed.Benchmarks
 			{
 				using (var clientDatabase = client.GetDatabase())
 				{
-					// Delete Person or Address?
-					if (number % 4 == 0)
-					{
-						var person = clientDatabase.People.GetRandomItem();
-						if (person != null)
-						{
-							clientDatabase.People.Remove(person);
-						}
-					}
-					else
-					{
-						var address = clientDatabase.Addresses.Where(x => !x.People.Any()).GetRandomItem();
-						if (address != null)
-						{
-							clientDatabase.Addresses.Remove(address);
-						}
-					}
-
+					RemoveFromDatabase(number, clientDatabase);
 					clientDatabase.SaveChanges();
 				}
 			}

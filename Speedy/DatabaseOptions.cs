@@ -23,6 +23,7 @@ namespace Speedy
 			MaintainSyncId = true;
 			SyncOrder = new string[0];
 			SyncTombstoneTimeout = TimeSpan.FromDays(7);
+			Timeout = TimeSpan.FromSeconds(30);
 		}
 
 		#endregion
@@ -50,9 +51,14 @@ namespace Speedy
 		public string[] SyncOrder { get; set; }
 
 		/// <summary>
-		/// The timespan before an entity tombstone will expire.
+		/// Gets or sets the timespan before an entity tombstone will expire.
 		/// </summary>
 		public TimeSpan SyncTombstoneTimeout { get; set; }
+
+		/// <summary>
+		/// Gets or sets the timeout for blocking calls.
+		/// </summary>
+		public TimeSpan Timeout { get; set; }
 
 		#endregion
 	}

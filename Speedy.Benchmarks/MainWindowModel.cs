@@ -17,6 +17,8 @@ namespace Speed.Benchmarks
 
 		public MainWindowModel()
 		{
+			DatabaseStatus = "Database";
+			DatabaseClients = new ObservableCollection<DatabaseClient>();
 			Output = string.Empty;
 			Progress = 0;
 			RepositoryStatus = "Repository";
@@ -27,6 +29,10 @@ namespace Speed.Benchmarks
 		#endregion
 
 		#region Properties
+
+		public ObservableCollection<DatabaseClient> DatabaseClients { get; set; }
+
+		public string DatabaseStatus { get; set; }
 
 		public string Errors { get; set; }
 
@@ -39,6 +45,22 @@ namespace Speed.Benchmarks
 		public ObservableCollection<SyncClientState> SyncClients { get; set; }
 
 		public string SyncStatus { get; set; }
+
+		#endregion
+	}
+
+	[ImplementPropertyChanged]
+	public class DatabaseClient
+	{
+		#region Properties
+
+		public int AddressCount { get; set; }
+
+		public DateTime LastProcessedOn { get; set; }
+
+		public string Name { get; set; }
+
+		public int PeopleCount { get; set; }
 
 		#endregion
 	}

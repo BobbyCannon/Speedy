@@ -43,8 +43,9 @@ namespace Speedy
 		/// Gets a repository by the provided name. If the repository cannot be found a new one is created and returned.
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
+		/// <param name="options"> The options for the repository. </param>
 		/// <returns> The repository. </returns>
-		IKeyValueRepository<T> OpenRepository(string name);
+		IKeyValueRepository<T> OpenRepository(string name, KeyValueRepositoryOptions options = null);
 
 		/// <summary>
 		/// Unarchive a repository by the provided name.

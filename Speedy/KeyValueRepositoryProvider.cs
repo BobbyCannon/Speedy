@@ -173,10 +173,18 @@ namespace Speedy
 		/// Gets a repository by the provided name. If the repository cannot be found a new one is created and returned.
 		/// </summary>
 		/// <param name="name"> The name of the repository to get. </param>
+		/// <param name="options"> The options for the repository. </param>
 		/// <returns> The repository. </returns>
-		public IKeyValueRepository<T> OpenRepository(string name)
+		public IKeyValueRepository<T> OpenRepository(string name, KeyValueRepositoryOptions options = null)
 		{
-			return KeyValueRepository<T>.Create(_directoryInfo.FullName, name, Timeout, Limit);
+			if (options == null)
+			{
+				options = new KeyValueRepositoryOptions();
+				options.Limit = Limit;
+				options.Timeout = Timeout ?? TimeSpan.Zero;
+			}
+
+			return KeyValueRepository<T>.Create(_directoryInfo.FullName, name, options);
 		}
 
 		/// <summary>
