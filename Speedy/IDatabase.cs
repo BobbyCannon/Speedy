@@ -23,6 +23,11 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Discard all changes made in this context to the underlying database.
+		/// </summary>
+		int DiscardChanges();
+
+		/// <summary>
 		/// Gets a read only repository of the requested entity.
 		/// </summary>
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>

@@ -45,7 +45,7 @@ namespace Speedy.Samples.Entities
 		/// </summary>
 		public override void UpdateLocalSyncIds()
 		{
-			this.UpdateIf(() => LinkedAddress != null && LinkedAddress.SyncId != LinkedAddressSyncId, () => LinkedAddressSyncId = LinkedAddress.SyncId);
+			this.UpdateIf(() => (LinkedAddress != null) && (LinkedAddress.SyncId != LinkedAddressSyncId), () => LinkedAddressSyncId = LinkedAddress.SyncId);
 		}
 
 		#endregion

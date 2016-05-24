@@ -142,7 +142,7 @@ namespace Speedy.Storage
 		/// <param name="item"> The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />. </param>
 		public bool Contains(T item)
 		{
-			return GetEnumerable().FirstOrDefault(x => (x.Id != 0 && x.Id == item.Id) || x == item) != null;
+			return GetEnumerable().FirstOrDefault(x => ((x.Id != 0) && (x.Id == item.Id)) || (x == item)) != null;
 		}
 
 		/// <summary>

@@ -55,7 +55,7 @@ $index = $content.IndexOf($key)
 if ($index -ge 0) {
 	$index = $index + $key.length
 	$index2 = $content.IndexOf("`"", $index)
-	$content = $content.Replace($content.SubString($index, $index2 - $index), $version)
+	$content = $content.Replace($content.SubString($index, $index2 - $index), $version).Trim()
 	Set-Content "$productName.EntityFramework.nuspec" $content
 }
 

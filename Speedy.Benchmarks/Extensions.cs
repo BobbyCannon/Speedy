@@ -74,7 +74,7 @@ namespace Speed.Benchmarks
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
 		{
 			var list = collection.ToList();
-			if (!list.Any() || (exclude != null && list.Count == 1))
+			if (!list.Any() || ((exclude != null) && (list.Count == 1)))
 			{
 				return null;
 			}

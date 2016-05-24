@@ -12,6 +12,8 @@ namespace Speedy.Storage
 
 		void AssignKeys();
 
+		int DiscardChanges();
+
 		bool HasChanges();
 
 		bool HasDependentRelationship(object[] value, int id);

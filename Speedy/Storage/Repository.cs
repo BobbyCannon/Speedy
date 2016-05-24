@@ -135,11 +135,21 @@ namespace Speedy.Storage
 					continue;
 				}
 
-				if (_database.Options.MaintainSyncId && syncableEntity.SyncId == Guid.Empty)
+				if (_database.Options.MaintainSyncId && (syncableEntity.SyncId == Guid.Empty))
 				{
 					syncableEntity.SyncId = Guid.NewGuid();
 				}
 			}
+		}
+
+		/// <summary>
+		/// Discard all changes made in this context to the underlying database.
+		/// </summary>
+		public int DiscardChanges()
+		{
+			var response = Cache.Count;
+			Cache.Clear();
+			return response;
 		}
 
 		/// <summary>
@@ -306,6 +316,10 @@ namespace Speedy.Storage
 				.ForEach(Remove);
 		}
 
+		/// <summary>
+		/// Save the data to the data store.
+		/// </summary>
+		/// <returns> The number of items saved. </returns>
 		public int SaveChanges()
 		{
 			var changeCount = GetChanges().Count();
@@ -343,7 +357,7 @@ namespace Speedy.Storage
 							entity.CreatedOn = DateTime.UtcNow;
 						}
 
-						if (modifiableEntity != null && _database.Options.MaintainDates)
+						if ((modifiableEntity != null) && _database.Options.MaintainDates)
 						{
 							modifiableEntity.ModifiedOn = entity.CreatedOn;
 						}
@@ -365,7 +379,7 @@ namespace Speedy.Storage
 							}
 						}
 
-						if (modifiableEntity != null && _database.Options.MaintainDates)
+						if ((modifiableEntity != null) && _database.Options.MaintainDates)
 						{
 							// Update modified to now for new entities.
 							modifiableEntity.ModifiedOn = DateTime.UtcNow;
@@ -411,7 +425,7 @@ namespace Speedy.Storage
 
 		public void ValidateEntities()
 		{
-			Cache.Where(x => x.State == EntityStateType.Added || x.State == EntityStateType.Modified)
+			Cache.Where(x => (x.State == EntityStateType.Added) || (x.State == EntityStateType.Modified))
 				.ToList()
 				.ForEach(x => OnValidateEntity((T) x.Entity));
 
@@ -488,12 +502,12 @@ namespace Speedy.Storage
 
 		private bool CompareEntity(Entity entity1, Entity entity2)
 		{
-			if (entity1 == null && entity2 == null)
+			if ((entity1 == null) && (entity2 == null))
 			{
 				return true;
 			}
 
-			if (entity1 == null || entity2 == null)
+			if ((entity1 == null) || (entity2 == null))
 			{
 				return false;
 			}

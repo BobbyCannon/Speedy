@@ -142,49 +142,6 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void OpenAvailableRepositoriesShouldReturnNull()
-		{
-			Cleanup();
-
-			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
-			var name1 = "Repository1";
-			var name2 = "Repository2";
-			var repository1 = provider.OpenRepository(name1);
-			var repository2 = provider.OpenRepository(name2);
-
-			using (repository1)
-			{
-				using (repository2)
-				{
-					using (var actual = provider.OpenAvailableRepository())
-					{
-						Assert.IsNull(actual);
-					}
-				}
-			}
-		}
-
-		[TestMethod]
-		public void OpenAvailableRepositoriesShouldReturnSecondRepository()
-		{
-			Cleanup();
-
-			var provider = new KeyValueRepositoryProvider(TestHelper.Directory);
-			var name1 = "Repository1";
-			var name2 = "Repository2";
-			var repository = provider.OpenRepository(name1);
-			provider.OpenRepository(name2).Dispose();
-
-			using (repository)
-			{
-				using (var repository2 = provider.OpenAvailableRepository())
-				{
-					Assert.AreEqual(repository2.Name, "Repository2");
-				}
-			}
-		}
-
-		[TestMethod]
 		public void OpenAvailableRepositoryShouldExclude()
 		{
 			Cleanup();

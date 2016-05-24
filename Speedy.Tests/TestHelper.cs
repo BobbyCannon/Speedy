@@ -127,7 +127,7 @@ namespace Speedy.Tests
 		{
 			var random = new Random();
 			var list = collection.ToList();
-			if (!list.Any() || (exclude != null && list.Count == 1))
+			if (!list.Any() || ((exclude != null) && (list.Count == 1)))
 			{
 				return null;
 			}

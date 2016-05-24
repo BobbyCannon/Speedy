@@ -229,6 +229,34 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void DiscardChanges()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+
+					context.Addresses.Add(expected);
+					var actual = context.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
+
+					context.DiscardChanges();
+
+					actual = context.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
+
+					context.SaveChanges();
+
+					actual = context.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void EntitiesWithInterfaceShouldStillSerialize()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>

@@ -152,7 +152,7 @@ namespace Speed.Benchmarks
 				case "Database":
 					new DirectoryInfo("C:\\Users\\Bobby\\Desktop\\Contoso").SafeDelete();
 
-					for (var i = 0; i < 2; i++)
+					for (var i = 0; i < 4; i++)
 					{
 						var worker = new BackgroundWorker();
 						var client = new DatabaseClient();
@@ -185,13 +185,21 @@ namespace Speed.Benchmarks
 			var client = (DatabaseClient) e.Argument;
 			var worker = (BackgroundWorker) sender;
 			var threadId = Thread.CurrentThread.ManagedThreadId;
-			
+
 			using (var database = new ContosoDatabase("C:\\Users\\Bobby\\Desktop\\Contoso"))
 			{
 				while (!worker.CancellationPending)
 				{
-					AddToDatabase(database);
-					database.SaveChanges();
+					try
+					{
+						AddToDatabase(database);
+						database.SaveChanges();
+					}
+					catch
+					{
+						database.DiscardChanges();
+						continue;
+					}
 
 					var addressCount = database.Addresses.Count();
 					var peopleCount = database.People.Count();

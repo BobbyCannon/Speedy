@@ -104,7 +104,7 @@ namespace Speedy.EntityFramework
 
 		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)
 		{
-			return Set.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+			return Set.Where(x => (x.ModifiedOn >= since) && (x.ModifiedOn < until))
 				.OrderBy(x => x.ModifiedOn)
 				.ThenBy(x => x.Id)
 				.AsQueryable();

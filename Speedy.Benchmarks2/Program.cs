@@ -234,7 +234,7 @@ namespace Speedy.Benchmarks
 			{
 				for (var i = 1; i <= size; i++)
 				{
-					if (limit > 0 && i % limit == 0)
+					if ((limit > 0) && (i % limit == 0))
 					{
 						repository.Flush();
 					}
