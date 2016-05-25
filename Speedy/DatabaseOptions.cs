@@ -51,6 +51,11 @@ namespace Speedy
 		public string[] SyncOrder { get; set; }
 
 		/// <summary>
+		/// Gets or sets the referenced id to use when tombstoning entities.
+		/// </summary>
+		public string SyncTombstoneReferenceId { get; set; }
+
+		/// <summary>
 		/// Gets or sets the timespan before an entity tombstone will expire.
 		/// </summary>
 		public TimeSpan SyncTombstoneTimeout { get; set; }

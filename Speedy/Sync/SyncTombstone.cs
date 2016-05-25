@@ -14,6 +14,11 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <summary>
+		/// The reference ID of the deleted entity
+		/// </summary>
+		public string ReferenceId { get; set; }
+
+		/// <summary>
 		/// The sync ID of the entity.
 		/// </summary>
 		public Guid SyncId { get; set; }

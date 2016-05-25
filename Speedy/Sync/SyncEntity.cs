@@ -65,10 +65,11 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Creates a tombstone for this entity.
 		/// </summary>
+		/// <param name="referenceId"> The reference ID to the owner of this tombstone. </param>
 		/// <returns> The tombstone for this entity. </returns>
-		public SyncTombstone ToSyncTombstone()
+		public SyncTombstone ToSyncTombstone(string referenceId)
 		{
-			return new SyncTombstone { CreatedOn = DateTime.UtcNow, TypeName = this.GetRealType().ToAssemblyName(), SyncId = SyncId };
+			return new SyncTombstone { CreatedOn = DateTime.UtcNow, TypeName = this.GetRealType().ToAssemblyName(), SyncId = SyncId, ReferenceId = referenceId ?? string.Empty };
 		}
 
 		/// <summary>

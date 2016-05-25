@@ -389,7 +389,7 @@ namespace Speedy.EntityFramework
 							throw new InvalidOperationException("Cannot tombstone this entity because the sync ID has not been set.");
 						}
 
-						SyncTombstones?.Add(syncableEntity.ToSyncTombstone());
+						SyncTombstones?.Add(syncableEntity.ToSyncTombstone(Options.SyncTombstoneReferenceId));
 					}
 					break;
 			}

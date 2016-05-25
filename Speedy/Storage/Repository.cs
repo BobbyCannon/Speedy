@@ -335,7 +335,7 @@ namespace Speedy.Storage
 						throw new InvalidOperationException("Cannot tombstone this entity because the sync ID has not been set.");
 					}
 
-					_database.SyncTombstones?.Add(syncableEntity.ToSyncTombstone());
+					_database.SyncTombstones?.Add(syncableEntity.ToSyncTombstone(_database.Options.SyncTombstoneReferenceId));
 				}
 
 				Store?.Remove(item.Entity.Id.ToString());
