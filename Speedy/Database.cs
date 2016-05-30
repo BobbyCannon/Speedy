@@ -329,7 +329,7 @@ namespace Speedy
 			var response = new RelationshipRepository<T2>((Repository<T2>) repository, x =>
 			{
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (invokedKey.Equals(entity.Id))
+				if (invokedKey?.Equals(entity?.Id) == true)
 				{
 					return true;
 				}
@@ -355,7 +355,7 @@ namespace Speedy
 				}
 
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (!invokedKey.Equals(invokedEntity.Id))
+				if (invokedKey != null && !invokedKey.Equals(invokedEntity.Id))
 				{
 					invokedEntity.Id = (int) invokedKey;
 				}
