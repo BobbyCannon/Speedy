@@ -135,7 +135,10 @@ namespace Speedy.Storage
 					continue;
 				}
 
-				if (_database.Options.MaintainSyncId && (syncableEntity.SyncId == Guid.Empty))
+				var maintainedEntity = _database.Options.UnmaintainEntities.All(x => x != entityState.Entity.GetType());
+				var maintainSyncId = maintainedEntity && _database.Options.MaintainSyncId;
+
+				if (maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
 				{
 					syncableEntity.SyncId = Guid.NewGuid();
 				}
@@ -211,8 +214,8 @@ namespace Speedy.Storage
 
 		public bool HasDependentRelationship(object[] value, int id)
 		{
-			var foreignKeyFunction = (Func<T, int>) value[4];
-			return this.Any(x => foreignKeyFunction.Invoke(x) == id);
+			var foreignKeyFunction = (Func<T, object>) value[4];
+			return this.Any(x => foreignKeyFunction.Invoke(x).Equals(id));
 		}
 
 		/// <summary>
@@ -348,23 +351,27 @@ namespace Speedy.Storage
 				var modifiableEntity = entity as ModifiableEntity;
 				var syncableEntity = entity as SyncEntity;
 
+				var maintainedEntity = _database.Options.UnmaintainEntities.All(x => x != entry.Entity.GetType());
+				var maintainDates = maintainedEntity && _database.Options.MaintainDates;
+				var maintainSyncId = maintainedEntity && _database.Options.MaintainSyncId;
+
 				switch (entry.State)
 				{
 					case EntityStateType.Added:
-						if (_database.Options.MaintainDates)
+						if (maintainDates)
 						{
 							// Make sure the modified on value matches created on for new items.
 							entity.CreatedOn = DateTime.UtcNow;
 						}
 
-						if ((modifiableEntity != null) && _database.Options.MaintainDates)
+						if ((modifiableEntity != null) && maintainDates)
 						{
 							modifiableEntity.ModifiedOn = entity.CreatedOn;
 						}
 						break;
 
 					case EntityStateType.Modified:
-						if (_database.Options.MaintainDates)
+						if (maintainDates)
 						{
 							// Do not allow created on to change for entities.
 							entity.CreatedOn = entry.OldEntity.CreatedOn;
@@ -373,13 +380,13 @@ namespace Speedy.Storage
 						if (syncableEntity != null)
 						{
 							// Do not allow sync ID to change for entities.
-							if (_database.Options.MaintainSyncId)
+							if (maintainSyncId)
 							{
 								syncableEntity.SyncId = ((SyncEntity) entry.OldEntity).SyncId;
 							}
 						}
 
-						if ((modifiableEntity != null) && _database.Options.MaintainDates)
+						if ((modifiableEntity != null) && maintainDates)
 						{
 							// Update modified to now for new entities.
 							modifiableEntity.ModifiedOn = DateTime.UtcNow;

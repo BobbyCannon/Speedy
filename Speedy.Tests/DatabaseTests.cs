@@ -88,6 +88,35 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void AddEntityWithUnmaintainEntityDatabaseOption()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+					context.Options.UnmaintainEntities = new[] { typeof(Address) };
+
+					var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+
+					context.Addresses.Add(expected);
+					var actual = context.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
+
+					context.SaveChanges();
+
+					actual = context.Addresses.FirstOrDefault();
+					Assert.IsNotNull(actual);
+					Assert.AreNotEqual(0, actual.Id);
+					Assert.AreEqual(default(DateTime), actual.CreatedOn);
+					Assert.AreEqual(default(DateTime), actual.ModifiedOn);
+					Assert.AreEqual(default(Guid), actual.SyncId);
+					TestHelper.AreEqual(expected, actual);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void AddMultipleEntitiesUsingRelationship()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>

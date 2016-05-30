@@ -48,6 +48,22 @@ namespace Speedy.Tests
 			};
 
 			var expected = new[] { collection[0] };
+			var actual = collection.Where("City == \"Easley\"").ToArray();
+
+			TestHelper.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
+		public void FilterExactUsingParameters()
+		{
+			var collection = new[]
+			{
+				new Address { City = "Easley" },
+				new Address { City = "Pickens" },
+				new Address { City = "Greenville" }
+			};
+
+			var expected = new[] { collection[0] };
 			var actual = collection.Where("City == @0", "Easley").ToArray();
 
 			TestHelper.AreEqual(expected, actual);

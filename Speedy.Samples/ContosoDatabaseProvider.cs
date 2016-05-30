@@ -47,6 +47,8 @@ namespace Speedy.Samples
 
 			// todo: do this better. Basically we don't want this to change.
 			_memoryDatabase.Value.Options.MaintainDates = Options.MaintainDates;
+			_memoryDatabase.Value.Options.MaintainSyncId = Options.MaintainSyncId;
+			_memoryDatabase.Value.Options.UnmaintainEntities = Options.UnmaintainEntities;
 			return _memoryDatabase.Value;
 		}
 

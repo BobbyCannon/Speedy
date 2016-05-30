@@ -44,21 +44,22 @@ namespace Speedy.Samples
 
 			// Food Relationship Map
 			Property<FoodRelationship>(x => x.Quantity).IsRequired();
-			HasMany<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, x => x.Children);
-			HasMany<FoodRelationship, Food>(x => x.Child, x => x.ChildId, x => x.Parents);
+			HasRequired<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, x => x.Children);
+			HasRequired<FoodRelationship, Food>(x => x.Child, x => x.ChildId, x => x.Parents);
 			Property<FoodRelationship>(x => x.ParentId).IsRequired();
 			Property<FoodRelationship>(x => x.ChildId).IsRequired();
 
 			// Group Member Map
-			HasMany<GroupMember, Person>(p => p.Member, p => p.MemberId, a => a.Groups);
-			HasMany<GroupMember, Group>(p => p.Group, p => p.GroupId, a => a.Members);
+			HasRequired<GroupMember, Person>(p => p.Member, p => p.MemberId, a => a.Groups);
+			HasRequired<GroupMember, Group>(p => p.Group, p => p.GroupId, a => a.Members);
 
 			// LogEvent Map
 			Property<LogEvent>(x => x.Message).IsRequired().HasMaximumLength(900);
 
 			// Person Map
 			Property<Person>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
-			HasMany<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
+			HasRequired<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
+			HasOptional<Person, Address>(p => p.BillingAddress, p => p.BillingAddressId);
 		}
 
 		static ContosoDatabase()

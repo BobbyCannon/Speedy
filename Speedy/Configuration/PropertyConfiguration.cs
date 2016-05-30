@@ -43,7 +43,7 @@ namespace Speedy.Configuration
 			_maxLength = -1;
 			_minLength = -1;
 		}
-
+		
 		#endregion
 
 		#region Methods
@@ -152,6 +152,24 @@ namespace Speedy.Configuration
 			if ((stringEntity != null) && (_minLength > 0) && (stringEntity.Length < _minLength))
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is too short.");
+			}
+
+			if (property is Guid)
+			{
+				var guidEntity = property as Guid?;
+				if (_isNullable.HasValue && (_isNullable.Value == false) && (guidEntity == default(Guid)))
+				{
+					throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
+				}
+			}
+
+			if (property is DateTime)
+			{
+				var dateTimeEntity = property as DateTime?;
+				if (_isNullable.HasValue && (_isNullable.Value == false) && (dateTimeEntity == default(DateTime)))
+				{
+					throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
+				}
 			}
 		}
 

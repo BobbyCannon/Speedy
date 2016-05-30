@@ -1,10 +1,11 @@
 #region References
 
+#region References
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Objects;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,6 +13,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
+
+#endregion
+
 #pragma warning disable 1591
 
 #endregion

@@ -82,6 +82,10 @@
     <Compile Include="Migrations\201605242341052_UpdatedSyncTombstone.Designer.cs">
       <DependentUpon>201605242341052_UpdatedSyncTombstone.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201605301727038_AddedOptionalBillingAddress.cs" />
+    <Compile Include="Migrations\201605301727038_AddedOptionalBillingAddress.Designer.cs">
+      <DependentUpon>201605301727038_AddedOptionalBillingAddress.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="EntityFrameworkContosoDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -119,6 +123,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201605242341052_UpdatedSyncTombstone.resx">
       <DependentUpon>201605242341052_UpdatedSyncTombstone.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201605301727038_AddedOptionalBillingAddress.resx">
+      <DependentUpon>201605301727038_AddedOptionalBillingAddress.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

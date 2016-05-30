@@ -333,12 +333,15 @@ namespace Speedy.EntityFramework
 
 			var modifiableEntity = entity as ModifiableEntity;
 			var syncableEntity = entity as SyncEntity;
+			var maintainedEntity = Options.UnmaintainEntities.All(x => x != entry.Entity.GetType());
+			var maintainDates = maintainedEntity && Options.MaintainDates;
+			var maintainSyncId = maintainedEntity && Options.MaintainSyncId;
 
 			// Check to see if the entity was added.
 			switch (entry.State)
 			{
 				case EntityState.Added:
-					if (Options.MaintainDates)
+					if (maintainDates)
 					{
 						// Make sure the modified on value matches created on for new items.
 						entity.CreatedOn = DateTime.UtcNow;
@@ -346,20 +349,20 @@ namespace Speedy.EntityFramework
 
 					if (syncableEntity != null)
 					{
-						if (Options.MaintainSyncId && (syncableEntity.SyncId == Guid.Empty))
+						if (maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
 						{
 							syncableEntity.SyncId = Guid.NewGuid();
 						}
 					}
 
-					if ((modifiableEntity != null) && Options.MaintainDates)
+					if ((modifiableEntity != null) && maintainDates)
 					{
 						modifiableEntity.ModifiedOn = entity.CreatedOn;
 					}
 					break;
 
 				case EntityState.Modified:
-					if (Options.MaintainDates && entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
+					if (maintainDates && entry.CurrentValues.PropertyNames.Contains("CreatedOn"))
 					{
 						// Do not allow created on to change for entities.
 						entity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
@@ -374,7 +377,7 @@ namespace Speedy.EntityFramework
 						}
 					}
 
-					if ((modifiableEntity != null) && Options.MaintainDates)
+					if ((modifiableEntity != null) && maintainDates)
 					{
 						// Update modified to now for new entities.
 						modifiableEntity.ModifiedOn = DateTime.UtcNow;

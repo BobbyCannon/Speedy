@@ -33,6 +33,10 @@ namespace Speedy.Samples.Mappings
 				.WithMany(x => x.People)
 				.HasForeignKey(x => x.AddressId)
 				.WillCascadeOnDelete(false);
+			HasOptional(x => x.BillingAddress)
+				.WithMany()
+				.HasForeignKey(x => x.BillingAddressId)
+				.WillCascadeOnDelete(false);
 		}
 
 		#endregion

@@ -29,6 +29,9 @@ namespace Speedy.Samples.Entities
 		public virtual Address Address { get; set; }
 		public int AddressId { get; set; }
 		public Guid AddressSyncId { get; set; }
+		public virtual Address BillingAddress { get; set; }
+		public int? BillingAddressId { get; set; }
+		public Guid? BillingAddressSyncId { get; set; }
 		public virtual ICollection<GroupMember> Groups { get; set; }
 		public string Name { get; set; }
 

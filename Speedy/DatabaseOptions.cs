@@ -24,6 +24,7 @@ namespace Speedy
 			SyncOrder = new string[0];
 			SyncTombstoneTimeout = TimeSpan.FromDays(7);
 			Timeout = TimeSpan.FromSeconds(30);
+			UnmaintainEntities = new Type[0];
 		}
 
 		#endregion
@@ -46,7 +47,7 @@ namespace Speedy
 		public bool MaintainSyncId { get; set; }
 
 		/// <summary>
-		/// Gets the sync order of the syncable repositories.
+		/// Gets or sets the sync order of the syncable repositories.
 		/// </summary>
 		public string[] SyncOrder { get; set; }
 
@@ -64,6 +65,11 @@ namespace Speedy
 		/// Gets or sets the timeout for blocking calls.
 		/// </summary>
 		public TimeSpan Timeout { get; set; }
+
+		/// <summary>
+		/// Gets or sets the list of entities to ignore during maintenance updates.
+		/// </summary>
+		public Type[] UnmaintainEntities { get; set; }
 
 		#endregion
 	}

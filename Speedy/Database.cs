@@ -51,7 +51,7 @@ namespace Speedy
 		/// <summary>
 		/// Gets the options for this database.
 		/// </summary>
-		public DatabaseOptions Options { get; }
+		public DatabaseOptions Options { get; internal set; }
 
 		/// <summary>
 		/// Gets the sync tombstone repository.
@@ -224,20 +224,47 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Creates a configuration that represent a one to many relationship.
+		/// Creates a configuration that represent an optional one to many relationship.
 		/// </summary>
 		/// <param name="entity"> The entity to relate to. </param>
 		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
 		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
 		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
-		protected void HasMany<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, int>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey)
+		protected void HasOptional<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity, new()
 			where T2 : Entity
 		{
-			var key = typeof(T2).Name + (collectionKey as dynamic).Body.Member.Name;
-			var repositoryFactory = GetRepository<T1>();
-			OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+			Property(foreignKey).IsOptional();
+
+			if (collectionKey != null)
+			{
+				var key = typeof(T2).Name + (collectionKey as dynamic).Body.Member.Name;
+				var repositoryFactory = GetRepository<T1>();
+				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+			}
+		}
+
+		/// <summary>
+		/// Creates a configuration that represent a required one to many relationship.
+		/// </summary>
+		/// <param name="entity"> The entity to relate to. </param>
+		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
+		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
+		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
+		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
+		protected void HasRequired<T1, T2>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
+			where T1 : Entity, new()
+			where T2 : Entity
+		{
+			Property(foreignKey).IsRequired();
+
+			if (collectionKey != null)
+			{
+				var key = typeof(T2).Name + (collectionKey as dynamic).Body.Member.Name;
+				var repositoryFactory = GetRepository<T1>();
+				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+			}
 		}
 
 		/// <summary>
@@ -296,13 +323,13 @@ namespace Speedy
 			var repository = (IRepository<T2>) value[0];
 			var entityExpression = (Expression<Func<T2, T1>>) value[1];
 			var entityFunction = (Func<T2, T1>) value[2];
-			var foreignKeyExpression = (Expression<Func<T2, int>>) value[3];
-			var foreignKeyFunction = (Func<T2, int>) value[4];
+			var foreignKeyExpression = (Expression<Func<T2, object>>) value[3];
+			var foreignKeyFunction = (Func<T2, object>) value[4];
 
 			var response = new RelationshipRepository<T2>((Repository<T2>) repository, x =>
 			{
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (invokedKey == entity.Id)
+				if (invokedKey.Equals(entity.Id))
 				{
 					return true;
 				}
@@ -328,9 +355,9 @@ namespace Speedy
 				}
 
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (invokedKey != invokedEntity.Id)
+				if (!invokedKey.Equals(invokedEntity.Id))
 				{
-					invokedEntity.Id = invokedKey;
+					invokedEntity.Id = (int) invokedKey;
 				}
 			});
 
