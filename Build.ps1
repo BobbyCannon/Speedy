@@ -38,6 +38,8 @@ Copy-Item "$productName\bin\$Configuration\$productName.dll" "$destination\bin\"
 Copy-Item "$productName\bin\$Configuration\$productName.pdb" "$destination\bin\"
 Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.dll" "$destination\bin\"
 Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.pdb" "$destination\bin\"
+Copy-Item "$productName.EntityFrameworkCore\bin\$Configuration\$productName.EntityFrameworkCore.dll" "$destination\bin\"
+Copy-Item "$productName.EntityFrameworkCore\bin\$Configuration\$productName.EntityFrameworkCore.pdb" "$destination\bin\"
 
 $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
 $build = ([Version] $versionInfo.ProductVersion).Build
