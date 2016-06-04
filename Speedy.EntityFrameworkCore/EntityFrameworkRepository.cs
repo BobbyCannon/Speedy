@@ -17,12 +17,6 @@ namespace Speedy.EntityFrameworkCore
 	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
 	public class EntityFrameworkRepository<T> : IRepository<T> where T : Entity, new()
 	{
-		#region Fields
-
-		private readonly DbSet<T> _set;
-
-		#endregion
-
 		#region Constructors
 
 		/// <summary>
@@ -31,7 +25,7 @@ namespace Speedy.EntityFrameworkCore
 		/// <param name="set"> The database set this repository is for. </param>
 		public EntityFrameworkRepository(DbSet<T> set)
 		{
-			_set = set;
+			Set = set;
 		}
 
 		#endregion
@@ -46,7 +40,7 @@ namespace Speedy.EntityFrameworkCore
 		/// A <see cref="T:System.Type" /> that represents the type of the element(s) that are returned when the expression tree
 		/// associated with this object is executed.
 		/// </returns>
-		public Type ElementType => _set.AsQueryable().ElementType;
+		public Type ElementType => Set.AsQueryable().ElementType;
 
 		/// <summary>
 		/// Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable" />.
@@ -55,7 +49,7 @@ namespace Speedy.EntityFrameworkCore
 		/// The <see cref="T:System.Linq.Expressions.Expression" /> that is associated with this instance of
 		/// <see cref="T:System.Linq.IQueryable" />.
 		/// </returns>
-		public Expression Expression => _set.AsQueryable().Expression;
+		public Expression Expression => Set.AsQueryable().Expression;
 
 		/// <summary>
 		/// Gets the query provider that is associated with this data source.
@@ -63,7 +57,9 @@ namespace Speedy.EntityFrameworkCore
 		/// <returns>
 		/// The <see cref="T:System.Linq.IQueryProvider" /> that is associated with this data source.
 		/// </returns>
-		public IQueryProvider Provider => _set.AsQueryable().Provider;
+		public IQueryProvider Provider => Set.AsQueryable().Provider;
+
+		protected DbSet<T> Set { get; }
 
 		#endregion
 
@@ -75,7 +71,7 @@ namespace Speedy.EntityFrameworkCore
 		/// <param name="entity"> The entity to be added. </param>
 		public void Add(T entity)
 		{
-			_set.Add(entity);
+			Set.Add(entity);
 		}
 
 		/// <summary>
@@ -87,11 +83,11 @@ namespace Speedy.EntityFrameworkCore
 		{
 			if (entity.Id == 0)
 			{
-				_set.Add(entity);
+				Set.Add(entity);
 				return;
 			}
 
-			_set.Update(entity);
+			Set.Update(entity);
 		}
 
 		/// <summary>
@@ -102,7 +98,7 @@ namespace Speedy.EntityFrameworkCore
 		/// </returns>
 		public IEnumerator<T> GetEnumerator()
 		{
-			return _set.AsQueryable().GetEnumerator();
+			return Set.AsQueryable().GetEnumerator();
 		}
 
 		/// <summary>
@@ -112,7 +108,7 @@ namespace Speedy.EntityFrameworkCore
 		/// <returns> The results of the query including the related entities. </returns>
 		public IQueryable<T> Include(Expression<Func<T, object>> include)
 		{
-			return _set.Include(include);
+			return Set.Include(include);
 		}
 
 		/// <summary>
@@ -122,7 +118,7 @@ namespace Speedy.EntityFrameworkCore
 		/// <returns> The results of the query including the related entities. </returns>
 		public IQueryable<T> Including(params Expression<Func<T, object>>[] includes)
 		{
-			return includes.Aggregate(_set.AsQueryable(), (current, include) => current.Include(include));
+			return includes.Aggregate(Set.AsQueryable(), (current, include) => current.Include(include));
 		}
 
 		/// <summary>
@@ -131,7 +127,7 @@ namespace Speedy.EntityFrameworkCore
 		/// <param name="id"> The ID of the entity to remove. </param>
 		public void Remove(int id)
 		{
-			_set.RemoveRange(_set.Where(x => x.Id == id));
+			Set.RemoveRange(Set.Where(x => x.Id == id));
 		}
 
 		/// <summary>
@@ -140,7 +136,7 @@ namespace Speedy.EntityFrameworkCore
 		/// <param name="entity"> The entity to remove. </param>
 		public void Remove(T entity)
 		{
-			_set.Remove(entity);
+			Set.Remove(entity);
 		}
 
 		/// <summary>
@@ -149,7 +145,7 @@ namespace Speedy.EntityFrameworkCore
 		/// <param name="filter"> The filter of the entities to remove. </param>
 		public void Remove(Expression<Func<T, bool>> filter)
 		{
-			_set.RemoveRange(_set.Where(filter));
+			Set.RemoveRange(Set.Where(filter));
 		}
 
 		/// <summary>

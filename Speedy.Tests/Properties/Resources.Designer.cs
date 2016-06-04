@@ -63,10 +63,10 @@ namespace Speedy.Tests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to EXEC sp_MSForEachTable &apos;ALTER TABLE ? NOCHECK CONSTRAINT ALL&apos;
         ///EXEC sp_MSForEachTable &apos;ALTER TABLE ? DISABLE TRIGGER ALL&apos;
-        ///EXEC sp_MSForEachTable &apos;IF &apos;&apos;?&apos;&apos; NOT LIKE &apos;&apos;%MigrationHistory%&apos;&apos; DELETE FROM ?&apos;
+        ///EXEC sp_MSForEachTable &apos;SET QUOTED_IDENTIFIER ON; IF &apos;&apos;?&apos;&apos; NOT LIKE &apos;&apos;%MigrationHistory%&apos;&apos; AND &apos;&apos;?&apos;&apos; NOT LIKE &apos;&apos;%MigrationsHistory%&apos;&apos; DELETE FROM ?&apos;
         ///EXEC sp_MSforeachtable &apos;ALTER TABLE ? ENABLE TRIGGER ALL&apos;
         ///EXEC sp_MSForEachTable &apos;ALTER TABLE ? CHECK CONSTRAINT ALL&apos;
-        ///EXEC sp_MSForEachTable &apos;IF OBJECTPROPERTY(object_id(&apos;&apos;?&apos;&apos;), &apos;&apos;TableHasIdentity&apos;&apos;) = 1 DBCC CHECKIDENT (&apos;&apos;?&apos;&apos;, RESEED, 0)&apos;.
+        ///EXEC sp_MSForEachTable &apos;IF OBJECTPROPERTY(object_id(&apos;&apos;?&apos;&apos;), &apos;&apos;TableHasIdentity&apos;&apos;) = 1 DBCC CHECKIDENT (&apos;&apos;?&apos;&apos;, RESEED, 0 [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ClearDatabase {
             get {

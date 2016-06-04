@@ -33,14 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -58,36 +50,9 @@
     <Compile Include="Entities\Person.cs" />
     <Compile Include="Entities\Group.cs" />
     <Compile Include="Entities\GroupMember.cs" />
-    <Compile Include="EntityFrameworkContosoDatabaseProvider.cs" />
     <Compile Include="IContosoDatabaseProvider.cs" />
     <Compile Include="IContosoDatabase.cs" />
-    <Compile Include="Mappings\GroupMemberMap.cs" />
-    <Compile Include="Mappings\LogEventMap.cs" />
-    <Compile Include="Mappings\AddressMap.cs" />
-    <Compile Include="Mappings\FoodMap.cs" />
-    <Compile Include="Mappings\FoodRelationshipMap.cs" />
     <Compile Include="Entities\LogEvent.cs" />
-    <Compile Include="Mappings\GroupMap.cs" />
-    <Compile Include="Mappings\SyncTombstoneMap.cs" />
-    <Compile Include="Mappings\PersonMap.cs" />
-    <Compile Include="Migrations\201603281304179_InitialDatabase.cs" />
-    <Compile Include="Migrations\201603281304179_InitialDatabase.Designer.cs">
-      <DependentUpon>201603281304179_InitialDatabase.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604241920316_AddSyncEntities.cs" />
-    <Compile Include="Migrations\201604241920316_AddSyncEntities.Designer.cs">
-      <DependentUpon>201604241920316_AddSyncEntities.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201605242341052_UpdatedSyncTombstone.cs" />
-    <Compile Include="Migrations\201605242341052_UpdatedSyncTombstone.Designer.cs">
-      <DependentUpon>201605242341052_UpdatedSyncTombstone.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201605301727038_AddedOptionalBillingAddress.cs" />
-    <Compile Include="Migrations\201605301727038_AddedOptionalBillingAddress.Designer.cs">
-      <DependentUpon>201605301727038_AddedOptionalBillingAddress.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="EntityFrameworkContosoDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -101,10 +66,6 @@
     <Compile Include="Sync\IContosoSyncClient.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj">
-      <Project>{e1700bbe-066f-4acc-9abd-5c9dfb61b5fc}</Project>
-      <Name>Speedy.EntityFramework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Speedy\Speedy.csproj">
       <Project>{de1fcaf6-d683-44b7-b8e3-ff6a19569c16}</Project>
       <Name>Speedy</Name>
@@ -112,21 +73,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201603281304179_InitialDatabase.resx">
-      <DependentUpon>201603281304179_InitialDatabase.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604241920316_AddSyncEntities.resx">
-      <DependentUpon>201604241920316_AddSyncEntities.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201605242341052_UpdatedSyncTombstone.resx">
-      <DependentUpon>201605242341052_UpdatedSyncTombstone.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201605301727038_AddedOptionalBillingAddress.resx">
-      <DependentUpon>201605301727038_AddedOptionalBillingAddress.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

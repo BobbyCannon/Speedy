@@ -177,9 +177,21 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Speedy.EntityFrameworkCore\Speedy.EntityFrameworkCore.csproj">
+      <Project>{3b3e1eae-53a5-40a6-9605-f59ed73dc68a}</Project>
+      <Name>Speedy.EntityFrameworkCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj">
       <Project>{e1700bbe-066f-4acc-9abd-5c9dfb61b5fc}</Project>
       <Name>Speedy.EntityFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Speedy.Samples.EntityFrameworkCore\Speedy.Samples.EntityFrameworkCore.csproj">
+      <Project>{9cf7d6df-6b02-41b3-b39f-bafc0716be94}</Project>
+      <Name>Speedy.Samples.EntityFrameworkCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Speedy.Samples.EntityFramework\Speedy.Samples.EntityFramework.csproj">
+      <Project>{6ce375d9-f164-4e9f-907c-66ec045d751b}</Project>
+      <Name>Speedy.Samples.EntityFramework</Name>
     </ProjectReference>
     <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj">
       <Project>{a8716e62-358c-44f2-a18e-c5e585d097fd}</Project>

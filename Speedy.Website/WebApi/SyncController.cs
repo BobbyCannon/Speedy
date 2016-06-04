@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.Http;
 using Speedy.Samples;
+using Speedy.Samples.EntityFramework;
 using Speedy.Sync;
 
 #endregion

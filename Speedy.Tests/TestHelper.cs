@@ -9,10 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Speedy.EntityFramework;
 using Speedy.Samples;
+using Speedy.Samples.EntityFramework;
+using Speedy.Samples.EntityFrameworkCore;
 using Speedy.Samples.Sync;
 using Speedy.Sync;
 using Speedy.Tests.Properties;
@@ -76,7 +79,7 @@ namespace Speedy.Tests
 			return database;
 		}
 
-		public static void ExpectedException<T>(Action work, string errorMessage) where T : Exception
+		public static void ExpectedException<T>(Action work, params string[] errorMessage) where T : Exception
 		{
 			try
 			{
@@ -85,9 +88,9 @@ namespace Speedy.Tests
 			catch (T ex)
 			{
 				var details = ex.ToDetailedString();
-				if (!details.Contains(errorMessage))
+				if (!errorMessage.Any(x => details.Contains(x)))
 				{
-					Assert.Fail("Expected <" + details + "> to contain <" + errorMessage + ">.");
+					Assert.Fail("Exception message did not contain expected error.");
 				}
 				return;
 			}
@@ -97,28 +100,20 @@ namespace Speedy.Tests
 
 		public static IEnumerable<IContosoDatabaseProvider> GetDataContextProviders()
 		{
-			var context1 = new EntityFrameworkContosoDatabase();
-			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
-
-			var contextProvider1 = new Mock<IContosoDatabaseProvider>();
-			contextProvider1.Setup(x => x.GetDatabase()).Returns(() => new EntityFrameworkContosoDatabase());
-
-			var context2 = new ContosoDatabase();
-			var contextProvider2 = new Mock<IContosoDatabaseProvider>();
-			contextProvider2.Setup(x => x.GetDatabase()).Returns(context2);
-
-			var contextProvider3 = new Mock<IContosoDatabaseProvider>();
-			contextProvider3.Setup(x => x.GetDatabase()).Returns(() => new ContosoDatabase(Directory.FullName));
-
-			return new[] { contextProvider1.Object, contextProvider2.Object, contextProvider3.Object };
+			return GetDataContexts();
 		}
 
 		public static IEnumerable<IContosoDatabaseProvider> GetDataContexts(DatabaseOptions options = null)
 		{
-			var context1 = new EntityFrameworkContosoDatabase(options);
-			context1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+			var database1 = new EntityFrameworkContosoDatabase("DefaultConnection", options);
+			database1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+			yield return new EntityFrameworkContosoDatabaseProvider("DefaultConnection", options);
 
-			yield return new EntityFrameworkContosoDatabaseProvider(options);
+			var database2 = new EntityFrameworkCoreContosoDatabase("DefaultConnection2", options);
+			database2.Database.Migrate();
+			database2.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+			yield return new EntityFrameworkCoreContosoDatabaseProvider("DefaultConnection2", options);
+
 			yield return new ContosoDatabaseProvider(null, options);
 			yield return new ContosoDatabaseProvider(Directory.FullName, options);
 		}

@@ -55,7 +55,9 @@ namespace Speedy.Tests
 					Assert.AreEqual(0, test.Count);
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "Address: The Line1 field is required.");
+					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), 
+						"Address: The Line1 field is required.",
+						"Cannot insert the value NULL into column 'Line1'");
 				}
 			});
 		}
@@ -217,7 +219,9 @@ namespace Speedy.Tests
 					});
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "Address: The Line1 field is required.");
+					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), 
+						"Address: The Line1 field is required.",
+						"Cannot insert the value NULL into column 'Line1'");
 				}
 			});
 		}
@@ -757,10 +761,10 @@ namespace Speedy.Tests
 
 					context.Addresses.Remove(address);
 
-					var expected = "The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.";
-
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<InvalidOperationException>(() => context.SaveChanges(), expected);
+					TestHelper.ExpectedException<InvalidOperationException>(() => context.SaveChanges(),
+						"The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.",
+						"has been severed but the foreign key for this relationship cannot be set to null");
 				}
 			});
 		}

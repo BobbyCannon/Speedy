@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
+using Speedy.Samples.EntityFramework;
 using Speedy.Samples.Sync;
 using Speedy.Sync;
 
