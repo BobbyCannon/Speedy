@@ -20,11 +20,11 @@ namespace Speedy.Samples.EntityFrameworkCore.Mappings
 
 			mapping.HasKey(x => x.Id);
 			mapping.ToTable("SyncTombstones");
-			mapping.Property(t => t.Id).UseSqlServerIdentityColumn();
-			mapping.Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2");
-			mapping.Property(t => t.SyncId).IsRequired();
-			mapping.Property(t => t.ReferenceId).IsRequired().HasMaxLength(128);
-			mapping.Property(t => t.TypeName).IsRequired().HasMaxLength(768);
+			mapping.Property(x => x.Id).UseSqlServerIdentityColumn();
+			mapping.Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2");
+			mapping.Property(x => x.SyncId).IsRequired();
+			mapping.Property(x => x.ReferenceId).IsRequired().HasMaxLength(128);
+			mapping.Property(x => x.TypeName).IsRequired().HasMaxLength(768);
 		}
 
 		#endregion

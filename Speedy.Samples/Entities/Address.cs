@@ -36,6 +36,11 @@ namespace Speedy.Samples.Entities
 		public string Postal { get; set; }
 		public string State { get; set; }
 
+		/// <summary>
+		/// Read only property
+		/// </summary>
+		public string FullAddress => $"{Line1}{Environment.NewLine}{City}, {State}  {Postal}";
+
 		#endregion
 
 		#region Methods

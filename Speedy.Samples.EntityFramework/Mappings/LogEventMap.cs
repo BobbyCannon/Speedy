@@ -17,12 +17,12 @@ namespace Speedy.Samples.EntityFramework.Mappings
 		public LogEventMap()
 		{
 			// Primary Key
-			HasKey(t => t.Id);
+			HasKey(x => x.Id);
 
 			// Table & Column Mappings
 			ToTable("LogEvents");
-			Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 		}
 
 		#endregion

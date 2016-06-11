@@ -18,10 +18,10 @@ namespace Speedy.Samples.EntityFrameworkCore.Mappings
 		{
 			var mapping = instance.Entity<LogEvent>();
 
-			mapping.HasKey(t => t.Id);
+			mapping.HasKey(x => x.Id);
 			mapping.ToTable("LogEvents");
-			mapping.Property(t => t.Id).UseSqlServerIdentityColumn();
-			mapping.Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2");
+			mapping.Property(x => x.Id).UseSqlServerIdentityColumn();
+			mapping.Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2");
 		}
 
 		#endregion

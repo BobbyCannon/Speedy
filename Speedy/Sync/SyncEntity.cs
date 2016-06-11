@@ -90,7 +90,7 @@ namespace Speedy.Sync
 			var properties = type.GetCachedProperties();
 			foreach (var property in properties)
 			{
-				if (IgnoreProperties.Contains(property.Name))
+				if (!property.CanWrite || IgnoreProperties.Contains(property.Name))
 				{
 					continue;
 				}

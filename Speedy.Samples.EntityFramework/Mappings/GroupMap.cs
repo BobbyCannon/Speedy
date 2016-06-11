@@ -18,15 +18,15 @@ namespace Speedy.Samples.EntityFramework.Mappings
 		public GroupMap()
 		{
 			// Primary Key
-			HasKey(t => t.Id);
+			HasKey(x => x.Id);
 
 			// Table & Column Mappings
 			ToTable("Groups");
-			Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(t => t.Description).IsRequired();
-			Property(t => t.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(t => t.Name).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
+			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.Description).IsRequired();
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
+			Property(x => x.Name).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
 		}
 
 		#endregion

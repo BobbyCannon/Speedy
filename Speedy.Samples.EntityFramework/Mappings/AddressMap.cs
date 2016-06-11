@@ -18,19 +18,20 @@ namespace Speedy.Samples.EntityFramework.Mappings
 		public AddressMap()
 		{
 			// Primary Key
-			HasKey(t => t.Id);
+			HasKey(x => x.Id);
 
 			// Table & Column Mappings
 			ToTable("Addresses");
-			Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(t => t.City).IsRequired().HasMaxLength(256);
-			Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(t => t.Line1).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(t => t.Line2).IsRequired().HasMaxLength(256);
-			Property(t => t.LinkedAddressSyncId).IsOptional();
-			Property(t => t.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(t => t.Postal).IsRequired().HasMaxLength(128);
-			Property(t => t.State).IsRequired().HasMaxLength(128);
+			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.City).IsRequired().HasMaxLength(256);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.Line1).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
+			Property(x => x.Line2).IsRequired().HasMaxLength(256);
+			Property(x => x.LinkedAddressSyncId).IsOptional();
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
+			Property(x => x.Postal).IsRequired().HasMaxLength(128);
+			Property(x => x.State).IsRequired().HasMaxLength(128);
+			Ignore(x => x.FullAddress);
 
 			// Relationships
 			HasOptional(x => x.LinkedAddress)

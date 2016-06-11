@@ -18,16 +18,16 @@ namespace Speedy.Samples.EntityFramework.Mappings
 		public GroupMemberMap()
 		{
 			// Primary Key
-			HasKey(t => t.Id);
+			HasKey(x => x.Id);
 
 			// Table & Column Mappings
 			ToTable("GroupMembers");
-			Property(t => t.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(t => t.GroupSyncId).IsRequired();
-			Property(t => t.MemberSyncId).IsRequired();
-			Property(t => t.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(t => t.Role).IsRequired();
+			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
+			Property(x => x.GroupSyncId).IsRequired();
+			Property(x => x.MemberSyncId).IsRequired();
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
+			Property(x => x.Role).IsRequired();
 
 			// Relationships
 			HasRequired(x => x.Group)

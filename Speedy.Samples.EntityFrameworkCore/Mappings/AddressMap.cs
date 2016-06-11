@@ -19,17 +19,17 @@ namespace Speedy.Samples.EntityFrameworkCore.Mappings
 		{
 			var mapping = instance.Entity<Address>();
 
-			mapping.HasKey(t => t.Id);
+			mapping.HasKey(x => x.Id);
 			mapping.ToTable("Addresses");
-			mapping.Property(t => t.Id).UseSqlServerIdentityColumn();
-			mapping.Property(t => t.City).IsRequired().HasMaxLength(256);
-			mapping.Property(t => t.CreatedOn).IsRequired().HasColumnType("datetime2");
-			mapping.Property(t => t.Line1).IsRequired().HasMaxLength(256);
-			mapping.Property(t => t.Line2).IsRequired().HasMaxLength(256);
-			mapping.Property(t => t.LinkedAddressSyncId).IsRequired(false);
-			mapping.Property(t => t.ModifiedOn).IsRequired().HasColumnType("datetime2");
-			mapping.Property(t => t.Postal).IsRequired().HasMaxLength(128);
-			mapping.Property(t => t.State).IsRequired().HasMaxLength(128);
+			mapping.Property(x => x.Id).UseSqlServerIdentityColumn();
+			mapping.Property(x => x.City).IsRequired().HasMaxLength(256);
+			mapping.Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2");
+			mapping.Property(x => x.Line1).IsRequired().HasMaxLength(256);
+			mapping.Property(x => x.Line2).IsRequired().HasMaxLength(256);
+			mapping.Property(x => x.LinkedAddressSyncId).IsRequired(false);
+			mapping.Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2");
+			mapping.Property(x => x.Postal).IsRequired().HasMaxLength(128);
+			mapping.Property(x => x.State).IsRequired().HasMaxLength(128);
 			mapping.HasOne(x => x.LinkedAddress).WithMany().HasForeignKey(x => x.LinkedAddressId).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
 		}
 
