@@ -43,7 +43,7 @@ namespace Speedy.Configuration
 			_maxLength = -1;
 			_minLength = -1;
 		}
-		
+
 		#endregion
 
 		#region Methods
@@ -125,20 +125,23 @@ namespace Speedy.Configuration
 			var property = _propertyFunction.Invoke(typedEntity);
 			var propertyValue = property?.ToString();
 			var dValue = _property as dynamic;
+			var nodeType = dValue.Body.NodeType.ToString();
 
-			if (dValue.Body.NodeType.ToString() != "MemberAccess")
+			if (nodeType != "Convert" && nodeType != "MemberAccess")
 			{
 				return;
 			}
 
-			var memberName = dValue.Body.Member.Name;
+			var memberName = dValue.Body.NodeType.ToString() == "Convert"
+				? dValue.Body.Operand.Member.Name
+				: dValue.Body.Member.Name;
 
 			if (_isNullable.HasValue && (_isNullable.Value == false) && (property == null))
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
 
-			if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => _propertyFunction.Invoke(x).ToString() == propertyValue))
+			if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => Equals(_propertyFunction.Invoke(x), property)))
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field must be unique. The duplicate key value is ({propertyValue}).");
 			}
@@ -154,22 +157,9 @@ namespace Speedy.Configuration
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is too short.");
 			}
 
-			if (property is Guid)
+			if (_isNullable.HasValue && (_isNullable.Value == false) && (property == null))
 			{
-				var guidEntity = property as Guid?;
-				if (_isNullable.HasValue && (_isNullable.Value == false) && (guidEntity == default(Guid)))
-				{
-					throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
-				}
-			}
-
-			if (property is DateTime)
-			{
-				var dateTimeEntity = property as DateTime?;
-				if (_isNullable.HasValue && (_isNullable.Value == false) && (dateTimeEntity == default(DateTime)))
-				{
-					throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
-				}
+				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
 		}
 

@@ -275,9 +275,9 @@
     <Compile Include="Mappings\LogEventMap.cs" />
     <Compile Include="Mappings\PersonMap.cs" />
     <Compile Include="Mappings\SyncTombstoneMap.cs" />
-    <Compile Include="Migrations\20160604164206_InitialDatabase.cs" />
-    <Compile Include="Migrations\20160604164206_InitialDatabase.designer.cs">
-      <DependentUpon>20160604164206_InitialDatabase.cs</DependentUpon>
+    <Compile Include="Migrations\20160613125940_InitialDatabase.cs" />
+    <Compile Include="Migrations\20160613125940_InitialDatabase.designer.cs">
+      <DependentUpon>20160613125940_InitialDatabase.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\EntityFrameworkCoreContosoDatabaseModelSnapshot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -31,6 +31,7 @@ namespace Speedy.Samples.EntityFramework.Mappings
 			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
 			Property(x => x.Postal).IsRequired().HasMaxLength(128);
 			Property(x => x.State).IsRequired().HasMaxLength(128);
+			Property(x => x.SyncId).IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
 			Ignore(x => x.FullAddress);
 
 			// Relationships

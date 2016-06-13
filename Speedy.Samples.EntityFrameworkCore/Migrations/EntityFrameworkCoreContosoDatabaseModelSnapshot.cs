@@ -58,6 +58,9 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
 
                     b.HasIndex("LinkedAddressId");
 
+                    b.HasIndex("SyncId")
+                        .IsUnique();
+
                     b.ToTable("Addresses");
                 });
 

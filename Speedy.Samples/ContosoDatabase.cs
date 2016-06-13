@@ -38,6 +38,8 @@ namespace Speedy.Samples
 			Property<Address>(x => x.City).IsRequired().HasMaximumLength(256);
 			Property<Address>(x => x.State).IsRequired().HasMaximumLength(128);
 			Property<Address>(x => x.Postal).IsRequired().HasMaximumLength(128);
+			Property<Address>(x => x.SyncId).IsRequired().IsUnique();
+			HasOptional<Address,Address>(x => x.LinkedAddress, x => x.LinkedAddressId);
 
 			// Food Map
 			Property<Food>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
@@ -58,6 +60,7 @@ namespace Speedy.Samples
 
 			// Person Map
 			Property<Person>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
+			Property<Person>(x => x.SyncId).IsRequired().IsUnique();
 			HasRequired<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
 			HasOptional<Person, Address>(p => p.BillingAddress, p => p.BillingAddressId);
 		}

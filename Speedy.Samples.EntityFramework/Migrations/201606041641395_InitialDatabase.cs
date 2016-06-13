@@ -33,6 +33,7 @@ namespace Speedy.Samples.EntityFramework.Migrations
 			DropIndex("dbo.People", new[] { "BillingAddressId" });
 			DropIndex("dbo.People", new[] { "AddressId" });
 			DropIndex("dbo.Addresses", new[] { "ModifiedOn" });
+			DropIndex("dbo.Addresses", new[] { "SyncId" });
 			DropIndex("dbo.Addresses", new[] { "LinkedAddressId" });
 			DropIndex("dbo.Addresses", new[] { "Line1" });
 			DropTable("dbo.SyncTombstones");
@@ -63,11 +64,12 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id)
-				.ForeignKey("dbo.Addresses", x => x.LinkedAddressId)
-				.Index(x => x.Line1)
-				.Index(x => x.LinkedAddressId)
-				.Index(x => x.ModifiedOn);
+				.PrimaryKey(t => t.Id)
+				.ForeignKey("dbo.Addresses", t => t.LinkedAddressId)
+				.Index(t => t.Line1)
+				.Index(t => t.LinkedAddressId)
+				.Index(t => t.SyncId, unique: true)
+				.Index(t => t.ModifiedOn);
 
 			CreateTable(
 				"dbo.People",
@@ -83,13 +85,13 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id)
-				.ForeignKey("dbo.Addresses", x => x.AddressId)
-				.ForeignKey("dbo.Addresses", x => x.BillingAddressId)
-				.Index(x => x.AddressId)
-				.Index(x => x.BillingAddressId)
-				.Index(x => x.Name, unique: true)
-				.Index(x => x.ModifiedOn);
+				.PrimaryKey(t => t.Id)
+				.ForeignKey("dbo.Addresses", t => t.AddressId)
+				.ForeignKey("dbo.Addresses", t => t.BillingAddressId)
+				.Index(t => t.AddressId)
+				.Index(t => t.BillingAddressId)
+				.Index(t => t.Name, unique: true)
+				.Index(t => t.ModifiedOn);
 
 			CreateTable(
 				"dbo.GroupMembers",
@@ -105,12 +107,12 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id)
-				.ForeignKey("dbo.Groups", x => x.GroupId, true)
-				.ForeignKey("dbo.People", x => x.MemberId, true)
-				.Index(x => x.GroupId)
-				.Index(x => x.MemberId)
-				.Index(x => x.ModifiedOn);
+				.PrimaryKey(t => t.Id)
+				.ForeignKey("dbo.Groups", t => t.GroupId, true)
+				.ForeignKey("dbo.People", t => t.MemberId, true)
+				.Index(t => t.GroupId)
+				.Index(t => t.MemberId)
+				.Index(t => t.ModifiedOn);
 
 			CreateTable(
 				"dbo.Groups",
@@ -123,9 +125,9 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id)
-				.Index(x => x.Name, unique: true)
-				.Index(x => x.ModifiedOn);
+				.PrimaryKey(t => t.Id)
+				.Index(t => t.Name, unique: true)
+				.Index(t => t.ModifiedOn);
 
 			CreateTable(
 				"dbo.Foods",
@@ -136,7 +138,7 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id);
+				.PrimaryKey(t => t.Id);
 
 			CreateTable(
 				"dbo.FoodRelationships",
@@ -149,11 +151,11 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id)
-				.ForeignKey("dbo.Foods", x => x.ChildId)
-				.ForeignKey("dbo.Foods", x => x.ParentId)
-				.Index(x => x.ChildId)
-				.Index(x => x.ParentId);
+				.PrimaryKey(t => t.Id)
+				.ForeignKey("dbo.Foods", t => t.ChildId)
+				.ForeignKey("dbo.Foods", t => t.ParentId)
+				.Index(t => t.ChildId)
+				.Index(t => t.ParentId);
 
 			CreateTable(
 				"dbo.LogEvents",
@@ -163,7 +165,7 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					Message = c.String(),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id);
+				.PrimaryKey(t => t.Id);
 
 			CreateTable(
 				"dbo.SyncTombstones",
@@ -175,9 +177,9 @@ namespace Speedy.Samples.EntityFramework.Migrations
 					TypeName = c.String(false, 768),
 					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
 				})
-				.PrimaryKey(x => x.Id)
+				.PrimaryKey(t => t.Id)
 				.Index(t => new { t.ReferenceId, t.TypeName }, "IX_SyncTombstones_ReferenceId_TypeName")
-				.Index(x => x.CreatedOn);
+				.Index(t => t.CreatedOn);
 		}
 
 		#endregion

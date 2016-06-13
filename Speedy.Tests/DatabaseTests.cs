@@ -55,7 +55,7 @@ namespace Speedy.Tests
 					Assert.AreEqual(0, test.Count);
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), 
+					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(),
 						"Address: The Line1 field is required.",
 						"Cannot insert the value NULL into column 'Line1'");
 				}
@@ -219,7 +219,7 @@ namespace Speedy.Tests
 					});
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), 
+					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(),
 						"Address: The Line1 field is required.",
 						"Cannot insert the value NULL into column 'Line1'");
 				}
@@ -859,7 +859,30 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void UniqueConstraints()
+		public void UniqueConstraintsForGuid()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				using (var context = provider.GetDatabase())
+				{
+					Console.WriteLine(context.GetType().Name);
+
+					var address1 = NewAddress("Bar");
+					context.Addresses.Add(address1);
+					context.SaveChanges();
+
+					var address2 = NewAddress("Bar2");
+					address2.SyncId = address1.SyncId;
+					context.Addresses.Add(address2);
+
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "The duplicate key value is");
+				}
+			});
+		}
+
+		[TestMethod]
+		public void UniqueConstraintsForString()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>
 			{

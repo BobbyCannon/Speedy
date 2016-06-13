@@ -30,6 +30,7 @@ namespace Speedy.Samples.EntityFrameworkCore.Mappings
 			mapping.Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2");
 			mapping.Property(x => x.Postal).IsRequired().HasMaxLength(128);
 			mapping.Property(x => x.State).IsRequired().HasMaxLength(128);
+			mapping.HasIndex(x => x.SyncId).IsUnique();
 			mapping.HasOne(x => x.LinkedAddress).WithMany().HasForeignKey(x => x.LinkedAddressId).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
 		}
 

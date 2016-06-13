@@ -8,7 +8,7 @@ using Speedy.Samples.EntityFrameworkCore;
 namespace Speedy.Samples.EntityFrameworkCore.Migrations
 {
     [DbContext(typeof(EntityFrameworkCoreContosoDatabase))]
-    [Migration("20160604164206_InitialDatabase")]
+    [Migration("20160613125940_InitialDatabase")]
     partial class InitialDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,6 +58,9 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("LinkedAddressId");
+
+                    b.HasIndex("SyncId")
+                        .IsUnique();
 
                     b.ToTable("Addresses");
                 });
