@@ -13,7 +13,7 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.0.0-rc2-20896")
+                .HasAnnotation("ProductVersion", "1.0.0-rtm-21431")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Speedy.Samples.Entities.Address", b =>
@@ -252,42 +252,42 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
 
             modelBuilder.Entity("Speedy.Samples.Entities.Address", b =>
                 {
-                    b.HasOne("Speedy.Samples.Entities.Address")
+                    b.HasOne("Speedy.Samples.Entities.Address", "LinkedAddress")
                         .WithMany()
                         .HasForeignKey("LinkedAddressId");
                 });
 
             modelBuilder.Entity("Speedy.Samples.Entities.FoodRelationship", b =>
                 {
-                    b.HasOne("Speedy.Samples.Entities.Food")
-                        .WithMany()
+                    b.HasOne("Speedy.Samples.Entities.Food", "Child")
+                        .WithMany("Parents")
                         .HasForeignKey("ChildId");
 
-                    b.HasOne("Speedy.Samples.Entities.Food")
-                        .WithMany()
+                    b.HasOne("Speedy.Samples.Entities.Food", "Parent")
+                        .WithMany("Children")
                         .HasForeignKey("ParentId");
                 });
 
             modelBuilder.Entity("Speedy.Samples.Entities.GroupMember", b =>
                 {
-                    b.HasOne("Speedy.Samples.Entities.Group")
-                        .WithMany()
+                    b.HasOne("Speedy.Samples.Entities.Group", "Group")
+                        .WithMany("Members")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Speedy.Samples.Entities.Person")
-                        .WithMany()
+                    b.HasOne("Speedy.Samples.Entities.Person", "Member")
+                        .WithMany("Groups")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Speedy.Samples.Entities.Person", b =>
                 {
-                    b.HasOne("Speedy.Samples.Entities.Address")
-                        .WithMany()
+                    b.HasOne("Speedy.Samples.Entities.Address", "Address")
+                        .WithMany("People")
                         .HasForeignKey("AddressId");
 
-                    b.HasOne("Speedy.Samples.Entities.Address")
+                    b.HasOne("Speedy.Samples.Entities.Address", "BillingAddress")
                         .WithMany()
                         .HasForeignKey("BillingAddressId");
                 });

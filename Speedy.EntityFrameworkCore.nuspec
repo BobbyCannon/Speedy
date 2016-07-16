@@ -12,7 +12,7 @@
 		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
 		<dependencies>
 			<dependency id="Speedy" version="4.4.18" />
-			<dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="1.0.0-rc2-final" />
+			<dependency id="Microsoft.EntityFrameworkCore.SqlServer" version="1.0.0" />
 		</dependencies>
 		<references>
 			<reference file="Speedy.dll" />

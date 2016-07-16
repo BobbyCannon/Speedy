@@ -25,8 +25,10 @@ namespace Speedy.Samples.EntityFramework.Mappings
 			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 			Property(x => x.AddressSyncId).IsRequired();
 			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.Name).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
-			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
+			Property(x => x.Name).IsRequired().HasMaxLength(256)
+				.HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
+			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7)
+				.HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
 
 			// Relationships
 			HasRequired(x => x.Address)

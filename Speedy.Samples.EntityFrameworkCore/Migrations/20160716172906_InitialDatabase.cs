@@ -15,15 +15,15 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    City = table.Column<string>(nullable: false),
+                    City = table.Column<string>(maxLength: 256, nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Line1 = table.Column<string>(nullable: false),
-                    Line2 = table.Column<string>(nullable: false),
+                    Line1 = table.Column<string>(maxLength: 256, nullable: false),
+                    Line2 = table.Column<string>(maxLength: 256, nullable: false),
                     LinkedAddressId = table.Column<int>(nullable: true),
                     LinkedAddressSyncId = table.Column<Guid>(nullable: true),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Postal = table.Column<string>(nullable: false),
-                    State = table.Column<string>(nullable: false),
+                    Postal = table.Column<string>(maxLength: 128, nullable: false),
+                    State = table.Column<string>(maxLength: 128, nullable: false),
                     SyncId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
@@ -45,7 +45,7 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(nullable: false)
+                    Name = table.Column<string>(maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -61,7 +61,7 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(maxLength: 256, nullable: false),
                     SyncId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
@@ -90,9 +90,9 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ReferenceId = table.Column<string>(nullable: false),
+                    ReferenceId = table.Column<string>(maxLength: 128, nullable: false),
                     SyncId = table.Column<Guid>(nullable: false),
-                    TypeName = table.Column<string>(nullable: false)
+                    TypeName = table.Column<string>(maxLength: 768, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,7 +111,7 @@ namespace Speedy.Samples.EntityFrameworkCore.Migrations
                     BillingAddressSyncId = table.Column<Guid>(nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(maxLength: 256, nullable: false),
                     SyncId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
