@@ -74,9 +74,9 @@ if ($index -ge 0) {
 	Set-Content "$productName.EntityFrameworkCore.nuspec" $content
 }
 
-& "nuget.exe" pack "$productName.EntityFrameworkCore.nuspec" -Prop Configuration="$Configuration" -Version $preVersion
-Move-Item "$productName.EntityFrameworkCore.$preVersion.nupkg" "$destination" -force
-Copy-Item "$destination\$productName.EntityFrameworkCore.$preVersion.nupkg" "$nugetDestination" -force
+& "nuget.exe" pack "$productName.EntityFrameworkCore.nuspec" -Prop Configuration="$Configuration" -Version $version
+Move-Item "$productName.EntityFrameworkCore.$version.nupkg" "$destination" -force
+Copy-Item "$destination\$productName.EntityFrameworkCore.$version.nupkg" "$nugetDestination" -force
 
 Write-Host
 Set-Location $scriptPath
