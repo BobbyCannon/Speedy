@@ -129,7 +129,7 @@ namespace Speedy.Sync
 			_cancelPending = true;
 			var timeOut = DateTime.UtcNow.AddSeconds(30);
 
-			while ((Status != SyncEngineStatus.Stopped) && (DateTime.UtcNow <= timeOut))
+			while (Status != SyncEngineStatus.Stopped && DateTime.UtcNow <= timeOut)
 			{
 				Thread.Sleep(10);
 			}
@@ -168,7 +168,7 @@ namespace Speedy.Sync
 				issues.AddRange(applyClient.ApplyChanges(syncObjects));
 				OnSyncStatusChanged(new SyncEngineStatusArgs { Name = applyClient.Name, Count = request.Skip, Total = total, Status = Status });
 				request.Skip += syncObjects.Count;
-			} while (!_cancelPending && (syncObjects.Count > 0) && (request.Skip < total));
+			} while (!_cancelPending && syncObjects.Count > 0 && request.Skip < total);
 
 			while (!_cancelPending && issues.Any())
 			{

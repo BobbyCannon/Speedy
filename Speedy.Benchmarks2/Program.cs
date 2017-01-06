@@ -82,7 +82,7 @@ namespace Speedy.Benchmarks
 			var results = new List<string>();
 
 			TestDatabase(results, directory + "\\Database", connectionString, 10000);
-			TestRepository(results, directory + "\\Repository", 100000);
+			TestRepository(results, directory + "\\Repository", 10000);
 
 			Log(string.Empty);
 			results.ForEach(x => Log(x));
@@ -226,7 +226,8 @@ namespace Speedy.Benchmarks
 		private static string WriteCollection(string directory, int size, int chunkSize, TimeSpan? timeout = null, int limit = 0)
 		{
 			Log(string.Empty);
-			Log(limit <= 0 ? $"Let's create a repository with {size} items @ {chunkSize} at a time."
+			Log(limit <= 0
+				? $"Let's create a repository with {size} items @ {chunkSize} at a time."
 				: $"Let's create a repository with {size} items @ {chunkSize} at a time with a cache of {limit} items.");
 
 			var watch = Stopwatch.StartNew();
@@ -235,7 +236,7 @@ namespace Speedy.Benchmarks
 			{
 				for (var i = 1; i <= size; i++)
 				{
-					if ((limit > 0) && (i % limit == 0))
+					if (limit > 0 && i % limit == 0)
 					{
 						repository.Flush();
 					}
@@ -254,7 +255,8 @@ namespace Speedy.Benchmarks
 				var elapsed = watch.Elapsed.ToString(_timeFormat);
 				Log($"Count: {repository.Count} : {elapsed}");
 
-				return limit <= 0 ? $"{elapsed}: {chunkSize} at a time."
+				return limit <= 0
+					? $"{elapsed}: {chunkSize} at a time."
 					: $"{elapsed}: {chunkSize} at a time with a cache of {limit} items.";
 			}
 		}

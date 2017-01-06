@@ -138,7 +138,7 @@ namespace Speedy.Storage
 				var maintainedEntity = _database.Options.UnmaintainEntities.All(x => x != entityState.Entity.GetType());
 				var maintainSyncId = maintainedEntity && _database.Options.MaintainSyncId;
 
-				if (maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
+				if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
 				{
 					syncableEntity.SyncId = Guid.NewGuid();
 				}
@@ -364,7 +364,7 @@ namespace Speedy.Storage
 							entity.CreatedOn = DateTime.UtcNow;
 						}
 
-						if ((modifiableEntity != null) && maintainDates)
+						if (modifiableEntity != null && maintainDates)
 						{
 							modifiableEntity.ModifiedOn = entity.CreatedOn;
 						}
@@ -386,7 +386,7 @@ namespace Speedy.Storage
 							}
 						}
 
-						if ((modifiableEntity != null) && maintainDates)
+						if (modifiableEntity != null && maintainDates)
 						{
 							// Update modified to now for new entities.
 							modifiableEntity.ModifiedOn = DateTime.UtcNow;
@@ -432,7 +432,7 @@ namespace Speedy.Storage
 
 		public void ValidateEntities()
 		{
-			Cache.Where(x => (x.State == EntityStateType.Added) || (x.State == EntityStateType.Modified))
+			Cache.Where(x => x.State == EntityStateType.Added || x.State == EntityStateType.Modified)
 				.ToList()
 				.ForEach(x => OnValidateEntity((T) x.Entity));
 
@@ -509,12 +509,12 @@ namespace Speedy.Storage
 
 		private bool CompareEntity(Entity entity1, Entity entity2)
 		{
-			if ((entity1 == null) && (entity2 == null))
+			if (entity1 == null && entity2 == null)
 			{
 				return true;
 			}
 
-			if ((entity1 == null) || (entity2 == null))
+			if (entity1 == null || entity2 == null)
 			{
 				return false;
 			}

@@ -160,7 +160,7 @@ namespace Speedy.EntityFramework
 			}
 
 			var methods = GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
-			var setMethod = methods.First(x => (x.Name == "Set") && x.IsGenericMethodDefinition);
+			var setMethod = methods.First(x => x.Name == "Set" && x.IsGenericMethodDefinition);
 			var method = setMethod.MakeGenericMethod(type);
 			var entitySet = method.Invoke(this, null);
 			var repositoryType = typeof(EntityFrameworkSyncableRepository<>).MakeGenericType(type);
@@ -228,7 +228,7 @@ namespace Speedy.EntityFramework
 
 				var response = base.SaveChanges();
 
-				if (ChangeTracker.Entries().Any(x => (x.State != EntityState.Detached) && (x.State != EntityState.Unchanged)))
+				if (ChangeTracker.Entries().Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged))
 				{
 					response += SaveChanges();
 				}
@@ -267,7 +267,7 @@ namespace Speedy.EntityFramework
 		{
 			var assembly = Assembly.GetAssembly(GetType());
 			var typesToRegister = assembly.GetTypes()
-				.Where(type => (type.BaseType != null) && type.BaseType.IsGenericType && (type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>)));
+				.Where(type => type.BaseType != null && type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>));
 
 			foreach (var type in typesToRegister)
 			{
@@ -349,13 +349,13 @@ namespace Speedy.EntityFramework
 
 					if (syncableEntity != null)
 					{
-						if (maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
+						if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
 						{
 							syncableEntity.SyncId = Guid.NewGuid();
 						}
 					}
 
-					if ((modifiableEntity != null) && maintainDates)
+					if (modifiableEntity != null && maintainDates)
 					{
 						modifiableEntity.ModifiedOn = entity.CreatedOn;
 					}
@@ -377,7 +377,7 @@ namespace Speedy.EntityFramework
 						}
 					}
 
-					if ((modifiableEntity != null) && maintainDates)
+					if (modifiableEntity != null && maintainDates)
 					{
 						// Update modified to now for new entities.
 						modifiableEntity.ModifiedOn = DateTime.UtcNow;

@@ -49,21 +49,21 @@ namespace Speedy.Samples.EntityFramework.Migrations
 		public override void Up()
 		{
 			CreateTable(
-				"dbo.Addresses",
-				c => new
-				{
-					Id = c.Int(false, true),
-					City = c.String(false, 256),
-					Line1 = c.String(false, 256),
-					Line2 = c.String(false, 256),
-					LinkedAddressId = c.Int(),
-					LinkedAddressSyncId = c.Guid(),
-					Postal = c.String(false, 128),
-					State = c.String(false, 128),
-					SyncId = c.Guid(false),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.Addresses",
+					c => new
+					{
+						Id = c.Int(false, true),
+						City = c.String(false, 256),
+						Line1 = c.String(false, 256),
+						Line2 = c.String(false, 256),
+						LinkedAddressId = c.Int(),
+						LinkedAddressSyncId = c.Guid(),
+						Postal = c.String(false, 128),
+						State = c.String(false, 128),
+						SyncId = c.Guid(false),
+						ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Addresses", t => t.LinkedAddressId)
 				.Index(t => t.Line1)
@@ -72,19 +72,19 @@ namespace Speedy.Samples.EntityFramework.Migrations
 				.Index(t => t.ModifiedOn);
 
 			CreateTable(
-				"dbo.People",
-				c => new
-				{
-					Id = c.Int(false, true),
-					AddressId = c.Int(false),
-					AddressSyncId = c.Guid(false),
-					BillingAddressId = c.Int(),
-					BillingAddressSyncId = c.Guid(),
-					Name = c.String(false, 256),
-					SyncId = c.Guid(false),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.People",
+					c => new
+					{
+						Id = c.Int(false, true),
+						AddressId = c.Int(false),
+						AddressSyncId = c.Guid(false),
+						BillingAddressId = c.Int(),
+						BillingAddressSyncId = c.Guid(),
+						Name = c.String(false, 256),
+						SyncId = c.Guid(false),
+						ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Addresses", t => t.AddressId)
 				.ForeignKey("dbo.Addresses", t => t.BillingAddressId)
@@ -94,19 +94,19 @@ namespace Speedy.Samples.EntityFramework.Migrations
 				.Index(t => t.ModifiedOn);
 
 			CreateTable(
-				"dbo.GroupMembers",
-				c => new
-				{
-					Id = c.Int(false, true),
-					GroupId = c.Int(false),
-					GroupSyncId = c.Guid(false),
-					MemberId = c.Int(false),
-					MemberSyncId = c.Guid(false),
-					Role = c.String(false),
-					SyncId = c.Guid(false),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.GroupMembers",
+					c => new
+					{
+						Id = c.Int(false, true),
+						GroupId = c.Int(false),
+						GroupSyncId = c.Guid(false),
+						MemberId = c.Int(false),
+						MemberSyncId = c.Guid(false),
+						Role = c.String(false),
+						SyncId = c.Guid(false),
+						ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Groups", t => t.GroupId, true)
 				.ForeignKey("dbo.People", t => t.MemberId, true)
@@ -115,42 +115,42 @@ namespace Speedy.Samples.EntityFramework.Migrations
 				.Index(t => t.ModifiedOn);
 
 			CreateTable(
-				"dbo.Groups",
-				c => new
-				{
-					Id = c.Int(false, true),
-					Description = c.String(false),
-					Name = c.String(false, 256),
-					SyncId = c.Guid(false),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.Groups",
+					c => new
+					{
+						Id = c.Int(false, true),
+						Description = c.String(false),
+						Name = c.String(false, 256),
+						SyncId = c.Guid(false),
+						ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id)
 				.Index(t => t.Name, unique: true)
 				.Index(t => t.ModifiedOn);
 
 			CreateTable(
-				"dbo.Foods",
-				c => new
-				{
-					Id = c.Int(false, true),
-					Name = c.String(false, 256),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.Foods",
+					c => new
+					{
+						Id = c.Int(false, true),
+						Name = c.String(false, 256),
+						ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id);
 
 			CreateTable(
-				"dbo.FoodRelationships",
-				c => new
-				{
-					Id = c.Int(false, true),
-					ChildId = c.Int(false),
-					ParentId = c.Int(false),
-					Quantity = c.Decimal(false, 18, 2),
-					ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.FoodRelationships",
+					c => new
+					{
+						Id = c.Int(false, true),
+						ChildId = c.Int(false),
+						ParentId = c.Int(false),
+						Quantity = c.Decimal(false, 18, 2),
+						ModifiedOn = c.DateTime(false, 7, storeType: "datetime2"),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id)
 				.ForeignKey("dbo.Foods", t => t.ChildId)
 				.ForeignKey("dbo.Foods", t => t.ParentId)
@@ -158,25 +158,25 @@ namespace Speedy.Samples.EntityFramework.Migrations
 				.Index(t => t.ParentId);
 
 			CreateTable(
-				"dbo.LogEvents",
-				c => new
-				{
-					Id = c.Int(false, true),
-					Message = c.String(),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.LogEvents",
+					c => new
+					{
+						Id = c.Int(false, true),
+						Message = c.String(),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id);
 
 			CreateTable(
-				"dbo.SyncTombstones",
-				c => new
-				{
-					Id = c.Int(false, true),
-					ReferenceId = c.String(false, 128),
-					SyncId = c.Guid(false),
-					TypeName = c.String(false, 768),
-					CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
-				})
+					"dbo.SyncTombstones",
+					c => new
+					{
+						Id = c.Int(false, true),
+						ReferenceId = c.String(false, 128),
+						SyncId = c.Guid(false),
+						TypeName = c.String(false, 768),
+						CreatedOn = c.DateTime(false, 7, storeType: "datetime2")
+					})
 				.PrimaryKey(t => t.Id)
 				.Index(t => new { t.ReferenceId, t.TypeName }, "IX_SyncTombstones_ReferenceId_TypeName")
 				.Index(t => t.CreatedOn);

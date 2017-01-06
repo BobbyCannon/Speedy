@@ -433,7 +433,7 @@ namespace Speedy
 				UpdateCache();
 
 				var threshold = DateTime.UtcNow - _options.Timeout;
-				if ((_cache.Count <= _options.Limit) && !_cache.Any(x => x.Value.Item2 <= threshold))
+				if (_cache.Count <= _options.Limit && !_cache.Any(x => x.Value.Item2 <= threshold))
 				{
 					return;
 				}
@@ -589,7 +589,7 @@ namespace Speedy
 
 					// Append the expired cache.
 					var expiredCache = _cache
-						.Where(x => (x.Value.Item2 <= threshold) && (x.Value.Item1 != null))
+						.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null)
 						.OrderBy(x => x.Value.Item2)
 						.ToDictionary(x => x.Key, x => x.Value);
 

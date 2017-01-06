@@ -71,7 +71,7 @@ namespace Speed.Benchmarks
 			Address address;
 			var number = Extensions.Random.Next(0, 101);
 
-			if ((number % 2 == 0) && clientDatabase.Addresses.Any())
+			if (number % 2 == 0 && clientDatabase.Addresses.Any())
 			{
 				address = clientDatabase.Addresses.GetRandomItem();
 				if (address == null)
@@ -420,7 +420,7 @@ namespace Speed.Benchmarks
 			var number = Extensions.Random.Next(1, 101);
 			var result = false;
 
-			if ((number % 1 == 0) || forceAdd) // 25%
+			if (number % 1 == 0 || forceAdd) // 25%
 			{
 				using (var clientDatabase = client.GetDatabase())
 				{

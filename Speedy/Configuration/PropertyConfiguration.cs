@@ -136,7 +136,7 @@ namespace Speedy.Configuration
 				? dValue.Body.Operand.Member.Name
 				: dValue.Body.Member.Name;
 
-			if (_isNullable.HasValue && (_isNullable.Value == false) && (property == null))
+			if (_isNullable.HasValue && _isNullable.Value == false && property == null)
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
@@ -147,17 +147,17 @@ namespace Speedy.Configuration
 			}
 
 			var stringEntity = property as string;
-			if ((stringEntity != null) && (_maxLength > 0) && (stringEntity.Length > _maxLength))
+			if (stringEntity != null && _maxLength > 0 && stringEntity.Length > _maxLength)
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is too long.");
 			}
 
-			if ((stringEntity != null) && (_minLength > 0) && (stringEntity.Length < _minLength))
+			if (stringEntity != null && _minLength > 0 && stringEntity.Length < _minLength)
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is too short.");
 			}
 
-			if (_isNullable.HasValue && (_isNullable.Value == false) && (property == null))
+			if (_isNullable.HasValue && _isNullable.Value == false && property == null)
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}

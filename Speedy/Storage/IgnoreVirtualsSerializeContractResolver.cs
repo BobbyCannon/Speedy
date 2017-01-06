@@ -27,8 +27,8 @@ namespace Speedy.Storage
 				return null;
 			}
 
-			var shouldSerialize = (propertyInfo.CanRead && !propertyInfo.GetAccessors()[0].IsVirtual)
-				|| (propertyInfo.CanRead && propertyInfo.GetAccessors()[0].IsVirtual && propertyInfo.GetAccessors()[0].IsFinal);
+			var shouldSerialize = propertyInfo.CanRead && !propertyInfo.GetAccessors()[0].IsVirtual
+				|| propertyInfo.CanRead && propertyInfo.GetAccessors()[0].IsVirtual && propertyInfo.GetAccessors()[0].IsFinal;
 
 			property.ShouldSerialize = instance => shouldSerialize;
 			return property;

@@ -286,10 +286,10 @@ namespace Speedy
 			var targetExpression = (expression.Body as UnaryExpression)?.Operand ?? expression.Body;
 
 			var assign = Expression.Lambda<Action<T1, T2>>
-				(
-					Expression.Assign(targetExpression, Expression.Convert(valueParameterExpression, targetExpression.Type)),
-					expression.Parameters.Single(), valueParameterExpression
-				);
+			(
+				Expression.Assign(targetExpression, Expression.Convert(valueParameterExpression, targetExpression.Type)),
+				expression.Parameters.Single(), valueParameterExpression
+			);
 
 			assign.Compile().Invoke(obj, value);
 		}
@@ -407,9 +407,9 @@ namespace Speedy
 			var myType = typeof(Database);
 			var methodInfos = myType.GetCachedMethods(BindingFlags.NonPublic | BindingFlags.Instance);
 
-			var methods = methodInfos.Where(m => (m.Name == methodName)
-				&& (typeArgs.Length == m.GetCachedGenericArguments().Count)
-				&& (argTypes.Length == m.GetCachedParameters().Count))
+			var methods = methodInfos.Where(m => m.Name == methodName
+					&& typeArgs.Length == m.GetCachedGenericArguments().Count
+					&& argTypes.Length == m.GetCachedParameters().Count)
 				.ToList();
 
 			foreach (var method in methods)
@@ -529,17 +529,17 @@ namespace Speedy
 				var otherEntity = entityRelationship.GetValue(entity, null) as Entity;
 				var entityRelationshipIdProperty = properties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
 
-				if ((otherEntity == null) && (entityRelationshipIdProperty != null))
+				if (otherEntity == null && entityRelationshipIdProperty != null)
 				{
 					var otherEntityId = (int?) entityRelationshipIdProperty.GetValue(entity, null);
-					if (otherEntityId.HasValue && (otherEntityId != 0) && Repositories.ContainsKey(entityRelationship.PropertyType.FullName))
+					if (otherEntityId.HasValue && otherEntityId != 0 && Repositories.ContainsKey(entityRelationship.PropertyType.FullName))
 					{
 						var repository = Repositories[entityRelationship.PropertyType.FullName];
 						otherEntity = repository.Read(otherEntityId.Value);
 						entityRelationship.SetValue(entity, otherEntity, null);
 					}
 				}
-				else if ((otherEntity != null) && (entityRelationshipIdProperty != null))
+				else if (otherEntity != null && entityRelationshipIdProperty != null)
 				{
 					// Check to see if this is a new child entity.
 					if (otherEntity.Id == 0)

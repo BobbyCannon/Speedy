@@ -155,7 +155,7 @@ namespace Speedy
 		/// <returns> The deserialized object. </returns>
 		public static T FromJson<T>(this string item)
 		{
-			return (item.Length > 0) && _validJsonStartCharacters.Contains(item[0])
+			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
 				? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals)
 				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
 		}
@@ -220,7 +220,7 @@ namespace Speedy
 		{
 			using (var database = provider.GetDatabase())
 			{
-				return database.GetSyncTombstones(x => (x.CreatedOn >= request.Since) && (x.CreatedOn < request.Until)).Count()
+				return database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until).Count()
 					+ database.GetSyncableRepositories().Sum(repository => repository.GetChangeCount(request.Since, request.Until));
 			}
 		}
@@ -257,7 +257,7 @@ namespace Speedy
 					}
 				}
 
-				var tombstoneQuery = database.GetSyncTombstones(x => (x.CreatedOn >= request.Since) && (x.CreatedOn < request.Until));
+				var tombstoneQuery = database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until);
 				var tombstoneCount = tombstoneQuery.Count();
 				if (tombstoneCount + currentSkippedCount <= request.Skip)
 				{
@@ -495,6 +495,17 @@ namespace Speedy
 		{
 			var settings = GetSerializerSettings(camelCase, ignoreVirtuals);
 			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
+		}
+
+		/// <summary>
+		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
+		/// </summary>
+		/// <typeparam name="T"> The type of the entity. </typeparam>
+		/// <param name="entity"> The entity to unwrap from entity framework proxy. </param>
+		/// <returns> The disconnected entity. </returns>
+		public static T Unwrap<T>(this T entity) where T : SyncEntity
+		{
+			return (T) entity.ToSyncObject().ToSyncEntity();
 		}
 
 		/// <summary>
@@ -815,11 +826,11 @@ namespace Speedy
 			var foundEntity = repository.Read(syncEntity.SyncId);
 			var syncStatus = syncObject.Status;
 
-			if ((foundEntity != null) && (syncObject.Status == SyncObjectStatus.Added))
+			if (foundEntity != null && syncObject.Status == SyncObjectStatus.Added)
 			{
 				syncStatus = SyncObjectStatus.Modified;
 			}
-			else if ((foundEntity == null) && (syncObject.Status == SyncObjectStatus.Modified))
+			else if (foundEntity == null && syncObject.Status == SyncObjectStatus.Modified)
 			{
 				syncStatus = SyncObjectStatus.Added;
 			}
@@ -835,7 +846,7 @@ namespace Speedy
 				case SyncObjectStatus.Modified:
 					foundEntity?.UpdateLocalRelationships(database);
 
-					if ((foundEntity?.ModifiedOn < syncEntity.ModifiedOn) || correction)
+					if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn || correction)
 					{
 						foundEntity?.Update(syncEntity);
 					}

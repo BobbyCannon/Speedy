@@ -41,7 +41,7 @@ using System.Windows;
 	ResourceDictionaryLocation.SourceAssembly //where the generic resource dictionary is located
 	//(used if a resource is not found in the page, 
 	// app, or any theme specific resource dictionaries)
-	)]
+)]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -54,5 +54,5 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("4.4.19.0")]
-[assembly: AssemblyFileVersion("4.4.19.0")]
+[assembly: AssemblyVersion("4.4.20.0")]
+[assembly: AssemblyFileVersion("4.4.20.0")]

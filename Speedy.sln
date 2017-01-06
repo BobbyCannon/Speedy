@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmarks", "Speedy.Benchmarks\Speedy.Benchmarks.csproj", "{DBCCA3EB-C34B-4692-AB61-7A4AED374759}"
 EndProject
@@ -14,7 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 		Speedy.EntityFramework.nuspec = Speedy.EntityFramework.nuspec
-		Speedy.EntityFrameworkCore.nuspec = Speedy.EntityFrameworkCore.nuspec
 		Speedy.nuspec = Speedy.nuspec
 	EndProjectSection
 EndProject
@@ -33,11 +32,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Website", "Speedy.We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmarks2", "Speedy.Benchmarks2\Speedy.Benchmarks2.csproj", "{A39791B3-6786-40E6-999F-B3C3F682F68A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.EntityFrameworkCore", "Speedy.EntityFrameworkCore\Speedy.EntityFrameworkCore.csproj", "{3B3E1EAE-53A5-40A6-9605-F59ED73DC68A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples.EntityFramework", "Speedy.Samples.EntityFramework\Speedy.Samples.EntityFramework.csproj", "{6CE375D9-F164-4E9F-907C-66EC045D751B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples.EntityFrameworkCore", "Speedy.Samples.EntityFrameworkCore\Speedy.Samples.EntityFrameworkCore.csproj", "{9CF7D6DF-6B02-41B3-B39F-BAFC0716BE94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,18 +68,10 @@ Global
 		{A39791B3-6786-40E6-999F-B3C3F682F68A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A39791B3-6786-40E6-999F-B3C3F682F68A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A39791B3-6786-40E6-999F-B3C3F682F68A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3B3E1EAE-53A5-40A6-9605-F59ED73DC68A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3B3E1EAE-53A5-40A6-9605-F59ED73DC68A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3B3E1EAE-53A5-40A6-9605-F59ED73DC68A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3B3E1EAE-53A5-40A6-9605-F59ED73DC68A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6CE375D9-F164-4E9F-907C-66EC045D751B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6CE375D9-F164-4E9F-907C-66EC045D751B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CE375D9-F164-4E9F-907C-66EC045D751B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CE375D9-F164-4E9F-907C-66EC045D751B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9CF7D6DF-6B02-41B3-B39F-BAFC0716BE94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9CF7D6DF-6B02-41B3-B39F-BAFC0716BE94}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9CF7D6DF-6B02-41B3-B39F-BAFC0716BE94}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9CF7D6DF-6B02-41B3-B39F-BAFC0716BE94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

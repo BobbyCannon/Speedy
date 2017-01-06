@@ -635,7 +635,7 @@ namespace Speedy.Linq
 		{
 			var mb = tb.DefineMethod("Equals",
 				MethodAttributes.Public | MethodAttributes.ReuseSlot |
-					MethodAttributes.Virtual | MethodAttributes.HideBySig,
+				MethodAttributes.Virtual | MethodAttributes.HideBySig,
 				typeof(bool), new[] { typeof(object) });
 			var gen = mb.GetILGenerator();
 			var other = gen.DeclareLocal(tb);
@@ -672,7 +672,7 @@ namespace Speedy.Linq
 		{
 			var mb = tb.DefineMethod("GetHashCode",
 				MethodAttributes.Public | MethodAttributes.ReuseSlot |
-					MethodAttributes.Virtual | MethodAttributes.HideBySig,
+				MethodAttributes.Virtual | MethodAttributes.HideBySig,
 				typeof(int), Type.EmptyTypes);
 			var gen = mb.GetILGenerator();
 			gen.Emit(OpCodes.Ldc_I4_0);
@@ -1179,7 +1179,7 @@ namespace Speedy.Linq
 				return Expression.GreaterThan(
 					GenerateStaticMethodCall("Compare", left, right),
 					Expression.Constant(0)
-					);
+				);
 			}
 			return Expression.GreaterThan(left, right);
 		}
@@ -1191,7 +1191,7 @@ namespace Speedy.Linq
 				return Expression.GreaterThanOrEqual(
 					GenerateStaticMethodCall("Compare", left, right),
 					Expression.Constant(0)
-					);
+				);
 			}
 			return Expression.GreaterThanOrEqual(left, right);
 		}
@@ -1203,7 +1203,7 @@ namespace Speedy.Linq
 				return Expression.LessThan(
 					GenerateStaticMethodCall("Compare", left, right),
 					Expression.Constant(0)
-					);
+				);
 			}
 			return Expression.LessThan(left, right);
 		}
@@ -1215,7 +1215,7 @@ namespace Speedy.Linq
 				return Expression.LessThanOrEqual(
 					GenerateStaticMethodCall("Compare", left, right),
 					Expression.Constant(0)
-					);
+				);
 			}
 			return Expression.LessThanOrEqual(left, right);
 		}
@@ -2227,9 +2227,9 @@ namespace Speedy.Linq
 				throw ParseError(errorPos, Res.UnknownPropertyOrField,
 					id, GetTypeName(type));
 			}
-			return member is PropertyInfo ?
-				Expression.Property(instance, (PropertyInfo) member) :
-				Expression.Field(instance, (FieldInfo) member);
+			return member is PropertyInfo
+				? Expression.Property(instance, (PropertyInfo) member)
+				: Expression.Field(instance, (FieldInfo) member);
 		}
 
 		// *, /, %, mod operators
@@ -2581,10 +2581,12 @@ namespace Speedy.Linq
 		private void ProcessParameters(ParameterExpression[] parameters)
 		{
 			foreach (var pe in parameters)
+			{
 				if (!string.IsNullOrEmpty(pe.Name))
 				{
 					AddSymbol(pe.Name, pe);
 				}
+			}
 			if (parameters.Length == 1 && string.IsNullOrEmpty(parameters[0].Name))
 			{
 				it = parameters[0];
@@ -2753,46 +2755,6 @@ namespace Speedy.Linq
 
 		#endregion
 
-		#region Enumerations
-
-		private enum TokenId
-		{
-			Unknown,
-			End,
-			Identifier,
-			StringLiteral,
-			IntegerLiteral,
-			RealLiteral,
-			Exclamation,
-			Percent,
-			Amphersand,
-			OpenParen,
-			CloseParen,
-			Asterisk,
-			Plus,
-			Comma,
-			Minus,
-			Dot,
-			Slash,
-			Colon,
-			LessThan,
-			Equal,
-			GreaterThan,
-			Question,
-			OpenBracket,
-			CloseBracket,
-			Bar,
-			ExclamationEqual,
-			DoubleAmphersand,
-			LessThanEqual,
-			LessGreater,
-			DoubleEqual,
-			GreaterThanEqual,
-			DoubleBar
-		}
-
-		#endregion
-
 		#region Interfaces
 
 		private interface IAddSignatures : IArithmeticSignatures
@@ -2941,6 +2903,46 @@ namespace Speedy.Linq
 			void F(DateTime? x, DateTime? y);
 
 			#endregion
+		}
+
+		#endregion
+
+		#region Enumerations
+
+		private enum TokenId
+		{
+			Unknown,
+			End,
+			Identifier,
+			StringLiteral,
+			IntegerLiteral,
+			RealLiteral,
+			Exclamation,
+			Percent,
+			Amphersand,
+			OpenParen,
+			CloseParen,
+			Asterisk,
+			Plus,
+			Comma,
+			Minus,
+			Dot,
+			Slash,
+			Colon,
+			LessThan,
+			Equal,
+			GreaterThan,
+			Question,
+			OpenBracket,
+			CloseBracket,
+			Bar,
+			ExclamationEqual,
+			DoubleAmphersand,
+			LessThanEqual,
+			LessGreater,
+			DoubleEqual,
+			GreaterThanEqual,
+			DoubleBar
 		}
 
 		#endregion

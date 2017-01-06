@@ -37,8 +37,8 @@ namespace Speedy.Samples.Entities
 		/// </summary>
 		public override void UpdateLocalSyncIds()
 		{
-			this.UpdateIf(() => (Group != null) && (Group.SyncId != GroupSyncId), () => GroupSyncId = Group.SyncId);
-			this.UpdateIf(() => (Member != null) && (Member.SyncId != MemberSyncId), () => MemberSyncId = Member.SyncId);
+			this.UpdateIf(() => Group != null && Group.SyncId != GroupSyncId, () => GroupSyncId = Group.SyncId);
+			this.UpdateIf(() => Member != null && Member.SyncId != MemberSyncId, () => MemberSyncId = Member.SyncId);
 		}
 
 		#endregion

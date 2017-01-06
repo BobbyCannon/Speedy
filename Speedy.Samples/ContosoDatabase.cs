@@ -39,7 +39,7 @@ namespace Speedy.Samples
 			Property<Address>(x => x.State).IsRequired().HasMaximumLength(128);
 			Property<Address>(x => x.Postal).IsRequired().HasMaximumLength(128);
 			Property<Address>(x => x.SyncId).IsRequired().IsUnique();
-			HasOptional<Address,Address>(x => x.LinkedAddress, x => x.LinkedAddressId);
+			HasOptional<Address, Address>(x => x.LinkedAddress, x => x.LinkedAddressId);
 
 			// Food Map
 			Property<Food>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();

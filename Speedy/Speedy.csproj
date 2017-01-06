@@ -40,7 +40,7 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Key.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -91,6 +91,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\NoCloseStreamWriter.cs" />
     <Compile Include="ISyncableRepository.cs" />
+    <Compile Include="Sync\SyncClient.cs" />
     <Compile Include="Sync\SyncEngineStatus.cs" />
     <Compile Include="Sync\SyncEngineStatusArgs.cs" />
     <Compile Include="Sync\SyncEntity.cs" />
@@ -106,8 +107,8 @@
     <Compile Include="Net\WebClient.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Key.pfx" />
     <None Include="packages.config" />
+    <None Include="Speedy.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -9,13 +9,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Speedy.EntityFramework;
 using Speedy.Samples;
 using Speedy.Samples.EntityFramework;
-using Speedy.Samples.EntityFrameworkCore;
 using Speedy.Samples.Sync;
 using Speedy.Sync;
 using Speedy.Tests.Properties;
@@ -57,12 +54,35 @@ namespace Speedy.Tests
 		/// <typeparam name="T"> The type of the object. </typeparam>
 		/// <param name="expected"> The item that is expected. </param>
 		/// <param name="actual"> The item that is to be tested. </param>
-		/// <param name="includeChildren"> True to include child complex types. </param>
-		public static void AreEqual<T>(T expected, T actual, bool includeChildren = true)
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static void AreEqual<T>(T expected, T actual, params string[] membersToIgnore)
 		{
-			var compareObjects = new CompareLogic();
-			compareObjects.Config.MaxDifferences = int.MaxValue;
-			compareObjects.Config.CompareChildren = includeChildren;
+			AreEqual(expected, actual, true, membersToIgnore);
+		}
+
+		/// <summary>
+		/// Compares two objects to see if they are equal.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object. </typeparam>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The item that is to be tested. </param>
+		/// <param name="includeChildren"> True to include child complex types. </param>
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static void AreEqual<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
+		{
+			var compareObjects = new CompareLogic
+			{
+				Config =
+				{
+					MaxDifferences = int.MaxValue,
+					CompareChildren = includeChildren
+				}
+			};
+
+			if (membersToIgnore.Any())
+			{
+				compareObjects.Config.MembersToIgnore = membersToIgnore.ToList();
+			}
 
 			var result = compareObjects.Compare(expected, actual);
 			Assert.IsTrue(result.AreEqual, result.DifferencesString);
@@ -107,13 +127,8 @@ namespace Speedy.Tests
 		{
 			var database1 = new EntityFrameworkContosoDatabase("DefaultConnection", options);
 			database1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+
 			yield return new EntityFrameworkContosoDatabaseProvider("DefaultConnection", options);
-
-			var database2 = new EntityFrameworkCoreContosoDatabase("DefaultConnection2", options);
-			database2.Database.Migrate();
-			database2.Database.ExecuteSqlCommand(Resources.ClearDatabase);
-			yield return new EntityFrameworkCoreContosoDatabaseProvider("DefaultConnection2", options);
-
 			yield return new ContosoDatabaseProvider(null, options);
 			yield return new ContosoDatabaseProvider(Directory.FullName, options);
 		}
@@ -122,7 +137,7 @@ namespace Speedy.Tests
 		{
 			var random = new Random();
 			var list = collection.ToList();
-			if (!list.Any() || ((exclude != null) && (list.Count == 1)))
+			if (!list.Any() || exclude != null && list.Count == 1)
 			{
 				return null;
 			}

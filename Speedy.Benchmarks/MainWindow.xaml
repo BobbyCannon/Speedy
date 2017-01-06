@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:benchmarks="clr-namespace:Speed.Benchmarks"
         mc:Ignorable="d" Title="Speedy Benchmarks" Height="600" Width="750"
-		WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
-		d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}" 
-		Closing="MainWindowOnClosing">
+        WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
+        d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}"
+        Closing="MainWindowOnClosing">
 	<Window.Resources>
 		<Style x:Key="Button" TargetType="Button">
 			<Setter Property="Padding" Value="10,4" />
@@ -32,23 +32,23 @@
 		<ItemsControl Grid.Row="1" ItemsSource="{Binding SyncClients}">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<WrapPanel Orientation="Horizontal"/>
+					<WrapPanel Orientation="Horizontal" />
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
 					<StackPanel Margin="10" Width="160">
-						<TextBlock Text="{Binding Client.Name}"></TextBlock>
-						<TextBlock Text="{Binding PreviousSyncedOn}"></TextBlock>
-						<TextBlock Text="{Binding LastSyncedOn}"></TextBlock>
-						<TextBlock Text="{Binding Status}"></TextBlock>
+						<TextBlock Text="{Binding Client.Name}" />
+						<TextBlock Text="{Binding PreviousSyncedOn}" />
+						<TextBlock Text="{Binding LastSyncedOn}" />
+						<TextBlock Text="{Binding Status}" />
 						<StackPanel Orientation="Horizontal">
 							<TextBlock Margin="0,0,4,0">A: </TextBlock>
-							<TextBlock Text="{Binding AddressCount}"></TextBlock>
+							<TextBlock Text="{Binding AddressCount}" />
 						</StackPanel>
 						<StackPanel Orientation="Horizontal">
 							<TextBlock Margin="0,0,4,0">P: </TextBlock>
-							<TextBlock Text="{Binding PeopleCount}"></TextBlock>
+							<TextBlock Text="{Binding PeopleCount}" />
 						</StackPanel>
 					</StackPanel>
 				</DataTemplate>
@@ -57,21 +57,21 @@
 		<ItemsControl Grid.Row="1" ItemsSource="{Binding DatabaseClients}">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<WrapPanel Orientation="Horizontal"/>
+					<WrapPanel Orientation="Horizontal" />
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
 					<StackPanel Margin="10" Width="160">
-						<TextBlock Text="{Binding Name}"></TextBlock>
-						<TextBlock Text="{Binding LastProcessedOn}"></TextBlock>
+						<TextBlock Text="{Binding Name}" />
+						<TextBlock Text="{Binding LastProcessedOn}" />
 						<StackPanel Orientation="Horizontal">
 							<TextBlock Margin="0,0,4,0">A:</TextBlock>
-							<TextBlock Text="{Binding AddressCount}"></TextBlock>
+							<TextBlock Text="{Binding AddressCount}" />
 						</StackPanel>
 						<StackPanel Orientation="Horizontal">
 							<TextBlock Margin="0,0,4,0">P:</TextBlock>
-							<TextBlock Text="{Binding PeopleCount}"></TextBlock>
+							<TextBlock Text="{Binding PeopleCount}" />
 						</StackPanel>
 					</StackPanel>
 				</DataTemplate>
@@ -80,7 +80,7 @@
 		<ScrollViewer Grid.Row="2" Height="100">
 			<TextBox IsReadOnly="true" TextWrapping="Wrap" Text="{Binding Output}" />
 		</ScrollViewer>
-		<ProgressBar Grid.Row="3" Height="10" Value="{Binding Progress}" Minimum="0" Maximum="100"></ProgressBar>
+		<ProgressBar Grid.Row="3" Height="10" Value="{Binding Progress}" Minimum="0" Maximum="100" />
 		<ScrollViewer Grid.Row="4">
 			<TextBox IsReadOnly="true" TextWrapping="Wrap" Text="{Binding Errors}" />
 		</ScrollViewer>
