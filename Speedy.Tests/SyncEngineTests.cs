@@ -4,7 +4,9 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Entities;
+using Speedy.Samples.EntityFramework;
 using Speedy.Sync;
+using Speedy.Tests.Properties;
 
 #endregion
 
@@ -437,6 +439,44 @@ namespace Speedy.Tests
 					Assert.AreEqual(0, serverDatabase.SyncTombstones.Count());
 				}
 			});
+		}
+
+		[TestMethod]
+		public void SyncEngineUsingTwoDatabaseProviders()
+		{
+			using (var database1 = new EntityFrameworkContosoDatabase("DefaultConnection"))
+			{
+				database1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+				database1.AddAndSaveChanges(NewAddress("Blah"));
+			}
+
+			using (var database2 = new EntityFrameworkContosoDatabase("DefaultConnection2"))
+			{
+				database2.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+			}
+
+			var client1 = new SyncClient("Client1", new SyncDatabaseProvider(() => new EntityFrameworkContosoDatabase("DefaultConnection")));
+			var client2 = new SyncClient("Client2", new SyncDatabaseProvider(() => new EntityFrameworkContosoDatabase("DefaultConnection2")));
+
+			var engine = new SyncEngine(client1, client2, new SyncOptions());
+			engine.Run();
+
+			Address address1;
+			Address address2;
+
+			using (var database1 = new EntityFrameworkContosoDatabase("DefaultConnection"))
+			{
+				Assert.AreEqual(1, database1.Addresses.Count());
+				address1 = database1.Addresses.First().Unwrap();
+			}
+
+			using (var database2 = new EntityFrameworkContosoDatabase("DefaultConnection2"))
+			{
+				Assert.AreEqual(1, database2.Addresses.Count());
+				address2 = database2.Addresses.First().Unwrap();
+			}
+
+			TestHelper.AreEqual(address1, address2);
 		}
 
 		private static Address NewAddress(string line1, string line2 = null)
