@@ -132,14 +132,14 @@ namespace Speed.Benchmarks
 			{
 				var serverAddresses = serverDatabase.GetReadOnlyRepository<Address>()
 					.OrderBy(x => x.Line1).ThenBy(x => x.Line2).ThenBy(x => x.City).ThenBy(x => x.State)
-					.ToList().Select(x => x.DeepClone(true)).ToList();
+					.ToList().Select(x => x.Unwrap()).ToList();
 				var serverPeople = serverDatabase.GetReadOnlyRepository<Person>()
-					.OrderBy(x => x.Name).ToList().Select(x => x.DeepClone(true)).ToList();
+					.OrderBy(x => x.Name).ToList().Select(x => x.Unwrap()).ToList();
 				var clientAddresses = clientDatabase.GetReadOnlyRepository<Address>()
 					.OrderBy(x => x.Line1).ThenBy(x => x.Line2).ThenBy(x => x.City).ThenBy(x => x.State)
-					.ToList().Select(x => x.DeepClone(true)).ToList();
+					.ToList().Select(x => x.Unwrap()).ToList();
 				var clientPeople = clientDatabase.GetReadOnlyRepository<Person>()
-					.OrderBy(x => x.Name).ToList().Select(x => x.DeepClone(true)).ToList();
+					.OrderBy(x => x.Name).ToList().Select(x => x.Unwrap()).ToList();
 
 				Extensions.AreEqual(serverAddresses, clientAddresses, false, nameof(Address.Id), nameof(Address.LinkedAddressId));
 				Extensions.AreEqual(serverPeople, clientPeople, false, nameof(Person.Id), nameof(Person.AddressId));
@@ -343,8 +343,15 @@ namespace Speed.Benchmarks
 				}
 				catch (Exception ex)
 				{
-					// Write message but ignore them for now...
-					WriteError(ex.Message);
+					// Log message but ignore them for now...
+					if (ex.InnerException != null && ex.Message.Contains("See innerexception for more detail"))
+					{
+						WriteError(ex.InnerException.Message);
+					}
+					else
+					{
+						WriteError(ex.Message);
+					}
 				}
 
 				options.LastSyncedOn = client.LastSyncedOn;

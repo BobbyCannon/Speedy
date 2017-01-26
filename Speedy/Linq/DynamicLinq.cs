@@ -2740,22 +2740,45 @@ namespace Speedy.Linq
 
 		#endregion
 
-		#region Structures
+		#region Enumerations
 
-		private struct Token
+		private enum TokenId
 		{
-			#region Fields
-
-			public TokenId id;
-			public int pos;
-			public string text;
-
-			#endregion
+			Unknown,
+			End,
+			Identifier,
+			StringLiteral,
+			IntegerLiteral,
+			RealLiteral,
+			Exclamation,
+			Percent,
+			Amphersand,
+			OpenParen,
+			CloseParen,
+			Asterisk,
+			Plus,
+			Comma,
+			Minus,
+			Dot,
+			Slash,
+			Colon,
+			LessThan,
+			Equal,
+			GreaterThan,
+			Question,
+			OpenBracket,
+			CloseBracket,
+			Bar,
+			ExclamationEqual,
+			DoubleAmphersand,
+			LessThanEqual,
+			LessGreater,
+			DoubleEqual,
+			GreaterThanEqual,
+			DoubleBar
 		}
 
 		#endregion
-
-		#region Interfaces
 
 		private interface IAddSignatures : IArithmeticSignatures
 		{
@@ -2905,47 +2928,16 @@ namespace Speedy.Linq
 			#endregion
 		}
 
-		#endregion
-
-		#region Enumerations
-
-		private enum TokenId
+		private struct Token
 		{
-			Unknown,
-			End,
-			Identifier,
-			StringLiteral,
-			IntegerLiteral,
-			RealLiteral,
-			Exclamation,
-			Percent,
-			Amphersand,
-			OpenParen,
-			CloseParen,
-			Asterisk,
-			Plus,
-			Comma,
-			Minus,
-			Dot,
-			Slash,
-			Colon,
-			LessThan,
-			Equal,
-			GreaterThan,
-			Question,
-			OpenBracket,
-			CloseBracket,
-			Bar,
-			ExclamationEqual,
-			DoubleAmphersand,
-			LessThanEqual,
-			LessGreater,
-			DoubleEqual,
-			GreaterThanEqual,
-			DoubleBar
-		}
+			#region Fields
 
-		#endregion
+			public TokenId id;
+			public int pos;
+			public string text;
+
+			#endregion
+		}
 	}
 
 	internal static class Res

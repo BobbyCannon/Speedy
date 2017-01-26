@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using Speedy.Sync;
 
@@ -43,6 +44,8 @@ namespace Speedy.Net
 		/// </summary>
 		public string Name { get; }
 
+		public Guid SessionId { get; set; }
+
 		#endregion
 
 		#region Methods
@@ -54,7 +57,7 @@ namespace Speedy.Net
 		/// <returns> The date and time for the sync process. </returns>
 		public IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes)
 		{
-			return WebClient.Post<IEnumerable<SyncObject>, IEnumerable<SyncIssue>>(_serverUri, $"api/Sync/{nameof(ApplyChanges)}", changes, _timeout);
+			return WebClient.Post<IEnumerable<SyncObject>, IEnumerable<SyncIssue>>(_serverUri, $"api/Sync/{nameof(ApplyChanges)}/{SessionId}", changes, _timeout);
 		}
 
 		/// <summary>
@@ -64,7 +67,7 @@ namespace Speedy.Net
 		/// <returns> A list of sync issues if there were any. </returns>
 		public IEnumerable<SyncIssue> ApplyCorrections(IEnumerable<SyncObject> corrections)
 		{
-			return WebClient.Post<IEnumerable<SyncObject>, IEnumerable<SyncIssue>>(_serverUri, $"api/Sync/{nameof(ApplyCorrections)}", corrections, _timeout);
+			return WebClient.Post<IEnumerable<SyncObject>, IEnumerable<SyncIssue>>(_serverUri, $"api/Sync/{nameof(ApplyCorrections)}/{SessionId}", corrections, _timeout);
 		}
 
 		/// <summary>
@@ -74,7 +77,7 @@ namespace Speedy.Net
 		/// <returns> The list of changes from the server. </returns>
 		public int GetChangeCount(SyncRequest request)
 		{
-			return WebClient.Post<SyncRequest, int>(_serverUri, $"api/Sync/{nameof(GetChangeCount)}", request, _timeout);
+			return WebClient.Post<SyncRequest, int>(_serverUri, $"api/Sync/{nameof(GetChangeCount)}/{SessionId}", request, _timeout);
 		}
 
 		/// <summary>
@@ -84,7 +87,7 @@ namespace Speedy.Net
 		/// <returns> The list of changes from the server. </returns>
 		public IEnumerable<SyncObject> GetChanges(SyncRequest request)
 		{
-			return WebClient.Post<SyncRequest, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetChanges)}", request, _timeout);
+			return WebClient.Post<SyncRequest, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetChanges)}/{SessionId}", request, _timeout);
 		}
 
 		/// <summary>
@@ -94,7 +97,7 @@ namespace Speedy.Net
 		/// <returns> The sync objects to resolve the issues. </returns>
 		public IEnumerable<SyncObject> GetCorrections(IEnumerable<SyncIssue> issues)
 		{
-			return WebClient.Post<IEnumerable<SyncIssue>, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetCorrections)}", issues, _timeout);
+			return WebClient.Post<IEnumerable<SyncIssue>, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetCorrections)}/{SessionId}", issues, _timeout);
 		}
 
 		#endregion

@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 
 #endregion
@@ -17,6 +18,11 @@ namespace Speedy.Sync
 		/// Gets or sets the name of the sync client.
 		/// </summary>
 		string Name { get; }
+
+		/// <summary>
+		/// Gets or sets the ID of the current session.
+		/// </summary>
+		Guid SessionId { get; set; }
 
 		#endregion
 

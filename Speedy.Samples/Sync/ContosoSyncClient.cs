@@ -1,6 +1,6 @@
 ﻿#region References
 
-using System.Collections.Generic;
+using System;
 using Speedy.Sync;
 
 #endregion
@@ -12,7 +12,12 @@ namespace Speedy.Samples.Sync
 		#region Constructors
 
 		public ContosoSyncClient(string name, IContosoDatabaseProvider provider)
-			: base(name, provider)
+			: this(name, Guid.NewGuid(), provider)
+		{
+		}
+
+		public ContosoSyncClient(string name, Guid sessionId, IContosoDatabaseProvider provider)
+			: base(name, sessionId, provider)
 		{
 		}
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using Speedy.Logging;
 
 #endregion
 
@@ -30,13 +31,17 @@ namespace Speedy.Sync
 		/// <param name="client"> The client to sync from. </param>
 		/// <param name="server"> The server to sync to. </param>
 		/// <param name="options"> The options for the sync engine. </param>
+		/// <param name="eventSource"> The optional event source for logging. </param>
 		public SyncEngine(ISyncClient client, ISyncClient server, SyncOptions options)
 		{
 			_cancelPending = false;
 			_syncIssues = new List<SyncIssue>();
 
+			SessionId = Guid.NewGuid();
 			Client = client;
+			Client.SessionId = SessionId;
 			Server = server;
+			Client.SessionId = SessionId;
 			Options = options;
 		}
 
@@ -58,6 +63,11 @@ namespace Speedy.Sync
 		/// The server.
 		/// </summary>
 		public ISyncClient Server { get; }
+
+		/// <summary>
+		/// Gets the unique identifier for this sync session.
+		/// </summary>
+		public Guid SessionId { get; }
 
 		/// <summary>
 		/// Gets or sets the start date and time.
@@ -87,14 +97,18 @@ namespace Speedy.Sync
 			_syncIssues.Clear();
 
 			Status = SyncEngineStatus.Starting;
+			Logger.Instance.Write(SessionId, $"Changing status to {Status}.");
 			NotifyOfStatusChange();
 			Thread.Sleep(10);
 
 			StartTime = DateTime.UtcNow;
+			Logger.Instance.Write(SessionId, $"Sync started at {StartTime:hh:mm:ss tt}.");
 
 			if (!_cancelPending)
 			{
 				Status = SyncEngineStatus.Pulling;
+				Logger.Instance.Write(SessionId, $"Changing status to {Status}.");
+				NotifyOfStatusChange();
 				Process(Server, Client, StartTime);
 			}
 
@@ -103,12 +117,15 @@ namespace Speedy.Sync
 			if (!_cancelPending)
 			{
 				Status = SyncEngineStatus.Pushing;
+				Logger.Instance.Write(SessionId, $"Changing status to {Status}.");
+				NotifyOfStatusChange();
 				Process(Client, Server, StartTime);
 			}
 
 			Thread.Sleep(10);
 			Options.LastSyncedOn = StartTime;
 			Status = SyncEngineStatus.Stopped;
+			Logger.Instance.Write(SessionId, $"Changing status to {Status}.");
 			NotifyOfStatusChange();
 		}
 
@@ -162,9 +179,13 @@ namespace Speedy.Sync
 			var request = new SyncRequest { Since = Options.LastSyncedOn, Until = until, Skip = 0, Take = Options.ItemsPerSyncRequest };
 			var total = getClient.GetChangeCount(request);
 
+			Logger.Instance.Write(SessionId, $"Syncing {getClient.Name} to {applyClient.Name}.");
+
 			do
 			{
 				syncObjects = getClient.GetChanges(request).ToList();
+				Logger.Instance.Write(SessionId, $"Syncing {syncObjects.Count} items.");
+
 				issues.AddRange(applyClient.ApplyChanges(syncObjects));
 				OnSyncStatusChanged(new SyncEngineStatusArgs { Name = applyClient.Name, Count = request.Skip, Total = total, Status = Status });
 				request.Skip += syncObjects.Count;
@@ -173,6 +194,7 @@ namespace Speedy.Sync
 			while (!_cancelPending && issues.Any())
 			{
 				var issuesToProcess = issues.Take(Options.ItemsPerSyncRequest).ToList();
+				Logger.Instance.Write(SessionId, $"Processing {issuesToProcess.Count} sync issues.");
 
 				syncObjects = getClient.GetCorrections(issuesToProcess).ToList();
 

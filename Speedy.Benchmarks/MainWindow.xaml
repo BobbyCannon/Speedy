@@ -1,13 +1,13 @@
 ﻿<Window x:Class="Speed.Benchmarks.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:benchmarks="clr-namespace:Speed.Benchmarks"
-        mc:Ignorable="d" Title="Speedy Benchmarks" Height="600" Width="750"
-        WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
-        d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}"
-        Closing="MainWindowOnClosing">
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:benchmarks="clr-namespace:Speed.Benchmarks"
+		mc:Ignorable="d" Title="Speedy Benchmarks" Height="600" Width="750"
+		WindowStartupLocation="CenterScreen" Icon="Speedy.ico"
+		d:DataContext="{d:DesignInstance benchmarks:MainWindowModel}"
+		Closing="MainWindowOnClosing">
 	<Window.Resources>
 		<Style x:Key="Button" TargetType="Button">
 			<Setter Property="Padding" Value="10,4" />

@@ -11,11 +11,11 @@ using Speedy.Sync;
 
 namespace Speedy.Website.WebApi
 {
-	public class SyncController : BaseController, ISyncClient
+	public class SyncController : BaseController
 	{
 		#region Fields
 
-		private readonly IContosoDatabaseProvider _provider;
+		private readonly SyncClient _client;
 
 		#endregion
 
@@ -29,18 +29,8 @@ namespace Speedy.Website.WebApi
 		public SyncController(IContosoDatabaseProvider provider)
 			: base(provider.GetDatabase())
 		{
-			_provider = provider;
-			Name = Guid.NewGuid().ToString();
+			_client = new SyncClient(Guid.NewGuid().ToString(), provider);
 		}
-
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// Gets or sets the name of the sync client.
-		/// </summary>
-		public string Name { get; }
 
 		#endregion
 
@@ -49,56 +39,66 @@ namespace Speedy.Website.WebApi
 		/// <summary>
 		/// Sends changes to a server.
 		/// </summary>
+		/// <param name="id"> The ID of the session. </param>
 		/// <param name="changes"> The changes to write to the server. </param>
 		/// <returns> The date and time for the sync process. </returns>
 		[HttpPost]
-		public IEnumerable<SyncIssue> ApplyChanges([FromBody] IEnumerable<SyncObject> changes)
+		public IEnumerable<SyncIssue> ApplyChanges([FromUri] Guid id, [FromBody] IEnumerable<SyncObject> changes)
 		{
-			return _provider.ApplySyncChanges(changes);
+			_client.SessionId = id;
+			return _client.ApplyChanges(changes);
 		}
 
 		/// <summary>
 		/// Sends issue corrections to a server.
 		/// </summary>
+		/// <param name="id"> The ID of the session. </param>
 		/// <param name="corrections"> The corrections to write to the server. </param>
 		/// <returns> A list of sync issues if there were any. </returns>
 		[HttpPost]
-		public IEnumerable<SyncIssue> ApplyCorrections([FromBody] IEnumerable<SyncObject> corrections)
+		public IEnumerable<SyncIssue> ApplyCorrections([FromUri] Guid id, [FromBody] IEnumerable<SyncObject> corrections)
 		{
-			return _provider.ApplySyncCorrections(corrections);
+			_client.SessionId = id;
+			return _client.ApplyCorrections(corrections);
 		}
 
 		/// <summary>
 		/// Gets the changes from the server.
 		/// </summary>
+		/// <param name="id"> The ID of the session. </param>
 		/// <param name="request"> The details for the request. </param>
 		/// <returns> The list of changes from the server. </returns>
 		[HttpPost]
-		public int GetChangeCount([FromBody] SyncRequest request)
+		public int GetChangeCount([FromUri] Guid id, [FromBody] SyncRequest request)
 		{
-			return _provider.GetSyncChangeCount(request);
+			_client.SessionId = id;
+			return _client.GetChangeCount(request);
 		}
 
 		/// <summary>
 		/// Gets the changes from the server.
 		/// </summary>
+		/// <param name="id"> The ID of the session. </param>
 		/// <param name="request"> The details for the request. </param>
 		/// <returns> The list of changes from the server. </returns>
 		[HttpPost]
-		public IEnumerable<SyncObject> GetChanges([FromBody] SyncRequest request)
+		public IEnumerable<SyncObject> GetChanges([FromUri] Guid id, [FromBody] SyncRequest request)
 		{
-			return _provider.GetSyncChanges(request);
+			_client.SessionId = id;
+			return _client.GetChanges(request);
 		}
 
 		/// <summary>
 		/// Gets the list of sync objects to try and resolve the issue list.
 		/// </summary>
+		/// <param name="id"> The ID of the session. </param>
 		/// <param name="issues"> The issues to process. </param>
 		/// <returns> The sync objects to resolve the issues. </returns>
 		[HttpPost]
-		public IEnumerable<SyncObject> GetCorrections([FromBody] IEnumerable<SyncIssue> issues)
+		public IEnumerable<SyncObject> GetCorrections([FromUri] Guid id, [FromBody] IEnumerable<SyncIssue> issues)
 		{
-			return _provider.GetSyncCorrections(issues);
+			_client.SessionId = id;
+			return _client.GetCorrections(issues);
 		}
 
 		#endregion

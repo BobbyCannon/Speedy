@@ -99,6 +99,26 @@ namespace Speedy.Tests
 			return database;
 		}
 
+		public static void Dump(this object item)
+		{
+			Debug.WriteLine(item);
+		}
+
+		public static void Dump(this byte[] item)
+		{
+			foreach (var i in item)
+			{
+				Debug.Write($"{i:X2},");
+			}
+
+			Debug.WriteLine("");
+		}
+
+		public static void Dump<T>(this T item, Func<T, object> action)
+		{
+			Debug.WriteLine(action(item));
+		}
+
 		public static void ExpectedException<T>(Action work, params string[] errorMessage) where T : Exception
 		{
 			try
@@ -251,12 +271,22 @@ namespace Speedy.Tests
 			}
 		}
 
+		private static IContosoDatabaseProvider GetEntityFrameworkProvider2()
+		{
+			using (var database = new EntityFrameworkContosoDatabase("DefaultConnection2"))
+			{
+				database.ClearDatabase();
+				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
+			}
+		}
+
 		private static IEnumerable<Tuple<IContosoSyncClient, IContosoSyncClient>> GetServerClientScenerios()
 		{
 			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (MEM)", new ContosoDatabaseProvider()), new ContosoSyncClient("Client (EF)", GetEntityFrameworkProvider()));
 			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (MEM)", new ContosoDatabaseProvider()), new ContosoWebSyncClient("Client (WEB)", GetEntityFrameworkProvider()));
 			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (EF)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (MEM)", new ContosoDatabaseProvider()));
 			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoWebSyncClient("Server (WEB)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (MEM)", new ContosoDatabaseProvider()));
+			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (EF)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (EF2)", GetEntityFrameworkProvider2()));
 		}
 
 		/// <summary>
