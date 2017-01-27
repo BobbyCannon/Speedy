@@ -42,12 +42,21 @@ namespace Speedy.Logging
 
 		#region Properties
 
+		/// <summary>
+		/// Gets the global instance of the logger.
+		/// </summary>
 		public static Logger Instance { get; }
 
 		#endregion
 
 		#region Methods
 
+		/// <summary>
+		/// Write a message to the log.
+		/// </summary>
+		/// <param name="sessionId"> The ID of the session this message is for. </param>
+		/// <param name="message"> The message to be written. </param>
+		/// <param name="level"> The level of this message. </param>
 		[NonEvent]
 		public void Write(Guid sessionId, string message, EventLevel level = EventLevel.Informational)
 		{

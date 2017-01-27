@@ -28,6 +28,11 @@ namespace Speedy.Logging
 
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates an instance of the log listener.
+		/// </summary>
+		/// <param name="sessionId"> The session of the log to monitor. </param>
+		/// <param name="level"> The level in which to log. </param>
 		public LogListener(Guid sessionId, EventLevel level = EventLevel.Informational)
 		{
 			_sessionId = sessionId;

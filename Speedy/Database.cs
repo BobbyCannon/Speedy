@@ -565,6 +565,19 @@ namespace Speedy
 						entityRelationshipIdProperty.SetValue(entity, otherEntity.Id, null);
 					}
 				}
+
+				var syncEntity = entityRelationship.GetValue(entity, null) as SyncEntity;
+				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
+
+				if (syncEntity != null && entityRelationshipSyncIdProperty != null)
+				{
+					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(entity, null);
+					if (otherEntitySyncId != syncEntity.SyncId)
+					{
+						// resets entitySyncId to entity.SyncId if it does not match
+						entityRelationshipSyncIdProperty.SetValue(entity, syncEntity.SyncId, null);
+					}
+				}
 			}
 		}
 

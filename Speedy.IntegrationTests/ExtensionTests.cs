@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
 
-namespace Speedy.Tests
+namespace Speedy.IntegrationTests
 {
 	[TestClass]
 	public class ExtensionTests

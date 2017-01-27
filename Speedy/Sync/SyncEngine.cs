@@ -31,7 +31,6 @@ namespace Speedy.Sync
 		/// <param name="client"> The client to sync from. </param>
 		/// <param name="server"> The server to sync to. </param>
 		/// <param name="options"> The options for the sync engine. </param>
-		/// <param name="eventSource"> The optional event source for logging. </param>
 		public SyncEngine(ISyncClient client, ISyncClient server, SyncOptions options)
 		{
 			_cancelPending = false;
@@ -41,7 +40,7 @@ namespace Speedy.Sync
 			Client = client;
 			Client.SessionId = SessionId;
 			Server = server;
-			Client.SessionId = SessionId;
+			Server.SessionId = SessionId;
 			Options = options;
 		}
 

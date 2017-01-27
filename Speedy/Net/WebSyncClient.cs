@@ -39,11 +39,10 @@ namespace Speedy.Net
 
 		#region Properties
 
-		/// <summary>
-		/// Gets or sets the name of the sync client.
-		/// </summary>
+		/// <inheritdoc />
 		public string Name { get; }
 
+		/// <inheritdoc />
 		public Guid SessionId { get; set; }
 
 		#endregion

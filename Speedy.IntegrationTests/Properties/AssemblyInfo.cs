@@ -9,11 +9,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Speedy.Tests")]
+[assembly: AssemblyTitle("Speedy.IntegrationTests")]
 [assembly: AssemblyDescription("Small thread safe embedded key value pair persistent repository for .NET.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Bobby Cannon")]
-[assembly: AssemblyProduct("Speedy.Tests")]
+[assembly: AssemblyProduct("Speedy.IntegrationTests")]
 [assembly: AssemblyCopyright("© Copyright 2014 - 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

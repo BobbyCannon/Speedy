@@ -11,15 +11,15 @@ using System.Threading;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.EntityFramework;
+using Speedy.IntegrationTests.Properties;
 using Speedy.Samples;
 using Speedy.Samples.EntityFramework;
 using Speedy.Samples.Sync;
 using Speedy.Sync;
-using Speedy.Tests.Properties;
 
 #endregion
 
-namespace Speedy.Tests
+namespace Speedy.IntegrationTests
 {
 	public static class TestHelper
 	{

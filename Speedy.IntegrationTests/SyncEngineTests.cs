@@ -6,13 +6,11 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Logging;
 using Speedy.Samples.Entities;
-using Speedy.Samples.EntityFramework;
 using Speedy.Sync;
-using Speedy.Tests.Properties;
 
 #endregion
 
-namespace Speedy.Tests
+namespace Speedy.IntegrationTests
 {
 	/// <summary>
 	/// Summary description for SyncEngineTests.
@@ -174,7 +172,7 @@ namespace Speedy.Tests
 					TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[0].Unwrap(), "Id");
 					TestHelper.AreEqual(clientPeople[0].Unwrap(), serverPeople[1].Unwrap(), "Id", nameof(Person.AddressId));
 					TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[0].Unwrap(), "Id", nameof(Person.AddressId));
-					
+
 					Assert.AreEqual("Foo", clientAddresses[0].Line1);
 					Assert.AreEqual("Foo", clientPeople[0].Name);
 					Assert.AreEqual("Foo", clientPeople[0].Address.Line1);
@@ -262,7 +260,7 @@ namespace Speedy.Tests
 				{
 					engine.Run();
 
-					var expected = client.Name == "Client (WEB)" ? 9 : 11;
+					var expected = client.Name.Contains("WEB") ? 13 : server.Name.Contains("WEB") ? 11 : 15;
 					Assert.AreEqual(expected, listener.Events.Count);
 
 					using (var clientDatabase = client.GetDatabase())
@@ -327,7 +325,6 @@ namespace Speedy.Tests
 
 					TestHelper.AreEqual(clientDatabase.Addresses.First().Unwrap(), serverDatabase.Addresses.First().Unwrap(), "Id");
 					TestHelper.AreEqual(clientDatabase.People.First().Unwrap(), serverDatabase.People.First().Unwrap(), "Id");
-					
 				}
 			});
 		}
@@ -397,6 +394,25 @@ namespace Speedy.Tests
 					Assert.AreEqual(0, clientDatabase.Addresses.Count());
 					Assert.AreEqual(0, serverDatabase.Addresses.Count());
 				}
+			});
+		}
+
+		[TestMethod]
+		public void SyncEngineShouldUpdateClientSessionId()
+		{
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				server.SessionId.Dump();
+				client.SessionId.Dump();
+
+				var engine = new SyncEngine(client, server, new SyncOptions());
+
+				engine.SessionId.Dump();
+				server.SessionId.Dump();
+				client.SessionId.Dump();
+
+				Assert.AreEqual(engine.SessionId, client.SessionId);
+				Assert.AreEqual(engine.SessionId, server.SessionId);
 			});
 		}
 

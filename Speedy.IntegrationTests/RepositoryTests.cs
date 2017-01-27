@@ -12,7 +12,7 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Tests
+namespace Speedy.IntegrationTests
 {
 	[TestClass]
 	public class RepositoryTests

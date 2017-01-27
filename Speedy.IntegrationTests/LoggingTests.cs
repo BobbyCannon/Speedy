@@ -11,7 +11,7 @@ using Speedy.Logging;
 
 #endregion
 
-namespace Speedy.Tests
+namespace Speedy.IntegrationTests
 {
 	[TestClass]
 	public class LoggingTests

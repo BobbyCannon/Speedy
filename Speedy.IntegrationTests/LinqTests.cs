@@ -13,7 +13,7 @@ using DynamicExpression = Speedy.Linq.DynamicExpression;
 
 #endregion
 
-namespace Speedy.Tests
+namespace Speedy.IntegrationTests
 {
 	[TestClass]
 	public class LinqTests

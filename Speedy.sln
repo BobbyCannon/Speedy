@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmarks", "Speedy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy", "Speedy\Speedy.csproj", "{DE1FCAF6-D683-44B7-B8E3-FF6A19569C16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Tests", "Speedy.Tests\Speedy.Tests.csproj", "{C2581216-9211-40E4-9642-3ED24ABCF673}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.IntegrationTests", "Speedy.IntegrationTests\Speedy.IntegrationTests.csproj", "{C2581216-9211-40E4-9642-3ED24ABCF673}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{482440A1-EDF1-4557-BC4F-FE8C8554271D}"
 	ProjectSection(SolutionItems) = preProject

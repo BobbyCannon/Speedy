@@ -43,17 +43,5 @@ namespace Speedy.Samples.Entities
 		public string State { get; set; }
 
 		#endregion
-
-		#region Methods
-
-		/// <summary>
-		/// Updates the sync ids of relationships.
-		/// </summary>
-		public override void UpdateLocalSyncIds()
-		{
-			this.UpdateIf(() => LinkedAddress != null && LinkedAddress.SyncId != LinkedAddressSyncId, () => LinkedAddressSyncId = LinkedAddress.SyncId);
-		}
-
-		#endregion
 	}
 }

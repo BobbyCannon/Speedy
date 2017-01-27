@@ -8,7 +8,7 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.Tests
+namespace Speedy.IntegrationTests
 {
 	[TestClass]
 	public class DatabaseTests

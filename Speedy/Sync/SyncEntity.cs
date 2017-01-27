@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 #endregion
 
@@ -104,6 +105,30 @@ namespace Speedy.Sync
 		/// </summary>
 		public virtual void UpdateLocalSyncIds()
 		{
+			var type = this.GetRealType();
+			var baseEntityType = typeof(SyncEntity);
+			var properties = type.GetCachedProperties().ToList();
+
+			var entityRelationships = properties
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => baseEntityType.IsAssignableFrom(x.PropertyType))
+				.ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				var syncEntity = entityRelationship.GetValue(this, null) as SyncEntity;
+				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
+
+				if (syncEntity != null && entityRelationshipSyncIdProperty != null)
+				{
+					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
+					if (otherEntitySyncId != syncEntity.SyncId)
+					{
+						// resets entitySyncId to entity.SyncId if it does not match
+						entityRelationshipSyncIdProperty.SetValue(this, syncEntity.SyncId, null);
+					}
+				}
+			}
 		}
 
 		#endregion
