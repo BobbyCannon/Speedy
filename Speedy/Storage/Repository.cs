@@ -127,7 +127,12 @@ namespace Speedy.Storage
 		{
 			foreach (var entityState in Cache.Where(entityState => entityState.Entity.Id == 0))
 			{
-				entityState.Entity.Id = Interlocked.Increment(ref _index);
+				_database.UpdateDependantIds<T>(entityState.Entity, () => Interlocked.Increment(ref _index), new List<Entity>());
+
+				if (entityState.Entity.Id <= 0)
+				{
+					entityState.Entity.Id = Interlocked.Increment(ref _index);
+				}
 
 				var syncableEntity = entityState.Entity as SyncEntity;
 				if (syncableEntity == null)

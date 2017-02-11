@@ -280,6 +280,22 @@ namespace Speedy
 			return response;
 		}
 
+		internal void UpdateDependantIds<T>(Entity entity, Func<int> action, List<Entity> processed) where T : Entity
+		{
+			if (processed.Contains(entity))
+			{
+				return;
+			}
+
+			var entityType = entity.GetType();
+			var properties = entityType.GetCachedProperties();
+
+			processed.Add(entity);
+
+			UpdateDependantIds<T>(entity, properties, action, processed);
+			UpdateDependantCollectionIds<T>(entity, properties, action, processed);
+		}
+
 		private static void AssignNewValue<T1, T2>(T1 obj, Expression<Func<T1, T2>> expression, T2 value)
 		{
 			var valueParameterExpression = Expression.Parameter(typeof(T2));
@@ -452,6 +468,38 @@ namespace Speedy
 			entityRelationshipId?.SetValue(item, entity.Id, null);
 		}
 
+		private void UpdateDependantCollectionIds<T>(Entity entity, ICollection<PropertyInfo> properties, Func<int> action, List<Entity> processed) where T : Entity
+		{
+			var entityType = typeof(T);
+			var enumerableType = typeof(IEnumerable);
+			var collectionRelationships = properties
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
+				.Where(x => x.PropertyType.IsGenericType)
+				.ToList();
+
+			foreach (var relationship in collectionRelationships)
+			{
+				var currentCollection = (IEnumerable<Entity>) relationship.GetValue(entity, null);
+				var currentCollectionType = relationship.PropertyType.GetGenericArguments()[0];
+
+				foreach (var item in currentCollection)
+				{
+					if (currentCollectionType == entityType)
+					{
+						if (item.Id <= 0)
+						{
+							item.Id = action();
+						}
+					}
+					else
+					{
+						UpdateDependantIds<T>(item, action, processed);
+					}
+				}
+			}
+		}
+
 		[SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
 		private void UpdateEntityCollectionRelationships(Entity entity, Type entityType, IEnumerable<PropertyInfo> properties)
 		{
@@ -505,6 +553,33 @@ namespace Speedy
 
 				// Update relationship collection to the new filtered collection.
 				relationship.SetValue(entity, relationshipFilter, null);
+			}
+		}
+
+		private void UpdateDependantIds<T>(Entity entity, ICollection<PropertyInfo> properties, Func<int> action, List<Entity> processed) where T : Entity
+		{
+			var entityRelationships = properties
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				var expectedEntity = entityRelationship.GetValue(entity, null) as T;
+				if (expectedEntity != null)
+				{
+					if (expectedEntity.Id <= 0)
+					{
+						expectedEntity.Id = action();
+					}
+
+					continue;
+				}
+
+				var otherEntity = entityRelationship.GetValue(entity, null) as Entity;
+				if (otherEntity != null)
+				{
+					UpdateDependantIds<T>(otherEntity, action, processed);
+				}
 			}
 		}
 

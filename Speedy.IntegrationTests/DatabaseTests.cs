@@ -42,6 +42,52 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestMethod]
+		public void AddEntityViaSubRelationships()
+		{
+			TestHelper.GetDataContexts().ForEach(provider =>
+			{
+				Food food;
+
+				using (var database = provider.GetDatabase())
+				{
+					Console.WriteLine(database.GetType().Name);
+
+					food = new Food
+					{
+						Name = "Bourbon Reduction",
+						Children = new[]
+						{
+							new FoodRelationship
+							{
+								Child = new Food
+								{
+									Name = "Bourbon"
+								},
+								Quantity = 2
+							}
+						}
+					};
+
+					database.Foods.Add(food);
+					database.SaveChanges();
+				}
+
+				using (var database = provider.GetDatabase())
+				{
+					var actual = database.Foods.Include(x => x.Children).First(x => x.Name == food.Name);
+					var children = actual.Children.ToList();
+
+					Assert.AreEqual("Bourbon Reduction", actual.Name);
+					Assert.AreEqual(2, actual.Id);
+					Assert.AreEqual(1, children.Count);
+					Assert.AreEqual("Bourbon", children[0].Child.Name);
+					Assert.AreEqual(1, children[0].ChildId);
+					Assert.AreEqual(2, children[0].Quantity);
+				}
+			});
+		}
+
+		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>
