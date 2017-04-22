@@ -38,19 +38,19 @@ namespace Speedy.Samples.EntityFramework
 
 		#region Properties
 
-		public IRepository<Address> Addresses => GetSyncableRepository<Address>();
+		public IRepository<Address, int> Addresses => GetRepository<Address, int>();
 
-		public IRepository<FoodRelationship> FoodRelationships => GetRepository<FoodRelationship>();
+		public IRepository<FoodRelationship, int> FoodRelationships => GetRepository<FoodRelationship, int>();
 
-		public IRepository<Food> Foods => GetRepository<Food>();
+		public IRepository<Food, int> Foods => GetRepository<Food, int>();
 
-		public IRepository<GroupMember> GroupMembers => GetSyncableRepository<GroupMember>();
+		public IRepository<GroupMember, int> GroupMembers => GetRepository<GroupMember, int>();
 
-		public IRepository<Group> Groups => GetSyncableRepository<Group>();
+		public IRepository<Group, int> Groups => GetRepository<Group, int>();
 
-		public IRepository<LogEvent> LogEvents => GetRepository<LogEvent>();
+		public IRepository<LogEvent, int> LogEvents => GetRepository<LogEvent, int>();
 
-		public IRepository<Person> People => GetSyncableRepository<Person>();
+		public IRepository<Person, int> People => GetRepository<Person, int>();
 
 		#endregion
 	}

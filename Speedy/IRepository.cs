@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Speedy.Sync;
 
 #endregion
 
@@ -13,15 +12,7 @@ namespace Speedy
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
-	public interface ISyncableRepository<T> : ISyncableRepository, IRepository<T> where T : SyncEntity
-	{
-	}
-
-	/// <summary>
-	/// Represents a collection of entities for a Speedy database.
-	/// </summary>
-	/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
-	public interface IRepository<T> : IQueryable<T> where T : Entity
+	public interface IRepository<T,T2> : IQueryable<T> where T : Entity<T2>
 	{
 		#region Methods
 
@@ -56,7 +47,7 @@ namespace Speedy
 		/// Removes an entity from the repository.
 		/// </summary>
 		/// <param name="id"> The ID of the entity to remove. </param>
-		void Remove(int id);
+		void Remove(T2 id);
 
 		/// <summary>
 		/// Removes an entity from the repository.

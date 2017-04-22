@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Address.cs" />
+    <Compile Include="Entities\BaseEntity.cs" />
     <Compile Include="Entities\Food.cs" />
     <Compile Include="Entities\FoodRelationship.cs" />
     <Compile Include="Entities\ILogEvent.cs" />
@@ -61,9 +62,6 @@
     </Compile>
     <Compile Include="ContosoDatabase.cs" />
     <Compile Include="ContosoDatabaseProvider.cs" />
-    <Compile Include="Sync\ContosoSyncClient.cs" />
-    <Compile Include="Sync\ContosoWebSyncClient.cs" />
-    <Compile Include="Sync\IContosoSyncClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Speedy\Speedy.csproj">

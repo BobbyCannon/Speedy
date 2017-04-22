@@ -145,7 +145,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebApi\BaseController.cs" />
-    <Compile Include="WebApi\SyncController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Speedy.css">

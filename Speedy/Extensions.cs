@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Speedy.Storage;
-using Speedy.Sync;
 
 #endregion
 
@@ -352,17 +351,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
-		/// </summary>
-		/// <typeparam name="T"> The type of the entity. </typeparam>
-		/// <param name="entity"> The entity to unwrap from entity framework proxy. </param>
-		/// <returns> The disconnected entity. </returns>
-		public static T Unwrap<T>(this T entity) where T : SyncEntity
-		{
-			return (T) entity.ToSyncObject().ToSyncEntity();
-		}
-
-		/// <summary>
 		/// Runs action if the test is true.
 		/// </summary>
 		/// <param name="item"> The item to process. (does nothing) </param>
@@ -580,7 +568,7 @@ namespace Speedy
 				}
 			}
 
-			response = type.GetProperties();
+			response = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 

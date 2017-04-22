@@ -25,35 +25,10 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<StackPanel Grid.Row="0" Orientation="Horizontal">
-			<Button Style="{StaticResource Button}" Content="{Binding SyncStatus}" Click="SyncOnClick" />
+			<Button Style="{StaticResource Button}" Content="{Binding SyncStatus}" />
 			<Button Style="{StaticResource Button}" Content="{Binding DatabaseStatus}" Click="DatabaseOnClick" />
 			<Button Style="{StaticResource Button}" Content="{Binding RepositoryStatus}" Click="RepositoryOnClick" />
 		</StackPanel>
-		<ItemsControl Grid.Row="1" ItemsSource="{Binding SyncClients}">
-			<ItemsControl.ItemsPanel>
-				<ItemsPanelTemplate>
-					<WrapPanel Orientation="Horizontal" />
-				</ItemsPanelTemplate>
-			</ItemsControl.ItemsPanel>
-			<ItemsControl.ItemTemplate>
-				<DataTemplate>
-					<StackPanel Margin="10" Width="160">
-						<TextBlock Text="{Binding Client.Name}" />
-						<TextBlock Text="{Binding PreviousSyncedOn}" />
-						<TextBlock Text="{Binding LastSyncedOn}" />
-						<TextBlock Text="{Binding Status}" />
-						<StackPanel Orientation="Horizontal">
-							<TextBlock Margin="0,0,4,0">A: </TextBlock>
-							<TextBlock Text="{Binding AddressCount}" />
-						</StackPanel>
-						<StackPanel Orientation="Horizontal">
-							<TextBlock Margin="0,0,4,0">P: </TextBlock>
-							<TextBlock Text="{Binding PeopleCount}" />
-						</StackPanel>
-					</StackPanel>
-				</DataTemplate>
-			</ItemsControl.ItemTemplate>
-		</ItemsControl>
 		<ItemsControl Grid.Row="1" ItemsSource="{Binding DatabaseClients}">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>

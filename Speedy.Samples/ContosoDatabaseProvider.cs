@@ -51,25 +51,7 @@ namespace Speedy.Samples
 			_memoryDatabase.Value.Options.UnmaintainEntities = Options.UnmaintainEntities;
 			return _memoryDatabase.Value;
 		}
-
-		/// <summary>
-		/// Gets an instance of the syncable database.
-		/// </summary>
-		/// <returns> The syncable database instance. </returns>
-		ISyncableDatabase ISyncableDatabaseProvider.GetDatabase()
-		{
-			return GetDatabase();
-		}
-
-		/// <summary>
-		/// Gets an instance of the database.
-		/// </summary>
-		/// <returns> The database instance. </returns>
-		IDatabase IDatabaseProvider.GetDatabase()
-		{
-			return GetDatabase();
-		}
-
+		
 		#endregion
 	}
 }

@@ -4,14 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Samples.Entities
 {
 	[Serializable]
-	public class Person : SyncEntity
+	public class Person : BaseModifiableEntity
 	{
 		#region Constructors
 
@@ -19,7 +18,6 @@ namespace Speedy.Samples.Entities
 		public Person()
 		{
 			Groups = new Collection<GroupMember>();
-			IgnoreProperties.AddRange(nameof(Address), nameof(AddressSyncId), nameof(Groups));
 		}
 
 		#endregion
@@ -33,6 +31,9 @@ namespace Speedy.Samples.Entities
 		public int? BillingAddressId { get; set; }
 		public Guid? BillingAddressSyncId { get; set; }
 		public virtual ICollection<GroupMember> Groups { get; set; }
+
+		public override int Id { get; set; }
+
 		public string Name { get; set; }
 
 		#endregion

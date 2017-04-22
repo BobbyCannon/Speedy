@@ -13,7 +13,7 @@ namespace Speedy.Configuration
 	/// The configuration for an entity property.
 	/// </summary>
 	/// <typeparam name="T"> The entity this configuration is for. </typeparam>
-	public class PropertyConfiguration<T> : IPropertyConfiguration where T : Entity
+	public class PropertyConfiguration<T, T2> : IPropertyConfiguration where T : Entity<T2>
 	{
 		#region Fields
 
@@ -52,7 +52,7 @@ namespace Speedy.Configuration
 		/// Sets the maximum length of the member.
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T> HasMaximumLength(int length)
+		public PropertyConfiguration<T, T2> HasMaximumLength(int length)
 		{
 			_maxLength = length;
 			return this;
@@ -62,7 +62,7 @@ namespace Speedy.Configuration
 		/// Sets the minimum length of the member.
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T> HasMinimumLength(int length)
+		public PropertyConfiguration<T, T2> HasMinimumLength(int length)
 		{
 			_minLength = length;
 			return this;
@@ -82,7 +82,7 @@ namespace Speedy.Configuration
 		/// Marks the property as an optional member.
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T> IsOptional()
+		public PropertyConfiguration<T, T2> IsOptional()
 		{
 			_isNullable = true;
 			return this;
@@ -92,7 +92,7 @@ namespace Speedy.Configuration
 		/// Marks the property as a required member.
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T> IsRequired()
+		public PropertyConfiguration<T, T2> IsRequired()
 		{
 			_isNullable = false;
 			return this;
@@ -102,7 +102,7 @@ namespace Speedy.Configuration
 		/// Marks the property as a required member.
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T> IsUnique()
+		public PropertyConfiguration<T, T2> IsUnique()
 		{
 			_isUnique = true;
 			return this;

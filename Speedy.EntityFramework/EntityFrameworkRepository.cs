@@ -16,7 +16,7 @@ namespace Speedy.EntityFramework
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
-	public class EntityFrameworkRepository<T> : IRepository<T> where T : Entity, new()
+	public class EntityFrameworkRepository<T,T2> : IRepository<T,T2> where T : Entity<T2>, new()
 	{
 		#region Fields
 
@@ -127,9 +127,9 @@ namespace Speedy.EntityFramework
 		/// Removes an entity from the repository.
 		/// </summary>
 		/// <param name="id"> The ID of the entity to remove. </param>
-		public void Remove(int id)
+		public void Remove(T2 id)
 		{
-			var entity = Set.Local.FirstOrDefault(x => x.Id == id);
+			var entity = Set.Local.FirstOrDefault(x => Equals(x.Id, id));
 			if (entity == null)
 			{
 				entity = new T { Id = id };

@@ -14,8 +14,6 @@ using Speedy.EntityFramework;
 using Speedy.IntegrationTests.Properties;
 using Speedy.Samples;
 using Speedy.Samples.EntityFramework;
-using Speedy.Samples.Sync;
-using Speedy.Sync;
 
 #endregion
 
@@ -39,14 +37,6 @@ namespace Speedy.IntegrationTests
 		#endregion
 
 		#region Methods
-
-		public static void AddAndSaveChanges<T>(this IContosoDatabase database, T item) where T : SyncEntity
-		{
-			var repository = database.GetSyncableRepository(item.GetType());
-			repository.Add(item);
-			database.SaveChanges();
-			database.Dispose();
-		}
 
 		/// <summary>
 		/// Compares two objects to see if they are equal.
@@ -229,15 +219,6 @@ namespace Speedy.IntegrationTests
 			});
 		}
 
-		public static void TestServerAndClients(Action<IContosoSyncClient, IContosoSyncClient> action)
-		{
-			GetServerClientScenerios().ForEach(x =>
-			{
-				Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
-				action(x.Item1, x.Item2);
-			});
-		}
-
 		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
 		{
 			builder.AppendLine(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
@@ -279,16 +260,7 @@ namespace Speedy.IntegrationTests
 				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
 			}
 		}
-
-		private static IEnumerable<Tuple<IContosoSyncClient, IContosoSyncClient>> GetServerClientScenerios()
-		{
-			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (MEM)", new ContosoDatabaseProvider()), new ContosoSyncClient("Client (EF)", GetEntityFrameworkProvider()));
-			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (MEM)", new ContosoDatabaseProvider()), new ContosoWebSyncClient("Client (WEB)", GetEntityFrameworkProvider()));
-			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (EF)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (MEM)", new ContosoDatabaseProvider()));
-			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoWebSyncClient("Server (WEB)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (MEM)", new ContosoDatabaseProvider()));
-			yield return new Tuple<IContosoSyncClient, IContosoSyncClient>(new ContosoSyncClient("Server (EF)", GetEntityFrameworkProvider()), new ContosoSyncClient("Client (EF2)", GetEntityFrameworkProvider2()));
-		}
-
+		
 		/// <summary>
 		/// Safely delete a directory.
 		/// </summary>

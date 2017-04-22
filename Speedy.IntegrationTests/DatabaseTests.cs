@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Entities;
-using Speedy.Sync;
 
 #endregion
 
@@ -35,6 +34,7 @@ namespace Speedy.IntegrationTests
 					actual = context.Addresses.FirstOrDefault();
 					Assert.IsNotNull(actual);
 					Assert.AreNotEqual(0, actual.Id);
+					Assert.AreEqual(1, actual.Id);
 					Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
 					TestHelper.AreEqual(expected, actual);
 				}
@@ -158,7 +158,6 @@ namespace Speedy.IntegrationTests
 					Assert.AreNotEqual(0, actual.Id);
 					Assert.AreEqual(default(DateTime), actual.CreatedOn);
 					Assert.AreEqual(default(DateTime), actual.ModifiedOn);
-					Assert.AreEqual(default(Guid), actual.SyncId);
 					TestHelper.AreEqual(expected, actual);
 				}
 			});
@@ -355,177 +354,6 @@ namespace Speedy.IntegrationTests
 					var actual = context.LogEvents.First();
 					TestHelper.AreEqual(expected, actual);
 				}
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactSince()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(provider =>
-			{
-				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
-
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-				}
-
-				var request = new SyncRequest { Since = new DateTime(635970191697406737), Skip = 1, Take = 1, Until = DateTime.UtcNow };
-				var client = new SyncClient("test", provider);
-				var actual = client.GetChanges(request).ToList();
-				Assert.AreEqual(1, actual.Count);
-				Assert.AreEqual(address3.ToJson(ignoreVirtuals: true), actual[0].Data);
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactSinceAndUntil()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(provider =>
-			{
-				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
-
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-				}
-
-				var request = new SyncRequest { Since = new DateTime(635970191697406736), Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-				var client = new SyncClient("test", provider);
-				var actual = client.GetChanges(request).ToList();
-				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address1.ToJson(ignoreVirtuals: true), actual[0].Data);
-				Assert.AreEqual(address2.ToJson(ignoreVirtuals: true), actual[1].Data);
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactSinceWithManyExactCreated()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(provider =>
-			{
-				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-				}
-
-				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 2, Until = new DateTime(635970191697406737) };
-				var client = new SyncClient("test", provider);
-				var actual = client.GetChanges(request).ToList();
-				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address1.ToJson(ignoreVirtuals: true), actual[0].Data);
-				Assert.AreEqual(address2.ToJson(ignoreVirtuals: true), actual[1].Data);
-
-				request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 2, Until = new DateTime(635970191697406737) };
-				actual = client.GetChanges(request).ToList();
-				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address3.ToJson(ignoreVirtuals: true), actual[0].Data);
-				Assert.AreEqual(address4.ToJson(ignoreVirtuals: true), actual[1].Data);
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithExactUntil()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(provider =>
-			{
-				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406736), ModifiedOn = new DateTime(635970191697406736) };
-				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406737), ModifiedOn = new DateTime(635970191697406737) };
-				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406738), ModifiedOn = new DateTime(635970191697406738) };
-				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = new DateTime(635970191697406739), ModifiedOn = new DateTime(635970191697406739) };
-
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-				}
-
-				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 0, Take = 512, Until = new DateTime(635970191697406738) };
-				var client = new SyncClient("test", provider);
-				var actual = client.GetChanges(request).ToList();
-
-				Assert.AreEqual(2, actual.Count);
-				Assert.AreEqual(address1.ToJson(ignoreVirtuals: true), actual[0].Data);
-				Assert.AreEqual(address2.ToJson(ignoreVirtuals: true), actual[1].Data);
-			});
-		}
-
-		[TestMethod]
-		public void GetSyncChangesWithSkipTake()
-		{
-			var options = new DatabaseOptions { MaintainDates = false };
-
-			TestHelper.GetDataContexts(options).ForEach(provider =>
-			{
-				var address1 = new Address { City = "City1", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = DateTime.Parse("04/23/2016 2:30 PM"), ModifiedOn = DateTime.Parse("04/23/2016 2:30 PM") };
-				var address2 = new Address { City = "City2", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-				var address3 = new Address { City = "City3", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-				var address4 = new Address { City = "City4", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State", CreatedOn = address1.CreatedOn, ModifiedOn = address1.ModifiedOn };
-
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					context.Addresses.Add(address1);
-					context.Addresses.Add(address2);
-					context.Addresses.Add(address3);
-					context.Addresses.Add(address4);
-
-					context.SaveChanges();
-				}
-
-				var request = new SyncRequest { Since = DateTime.MinValue, Skip = 2, Take = 1, Until = DateTime.Parse("04/23/2016 2:31 PM") };
-				var client = new SyncClient("test", provider);
-				var actual = client.GetChanges(request).ToList();
-
-				Assert.AreEqual(1, actual.Count);
-				Assert.AreEqual(address3.ToJson(ignoreVirtuals: true), actual[0].Data);
 			});
 		}
 
@@ -855,27 +683,6 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestMethod]
-		public void RepositorySyncOrder()
-		{
-			TestHelper.GetDataContexts().ForEach(provider =>
-			{
-				using (var context = provider.GetDatabase())
-				{
-					var actual = context.GetSyncableRepositories().Select(x => x.TypeName).ToArray();
-					var expected = new[]
-					{
-						"Speedy.Samples.Entities.Address,Speedy.Samples",
-						"Speedy.Samples.Entities.Person,Speedy.Samples",
-						"Speedy.Samples.Entities.Group,Speedy.Samples",
-						"Speedy.Samples.Entities.GroupMember,Speedy.Samples"
-					};
-
-					TestHelper.AreEqual(expected, actual);
-				}
-			});
-		}
-
-		[TestMethod]
 		public void SubRelationships()
 		{
 			TestHelper.GetDataContexts().ForEach(provider =>
@@ -907,29 +714,6 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(2, children.Count);
 					Assert.AreEqual(pepper.Name, children[0].Child.Name);
 					Assert.AreEqual(salt.Name, children[1].Child.Name);
-				}
-			});
-		}
-
-		[TestMethod]
-		public void UniqueConstraintsForGuid()
-		{
-			TestHelper.GetDataContexts().ForEach(provider =>
-			{
-				using (var context = provider.GetDatabase())
-				{
-					Console.WriteLine(context.GetType().Name);
-
-					var address1 = NewAddress("Bar");
-					context.Addresses.Add(address1);
-					context.SaveChanges();
-
-					var address2 = NewAddress("Bar2");
-					address2.SyncId = address1.SyncId;
-					context.Addresses.Add(address2);
-
-					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => context.SaveChanges(), "The duplicate key value is");
 				}
 			});
 		}

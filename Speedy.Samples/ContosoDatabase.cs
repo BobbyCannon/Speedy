@@ -21,48 +21,46 @@ namespace Speedy.Samples
 		public ContosoDatabase(string directory = null, DatabaseOptions options = null)
 			: base(directory, options)
 		{
-			Addresses = GetSyncableRepository<Address>();
-			Foods = GetRepository<Food>();
-			FoodRelationships = GetRepository<FoodRelationship>();
-			GroupMembers = GetSyncableRepository<GroupMember>();
-			Groups = GetSyncableRepository<Group>();
-			LogEvents = GetRepository<LogEvent>();
-			People = GetSyncableRepository<Person>();
+			Addresses = GetRepository<Address, int>();
+			Foods = GetRepository<Food, int>();
+			FoodRelationships = GetRepository<FoodRelationship, int>();
+			GroupMembers = GetRepository<GroupMember, int>();
+			Groups = GetRepository<Group, int>();
+			LogEvents = GetRepository<LogEvent, int>();
+			People = GetRepository<Person, int>();
 
 			// Setup options.
 			Options.SyncOrder = SyncOrder;
 
 			// Address Map
-			Property<Address>(x => x.Line1).IsRequired().HasMaximumLength(256);
-			Property<Address>(x => x.Line2).IsRequired().HasMaximumLength(256);
-			Property<Address>(x => x.City).IsRequired().HasMaximumLength(256);
-			Property<Address>(x => x.State).IsRequired().HasMaximumLength(128);
-			Property<Address>(x => x.Postal).IsRequired().HasMaximumLength(128);
-			Property<Address>(x => x.SyncId).IsRequired().IsUnique();
-			HasOptional<Address, Address>(x => x.LinkedAddress, x => x.LinkedAddressId);
+			Property<Address, int>(x => x.Line1).IsRequired().HasMaximumLength(256);
+			Property<Address, int>(x => x.Line2).IsRequired().HasMaximumLength(256);
+			Property<Address, int>(x => x.City).IsRequired().HasMaximumLength(256);
+			Property<Address, int>(x => x.State).IsRequired().HasMaximumLength(128);
+			Property<Address, int>(x => x.Postal).IsRequired().HasMaximumLength(128);
+			HasOptional<Address, Address, int>(x => x.LinkedAddress, x => x.LinkedAddressId);
 
 			// Food Map
-			Property<Food>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
+			Property<Food, int>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
 
 			// Food Relationship Map
-			Property<FoodRelationship>(x => x.Quantity).IsRequired();
-			HasRequired<FoodRelationship, Food>(x => x.Parent, x => x.ParentId, x => x.Children);
-			HasRequired<FoodRelationship, Food>(x => x.Child, x => x.ChildId, x => x.Parents);
-			Property<FoodRelationship>(x => x.ParentId).IsRequired();
-			Property<FoodRelationship>(x => x.ChildId).IsRequired();
+			Property<FoodRelationship, int>(x => x.Quantity).IsRequired();
+			HasRequired<FoodRelationship, Food, int>(x => x.Parent, x => x.ParentId, x => x.Children);
+			HasRequired<FoodRelationship, Food, int>(x => x.Child, x => x.ChildId, x => x.Parents);
+			Property<FoodRelationship, int>(x => x.ParentId).IsRequired();
+			Property<FoodRelationship, int>(x => x.ChildId).IsRequired();
 
 			// Group Member Map
-			HasRequired<GroupMember, Person>(p => p.Member, p => p.MemberId, a => a.Groups);
-			HasRequired<GroupMember, Group>(p => p.Group, p => p.GroupId, a => a.Members);
+			HasRequired<GroupMember, Person, int>(p => p.Member, p => p.MemberId, a => a.Groups);
+			HasRequired<GroupMember, Group, int>(p => p.Group, p => p.GroupId, a => a.Members);
 
 			// LogEvent Map
-			Property<LogEvent>(x => x.Message).IsRequired().HasMaximumLength(900);
+			Property<LogEvent, int>(x => x.Message).IsRequired().HasMaximumLength(900);
 
 			// Person Map
-			Property<Person>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
-			Property<Person>(x => x.SyncId).IsRequired().IsUnique();
-			HasRequired<Person, Address>(p => p.Address, p => p.AddressId, a => a.People);
-			HasOptional<Person, Address>(p => p.BillingAddress, p => p.BillingAddressId);
+			Property<Person, int>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
+			HasRequired<Person, Address, int>(p => p.Address, p => p.AddressId, a => a.People);
+			HasOptional<Person, Address, int>(p => p.BillingAddress, p => p.BillingAddressId);
 		}
 
 		static ContosoDatabase()
@@ -80,19 +78,19 @@ namespace Speedy.Samples
 
 		#region Properties
 
-		public IRepository<Address> Addresses { get; }
+		public IRepository<Address, int> Addresses { get; }
 
-		public IRepository<FoodRelationship> FoodRelationships { get; }
+		public IRepository<FoodRelationship, int> FoodRelationships { get; }
 
-		public IRepository<Food> Foods { get; }
+		public IRepository<Food, int> Foods { get; }
 
-		public IRepository<GroupMember> GroupMembers { get; }
+		public IRepository<GroupMember, int> GroupMembers { get; }
 
-		public IRepository<Group> Groups { get; }
+		public IRepository<Group, int> Groups { get; }
 
-		public IRepository<LogEvent> LogEvents { get; }
+		public IRepository<LogEvent, int> LogEvents { get; }
 
-		public IRepository<Person> People { get; }
+		public IRepository<Person, int> People { get; }
 
 		#endregion
 	}

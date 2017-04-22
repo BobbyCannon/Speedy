@@ -58,10 +58,13 @@
     <Compile Include="Mappings\GroupMemberMap.cs" />
     <Compile Include="Mappings\LogEventMap.cs" />
     <Compile Include="Mappings\PersonMap.cs" />
-    <Compile Include="Mappings\SyncTombstoneMap.cs" />
     <Compile Include="Migrations\201606041641395_InitialDatabase.cs" />
     <Compile Include="Migrations\201606041641395_InitialDatabase.Designer.cs">
       <DependentUpon>201606041641395_InitialDatabase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201704221314194_DroppedSyncItems.cs" />
+    <Compile Include="Migrations\201704221314194_DroppedSyncItems.Designer.cs">
+      <DependentUpon>201704221314194_DroppedSyncItems.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,6 +92,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201606041641395_InitialDatabase.resx">
       <DependentUpon>201606041641395_InitialDatabase.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201704221314194_DroppedSyncItems.resx">
+      <DependentUpon>201704221314194_DroppedSyncItems.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

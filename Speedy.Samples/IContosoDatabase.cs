@@ -6,23 +6,23 @@ using Speedy.Samples.Entities;
 
 namespace Speedy.Samples
 {
-	public interface IContosoDatabase : ISyncableDatabase
+	public interface IContosoDatabase : IDatabase
 	{
 		#region Properties
 
-		IRepository<Address> Addresses { get; }
+		IRepository<Address,int> Addresses { get; }
 
-		IRepository<FoodRelationship> FoodRelationships { get; }
+		IRepository<FoodRelationship,int> FoodRelationships { get; }
 
-		IRepository<Food> Foods { get; }
+		IRepository<Food,int> Foods { get; }
 
-		IRepository<GroupMember> GroupMembers { get; }
+		IRepository<GroupMember,int> GroupMembers { get; }
 
-		IRepository<Group> Groups { get; }
+		IRepository<Group,int> Groups { get; }
 
-		IRepository<LogEvent> LogEvents { get; }
+		IRepository<LogEvent,int> LogEvents { get; }
 
-		IRepository<Person> People { get; }
+		IRepository<Person,int> People { get; }
 
 		#endregion
 	}

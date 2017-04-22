@@ -58,21 +58,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\Relationship.cs" />
-    <Compile Include="Exceptions\SyncIsssueException.cs" />
+    <Compile Include="CreatedEntity.cs" />
     <Compile Include="IDatabaseProvider.cs" />
-    <Compile Include="ISyncableDatabaseProvider.cs" />
     <Compile Include="Configuration\IPropertyConfiguration.cs" />
     <Compile Include="Configuration\PropertyConfiguration.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseOptions.cs" />
     <Compile Include="Exceptions\ValidationException.cs" />
-    <Compile Include="ISyncableDatabase.cs" />
+    <Compile Include="IKeyValueRepository.cs" />
+    <Compile Include="IKeyValueRepositoryProvider.cs" />
+    <Compile Include="KeyValueRepository.cs" />
     <Compile Include="KeyValueRepositoryOptions.cs" />
+    <Compile Include="KeyValueRepositoryProvider.cs" />
     <Compile Include="Linq\DynamicLinq.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogListener.cs" />
     <Compile Include="ModifiableEntity.cs" />
-    <Compile Include="Net\WebSyncClient.cs" />
     <Compile Include="Storage\EntityComparer.cs" />
     <Compile Include="Storage\IRepository.cs" />
     <Compile Include="IRepository.cs" />
@@ -82,32 +83,11 @@
     <Compile Include="Storage\EntityStateType.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IDatabase.cs" />
-    <Compile Include="IKeyValueRepository.cs" />
-    <Compile Include="IKeyValueRepositoryProvider.cs" />
-    <Compile Include="KeyValueRepository.cs" />
-    <Compile Include="KeyValueRepositoryProvider.cs" />
-    <Compile Include="Storage\SyncableRepository.cs" />
     <Compile Include="Storage\Repository.cs" />
     <Compile Include="Storage\RelationshipRepository.cs" />
     <Compile Include="Streams\NoCloseStreamReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\NoCloseStreamWriter.cs" />
-    <Compile Include="ISyncableRepository.cs" />
-    <Compile Include="Sync\SyncDatabaseProvider.cs" />
-    <Compile Include="Sync\SyncClient.cs" />
-    <Compile Include="Sync\SyncEngineStatus.cs" />
-    <Compile Include="Sync\SyncEngineStatusArgs.cs" />
-    <Compile Include="Sync\SyncEntity.cs" />
-    <Compile Include="Sync\SyncEngine.cs" />
-    <Compile Include="Sync\ISyncClient.cs" />
-    <Compile Include="Sync\SyncIssue.cs" />
-    <Compile Include="Sync\SyncIssueType.cs" />
-    <Compile Include="Sync\SyncObject.cs" />
-    <Compile Include="Sync\SyncObjectStatus.cs" />
-    <Compile Include="Sync\SyncOptions.cs" />
-    <Compile Include="Sync\SyncRequest.cs" />
-    <Compile Include="Sync\SyncTombstone.cs" />
-    <Compile Include="Net\WebClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

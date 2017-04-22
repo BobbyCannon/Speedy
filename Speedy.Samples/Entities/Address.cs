@@ -4,14 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Samples.Entities
 {
 	[Serializable]
-	public class Address : SyncEntity
+	public class Address : BaseModifiableEntity
 	{
 		#region Constructors
 
@@ -19,7 +18,6 @@ namespace Speedy.Samples.Entities
 		public Address()
 		{
 			People = new Collection<Person>();
-			IgnoreProperties.AddRange(nameof(LinkedAddress), nameof(LinkedAddressId), nameof(People));
 		}
 
 		#endregion
@@ -33,6 +31,7 @@ namespace Speedy.Samples.Entities
 		/// </summary>
 		public string FullAddress => $"{Line1}{Environment.NewLine}{City}, {State}  {Postal}";
 
+		public override int Id { get; set; }
 		public string Line1 { get; set; }
 		public string Line2 { get; set; }
 		public virtual Address LinkedAddress { get; set; }

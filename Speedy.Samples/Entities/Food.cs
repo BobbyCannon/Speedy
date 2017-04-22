@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Speedy.Samples.Entities
 {
-	public class Food : ModifiableEntity
+	public class Food : BaseModifiableEntity
 	{
 		#region Constructors
 
@@ -23,6 +23,8 @@ namespace Speedy.Samples.Entities
 		#region Properties
 
 		public virtual ICollection<FoodRelationship> Children { get; set; }
+
+		public override int Id { get; set; }
 		public string Name { get; set; }
 		public virtual ICollection<FoodRelationship> Parents { get; set; }
 

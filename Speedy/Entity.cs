@@ -1,27 +1,69 @@
-﻿#region References
-
-using System;
-
-#endregion
+﻿using System;
 
 namespace Speedy
 {
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	public abstract class Entity
+	public abstract class Entity<T> : IEntity
 	{
 		#region Properties
 
-		/// <summary>
-		/// Gets or sets the date and time the entity was created.
-		/// </summary>
-		public DateTime CreatedOn { get; set; }
+		public abstract T Id { get; set; }
 
-		/// <summary>
-		/// Gets or sets the ID of the entity.
-		/// </summary>
-		public int Id { get; set; }
+		#endregion
+
+		#region Methods
+
+		public virtual void EntityAdded()
+		{
+		}
+
+		public virtual void EntityDeleted()
+		{
+		}
+
+		public virtual void EntityModified()
+		{
+		}
+
+		public virtual bool TrySetId(string id)
+		{
+			try
+			{
+				Id = id.FromJson<T>();
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		public virtual bool IdIsSet()
+		{
+			return !Equals(Id, default(T));
+		}
+
+		public virtual T NewId(ref T currentKey)
+		{
+			return default(T);
+		}
+
+		#endregion
+	}
+
+	public interface IEntity
+	{
+		#region Methods
+
+		void EntityAdded();
+
+		void EntityDeleted();
+
+		void EntityModified();
+
+		bool TrySetId(string id);
 
 		#endregion
 	}

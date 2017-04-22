@@ -1,11 +1,11 @@
 namespace Speedy.Storage
 {
-	internal class EntityState
+	internal class EntityState<T,T2> where T : Entity<T2>
 	{
 		#region Properties
 
-		public Entity Entity { get; set; }
-		public Entity OldEntity { get; set; }
+		public T Entity { get; set; }
+		public T OldEntity { get; set; }
 		public EntityStateType State { get; set; }
 
 		#endregion

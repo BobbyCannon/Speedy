@@ -38,25 +38,7 @@
 		{
 			return new EntityFrameworkContosoDatabase(_connectionString, Options.DeepClone());
 		}
-
-		/// <summary>
-		/// Gets an instance of the syncable database.
-		/// </summary>
-		/// <returns> The syncable database instance. </returns>
-		ISyncableDatabase ISyncableDatabaseProvider.GetDatabase()
-		{
-			return GetDatabase();
-		}
-
-		/// <summary>
-		/// Gets an instance of the database.
-		/// </summary>
-		/// <returns> The database instance. </returns>
-		IDatabase IDatabaseProvider.GetDatabase()
-		{
-			return GetDatabase();
-		}
-
+		
 		#endregion
 	}
 }

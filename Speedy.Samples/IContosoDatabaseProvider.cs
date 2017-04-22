@@ -1,10 +1,10 @@
 ﻿namespace Speedy.Samples
 {
-	public interface IContosoDatabaseProvider : ISyncableDatabaseProvider
+	public interface IContosoDatabaseProvider
 	{
 		#region Methods
 
-		new IContosoDatabase GetDatabase();
+		IContosoDatabase GetDatabase();
 
 		#endregion
 	}

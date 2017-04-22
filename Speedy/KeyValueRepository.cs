@@ -341,7 +341,10 @@ namespace Speedy
 							continue;
 						}
 
-						yield return new KeyValuePair<string, T>(readKey, line.Substring(delimiter + 1, line.Length - delimiter - 1).FromJson<T>());
+						var item = line.Substring(delimiter + 1, line.Length - delimiter - 1).FromJson<T>();
+						(item as IEntity)?.TrySetId(readKey);
+
+						yield return new KeyValuePair<string, T>(readKey, item);
 					}
 				}
 			}

@@ -101,9 +101,6 @@
     <Compile Include="RepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryProviderTests.cs" />
-    <Compile Include="SyncDatabaseProviderTests.cs" />
-    <Compile Include="SyncEngineTests.cs" />
-    <Compile Include="SyncEntityTests.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="ExtensionTests.cs" />
     <Compile Include="DatabaseTests.cs" />

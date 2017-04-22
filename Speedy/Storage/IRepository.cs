@@ -16,13 +16,11 @@ namespace Speedy.Storage
 
 		bool HasChanges();
 
-		bool HasDependentRelationship(object[] value, int id);
+		bool HasDependentRelationship(object[] value, object id);
 
-		Entity Read(int id);
+		object Read(object id);
 
 		int SaveChanges();
-
-		void UpdateLocalSyncIds();
 
 		void UpdateRelationships();
 

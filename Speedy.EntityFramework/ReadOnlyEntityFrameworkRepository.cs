@@ -17,7 +17,7 @@ namespace Speedy.EntityFramework
 	/// </summary>
 	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
 	[ExcludeFromCodeCoverage]
-	public class ReadOnlyEntityFrameworkRepository<T> : IRepository<T> where T : Entity
+	public class ReadOnlyEntityFrameworkRepository<T,T2> : IRepository<T,T2> where T : Entity<T2>
 	{
 		#region Fields
 
@@ -134,7 +134,7 @@ namespace Speedy.EntityFramework
 		/// Removes an entity from the repository.
 		/// </summary>
 		/// <param name="id"> The ID of the entity to remove. </param>
-		public void Remove(int id)
+		public void Remove(T2 id)
 		{
 			throw new NotImplementedException();
 		}

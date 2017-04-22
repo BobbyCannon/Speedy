@@ -29,22 +29,24 @@ namespace Speedy.Storage
 	/// </summary>
 	/// <typeparam name="T"> The type for the relationship. </typeparam>
 	[Serializable]
-	internal class RelationshipRepository<T> : IRelationshipRepository, ICollection<T> where T : Entity, new()
+	internal class RelationshipRepository<T,T2> : IRelationshipRepository, ICollection<T> 
+		where T : Entity<T2>, new() 
+		where T2 : new()
 	{
 		#region Fields
 
 		private readonly Func<T, bool> _filter;
 		private readonly Action<T> _newItem;
-		private readonly Repository<T> _repository;
+		private readonly Repository<T,T2> _repository;
 		private readonly Action<T> _updateRelationship;
 
 		#endregion
 
 		#region Constructors
 
-		public RelationshipRepository(IRepository<T> repository, Func<T, bool> filter, Action<T> newItem, Action<T> updateRelationship)
+		public RelationshipRepository(IRepository<T,T2> repository, Func<T, bool> filter, Action<T> newItem, Action<T> updateRelationship)
 		{
-			_repository = (Repository<T>) repository;
+			_repository = (Repository<T,T2>) repository;
 			_filter = filter;
 			_newItem = newItem;
 			_updateRelationship = updateRelationship;
@@ -64,13 +66,8 @@ namespace Speedy.Storage
 		{
 			get
 			{
-				var newEntities = _repository.GetRawQueryable(_filter).Count(x => x.Id == 0);
-				var existingEntities = _repository.GetRawQueryable(_filter)
-					.Where(x => x.Id > 0)
-					.Select(x => x.Id)
-					.Concat(_repository.Where(_filter).Select(x => x.Id))
-					.Distinct()
-					.Count();
+				var newEntities = _repository.GetRawQueryable(_filter).Count(x => !x.IdIsSet());
+				var existingEntities = _repository.Where(_filter).Select(x => x.Id).Count();
 
 				return newEntities + existingEntities;
 			}
@@ -142,7 +139,7 @@ namespace Speedy.Storage
 		/// <param name="item"> The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />. </param>
 		public bool Contains(T item)
 		{
-			return GetEnumerable().FirstOrDefault(x => x.Id != 0 && x.Id == item.Id || x == item) != null;
+			return GetEnumerable().FirstOrDefault(x => x.IdIsSet() && Equals(x.Id, item.Id) || x == item) != null;
 		}
 
 		/// <summary>
@@ -215,7 +212,7 @@ namespace Speedy.Storage
 		private IEnumerable<T> GetEnumerable()
 		{
 			return _repository.GetRawQueryable(_filter)
-				.Union(_repository.Where(_filter), new EntityComparer<T>());
+				.Union(_repository.Where(_filter), new EntityComparer<T,T2>());
 		}
 
 		/// <summary>
