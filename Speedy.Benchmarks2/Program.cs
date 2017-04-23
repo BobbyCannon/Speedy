@@ -81,8 +81,9 @@ namespace Speedy.Benchmarks
 			var connectionString = "server=localhost;database=speedy;integrated security=true;";
 			var results = new List<string>();
 
-			TestDatabase(results, directory + "\\Database", connectionString, 10000);
-			TestRepository(results, directory + "\\Repository", 10000);
+			TestDatabase(results, directory + "\\Database", connectionString, 1000, 10000);
+			//TestDatabase(results, directory + "\\Database", connectionString, 5000, 10000);
+			//TestRepository(results, directory + "\\Repository", 10000);
 
 			Log(string.Empty);
 			results.ForEach(x => Log(x));
@@ -129,27 +130,19 @@ namespace Speedy.Benchmarks
 			}
 		}
 
-		private static void TestDatabase(ICollection<string> results, string directory, string connectionString, int iterations)
+		private static void TestDatabase(ICollection<string> results, string directory, string connectionString, int chunk, int iterations)
 		{
-			var chunks = new[] { 150, 300, 600, 1200, 2400 };
-
 			Log($"Starting to benchmark Speedy Database writing {iterations}...", true, results);
 			Log("JSON", true, results);
 
-			foreach (var chunk in chunks)
-			{
-				CleanupDirectory(directory);
-				results.Add(TestDatabase(new ContosoDatabaseProvider(directory), iterations, chunk));
-			}
+			CleanupDirectory(directory);
+			results.Add(TestDatabase(new ContosoDatabaseProvider(directory), iterations, chunk));
 
 			Log(string.Empty, true, results);
 			Log("Entity Framework", true, results);
 
-			foreach (var chunk in chunks)
-			{
-				CleanupDatabase(connectionString);
-				results.Add(TestDatabase(new EntityFrameworkContosoDatabaseProvider(connectionString), iterations, chunk));
-			}
+			CleanupDatabase(connectionString);
+			results.Add(TestDatabase(new EntityFrameworkContosoDatabaseProvider(connectionString), iterations, chunk));
 
 			Log(string.Empty, true, results);
 		}
@@ -197,12 +190,12 @@ namespace Speedy.Benchmarks
 		{
 			Log($"Starting to benchmark Speedy Repository writing {iterations}...", true, results);
 
-			results.Add(WriteCollection(directory, iterations, 100));
+			//results.Add(WriteCollection(directory, iterations, 100));
 			results.Add(WriteCollection(directory, iterations, 1000));
 			results.Add(WriteCollection(directory, iterations, 2500));
 			results.Add(WriteCollection(directory, iterations, 10000));
 			results.Add(WriteCollection(directory, iterations, 50000));
-			results.Add(WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000));
+			//results.Add(WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000));
 			results.Add(WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000));
 			results.Add(WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000));
 			results.Add(WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000));

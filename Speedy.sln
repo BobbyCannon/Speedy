@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmarks", "Speedy.Benchmarks\Speedy.Benchmarks.csproj", "{DBCCA3EB-C34B-4692-AB61-7A4AED374759}"
 EndProject
@@ -33,6 +33,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmarks2", "Speedy.Benchmarks2\Speedy.Benchmarks2.csproj", "{A39791B3-6786-40E6-999F-B3C3F682F68A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples.EntityFramework", "Speedy.Samples.EntityFramework\Speedy.Samples.EntityFramework.csproj", "{6CE375D9-F164-4E9F-907C-66EC045D751B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.PerformanceTests", "Speedy.PerformanceTests\Speedy.PerformanceTests.csproj", "{0BB08A16-B26B-40C8-B434-42E75EFF5331}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,6 +74,10 @@ Global
 		{6CE375D9-F164-4E9F-907C-66EC045D751B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CE375D9-F164-4E9F-907C-66EC045D751B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CE375D9-F164-4E9F-907C-66EC045D751B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BB08A16-B26B-40C8-B434-42E75EFF5331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BB08A16-B26B-40C8-B434-42E75EFF5331}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BB08A16-B26B-40C8-B434-42E75EFF5331}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BB08A16-B26B-40C8-B434-42E75EFF5331}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
