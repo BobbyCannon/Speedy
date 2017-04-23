@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Speedy
+﻿namespace Speedy
 {
 	/// <summary>
 	/// Represents a Speedy entity.
@@ -27,6 +25,16 @@ namespace Speedy
 		{
 		}
 
+		public virtual bool IdIsSet()
+		{
+			return !Equals(Id, default(T));
+		}
+
+		public virtual T NewId(ref T currentKey)
+		{
+			return default(T);
+		}
+
 		public virtual bool TrySetId(string id)
 		{
 			try
@@ -38,16 +46,6 @@ namespace Speedy
 			{
 				return false;
 			}
-		}
-
-		public virtual bool IdIsSet()
-		{
-			return !Equals(Id, default(T));
-		}
-
-		public virtual T NewId(ref T currentKey)
-		{
-			return default(T);
 		}
 
 		#endregion
@@ -62,6 +60,8 @@ namespace Speedy
 		void EntityDeleted();
 
 		void EntityModified();
+
+		bool IdIsSet();
 
 		bool TrySetId(string id);
 

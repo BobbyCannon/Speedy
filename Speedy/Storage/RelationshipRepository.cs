@@ -29,24 +29,26 @@ namespace Speedy.Storage
 	/// </summary>
 	/// <typeparam name="T"> The type for the relationship. </typeparam>
 	[Serializable]
-	internal class RelationshipRepository<T,T2> : IRelationshipRepository, ICollection<T> 
-		where T : Entity<T2>, new() 
+	internal class RelationshipRepository<T, T2> : IRelationshipRepository, ICollection<T>
+		where T : Entity<T2>, new()
 		where T2 : new()
 	{
 		#region Fields
 
 		private readonly Func<T, bool> _filter;
 		private readonly Action<T> _newItem;
-		private readonly Repository<T,T2> _repository;
+		private readonly Repository<T, T2> _repository;
 		private readonly Action<T> _updateRelationship;
 
 		#endregion
 
 		#region Constructors
 
-		public RelationshipRepository(IRepository<T,T2> repository, Func<T, bool> filter, Action<T> newItem, Action<T> updateRelationship)
+		public RelationshipRepository(string name, IRepository<T, T2> repository, Func<T, bool> filter, Action<T> newItem, Action<T> updateRelationship)
 		{
-			_repository = (Repository<T,T2>) repository;
+			Name = name;
+
+			_repository = (Repository<T, T2>) repository;
 			_filter = filter;
 			_newItem = newItem;
 			_updateRelationship = updateRelationship;
@@ -80,6 +82,8 @@ namespace Speedy.Storage
 		/// true if the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only; otherwise, false.
 		/// </returns>
 		public bool IsReadOnly => false;
+
+		public string Name { get; }
 
 		#endregion
 
@@ -212,7 +216,7 @@ namespace Speedy.Storage
 		private IEnumerable<T> GetEnumerable()
 		{
 			return _repository.GetRawQueryable(_filter)
-				.Union(_repository.Where(_filter), new EntityComparer<T,T2>());
+				.Union(_repository.Where(_filter), new EntityComparer<T, T2>());
 		}
 
 		/// <summary>

@@ -28,6 +28,7 @@ namespace Speedy.Samples
 			Groups = GetRepository<Group, int>();
 			LogEvents = GetRepository<LogEvent, int>();
 			People = GetRepository<Person, int>();
+			Pets = GetRepository<Pet, Pet.PetKey>();
 
 			// Setup options.
 			Options.SyncOrder = SyncOrder;
@@ -61,6 +62,9 @@ namespace Speedy.Samples
 			Property<Person, int>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
 			HasRequired<Person, Address, int>(p => p.Address, p => p.AddressId, a => a.People);
 			HasOptional<Person, Address, int>(p => p.BillingAddress, p => p.BillingAddressId);
+
+			// Pet Map
+			HasRequired<Pet, Pet.PetKey, Person, int>(x => x.Owner, x => x.OwnerId, x => x.Pets);
 		}
 
 		static ContosoDatabase()
@@ -91,6 +95,8 @@ namespace Speedy.Samples
 		public IRepository<LogEvent, int> LogEvents { get; }
 
 		public IRepository<Person, int> People { get; }
+
+		public IRepository<Pet, Pet.PetKey> Pets { get; }
 
 		#endregion
 	}

@@ -1,6 +1,7 @@
 #region References
 
 using System;
+using System.Collections.Generic;
 
 #endregion
 
@@ -10,7 +11,9 @@ namespace Speedy.Storage
 	{
 		#region Methods
 
-		void AssignKeys();
+		void AssignKey(IEntity item, List<IEntity> processed);
+
+		void AssignKeys(List<IEntity> processed);
 
 		int DiscardChanges();
 

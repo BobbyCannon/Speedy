@@ -18,6 +18,7 @@ namespace Speedy.Samples.Entities
 		public Person()
 		{
 			Groups = new Collection<GroupMember>();
+			Pets = new Collection<Pet>();
 		}
 
 		#endregion
@@ -31,10 +32,9 @@ namespace Speedy.Samples.Entities
 		public int? BillingAddressId { get; set; }
 		public Guid? BillingAddressSyncId { get; set; }
 		public virtual ICollection<GroupMember> Groups { get; set; }
-
 		public override int Id { get; set; }
-
 		public string Name { get; set; }
+		public virtual ICollection<Pet> Pets { get; set; }
 
 		#endregion
 	}

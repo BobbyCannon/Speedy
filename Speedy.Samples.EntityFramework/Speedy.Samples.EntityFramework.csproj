@@ -58,6 +58,7 @@
     <Compile Include="Mappings\GroupMemberMap.cs" />
     <Compile Include="Mappings\LogEventMap.cs" />
     <Compile Include="Mappings\PersonMap.cs" />
+    <Compile Include="Mappings\PetMap.cs" />
     <Compile Include="Migrations\201606041641395_InitialDatabase.cs" />
     <Compile Include="Migrations\201606041641395_InitialDatabase.Designer.cs">
       <DependentUpon>201606041641395_InitialDatabase.cs</DependentUpon>
@@ -65,6 +66,10 @@
     <Compile Include="Migrations\201704221314194_DroppedSyncItems.cs" />
     <Compile Include="Migrations\201704221314194_DroppedSyncItems.Designer.cs">
       <DependentUpon>201704221314194_DroppedSyncItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201704231325002_AddedPetEntity.cs" />
+    <Compile Include="Migrations\201704231325002_AddedPetEntity.Designer.cs">
+      <DependentUpon>201704231325002_AddedPetEntity.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,6 +100,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201704221314194_DroppedSyncItems.resx">
       <DependentUpon>201704221314194_DroppedSyncItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201704231325002_AddedPetEntity.resx">
+      <DependentUpon>201704231325002_AddedPetEntity.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

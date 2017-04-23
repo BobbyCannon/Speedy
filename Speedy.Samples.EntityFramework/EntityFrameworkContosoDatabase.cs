@@ -52,6 +52,8 @@ namespace Speedy.Samples.EntityFramework
 
 		public IRepository<Person, int> People => GetRepository<Person, int>();
 
+		public IRepository<Pet, Pet.PetKey> Pets => GetRepository<Pet, Pet.PetKey>();
+
 		#endregion
 	}
 }

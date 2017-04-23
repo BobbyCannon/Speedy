@@ -129,7 +129,7 @@ namespace Speedy
 			{
 				Repositories.Values.ForEach(x => x.ValidateEntities());
 				Repositories.Values.ForEach(x => x.UpdateRelationships());
-				Repositories.Values.ForEach(x => x.AssignKeys());
+				Repositories.Values.ForEach(x => x.AssignKeys(new List<IEntity>()));
 				//Repositories.Values.ForEach(x => x.UpdateLocalSyncIds());
 				Repositories.Values.ForEach(x => x.UpdateRelationships());
 
@@ -207,6 +207,30 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Creates a configuration that represent a required one to many relationship.
+		/// </summary>
+		/// <param name="entity"> The entity to relate to. </param>
+		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
+		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
+		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
+		/// <typeparam name="T3"> The entity to build a relationship to. </typeparam>
+		protected void HasRequired<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
+			where T1 : Entity<T2>, new()
+			where T3 : Entity<T4>
+			where T2 : new()
+			where T4 : new()
+		{
+			Property<T1, T2>(foreignKey).IsRequired();
+
+			if (collectionKey != null)
+			{
+				var key = typeof(T3).Name + (collectionKey as dynamic).Body.Member.Name;
+				var repositoryFactory = GetRepository<T1, T2>();
+				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+			}
+		}
+
+		/// <summary>
 		/// Creates a configuration for an entity property.
 		/// </summary>
 		/// <param name="expression"> The expression for the property. </param>
@@ -219,7 +243,7 @@ namespace Speedy
 			return response;
 		}
 
-		internal void UpdateDependantIds<T, T2>(Entity<T2> entity, Func<Entity<T2>, T2> action, List<Entity<T2>> processed) where T : Entity<T2>
+		internal void UpdateDependantIds(IEntity entity, List<IEntity> processed)
 		{
 			if (processed.Contains(entity))
 			{
@@ -231,8 +255,8 @@ namespace Speedy
 
 			processed.Add(entity);
 
-			UpdateDependantIds<T, T2>(entity, properties, action, processed);
-			UpdateDependantCollectionIds<T, T2>(entity, properties, action, processed);
+			UpdateDependantIds(entity, properties, processed);
+			UpdateDependantCollectionIds(entity, properties, processed);
 		}
 
 		private static void AssignNewValue<T1, T2>(T1 obj, Expression<Func<T1, T2>> expression, T2 value)
@@ -249,10 +273,13 @@ namespace Speedy
 			assign.Compile().Invoke(obj, value);
 		}
 
-		private IEnumerable BuildRelationship<T, T2>(Type entityType, Type collectionType, T entity, IEnumerable collection, string key)
-			where T : Entity<T2>, new()
+		private IEnumerable BuildRelationship(Type entityType, Type collectionType, IEntity entity, IEnumerable collection, string key)
 		{
-			var genericMethod = GetGenericMethod("BuildRelationship", new[] { entityType, collectionType, typeof(T2) }, entityType, typeof(IEnumerable), typeof(string));
+			var collectionTypeProperties = collectionType.GetCachedProperties();
+			var collectionKey = collectionTypeProperties.First(x => x.Name == "Id").PropertyType;
+			var entityProperties = entityType.GetCachedProperties();
+			var entityKey = entityProperties.First(x => x.Name == "Id").PropertyType;
+			var genericMethod = GetGenericMethod("BuildRelationship", new[] { entityType, entityKey, collectionType, collectionKey }, entityType, typeof(IEnumerable), typeof(string));
 			return (IEnumerable) genericMethod.Invoke(this, new object[] { entity, collection, key });
 		}
 
@@ -266,10 +293,11 @@ namespace Speedy
 		/// <param name="key"> The key of the relationship </param>
 		/// <returns> The repository for the relationship. </returns>
 		// ReSharper disable once UnusedMember.Local
-		private RelationshipRepository<T2, T3> BuildRelationship<T1, T2, T3>(T1 entity, IEnumerable collection, string key)
-			where T1 : Entity<T3>, new()
-			where T2 : Entity<T3>, new()
-			where T3 : new()
+		private RelationshipRepository<T2, T2K> BuildRelationship<T1, T1K, T2, T2K>(T1 entity, IEnumerable collection, string key)
+			where T1 : Entity<T1K>, new()
+			where T2 : Entity<T2K>, new()
+			where T1K : new()
+			where T2K : new()
 		{
 			if (!OneToManyRelationships.ContainsKey(key) || entity == null)
 			{
@@ -277,16 +305,16 @@ namespace Speedy
 			}
 
 			var value = OneToManyRelationships[key];
-			var repository = (IRepository<T2, T3>) value[0];
+			var repository = (IRepository<T2, T2K>) value[0];
 			var entityExpression = (Expression<Func<T2, T1>>) value[1];
 			var entityFunction = (Func<T2, T1>) value[2];
 			var foreignKeyExpression = (Expression<Func<T2, object>>) value[3];
 			var foreignKeyFunction = (Func<T2, object>) value[4];
 
-			var response = new RelationshipRepository<T2, T3>((Repository<T2, T3>) repository, x =>
+			var response = new RelationshipRepository<T2, T2K>(key, (Repository<T2, T2K>) repository, x =>
 			{
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (invokedKey?.Equals(entity.Id) == true)
+				if (!Equals(invokedKey, default(T2K)) && invokedKey?.Equals(entity.Id) == true)
 				{
 					return true;
 				}
@@ -314,7 +342,7 @@ namespace Speedy
 				var invokedKey = foreignKeyFunction.Invoke(x);
 				if (invokedKey != null && !invokedKey.Equals(invokedEntity.Id))
 				{
-					invokedEntity.Id = (T3) invokedKey;
+					invokedEntity.Id = (T1K) invokedKey;
 				}
 			});
 
@@ -328,7 +356,7 @@ namespace Speedy
 		{
 			var repository = new Repository<T, T2>(this);
 			repository.DeletingEntity += DeletingEntity;
-			repository.UpdateEntityRelationships += UpdateEntityRelationships<T, T2>;
+			repository.UpdateEntityRelationships += UpdateEntityRelationships;
 			repository.ValidateEntity += ValidateEntity;
 			repository.Initialize();
 			return repository;
@@ -355,7 +383,6 @@ namespace Speedy
 		{
 			var myType = typeof(Database);
 			var methodInfos = myType.GetCachedMethods(BindingFlags.NonPublic | BindingFlags.Instance);
-
 			var methods = methodInfos.Where(m => m.Name == methodName).ToList();
 
 			foreach (var method in methods)
@@ -378,9 +405,8 @@ namespace Speedy
 			return null;
 		}
 
-		private void UpdateDependantCollectionIds<T, T2>(Entity<T2> entity, ICollection<PropertyInfo> properties, Func<Entity<T2>, T2> action, List<Entity<T2>> processed) where T : Entity<T2>
+		private void UpdateDependantCollectionIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
 		{
-			var entityType = typeof(T);
 			var enumerableType = typeof(IEnumerable);
 			var collectionRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
@@ -390,27 +416,27 @@ namespace Speedy
 
 			foreach (var relationship in collectionRelationships)
 			{
-				var currentCollection = (IEnumerable<Entity<T2>>) relationship.GetValue(entity, null);
-				var currentCollectionType = relationship.PropertyType.GetGenericArguments()[0];
+				var currentCollection = relationship.GetValue(entity, null) as IEnumerable<IEntity>;
+				if (currentCollection == null)
+				{
+					continue;
+				}
 
+				var collectionType = relationship.PropertyType.GetGenericArguments()[0];
+				if (!Repositories.ContainsKey(collectionType.FullName))
+				{
+					continue;
+				}
+
+				var repository = Repositories[collectionType.FullName];
 				foreach (var item in currentCollection)
 				{
-					if (currentCollectionType == entityType)
-					{
-						if (!item.IdIsSet())
-						{
-							item.Id = action(item);
-						}
-					}
-					else
-					{
-						UpdateDependantIds<T, T2>(item, action, processed);
-					}
+					repository.AssignKey(item, processed);
 				}
 			}
 		}
 
-		private void UpdateDependantIds<T, T2>(Entity<T2> entity, ICollection<PropertyInfo> properties, Func<Entity<T2>, T2> action, List<Entity<T2>> processed) where T : Entity<T2>
+		private void UpdateDependantIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
 		{
 			var entityRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
@@ -418,45 +444,50 @@ namespace Speedy
 
 			foreach (var entityRelationship in entityRelationships)
 			{
-				var expectedEntity = entityRelationship.GetValue(entity, null) as T;
-				if (expectedEntity != null)
+				var expectedEntity = entityRelationship.GetValue(entity, null) as IEntity;
+				if (expectedEntity == null)
 				{
-					if (!expectedEntity.IdIsSet())
-					{
-						expectedEntity.Id = action(expectedEntity);
-					}
-
 					continue;
 				}
 
-				var otherEntity = entityRelationship.GetValue(entity, null) as Entity<T2>;
-				if (otherEntity != null)
+				if (processed.Contains(expectedEntity))
 				{
-					UpdateDependantIds<T, T2>(otherEntity, action, processed);
+					continue;
 				}
+
+				var collectionType = expectedEntity.GetType();
+				if (!Repositories.ContainsKey(collectionType.FullName))
+				{
+					continue;
+				}
+
+				var repository = Repositories[collectionType.FullName];
+				repository.AssignKey(expectedEntity, processed);
 			}
 		}
 
-		private void UpdateEntityChildRelationships<T>(Entity<T> item, Entity<T> entity)
+		private void UpdateEntityChildRelationships(IEntity item, IEntity entity)
 		{
 			var itemType = item.GetType();
+			var itemProperties = itemType.GetCachedProperties();
 			var entityType = entity.GetType();
-			var properties = itemType.GetCachedProperties();
+			var entityProperties = entityType.GetCachedProperties();
 
-			var entityRelationship = properties.FirstOrDefault(x => x.Name == entityType.Name);
+			var entityRelationship = itemProperties.FirstOrDefault(x => x.Name == entityType.Name);
 			entityRelationship?.SetValue(item, entity, null);
 
-			var entityRelationshipId = properties.FirstOrDefault(x => x.Name == entityType.Name + "Id");
-			entityRelationshipId?.SetValue(item, entity.Id, null);
+			var entityRelationshipId = itemProperties.FirstOrDefault(x => x.Name == entityType.Name + "Id");
+			var entityKeyId = entityProperties.FirstOrDefault(x => x.Name == nameof(Entity<int>.Id));
+			entityRelationshipId?.SetValue(item, entityKeyId?.GetValue(entity), null);
 		}
 
 		[SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-		private void UpdateEntityCollectionRelationships<T, T2>(T entity, Type entityType, IEnumerable<PropertyInfo> properties)
-			where T : Entity<T2>, new() 
-			where T2 : new()
+		private void UpdateEntityCollectionRelationships(IEntity entity)
 		{
 			var enumerableType = typeof(IEnumerable);
-			var collectionRelationships = properties
+			var entityType = entity.GetType();
+			var collectionRelationships = entityType
+				.GetCachedProperties()
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
 				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
 				.Where(x => x.PropertyType.IsGenericType)
@@ -472,10 +503,10 @@ namespace Speedy
 				}
 
 				// Converts the relationship to a relationship (filtered) repository.
-				var currentCollection = (IEnumerable<Entity<T2>>) relationship.GetValue(entity, null);
+				var currentCollection = (IEnumerable<IEntity>) relationship.GetValue(entity, null);
 				var currentCollectionType = currentCollection.GetType();
 
-				if (currentCollectionType.Name == typeof(RelationshipRepository<T, T2>).Name)
+				if (typeof(IRelationshipRepository).IsAssignableFrom(currentCollectionType))
 				{
 					// We are already a relationship repository so just update the relationships
 					continue;
@@ -493,8 +524,8 @@ namespace Speedy
 				var key1 = entityType.Name + collectionType.Name;
 				var key2 = entityType.Name + relationship.Name;
 
-				var relationshipFilter = BuildRelationship<T, T2>(entityType, collectionType, entity, currentCollection, key1)
-					?? BuildRelationship<T, T2>(entityType, collectionType, entity, currentCollection, key2);
+				var relationshipFilter = BuildRelationship(entityType, collectionType, entity, currentCollection, key1)
+					?? BuildRelationship(entityType, collectionType, entity, currentCollection, key2);
 
 				// Check to see if the custom memory context has a filter method.
 				if (relationshipFilter == null)
@@ -508,34 +539,30 @@ namespace Speedy
 			}
 		}
 
-		private void UpdateEntityDirectRelationships<T>(Entity<T> entity)
+		private void UpdateEntityDirectRelationships(IEntity entity)
 		{
+			var baseType = typeof(IEntity);
 			var entityType = entity.GetType();
-			var properties = entityType.GetCachedProperties();
-
-			UpdateEntityDirectRelationships(entity, entityType, properties);
-		}
-
-		private void UpdateEntityDirectRelationships<T>(Entity<T> entity, Type entityType, ICollection<PropertyInfo> properties)
-		{
-			var baseEntityType = typeof(Entity<T>);
-			var entityRelationships = properties
+			var entityProperties = entityType.GetCachedProperties();
+			var entityRelationships = entityProperties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
-				.Where(x => baseEntityType.IsAssignableFrom(x.PropertyType))
+				.Where(x => baseType.IsAssignableFrom(x.PropertyType))
 				.ToList();
 
 			foreach (var entityRelationship in entityRelationships)
 			{
-				var otherEntity = entityRelationship.GetValue(entity, null) as Entity<T>;
-				var entityRelationshipIdProperty = properties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
+				var otherEntity = entityRelationship.GetValue(entity, null) as IEntity;
+				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
 
 				if (otherEntity == null && entityRelationshipIdProperty != null)
 				{
 					var otherEntityId = entityRelationshipIdProperty.GetValue(entity, null);
-					if (otherEntityId is T && Repositories.ContainsKey(entityRelationship.PropertyType.FullName))
+					var defaultValue = entityRelationshipIdProperty.PropertyType.GetDefault();
+
+					if (!Equals(otherEntityId, defaultValue) && Repositories.ContainsKey(entityRelationship.PropertyType.FullName))
 					{
 						var repository = Repositories[entityRelationship.PropertyType.FullName];
-						otherEntity = (Entity<T>) repository.Read(otherEntityId);
+						otherEntity = (IEntity) repository.Read(otherEntityId);
 						entityRelationship.SetValue(entity, otherEntity, null);
 					}
 				}
@@ -558,25 +585,24 @@ namespace Speedy
 						}
 					}
 
-					var otherEntityId = entityRelationshipIdProperty.GetValue(entity, null);
-					if (!Equals(otherEntityId, otherEntity.Id))
+					var otherEntityProperties = otherEntity.GetType().GetCachedProperties();
+					var otherEntityIdProperty = otherEntityProperties.FirstOrDefault(x => x.Name == "Id");
+					var entityId = entityRelationshipIdProperty.GetValue(entity, null);
+					var otherId = otherEntityIdProperty?.GetValue(otherEntity);
+
+					if (!Equals(entityId, otherId))
 					{
 						// resets entityId to entity.Id if it does not match
-						entityRelationshipIdProperty.SetValue(entity, otherEntity.Id, null);
+						entityRelationshipIdProperty.SetValue(entity, otherId, null);
 					}
 				}
 			}
 		}
 
-		private void UpdateEntityRelationships<T, T2>(T entity)
-			where T : Entity<T2>, new() 
-			where T2 : new()
+		private void UpdateEntityRelationships(IEntity entity)
 		{
-			var entityType = entity.GetType();
-			var properties = entityType.GetCachedProperties();
-
-			UpdateEntityDirectRelationships(entity, entityType, properties);
-			UpdateEntityCollectionRelationships<T, T2>(entity, entityType, properties);
+			UpdateEntityDirectRelationships(entity);
+			UpdateEntityCollectionRelationships(entity);
 		}
 
 		private void ValidateEntity<T, T2>(T entity, IRepository<T, T2> repository) where T : Entity<T2>

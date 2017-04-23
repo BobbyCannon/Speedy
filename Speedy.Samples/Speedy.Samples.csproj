@@ -51,6 +51,7 @@
     <Compile Include="Entities\Person.cs" />
     <Compile Include="Entities\Group.cs" />
     <Compile Include="Entities\GroupMember.cs" />
+    <Compile Include="Entities\Pet.cs" />
     <Compile Include="IContosoDatabaseProvider.cs" />
     <Compile Include="IContosoDatabase.cs" />
     <Compile Include="Entities\LogEvent.cs" />
