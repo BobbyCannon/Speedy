@@ -179,9 +179,11 @@ namespace Speedy
 		{
 			if (options == null)
 			{
-				options = new KeyValueRepositoryOptions();
-				options.Limit = Limit;
-				options.Timeout = Timeout ?? TimeSpan.Zero;
+				options = new KeyValueRepositoryOptions
+				{
+					Limit = Limit,
+					Timeout = Timeout ?? TimeSpan.Zero
+				};
 			}
 
 			return KeyValueRepository<T>.Create(_directoryInfo.FullName, name, options);

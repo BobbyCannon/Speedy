@@ -83,7 +83,7 @@ namespace Speedy.Benchmarks
 
 			TestDatabase(results, directory + "\\Database", connectionString, 1000, 10000);
 			//TestDatabase(results, directory + "\\Database", connectionString, 5000, 10000);
-			//TestRepository(results, directory + "\\Repository", 10000);
+			//TestRepository(results, directory + "\\Repository", 100000);
 
 			Log(string.Empty);
 			results.ForEach(x => Log(x));
@@ -190,12 +190,12 @@ namespace Speedy.Benchmarks
 		{
 			Log($"Starting to benchmark Speedy Repository writing {iterations}...", true, results);
 
-			//results.Add(WriteCollection(directory, iterations, 100));
+			results.Add(WriteCollection(directory, iterations, 100));
 			results.Add(WriteCollection(directory, iterations, 1000));
 			results.Add(WriteCollection(directory, iterations, 2500));
 			results.Add(WriteCollection(directory, iterations, 10000));
 			results.Add(WriteCollection(directory, iterations, 50000));
-			//results.Add(WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000));
+			results.Add(WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000));
 			results.Add(WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000));
 			results.Add(WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000));
 			results.Add(WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000));

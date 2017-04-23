@@ -123,12 +123,25 @@ namespace Speedy
 		/// <param name="key"> The key of the item to write. </param>
 		/// <param name="value"> The value of the item to write. </param>
 		void Write(string key, T value);
+		
+		/// <summary>
+		/// Writes an item to the repository.
+		/// </summary>
+		/// <param name="key"> The key of the item to write. </param>
+		/// <param name="value"> The value of the item to write. </param>
+		void Write(string key, string value);
 
 		/// <summary>
 		/// Writes a collection of items to the repository.
 		/// </summary>
 		/// <param name="items"> The list of items to add to the repository. </param>
 		void Write(Dictionary<string, T> items);
+		
+		/// <summary>
+		/// Writes a collection of items to the repository.
+		/// </summary>
+		/// <param name="items"> The list of items to add to the repository. </param>
+		void Write(Dictionary<string, string> items);
 
 		#endregion
 

@@ -481,7 +481,20 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(ignoreVirtuals: _options.IgnoreVirtualMembers), DateTime.UtcNow));
+				Write(key, value.ToJson(ignoreVirtuals: _options.IgnoreVirtualMembers));
+			}
+		}
+
+		/// <summary>
+		/// Writes an item to the repository.
+		/// </summary>
+		/// <param name="key"> The key of the item to write. </param>
+		/// <param name="value"> The value of the item to write. </param>
+		public void Write(string key, string value)
+		{
+			lock (_changes)
+			{
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value, DateTime.UtcNow));
 			}
 		}
 
@@ -490,6 +503,18 @@ namespace Speedy
 		/// </summary>
 		/// <param name="items"> The list of items to add to the repository. </param>
 		public void Write(Dictionary<string, T> items)
+		{
+			foreach (var item in items)
+			{
+				Write(item.Key, item.Value);
+			}
+		}
+
+		/// <summary>
+		/// Writes a collection of items to the repository.
+		/// </summary>
+		/// <param name="items"> The list of items to add to the repository. </param>
+		public void Write(Dictionary<string, string> items)
 		{
 			foreach (var item in items)
 			{
