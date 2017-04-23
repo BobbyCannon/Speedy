@@ -13,6 +13,7 @@ namespace Speedy.Configuration
 	/// The configuration for an entity property.
 	/// </summary>
 	/// <typeparam name="T"> The entity this configuration is for. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	public class PropertyConfiguration<T, T2> : IPropertyConfiguration where T : Entity<T2>
 	{
 		#region Fields

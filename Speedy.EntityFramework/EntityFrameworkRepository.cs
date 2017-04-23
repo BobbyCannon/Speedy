@@ -16,6 +16,7 @@ namespace Speedy.EntityFramework
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	public class EntityFrameworkRepository<T,T2> : IRepository<T,T2> where T : Entity<T2>, new()
 	{
 		#region Fields

@@ -28,6 +28,7 @@ namespace Speedy.Storage
 	/// This collection representing a list of entities for a relationship.
 	/// </summary>
 	/// <typeparam name="T"> The type for the relationship. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	[Serializable]
 	internal class RelationshipRepository<T, T2> : IRelationshipRepository, ICollection<T>
 		where T : Entity<T2>, new()

@@ -84,6 +84,7 @@ namespace Speedy
 		/// Gets a read only repository for the provided type.
 		/// </summary>
 		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
+		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The repository for the type. </returns>
 		public IRepository<T, T2> GetReadOnlyRepository<T, T2>()
 			where T : Entity<T2>, new()
@@ -96,6 +97,7 @@ namespace Speedy
 		/// Gets a repository for the provided type.
 		/// </summary>
 		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
+		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The repository for the type. </returns>
 		public IRepository<T, T2> GetRepository<T, T2>()
 			where T : Entity<T2>, new()
@@ -168,6 +170,7 @@ namespace Speedy
 		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
 		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
+		/// <typeparam name="T3"> The type of the entity key. </typeparam>
 		protected void HasOptional<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T3>, new()
 			where T2 : Entity<T3>
@@ -191,6 +194,7 @@ namespace Speedy
 		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
 		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
+		/// <typeparam name="T3"> The type of the entity key. </typeparam>
 		protected void HasRequired<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T3>, new()
 			where T2 : Entity<T3>
@@ -213,7 +217,9 @@ namespace Speedy
 		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
 		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
+		/// <typeparam name="T2"> The type of the entity key of the host. </typeparam>
 		/// <typeparam name="T3"> The entity to build a relationship to. </typeparam>
+		/// <typeparam name="T4"> The type of the entity key to build the relationship to. </typeparam>
 		protected void HasRequired<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T2>, new()
 			where T3 : Entity<T4>
@@ -236,6 +242,7 @@ namespace Speedy
 		/// <param name="expression"> The expression for the property. </param>
 		/// <typeparam name="T"> The entity for the configuration. </typeparam>
 		/// <returns> The configuration for the entity property. </returns>
+		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		protected PropertyConfiguration<T, T2> Property<T, T2>(Expression<Func<T, object>> expression) where T : Entity<T2>
 		{
 			var response = new PropertyConfiguration<T, T2>(expression);
@@ -287,7 +294,9 @@ namespace Speedy
 		/// Builds relationship repository for the entity provided.
 		/// </summary>
 		/// <typeparam name="T1"> The type of the entity with the relationship. </typeparam>
+		/// <typeparam name="T1K"> The type of the key for the entity. </typeparam>
 		/// <typeparam name="T2"> The type of the related collection. </typeparam>
+		/// <typeparam name="T2K"> The type of the key for the collection. </typeparam>
 		/// <param name="entity"> The entity to process. </param>
 		/// <param name="collection"> The entities to add or update to the repository. </param>
 		/// <param name="key"> The key of the relationship </param>

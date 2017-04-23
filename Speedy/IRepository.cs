@@ -12,6 +12,7 @@ namespace Speedy
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	public interface IRepository<T,T2> : IQueryable<T> where T : Entity<T2>
 	{
 		#region Methods

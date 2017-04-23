@@ -15,6 +15,7 @@ namespace Speedy.Storage
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The type contained in the repository. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	[Serializable]
 	internal class Repository<T, T2> : IRepository, IRepository<T, T2>
 		where T : Entity<T2>, new()
@@ -120,6 +121,7 @@ namespace Speedy.Storage
 			AddOrUpdate(myEntity);
 		}
 
+		/// <inheritdoc />
 		public void AssignKey(IEntity entity, List<IEntity> processed)
 		{
 			var item = entity as Entity<T2>;
@@ -142,9 +144,7 @@ namespace Speedy.Storage
 			}
 		}
 
-		/// <summary>
-		/// Assign primary keys to all entities.
-		/// </summary>
+		/// <inheritdoc />
 		public void AssignKeys(List<IEntity> processed)
 		{
 			foreach (var entityState in Cache)
@@ -153,9 +153,7 @@ namespace Speedy.Storage
 			}
 		}
 
-		/// <summary>
-		/// Discard all changes made in this context to the underlying database.
-		/// </summary>
+		/// <inheritdoc />
 		public int DiscardChanges()
 		{
 			var response = Cache.Count;
@@ -163,9 +161,7 @@ namespace Speedy.Storage
 			return response;
 		}
 
-		/// <summary>
-		/// Dispose of the entity store and cleans up all dependencies.
-		/// </summary>
+		/// <inheritdoc />
 		public void Dispose()
 		{
 			if (Store != null)
@@ -187,13 +183,7 @@ namespace Speedy.Storage
 			}
 		}
 
-		/// <summary>
-		/// Returns an enumerator that iterates through the collection.
-		/// </summary>
-		/// <returns>
-		/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-		/// </returns>
-		/// <filterpriority> 1 </filterpriority>
+		/// <inheritdoc />
 		public IEnumerator<T> GetEnumerator()
 		{
 			return _query.GetEnumerator();
@@ -212,10 +202,7 @@ namespace Speedy.Storage
 				.AsQueryable();
 		}
 
-		/// <summary>
-		/// Determines if the repository has changes.
-		/// </summary>
-		/// <returns> </returns>
+		/// <inheritdoc />
 		public bool HasChanges()
 		{
 			return GetChanges().Any();
@@ -227,21 +214,13 @@ namespace Speedy.Storage
 			return this.Any(x => foreignKeyFunction.Invoke(x).Equals(id));
 		}
 
-		/// <summary>
-		/// Configures the query to include related entities in the results.
-		/// </summary>
-		/// <param name="include"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
+		/// <inheritdoc />
 		public IQueryable<T> Include(Expression<Func<T, object>> include)
 		{
 			return _query;
 		}
 
-		/// <summary>
-		/// Configures the query to include multiple related entities in the results.
-		/// </summary>
-		/// <param name="includes"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
+		/// <inheritdoc />
 		public IQueryable<T> Including(params Expression<Func<T, object>>[] includes)
 		{
 			return _query;
@@ -280,6 +259,7 @@ namespace Speedy.Storage
 			Cache.Insert(indexOf, new EntityState<T, T2> { Entity = entity, OldEntity = CloneEntity(entity), State = EntityStateType.Added });
 		}
 
+		/// <inheritdoc />
 		public object Read(object id)
 		{
 			return Read((T2) id);
@@ -296,10 +276,7 @@ namespace Speedy.Storage
 			return state == null ? Store?.Read(id.ToString()) : state.Entity;
 		}
 
-		/// <summary>
-		/// Removes an entity from the repository.
-		/// </summary>
-		/// <param name="id"> The ID of the entity to remove. </param>
+		/// <inheritdoc />
 		public void Remove(T2 id)
 		{
 			var entity = Cache.FirstOrDefault(x => Equals(x.Entity.Id, id));
@@ -313,31 +290,21 @@ namespace Speedy.Storage
 			entity.State = EntityStateType.Removed;
 		}
 
-		/// <summary>
-		/// Removes an entity from the repository.
-		/// </summary>
-		/// <param name="entity"> The entity to remove. </param>
+		/// <inheritdoc />
 		public void Remove(T entity)
 		{
 			Remove(entity.Id);
 		}
 
-		/// <summary>
-		/// Removes a set of entities from the repository.
-		/// </summary>
-		/// <param name="filter"> The filter of the entities to remove. </param>
+		/// <inheritdoc />
 		public void Remove(Expression<Func<T, bool>> filter)
 		{
 			Cache.Select(x => x.Entity)
-				.Cast<T>()
 				.Where(filter.Compile())
 				.ForEach(Remove);
 		}
 
-		/// <summary>
-		/// Save the data to the data store.
-		/// </summary>
-		/// <returns> The number of items saved. </returns>
+		/// <inheritdoc />
 		public int SaveChanges()
 		{
 			var changeCount = GetChanges().Count();
@@ -413,11 +380,13 @@ namespace Speedy.Storage
 			return changeCount;
 		}
 
+		/// <inheritdoc />
 		public void UpdateRelationships()
 		{
 			Cache.ToList().ForEach(x => OnUpdateEntityRelationships(x.Entity));
 		}
 
+		/// <inheritdoc />
 		public void ValidateEntities()
 		{
 			Cache.Where(x => x.State == EntityStateType.Added || x.State == EntityStateType.Modified)
@@ -534,6 +503,7 @@ namespace Speedy.Storage
 			return Cache.Where(x => x.State != EntityStateType.Unmodified).ToList();
 		}
 
+		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
@@ -565,7 +535,12 @@ namespace Speedy.Storage
 				.ToList();
 		}
 
-		private void UpdateEntity<T>(Entity<T> entity, Entity<T> updatedEntity)
+		/// <summary>
+		/// Update the entity with the new values.
+		/// </summary>
+		/// <param name="entity"> The entity to update. </param>
+		/// <param name="updatedEntity"> The new values to update the entity with. </param>
+		private void UpdateEntity(Entity<T2> entity, Entity<T2> updatedEntity)
 		{
 			var properties = GetPublicProperties();
 			foreach (var property in properties)
