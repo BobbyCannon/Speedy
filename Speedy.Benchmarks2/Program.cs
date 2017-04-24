@@ -75,15 +75,15 @@ namespace Speedy.Benchmarks
 
 		private static void Main(string[] args)
 		{
-			_timeFormat = "ss\\:fff";
+			_timeFormat = "mm\\:ss\\:fff";
 
 			var directory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy";
 			var connectionString = "server=localhost;database=speedy;integrated security=true;";
 			var results = new List<string>();
 
-			TestDatabase(results, directory + "\\Database", connectionString, 1000, 10000);
-			//TestDatabase(results, directory + "\\Database", connectionString, 5000, 10000);
-			//TestRepository(results, directory + "\\Repository", 100000);
+			TestSqlDatabase(results, connectionString, 10000);
+			TestJsonDatabase(results, directory + "\\Database", 10000);
+			TestRepository(results, directory + "\\Repository", 10000);
 
 			Log(string.Empty);
 			results.ForEach(x => Log(x));
@@ -130,19 +130,34 @@ namespace Speedy.Benchmarks
 			}
 		}
 
-		private static void TestDatabase(ICollection<string> results, string directory, string connectionString, int chunk, int iterations)
+		private static void TestSqlDatabase(ICollection<string> results, string connectionString, int iterations)
 		{
-			Log($"Starting to benchmark Speedy Database writing {iterations}...", true, results);
-			Log("JSON", true, results);
+			var chunks = new[] { 150, 300, 600, 1200, 2400 };
 
-			CleanupDirectory(directory);
-			results.Add(TestDatabase(new ContosoDatabaseProvider(directory), iterations, chunk));
-
-			Log(string.Empty, true, results);
+			Log($"Starting to benchmark Speedy SQL Database writing {iterations}...", true, results);
 			Log("Entity Framework", true, results);
 
-			CleanupDatabase(connectionString);
-			results.Add(TestDatabase(new EntityFrameworkContosoDatabaseProvider(connectionString), iterations, chunk));
+			foreach (var chunk in chunks)
+			{
+				CleanupDatabase(connectionString);
+				results.Add(TestDatabase(new EntityFrameworkContosoDatabaseProvider(connectionString), iterations, chunk));
+			}
+
+			Log(string.Empty, true, results);
+		}
+
+		private static void TestJsonDatabase(ICollection<string> results, string directory, int iterations)
+		{
+			var chunks = new[] { 150, 300, 600, 1200, 2400 };
+
+			Log($"Starting to benchmark Speedy JSON Database writing {iterations}...", true, results);
+			Log("JSON", true, results);
+
+			foreach (var chunk in chunks)
+			{
+				CleanupDirectory(directory);
+				results.Add(TestDatabase(new ContosoDatabaseProvider(directory), iterations, chunk));
+			}
 
 			Log(string.Empty, true, results);
 		}

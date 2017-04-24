@@ -1,4 +1,4 @@
-param (
+﻿param (
     [Parameter(Mandatory = $false, Position = 0)]
     [string] $Configuration = "Release"
 )
@@ -24,12 +24,14 @@ if (!(Test-Path $destination2 -PathType Container)) {
 }
 
 try {
-    .\IncrementVersion.ps1 -Build +
+	& "ResetAssemblyInfos.ps1"
+
+    #.\IncrementVersion.ps1 -Build +
 
     & nuget.exe restore "$scriptPath\$productName.sln"
 
-    $msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"
-    & $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=14.0 /v:m /m
+    $msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe"
+    & $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /p:VisualStudioVersion=15.0 /v:m /m
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Build has failed! " $watch.Elapsed -ForegroundColor Red
@@ -44,7 +46,7 @@ try {
     $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
     $build = ([Version] $versionInfo.ProductVersion).Build
     $version = $versionInfo.FileVersion.Replace(".$build.0", ".$build")
-    $preVersion = "$version-RC2"
+    $version = "$version-RC1"
 
     & "NuGet.exe" pack "$productName.nuspec" -Prop Configuration="$Configuration" -Version $version
     Move-Item "$productName.$version.nupkg" "$destination\$productName.$version.nupkg" -force

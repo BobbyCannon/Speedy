@@ -11,7 +11,7 @@
 		<iconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</iconUrl>
 		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" version="9.0.1" />
+			<dependency id="Newtonsoft.Json" version="10.0.2" />
 		</dependencies>
 		<references>
 			<reference file="Speedy.dll" />
