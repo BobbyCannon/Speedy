@@ -37,7 +37,7 @@
 		{
 			return !Equals(Id, default(T));
 		}
-		
+
 		/// <summary>
 		/// Allows the entity to calculate the next key.
 		/// </summary>

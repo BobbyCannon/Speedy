@@ -237,7 +237,7 @@ namespace Speedy.IntegrationTests
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
 						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual);
+						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
 					}
 				});
 		}
@@ -356,7 +356,7 @@ namespace Speedy.IntegrationTests
 						Assert.AreNotEqual(0, actual.Id);
 						Assert.AreEqual(2, actual.Id);
 						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual);
+						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
 					}
 				});
 		}
@@ -409,7 +409,7 @@ namespace Speedy.IntegrationTests
 					using (var database = provider.GetDatabase())
 					{
 						var actual = database.LogEvents.First();
-						TestHelper.AreEqual(expected, actual);
+						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
 					}
 				});
 		}
@@ -438,7 +438,7 @@ namespace Speedy.IntegrationTests
 
 						var expected = new[] { address2, address1 };
 						var actual = database.Addresses.ToArray();
-						TestHelper.AreEqual(expected, actual);
+						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
 					}
 				});
 		}
@@ -827,7 +827,7 @@ namespace Speedy.IntegrationTests
 						actual = database.Addresses.FirstOrDefault();
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
-						TestHelper.AreEqual(expected, actual);
+						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
 
 						var originalDate = actual.CreatedOn;
 						actual.CreatedOn = DateTime.MaxValue;

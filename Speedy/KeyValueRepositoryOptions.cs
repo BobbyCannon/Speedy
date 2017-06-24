@@ -11,6 +11,17 @@ namespace Speedy
 	/// </summary>
 	public class KeyValueRepositoryOptions
 	{
+		#region Constructors
+
+		/// <summary>
+		/// </summary>
+		public KeyValueRepositoryOptions()
+		{
+			Limit = int.MaxValue;
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>

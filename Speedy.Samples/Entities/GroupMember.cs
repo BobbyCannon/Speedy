@@ -6,7 +6,7 @@ using System;
 
 namespace Speedy.Samples.Entities
 {
-	public class GroupMember : BaseModifiableEntity
+	public class GroupMember : IncrementingModifiableEntity
 	{
 		#region Properties
 

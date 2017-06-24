@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Speedy.Samples.Entities
 {
-	public class Food : BaseModifiableEntity
+	public class Food : IncrementingModifiableEntity
 	{
 		#region Constructors
 

@@ -44,7 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Address.cs" />
-    <Compile Include="Entities\BaseEntity.cs" />
     <Compile Include="Entities\Food.cs" />
     <Compile Include="Entities\FoodRelationship.cs" />
     <Compile Include="Entities\ILogEvent.cs" />

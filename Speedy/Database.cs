@@ -37,7 +37,7 @@ namespace Speedy
 		{
 			Directory = directory;
 			OneToManyRelationships = new Dictionary<string, object[]>();
-			Options = options ?? new DatabaseOptions();
+			Options = options?.DeepClone() ?? new DatabaseOptions();
 			PropertyConfigurations = new List<IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IRepository>();
 		}

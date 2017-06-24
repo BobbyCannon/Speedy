@@ -34,7 +34,6 @@ namespace Speedy
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
 		private static readonly JsonSerializerSettings _serializationSettingsNoVirtuals;
 		private static readonly ConcurrentDictionary<string, Type[]> _types;
-		private static readonly char[] _validJsonStartCharacters;
 
 		#endregion
 
@@ -42,7 +41,6 @@ namespace Speedy
 
 		static Extensions()
 		{
-			_validJsonStartCharacters = new[] { '{', '[', '"' };
 			_types = new ConcurrentDictionary<string, Type[]>();
 			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
 			_genericMethods = new ConcurrentDictionary<string, MethodInfo>();
@@ -117,9 +115,7 @@ namespace Speedy
 		/// <returns> The deserialized object. </returns>
 		public static T FromJson<T>(this string item)
 		{
-			return item.Length > 0 && _validJsonStartCharacters.Contains(item[0])
-				? JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals)
-				: JsonConvert.DeserializeObject<T>("\"" + item + "\"", _serializationSettingsNoVirtuals);
+			return JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals);
 		}
 
 		/// <summary>
@@ -347,6 +343,19 @@ namespace Speedy
 		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreVirtuals = false)
 		{
 			var settings = GetSerializerSettings(camelCase, ignoreVirtuals);
+			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
+		}
+
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
+		/// <param name="settings"> The settigs to use during serialization. </param>
+		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToJson<T>(this T item, JsonSerializerSettings settings, bool indented = false)
+		{
 			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
 		}
 

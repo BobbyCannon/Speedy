@@ -19,9 +19,9 @@ namespace Speedy.Samples
 
 		public ContosoDatabaseProvider(string directory = null, DatabaseOptions options = null)
 		{
+			Options = options?.DeepClone() ?? new DatabaseOptions();
+			
 			_directory = directory;
-			Options = options ?? new DatabaseOptions();
-
 			_memoryDatabase = new Lazy<ContosoDatabase>(() => new ContosoDatabase(null, Options.DeepClone()), true);
 		}
 

@@ -43,7 +43,7 @@ namespace Speedy.Storage
 
 			if (!string.IsNullOrWhiteSpace(_database.Directory))
 			{
-				var options = new KeyValueRepositoryOptions { IgnoreVirtualMembers = true, Timeout = database.Options.Timeout };
+				var options = new KeyValueRepositoryOptions { IgnoreVirtualMembers = true, Timeout = database.Options.Timeout, Limit = int.MaxValue };
 				Store = KeyValueRepository<T>.Create(_database.Directory, typeof(T).Name, options);
 				Store.OnEnumerated += OnUpdateEntityRelationships;
 			}
@@ -231,9 +231,12 @@ namespace Speedy.Storage
 		/// </summary>
 		public void Initialize()
 		{
-			var keys = Store?.ReadKeys().ToList();
-			// todo: support existing records? How?
-			_currentKey = default(T2);
+			var lastItem = Store?.LastOrDefault();
+
+			if (lastItem != null)
+			{
+				_currentKey = lastItem.Id;
+			}
 		}
 
 		/// <summary>

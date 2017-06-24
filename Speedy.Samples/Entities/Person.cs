@@ -10,7 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Speedy.Samples.Entities
 {
 	[Serializable]
-	public class Person : BaseModifiableEntity
+	public class Person : IncrementingModifiableEntity
 	{
 		#region Constructors
 

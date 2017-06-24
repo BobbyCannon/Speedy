@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Speedy.Samples.Entities
 {
-	public class Group : BaseModifiableEntity
+	public class Group : IncrementingModifiableEntity
 	{
 		#region Constructors
 

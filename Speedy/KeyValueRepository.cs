@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using Speedy.Streams;
 
 #endregion
@@ -57,6 +58,7 @@ namespace Speedy
 		private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
 		private readonly Dictionary<string, Tuple<string, DateTime>> _changes;
 		private readonly KeyValueRepositoryOptions _options;
+		private readonly JsonSerializerSettings _settings;
 
 		#endregion
 
@@ -71,6 +73,7 @@ namespace Speedy
 		public KeyValueRepository(string directory, string name, KeyValueRepositoryOptions options)
 			: this(new DirectoryInfo(directory), name, options)
 		{
+			_settings = Extensions.GetSerializerSettings(false, _options.IgnoreVirtualMembers);
 		}
 
 		/// <summary>
@@ -97,7 +100,7 @@ namespace Speedy
 		protected KeyValueRepository(DirectoryInfo directoryInfo, string name, KeyValueRepositoryOptions options)
 		{
 			_options = options;
-			_cache = new Dictionary<string, Tuple<string, DateTime>>(_options.Limit);
+			_cache = new Dictionary<string, Tuple<string, DateTime>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
 			_changes = new Dictionary<string, Tuple<string, DateTime>>();
 
 			DirectoryInfo = directoryInfo;
@@ -291,7 +294,7 @@ namespace Speedy
 
 					foreach (var item in items)
 					{
-						writer.WriteLine(item.Key + "|" + item.Value);
+						writer.WriteLine(item.Key + "|" + item.Value.ToJson(_settings));
 					}
 
 					writer.Flush();
@@ -314,6 +317,11 @@ namespace Speedy
 				foreach (var item in _cache.OrderBy(x => x.Value.Item2).Where(x => x.Value.Item1 != null))
 				{
 					yield return new KeyValuePair<string, T>(item.Key, item.Value.Item1.FromJson<T>());
+				}
+
+				if (_options.Limit == int.MaxValue)
+				{
+					yield break;
 				}
 
 				using (var stream = OpenFile(FileInfo, true))
@@ -403,6 +411,38 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Reads items from disk into the cache. This will not check the keys so we can speed up the loading of items.
+		/// </summary>
+		public void Refresh()
+		{
+			lock (_changes)
+			{
+				using (var stream = OpenFile(FileInfo, true))
+				{
+					var reader = new StreamReader(stream);
+
+					while (_cache.Count <= _options.Limit && reader.Peek() > 0)
+					{
+						var line = reader.ReadLine();
+						if (string.IsNullOrWhiteSpace(line))
+						{
+							continue;
+						}
+
+						var delimiter = line.IndexOf("|");
+						if (delimiter <= 0)
+						{
+							continue;
+						}
+
+						var readKey = line.Substring(0, delimiter);
+						_cache.AddOrUpdate(readKey, new Tuple<string, DateTime>(line.Substring(delimiter + 1, line.Length - delimiter - 1), DateTime.UtcNow));
+					}
+				}
+			}
+		}
+
+		/// <summary>
 		/// Removes an item from the repository by the key provided.
 		/// </summary>
 		/// <param name="key"> The key of the item to remove. </param>
@@ -481,7 +521,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				Write(key, value.ToJson(ignoreVirtuals: _options.IgnoreVirtualMembers));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(_settings), DateTime.UtcNow));
 			}
 		}
 
@@ -494,7 +534,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value, DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime>($"\"{value}\"", DateTime.UtcNow));
 			}
 		}
 
@@ -542,7 +582,7 @@ namespace Speedy
 		{
 			lock (_changes)
 			{
-				return Read().Count();
+				return _options.Limit == int.MaxValue ? _cache.Count : Read().Count();
 			}
 		}
 
@@ -574,6 +614,9 @@ namespace Speedy
 					// Finish our save.
 					SaveRepository(DateTime.UtcNow);
 				}
+
+				// Load everything from disk.
+				Refresh();
 			}
 		}
 
@@ -582,6 +625,113 @@ namespace Speedy
 			var fileAccess = reading ? FileAccess.Read : FileAccess.ReadWrite;
 			var fileShare = reading ? FileShare.Read : FileShare.None;
 			return Extensions.Retry(() => info.Open(FileMode.OpenOrCreate, fileAccess, fileShare), (int) _options.Timeout.TotalMilliseconds, 50);
+		}
+
+		private void ProcessCache(NoCloseStreamReader reader, NoCloseStreamWriter writer)
+		{
+			while (reader.Peek() > 0)
+			{
+				var line = reader.ReadLine();
+				if (string.IsNullOrWhiteSpace(line))
+				{
+					continue;
+				}
+
+				var delimiter = line.IndexOf("|");
+				if (delimiter <= 0)
+				{
+					continue;
+				}
+
+				var key = line.Substring(0, delimiter);
+
+				// Check to see if we have an update or delete.
+				if (!_cache.ContainsKey(key))
+				{
+					// We do not have an update or delete so keep the line.
+					writer.WriteLine(line);
+				}
+			}
+
+			// Write all items in the cache.
+			foreach (var change in _cache)
+			{
+				writer.WriteLine(change.Key + "|" + change.Value.Item1);
+			}
+
+			// Clear all "remove" actions.
+			foreach (var item in _cache.Where(x => x.Value.Item1 == null).ToList())
+			{
+				_cache.Remove(item.Key);
+			}
+		}
+
+		private void ProcessLimitedCache(DateTime threshold, NoCloseStreamReader reader, NoCloseStreamWriter writer)
+		{
+			// Append the expired cache.
+			var expiredCache = _cache
+				.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null)
+				.OrderBy(x => x.Value.Item2)
+				.ToDictionary(x => x.Key, x => x.Value);
+
+			// Append all add / updates items over the cache limit.
+			var overLimit = _cache
+				.Where(x => x.Value.Item1 != null)
+				.Where(x => !expiredCache.ContainsKey(x.Key))
+				.OrderBy(x => x.Value.Item2)
+				.Take(_cache.Count - _options.Limit)
+				.ToDictionary(x => x.Key, x => x.Value);
+
+			while (reader.Peek() > 0)
+			{
+				var line = reader.ReadLine();
+				if (string.IsNullOrWhiteSpace(line))
+				{
+					continue;
+				}
+
+				var delimiter = line.IndexOf("|");
+				if (delimiter <= 0)
+				{
+					continue;
+				}
+
+				var key = line.Substring(0, delimiter);
+
+				// See if this was already in the over limit group.
+				if (expiredCache.ContainsKey(key) || overLimit.ContainsKey(key))
+				{
+					// We've already written these items so skip it.
+					continue;
+				}
+
+				// Check to see if we have an update or delete.
+				if (!_cache.ContainsKey(key))
+				{
+					// We do not have an update or delete so keep the line.
+					writer.WriteLine(line);
+				}
+			}
+
+			// Write all items that have expired in the cache.
+			foreach (var change in expiredCache)
+			{
+				writer.WriteLine(change.Key + "|" + change.Value.Item1);
+				_cache.Remove(change.Key);
+			}
+
+			// Write all items that are over the cache limit.
+			foreach (var change in overLimit)
+			{
+				writer.WriteLine(change.Key + "|" + change.Value.Item1);
+				_cache.Remove(change.Key);
+			}
+
+			// Clear all "remove" actions.
+			foreach (var item in _cache.Where(x => x.Value.Item1 == null).ToList())
+			{
+				_cache.Remove(item.Key);
+			}
 		}
 
 		/// <summary>
@@ -615,69 +765,13 @@ namespace Speedy
 					var reader = new NoCloseStreamReader(tempStream);
 					var writer = new NoCloseStreamWriter(fileStream);
 
-					// Append the expired cache.
-					var expiredCache = _cache
-						.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null)
-						.OrderBy(x => x.Value.Item2)
-						.ToDictionary(x => x.Key, x => x.Value);
-
-					// Append all add / updates items over the cache limit.
-					var overLimit = _cache
-						.Where(x => x.Value.Item1 != null)
-						.Where(x => !expiredCache.ContainsKey(x.Key))
-						.OrderBy(x => x.Value.Item2)
-						.Take(_cache.Count - _options.Limit)
-						.ToDictionary(x => x.Key, x => x.Value);
-
-					while (reader.Peek() > 0)
+					if (_options.Limit >= int.MaxValue)
 					{
-						var line = reader.ReadLine();
-						if (string.IsNullOrWhiteSpace(line))
-						{
-							continue;
-						}
-
-						var delimiter = line.IndexOf("|");
-						if (delimiter <= 0)
-						{
-							continue;
-						}
-
-						var key = line.Substring(0, delimiter);
-
-						// See if this was already in the over limit group.
-						if (expiredCache.ContainsKey(key) || overLimit.ContainsKey(key))
-						{
-							// We've already written these items so skip it.
-							continue;
-						}
-
-						// Check to see if we have an update or delete.
-						if (!_cache.ContainsKey(key))
-						{
-							// We do not have an update or delete so keep the line.
-							writer.WriteLine(line);
-						}
+						ProcessCache(reader, writer);
 					}
-
-					// Write all items that have expired in the cache.
-					foreach (var change in expiredCache)
+					else
 					{
-						writer.WriteLine(change.Key + "|" + change.Value.Item1);
-						_cache.Remove(change.Key);
-					}
-
-					// Write all items that are over the cache limit.
-					foreach (var change in overLimit)
-					{
-						writer.WriteLine(change.Key + "|" + change.Value.Item1);
-						_cache.Remove(change.Key);
-					}
-
-					// Clear all "remove" actions.
-					foreach (var item in _cache.Where(x => x.Value.Item1 == null).ToList())
-					{
-						_cache.Remove(item.Key);
+						ProcessLimitedCache(threshold, reader, writer);
 					}
 
 					reader.Dispose();

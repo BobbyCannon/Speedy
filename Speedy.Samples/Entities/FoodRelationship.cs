@@ -1,6 +1,6 @@
 ﻿namespace Speedy.Samples.Entities
 {
-	public class FoodRelationship : BaseModifiableEntity
+	public class FoodRelationship : IncrementingModifiableEntity
 	{
 		#region Properties
 

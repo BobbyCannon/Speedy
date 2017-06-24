@@ -27,10 +27,10 @@ namespace Speedy.Storage
 				return null;
 			}
 
-			var shouldSerialize = propertyInfo.CanRead && !propertyInfo.GetAccessors()[0].IsVirtual
-				|| propertyInfo.CanRead && propertyInfo.GetAccessors()[0].IsVirtual && propertyInfo.GetAccessors()[0].IsFinal;
+			var isVirtual = propertyInfo.CanRead && propertyInfo.GetMethod.IsVirtual && propertyInfo.GetMethod.Attributes.HasFlag(MethodAttributes.NewSlot) && !propertyInfo.GetMethod.IsFinal
+				|| propertyInfo.CanWrite && propertyInfo.SetMethod.IsVirtual && propertyInfo.SetMethod.Attributes.HasFlag(MethodAttributes.NewSlot) && !propertyInfo.SetMethod.IsFinal;
 
-			property.ShouldSerialize = instance => shouldSerialize;
+			property.ShouldSerialize = instance => !isVirtual;
 			return property;
 		}
 
