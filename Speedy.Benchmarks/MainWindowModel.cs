@@ -8,7 +8,7 @@ using PropertyChanged;
 
 namespace Speed.Benchmarks
 {
-	[ImplementPropertyChanged]
+	[AddINotifyPropertyChangedInterface]
 	public class MainWindowModel
 	{
 		#region Constructors
@@ -44,7 +44,7 @@ namespace Speed.Benchmarks
 		#endregion
 	}
 
-	[ImplementPropertyChanged]
+	[AddINotifyPropertyChangedInterface]
 	public class DatabaseClient
 	{
 		#region Properties
