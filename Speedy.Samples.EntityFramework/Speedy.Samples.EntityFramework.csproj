@@ -71,6 +71,10 @@
     <Compile Include="Migrations\201704231325002_AddedPetEntity.Designer.cs">
       <DependentUpon>201704231325002_AddedPetEntity.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201706270051520_ChangeLogEventPrimaryKey.cs" />
+    <Compile Include="Migrations\201706270051520_ChangeLogEventPrimaryKey.Designer.cs">
+      <DependentUpon>201706270051520_ChangeLogEventPrimaryKey.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -103,6 +107,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201704231325002_AddedPetEntity.resx">
       <DependentUpon>201704231325002_AddedPetEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201706270051520_ChangeLogEventPrimaryKey.resx">
+      <DependentUpon>201706270051520_ChangeLogEventPrimaryKey.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -48,7 +48,7 @@ namespace Speedy.Samples.EntityFramework
 
 		public IRepository<Group, int> Groups => GetRepository<Group, int>();
 
-		public IRepository<LogEvent, int> LogEvents => GetRepository<LogEvent, int>();
+		public IRepository<LogEvent, string> LogEvents => GetRepository<LogEvent, string>();
 
 		public IRepository<Person, int> People => GetRepository<Person, int>();
 

@@ -20,7 +20,7 @@ namespace Speedy.Samples
 
 		IRepository<Group, int> Groups { get; }
 
-		IRepository<LogEvent, int> LogEvents { get; }
+		IRepository<LogEvent, string> LogEvents { get; }
 
 		IRepository<Person, int> People { get; }
 

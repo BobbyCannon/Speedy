@@ -33,7 +33,7 @@ namespace Speedy
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The repository of entities requested. </returns>
-		IRepository<T,T2> GetReadOnlyRepository<T,T2>() where T : Entity<T2>, new() where T2 : new();
+		IRepository<T,T2> GetReadOnlyRepository<T,T2>() where T : Entity<T2>, new();
 
 		/// <summary>
 		/// Gets a repository of the requested entity.
@@ -41,7 +41,7 @@ namespace Speedy
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The repository of entities requested. </returns>
-		IRepository<T,T2> GetRepository<T,T2>() where T : Entity<T2>, new() where T2 : new();
+		IRepository<T,T2> GetRepository<T,T2>() where T : Entity<T2>, new();
 
 		/// <summary>
 		/// Saves all changes made in this context to the underlying database.

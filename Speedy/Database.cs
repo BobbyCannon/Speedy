@@ -86,9 +86,7 @@ namespace Speedy
 		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The repository for the type. </returns>
-		public IRepository<T, T2> GetReadOnlyRepository<T, T2>()
-			where T : Entity<T2>, new()
-			where T2 : new()
+		public IRepository<T, T2> GetReadOnlyRepository<T, T2>() where T : Entity<T2>, new()
 		{
 			return GetRepository<T, T2>();
 		}
@@ -99,9 +97,7 @@ namespace Speedy
 		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The repository for the type. </returns>
-		public IRepository<T, T2> GetRepository<T, T2>()
-			where T : Entity<T2>, new()
-			where T2 : new()
+		public IRepository<T, T2> GetRepository<T, T2>() where T : Entity<T2>, new()
 		{
 			var type = typeof(T);
 			var key = type.FullName;
@@ -359,9 +355,7 @@ namespace Speedy
 			return response;
 		}
 
-		private Repository<T, T2> CreateRepository<T, T2>()
-			where T : Entity<T2>, new()
-			where T2 : new()
+		private Repository<T, T2> CreateRepository<T, T2>() where T : Entity<T2>, new()
 		{
 			var repository = new Repository<T, T2>(this);
 			repository.DeletingEntity += DeletingEntity;
@@ -614,7 +608,7 @@ namespace Speedy
 			UpdateEntityCollectionRelationships(entity);
 		}
 
-		private void ValidateEntity<T, T2>(T entity, IRepository<T, T2> repository) where T : Entity<T2>
+		private void ValidateEntity<T, T2>(T entity, IRepository<T, T2> repository) where T : Entity<T2>, new()
 		{
 			foreach (var validation in PropertyConfigurations.Where(x => x.IsMappingFor(entity)))
 			{

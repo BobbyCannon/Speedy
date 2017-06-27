@@ -26,7 +26,7 @@ namespace Speedy.Samples
 			FoodRelationships = GetRepository<FoodRelationship, int>();
 			GroupMembers = GetRepository<GroupMember, int>();
 			Groups = GetRepository<Group, int>();
-			LogEvents = GetRepository<LogEvent, int>();
+			LogEvents = GetRepository<LogEvent, string>();
 			People = GetRepository<Person, int>();
 			Pets = GetRepository<Pet, Pet.PetKey>();
 
@@ -56,7 +56,7 @@ namespace Speedy.Samples
 			HasRequired<GroupMember, Group, int>(p => p.Group, p => p.GroupId, a => a.Members);
 
 			// LogEvent Map
-			Property<LogEvent, int>(x => x.Message).IsRequired().HasMaximumLength(900);
+			Property<LogEvent, string>(x => x.Message).IsRequired().HasMaximumLength(900);
 
 			// Person Map
 			Property<Person, int>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
@@ -92,7 +92,7 @@ namespace Speedy.Samples
 
 		public IRepository<Group, int> Groups { get; }
 
-		public IRepository<LogEvent, int> LogEvents { get; }
+		public IRepository<LogEvent, string> LogEvents { get; }
 
 		public IRepository<Person, int> People { get; }
 

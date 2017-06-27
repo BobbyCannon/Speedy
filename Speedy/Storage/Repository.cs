@@ -17,9 +17,7 @@ namespace Speedy.Storage
 	/// <typeparam name="T"> The type contained in the repository. </typeparam>
 	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	[Serializable]
-	internal class Repository<T, T2> : IRepository, IRepository<T, T2>
-		where T : Entity<T2>, new()
-		where T2 : new()
+	internal class Repository<T, T2> : IRepository, IRepository<T, T2> where T : Entity<T2>, new()
 	{
 		#region Fields
 

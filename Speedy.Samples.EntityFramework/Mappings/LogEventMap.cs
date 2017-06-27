@@ -21,7 +21,7 @@ namespace Speedy.Samples.EntityFramework.Mappings
 
 			// Table & Column Mappings
 			ToTable("LogEvents");
-			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.Id).HasMaxLength(250).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
 		}
 
