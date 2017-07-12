@@ -1,7 +1,6 @@
 #region References
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Samples.Entities;
@@ -17,27 +16,20 @@ namespace Speedy.Samples.EntityFramework.Mappings
 
 		public GroupMemberMap()
 		{
-			// Primary Key
+			ToTable("GroupMembers", "dbo");
 			HasKey(x => x.Id);
 
-			// Table & Column Mappings
-			ToTable("GroupMembers");
-			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.GroupSyncId).IsRequired();
-			Property(x => x.MemberSyncId).IsRequired();
-			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(x => x.Role).IsRequired();
+			Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.GroupId).HasColumnName("GroupId").HasColumnType("int").IsRequired();
+			Property(x => x.GroupSyncId).HasColumnName("GroupSyncId").HasColumnType("uniqueidentifier").IsRequired();
+			Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.MemberId).HasColumnName("MemberId").HasColumnType("int").IsRequired();
+			Property(x => x.MemberSyncId).HasColumnName("MemberSyncId").HasColumnType("uniqueidentifier").IsRequired();
+			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Role).HasColumnName("Role").HasColumnType("nvarchar").IsRequired().HasMaxLength(4000);
 
-			// Relationships
-			HasRequired(x => x.Group)
-				.WithMany(x => x.Members)
-				.HasForeignKey(x => x.GroupId)
-				.WillCascadeOnDelete(true);
-			HasRequired(x => x.Member)
-				.WithMany(x => x.Groups)
-				.HasForeignKey(x => x.MemberId)
-				.WillCascadeOnDelete(true);
+			HasRequired(x => x.Group).WithMany(x => x.GroupMembers).HasForeignKey(x => x.GroupId).WillCascadeOnDelete(true);
+			HasRequired(x => x.Member).WithMany(x => x.Members).HasForeignKey(x => x.MemberId).WillCascadeOnDelete(true);
 		}
 
 		#endregion

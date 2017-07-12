@@ -73,7 +73,7 @@ namespace Speedy
 		public KeyValueRepository(string directory, string name, KeyValueRepositoryOptions options)
 			: this(new DirectoryInfo(directory), name, options)
 		{
-			_settings = Extensions.GetSerializerSettings(false, _options.IgnoreVirtualMembers);
+			_settings = Extensions.GetSerializerSettings(false, _options.IgnoreVirtualMembers, false);
 		}
 
 		/// <summary>

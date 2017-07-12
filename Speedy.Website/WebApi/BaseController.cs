@@ -2,6 +2,7 @@
 
 using System.Web.Http;
 using Speedy.Samples;
+using Speedy.Samples.EntityFramework;
 
 #endregion
 

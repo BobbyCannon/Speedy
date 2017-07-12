@@ -27,7 +27,7 @@ namespace Speedy.Benchmarks
 		{
 			Log("Cleaning up the test database...");
 
-			using (var database = new EntityFrameworkContosoDatabase(connectionString))
+			using (var database = new ContosoDatabase(connectionString))
 			{
 				var script = @"EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
 				EXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'
@@ -81,8 +81,8 @@ namespace Speedy.Benchmarks
 			var connectionString = "server=localhost;database=speedy;integrated security=true;";
 			var results = new List<string>();
 
-			//TestSqlDatabase(results, connectionString, 10000);
-			//TestJsonDatabase(results, directory + "\\Database", 10000);
+			TestSqlDatabase(results, connectionString, 10000);
+			TestJsonDatabase(results, directory + "\\Database", 10000);
 			TestRepository(results, directory + "\\Repository", 10000);
 
 			Log(string.Empty);
@@ -140,7 +140,7 @@ namespace Speedy.Benchmarks
 			foreach (var chunk in chunks)
 			{
 				CleanupDatabase(connectionString);
-				results.Add(TestDatabase(new EntityFrameworkContosoDatabaseProvider(connectionString), iterations, chunk));
+				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(() => new ContosoDatabase(connectionString)), iterations, chunk));
 			}
 
 			Log(string.Empty, true, results);
@@ -156,13 +156,13 @@ namespace Speedy.Benchmarks
 			foreach (var chunk in chunks)
 			{
 				CleanupDirectory(directory);
-				results.Add(TestDatabase(new ContosoDatabaseProvider(directory), iterations, chunk));
+				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(() => new ContosoDatabase(directory)), iterations, chunk));
 			}
 
 			Log(string.Empty, true, results);
 		}
 
-		private static string TestDatabase(IContosoDatabaseProvider provider, int total, int chunkSize)
+		private static string TestDatabase(DatabaseProvider<IContosoDatabase> provider, int total, int chunkSize)
 		{
 			Log($"Starting to benchmark Speedy database with {chunkSize} chunks...");
 

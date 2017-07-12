@@ -128,19 +128,23 @@ namespace Speedy.IntegrationTests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
-		public static IEnumerable<IContosoDatabaseProvider> GetDataContextProviders()
+		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContextProviders()
 		{
 			return GetDataContexts();
 		}
 
-		public static IEnumerable<IContosoDatabaseProvider> GetDataContexts(DatabaseOptions options = null)
+		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null)
 		{
-			var database1 = new EntityFrameworkContosoDatabase("DefaultConnection", options);
+			var database1 = new ContosoDatabase("DefaultConnection", options);
 			database1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
-			yield return new EntityFrameworkContosoDatabaseProvider("DefaultConnection", options);
-			yield return new ContosoDatabaseProvider(null, options);
-			yield return new ContosoDatabaseProvider(Directory.FullName, options);
+			yield return new DatabaseProvider<IContosoDatabase>(() => new ContosoDatabase("DefaultConnection", options));
+
+			var memoryDatabase = new ContosoMemoryDatabase(null, options);
+			yield return new DatabaseProvider<IContosoDatabase>(() => memoryDatabase);
+
+			var localDatabase = new ContosoMemoryDatabase(Directory.FullName, options);
+			yield return new DatabaseProvider<IContosoDatabase>(() => localDatabase);
 		}
 
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
@@ -243,24 +247,6 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static IContosoDatabaseProvider GetEntityFrameworkProvider()
-		{
-			using (var database = new EntityFrameworkContosoDatabase())
-			{
-				database.ClearDatabase();
-				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
-			}
-		}
-
-		private static IContosoDatabaseProvider GetEntityFrameworkProvider2()
-		{
-			using (var database = new EntityFrameworkContosoDatabase("DefaultConnection2"))
-			{
-				database.ClearDatabase();
-				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
-			}
-		}
-		
 		/// <summary>
 		/// Safely delete a directory.
 		/// </summary>

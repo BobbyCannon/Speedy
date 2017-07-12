@@ -1,7 +1,6 @@
 #region References
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Samples.Entities;
@@ -17,27 +16,21 @@ namespace Speedy.Samples.EntityFramework.Mappings
 
 		public AddressMap()
 		{
-			// Primary Key
+			ToTable("Addresses", "dbo");
 			HasKey(x => x.Id);
 
-			// Table & Column Mappings
-			ToTable("Addresses");
-			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(x => x.City).IsRequired().HasMaxLength(256);
-			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.Line1).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(x => x.Line2).IsRequired().HasMaxLength(256);
-			Property(x => x.LinkedAddressSyncId).IsOptional();
-			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(x => x.Postal).IsRequired().HasMaxLength(128);
-			Property(x => x.State).IsRequired().HasMaxLength(128);
-			Ignore(x => x.FullAddress);
+			Property(x => x.City).HasColumnName("City").HasColumnType("nvarchar").IsRequired().HasMaxLength(256);
+			Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.Line1).HasColumnName("Line1").HasColumnType("nvarchar").IsRequired().HasMaxLength(256);
+			Property(x => x.Line2).HasColumnName("Line2").HasColumnType("nvarchar").IsRequired().HasMaxLength(256);
+			Property(x => x.LinkedAddressId).HasColumnName("LinkedAddressId").HasColumnType("int").IsOptional();
+			Property(x => x.LinkedAddressSyncId).HasColumnName("LinkedAddressSyncId").HasColumnType("uniqueidentifier").IsOptional();
+			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Postal).HasColumnName("Postal").HasColumnType("nvarchar").IsRequired().HasMaxLength(128);
+			Property(x => x.State).HasColumnName("State").HasColumnType("nvarchar").IsRequired().HasMaxLength(128);
 
-			// Relationships
-			HasOptional(x => x.LinkedAddress)
-				.WithMany()
-				.HasForeignKey(x => x.LinkedAddressId)
-				.WillCascadeOnDelete(false);
+			HasOptional(x => x.LinkedAddress).WithMany(x => x.LinkedAddresses).HasForeignKey(x => x.LinkedAddressId).WillCascadeOnDelete(false);
 		}
 
 		#endregion

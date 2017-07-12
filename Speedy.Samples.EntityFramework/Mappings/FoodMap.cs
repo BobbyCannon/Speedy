@@ -16,15 +16,13 @@ namespace Speedy.Samples.EntityFramework.Mappings
 
 		public FoodMap()
 		{
-			// Primary Key
+			ToTable("Foods", "dbo");
 			HasKey(x => x.Id);
 
-			// Table & Column Mappings
-			ToTable("Foods");
-			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.Name).IsRequired().HasMaxLength(256);
+			Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Name).HasColumnName("Name").HasColumnType("nvarchar").IsRequired().HasMaxLength(256);
 		}
 
 		#endregion

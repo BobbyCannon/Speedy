@@ -1,15 +1,14 @@
-﻿#region References
+#region References
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using Speedy;
 
 #endregion
 
 namespace Speedy.Samples.Entities
 {
-	[Serializable]
 	public class Person : IncrementingModifiableEntity
 	{
 		#region Constructors
@@ -17,8 +16,8 @@ namespace Speedy.Samples.Entities
 		[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 		public Person()
 		{
-			Groups = new Collection<GroupMember>();
-			Pets = new Collection<Pet>();
+			Members = new List<GroupMember>();
+			Owners = new List<Pet>();
 		}
 
 		#endregion
@@ -31,10 +30,10 @@ namespace Speedy.Samples.Entities
 		public virtual Address BillingAddress { get; set; }
 		public int? BillingAddressId { get; set; }
 		public Guid? BillingAddressSyncId { get; set; }
-		public virtual ICollection<GroupMember> Groups { get; set; }
 		public override int Id { get; set; }
+		public virtual ICollection<GroupMember> Members { get; set; }
 		public string Name { get; set; }
-		public virtual ICollection<Pet> Pets { get; set; }
+		public virtual ICollection<Pet> Owners { get; set; }
 
 		#endregion
 	}

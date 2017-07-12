@@ -12,7 +12,7 @@ namespace Speedy.Website.Controllers
 	{
 		#region Constructors
 
-		public HomeController() : this(new EntityFrameworkContosoDatabase())
+		public HomeController() : this(new ContosoDatabase())
 		{
 		}
 

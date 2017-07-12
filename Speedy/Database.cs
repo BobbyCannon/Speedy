@@ -170,7 +170,6 @@ namespace Speedy
 		protected void HasOptional<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T3>, new()
 			where T2 : Entity<T3>
-			where T3 : new()
 		{
 			Property<T1, T3>(foreignKey).IsOptional();
 
@@ -189,12 +188,35 @@ namespace Speedy
 		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
 		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
+		/// <typeparam name="T2"> The type of the entity key of the host. </typeparam>
+		/// <typeparam name="T3"> The entity to build a relationship to. </typeparam>
+		/// <typeparam name="T4"> The type of the entity key to build the relationship to. </typeparam>
+		protected void HasOptional<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
+			where T1 : Entity<T2>, new()
+			where T3 : Entity<T4>
+		{
+			Property<T1, T2>(foreignKey).IsOptional();
+
+			if (collectionKey != null)
+			{
+				var key = typeof(T3).Name + (collectionKey as dynamic).Body.Member.Name;
+				var repositoryFactory = GetRepository<T1, T2>();
+				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+			}
+		}
+
+		/// <summary>
+		/// Creates a configuration that represent a required one to many relationship.
+		/// </summary>
+		/// <param name="entity"> The entity to relate to. </param>
+		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
+		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
+		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
 		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
 		/// <typeparam name="T3"> The type of the entity key. </typeparam>
 		protected void HasRequired<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T3>, new()
 			where T2 : Entity<T3>
-			where T3 : new()
 		{
 			Property<T1, T3>(foreignKey).IsRequired();
 
@@ -219,8 +241,6 @@ namespace Speedy
 		protected void HasRequired<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T2>, new()
 			where T3 : Entity<T4>
-			where T2 : new()
-			where T4 : new()
 		{
 			Property<T1, T2>(foreignKey).IsRequired();
 
@@ -237,8 +257,8 @@ namespace Speedy
 		/// </summary>
 		/// <param name="expression"> The expression for the property. </param>
 		/// <typeparam name="T"> The entity for the configuration. </typeparam>
-		/// <returns> The configuration for the entity property. </returns>
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
+		/// <returns> The configuration for the entity property. </returns>
 		protected PropertyConfiguration<T, T2> Property<T, T2>(Expression<Func<T, object>> expression) where T : Entity<T2>
 		{
 			var response = new PropertyConfiguration<T, T2>(expression);
@@ -301,8 +321,6 @@ namespace Speedy
 		private RelationshipRepository<T2, T2K> BuildRelationship<T1, T1K, T2, T2K>(T1 entity, IEnumerable collection, string key)
 			where T1 : Entity<T1K>, new()
 			where T2 : Entity<T2K>, new()
-			where T1K : new()
-			where T2K : new()
 		{
 			if (!OneToManyRelationships.ContainsKey(key) || entity == null)
 			{

@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatabaseProvider.cs" />
     <Compile Include="IncrementingEntity.cs" />
     <Compile Include="Configuration\Relationship.cs" />
     <Compile Include="CreatedEntity.cs" />

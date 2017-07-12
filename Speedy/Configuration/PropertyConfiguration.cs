@@ -14,6 +14,7 @@ namespace Speedy.Configuration
 	/// </summary>
 	/// <typeparam name="T"> The entity this configuration is for. </typeparam>
 	/// <typeparam name="T2"> The type of the entity key. </typeparam>
+	/// <typeparam name="T3"> The type of the property. </typeparam>
 	public class PropertyConfiguration<T, T2> : IPropertyConfiguration where T : Entity<T2>
 	{
 		#region Fields
@@ -142,7 +143,7 @@ namespace Speedy.Configuration
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
 
-			if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => Equals(_propertyFunction.Invoke(x), property)))
+			if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => x != entity && Equals(_propertyFunction.Invoke(x), property)))
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field must be unique. The duplicate key value is ({propertyValue}).");
 			}

@@ -1,7 +1,6 @@
 #region References
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Samples.Entities;
@@ -17,16 +16,14 @@ namespace Speedy.Samples.EntityFramework.Mappings
 
 		public GroupMap()
 		{
-			// Primary Key
+			ToTable("Groups", "dbo");
 			HasKey(x => x.Id);
 
-			// Table & Column Mappings
-			ToTable("Groups");
-			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.Description).IsRequired();
-			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = false } }));
-			Property(x => x.Name).IsRequired().HasMaxLength(256).HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
+			Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Description).HasColumnName("Description").HasColumnType("nvarchar").IsRequired().HasMaxLength(4000);
+			Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Name).HasColumnName("Name").HasColumnType("nvarchar").IsRequired().HasMaxLength(256);
 		}
 
 		#endregion

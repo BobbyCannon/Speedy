@@ -1,40 +1,26 @@
-﻿#region References
+#region References
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using Speedy;
 
 #endregion
 
 namespace Speedy.Samples.Entities
 {
-	public class Pet : ModifiableEntity<Pet.PetKey>
+	public class Pet : Entity<Pet.PetKey>
 	{
 		#region Properties
 
-		public override PetKey Id
-		{
-			get => new PetKey { Name = Name, OwnerId = OwnerId };
-			set
-			{
-				Name = Id.Name;
-				OwnerId = Id.OwnerId;
-			}
-		}
-
+		public DateTime CreatedOn { get; set; }
+		public override PetKey Id { get => new PetKey { Name = Name, OwnerId = OwnerId }; set { Name = Name; OwnerId = OwnerId; }}
+		public DateTime ModifiedOn { get; set; }
 		public string Name { get; set; }
-
 		public virtual Person Owner { get; set; }
-
 		public int OwnerId { get; set; }
-
-		#endregion
-
-		#region Methods
-
-		/// <inheritdoc />
-		public override bool IdIsSet()
-		{
-			return true;
-		}
+		public virtual PetType Type { get; set; }
+		public string TypeId { get; set; }
 
 		#endregion
 
@@ -42,15 +28,8 @@ namespace Speedy.Samples.Entities
 
 		public class PetKey : IEquatable<PetKey>
 		{
-			#region Properties
-
 			public string Name { get; set; }
-
 			public int OwnerId { get; set; }
-
-			#endregion
-
-			#region Methods
 
 			public bool Equals(PetKey other)
 			{
@@ -58,36 +37,34 @@ namespace Speedy.Samples.Entities
 				{
 					return false;
 				}
+
 				if (ReferenceEquals(this, other))
 				{
 					return true;
 				}
+
 				return string.Equals(Name, other.Name) && OwnerId == other.OwnerId;
 			}
 
-			public override bool Equals(object obj)
+			public override bool Equals(object other)
 			{
-				if (ReferenceEquals(null, obj))
+				if (ReferenceEquals(null, other))
 				{
 					return false;
 				}
-				if (ReferenceEquals(this, obj))
+
+				if (ReferenceEquals(this, other))
 				{
 					return true;
 				}
-				if (obj.GetType() != GetType())
-				{
-					return false;
-				}
-				return Equals((PetKey) obj);
+
+				return other.GetType() == GetType() && Equals((PetKey) other);
 			}
 
 			public override int GetHashCode()
 			{
-				return ((Name?.GetHashCode() ?? 0) * 397) ^ OwnerId;
+				return new { Name, OwnerId }.GetHashCode();
 			}
-
-			#endregion
 		}
 
 		#endregion

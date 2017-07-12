@@ -1,7 +1,9 @@
-﻿#region References
+#region References
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Speedy;
 
 #endregion
 
@@ -11,7 +13,7 @@ namespace Speedy.Samples.Entities
 	{
 		#region Constructors
 
-		[SuppressMessage("ReSharper", "VirtualMemberCallInContructor")]
+		[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 		public Food()
 		{
 			Children = new List<FoodRelationship>();
@@ -23,7 +25,6 @@ namespace Speedy.Samples.Entities
 		#region Properties
 
 		public virtual ICollection<FoodRelationship> Children { get; set; }
-
 		public override int Id { get; set; }
 		public string Name { get; set; }
 		public virtual ICollection<FoodRelationship> Parents { get; set; }

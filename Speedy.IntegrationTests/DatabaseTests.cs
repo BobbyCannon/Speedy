@@ -99,7 +99,7 @@ namespace Speedy.IntegrationTests
 					using (var database = provider.GetDatabase())
 					{
 						var owner = database.People.First();
-						var actual = owner.Pets.First();
+						var actual = owner.Owners.First();
 
 						Assert.AreEqual("Dog", actual.Name);
 						Assert.AreEqual(owner.Id, actual.OwnerId);
@@ -536,13 +536,13 @@ namespace Speedy.IntegrationTests
 						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 						var person = new Person { Name = "John Doe" };
 						var group = new Group { Description = "For those who are epic and code.", Name = "Epic Coders" };
-						person.Groups.Add(new GroupMember { Role = "Leader", Group = group });
+						person.Members.Add(new GroupMember { Role = "Leader", Group = group });
 						address.People.Add(person);
 						database.Addresses.Add(address);
 
 						Assert.AreEqual(1, address.People.Count);
-						Assert.AreEqual(1, person.Groups.Count);
-						Assert.AreEqual(1, group.Members.Count);
+						Assert.AreEqual(1, person.Members.Count);
+						Assert.AreEqual(1, group.GroupMembers.Count);
 						Assert.AreEqual(0, database.Addresses.Count());
 						Assert.AreEqual(0, database.People.Count());
 						Assert.AreEqual(0, database.GroupMembers.Count());
@@ -555,7 +555,7 @@ namespace Speedy.IntegrationTests
 						Assert.AreEqual(1, database.Addresses.First().People.Count);
 						Assert.AreEqual(1, database.People.Count());
 						Assert.AreNotEqual(0, database.People.First().Id);
-						Assert.AreEqual(1, database.People.First().Groups.Count);
+						Assert.AreEqual(1, database.People.First().Members.Count);
 						Assert.AreEqual(1, database.GroupMembers.Count());
 						Assert.AreNotEqual(0, database.GroupMembers.First().Id);
 						Assert.AreEqual(1, database.Groups.Count());

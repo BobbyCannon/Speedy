@@ -133,7 +133,7 @@ namespace Speed.Benchmarks
 			var worker = (BackgroundWorker) sender;
 			var threadId = Thread.CurrentThread.ManagedThreadId;
 
-			using (var database = new ContosoDatabase("C:\\Users\\Bobby\\Desktop\\Contoso"))
+			using (var database = new ContosoMemoryDatabase("C:\\Users\\Bobby\\Desktop\\Contoso"))
 			{
 				while (!worker.CancellationPending)
 				{

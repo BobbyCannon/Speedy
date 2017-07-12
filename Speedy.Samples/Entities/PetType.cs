@@ -9,24 +9,23 @@ using Speedy;
 
 namespace Speedy.Samples.Entities
 {
-	public class Group : IncrementingModifiableEntity
+	public class PetType : Entity<string>
 	{
 		#region Constructors
 
 		[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
-		public Group()
+		public PetType()
 		{
-			GroupMembers = new List<GroupMember>();
+			Types = new List<Pet>();
 		}
 
 		#endregion
 
 		#region Properties
 
-		public string Description { get; set; }
-		public virtual ICollection<GroupMember> GroupMembers { get; set; }
-		public override int Id { get; set; }
-		public string Name { get; set; }
+		public override string Id { get; set; }
+		public string Type { get; set; }
+		public virtual ICollection<Pet> Types { get; set; }
 
 		#endregion
 	}

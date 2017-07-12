@@ -47,7 +47,7 @@ namespace Speedy
 			_methods = new ConcurrentDictionary<string, MethodInfo>();
 			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_parameterInfos = new ConcurrentDictionary<string, ParameterInfo[]>();
-			_serializationSettingsNoVirtuals = GetSerializerSettings(false, true);
+			_serializationSettingsNoVirtuals = GetSerializerSettings(false, true, false);
 		}
 
 		#endregion
@@ -146,14 +146,16 @@ namespace Speedy
 		/// </summary>
 		/// <param name="camelCase"> True to camelCase or else use PascalCase. </param>
 		/// <param name="ignoreVirtuals"> True to ignore virtual members else include them. </param>
-		/// <returns> </returns>
-		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreVirtuals)
+		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+		/// <returns> The serialization settings. </returns>
+		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreVirtuals, bool ignoreNullValues)
 		{
 			var response = new JsonSerializerSettings();
 			response.Converters.Add(new IsoDateTimeConverter());
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-
+			response.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
+			
 			if (camelCase)
 			{
 				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
@@ -339,10 +341,11 @@ namespace Speedy
 		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
 		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
 		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
-		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreVirtuals = false)
+		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreVirtuals = false, bool ignoreNullValues = false)
 		{
-			var settings = GetSerializerSettings(camelCase, ignoreVirtuals);
+			var settings = GetSerializerSettings(camelCase, ignoreVirtuals, ignoreNullValues);
 			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
 		}
 

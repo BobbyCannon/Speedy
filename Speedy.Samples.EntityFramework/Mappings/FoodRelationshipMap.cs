@@ -16,25 +16,18 @@ namespace Speedy.Samples.EntityFramework.Mappings
 
 		public FoodRelationshipMap()
 		{
-			// Primary Key
+			ToTable("FoodRelationships", "dbo");
 			HasKey(x => x.Id);
 
-			// Table & Column Mappings
-			ToTable("FoodRelationships");
-			Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-			Property(x => x.CreatedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.ModifiedOn).IsRequired().HasColumnType("datetime2").HasPrecision(7);
-			Property(x => x.Quantity).IsRequired();
+			Property(x => x.ChildId).HasColumnName("ChildId").HasColumnType("int").IsRequired();
+			Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired().HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
+			Property(x => x.ParentId).HasColumnName("ParentId").HasColumnType("int").IsRequired();
+			Property(x => x.Quantity).HasColumnName("Quantity").HasColumnType("decimal").IsRequired().HasPrecision(18, 2);
 
-			// Relationships
-			HasRequired(x => x.Parent)
-				.WithMany(x => x.Children)
-				.HasForeignKey(d => d.ParentId)
-				.WillCascadeOnDelete(false);
-			HasRequired(x => x.Child)
-				.WithMany(x => x.Parents)
-				.HasForeignKey(d => d.ChildId)
-				.WillCascadeOnDelete(false);
+			HasRequired(x => x.Child).WithMany(x => x.Children).HasForeignKey(x => x.ChildId).WillCascadeOnDelete(false);
+			HasRequired(x => x.Parent).WithMany(x => x.Parents).HasForeignKey(x => x.ParentId).WillCascadeOnDelete(false);
 		}
 
 		#endregion

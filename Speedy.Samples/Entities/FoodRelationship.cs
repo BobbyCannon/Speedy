@@ -1,4 +1,13 @@
-﻿namespace Speedy.Samples.Entities
+#region References
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using Speedy;
+
+#endregion
+
+namespace Speedy.Samples.Entities
 {
 	public class FoodRelationship : IncrementingModifiableEntity
 	{
@@ -6,7 +15,6 @@
 
 		public virtual Food Child { get; set; }
 		public int ChildId { get; set; }
-
 		public override int Id { get; set; }
 		public virtual Food Parent { get; set; }
 		public int ParentId { get; set; }

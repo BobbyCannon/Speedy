@@ -1,6 +1,9 @@
-﻿#region References
+#region References
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using Speedy;
 
 #endregion
 
@@ -13,7 +16,6 @@ namespace Speedy.Samples.Entities
 		public virtual Group Group { get; set; }
 		public int GroupId { get; set; }
 		public Guid GroupSyncId { get; set; }
-
 		public override int Id { get; set; }
 		public virtual Person Member { get; set; }
 		public int MemberId { get; set; }
