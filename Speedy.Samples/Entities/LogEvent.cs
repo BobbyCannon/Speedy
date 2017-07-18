@@ -9,7 +9,7 @@ using Speedy;
 
 namespace Speedy.Samples.Entities
 {
-	public class LogEvent : CreatedEntity<string>
+	public class LogEvent : CreatedEntity<string>, ILogEvent
 	{
 		#region Properties
 

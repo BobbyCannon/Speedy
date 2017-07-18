@@ -60,13 +60,9 @@
     <Compile Include="Mappings\PetMap.cs" />
     <Compile Include="Mappings\PetTypeMap.cs" />
     <Compile Include="Mappings\SyncTombstoneMap.cs" />
-    <Compile Include="Migrations\201707111604416_InitialDatabase.cs" />
-    <Compile Include="Migrations\201707111604416_InitialDatabase.Designer.cs">
-      <DependentUpon>201707111604416_InitialDatabase.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201707170159457_SyncSupport.cs" />
-    <Compile Include="Migrations\201707170159457_SyncSupport.Designer.cs">
-      <DependentUpon>201707170159457_SyncSupport.cs</DependentUpon>
+    <Compile Include="Migrations\201707180144229_InitialDatabase.cs" />
+    <Compile Include="Migrations\201707180144229_InitialDatabase.Designer.cs">
+      <DependentUpon>201707180144229_InitialDatabase.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -92,11 +88,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201707111604416_InitialDatabase.resx">
-      <DependentUpon>201707111604416_InitialDatabase.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201707170159457_SyncSupport.resx">
-      <DependentUpon>201707170159457_SyncSupport.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201707180144229_InitialDatabase.resx">
+      <DependentUpon>201707180144229_InitialDatabase.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -15,6 +15,7 @@ namespace Speedy.Net
 	{
 		#region Fields
 
+		private readonly ISyncableDatabaseProvider _provider;
 		private readonly string _serverUri;
 		private readonly int _timeout;
 
@@ -25,12 +26,14 @@ namespace Speedy.Net
 		/// <summary>
 		/// Instantiates an instance of the class.
 		/// </summary>
+		/// <param name="provider"> The database provider for the client </param>
 		/// <param name="name"> The name of the client. </param>
 		/// <param name="serverUri"> The server to send data to. </param>
 		/// <param name="timeout"> The timeout for each transaction. </param>
-		public WebSyncClient(string name, string serverUri, int timeout = 10000)
+		public WebSyncClient(string name, ISyncableDatabaseProvider provider, string serverUri, int timeout = 10000)
 		{
 			Name = name;
+			_provider = provider;
 			_serverUri = serverUri;
 			_timeout = timeout;
 		}
@@ -97,6 +100,18 @@ namespace Speedy.Net
 		public IEnumerable<SyncObject> GetCorrections(IEnumerable<SyncIssue> issues)
 		{
 			return WebClient.Post<IEnumerable<SyncIssue>, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetCorrections)}/{SessionId}", issues, _timeout);
+		}
+
+		/// <inheritdoc />
+		public ISyncableDatabase GetDatabase()
+		{
+			return _provider.GetDatabase();
+		}
+
+		/// <inheritdoc />
+		public T GetDatabase<T>() where T : class, ISyncableDatabase, IDatabase
+		{
+			return (T) _provider.GetDatabase();
 		}
 
 		#endregion

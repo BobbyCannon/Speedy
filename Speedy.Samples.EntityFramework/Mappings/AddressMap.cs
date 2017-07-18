@@ -31,6 +31,7 @@ namespace Speedy.Samples.EntityFramework.Mappings
 			Property(x => x.Postal).HasColumnName("Postal").HasColumnType("nvarchar").IsRequired().HasMaxLength(128);
 			Property(x => x.State).HasColumnName("State").HasColumnType("nvarchar").IsRequired().HasMaxLength(128);
 			Property(x => x.SyncId).HasColumnType("uniqueidentifier").IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
+			Ignore(x => x.FullAddress);
 
 			HasOptional(x => x.LinkedAddress).WithMany(x => x.LinkedAddresses).HasForeignKey(x => x.LinkedAddressId).WillCascadeOnDelete(false);
 		}

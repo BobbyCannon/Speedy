@@ -63,6 +63,18 @@ namespace Speedy.Sync
 		/// <returns> The sync objects to resolve the issues. </returns>
 		IEnumerable<SyncObject> GetCorrections(IEnumerable<SyncIssue> issues);
 
+		/// <summary>
+		/// Gets an instance of the database this sync client is for.
+		/// </summary>
+		/// <returns> The database that is syncable. </returns>
+		ISyncableDatabase GetDatabase();
+
+		/// <summary>
+		/// Gets an instance of the database this sync client is for.
+		/// </summary>
+		/// <returns> The database that is syncable. </returns>
+		T GetDatabase<T>() where T : class, ISyncableDatabase, IDatabase;
+
 		#endregion
 	}
 }

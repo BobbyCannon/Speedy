@@ -517,7 +517,7 @@ namespace Speedy
 			Repositories.Add(key, repository);
 			return repository;
 		}
-
+		
 		private void UpdateDependantCollectionIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
 		{
 			var enumerableType = typeof(IEnumerable);
@@ -707,6 +707,19 @@ namespace Speedy
 					{
 						// resets entityId to entity.Id if it does not match
 						entityRelationshipIdProperty.SetValue(entity, otherId, null);
+					}
+
+					var syncEntity = entityRelationship.GetValue(entity, null) as SyncEntity;
+					var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
+
+					if (syncEntity != null && entityRelationshipSyncIdProperty != null)
+					{
+						var otherEntitySyncId = (Guid?)entityRelationshipSyncIdProperty.GetValue(entity, null);
+						if (otherEntitySyncId != syncEntity.SyncId)
+						{
+							// resets entitySyncId to entity.SyncId if it does not match
+							entityRelationshipSyncIdProperty.SetValue(entity, syncEntity.SyncId, null);
+						}
 					}
 				}
 			}

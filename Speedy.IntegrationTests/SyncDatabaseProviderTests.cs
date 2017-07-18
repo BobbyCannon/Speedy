@@ -20,7 +20,7 @@ namespace Speedy.IntegrationTests
 		public void GetDatabase()
 		{
 			var database = new Mock<ISyncableDatabase>();
-			var provider = new SyncDatabaseProvider<ISyncableDatabase>(x => database.Object);
+			var provider = new SyncDatabaseProvider(x => database.Object);
 
 			Assert.IsTrue(database.Object == provider.GetDatabase());
 		}

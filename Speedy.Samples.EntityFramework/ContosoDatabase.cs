@@ -53,7 +53,7 @@ namespace Speedy.Samples.EntityFramework
 
 		public ISyncableDatabaseProvider GetSyncableDatabaseProvider()
 		{
-			return new SyncDatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(Database.Connection.ConnectionString, x));
+			return new SyncDatabaseProvider(x => new ContosoDatabase(Database.Connection.ConnectionString, x));
 		}
 
 		public IDatabaseProvider<IContosoDatabase> GetDatabaseProvider()

@@ -17,8 +17,9 @@ namespace Speedy.Samples.Entities
 		[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 		public Person()
 		{
-			Members = new List<GroupMember>();
+			Groups = new List<GroupMember>();
 			Owners = new List<Pet>();
+			IgnoreProperties.AddRange(nameof(Address), nameof(AddressSyncId), nameof(Groups));
 		}
 
 		#endregion
@@ -32,7 +33,7 @@ namespace Speedy.Samples.Entities
 		public int? BillingAddressId { get; set; }
 		public Guid? BillingAddressSyncId { get; set; }
 		public override int Id { get; set; }
-		public virtual ICollection<GroupMember> Members { get; set; }
+		public virtual ICollection<GroupMember> Groups { get; set; }
 		public string Name { get; set; }
 		public virtual ICollection<Pet> Owners { get; set; }
 

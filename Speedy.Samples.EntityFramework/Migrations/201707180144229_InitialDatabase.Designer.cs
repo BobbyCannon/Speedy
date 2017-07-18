@@ -13,7 +13,7 @@ namespace Speedy.Samples.EntityFramework.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201707111604416_InitialDatabase"; }
+            get { return "201707180144229_InitialDatabase"; }
         }
         
         string IMigrationMetadata.Source

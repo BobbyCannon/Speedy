@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Speedy;
 using Speedy.Sync;
 
 #endregion
@@ -20,6 +19,7 @@ namespace Speedy.Samples.Entities
 			BillingPeople = new List<Person>();
 			LinkedAddresses = new List<Address>();
 			People = new List<Person>();
+			IgnoreProperties.AddRange(nameof(LinkedAddress), nameof(LinkedAddressId), nameof(People));
 		}
 
 		#endregion
@@ -28,6 +28,12 @@ namespace Speedy.Samples.Entities
 
 		public virtual ICollection<Person> BillingPeople { get; set; }
 		public string City { get; set; }
+
+		/// <summary>
+		/// Read only property
+		/// </summary>
+		public string FullAddress => $"{Line1}{Environment.NewLine}{City}, {State}  {Postal}";
+
 		public override int Id { get; set; }
 		public string Line1 { get; set; }
 		public string Line2 { get; set; }

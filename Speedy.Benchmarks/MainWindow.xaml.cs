@@ -13,7 +13,6 @@ using Speedy;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Samples.EntityFramework;
-using Speedy.Samples.Sync;
 using Speedy.Sync;
 
 #endregion
@@ -102,9 +101,9 @@ namespace Speed.Benchmarks
 			}
 		}
 
-		private void CheckClient(IContosoSyncClient client)
+		private void CheckClient(SyncClient client)
 		{
-			using (var database = client.GetDatabase())
+			using (var database = client.GetDatabase() as IContosoDatabase)
 			{
 				Assert.IsFalse(database.Addresses.Any(x => x.SyncId == Guid.Empty), "Address with empty GUID...");
 				Assert.IsFalse(database.Addresses.Join(database.SyncTombstones, x => x.SyncId, x => x.SyncId, (a, t) => new { a, t }).Any(), "Address have duplicate tombstones.");
@@ -125,20 +124,20 @@ namespace Speed.Benchmarks
 			ViewModel.Output = string.Empty;
 		}
 
-		private static void CompareClients(IContosoSyncClient client, IContosoSyncClient server)
+		private static void CompareClients(SyncClient client, SyncClient server)
 		{
 			using (var clientDatabase = client.GetDatabase())
 			using (var serverDatabase = server.GetDatabase())
 			{
-				var serverAddresses = serverDatabase.GetReadOnlyRepository<Address>()
+				var serverAddresses = serverDatabase.GetReadOnlyRepository<Address, int>()
 					.OrderBy(x => x.Line1).ThenBy(x => x.Line2).ThenBy(x => x.City).ThenBy(x => x.State)
 					.ToList().Select(x => x.Unwrap()).ToList();
-				var serverPeople = serverDatabase.GetReadOnlyRepository<Person>()
+				var serverPeople = serverDatabase.GetReadOnlyRepository<Person, int>()
 					.OrderBy(x => x.Name).ToList().Select(x => x.Unwrap()).ToList();
-				var clientAddresses = clientDatabase.GetReadOnlyRepository<Address>()
+				var clientAddresses = clientDatabase.GetReadOnlyRepository<Address, int>()
 					.OrderBy(x => x.Line1).ThenBy(x => x.Line2).ThenBy(x => x.City).ThenBy(x => x.State)
 					.ToList().Select(x => x.Unwrap()).ToList();
-				var clientPeople = clientDatabase.GetReadOnlyRepository<Person>()
+				var clientPeople = clientDatabase.GetReadOnlyRepository<Person, int>()
 					.OrderBy(x => x.Name).ToList().Select(x => x.Unwrap()).ToList();
 
 				Extensions.AreEqual(serverAddresses, clientAddresses, false, nameof(Address.Id), nameof(Address.LinkedAddressId));
@@ -220,13 +219,20 @@ namespace Speed.Benchmarks
 			e.Result = client;
 		}
 
-		private static IContosoDatabaseProvider GetEntityFrameworkProvider(string connectionString = null)
+		private static ISyncableDatabaseProvider GetEntityFrameworkProvider(string connectionString = null)
 		{
-			using (var database = new EntityFrameworkContosoDatabase(connectionString ?? "name=DefaultConnection"))
+			using (var database = new ContosoDatabase(connectionString ?? "name=ContosoDatabaseConnection"))
 			{
 				database.ClearDatabase();
-				return new EntityFrameworkContosoDatabaseProvider(database.Database.Connection.ConnectionString);
+				return new SyncDatabaseProvider(x => new ContosoDatabase(connectionString ?? "name=ContosoDatabaseConnection", x));
 			}
+		}
+
+		private static ISyncableDatabaseProvider GetMemoryProvider(string directory = null)
+		{
+			var database = new ContosoMemoryDatabase(directory);
+			// todo: support new options?
+			return new SyncDatabaseProvider(x => database);
 		}
 
 		private void MainWindowOnClosing(object sender, CancelEventArgs e)
@@ -298,10 +304,10 @@ namespace Speed.Benchmarks
 
 					ViewModel.Errors = string.Empty;
 					ViewModel.SyncClients.Clear();
-					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Server", GetEntityFrameworkProvider())));
-					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 1", GetEntityFrameworkProvider("server=localhost;database=Speedy2;integrated security=true;"))));
-					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 2", new ContosoDatabaseProvider())));
-					ViewModel.SyncClients.Add(new SyncClientState(new ContosoSyncClient("Client 3", new ContosoDatabaseProvider(directory.FullName))));
+					ViewModel.SyncClients.Add(new SyncClientState(new SyncClient("Server", GetEntityFrameworkProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new SyncClient("Client 1", GetEntityFrameworkProvider("server=localhost;database=Speedy2;integrated security=true;"))));
+					ViewModel.SyncClients.Add(new SyncClientState(new SyncClient("Client 2", GetMemoryProvider())));
+					ViewModel.SyncClients.Add(new SyncClientState(new SyncClient("Client 3", GetMemoryProvider(directory.FullName))));
 					SyncWorker.RunWorkerAsync(ViewModel.SyncClients);
 					ViewModel.SyncStatus = "Stop";
 					break;
@@ -422,14 +428,14 @@ namespace Speed.Benchmarks
 			ViewModel.SyncClients.Clear();
 		}
 
-		private static bool UpdateClient(IContosoSyncClient client, bool forceAdd = false)
+		private static bool UpdateClient(SyncClient client, bool forceAdd = false)
 		{
 			var number = Extensions.Random.Next(1, 101);
 			var result = false;
 
 			if (number % 1 == 0 || forceAdd) // 25%
 			{
-				using (var clientDatabase = client.GetDatabase())
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				{
 					AddToDatabase(clientDatabase);
 					clientDatabase.SaveChanges();
@@ -439,7 +445,7 @@ namespace Speed.Benchmarks
 
 			if (number % 10 == 0) // 10%
 			{
-				using (var clientDatabase = client.GetDatabase())
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				{
 					RemoveFromDatabase(number, clientDatabase);
 					clientDatabase.SaveChanges();
@@ -457,8 +463,14 @@ namespace Speed.Benchmarks
 				return;
 			}
 
-			using (var database = state.Client.GetDatabase())
+			using (var database = state.Client.GetDatabase() as IContosoDatabase)
 			{
+				if (database == null)
+				{
+					// todo? error?
+					return;
+				}
+
 				state.AddressCount = database.Addresses.Count();
 				state.PeopleCount = database.People.Count();
 				state.PreviousSyncedOn = state.LastSyncedOn;

@@ -65,7 +65,7 @@ namespace Speedy.Samples
 			Property<GroupMember, int>(x => x.ModifiedOn).IsRequired();
 			Property<GroupMember, int>(x => x.CreatedOn).IsRequired();
 			HasRequired<GroupMember, Group, int>(x => x.Group, x => x.GroupId, x => x.GroupMembers);
-			HasRequired<GroupMember, Person, int>(x => x.Member, x => x.MemberId, x => x.Members);
+			HasRequired<GroupMember, Person, int>(x => x.Member, x => x.MemberId, x => x.Groups);
 
 			LogEvents = GetRepository<LogEvent, string>();
 			Property<LogEvent, string>(x => x.Id).IsRequired().HasMaximumLength(250).IsUnique();
@@ -78,7 +78,7 @@ namespace Speedy.Samples
 			Property<Person, int>(x => x.AddressSyncId).IsRequired();
 			Property<Person, int>(x => x.BillingAddressId).IsOptional();
 			Property<Person, int>(x => x.BillingAddressSyncId).IsOptional();
-			Property<Person, int>(x => x.Name).IsRequired().HasMaximumLength(256);
+			Property<Person, int>(x => x.Name).IsRequired().HasMaximumLength(256).IsUnique();
 			Property<Person, int>(x => x.ModifiedOn).IsRequired();
 			Property<Person, int>(x => x.CreatedOn).IsRequired();
 			HasRequired<Person, Address, int>(x => x.Address, x => x.AddressId, x => x.People);

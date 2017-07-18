@@ -79,6 +79,8 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogListener.cs" />
     <Compile Include="ModifiableEntity.cs" />
+    <Compile Include="Net\WebClient.cs" />
+    <Compile Include="Net\WebSyncClient.cs" />
     <Compile Include="Storage\EntityComparer.cs" />
     <Compile Include="Storage\IRepository.cs" />
     <Compile Include="IRepository.cs" />

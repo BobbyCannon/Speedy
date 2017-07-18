@@ -29,7 +29,7 @@ namespace Speedy.Samples.EntityFramework.Mappings
 			Property(x => x.Role).HasColumnName("Role").HasColumnType("nvarchar").IsRequired().HasMaxLength(4000);
 
 			HasRequired(x => x.Group).WithMany(x => x.GroupMembers).HasForeignKey(x => x.GroupId).WillCascadeOnDelete(true);
-			HasRequired(x => x.Member).WithMany(x => x.Members).HasForeignKey(x => x.MemberId).WillCascadeOnDelete(true);
+			HasRequired(x => x.Member).WithMany(x => x.Groups).HasForeignKey(x => x.MemberId).WillCascadeOnDelete(true);
 		}
 
 		#endregion

@@ -21,6 +21,12 @@ namespace Speedy.IntegrationTests
 	{
 		#region Methods
 
+		[ClassInitialize]
+		public static void ClassInitialize(TestContext context)
+		{
+			TestHelper.Initialize();
+		}
+
 		[TestMethod]
 		public void SyncEngineAddItemToClient()
 		{
@@ -30,7 +36,7 @@ namespace Speedy.IntegrationTests
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
-				
+
 				Assert.AreEqual(0, engine.SyncIssues.Count);
 
 				using (var clientDatabase = (IContosoDatabase) client.GetDatabase())

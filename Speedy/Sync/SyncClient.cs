@@ -18,6 +18,12 @@ namespace Speedy.Sync
 	/// </summary>
 	public class SyncClient : ISyncClient
 	{
+		#region Fields
+
+		private readonly ISyncableDatabaseProvider _provider;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -33,7 +39,7 @@ namespace Speedy.Sync
 		/// </summary>
 		public SyncClient(string name, Guid sessionId, ISyncableDatabaseProvider provider)
 		{
-			DatabaseProvider = provider;
+			_provider = provider;
 			Name = name;
 			SessionId = sessionId;
 		}
@@ -49,11 +55,6 @@ namespace Speedy.Sync
 
 		/// <inheritdoc />
 		public Guid SessionId { get; set; }
-
-		/// <summary>
-		/// Gets the database provider.
-		/// </summary>
-		protected ISyncableDatabaseProvider DatabaseProvider { get; }
 
 		#endregion
 
@@ -86,7 +87,7 @@ namespace Speedy.Sync
 		/// <returns> The list of changes from the server. </returns>
 		public int GetChangeCount(SyncRequest request)
 		{
-			using (var database = DatabaseProvider.GetDatabase())
+			using (var database = _provider.GetDatabase())
 			{
 				return database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until).Count()
 					+ database.GetSyncableRepositories().Sum(repository => repository.GetChangeCount(request.Since, request.Until));
@@ -103,7 +104,7 @@ namespace Speedy.Sync
 			var response = new List<SyncObject>();
 			var currentSkippedCount = 0;
 
-			using (var database = DatabaseProvider.GetDatabase())
+			using (var database = _provider.GetDatabase())
 			{
 				foreach (var repository in database.GetSyncableRepositories())
 				{
@@ -161,7 +162,7 @@ namespace Speedy.Sync
 		{
 			var response = new List<SyncObject>();
 
-			using (var database = DatabaseProvider.GetDatabase())
+			using (var database = _provider.GetDatabase())
 			{
 				foreach (var issue in issues)
 				{
@@ -185,30 +186,33 @@ namespace Speedy.Sync
 			}
 		}
 
-		/// <summary>
-		/// Get a database from the database provider.
-		/// </summary>
-		/// <returns> </returns>
+		/// <inheritdoc />
 		public ISyncableDatabase GetDatabase()
 		{
-			return DatabaseProvider.GetDatabase();
+			return _provider.GetDatabase();
+		}
+
+		/// <inheritdoc />
+		public T GetDatabase<T>() where T : class, ISyncableDatabase, IDatabase
+		{
+			return (T) _provider.GetDatabase();
 		}
 
 		private IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes, bool corrections)
 		{
 			var groups = changes.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
 
-			if (DatabaseProvider.Options.SyncOrder.Any())
+			if (_provider.Options.SyncOrder.Any())
 			{
-				var order = DatabaseProvider.Options.SyncOrder;
+				var order = _provider.Options.SyncOrder;
 				groups = groups.OrderBy(x => x.Key == order[0]);
 				groups = order.Skip(1).Aggregate(groups, (current, typeName) => current.ThenBy(x => x.Key == typeName));
 			}
 
 			var response = new List<SyncIssue>();
 
-			groups.ForEach(x => ProcessSyncObjects(DatabaseProvider, x.Where(y => y.Status != SyncObjectStatus.Deleted), response, corrections));
-			groups.Reverse().ForEach(x => ProcessSyncObjects(DatabaseProvider, x.Where(y => y.Status == SyncObjectStatus.Deleted), response, corrections));
+			groups.ForEach(x => ProcessSyncObjects(_provider, x.Where(y => y.Status != SyncObjectStatus.Deleted), response, corrections));
+			groups.Reverse().ForEach(x => ProcessSyncObjects(_provider, x.Where(y => y.Status == SyncObjectStatus.Deleted), response, corrections));
 
 			return response;
 		}

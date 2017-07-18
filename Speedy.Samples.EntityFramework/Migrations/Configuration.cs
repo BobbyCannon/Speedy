@@ -6,7 +6,7 @@ using System.Data.Entity.Migrations;
 
 namespace Speedy.Samples.EntityFramework.Migrations
 {
-	internal sealed class Configuration : DbMigrationsConfiguration<ContosoDatabase>
+	public sealed class Configuration : DbMigrationsConfiguration<ContosoDatabase>
 	{
 		#region Constructors
 

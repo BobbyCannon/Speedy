@@ -14,7 +14,7 @@ namespace Speedy.Storage
 	/// </summary>
 	/// <typeparam name="T"> The type contained in the repository. </typeparam>
 	[Serializable]
-	internal class SyncableRepository<T> : Repository<T,int>, ISyncableRepository<T> where T : SyncEntity, new()
+	internal class SyncableRepository<T> : Repository<T, int>, ISyncableRepository<T> where T : SyncEntity, new()
 	{
 		#region Constructors
 
@@ -92,8 +92,8 @@ namespace Speedy.Storage
 		/// <returns> The sync entity or null. </returns>
 		public SyncEntity Read(Guid syncId)
 		{
-			var state = Cache.FirstOrDefault(x => ((SyncEntity) x.Entity).SyncId == syncId);
-			return state == null ? Store?.FirstOrDefault(x => x.SyncId == syncId) : (SyncEntity) state.Entity;
+			var state = Cache.FirstOrDefault(x => x.Entity.SyncId == syncId);
+			return state == null ? Store?.FirstOrDefault(x => x.SyncId == syncId) : state.Entity;
 		}
 
 		/// <summary>

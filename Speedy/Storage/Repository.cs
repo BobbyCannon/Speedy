@@ -130,7 +130,7 @@ namespace Speedy.Storage
 			}
 
 			_database.UpdateDependantIds(item, processed ?? new List<IEntity>());
-
+			
 			if (!item.IdIsSet())
 			{
 				var id = item.NewId(ref _currentKey);

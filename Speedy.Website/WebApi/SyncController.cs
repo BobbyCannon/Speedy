@@ -22,12 +22,12 @@ namespace Speedy.Website.WebApi
 		#region Constructors
 
 		public SyncController()
-			: this(new EntityFrameworkContosoDatabaseProvider())
+			: this(new SyncDatabaseProvider(x => new ContosoDatabase(x)))
 		{
 		}
 
-		public SyncController(IContosoDatabaseProvider provider)
-			: base(provider.GetDatabase())
+		public SyncController(ISyncableDatabaseProvider provider)
+			: base(provider.GetDatabase() as IContosoDatabase)
 		{
 			_client = new SyncClient(Guid.NewGuid().ToString(), provider);
 		}

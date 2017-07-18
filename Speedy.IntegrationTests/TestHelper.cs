@@ -12,6 +12,7 @@ using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.EntityFramework;
 using Speedy.IntegrationTests.Properties;
+using Speedy.Net;
 using Speedy.Samples;
 using Speedy.Samples.EntityFramework;
 using Speedy.Sync;
@@ -33,6 +34,8 @@ namespace Speedy.IntegrationTests
 		static TestHelper()
 		{
 			Directory = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy");
+
+			System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersionByContext<ContosoDatabase, Samples.EntityFramework.Migrations.Configuration>());
 		}
 
 		#endregion
@@ -144,12 +147,9 @@ namespace Speedy.IntegrationTests
 
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null)
 		{
-			var database1 = new ContosoDatabase("DefaultConnection", options);
-			database1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
-
-			yield return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase("DefaultConnection", x));
-			yield return new DatabaseProvider<IContosoDatabase>(x => new ContosoMemoryDatabase(null, x));
-			yield return new DatabaseProvider<IContosoDatabase>(x => new ContosoMemoryDatabase(Directory.FullName, options));
+			yield return GetEntityFrameworkProvider();
+			yield return GetMemoryProvider(null, options);
+			yield return GetMemoryProvider(Directory.FullName,options);
 		}
 
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
@@ -228,7 +228,7 @@ namespace Speedy.IntegrationTests
 			});
 		}
 
-		public static void TestServerAndClients(Action<SyncClient, SyncClient> action)
+		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action)
 		{
 			GetServerClientScenerios().ForEach(x =>
 			{
@@ -261,41 +261,58 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static ISyncableDatabaseProvider GetContosoDatabaseProvider()
+		private static ISyncableDatabaseProvider GetSyncableMemoryProvider(string directory = null)
 		{
-			var database = new ContosoMemoryDatabase();
+			var database = new ContosoMemoryDatabase(directory);
 			// todo: support new options?
-			return new SyncDatabaseProvider<IContosoDatabase>(x => database);
+			return new SyncDatabaseProvider(x => database);
 		}
 
-		private static ISyncableDatabaseProvider GetEntityFrameworkProvider()
+		private static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(string directory = null, DatabaseOptions options = null)
+		{
+			var database = new ContosoMemoryDatabase(directory, options);
+			// todo: support new options?
+			return new DatabaseProvider<IContosoDatabase>(x => database);
+		}
+
+		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider()
 		{
 			using (var database = new ContosoDatabase())
 			{
 				database.ClearDatabase();
 				var connectionString = database.Database.Connection.ConnectionString;
-				return new SyncDatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(connectionString, x));
+				return new SyncDatabaseProvider(x => new ContosoDatabase(connectionString, x));
 			}
 		}
 
-		private static ISyncableDatabaseProvider GetEntityFrameworkProvider2()
+		private static IDatabaseProvider<IContosoDatabase> GetEntityFrameworkProvider()
+		{
+			using (var database = new ContosoDatabase())
+			{
+				database.ClearDatabase();
+				var connectionString = database.Database.Connection.ConnectionString;
+				return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(connectionString, x));
+			}
+		}
+
+		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2()
 		{
 			using (var database = new ContosoDatabase("ContosoDatabaseConnection2"))
 			{
 				database.ClearDatabase();
-				return new SyncDatabaseProvider<IContosoDatabase>(x => new ContosoDatabase("ContosoDatabaseConnection2", x));
+				return new SyncDatabaseProvider(x => new ContosoDatabase("ContosoDatabaseConnection2", x));
 			}
 		}
 
-		private static IEnumerable<Tuple<SyncClient, SyncClient>> GetServerClientScenerios()
+		private static IEnumerable<Tuple<ISyncClient, ISyncClient>> GetServerClientScenerios()
 		{
-			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (MEM)", GetContosoDatabaseProvider()), new SyncClient("Client (EF)", GetEntityFrameworkProvider()));
-			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (MEM)", GetContosoDatabaseProvider()), new SyncClient("Client (WEB)", GetEntityFrameworkProvider()));
-			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (EF)", GetEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetContosoDatabaseProvider()));
-			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (WEB)", GetEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetContosoDatabaseProvider()));
-			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (EF)", GetEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetEntityFrameworkProvider2()));
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (EF)", GetSyncableEntityFrameworkProvider()));
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new WebSyncClient("Client (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"));
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return new Tuple<ISyncClient, ISyncClient>(new WebSyncClient("Server (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetSyncableEntityFrameworkProvider2()));
 		}
-
+		
 		/// <summary>
 		/// Safely delete a directory.
 		/// </summary>

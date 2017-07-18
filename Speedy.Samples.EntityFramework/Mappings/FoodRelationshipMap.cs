@@ -26,8 +26,8 @@ namespace Speedy.Samples.EntityFramework.Mappings
 			Property(x => x.ParentId).HasColumnName("ParentId").HasColumnType("int").IsRequired();
 			Property(x => x.Quantity).HasColumnName("Quantity").HasColumnType("decimal").IsRequired().HasPrecision(18, 2);
 
-			HasRequired(x => x.Child).WithMany(x => x.Children).HasForeignKey(x => x.ChildId).WillCascadeOnDelete(false);
-			HasRequired(x => x.Parent).WithMany(x => x.Parents).HasForeignKey(x => x.ParentId).WillCascadeOnDelete(false);
+			HasRequired(x => x.Child).WithMany(x => x.Parents).HasForeignKey(x => x.ChildId).WillCascadeOnDelete(false);
+			HasRequired(x => x.Parent).WithMany(x => x.Children).HasForeignKey(x => x.ParentId).WillCascadeOnDelete(false);
 		}
 
 		#endregion

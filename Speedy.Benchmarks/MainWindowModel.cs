@@ -3,14 +3,13 @@
 using System;
 using System.Collections.ObjectModel;
 using PropertyChanged;
-using Speedy.Samples.Sync;
 using Speedy.Sync;
 
 #endregion
 
 namespace Speed.Benchmarks
 {
-	[ImplementPropertyChanged]
+	[AddINotifyPropertyChangedInterface]
 	public class MainWindowModel
 	{
 		#region Constructors
@@ -49,7 +48,7 @@ namespace Speed.Benchmarks
 		#endregion
 	}
 
-	[ImplementPropertyChanged]
+	[AddINotifyPropertyChangedInterface]
 	public class DatabaseClient
 	{
 		#region Properties
@@ -65,12 +64,12 @@ namespace Speed.Benchmarks
 		#endregion
 	}
 
-	[ImplementPropertyChanged]
+	[AddINotifyPropertyChangedInterface]
 	public class SyncClientState
 	{
 		#region Constructors
 
-		public SyncClientState(IContosoSyncClient syncClient)
+		public SyncClientState(SyncClient syncClient)
 		{
 			Client = syncClient;
 			PreviousSyncedOn = DateTime.MinValue;
@@ -84,7 +83,7 @@ namespace Speed.Benchmarks
 
 		public int AddressCount { get; set; }
 
-		public IContosoSyncClient Client { get; }
+		public SyncClient Client { get; }
 
 		public DateTime LastSyncedOn { get; set; }
 
