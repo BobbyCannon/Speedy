@@ -1,15 +1,14 @@
 #region References
 
-using System;
 using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
-using Speedy;
+using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Samples.EntityFramework
 {
-	public class ContosoDatabase : Speedy.EntityFramework.EntityFrameworkDatabase, IContosoDatabase
+	public class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
 	{
 		#region Constructors
 
@@ -27,21 +26,40 @@ namespace Speedy.Samples.EntityFramework
 		public ContosoDatabase(string nameOrConnectionString, DatabaseOptions options = null)
 			: base(nameOrConnectionString, options)
 		{
+			Options.SyncOrder = new[]
+			{
+				typeof(Address).FullName,
+				typeof(Person).FullName
+			};
 		}
 
 		#endregion
 
 		#region Properties
 
-		public Speedy.IRepository<Speedy.Samples.Entities.Address, int> Addresses => GetRepository<Speedy.Samples.Entities.Address, int>();
-		public Speedy.IRepository<Speedy.Samples.Entities.Food, int> Foods => GetRepository<Speedy.Samples.Entities.Food, int>();
-		public Speedy.IRepository<Speedy.Samples.Entities.FoodRelationship, int> FoodRelationships => GetRepository<Speedy.Samples.Entities.FoodRelationship, int>();
-		public Speedy.IRepository<Speedy.Samples.Entities.Group, int> Groups => GetRepository<Speedy.Samples.Entities.Group, int>();
-		public Speedy.IRepository<Speedy.Samples.Entities.GroupMember, int> GroupMembers => GetRepository<Speedy.Samples.Entities.GroupMember, int>();
-		public Speedy.IRepository<Speedy.Samples.Entities.LogEvent, string> LogEvents => GetRepository<Speedy.Samples.Entities.LogEvent, string>();
-		public Speedy.IRepository<Speedy.Samples.Entities.Person, int> People => GetRepository<Speedy.Samples.Entities.Person, int>();
-		public Speedy.IRepository<Speedy.Samples.Entities.Pet, Pet.PetKey> Pets => GetRepository<Speedy.Samples.Entities.Pet, Pet.PetKey>();
-		public Speedy.IRepository<Speedy.Samples.Entities.PetType, string> PetTypes => GetRepository<Speedy.Samples.Entities.PetType, string>();
+		public IRepository<Address, int> Addresses => GetSyncableRepository<Address>();
+		public IRepository<FoodRelationship, int> FoodRelationships => GetRepository<FoodRelationship, int>();
+		public IRepository<Food, int> Foods => GetRepository<Food, int>();
+		public IRepository<GroupMember, int> GroupMembers => GetRepository<GroupMember, int>();
+		public IRepository<Group, int> Groups => GetRepository<Group, int>();
+		public IRepository<LogEvent, string> LogEvents => GetRepository<LogEvent, string>();
+		public IRepository<Person, int> People => GetSyncableRepository<Person>();
+		public IRepository<Pet, Pet.PetKey> Pets => GetRepository<Pet, Pet.PetKey>();
+		public IRepository<PetType, string> PetTypes => GetRepository<PetType, string>();
+
+		#endregion
+
+		#region Methods
+
+		public ISyncableDatabaseProvider GetSyncableDatabaseProvider()
+		{
+			return new SyncDatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(Database.Connection.ConnectionString, x));
+		}
+
+		public IDatabaseProvider<IContosoDatabase> GetDatabaseProvider()
+		{
+			return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(Database.Connection.ConnectionString, x));
+		}
 
 		#endregion
 	}

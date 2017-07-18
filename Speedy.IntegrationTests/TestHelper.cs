@@ -14,6 +14,7 @@ using Speedy.EntityFramework;
 using Speedy.IntegrationTests.Properties;
 using Speedy.Samples;
 using Speedy.Samples.EntityFramework;
+using Speedy.Sync;
 
 #endregion
 
@@ -37,6 +38,14 @@ namespace Speedy.IntegrationTests
 		#endregion
 
 		#region Methods
+
+		public static void AddAndSaveChanges<T>(this IContosoDatabase database, T item) where T : SyncEntity
+		{
+			var repository = database.GetSyncableRepository(item.GetType());
+			repository.Add(item);
+			database.SaveChanges();
+			database.Dispose();
+		}
 
 		/// <summary>
 		/// Compares two objects to see if they are equal.
@@ -138,13 +147,9 @@ namespace Speedy.IntegrationTests
 			var database1 = new ContosoDatabase("DefaultConnection", options);
 			database1.Database.ExecuteSqlCommand(Resources.ClearDatabase);
 
-			yield return new DatabaseProvider<IContosoDatabase>(() => new ContosoDatabase("DefaultConnection", options));
-
-			var memoryDatabase = new ContosoMemoryDatabase(null, options);
-			yield return new DatabaseProvider<IContosoDatabase>(() => memoryDatabase);
-
-			var localDatabase = new ContosoMemoryDatabase(Directory.FullName, options);
-			yield return new DatabaseProvider<IContosoDatabase>(() => localDatabase);
+			yield return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase("DefaultConnection", x));
+			yield return new DatabaseProvider<IContosoDatabase>(x => new ContosoMemoryDatabase(null, x));
+			yield return new DatabaseProvider<IContosoDatabase>(x => new ContosoMemoryDatabase(Directory.FullName, options));
 		}
 
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
@@ -223,6 +228,15 @@ namespace Speedy.IntegrationTests
 			});
 		}
 
+		public static void TestServerAndClients(Action<SyncClient, SyncClient> action)
+		{
+			GetServerClientScenerios().ForEach(x =>
+			{
+				Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
+				action(x.Item1, x.Item2);
+			});
+		}
+
 		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
 		{
 			builder.AppendLine(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
@@ -245,6 +259,41 @@ namespace Speedy.IntegrationTests
 			{
 				AddExceptionToBuilder(builder, ex.InnerException);
 			}
+		}
+
+		private static ISyncableDatabaseProvider GetContosoDatabaseProvider()
+		{
+			var database = new ContosoMemoryDatabase();
+			// todo: support new options?
+			return new SyncDatabaseProvider<IContosoDatabase>(x => database);
+		}
+
+		private static ISyncableDatabaseProvider GetEntityFrameworkProvider()
+		{
+			using (var database = new ContosoDatabase())
+			{
+				database.ClearDatabase();
+				var connectionString = database.Database.Connection.ConnectionString;
+				return new SyncDatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(connectionString, x));
+			}
+		}
+
+		private static ISyncableDatabaseProvider GetEntityFrameworkProvider2()
+		{
+			using (var database = new ContosoDatabase("ContosoDatabaseConnection2"))
+			{
+				database.ClearDatabase();
+				return new SyncDatabaseProvider<IContosoDatabase>(x => new ContosoDatabase("ContosoDatabaseConnection2", x));
+			}
+		}
+
+		private static IEnumerable<Tuple<SyncClient, SyncClient>> GetServerClientScenerios()
+		{
+			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (MEM)", GetContosoDatabaseProvider()), new SyncClient("Client (EF)", GetEntityFrameworkProvider()));
+			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (MEM)", GetContosoDatabaseProvider()), new SyncClient("Client (WEB)", GetEntityFrameworkProvider()));
+			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (EF)", GetEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetContosoDatabaseProvider()));
+			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (WEB)", GetEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetContosoDatabaseProvider()));
+			yield return new Tuple<SyncClient, SyncClient>(new SyncClient("Server (EF)", GetEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetEntityFrameworkProvider2()));
 		}
 
 		/// <summary>

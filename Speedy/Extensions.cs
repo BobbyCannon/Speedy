@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Speedy.Storage;
+using Speedy.Sync;
 
 #endregion
 
@@ -155,7 +156,7 @@ namespace Speedy
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 			response.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
-			
+
 			if (camelCase)
 			{
 				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
@@ -360,6 +361,17 @@ namespace Speedy
 		public static string ToJson<T>(this T item, JsonSerializerSettings settings, bool indented = false)
 		{
 			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
+		}
+
+		/// <summary>
+		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
+		/// </summary>
+		/// <typeparam name="T"> The type of the entity. </typeparam>
+		/// <param name="entity"> The entity to unwrap from entity framework proxy. </param>
+		/// <returns> The disconnected entity. </returns>
+		public static T Unwrap<T>(this T entity) where T : SyncEntity
+		{
+			return (T) entity.ToSyncObject().ToSyncEntity();
 		}
 
 		/// <summary>

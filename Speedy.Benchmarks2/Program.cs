@@ -140,7 +140,7 @@ namespace Speedy.Benchmarks
 			foreach (var chunk in chunks)
 			{
 				CleanupDatabase(connectionString);
-				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(() => new ContosoDatabase(connectionString)), iterations, chunk));
+				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(connectionString, x)), iterations, chunk));
 			}
 
 			Log(string.Empty, true, results);
@@ -156,7 +156,7 @@ namespace Speedy.Benchmarks
 			foreach (var chunk in chunks)
 			{
 				CleanupDirectory(directory);
-				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(() => new ContosoDatabase(directory)), iterations, chunk));
+				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(directory, x)), iterations, chunk));
 			}
 
 			Log(string.Empty, true, results);

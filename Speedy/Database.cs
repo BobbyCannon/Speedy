@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Speedy.Configuration;
 using Speedy.Storage;
+using Speedy.Sync;
 
 #endregion
 
@@ -40,6 +41,7 @@ namespace Speedy
 			Options = options?.DeepClone() ?? new DatabaseOptions();
 			PropertyConfigurations = new List<IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IRepository>();
+			SyncTombstones = GetRepository<SyncTombstone, long>();
 		}
 
 		#endregion
@@ -50,6 +52,11 @@ namespace Speedy
 		/// Gets the options for this database.
 		/// </summary>
 		public DatabaseOptions Options { get; }
+
+		/// <summary>
+		/// Gets the sync tombstone repository.
+		/// </summary>
+		public IRepository<SyncTombstone, long> SyncTombstones { get; }
 
 		internal string Directory { get; }
 
@@ -110,6 +117,66 @@ namespace Speedy
 			var repository = CreateRepository<T, T2>();
 			Repositories.Add(key, repository);
 			return repository;
+		}
+
+		/// <summary>
+		/// Gets a list of syncable repositories.
+		/// </summary>
+		/// <returns> The list of syncable repositories. </returns>
+		public IEnumerable<ISyncableRepository> GetSyncableRepositories()
+		{
+			var syncableRepositories = Repositories.Where(x => x.Value is ISyncableRepository).Select(x => x.Value);
+
+			if (Options.SyncOrder.Length <= 0)
+			{
+				return syncableRepositories.Cast<ISyncableRepository>();
+			}
+
+			var order = Options.SyncOrder.Reverse().ToList();
+			var query = Repositories
+				.Where(x => x.Value is ISyncableRepository)
+				.OrderBy(x => x.Key == order[0]);
+
+			query = order.Skip(1).Aggregate(query, (current, key) => current.ThenBy(x => x.Key == key));
+			return query.Select(x => x.Value).Cast<ISyncableRepository>();
+		}
+
+		/// <summary>
+		/// Gets a syncable repository for the provided type.
+		/// </summary>
+		/// <typeparam name="T"> The type of the item in the repository. </typeparam>
+		/// <returns> The repository for the type. </returns>
+		public ISyncableRepository<T> GetSyncableRepository<T>() where T : SyncEntity, new()
+		{
+			return GetSyncableEntityRepository<T>();
+		}
+
+		/// <summary>
+		/// Gets a syncable repository of the requested entity.
+		/// </summary>
+		/// <returns> The repository of entities requested. </returns>
+		public ISyncableRepository GetSyncableRepository(Type type)
+		{
+			return Repositories.FirstOrDefault(x => x.Key == type.FullName).Value as ISyncableRepository;
+		}
+
+		/// <summary>
+		/// Gets a list of sync tombstones that matches the filter.
+		/// </summary>
+		/// <param name="filter"> The filter to use. </param>
+		/// <returns> The list of sync tombstones. </returns>
+		public IQueryable<SyncTombstone> GetSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
+		{
+			return SyncTombstones.Where(filter);
+		}
+
+		/// <summary>
+		/// Removes sync tombstones that represent match the filter.
+		/// </summary>
+		/// <param name="filter"> The filter to use. </param>
+		public void RemoveSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
+		{
+			SyncTombstones.Remove(filter);
 		}
 
 		/// <summary>
@@ -383,6 +450,16 @@ namespace Speedy
 			return repository;
 		}
 
+		private SyncableRepository<T> CreateSyncableRepository<T>() where T : SyncEntity, new()
+		{
+			var repository = new SyncableRepository<T>(this);
+			repository.DeletingEntity += DeletingEntity;
+			repository.UpdateEntityRelationships += UpdateEntityRelationships;
+			repository.ValidateEntity += ValidateEntity;
+			repository.Initialize();
+			return repository;
+		}
+
 		private void DeletingEntity<T2>(Entity<T2> entity)
 		{
 			var key = entity.GetRealType().Name;
@@ -424,6 +501,21 @@ namespace Speedy
 			}
 
 			return null;
+		}
+
+		private SyncableRepository<T> GetSyncableEntityRepository<T>() where T : SyncEntity, new()
+		{
+			var type = typeof(T);
+			var key = type.FullName;
+
+			if (Repositories.ContainsKey(key))
+			{
+				return (SyncableRepository<T>) Repositories[key];
+			}
+
+			var repository = CreateSyncableRepository<T>();
+			Repositories.Add(key, repository);
+			return repository;
 		}
 
 		private void UpdateDependantCollectionIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)

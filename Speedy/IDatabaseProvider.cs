@@ -5,6 +5,15 @@
 	/// </summary>
 	public interface IDatabaseProvider<out T> where T : IDatabase
 	{
+		#region Properties
+
+		/// <summary>
+		/// Gets or sets the options for the database provider.
+		/// </summary>
+		DatabaseOptions Options { get; set; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>

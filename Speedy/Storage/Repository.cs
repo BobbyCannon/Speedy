@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Speedy.Sync;
 
 #endregion
 
@@ -130,15 +131,27 @@ namespace Speedy.Storage
 
 			_database.UpdateDependantIds(item, processed ?? new List<IEntity>());
 
-			if (item.IdIsSet())
+			if (!item.IdIsSet())
+			{
+				var id = item.NewId(ref _currentKey);
+				if (!Equals(id, default(T2)))
+				{
+					item.Id = id;
+				}
+			}
+
+			var syncableEntity = entity as SyncEntity;
+			if (syncableEntity == null)
 			{
 				return;
 			}
 
-			var id = item.NewId(ref _currentKey);
-			if (!Equals(id, default(T2)))
+			var maintainedEntity = _database.Options.UnmaintainEntities.All(x => x != entity.GetType());
+			var maintainSyncId = maintainedEntity && _database.Options.MaintainSyncId;
+
+			if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
 			{
-				item.Id = id;
+				syncableEntity.SyncId = Guid.NewGuid();
 			}
 		}
 
@@ -209,7 +222,7 @@ namespace Speedy.Storage
 		public bool HasDependentRelationship(object[] value, object id)
 		{
 			var foreignKeyFunction = (Func<T, object>) value[4];
-			return this.Any(x => foreignKeyFunction.Invoke(x).Equals(id));
+			return this.Any(x => id.Equals(foreignKeyFunction.Invoke(x)));
 		}
 
 		/// <inheritdoc />
@@ -313,6 +326,17 @@ namespace Speedy.Storage
 
 			foreach (var item in removed)
 			{
+				var syncableEntity = item.Entity as SyncEntity;
+				if (syncableEntity != null)
+				{
+					if (syncableEntity.SyncId == Guid.Empty)
+					{
+						throw new InvalidOperationException("Cannot tombstone this entity because the sync ID has not been set.");
+					}
+
+					_database.SyncTombstones?.Add(syncableEntity.ToSyncTombstone(_database.Options.SyncTombstoneReferenceId));
+				}
+
 				Store?.Remove(item.Entity.Id.ToString());
 				Cache.Remove(item);
 			}
@@ -322,8 +346,10 @@ namespace Speedy.Storage
 				var entity = entry.Entity;
 				var createdEntity = entity as ICreatedEntity;
 				var modifiableEntity = entity as IModifiableEntity;
+				var syncableEntity = entity as SyncEntity;
 				var maintainedEntity = _database.Options.UnmaintainEntities.All(x => x != entry.Entity.GetType());
 				var maintainDates = maintainedEntity && _database.Options.MaintainDates;
+				var maintainSyncId = maintainedEntity && _database.Options.MaintainSyncId;
 				var now = DateTime.UtcNow;
 
 				switch (entry.State)
@@ -352,6 +378,20 @@ namespace Speedy.Storage
 								createdEntity.CreatedOn = oldCreatedEntity.CreatedOn;
 							}
 						}
+						
+						if (syncableEntity != null)
+						{
+							// Do not allow sync ID to change for entities.
+							if (maintainSyncId)
+							{
+								var oldSyncableEntity = entry.OldEntity as SyncEntity;
+								if (oldSyncableEntity != null)
+								{
+									syncableEntity.SyncId = oldSyncableEntity.SyncId;
+								}
+							}
+						}
+
 
 						if (modifiableEntity != null && maintainDates)
 						{
@@ -381,7 +421,16 @@ namespace Speedy.Storage
 			return changeCount;
 		}
 
-		/// <inheritdoc />
+		public void UpdateLocalSyncIds()
+		{
+			foreach (var entry in Cache)
+			{
+				// The local relationships may have changed. We need keep our sync IDs in sync with 
+				// any relationships that may have changed.
+				(entry.Entity as SyncEntity)?.UpdateLocalSyncIds();
+			}
+		}
+
 		public void UpdateRelationships()
 		{
 			Cache.ToList().ForEach(x => OnUpdateEntityRelationships(x.Entity));

@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Speedy;
+using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Samples.Entities
 {
-	public class Person : IncrementingModifiableEntity
+	public class Person : SyncEntity
 	{
 		#region Constructors
 

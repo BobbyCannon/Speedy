@@ -13,7 +13,7 @@ namespace Speedy
 	{
 		#region Fields
 
-		private readonly Func<T> _provider;
+		private readonly Func<DatabaseOptions, T> _provider;
 
 		#endregion
 
@@ -23,10 +23,20 @@ namespace Speedy
 		/// Instanciate an instance of the database provider.
 		/// </summary>
 		/// <param name="provider"> The database provider function. </param>
-		public DatabaseProvider(Func<T> provider)
+		/// <param name="options"> The options for this provider. </param>
+		public DatabaseProvider(Func<DatabaseOptions, T> provider, DatabaseOptions options = null)
 		{
 			_provider = provider;
+
+			Options = options?.DeepClone() ?? new DatabaseOptions();
 		}
+
+		#endregion
+
+		#region Properties
+
+		/// <inheritdoc />
+		public DatabaseOptions Options { get; set; }
 
 		#endregion
 
@@ -38,7 +48,7 @@ namespace Speedy
 		/// <returns> The database instance. </returns>
 		public T GetDatabase()
 		{
-			return _provider();
+			return _provider(Options.DeepClone());
 		}
 
 		#endregion

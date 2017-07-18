@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseProvider.cs" />
+    <Compile Include="Exceptions\SyncIsssueException.cs" />
     <Compile Include="IncrementingEntity.cs" />
     <Compile Include="Configuration\Relationship.cs" />
     <Compile Include="CreatedEntity.cs" />
@@ -68,6 +69,9 @@
     <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="IKeyValueRepository.cs" />
     <Compile Include="IKeyValueRepositoryProvider.cs" />
+    <Compile Include="ISyncableDatabase.cs" />
+    <Compile Include="ISyncableDatabaseProvider.cs" />
+    <Compile Include="ISyncableRepository.cs" />
     <Compile Include="KeyValueRepository.cs" />
     <Compile Include="KeyValueRepositoryOptions.cs" />
     <Compile Include="KeyValueRepositoryProvider.cs" />
@@ -86,9 +90,24 @@
     <Compile Include="IDatabase.cs" />
     <Compile Include="Storage\Repository.cs" />
     <Compile Include="Storage\RelationshipRepository.cs" />
+    <Compile Include="Storage\SyncableRepository.cs" />
     <Compile Include="Streams\NoCloseStreamReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Streams\NoCloseStreamWriter.cs" />
+    <Compile Include="Sync\ISyncClient.cs" />
+    <Compile Include="Sync\SyncClient.cs" />
+    <Compile Include="Sync\SyncDatabaseProvider.cs" />
+    <Compile Include="Sync\SyncEngine.cs" />
+    <Compile Include="Sync\SyncEngineStatus.cs" />
+    <Compile Include="Sync\SyncEngineStatusArgs.cs" />
+    <Compile Include="Sync\SyncEntity.cs" />
+    <Compile Include="Sync\SyncIssue.cs" />
+    <Compile Include="Sync\SyncIssueType.cs" />
+    <Compile Include="Sync\SyncObject.cs" />
+    <Compile Include="Sync\SyncObjectStatus.cs" />
+    <Compile Include="Sync\SyncOptions.cs" />
+    <Compile Include="Sync\SyncRequest.cs" />
+    <Compile Include="Sync\SyncTombstone.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

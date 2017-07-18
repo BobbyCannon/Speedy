@@ -1,6 +1,7 @@
 #region References
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Samples.Entities;
@@ -29,6 +30,7 @@ namespace Speedy.Samples.EntityFramework.Mappings
 			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
 			Property(x => x.Postal).HasColumnName("Postal").HasColumnType("nvarchar").IsRequired().HasMaxLength(128);
 			Property(x => x.State).HasColumnName("State").HasColumnType("nvarchar").IsRequired().HasMaxLength(128);
+			Property(x => x.SyncId).HasColumnType("uniqueidentifier").IsRequired().HasColumnAnnotation("Index", new IndexAnnotation(new[] { new IndexAttribute { IsUnique = true } }));
 
 			HasOptional(x => x.LinkedAddress).WithMany(x => x.LinkedAddresses).HasForeignKey(x => x.LinkedAddressId).WillCascadeOnDelete(false);
 		}

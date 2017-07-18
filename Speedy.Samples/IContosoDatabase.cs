@@ -1,26 +1,24 @@
 #region References
 
-using System;
 using Speedy.Samples.Entities;
-using Speedy;
 
 #endregion
 
 namespace Speedy.Samples
 {
-	public interface IContosoDatabase : Speedy.IDatabase
+	public interface IContosoDatabase : ISyncableDatabase
 	{
 		#region Properties
 
-		Speedy.IRepository<Speedy.Samples.Entities.Address, int> Addresses { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.Food, int> Foods { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.FoodRelationship, int> FoodRelationships { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.Group, int> Groups { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.GroupMember, int> GroupMembers { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.LogEvent, string> LogEvents { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.Person, int> People { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.Pet, Pet.PetKey> Pets { get; }
-		Speedy.IRepository<Speedy.Samples.Entities.PetType, string> PetTypes { get; }
+		IRepository<Address, int> Addresses { get; }
+		IRepository<FoodRelationship, int> FoodRelationships { get; }
+		IRepository<Food, int> Foods { get; }
+		IRepository<GroupMember, int> GroupMembers { get; }
+		IRepository<Group, int> Groups { get; }
+		IRepository<LogEvent, string> LogEvents { get; }
+		IRepository<Person, int> People { get; }
+		IRepository<Pet, Pet.PetKey> Pets { get; }
+		IRepository<PetType, string> PetTypes { get; }
 
 		#endregion
 	}
