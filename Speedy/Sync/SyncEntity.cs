@@ -21,7 +21,8 @@ namespace Speedy.Sync
 		/// </summary>
 		protected SyncEntity()
 		{
-			IgnoreProperties = new HashSet<string>(new[] { "Id", "SyncId" });
+			ExcludedPropertiesForUpdate = new HashSet<string>(new[] { "Id", "SyncId" });
+			ExcludedPropertiesForSerializing = new HashSet<string>();
 		}
 
 		#endregion
@@ -39,7 +40,12 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Properties to ignore when updating.
 		/// </summary>
-		protected HashSet<string> IgnoreProperties { get; }
+		protected HashSet<string> ExcludedPropertiesForSerializing { get; }
+
+		/// <summary>
+		/// Properties to ignore when updating.
+		/// </summary>
+		protected HashSet<string> ExcludedPropertiesForUpdate { get; }
 
 		#endregion
 
@@ -91,7 +97,7 @@ namespace Speedy.Sync
 			var properties = type.GetCachedProperties();
 			foreach (var property in properties)
 			{
-				if (!property.CanWrite || IgnoreProperties.Contains(property.Name))
+				if (!property.CanWrite || ExcludedPropertiesForUpdate.Contains(property.Name))
 				{
 					continue;
 				}

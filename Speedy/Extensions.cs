@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 using Speedy.Storage;
 using Speedy.Sync;
 
@@ -28,12 +27,13 @@ namespace Speedy
 	{
 		#region Fields
 
+		private static readonly ConcurrentDictionary<string, FieldInfo[]> _fieldInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _genericMethods;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _methodInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _methods;
 		private static readonly ConcurrentDictionary<string, ParameterInfo[]> _parameterInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
-		private static readonly JsonSerializerSettings _serializationSettingsNoVirtuals;
+		private static readonly JsonSerializerSettings _serializationSettings;
 		private static readonly ConcurrentDictionary<string, Type[]> _types;
 
 		#endregion
@@ -42,13 +42,14 @@ namespace Speedy
 
 		static Extensions()
 		{
-			_types = new ConcurrentDictionary<string, Type[]>();
-			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
+			_fieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
 			_genericMethods = new ConcurrentDictionary<string, MethodInfo>();
+			_methodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
 			_methods = new ConcurrentDictionary<string, MethodInfo>();
 			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_parameterInfos = new ConcurrentDictionary<string, ParameterInfo[]>();
-			_serializationSettingsNoVirtuals = GetSerializerSettings(false, true, false);
+			_serializationSettings = GetSerializerSettings(false, false);
+			_types = new ConcurrentDictionary<string, Type[]>();
 		}
 
 		#endregion
@@ -116,7 +117,7 @@ namespace Speedy
 		/// <returns> The deserialized object. </returns>
 		public static T FromJson<T>(this string item)
 		{
-			return JsonConvert.DeserializeObject<T>(item, _serializationSettingsNoVirtuals);
+			return JsonConvert.DeserializeObject<T>(item, _serializationSettings);
 		}
 
 		/// <summary>
@@ -127,7 +128,105 @@ namespace Speedy
 		/// <returns> The deserialized object. </returns>
 		public static object FromJson(this string item, Type type)
 		{
-			return string.IsNullOrWhiteSpace(item) ? null : JsonConvert.DeserializeObject(item, type, _serializationSettingsNoVirtuals);
+			return string.IsNullOrWhiteSpace(item) ? null : JsonConvert.DeserializeObject(item, type, _serializationSettings);
+		}
+
+		/// <summary>
+		/// Gets a list of fields for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the fields for. </param>
+		/// <param name="flags"> The flags used to query with. </param>
+		/// <returns> The list of field infos for the type. </returns>
+		public static IEnumerable<FieldInfo> GetCachedFields(this Type type, BindingFlags flags)
+		{
+			FieldInfo[] response;
+
+			if (_fieldInfos.ContainsKey(type.FullName))
+			{
+				if (_fieldInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetFields(flags);
+			return _fieldInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		/// <summary>
+		/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the methods for. </param>
+		/// <param name="flags"> The flags used to query with. </param>
+		/// <returns> The list of method infos for the type. </returns>
+		public static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags flags)
+		{
+			MethodInfo[] response;
+
+			if (_methodInfos.ContainsKey(type.FullName))
+			{
+				if (_methodInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetMethods(flags);
+			return _methodInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		/// <summary>
+		/// Gets a list of parameter infos for the provided method info. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="info"> The method info to get the parameters for. </param>
+		/// <returns> The list of parameter infos for the type. </returns>
+		public static IList<ParameterInfo> GetCachedParameters(this MethodInfo info)
+		{
+			ParameterInfo[] response;
+			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			var key = info.ToString().Replace(info.Name, fullName);
+
+			if (_parameterInfos.ContainsKey(key))
+			{
+				if (_parameterInfos.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.GetParameters();
+			return _parameterInfos.AddOrUpdate(key, response, (s, infos) => response);
+		}
+
+		/// <summary>
+		/// Gets a list of property types for the provided object type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="value"> The value to get the properties for. </param>
+		/// <returns> The list of properties for the type of the value. </returns>
+		public static IList<PropertyInfo> GetCachedProperties(this object value)
+		{
+			return value.GetType().GetCachedProperties();
+		}
+
+		/// <summary>
+		/// Gets a list of property types for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the properties for. </param>
+		/// <returns> The list of properties for the type. </returns>
+		public static IList<PropertyInfo> GetCachedProperties(this Type type)
+		{
+			PropertyInfo[] response;
+
+			if (_propertyInfos.ContainsKey(type.FullName))
+			{
+				if (_propertyInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 
 		/// <summary>
@@ -141,34 +240,49 @@ namespace Speedy
 			var isProxy = type.FullName.Contains("System.Data.Entity.DynamicProxies");
 			return isProxy ? type.BaseType : type;
 		}
+		
+		/// <summary>
+		/// Gets the real type of the entity. For use with proxy entities.
+		/// </summary>
+		/// <param name="type"> The type to process. </param>
+		/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
+		public static Type GetRealType(this Type type)
+		{
+			var isProxy = type.FullName.Contains("System.Data.Entity.DynamicProxies");
+			return isProxy ? type.BaseType : type;
+		}
 
 		/// <summary>
 		/// Get the serialization settings.
 		/// </summary>
 		/// <param name="camelCase"> True to camelCase or else use PascalCase. </param>
-		/// <param name="ignoreVirtuals"> True to ignore virtual members else include them. </param>
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
 		/// <returns> The serialization settings. </returns>
-		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreVirtuals, bool ignoreNullValues)
+		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreNullValues)
 		{
 			var response = new JsonSerializerSettings();
+
 			response.Converters.Add(new IsoDateTimeConverter());
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 			response.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
-
-			if (camelCase)
-			{
-				response.Converters.Add(new StringEnumConverter { CamelCaseText = true });
-				response.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			}
-
-			if (ignoreVirtuals)
-			{
-				response.ContractResolver = new IgnoreVirtualsSerializeContractResolver();
-			}
+			response.ContractResolver = new SpeedySerializeContractResolver { UseCamelCase = camelCase };
 
 			return response;
+		}
+
+		/// <summary>
+		/// Gets a list of virtual property names. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="value"> The value to get the property names for. </param>
+		/// <returns> The list of virtual property names for the type. </returns>
+		public static IList<string> GetVirtualPropertyNames(this Type value)
+		{
+			return value.GetCachedProperties()
+				.Where(x => x.GetMethod.IsVirtual && !x.GetMethod.IsAbstract && !x.GetMethod.IsFinal && x.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
+				.Select(x => x.Name)
+				.OrderBy(x => x)
+				.ToList();
 		}
 
 		/// <summary>
@@ -346,10 +460,30 @@ namespace Speedy
 		/// <returns> The JSON string of the serialized object. </returns>
 		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreVirtuals = false, bool ignoreNullValues = false)
 		{
-			var settings = GetSerializerSettings(camelCase, ignoreVirtuals, ignoreNullValues);
-			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
-		}
+			var settings = GetSerializerSettings(camelCase, ignoreNullValues);
+			var resolver = (SpeedySerializeContractResolver) settings.ContractResolver;
+			var type = item.GetRealType();
 
+			//resolver.UseCamelCase = camelCase;
+			//settings.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
+
+			if (ignoreVirtuals)
+			{
+				var values = type.GetVirtualPropertyNames().ToArray();
+
+				if (values.Length > 0)
+				{
+					resolver.ResetIgnores(new KeyValuePair<Type, string[]>(type, values));
+				}
+			}
+			//else
+			//{
+			//	resolver.ResetIgnores();
+			//}
+
+			return JsonConvert.SerializeObject(item, type, indented ? Formatting.Indented : Formatting.None, settings);
+		}
+		
 		/// <summary>
 		/// Serialize an object into a JSON string.
 		/// </summary>
@@ -544,56 +678,6 @@ namespace Speedy
 
 			response = type.GetGenericArguments();
 			return _types.AddOrUpdate(type.FullName, response, (s, types) => response);
-		}
-
-		internal static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags flags)
-		{
-			MethodInfo[] response;
-
-			if (_methodInfos.ContainsKey(type.FullName))
-			{
-				if (_methodInfos.TryGetValue(type.FullName, out response))
-				{
-					return response;
-				}
-			}
-
-			response = type.GetMethods(flags);
-			return _methodInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
-		}
-
-		internal static IList<ParameterInfo> GetCachedParameters(this MethodInfo info)
-		{
-			ParameterInfo[] response;
-			var fullName = info.ReflectedType?.FullName + "." + info.Name;
-			var key = info.ToString().Replace(info.Name, fullName);
-
-			if (_parameterInfos.ContainsKey(key))
-			{
-				if (_parameterInfos.TryGetValue(key, out response))
-				{
-					return response;
-				}
-			}
-
-			response = info.GetParameters();
-			return _parameterInfos.AddOrUpdate(key, response, (s, infos) => response);
-		}
-
-		internal static IList<PropertyInfo> GetCachedProperties(this Type type)
-		{
-			PropertyInfo[] response;
-
-			if (_propertyInfos.ContainsKey(type.FullName))
-			{
-				if (_propertyInfos.TryGetValue(type.FullName, out response))
-				{
-					return response;
-				}
-			}
-
-			response = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 
 		/// <summary>

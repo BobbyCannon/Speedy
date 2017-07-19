@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Speedy.Sync;
 
 #endregion
@@ -19,7 +20,7 @@ namespace Speedy.Samples.Entities
 			BillingPeople = new List<Person>();
 			LinkedAddresses = new List<Address>();
 			People = new List<Person>();
-			IgnoreProperties.AddRange(nameof(LinkedAddress), nameof(LinkedAddressId), nameof(People));
+		    ExcludedPropertiesForUpdate.AddRange(typeof(Address).GetVirtualPropertyNames().ToArray());
 		}
 
 		#endregion

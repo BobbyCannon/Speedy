@@ -9,7 +9,6 @@ using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Speedy.EntityFramework.Internal;
 using Speedy.Sync;
 
 #endregion

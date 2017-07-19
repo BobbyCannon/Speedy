@@ -19,7 +19,7 @@ namespace Speedy.Samples.Entities
 		{
 			Groups = new List<GroupMember>();
 			Owners = new List<Pet>();
-			IgnoreProperties.AddRange(nameof(Address), nameof(AddressSyncId), nameof(Groups));
+			ExcludedPropertiesForUpdate.AddRange(nameof(Address), nameof(AddressSyncId), nameof(Groups));
 		}
 
 		#endregion

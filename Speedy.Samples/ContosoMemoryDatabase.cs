@@ -45,8 +45,8 @@ namespace Speedy.Samples
 			Property<FoodRelationship, int>(x => x.Quantity).IsRequired();
 			Property<FoodRelationship, int>(x => x.ModifiedOn).IsRequired();
 			Property<FoodRelationship, int>(x => x.CreatedOn).IsRequired();
-			HasRequired<FoodRelationship, Food, int>(x => x.Child, x => x.ChildId, x => x.Children);
-			HasRequired<FoodRelationship, Food, int>(x => x.Parent, x => x.ParentId, x => x.Parents);
+			HasRequired<FoodRelationship, Food, int>(x => x.Child, x => x.ChildId, x => x.Parents);
+			HasRequired<FoodRelationship, Food, int>(x => x.Parent, x => x.ParentId, x => x.Children);
 
 			Groups = GetRepository<Group, int>();
 			Property<Group, int>(x => x.Id).IsRequired().IsUnique();

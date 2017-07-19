@@ -140,6 +140,11 @@ namespace Speedy.IntegrationTests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
+		public static void FormatDump(this string item)
+		{
+			Console.WriteLine(item.Replace("\r\n", "\\r\\n").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\"", "\\\""));
+		}
+
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContextProviders()
 		{
 			return GetDataContexts();
@@ -149,7 +154,7 @@ namespace Speedy.IntegrationTests
 		{
 			yield return GetEntityFrameworkProvider();
 			yield return GetMemoryProvider(null, options);
-			yield return GetMemoryProvider(Directory.FullName,options);
+			yield return GetMemoryProvider(Directory.FullName, options);
 		}
 
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
@@ -261,11 +266,14 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static ISyncableDatabaseProvider GetSyncableMemoryProvider(string directory = null)
+		private static IDatabaseProvider<IContosoDatabase> GetEntityFrameworkProvider()
 		{
-			var database = new ContosoMemoryDatabase(directory);
-			// todo: support new options?
-			return new SyncDatabaseProvider(x => database);
+			using (var database = new ContosoDatabase())
+			{
+				database.ClearDatabase();
+				var connectionString = database.Database.Connection.ConnectionString;
+				return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(connectionString, x));
+			}
 		}
 
 		private static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(string directory = null, DatabaseOptions options = null)
@@ -273,6 +281,15 @@ namespace Speedy.IntegrationTests
 			var database = new ContosoMemoryDatabase(directory, options);
 			// todo: support new options?
 			return new DatabaseProvider<IContosoDatabase>(x => database);
+		}
+
+		private static IEnumerable<Tuple<ISyncClient, ISyncClient>> GetServerClientScenerios()
+		{
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (EF)", GetSyncableEntityFrameworkProvider()));
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new WebSyncClient("Client (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"));
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return new Tuple<ISyncClient, ISyncClient>(new WebSyncClient("Server (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetSyncableEntityFrameworkProvider2()));
 		}
 
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider()
@@ -285,16 +302,6 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static IDatabaseProvider<IContosoDatabase> GetEntityFrameworkProvider()
-		{
-			using (var database = new ContosoDatabase())
-			{
-				database.ClearDatabase();
-				var connectionString = database.Database.Connection.ConnectionString;
-				return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(connectionString, x));
-			}
-		}
-
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2()
 		{
 			using (var database = new ContosoDatabase("ContosoDatabaseConnection2"))
@@ -304,15 +311,13 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static IEnumerable<Tuple<ISyncClient, ISyncClient>> GetServerClientScenerios()
+		private static ISyncableDatabaseProvider GetSyncableMemoryProvider(string directory = null)
 		{
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (EF)", GetSyncableEntityFrameworkProvider()));
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new WebSyncClient("Client (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"));
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			yield return new Tuple<ISyncClient, ISyncClient>(new WebSyncClient("Server (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetSyncableEntityFrameworkProvider2()));
+			var database = new ContosoMemoryDatabase(directory);
+			// todo: support new options?
+			return new SyncDatabaseProvider(x => database);
 		}
-		
+
 		/// <summary>
 		/// Safely delete a directory.
 		/// </summary>
