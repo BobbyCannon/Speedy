@@ -81,7 +81,7 @@ namespace Speedy.Benchmarks
 			var connectionString = "server=localhost;database=speedy;integrated security=true;";
 			var results = new List<string>();
 
-			TestSqlDatabase(results, connectionString, 10000);
+			//TestSqlDatabase(results, connectionString, 10000);
 			TestJsonDatabase(results, directory + "\\Database", 10000);
 			TestRepository(results, directory + "\\Repository", 10000);
 
@@ -156,7 +156,7 @@ namespace Speedy.Benchmarks
 			foreach (var chunk in chunks)
 			{
 				CleanupDirectory(directory);
-				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(directory, x)), iterations, chunk));
+				results.Add(TestDatabase(new DatabaseProvider<IContosoDatabase>(x => new ContosoMemoryDatabase(directory, x)), iterations, chunk));
 			}
 
 			Log(string.Empty, true, results);
@@ -174,8 +174,6 @@ namespace Speedy.Benchmarks
 			{
 				using (var database = provider.GetDatabase())
 				{
-					Console.WriteLine(database.Addresses.Count());
-
 					for (var i = count; i < count + chunkSize; i++)
 					{
 						var address = new Address { Line1 = "Line " + i, Line2 = "Line " + i, City = "City " + i, Postal = "Postal " + i, State = "State " + i };
@@ -195,6 +193,8 @@ namespace Speedy.Benchmarks
 
 					database.SaveChanges();
 				}
+
+				//Console.Write(".");
 			}
 
 			var elapsed = watch.Elapsed.ToString(_timeFormat);
