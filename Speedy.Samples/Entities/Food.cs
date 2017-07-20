@@ -16,18 +16,18 @@ namespace Speedy.Samples.Entities
 		[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 		public Food()
 		{
-			Children = new List<FoodRelationship>();
-			Parents = new List<FoodRelationship>();
+			ChildRelationships = new List<FoodRelationship>();
+			ParentRelationships = new List<FoodRelationship>();
 		}
 
 		#endregion
 
 		#region Properties
 
-		public virtual ICollection<FoodRelationship> Children { get; set; }
+		public virtual ICollection<FoodRelationship> ChildRelationships { get; set; }
 		public override int Id { get; set; }
 		public string Name { get; set; }
-		public virtual ICollection<FoodRelationship> Parents { get; set; }
+		public virtual ICollection<FoodRelationship> ParentRelationships { get; set; }
 
 		#endregion
 	}

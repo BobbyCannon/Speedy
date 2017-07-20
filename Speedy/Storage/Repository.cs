@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using Speedy.Sync;
 
@@ -123,6 +124,11 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public void AssignKey(IEntity entity, List<IEntity> processed)
 		{
+			if (processed?.Contains(entity) == true)
+			{
+				return;
+			}
+
 			var item = entity as Entity<T2>;
 			if (item == null)
 			{

@@ -517,7 +517,7 @@ namespace Speedy
 			Repositories.Add(key, repository);
 			return repository;
 		}
-		
+
 		private void UpdateDependantCollectionIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
 		{
 			var enumerableType = typeof(IEnumerable);
@@ -714,7 +714,7 @@ namespace Speedy
 
 					if (syncEntity != null && entityRelationshipSyncIdProperty != null)
 					{
-						var otherEntitySyncId = (Guid?)entityRelationshipSyncIdProperty.GetValue(entity, null);
+						var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(entity, null);
 						if (otherEntitySyncId != syncEntity.SyncId)
 						{
 							// resets entitySyncId to entity.SyncId if it does not match
