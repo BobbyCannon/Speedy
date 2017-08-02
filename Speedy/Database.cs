@@ -171,61 +171,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Removes sync tombstones that represent match the filter.
-		/// </summary>
-		/// <param name="filter"> The filter to use. </param>
-		public void RemoveSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
-		{
-			SyncTombstones.Remove(filter);
-		}
-
-		/// <summary>
-		/// Save the data to the data store.
-		/// </summary>
-		/// <returns> The number of items saved. </returns>
-		public virtual int SaveChanges()
-		{
-			if (_saveChangeCount++ > 2)
-			{
-				throw new OverflowException("Database save changes stuck in a processing loop.");
-			}
-
-			try
-			{
-				Repositories.Values.ForEach(x => x.ValidateEntities());
-				Repositories.Values.ForEach(x => x.UpdateRelationships());
-				Repositories.Values.ForEach(x => x.AssignKeys(new List<IEntity>()));
-				//Repositories.Values.ForEach(x => x.UpdateLocalSyncIds());
-				Repositories.Values.ForEach(x => x.UpdateRelationships());
-
-				var response = Repositories.Values.Sum(x => x.SaveChanges());
-
-				if (Repositories.Any(x => x.Value.HasChanges()))
-				{
-					response += SaveChanges();
-				}
-
-				return response;
-			}
-			finally
-			{
-				_saveChangeCount = 0;
-			}
-		}
-
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing"> true if managed resources should be disposed; otherwise, false. </param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				Repositories.Values.ForEach(x => x.Dispose());
-			}
-		}
-
-		/// <summary>
 		/// Creates a configuration that represent an optional one to many relationship.
 		/// </summary>
 		/// <param name="entity"> The entity to relate to. </param>
@@ -331,6 +276,61 @@ namespace Speedy
 			var response = new PropertyConfiguration<T, T2>(expression);
 			PropertyConfigurations.Add(response);
 			return response;
+		}
+
+		/// <summary>
+		/// Removes sync tombstones that represent match the filter.
+		/// </summary>
+		/// <param name="filter"> The filter to use. </param>
+		public void RemoveSyncTombstones(Expression<Func<SyncTombstone, bool>> filter)
+		{
+			SyncTombstones.Remove(filter);
+		}
+
+		/// <summary>
+		/// Save the data to the data store.
+		/// </summary>
+		/// <returns> The number of items saved. </returns>
+		public virtual int SaveChanges()
+		{
+			if (_saveChangeCount++ > 2)
+			{
+				throw new OverflowException("Database save changes stuck in a processing loop.");
+			}
+
+			try
+			{
+				Repositories.Values.ForEach(x => x.ValidateEntities());
+				Repositories.Values.ForEach(x => x.UpdateRelationships());
+				Repositories.Values.ForEach(x => x.AssignKeys(new List<IEntity>()));
+				//Repositories.Values.ForEach(x => x.UpdateLocalSyncIds());
+				Repositories.Values.ForEach(x => x.UpdateRelationships());
+
+				var response = Repositories.Values.Sum(x => x.SaveChanges());
+
+				if (Repositories.Any(x => x.Value.HasChanges()))
+				{
+					response += SaveChanges();
+				}
+
+				return response;
+			}
+			finally
+			{
+				_saveChangeCount = 0;
+			}
+		}
+
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing"> true if managed resources should be disposed; otherwise, false. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				Repositories.Values.ForEach(x => x.Dispose());
+			}
 		}
 
 		internal void UpdateDependantIds(IEntity entity, List<IEntity> processed)

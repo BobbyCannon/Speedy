@@ -339,13 +339,13 @@ namespace Speedy.EntityFramework
 			var maintainDates = maintainedEntity && Options.MaintainDates;
 			var maintainSyncId = maintainedEntity && Options.MaintainSyncId;
 			var now = DateTime.UtcNow;
-			
+
 			// Check to see if the entity was added.
 			switch (entry.State)
 			{
 				case EntityState.Added:
 					entity.EntityAdded();
-					
+
 					if (createdEntity != null && maintainDates)
 					{
 						// Make sure the modified on value matches created on for new items.

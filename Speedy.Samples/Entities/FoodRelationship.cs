@@ -1,12 +1,3 @@
-#region References
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Speedy;
-
-#endregion
-
 namespace Speedy.Samples.Entities
 {
 	public class FoodRelationship : IncrementingModifiableEntity

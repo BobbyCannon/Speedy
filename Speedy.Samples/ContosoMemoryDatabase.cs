@@ -1,10 +1,7 @@
 #region References
 
-using System;
 using Speedy.Samples.Entities;
 using Speedy.Samples.Mappings;
-using Speedy.Sync;
-using Speedy;
 
 #endregion
 
@@ -17,31 +14,31 @@ namespace Speedy.Samples
 		public ContosoMemoryDatabase(string directory = null, DatabaseOptions options = null)
 			: base(directory, options)
 		{
-			Addresses = GetSyncableRepository<Speedy.Samples.Entities.Address>();
+			Addresses = GetSyncableRepository<Address>();
 			AddressMap.ConfigureDatabase(this);
 
-			Food = GetRepository<Speedy.Samples.Entities.Food, int>();
+			Food = GetRepository<Food, int>();
 			FoodMap.ConfigureDatabase(this);
 
-			FoodRelationships = GetRepository<Speedy.Samples.Entities.FoodRelationship, int>();
+			FoodRelationships = GetRepository<FoodRelationship, int>();
 			FoodRelationshipMap.ConfigureDatabase(this);
 
-			Groups = GetRepository<Speedy.Samples.Entities.Group, int>();
+			Groups = GetRepository<Group, int>();
 			GroupMap.ConfigureDatabase(this);
 
-			GroupMembers = GetRepository<Speedy.Samples.Entities.GroupMember, int>();
+			GroupMembers = GetRepository<GroupMember, int>();
 			GroupMemberMap.ConfigureDatabase(this);
 
-			LogEvents = GetRepository<Speedy.Samples.Entities.LogEvent, string>();
+			LogEvents = GetRepository<LogEvent, string>();
 			LogEventMap.ConfigureDatabase(this);
 
-			People = GetSyncableRepository<Speedy.Samples.Entities.Person>();
+			People = GetSyncableRepository<Person>();
 			PersonMap.ConfigureDatabase(this);
 
-			Pets = GetRepository<Speedy.Samples.Entities.Pet, Pet.PetKey>();
+			Pets = GetRepository<Pet, Pet.PetKey>();
 			PetMap.ConfigureDatabase(this);
 
-			PetTypes = GetRepository<Speedy.Samples.Entities.PetType, string>();
+			PetTypes = GetRepository<PetType, string>();
 			PetTypeMap.ConfigureDatabase(this);
 
 			// Configuration for the sync tombstone
@@ -52,15 +49,15 @@ namespace Speedy.Samples
 
 		#region Properties
 
-		public IRepository<Speedy.Samples.Entities.Address, int> Addresses { get; }
-		public IRepository<Speedy.Samples.Entities.Food, int> Food { get; }
-		public IRepository<Speedy.Samples.Entities.FoodRelationship, int> FoodRelationships { get; }
-		public IRepository<Speedy.Samples.Entities.Group, int> Groups { get; }
-		public IRepository<Speedy.Samples.Entities.GroupMember, int> GroupMembers { get; }
-		public IRepository<Speedy.Samples.Entities.LogEvent, string> LogEvents { get; }
-		public IRepository<Speedy.Samples.Entities.Person, int> People { get; }
-		public IRepository<Speedy.Samples.Entities.Pet, Pet.PetKey> Pets { get; }
-		public IRepository<Speedy.Samples.Entities.PetType, string> PetTypes { get; }
+		public IRepository<Address, int> Addresses { get; }
+		public IRepository<Food, int> Food { get; }
+		public IRepository<FoodRelationship, int> FoodRelationships { get; }
+		public IRepository<GroupMember, int> GroupMembers { get; }
+		public IRepository<Group, int> Groups { get; }
+		public IRepository<LogEvent, string> LogEvents { get; }
+		public IRepository<Person, int> People { get; }
+		public IRepository<Pet, Pet.PetKey> Pets { get; }
+		public IRepository<PetType, string> PetTypes { get; }
 
 		#endregion
 	}

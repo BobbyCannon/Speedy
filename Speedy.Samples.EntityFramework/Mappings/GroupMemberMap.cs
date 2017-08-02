@@ -1,11 +1,9 @@
 #region References
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Samples.Entities;
-using Speedy;
 
 #endregion
 

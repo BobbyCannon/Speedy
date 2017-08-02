@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Speedy.Storage
 {
-	internal class EntityComparer<T,T2> : IEqualityComparer<T> where T : Entity<T2>
+	internal class EntityComparer<T, T2> : IEqualityComparer<T> where T : Entity<T2>
 	{
 		#region Methods
 

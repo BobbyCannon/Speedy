@@ -9,7 +9,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents a sync database provider.
 	/// </summary>
-	public class SyncDatabaseProvider : ISyncableDatabaseProvider 
+	public class SyncDatabaseProvider : ISyncableDatabaseProvider
 	{
 		#region Fields
 

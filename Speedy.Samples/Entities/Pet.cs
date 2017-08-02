@@ -1,9 +1,6 @@
 #region References
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Speedy;
 
 #endregion
 
@@ -14,7 +11,17 @@ namespace Speedy.Samples.Entities
 		#region Properties
 
 		public DateTime CreatedOn { get; set; }
-		public override PetKey Id { get => new PetKey { Name = Name, OwnerId = OwnerId }; set { Name = Name; OwnerId = OwnerId; }}
+
+		public override PetKey Id
+		{
+			get => new PetKey { Name = Name, OwnerId = OwnerId };
+			set
+			{
+				Name = Name;
+				OwnerId = OwnerId;
+			}
+		}
+
 		public DateTime ModifiedOn { get; set; }
 		public string Name { get; set; }
 		public virtual Person Owner { get; set; }
@@ -28,8 +35,14 @@ namespace Speedy.Samples.Entities
 
 		public class PetKey : IEquatable<PetKey>
 		{
+			#region Properties
+
 			public string Name { get; set; }
 			public int OwnerId { get; set; }
+
+			#endregion
+
+			#region Methods
 
 			public bool Equals(PetKey other)
 			{
@@ -65,6 +78,8 @@ namespace Speedy.Samples.Entities
 			{
 				return new { Name, OwnerId }.GetHashCode();
 			}
+
+			#endregion
 		}
 
 		#endregion

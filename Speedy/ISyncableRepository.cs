@@ -12,7 +12,7 @@ namespace Speedy
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
-	public interface ISyncableRepository<T> : ISyncableRepository, IRepository<T,int> where T : SyncEntity, new()
+	public interface ISyncableRepository<T> : ISyncableRepository, IRepository<T, int> where T : SyncEntity, new()
 	{
 	}
 

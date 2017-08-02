@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
 using System.Reflection;
 using Speedy.Sync;
 
@@ -136,7 +135,7 @@ namespace Speedy.Storage
 			}
 
 			_database.UpdateDependantIds(item, processed ?? new List<IEntity>());
-			
+
 			if (!item.IdIsSet())
 			{
 				var id = item.NewId(ref _currentKey);
@@ -384,7 +383,7 @@ namespace Speedy.Storage
 								createdEntity.CreatedOn = oldCreatedEntity.CreatedOn;
 							}
 						}
-						
+
 						if (syncableEntity != null)
 						{
 							// Do not allow sync ID to change for entities.
@@ -397,7 +396,6 @@ namespace Speedy.Storage
 								}
 							}
 						}
-
 
 						if (modifiableEntity != null && maintainDates)
 						{

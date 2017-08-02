@@ -8,8 +8,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Entities;
 using Speedy.Samples.EntityFramework;
 using Speedy.Sync;
-using Speedy;
-using Database = System.Data.Entity.Database;
 
 #endregion
 
@@ -20,16 +18,10 @@ namespace Speedy.Samples.Tests
 	{
 		#region Methods
 
-		[ClassInitialize]
-		public static void ClassInitialize(TestContext context)
-		{
-			System.Data.Entity.Database.SetInitializer(new CreateDatabaseIfNotExists<ContosoDatabase>());
-		}
-
 		[TestMethod]
 		public void AddAddressTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -42,7 +34,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddFoodRelationshipTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -55,7 +47,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddFoodTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -68,7 +60,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddGroupMemberTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -81,7 +73,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddGroupTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -94,7 +86,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddLogEventTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -107,7 +99,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPersonTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -120,7 +112,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPetTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -133,7 +125,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPetTypeTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -146,7 +138,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddSyncTombstoneTest()
 		{
-			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -156,21 +148,15 @@ namespace Speedy.Samples.Tests
 			}
 		}
 
-		private void SaveDatabase(IDatabase database)
+		[ClassInitialize]
+		public static void ClassInitialize(TestContext context)
 		{
-			try
-			{
-				database.SaveChanges();
-			}
-			catch (DbEntityValidationException ex)
-			{
-				ProcessException(ex);
-				throw;
-			}
+			System.Data.Entity.Database.SetInitializer(new CreateDatabaseIfNotExists<ContosoDatabase>());
 		}
-		public static Speedy.Samples.Entities.Address GetAddress()
+
+		public static Address GetAddress()
 		{
-			return new Speedy.Samples.Entities.Address
+			return new Address
 			{
 				Id = default(int),
 				City = Guid.NewGuid().ToString(),
@@ -184,9 +170,18 @@ namespace Speedy.Samples.Tests
 			};
 		}
 
-		public static Speedy.Samples.Entities.FoodRelationship GetFoodRelationship()
+		public static Food GetFood()
 		{
-			return new Speedy.Samples.Entities.FoodRelationship
+			return new Food
+			{
+				Id = default(int),
+				Name = Guid.NewGuid().ToString()
+			};
+		}
+
+		public static FoodRelationship GetFoodRelationship()
+		{
+			return new FoodRelationship
 			{
 				Id = default(int),
 				Child = GetFood(),
@@ -195,18 +190,19 @@ namespace Speedy.Samples.Tests
 			};
 		}
 
-		public static Speedy.Samples.Entities.Food GetFood()
+		public static Group GetGroup()
 		{
-			return new Speedy.Samples.Entities.Food
+			return new Group
 			{
 				Id = default(int),
+				Description = Guid.NewGuid().ToString(),
 				Name = Guid.NewGuid().ToString()
 			};
 		}
 
-		public static Speedy.Samples.Entities.GroupMember GetGroupMember()
+		public static GroupMember GetGroupMember()
 		{
-			return new Speedy.Samples.Entities.GroupMember
+			return new GroupMember
 			{
 				Id = default(int),
 				Group = GetGroup(),
@@ -217,28 +213,18 @@ namespace Speedy.Samples.Tests
 			};
 		}
 
-		public static Speedy.Samples.Entities.Group GetGroup()
+		public static LogEvent GetLogEvent()
 		{
-			return new Speedy.Samples.Entities.Group
-			{
-				Id = default(int),
-				Description = Guid.NewGuid().ToString(),
-				Name = Guid.NewGuid().ToString()
-			};
-		}
-
-		public static Speedy.Samples.Entities.LogEvent GetLogEvent()
-		{
-			return new Speedy.Samples.Entities.LogEvent
+			return new LogEvent
 			{
 				Id = Guid.NewGuid().ToString(),
 				Message = null
 			};
 		}
 
-		public static Speedy.Samples.Entities.Person GetPerson()
+		public static Person GetPerson()
 		{
-			return new Speedy.Samples.Entities.Person
+			return new Person
 			{
 				Id = default(int),
 				Address = GetAddress(),
@@ -250,9 +236,9 @@ namespace Speedy.Samples.Tests
 			};
 		}
 
-		public static Speedy.Samples.Entities.Pet GetPet()
+		public static Pet GetPet()
 		{
-			return new Speedy.Samples.Entities.Pet
+			return new Pet
 			{
 				Name = Guid.NewGuid().ToString(),
 				Owner = GetPerson(),
@@ -262,9 +248,9 @@ namespace Speedy.Samples.Tests
 			};
 		}
 
-		public static Speedy.Samples.Entities.PetType GetPetType()
+		public static PetType GetPetType()
 		{
-			return new Speedy.Samples.Entities.PetType
+			return new PetType
 			{
 				Id = Guid.NewGuid().ToString().Substring(0, 25),
 				Type = null
@@ -287,6 +273,19 @@ namespace Speedy.Samples.Tests
 			foreach (var error in ex.EntityValidationErrors.SelectMany(x => x.ValidationErrors))
 			{
 				Console.WriteLine(error.PropertyName + " => " + error.ErrorMessage);
+			}
+		}
+
+		private void SaveDatabase(IDatabase database)
+		{
+			try
+			{
+				database.SaveChanges();
+			}
+			catch (DbEntityValidationException ex)
+			{
+				ProcessException(ex);
+				throw;
 			}
 		}
 

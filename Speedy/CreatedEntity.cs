@@ -24,9 +24,13 @@ namespace Speedy
 	/// </summary>
 	public interface ICreatedEntity : IEntity
 	{
+		#region Properties
+
 		/// <summary>
 		/// Gets or sets the date and time the entity was created.
 		/// </summary>
 		DateTime CreatedOn { get; set; }
+
+		#endregion
 	}
 }

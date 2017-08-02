@@ -991,15 +991,10 @@ namespace Speedy.Linq
 
 		private int FindBestMethod(IEnumerable<MethodBase> methods, Expression[] args, out MethodBase method)
 		{
-			var applicable = methods.
-				Select(m => new MethodData { MethodBase = m, Parameters = m.GetParameters() }).
-				Where(m => IsApplicable(m, args)).
-				ToArray();
+			var applicable = methods.Select(m => new MethodData { MethodBase = m, Parameters = m.GetParameters() }).Where(m => IsApplicable(m, args)).ToArray();
 			if (applicable.Length > 1)
 			{
-				applicable = applicable.
-					Where(m => applicable.All(n => m == n || IsBetterThan(args, m, n))).
-					ToArray();
+				applicable = applicable.Where(m => applicable.All(n => m == n || IsBetterThan(args, m, n))).ToArray();
 			}
 			if (applicable.Length == 1)
 			{
@@ -1048,10 +1043,7 @@ namespace Speedy.Linq
 				var members = t.GetDefaultMembers();
 				if (members.Length != 0)
 				{
-					var methods = members.
-						OfType<PropertyInfo>().
-						Select(p => (MethodBase) p.GetGetMethod()).
-						Where(m => m != null);
+					var methods = members.OfType<PropertyInfo>().Select(p => (MethodBase) p.GetGetMethod()).Where(m => m != null);
 					var count = FindBestMethod(methods, args, out method);
 					if (count != 0)
 					{

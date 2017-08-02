@@ -18,7 +18,7 @@ namespace Speedy.EntityFramework
 	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
 	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	[ExcludeFromCodeCoverage]
-	public class ReadOnlyEntityFrameworkRepository<T,T2> : IRepository<T,T2> where T : Entity<T2>, new()
+	public class ReadOnlyEntityFrameworkRepository<T, T2> : IRepository<T, T2> where T : Entity<T2>, new()
 	{
 		#region Fields
 
@@ -49,10 +49,7 @@ namespace Speedy.EntityFramework
 		/// A <see cref="T:System.Type" /> that represents the type of the element(s) that are returned when the expression tree
 		/// associated with this object is executed.
 		/// </returns>
-		public Type ElementType
-		{
-			get { return _query.ElementType; }
-		}
+		public Type ElementType => _query.ElementType;
 
 		/// <summary>
 		/// Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable" />.
@@ -61,10 +58,7 @@ namespace Speedy.EntityFramework
 		/// The <see cref="T:System.Linq.Expressions.Expression" /> that is associated with this instance of
 		/// <see cref="T:System.Linq.IQueryable" />.
 		/// </returns>
-		public Expression Expression
-		{
-			get { return _query.Expression; }
-		}
+		public Expression Expression => _query.Expression;
 
 		/// <summary>
 		/// Gets the query provider that is associated with this data source.
@@ -72,10 +66,7 @@ namespace Speedy.EntityFramework
 		/// <returns>
 		/// The <see cref="T:System.Linq.IQueryProvider" /> that is associated with this data source.
 		/// </returns>
-		public IQueryProvider Provider
-		{
-			get { return _query.Provider; }
-		}
+		public IQueryProvider Provider => _query.Provider;
 
 		#endregion
 

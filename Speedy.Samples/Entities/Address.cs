@@ -20,7 +20,7 @@ namespace Speedy.Samples.Entities
 			BillingPeople = new List<Person>();
 			LinkedAddresses = new List<Address>();
 			People = new List<Person>();
-		    ExcludedPropertiesForUpdate.AddRange(typeof(Address).GetVirtualPropertyNames().ToArray());
+			ExcludedPropertiesForUpdate.AddRange(typeof(Address).GetVirtualPropertyNames().ToArray());
 		}
 
 		#endregion

@@ -1,6 +1,9 @@
+#region References
+
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
+#endregion
 
 [assembly: AssemblyTitle("Speedy.Samples.Tests")]
 [assembly: AssemblyDescription("")]
