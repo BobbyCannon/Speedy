@@ -32,8 +32,8 @@ namespace Speedy.Samples.Entities
 		public virtual Address BillingAddress { get; set; }
 		public int? BillingAddressId { get; set; }
 		public Guid? BillingAddressSyncId { get; set; }
-		public override int Id { get; set; }
 		public virtual ICollection<GroupMember> Groups { get; set; }
+		public override int Id { get; set; }
 		public string Name { get; set; }
 		public virtual ICollection<Pet> Owners { get; set; }
 

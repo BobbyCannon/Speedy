@@ -57,13 +57,13 @@ namespace Speedy.IntegrationTests
 						Console.WriteLine(database.GetType().Name);
 						food = new Food { Name = "Bourbon Reduction", ChildRelationships = new[] { new FoodRelationship { Child = new Food { Name = "Bourbon" }, Quantity = 2 } } };
 
-						database.Foods.Add(food);
+						database.Food.Add(food);
 						database.SaveChanges();
 					}
 
 					using (var database = provider.GetDatabase())
 					{
-						var actual = database.Foods.Include(x => x.ChildRelationships).First(x => x.Name == food.Name);
+						var actual = database.Food.Include(x => x.ChildRelationships).First(x => x.Name == food.Name);
 						var children = actual.ChildRelationships.ToList();
 
 						Assert.AreEqual("Bourbon Reduction", actual.Name);
@@ -542,7 +542,7 @@ namespace Speedy.IntegrationTests
 
 						Assert.AreEqual(1, address.People.Count);
 						Assert.AreEqual(1, person.Groups.Count);
-						Assert.AreEqual(1, group.GroupMembers.Count);
+						Assert.AreEqual(1, group.Members.Count);
 						Assert.AreEqual(0, database.Addresses.Count());
 						Assert.AreEqual(0, database.People.Count());
 						Assert.AreEqual(0, database.GroupMembers.Count());
@@ -770,10 +770,10 @@ namespace Speedy.IntegrationTests
 							}
 						};
 
-						database.Foods.Add(steak);
+						database.Food.Add(steak);
 						database.SaveChanges();
 
-						var actual = database.Foods.First(x => x.Name == "Steak");
+						var actual = database.Food.First(x => x.Name == "Steak");
 						Assert.AreEqual(steak.Id, actual.Id);
 
 						var children = actual.ChildRelationships.ToList();

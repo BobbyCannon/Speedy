@@ -304,10 +304,10 @@ namespace Speedy.IntegrationTests
 
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2()
 		{
-			using (var database = new ContosoDatabase("ContosoDatabaseConnection2"))
+			using (var database = new ContosoDatabase("DefaultConnection2"))
 			{
 				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoDatabase("ContosoDatabaseConnection2", x));
+				return new SyncDatabaseProvider(x => new ContosoDatabase("DefaultConnection2", x));
 			}
 		}
 

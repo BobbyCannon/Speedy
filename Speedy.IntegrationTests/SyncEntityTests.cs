@@ -34,7 +34,7 @@ namespace Speedy.IntegrationTests
 			{
 				{ typeof(Address), new[] { nameof(Address.BillingPeople), nameof(Address.LinkedAddress), nameof(Address.LinkedAddresses), nameof(Address.People) } },
 				{ typeof(Person), new[] { nameof(Person.Address), nameof(Person.BillingAddress), nameof(Person.Groups), nameof(Person.Owners) } },
-				{ typeof(Group), new[] { nameof(Group.GroupMembers) } },
+				{ typeof(Group), new[] { nameof(Group.Members) } },
 				{ typeof(SyncRequest), new string[0] }
 			};
 

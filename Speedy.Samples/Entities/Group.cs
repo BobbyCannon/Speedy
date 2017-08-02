@@ -16,7 +16,7 @@ namespace Speedy.Samples.Entities
 		[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 		public Group()
 		{
-			GroupMembers = new List<GroupMember>();
+			Members = new List<GroupMember>();
 		}
 
 		#endregion
@@ -24,8 +24,8 @@ namespace Speedy.Samples.Entities
 		#region Properties
 
 		public string Description { get; set; }
-		public virtual ICollection<GroupMember> GroupMembers { get; set; }
 		public override int Id { get; set; }
+		public virtual ICollection<GroupMember> Members { get; set; }
 		public string Name { get; set; }
 
 		#endregion

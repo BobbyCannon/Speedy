@@ -1,8 +1,11 @@
 #region References
 
+using System;
 using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
+using Speedy.Samples.Mappings;
 using Speedy.Sync;
+using Speedy;
 
 #endregion
 
@@ -13,13 +16,13 @@ namespace Speedy.Samples.EntityFramework
 		#region Constructors
 
 		public ContosoDatabase()
-			: this("name=ContosoDatabaseConnection")
+			: this("name=DefaultConnection")
 		{
 			// Default constructor needed for Add-Migration
 		}
 
 		public ContosoDatabase(DatabaseOptions options)
-			: this("name=ContosoDatabaseConnection", options)
+			: this("name=DefaultConnection", options)
 		{
 		}
 
@@ -37,29 +40,15 @@ namespace Speedy.Samples.EntityFramework
 
 		#region Properties
 
-		public IRepository<Address, int> Addresses => GetSyncableRepository<Address>();
-		public IRepository<FoodRelationship, int> FoodRelationships => GetRepository<FoodRelationship, int>();
-		public IRepository<Food, int> Foods => GetRepository<Food, int>();
-		public IRepository<GroupMember, int> GroupMembers => GetRepository<GroupMember, int>();
-		public IRepository<Group, int> Groups => GetRepository<Group, int>();
-		public IRepository<LogEvent, string> LogEvents => GetRepository<LogEvent, string>();
-		public IRepository<Person, int> People => GetSyncableRepository<Person>();
-		public IRepository<Pet, Pet.PetKey> Pets => GetRepository<Pet, Pet.PetKey>();
-		public IRepository<PetType, string> PetTypes => GetRepository<PetType, string>();
-
-		#endregion
-
-		#region Methods
-
-		public ISyncableDatabaseProvider GetSyncableDatabaseProvider()
-		{
-			return new SyncDatabaseProvider(x => new ContosoDatabase(Database.Connection.ConnectionString, x));
-		}
-
-		public IDatabaseProvider<IContosoDatabase> GetDatabaseProvider()
-		{
-			return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(Database.Connection.ConnectionString, x));
-		}
+		public IRepository<Speedy.Samples.Entities.Address, int> Addresses => GetSyncableRepository<Speedy.Samples.Entities.Address>();
+		public IRepository<Speedy.Samples.Entities.Food, int> Food => GetRepository<Speedy.Samples.Entities.Food, int>();
+		public IRepository<Speedy.Samples.Entities.FoodRelationship, int> FoodRelationships => GetRepository<Speedy.Samples.Entities.FoodRelationship, int>();
+		public IRepository<Speedy.Samples.Entities.Group, int> Groups => GetRepository<Speedy.Samples.Entities.Group, int>();
+		public IRepository<Speedy.Samples.Entities.GroupMember, int> GroupMembers => GetRepository<Speedy.Samples.Entities.GroupMember, int>();
+		public IRepository<Speedy.Samples.Entities.LogEvent, string> LogEvents => GetRepository<Speedy.Samples.Entities.LogEvent, string>();
+		public IRepository<Speedy.Samples.Entities.Person, int> People => GetSyncableRepository<Speedy.Samples.Entities.Person>();
+		public IRepository<Speedy.Samples.Entities.Pet, Pet.PetKey> Pets => GetRepository<Speedy.Samples.Entities.Pet, Pet.PetKey>();
+		public IRepository<Speedy.Samples.Entities.PetType, string> PetTypes => GetRepository<Speedy.Samples.Entities.PetType, string>();
 
 		#endregion
 	}

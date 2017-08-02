@@ -7,7 +7,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Entities;
 using Speedy.Samples.EntityFramework;
+using Speedy.Sync;
 using Speedy;
+using Database = System.Data.Entity.Database;
 
 #endregion
 
@@ -21,7 +23,7 @@ namespace Speedy.Samples.Tests
 		[ClassInitialize]
 		public static void ClassInitialize(TestContext context)
 		{
-			System.Data.Entity.Database.SetInitializer<ContosoDatabase>(new CreateDatabaseIfNotExists<ContosoDatabase>());
+			System.Data.Entity.Database.SetInitializer(new CreateDatabaseIfNotExists<ContosoDatabase>());
 		}
 
 		[TestMethod]
@@ -57,7 +59,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.Foods.Add(GetFood());
+					database.Food.Add(GetFood());
 					SaveDatabase(database);
 				}
 			}
@@ -141,6 +143,19 @@ namespace Speedy.Samples.Tests
 			}
 		}
 
+		[TestMethod]
+		public void AddSyncTombstoneTest()
+		{
+			foreach (var database in new IContosoDatabase[]{ new ContosoDatabase(), new ContosoMemoryDatabase() })
+			{
+				using (database)
+				{
+					database.SyncTombstones.Add(GetSyncTombstone());
+					SaveDatabase(database);
+				}
+			}
+		}
+
 		private void SaveDatabase(IDatabase database)
 		{
 			try
@@ -157,13 +172,15 @@ namespace Speedy.Samples.Tests
 		{
 			return new Speedy.Samples.Entities.Address
 			{
+				Id = default(int),
 				City = Guid.NewGuid().ToString(),
 				Line1 = Guid.NewGuid().ToString(),
 				Line2 = Guid.NewGuid().ToString(),
 				LinkedAddressId = null,
 				LinkedAddressSyncId = null,
 				Postal = Guid.NewGuid().ToString(),
-				State = Guid.NewGuid().ToString()
+				State = Guid.NewGuid().ToString(),
+				SyncId = default(Guid)
 			};
 		}
 
@@ -171,6 +188,7 @@ namespace Speedy.Samples.Tests
 		{
 			return new Speedy.Samples.Entities.FoodRelationship
 			{
+				Id = default(int),
 				Child = GetFood(),
 				Parent = GetFood(),
 				Quantity = default(decimal)
@@ -181,6 +199,7 @@ namespace Speedy.Samples.Tests
 		{
 			return new Speedy.Samples.Entities.Food
 			{
+				Id = default(int),
 				Name = Guid.NewGuid().ToString()
 			};
 		}
@@ -189,6 +208,7 @@ namespace Speedy.Samples.Tests
 		{
 			return new Speedy.Samples.Entities.GroupMember
 			{
+				Id = default(int),
 				Group = GetGroup(),
 				GroupSyncId = default(Guid),
 				Member = GetPerson(),
@@ -201,6 +221,7 @@ namespace Speedy.Samples.Tests
 		{
 			return new Speedy.Samples.Entities.Group
 			{
+				Id = default(int),
 				Description = Guid.NewGuid().ToString(),
 				Name = Guid.NewGuid().ToString()
 			};
@@ -219,11 +240,13 @@ namespace Speedy.Samples.Tests
 		{
 			return new Speedy.Samples.Entities.Person
 			{
+				Id = default(int),
 				Address = GetAddress(),
 				AddressSyncId = default(Guid),
 				BillingAddressId = null,
 				BillingAddressSyncId = null,
-				Name = Guid.NewGuid().ToString()
+				Name = Guid.NewGuid().ToString(),
+				SyncId = default(Guid)
 			};
 		}
 
@@ -245,6 +268,17 @@ namespace Speedy.Samples.Tests
 			{
 				Id = Guid.NewGuid().ToString().Substring(0, 25),
 				Type = null
+			};
+		}
+
+		public static SyncTombstone GetSyncTombstone()
+		{
+			return new SyncTombstone
+			{
+				Id = default(long),
+				ReferenceId = Guid.NewGuid().ToString(),
+				SyncId = default(Guid),
+				TypeName = Guid.NewGuid().ToString()
 			};
 		}
 

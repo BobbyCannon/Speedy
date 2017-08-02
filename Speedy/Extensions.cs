@@ -132,12 +132,23 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a list of fields for the provided item. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="item"> The item to get the fields for. </param>
+		/// <param name="flags"> The flags used to query with. </param>
+		/// <returns> The list of field infos for the item. </returns>
+		public static IList<FieldInfo> GetCachedFields(this object item, BindingFlags? flags)
+		{
+			return item.GetType().GetCachedFields(flags);
+		}
+
+		/// <summary>
 		/// Gets a list of fields for the provided type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="type"> The type to get the fields for. </param>
 		/// <param name="flags"> The flags used to query with. </param>
 		/// <returns> The list of field infos for the type. </returns>
-		public static IEnumerable<FieldInfo> GetCachedFields(this Type type, BindingFlags flags)
+		public static IList<FieldInfo> GetCachedFields(this Type type, BindingFlags? flags)
 		{
 			FieldInfo[] response;
 
@@ -149,7 +160,7 @@ namespace Speedy
 				}
 			}
 
-			response = type.GetFields(flags);
+			response = type.GetFields(flags ?? BindingFlags.Instance | BindingFlags.GetField | BindingFlags.FlattenHierarchy);
 			return _fieldInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 
@@ -202,18 +213,20 @@ namespace Speedy
 		/// Gets a list of property types for the provided object type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="value"> The value to get the properties for. </param>
+		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Heiarchy </param>
 		/// <returns> The list of properties for the type of the value. </returns>
-		public static IList<PropertyInfo> GetCachedProperties(this object value)
+		public static IList<PropertyInfo> GetCachedProperties(this object value, BindingFlags? flags = null)
 		{
-			return value.GetType().GetCachedProperties();
+			return value.GetType().GetCachedProperties(flags);
 		}
 
 		/// <summary>
 		/// Gets a list of property types for the provided type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="type"> The type to get the properties for. </param>
+		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Heiarchy </param>
 		/// <returns> The list of properties for the type. </returns>
-		public static IList<PropertyInfo> GetCachedProperties(this Type type)
+		public static IList<PropertyInfo> GetCachedProperties(this Type type, BindingFlags? flags = null)
 		{
 			PropertyInfo[] response;
 
@@ -225,7 +238,7 @@ namespace Speedy
 				}
 			}
 
-			response = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+			response = type.GetProperties(flags ?? BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
 		}
 
@@ -240,7 +253,7 @@ namespace Speedy
 			var isProxy = type.FullName.Contains("System.Data.Entity.DynamicProxies");
 			return isProxy ? type.BaseType : type;
 		}
-		
+
 		/// <summary>
 		/// Gets the real type of the entity. For use with proxy entities.
 		/// </summary>
@@ -263,6 +276,7 @@ namespace Speedy
 			var response = new JsonSerializerSettings();
 
 			response.Converters.Add(new IsoDateTimeConverter());
+			response.Converters.Add(new StringEnumConverter { CamelCaseText = camelCase });
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 			response.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
@@ -464,9 +478,6 @@ namespace Speedy
 			var resolver = (SpeedySerializeContractResolver) settings.ContractResolver;
 			var type = item.GetRealType();
 
-			//resolver.UseCamelCase = camelCase;
-			//settings.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
-
 			if (ignoreVirtuals)
 			{
 				var values = type.GetVirtualPropertyNames().ToArray();
@@ -476,14 +487,10 @@ namespace Speedy
 					resolver.ResetIgnores(new KeyValuePair<Type, string[]>(type, values));
 				}
 			}
-			//else
-			//{
-			//	resolver.ResetIgnores();
-			//}
 
 			return JsonConvert.SerializeObject(item, type, indented ? Formatting.Indented : Formatting.None, settings);
 		}
-		
+
 		/// <summary>
 		/// Serialize an object into a JSON string.
 		/// </summary>

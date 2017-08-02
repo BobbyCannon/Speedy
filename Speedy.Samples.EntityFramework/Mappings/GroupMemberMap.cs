@@ -1,9 +1,11 @@
 #region References
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Infrastructure.Annotations;
 using System.Data.Entity.ModelConfiguration;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Samples.Entities;
+using Speedy;
 
 #endregion
 
@@ -28,7 +30,7 @@ namespace Speedy.Samples.EntityFramework.Mappings
 			Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired().HasPrecision(7);
 			Property(x => x.Role).HasColumnName("Role").HasColumnType("nvarchar").IsRequired().HasMaxLength(4000);
 
-			HasRequired(x => x.Group).WithMany(x => x.GroupMembers).HasForeignKey(x => x.GroupId).WillCascadeOnDelete(true);
+			HasRequired(x => x.Group).WithMany(x => x.Members).HasForeignKey(x => x.GroupId).WillCascadeOnDelete(true);
 			HasRequired(x => x.Member).WithMany(x => x.Groups).HasForeignKey(x => x.MemberId).WillCascadeOnDelete(true);
 		}
 

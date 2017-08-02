@@ -234,7 +234,7 @@ namespace Speedy
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
 		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
 		/// <typeparam name="T3"> The type of the entity key. </typeparam>
-		protected void HasOptional<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
+		public void HasOptional<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T3>, new()
 			where T2 : Entity<T3>
 		{
@@ -258,7 +258,7 @@ namespace Speedy
 		/// <typeparam name="T2"> The type of the entity key of the host. </typeparam>
 		/// <typeparam name="T3"> The entity to build a relationship to. </typeparam>
 		/// <typeparam name="T4"> The type of the entity key to build the relationship to. </typeparam>
-		protected void HasOptional<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
+		public void HasOptional<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T2>, new()
 			where T3 : Entity<T4>
 		{
@@ -281,7 +281,7 @@ namespace Speedy
 		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
 		/// <typeparam name="T2"> The entity to build a relationship to. </typeparam>
 		/// <typeparam name="T3"> The type of the entity key. </typeparam>
-		protected void HasRequired<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
+		public void HasRequired<T1, T2, T3>(Expression<Func<T1, T2>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T2, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T3>, new()
 			where T2 : Entity<T3>
 		{
@@ -305,7 +305,7 @@ namespace Speedy
 		/// <typeparam name="T2"> The type of the entity key of the host. </typeparam>
 		/// <typeparam name="T3"> The entity to build a relationship to. </typeparam>
 		/// <typeparam name="T4"> The type of the entity key to build the relationship to. </typeparam>
-		protected void HasRequired<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
+		public void HasRequired<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T2>, new()
 			where T3 : Entity<T4>
 		{
@@ -326,7 +326,7 @@ namespace Speedy
 		/// <typeparam name="T"> The entity for the configuration. </typeparam>
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The configuration for the entity property. </returns>
-		protected PropertyConfiguration<T, T2> Property<T, T2>(Expression<Func<T, object>> expression) where T : Entity<T2>
+		public PropertyConfiguration<T, T2> Property<T, T2>(Expression<Func<T, object>> expression) where T : Entity<T2>
 		{
 			var response = new PropertyConfiguration<T, T2>(expression);
 			PropertyConfigurations.Add(response);

@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="LinqTests.cs" />
     <Compile Include="LoggingTests.cs" />
+    <Compile Include="MappingConverterTests.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
