@@ -221,10 +221,10 @@ namespace Speed.Benchmarks
 
 		private static ISyncableDatabaseProvider GetEntityFrameworkProvider(string connectionString = null)
 		{
-			using (var database = new ContosoDatabase(connectionString ?? "name=ContosoDatabaseConnection"))
+			using (var database = new ContosoDatabase(connectionString ?? "name=DefaultConnection"))
 			{
 				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoDatabase(connectionString ?? "name=ContosoDatabaseConnection", x));
+				return new SyncDatabaseProvider(x => new ContosoDatabase(connectionString ?? "name=DefaultConnection", x));
 			}
 		}
 
