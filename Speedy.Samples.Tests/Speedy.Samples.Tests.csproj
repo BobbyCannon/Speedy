@@ -57,6 +57,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContosoDatabaseTests.cs" />
+    <Compile Include="EntityFactories\AddressFactory.cs" />
+    <Compile Include="EntityFactories\FoodFactory.cs" />
+    <Compile Include="EntityFactories\FoodRelationshipFactory.cs" />
+    <Compile Include="EntityFactories\GroupFactory.cs" />
+    <Compile Include="EntityFactories\GroupMemberFactory.cs" />
+    <Compile Include="EntityFactories\LogEventFactory.cs" />
+    <Compile Include="EntityFactories\PersonFactory.cs" />
+    <Compile Include="EntityFactories\PetFactory.cs" />
+    <Compile Include="EntityFactories\PetTypeFactory.cs" />
+    <Compile Include="EntityFactories\SyncTombstoneFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

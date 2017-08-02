@@ -5,9 +5,8 @@ using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Samples.Entities;
 using Speedy.Samples.EntityFramework;
-using Speedy.Sync;
+using Speedy.Samples.Tests.EntityFactories;
 
 #endregion
 
@@ -25,7 +24,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.Addresses.Add(GetAddress());
+					database.Addresses.Add(AddressFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -38,7 +37,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.FoodRelationships.Add(GetFoodRelationship());
+					database.FoodRelationships.Add(FoodRelationshipFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -51,7 +50,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.Food.Add(GetFood());
+					database.Food.Add(FoodFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -64,7 +63,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.GroupMembers.Add(GetGroupMember());
+					database.GroupMembers.Add(GroupMemberFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -77,7 +76,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.Groups.Add(GetGroup());
+					database.Groups.Add(GroupFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -90,7 +89,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.LogEvents.Add(GetLogEvent());
+					database.LogEvents.Add(LogEventFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -103,7 +102,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.People.Add(GetPerson());
+					database.People.Add(PersonFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -116,7 +115,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.Pets.Add(GetPet());
+					database.Pets.Add(PetFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -129,7 +128,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.PetTypes.Add(GetPetType());
+					database.PetTypes.Add(PetTypeFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -142,7 +141,7 @@ namespace Speedy.Samples.Tests
 			{
 				using (database)
 				{
-					database.SyncTombstones.Add(GetSyncTombstone());
+					database.SyncTombstones.Add(SyncTombstoneFactory.Get());
 					SaveDatabase(database);
 				}
 			}
@@ -152,120 +151,6 @@ namespace Speedy.Samples.Tests
 		public static void ClassInitialize(TestContext context)
 		{
 			System.Data.Entity.Database.SetInitializer(new CreateDatabaseIfNotExists<ContosoDatabase>());
-		}
-
-		public static Address GetAddress()
-		{
-			return new Address
-			{
-				Id = default(int),
-				City = Guid.NewGuid().ToString(),
-				Line1 = Guid.NewGuid().ToString(),
-				Line2 = Guid.NewGuid().ToString(),
-				LinkedAddressId = null,
-				LinkedAddressSyncId = null,
-				Postal = Guid.NewGuid().ToString(),
-				State = Guid.NewGuid().ToString(),
-				SyncId = default(Guid)
-			};
-		}
-
-		public static Food GetFood()
-		{
-			return new Food
-			{
-				Id = default(int),
-				Name = Guid.NewGuid().ToString()
-			};
-		}
-
-		public static FoodRelationship GetFoodRelationship()
-		{
-			return new FoodRelationship
-			{
-				Id = default(int),
-				Child = GetFood(),
-				Parent = GetFood(),
-				Quantity = default(decimal)
-			};
-		}
-
-		public static Group GetGroup()
-		{
-			return new Group
-			{
-				Id = default(int),
-				Description = Guid.NewGuid().ToString(),
-				Name = Guid.NewGuid().ToString()
-			};
-		}
-
-		public static GroupMember GetGroupMember()
-		{
-			return new GroupMember
-			{
-				Id = default(int),
-				Group = GetGroup(),
-				GroupSyncId = default(Guid),
-				Member = GetPerson(),
-				MemberSyncId = default(Guid),
-				Role = Guid.NewGuid().ToString()
-			};
-		}
-
-		public static LogEvent GetLogEvent()
-		{
-			return new LogEvent
-			{
-				Id = Guid.NewGuid().ToString(),
-				Message = null
-			};
-		}
-
-		public static Person GetPerson()
-		{
-			return new Person
-			{
-				Id = default(int),
-				Address = GetAddress(),
-				AddressSyncId = default(Guid),
-				BillingAddressId = null,
-				BillingAddressSyncId = null,
-				Name = Guid.NewGuid().ToString(),
-				SyncId = default(Guid)
-			};
-		}
-
-		public static Pet GetPet()
-		{
-			return new Pet
-			{
-				Name = Guid.NewGuid().ToString(),
-				Owner = GetPerson(),
-				CreatedOn = default(DateTime),
-				ModifiedOn = default(DateTime),
-				Type = GetPetType()
-			};
-		}
-
-		public static PetType GetPetType()
-		{
-			return new PetType
-			{
-				Id = Guid.NewGuid().ToString().Substring(0, 25),
-				Type = null
-			};
-		}
-
-		public static SyncTombstone GetSyncTombstone()
-		{
-			return new SyncTombstone
-			{
-				Id = default(long),
-				ReferenceId = Guid.NewGuid().ToString(),
-				SyncId = default(Guid),
-				TypeName = Guid.NewGuid().ToString()
-			};
 		}
 
 		private static void ProcessException(DbEntityValidationException ex)
