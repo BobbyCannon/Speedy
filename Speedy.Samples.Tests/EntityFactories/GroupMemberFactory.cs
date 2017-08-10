@@ -17,9 +17,9 @@ namespace Speedy.Samples.Tests.EntityFactories
 		{
 			var result = new GroupMember
 			{
-				Id = default(int),
 				Group = GroupFactory.Get(),
 				GroupSyncId = default(Guid),
+				Id = default(int),
 				Member = PersonFactory.Get(),
 				MemberSyncId = default(Guid),
 				Role = Guid.NewGuid().ToString()

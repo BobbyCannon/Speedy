@@ -17,10 +17,10 @@ namespace Speedy.Samples.Tests.EntityFactories
 		{
 			var result = new Pet
 			{
-				Name = Guid.NewGuid().ToString(),
-				Owner = PersonFactory.Get(),
 				CreatedOn = default(DateTime),
 				ModifiedOn = default(DateTime),
+				Name = Guid.NewGuid().ToString(),
+				Owner = PersonFactory.Get(),
 				Type = PetTypeFactory.Get()
 			};
 

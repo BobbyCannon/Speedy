@@ -17,8 +17,8 @@ namespace Speedy.Samples.Tests.EntityFactories
 		{
 			var result = new Group
 			{
-				Id = default(int),
 				Description = Guid.NewGuid().ToString(),
+				Id = default(int),
 				Name = Guid.NewGuid().ToString()
 			};
 

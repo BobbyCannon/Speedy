@@ -17,8 +17,8 @@ namespace Speedy.Samples.Tests.EntityFactories
 		{
 			var result = new Address
 			{
-				Id = default(int),
 				City = Guid.NewGuid().ToString(),
+				Id = default(int),
 				Line1 = Guid.NewGuid().ToString(),
 				Line2 = Guid.NewGuid().ToString(),
 				LinkedAddressId = null,

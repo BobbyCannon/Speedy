@@ -17,11 +17,11 @@ namespace Speedy.Samples.Tests.EntityFactories
 		{
 			var result = new Person
 			{
-				Id = default(int),
 				Address = AddressFactory.Get(),
 				AddressSyncId = default(Guid),
 				BillingAddressId = null,
 				BillingAddressSyncId = null,
+				Id = default(int),
 				Name = Guid.NewGuid().ToString(),
 				SyncId = default(Guid)
 			};

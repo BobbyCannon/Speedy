@@ -17,8 +17,8 @@ namespace Speedy.Samples.Entities
 			get => new PetKey { Name = Name, OwnerId = OwnerId };
 			set
 			{
-				Name = Name;
-				OwnerId = OwnerId;
+				Name = value.Name;
+				OwnerId = value.OwnerId;
 			}
 		}
 

@@ -17,8 +17,8 @@ namespace Speedy.Samples.Tests.EntityFactories
 		{
 			var result = new FoodRelationship
 			{
-				Id = default(int),
 				Child = FoodFactory.Get(),
+				Id = default(int),
 				Parent = FoodFactory.Get(),
 				Quantity = default(decimal)
 			};
