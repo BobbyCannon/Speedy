@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using LiteDB;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Samples.EntityFramework;
@@ -82,13 +83,63 @@ namespace Speedy.Benchmarks
 			var results = new List<string>();
 
 			//TestSqlDatabase(results, connectionString, 10000);
-			TestJsonDatabase(results, directory + "\\Database", 10000);
-			TestRepository(results, directory + "\\Repository", 10000);
-
+			//TestJsonDatabase(results, directory + "\\Database", 10000);
+			TestRepository(results, directory + "\\Repository", 1000);
+			
+			results.Add(WriteDatabase(directory, 1000, 1000));
+			
 			Log(string.Empty);
 			results.ForEach(x => Log(x));
 			Log("Press any key to continue...");
 			Console.ReadKey();
+		}
+
+		private class Entry
+		{
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public string Value { get; set; }
+		}
+
+		private static string WriteDatabase(string directory, int size, int chunkSize, TimeSpan? timeout = null, int limit = 0)
+		{
+			Log(string.Empty);
+			Log($"Let's create a LiteDB with {size} items @ {chunkSize} at a time.");
+
+			if (File.Exists(directory + "\\Test.db"))
+			{
+				File.Delete(directory + "\\Test.db");
+			}
+
+			var watch = Stopwatch.StartNew();
+
+			using (var db = new LiteDatabase(directory + "\\Test.db"))
+			{
+				var pairs = db.GetCollection<Entry>("Entries");
+
+				for (var i = 1; i <= size; i++)
+				{
+					if (limit > 0 && i % limit == 0)
+					{
+						// May not be a flush
+					}
+
+					if (i % chunkSize == 0)
+					{
+						//repository.Save();
+					}
+
+					pairs.Insert(new Entry { Name = i.ToString(), Value = i.ToString() });
+				}
+				
+				var elapsed = watch.Elapsed.ToString(_timeFormat);
+				Log($"Count: {pairs.Count()} : {elapsed}");
+
+				return limit <= 0
+					? $"{elapsed}: {chunkSize} at a time."
+					: $"{elapsed}: {chunkSize} at a time with a cache of {limit} items.";
+			}
+
 		}
 
 		private static void RandomReadsGroup(string directory, string name, HashSet<string> randomKeys)
@@ -191,16 +242,16 @@ namespace Speedy.Benchmarks
 		{
 			Log($"Starting to benchmark Speedy Repository writing {iterations}...", true, results);
 
-			results.Add(WriteCollection(directory, iterations, 100));
+			//results.Add(WriteCollection(directory, iterations, 100));
 			results.Add(WriteCollection(directory, iterations, 1000));
-			results.Add(WriteCollection(directory, iterations, 2500));
-			results.Add(WriteCollection(directory, iterations, 10000));
-			results.Add(WriteCollection(directory, iterations, 50000));
-			results.Add(WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000));
-			results.Add(WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000));
-			results.Add(WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000));
-			results.Add(WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000));
-			results.Add(WriteCollection(directory, iterations, 50000, TimeSpan.FromSeconds(30), 100000));
+			//results.Add(WriteCollection(directory, iterations, 2500));
+			//results.Add(WriteCollection(directory, iterations, 10000));
+			//results.Add(WriteCollection(directory, iterations, 50000));
+			//results.Add(WriteCollection(directory, iterations, 100, TimeSpan.FromSeconds(30), 1000));
+			//results.Add(WriteCollection(directory, iterations, 1000, TimeSpan.FromSeconds(30), 10000));
+			//results.Add(WriteCollection(directory, iterations, 2500, TimeSpan.FromSeconds(30), 10000));
+			//results.Add(WriteCollection(directory, iterations, 10000, TimeSpan.FromSeconds(30), 25000));
+			//results.Add(WriteCollection(directory, iterations, 50000, TimeSpan.FromSeconds(30), 100000));
 
 			// Populate the random keys.
 			var random = new Random();

@@ -246,8 +246,7 @@ namespace Speedy.IntegrationTests
 		{
 			builder.AppendLine(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
 
-			var entityException = ex as DbEntityValidationException;
-			if (entityException != null)
+			if (ex is DbEntityValidationException entityException)
 			{
 				foreach (var details in entityException.EntityValidationErrors)
 				{
