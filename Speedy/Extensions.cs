@@ -57,6 +57,25 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Add or update a dictionary entry.
+		/// </summary>
+		/// <typeparam name="T1"> The type of the key. </typeparam>
+		/// <typeparam name="T2"> The type of the value. </typeparam>
+		/// <param name="dictionary"> The dictionary to update. </param>
+		/// <param name="key"> The value of the key. </param>
+		/// <param name="value"> The value of the value. </param>
+		public static void AddOrUpdate<T1, T2>(this Dictionary<T1, T2> dictionary, T1 key, T2 value)
+		{
+			if (dictionary.ContainsKey(key))
+			{
+				dictionary[key] = value;
+				return;
+			}
+
+			dictionary.Add(key, value);
+		}
+
+		/// <summary>
 		/// Add multiple items to a hash set.
 		/// </summary>
 		/// <param name="set"> The set to add items to. </param>
@@ -68,6 +87,53 @@ namespace Speedy
 			{
 				set.Add(item);
 			}
+		}
+
+		/// <summary> Searches for the specified public method whose parameters match the specified argument types. The results are cached so the next query is much faster. </summary>
+		/// <param name="type"> The type to get the method for. </param>
+		/// <param name="name"> The string containing the name of the public method to get. </param>
+		/// <param name="types"> An array of type objects representing the number, order, and type of the parameters for the method to get.-or- An empty array of type objects (as provided by the EmptyTypes field) to get a method that takes no parameters. </param>
+		/// <returns> An object representing the public method whose parameters match the specified argument types, if found; otherwise null. </returns>
+		public static MethodInfo CachedGetMethod(this Type type, string name, params Type[] types)
+		{
+			MethodInfo response;
+			var key = type.FullName + "." + name;
+
+			if (_methods.ContainsKey(key))
+			{
+				if (_methods.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = types.Any() ? type.GetMethod(name, types) : type.GetMethod(name);
+			return _methods.AddOrUpdate(key, response, (s, infos) => response);
+		}
+
+		/// <summary>
+		/// Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
+		/// MethodInfo object representing the resulting constructed method. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="info"> The property information to get the generic arguments for. </param>
+		/// <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
+		/// <returns> The method informations with generice. </returns>
+		public static MethodInfo CachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
+		{
+			MethodInfo response;
+			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			var key = info.ToString().Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
+
+			if (_genericMethods.ContainsKey(key))
+			{
+				if (_genericMethods.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.MakeGenericMethod(arguments);
+			return _genericMethods.AddOrUpdate(key, response, (s, i) => response);
 		}
 
 		/// <summary>
@@ -132,6 +198,28 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a list of generic arguments for the provided property information. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="info"> The property information to get the generic arguments for. </param>
+		/// <returns> The list of generic arguments for the property information of the value. </returns>
+		public static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
+		{
+			MethodInfo[] response;
+			var key = info.ReflectedType?.FullName + "." + info.Name;
+
+			if (_methodInfos.ContainsKey(key))
+			{
+				if (_methodInfos.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.GetAccessors();
+			return _methodInfos.AddOrUpdate(key, response, (s, infos) => response);
+		}
+
+		/// <summary>
 		/// Gets a list of fields for the provided item. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="item"> The item to get the fields for. </param>
@@ -152,7 +240,7 @@ namespace Speedy
 		{
 			FieldInfo[] response;
 
-			if (_fieldInfos.ContainsKey(type.FullName))
+			if (_fieldInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
 			{
 				if (_fieldInfos.TryGetValue(type.FullName, out response))
 				{
@@ -165,6 +253,50 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a list of generic arguments for the provided method information. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="info"> The method information to get the generic arguments for. </param>
+		/// <returns> The list of generic arguments for the method information of the value. </returns>
+		public static IList<Type> GetCachedGenericArguments(this MethodInfo info)
+		{
+			Type[] response;
+			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			var key = info.ToString().Replace(info.Name, fullName);
+
+			if (_types.ContainsKey(key))
+			{
+				if (_types.TryGetValue(key, out response))
+				{
+					return response;
+				}
+			}
+
+			response = info.GetGenericArguments();
+			return _types.AddOrUpdate(key, response, (s, types) => response);
+		}
+
+		/// <summary>
+		/// Gets a list of generic arguments for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the generic arguments for. </param>
+		/// <returns> The list of generic arguments for the type of the value. </returns>
+		public static IList<Type> GetCachedGenericArguments(this Type type)
+		{
+			Type[] response;
+
+			if (_types.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
+			{
+				if (_types.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetGenericArguments();
+			return _types.AddOrUpdate(type.FullName, response, (s, types) => response);
+		}
+
+		/// <summary>
 		/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="type"> The type to get the methods for. </param>
@@ -174,7 +306,7 @@ namespace Speedy
 		{
 			MethodInfo[] response;
 
-			if (_methodInfos.ContainsKey(type.FullName))
+			if (_methodInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
 			{
 				if (_methodInfos.TryGetValue(type.FullName, out response))
 				{
@@ -230,7 +362,7 @@ namespace Speedy
 		{
 			PropertyInfo[] response;
 
-			if (_propertyInfos.ContainsKey(type.FullName))
+			if (_propertyInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
 			{
 				if (_propertyInfos.TryGetValue(type.FullName, out response))
 				{
@@ -250,8 +382,8 @@ namespace Speedy
 		public static Type GetRealType(this object item)
 		{
 			var type = item.GetType();
-			var isProxy = type.FullName.Contains("System.Data.Entity.DynamicProxies");
-			return isProxy ? type.BaseType : type;
+			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies");
+			return isProxy == true ? type.BaseType : type;
 		}
 
 		/// <summary>
@@ -261,8 +393,8 @@ namespace Speedy
 		/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
 		public static Type GetRealType(this Type type)
 		{
-			var isProxy = type.FullName.Contains("System.Data.Entity.DynamicProxies");
-			return isProxy ? type.BaseType : type;
+			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies");
+			return isProxy == true ? type.BaseType : type;
 		}
 
 		/// <summary>
@@ -380,6 +512,35 @@ namespace Speedy
 			{
 				info.Refresh();
 				return info.Exists;
+			}, 1000, 10);
+		}
+
+		/// <summary>
+		/// Safely create a file.
+		/// </summary>
+		/// <param name="file"> The information of the file to create. </param>
+		public static void SafeCreate(this FileInfo file)
+		{
+			file.Refresh();
+			if (file.Exists)
+			{
+				return;
+			}
+
+			Retry(() =>
+			{
+				if (file.Exists)
+				{
+					return;
+				}
+
+				File.Create(file.FullName).Dispose();
+			}, 1000, 10);
+
+			Wait(() =>
+			{
+				file.Refresh();
+				return file.Exists;
 			}, 1000, 10);
 		}
 
@@ -569,60 +730,6 @@ namespace Speedy
 			}
 		}
 
-		/// <summary>
-		/// Add or update a dictionary entry.
-		/// </summary>
-		/// <typeparam name="T1"> The type of the key. </typeparam>
-		/// <typeparam name="T2"> The type of the value. </typeparam>
-		/// <param name="dictionary"> The dictionary to update. </param>
-		/// <param name="key"> The value of the key. </param>
-		/// <param name="value"> The value of the value. </param>
-		internal static void AddOrUpdate<T1, T2>(this Dictionary<T1, T2> dictionary, T1 key, T2 value)
-		{
-			if (dictionary.ContainsKey(key))
-			{
-				dictionary[key] = value;
-				return;
-			}
-
-			dictionary.Add(key, value);
-		}
-
-		internal static MethodInfo CachedGetMethod(this Type type, string name, params Type[] types)
-		{
-			MethodInfo response;
-			var key = type.FullName + "." + name;
-
-			if (_methods.ContainsKey(key))
-			{
-				if (_methods.TryGetValue(key, out response))
-				{
-					return response;
-				}
-			}
-
-			response = types.Any() ? type.GetMethod(name, types) : type.GetMethod(name);
-			return _methods.AddOrUpdate(key, response, (s, infos) => response);
-		}
-
-		internal static MethodInfo CachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
-		{
-			MethodInfo response;
-			var fullName = info.ReflectedType?.FullName + "." + info.Name;
-			var key = info.ToString().Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
-
-			if (_genericMethods.ContainsKey(key))
-			{
-				if (_genericMethods.TryGetValue(key, out response))
-				{
-					return response;
-				}
-			}
-
-			response = info.MakeGenericMethod(arguments);
-			return _genericMethods.AddOrUpdate(key, response, (s, i) => response);
-		}
-
 		internal static FileStream CopyToAndOpen(this FileStream from, FileInfo to, int timeout)
 		{
 			lock (from)
@@ -634,57 +741,6 @@ namespace Speedy
 				response.Position = 0;
 				return response;
 			}
-		}
-
-		internal static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
-		{
-			MethodInfo[] response;
-			var key = info.ReflectedType?.FullName + "." + info.Name;
-
-			if (_methodInfos.ContainsKey(key))
-			{
-				if (_methodInfos.TryGetValue(key, out response))
-				{
-					return response;
-				}
-			}
-
-			response = info.GetAccessors();
-			return _methodInfos.AddOrUpdate(key, response, (s, infos) => response);
-		}
-
-		internal static IList<Type> GetCachedGenericArguments(this MethodInfo info)
-		{
-			Type[] response;
-			var fullName = info.ReflectedType?.FullName + "." + info.Name;
-			var key = info.ToString().Replace(info.Name, fullName);
-
-			if (_types.ContainsKey(key))
-			{
-				if (_types.TryGetValue(key, out response))
-				{
-					return response;
-				}
-			}
-
-			response = info.GetGenericArguments();
-			return _types.AddOrUpdate(key, response, (s, types) => response);
-		}
-
-		internal static IList<Type> GetCachedGenericArguments(this Type type)
-		{
-			Type[] response;
-
-			if (_types.ContainsKey(type.FullName))
-			{
-				if (_types.TryGetValue(type.FullName, out response))
-				{
-					return response;
-				}
-			}
-
-			response = type.GetGenericArguments();
-			return _types.AddOrUpdate(type.FullName, response, (s, types) => response);
 		}
 
 		/// <summary>
@@ -743,35 +799,6 @@ namespace Speedy
 		internal static FileStream OpenFile(this FileInfo info)
 		{
 			return Retry(() => File.Open(info.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.Read), 1000, 50);
-		}
-
-		/// <summary>
-		/// Safely create a file.
-		/// </summary>
-		/// <param name="file"> The information of the file to create. </param>
-		internal static void SafeCreate(this FileInfo file)
-		{
-			file.Refresh();
-			if (file.Exists)
-			{
-				return;
-			}
-
-			Retry(() =>
-			{
-				if (file.Exists)
-				{
-					return;
-				}
-
-				File.Create(file.FullName).Dispose();
-			}, 1000, 10);
-
-			Wait(() =>
-			{
-				file.Refresh();
-				return file.Exists;
-			}, 1000, 10);
 		}
 
 		/// <summary>
