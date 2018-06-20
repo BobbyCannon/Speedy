@@ -46,7 +46,7 @@ try {
     $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
     $build = ([Version] $versionInfo.ProductVersion).Build
     $version = $versionInfo.FileVersion.Replace(".$build.0", ".$build")
-    $version = "$version-RC8"
+    $version = "$version-RC9"
 
     & "NuGet.exe" pack "$productName.nuspec" -Prop Configuration="$Configuration" -Version $version
     Move-Item "$productName.$version.nupkg" "$destination\$productName.$version.nupkg" -force
