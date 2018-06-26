@@ -7,15 +7,18 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Speedy.EntityFramework
 {
+	/// <inheritdoc />
 	public abstract class EntityMappingConfiguration<T> : IEntityMappingConfiguration<T> where T : class
 	{
 		#region Methods
 
-		public abstract void Map(EntityTypeBuilder<T> b);
+		/// <inheritdoc />
+		public abstract void Map(EntityTypeBuilder<T> builder);
 
-		public void Map(ModelBuilder b)
+		/// <inheritdoc />
+		public void Map(ModelBuilder builder)
 		{
-			Map(b.Entity<T>());
+			Map(builder.Entity<T>());
 		}
 
 		#endregion
