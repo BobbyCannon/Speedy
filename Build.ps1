@@ -26,7 +26,7 @@ if (!(Test-Path $destination2 -PathType Container)) {
 try {
 	& "ResetAssemblyInfos.ps1"
 
-    #.\IncrementVersion.ps1 -Build +
+    .\IncrementVersion.ps1 -Build +
 
     & nuget.exe restore "$scriptPath\$productName.sln"
 
@@ -46,7 +46,7 @@ try {
     $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
     $build = ([Version] $versionInfo.ProductVersion).Build
     $version = $versionInfo.FileVersion.Replace(".$build.0", ".$build")
-    $version = "$version-RC9"
+    #$version = "$version-RC0"
 
     & "NuGet.exe" pack "$productName.nuspec" -Prop Configuration="$Configuration" -Version $version
     Move-Item "$productName.$version.nupkg" "$destination\$productName.$version.nupkg" -force
