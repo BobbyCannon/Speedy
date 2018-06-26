@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path (Get-Variable MyInvocation).Value.MyCommand.Path 
 $productName = "Speedy";
-$destination = "C:\Binaries\$productName"
+$destination = "$scriptPath\Binaries"
 $destination2 = "C:\Workspaces\Nuget\Developer"
 
 Push-Location $scriptPath
@@ -26,8 +26,18 @@ if (!(Test-Path $destination2 -PathType Container)) {
 try {
 	& "ResetAssemblyInfos.ps1"
 
-    .\IncrementVersion.ps1 -Build +
-
+    # Prepare the build for versioning!
+    #$newVersion = .\IncrementVersion.ps1 -Build +
+    $newVersion = .\IncrementVersion.ps1 -Major 5
+    $nugetVersion = ([Version] $newVersion).ToString(3)
+    $nugetVersion = "$nugetVersion-RC10"
+    
+    # Set the nuget version
+    $filePath = "$scriptPath\Speedy\Speedy.csproj"
+    $fileXml = [xml] (Get-Content -Path $filePath)
+    $fileXml.Project.PropertyGroup[3].Version = $nugetVersion
+    Set-Content -Path $filePath -Value (Format-Xml $fileXml.OuterXml) -Encoding UTF8
+    
     & nuget.exe restore "$scriptPath\$productName.sln"
 
     $msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe"
@@ -38,35 +48,17 @@ try {
         exit $LASTEXITCODE
     }
 
-    Copy-Item "$productName\bin\$Configuration\$productName.dll" "$destination\bin\"
-    Copy-Item "$productName\bin\$Configuration\$productName.pdb" "$destination\bin\"
-    Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.dll" "$destination\bin\"
-    Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.pdb" "$destination\bin\"
-
+	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.dll" "$destination\bin\"
+	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.pdb" "$destination\bin\"
+	Copy-Item "$productName\bin\$Configuration\\$productName.$nugetVersion.nupkg" "$destination\"
+	Copy-Item "$productName.Tests\bin\$Configuration\net461\" "$destination\Speedy.Tests\" -Recurse -Force
+	Copy-Item "$productName.Samples.Tests\bin\$Configuration\net461\" "$destination\Speedy.Samples.Tests\" -Recurse -Force
+    
     $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
-    $build = ([Version] $versionInfo.ProductVersion).Build
-    $version = $versionInfo.FileVersion.Replace(".$build.0", ".$build")
-    #$version = "$version-RC0"
-
-    & "NuGet.exe" pack "$productName.nuspec" -Prop Configuration="$Configuration" -Version $version
-    Move-Item "$productName.$version.nupkg" "$destination\$productName.$version.nupkg" -force
-    Copy-Item "$destination\$productName.$version.nupkg" "$destination2" -force
-
-    # Put the speedy version in the EF nuget package
-    $content = Get-Content "$productName.EntityFramework.nuspec" -Raw
-    $key = "id=`"$productName`" version=`""
-    $index = $content.IndexOf($key)
-    if ($index -ge 0) {
-	    $index = $index + $key.length
-	    $index2 = $content.IndexOf("`"", $index)
-	    $content = $content.Replace($content.SubString($index, $index2 - $index), $version).Trim()
-	    Set-Content "$productName.EntityFramework.nuspec" $content
+    if ($versionInfo.FileVersion.ToString() -ne $newVersion) {
+    	Write-Error "The new version $($versionInfo.FileVersion.ToString()) does not match the expected version ($newVersion)"
     }
-
-    & "nuget.exe" pack "$productName.EntityFramework.nuspec" -Prop Configuration="$Configuration" -Version $version
-    Move-Item "$productName.EntityFramework.$version.nupkg" "$destination" -force
-    Copy-Item "$destination\$productName.EntityFramework.$version.nupkg" "$destination2" -force
-
+    
     Write-Host
     Set-Location $scriptPath
     Write-Host "Build: " $watch.Elapsed -ForegroundColor Yellow

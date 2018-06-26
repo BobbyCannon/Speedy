@@ -12,46 +12,14 @@
 )
 
 $assemblyPattern = "[0-9]+(\.([0-9]+|\*)){1,3}"
-$assemblyVersionPatternCs = "^\[Assembly: AssemblyVersion\(`"$assemblyPattern`"\)"
-$assemblyVersionPatternVb = $assemblyVersionPatternCs.Replace("\[", "\<")
 
-# See if the build should be generated.
-if ($Build -eq "*") {
-    $Build = [Math]::Floor([DateTime]::Now.Subtract([DateTime]::Parse("01/01/2000").Date).TotalDays)
-}
-
-# See if the revision should be generated.
-if ($Revision -eq "*") {
-    $Revision = [Math]::Floor([DateTime]::Now.TimeOfDay.TotalSeconds / 2)
-}
-
-function Get-VersionLine
-{
+function Get-VersionArray {
     param (
         [Parameter(Mandatory=$true,Position=1,ValueFromPipeline=$true)]
-        [System.IO.FileInfo] $file,
-        [Parameter(Mandatory=$true,Position=2,ValueFromPipeline=$true)]
-        [string] $pattern
+        [string] $VersionLine
     )
 
-    $content = Get-Content $file
-    $result = ($content | Select-String -pattern $pattern)
-
-    if ($result.GetType().Name -eq "Object[]") {
-        return $result[0].ToString()
-    }
-
-    return $result.ToString()
-}
-
-function Get-VersionArray 
-{
-    param (
-        [Parameter(Mandatory=$true,Position=1,ValueFromPipeline=$true)]
-        [string] $versionLine
-    )
-
-    $version = $versionLine | Select-String $assemblyPattern | % { $_.Matches.Value }
+    $version = $VersionLine | Select-String $assemblyPattern | % { $_.Matches.Value }
     $versionParts = $version.Split('.')
 
     # Ensure there is a part 3.
@@ -67,8 +35,7 @@ function Get-VersionArray
     return $versionParts
 }
 
-function Convert-VersionArray
-{
+function Convert-VersionArray {
     param (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [object[]] $VersionArray
@@ -77,54 +44,39 @@ function Convert-VersionArray
     return "{0}.{1}.{2}.{3}" -f $VersionArray[0], $VersionArray[1], $VersionArray[2], $VersionArray[3]
 }
 
-function Set-BuildNumbers
-{
-    param($desiredPath, $versionNumber)
+function Set-BuildNumbers {
+    param ($desiredPath, $versionNumber)
            
-    $foundFiles = Get-ChildItem $desiredPath\*AssemblyInfo.* -Recurse
-    if ($foundFiles.Length -le 0)
-    {
-        Write-Verbose "No files found"
-        return
-    }
-
-    foreach($file in $foundFiles)
-    {   
-        Write-Verbose $file.FullName
-        
-        $versionPattern1 = $assemblyVersionPatternCs
-        if ($file.FullName.EndsWith(".vb")) {
-            $versionPattern1 = $assemblyVersionPatternVb
-        }
-                
-        $oldAssemblyVersionLine = Get-VersionLine $file $versionPattern1
-        Write-Verbose $oldAssemblyVersionLine
-        $oldAssemblyVersion = ,($oldAssemblyVersionLine | Get-VersionArray) | Convert-VersionArray
-        $newAssemblyVersionLine = $oldAssemblyVersionLine.Replace($oldAssemblyVersion, $newVersionNumber)
-        Write-Verbose $newAssemblyVersionLine
-
-        $versionPattern2 = $versionPattern1.Replace("AssemblyVersion","AssemblyFileVersion")
-        $oldAssemblyFileVersionLine = Get-VersionLine $file $versionPattern2
-        Write-Verbose $oldAssemblyFileVersionLine
-        $oldAssemblyFileVersion = ,($oldAssemblyFileVersionLine | Get-VersionArray) | Convert-VersionArray
-        $newAssemblyFileVersionLine = $oldAssemblyFileVersionLine.Replace($oldAssemblyFileVersion, $newVersionNumber)
-        Write-Verbose $newAssemblyFileVersionLine
+    $files = Get-ChildItem -Path $desiredPath -Filter *.csproj -Recurse
     
-        $content = [IO.File]::ReadAllText($file)
-        $content = $content.Replace($oldAssemblyVersionLine, $newAssemblyVersionLine).Replace($oldAssemblyFileVersionLine, $newAssemblyFileVersionLine) 
-        
-        [IO.File]::WriteAllText($file, $content)
+    foreach ($file in $files) {
+	   	$fileXml = [xml] (Get-Content $file.FullName -Raw)
+		
+		if ($fileXml.Project.PropertyGroup[0].AssemblyVersion -ne $null) {
+    		Write-Verbose $file.FullName
+			$fileXml.Project.PropertyGroup[0].AssemblyVersion = $versionNumber
+			$fileXml.Project.PropertyGroup[0].FileVersion = $versionNumber
+			
+			foreach ($group in $fileXml.Project.PropertyGroup) {
+				if ($group.Version) {
+					$group.Version = $versionNumber
+				}
+			}
+			
+    		Set-Content -Path $file.FullName -Value (Format-Xml -Data $fileXml.OuterXml) -Encoding UTF8
+    	}
     }
 }
 
 try {
-
+	#$scriptPath = "C:\Workspaces\GitHub\Speedy"
     $scriptPath = Split-Path (Get-Variable MyInvocation).Value.MyCommand.Path 
     Set-Location $scriptPath
 
-    $file = ([System.IO.FileInfo]"$scriptPath\Speedy\Properties\AssemblyInfo.cs")
-    $versionArray = Get-VersionLine $file $assemblyVersionPatternCs | Get-VersionArray
-
+    $file = ([System.IO.FileInfo] "$scriptPath\Speedy\Speedy.csproj")
+    $fileXml = [xml] (Get-Content $file.FullName -Raw)
+    $versionArray = Get-VersionArray -VersionLine $fileXml.Project.PropertyGroup.AssemblyVersion[0].ToString()
+        
     if ($Major -eq "+") {
         $versionArray[0] = ([int]$versionArray[0]) + 1
     } elseif ($Major.Length -gt 0) {
@@ -164,9 +116,10 @@ try {
 
     $newVersionNumber = Convert-VersionArray $versionArray
 
-    Write-Host "Updating Assembly Infos to $newVersionNumber"
+    Write-Host "Updating versions to $newVersionNumber"
     Set-BuildNumbers $scriptPath $newVersionNumber
 
+	return $newVersionNumber
     exit $LASTEXITCODE
 } 
 catch {
