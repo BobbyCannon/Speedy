@@ -26,7 +26,7 @@ namespace Speedy.Tests
 
 		static TestHelper()
 		{
-			Directory = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy");
+			Directory = new DirectoryInfo(Path.GetTempPath() + @"\Speedy");
 		}
 
 		#endregion
