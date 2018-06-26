@@ -1,3 +1,7 @@
+#region References
+
+#endregion
+
 namespace Speedy.Samples.Entities
 {
 	public class LogEvent : CreatedEntity<string>, ILogEvent

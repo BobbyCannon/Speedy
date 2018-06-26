@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 #endregion
 
@@ -35,14 +36,14 @@ namespace Speedy
 		/// </summary>
 		/// <param name="include"> The related entities to include. </param>
 		/// <returns> The results of the query including the related entities. </returns>
-		IQueryable<T> Include(Expression<Func<T, object>> include);
+		IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include);
 
 		/// <summary>
 		/// Configures the query to include multiple related entities in the results.
 		/// </summary>
 		/// <param name="includes"> The related entities to include. </param>
 		/// <returns> The results of the query including the related entities. </returns>
-		IQueryable<T> Including(params Expression<Func<T, object>>[] includes);
+		IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes);
 
 		/// <summary>
 		/// Removes an entity from the repository.

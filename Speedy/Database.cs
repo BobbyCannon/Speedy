@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Speedy.Configuration;
 using Speedy.Storage;
 using Speedy.Sync;
@@ -472,8 +473,8 @@ namespace Speedy
 					continue;
 				}
 
-				var message = "The operation failed: The relationship could not be changed because one or more of the foreign-key properties is non-nullable. When a change is made to a relationship, the related foreign-key property is set to a null value. If the foreign-key does not support null values, a new relationship must be defined, the foreign-key property must be assigned another non-null value, or the unrelated object must be deleted.";
-				throw new InvalidOperationException(message);
+				var message = "The DELETE statement conflicted with the REFERENCE constraint.";
+				throw new DbUpdateException(message, new InvalidOperationException());
 			}
 		}
 

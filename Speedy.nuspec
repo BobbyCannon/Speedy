@@ -11,14 +11,14 @@
 		<iconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</iconUrl>
 		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" version="11.0.1" />
+			<dependency id="Newtonsoft.Json" version="11.0.2" />
 		</dependencies>
 		<references>
 			<reference file="Speedy.dll" />
 		</references>
 	</metadata>
 	<files>
-		<file src="C:\Binaries\Speedy\bin\Speedy.dll" target="lib\net452" />
-		<file src="C:\Binaries\Speedy\bin\Speedy.pdb" target="lib\net452" />
+		<file src="C:\Binaries\Speedy\bin\Speedy.dll" target="lib\net461" />
+		<file src="C:\Binaries\Speedy\bin\Speedy.pdb" target="lib\net461" />
 	</files>
 </package>

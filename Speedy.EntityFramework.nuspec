@@ -20,9 +20,9 @@
 		</references>
 	</metadata>
 	<files>
-		<file src="C:\Binaries\Speedy\bin\Speedy.dll" target="lib\net452" />
-		<file src="C:\Binaries\Speedy\bin\Speedy.pdb" target="lib\net452" />
-		<file src="C:\Binaries\Speedy\bin\Speedy.EntityFramework.dll" target="lib\net452" />
-		<file src="C:\Binaries\Speedy\bin\Speedy.EntityFramework.pdb" target="lib\net452" />
+		<file src="C:\Binaries\Speedy\bin\Speedy.dll" target="lib\net461" />
+		<file src="C:\Binaries\Speedy\bin\Speedy.pdb" target="lib\net461" />
+		<file src="C:\Binaries\Speedy\bin\Speedy.EntityFramework.dll" target="lib\net461" />
+		<file src="C:\Binaries\Speedy\bin\Speedy.EntityFramework.pdb" target="lib\net461" />
 	</files>
 </package>

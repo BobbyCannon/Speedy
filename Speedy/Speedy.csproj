@@ -1,127 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DE1FCAF6-D683-44B7-B8E3-FF6A19569C16}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Speedy</RootNamespace>
-    <AssemblyName>Speedy</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Speedy.XML</DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.Entity" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="DatabaseProvider.cs" />
-    <Compile Include="Exceptions\SyncIsssueException.cs" />
-    <Compile Include="IncrementingEntity.cs" />
-    <Compile Include="Configuration\Relationship.cs" />
-    <Compile Include="CreatedEntity.cs" />
-    <Compile Include="IDatabaseProvider.cs" />
-    <Compile Include="Configuration\IPropertyConfiguration.cs" />
-    <Compile Include="Configuration\PropertyConfiguration.cs" />
-    <Compile Include="Database.cs" />
-    <Compile Include="DatabaseOptions.cs" />
-    <Compile Include="Exceptions\ValidationException.cs" />
-    <Compile Include="IKeyValueRepository.cs" />
-    <Compile Include="IKeyValueRepositoryProvider.cs" />
-    <Compile Include="ISyncableDatabase.cs" />
-    <Compile Include="ISyncableDatabaseProvider.cs" />
-    <Compile Include="ISyncableRepository.cs" />
-    <Compile Include="KeyValueRepository.cs" />
-    <Compile Include="KeyValueRepositoryOptions.cs" />
-    <Compile Include="KeyValueRepositoryProvider.cs" />
-    <Compile Include="Linq\DynamicLinq.cs" />
-    <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Logging\LogListener.cs" />
-    <Compile Include="ModifiableEntity.cs" />
-    <Compile Include="Net\WebClient.cs" />
-    <Compile Include="Net\WebSyncClient.cs" />
-    <Compile Include="Storage\EntityComparer.cs" />
-    <Compile Include="Storage\IRepository.cs" />
-    <Compile Include="IRepository.cs" />
-    <Compile Include="Storage\SpeedySerializeContractResolver.cs" />
-    <Compile Include="Entity.cs" />
-    <Compile Include="Storage\EntityState.cs" />
-    <Compile Include="Storage\EntityStateType.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="IDatabase.cs" />
-    <Compile Include="Storage\Repository.cs" />
-    <Compile Include="Storage\RelationshipRepository.cs" />
-    <Compile Include="Storage\SyncableRepository.cs" />
-    <Compile Include="Streams\NoCloseStreamReader.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Streams\NoCloseStreamWriter.cs" />
-    <Compile Include="Sync\ISyncClient.cs" />
-    <Compile Include="Sync\SyncClient.cs" />
-    <Compile Include="Sync\SyncDatabaseProvider.cs" />
-    <Compile Include="Sync\SyncEngine.cs" />
-    <Compile Include="Sync\SyncEngineStatus.cs" />
-    <Compile Include="Sync\SyncEngineStatusArgs.cs" />
-    <Compile Include="Sync\SyncEntity.cs" />
-    <Compile Include="Sync\SyncIssue.cs" />
-    <Compile Include="Sync\SyncIssueType.cs" />
-    <Compile Include="Sync\SyncObject.cs" />
-    <Compile Include="Sync\SyncObjectStatus.cs" />
-    <Compile Include="Sync\SyncOptions.cs" />
-    <Compile Include="Sync\SyncRequest.cs" />
-    <Compile Include="Sync\SyncTombstone.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="Speedy.snk" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<Configurations>Debug;Release</Configurations>
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>false</DelaySign>
+		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+		<AssemblyTitle>Speedy</AssemblyTitle>
+		<Company>Bobby Cannon</Company>
+		<Product>Speedy</Product>
+		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
+		<Copyright>© Copyright 2014 - 2018</Copyright>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<AssemblyVersion>5.0.0.0</AssemblyVersion>
+		<FileVersion>5.0.0.0</FileVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<OutputPath>bin\Debug\</OutputPath>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<DocumentationFile>bin\Debug\Speedy.XML</DocumentationFile>
+		<Prefer32Bit>false</Prefer32Bit>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release\</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<Prefer32Bit>false</Prefer32Bit>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<ProjectGuid>{DE1FCAF6-D683-44B7-B8E3-FF6A19569C16}</ProjectGuid>
+		<OutputType>Library</OutputType>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<RootNamespace>Speedy</RootNamespace>
+		<AssemblyName>Speedy</AssemblyName>
+		<FileAlignment>512</FileAlignment>
+		<TargetFrameworkProfile />
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>false</DelaySign>
+		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Speedy.snk" />
+	</ItemGroup>
 </Project>

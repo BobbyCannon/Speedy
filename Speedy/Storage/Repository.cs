@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Speedy.Sync;
 
 #endregion
@@ -134,7 +136,7 @@ namespace Speedy.Storage
 				throw new ArgumentException("Entity is not for this repository.");
 			}
 
-			_database.UpdateDependantIds(item, processed ?? new List<IEntity>());
+			//_database.UpdateDependantIds(item, processed ?? new List<IEntity>());
 
 			if (!item.IdIsSet())
 			{
@@ -231,15 +233,15 @@ namespace Speedy.Storage
 		}
 
 		/// <inheritdoc />
-		public IQueryable<T> Include(Expression<Func<T, object>> include)
+		public IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
-			return _query;
+			return _query.Include(include);
 		}
 
 		/// <inheritdoc />
-		public IQueryable<T> Including(params Expression<Func<T, object>>[] includes)
+		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
 		{
-			return _query;
+			return (IIncludableQueryable<T, T3>) includes.Aggregate(_query, (current, include) => current.Include(include));
 		}
 
 		/// <summary>

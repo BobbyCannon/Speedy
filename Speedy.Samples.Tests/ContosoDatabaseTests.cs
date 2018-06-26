@@ -1,11 +1,8 @@
 #region References
 
-using System;
-using System.Data.Entity;
-using System.Data.Entity.Validation;
-using System.Linq;
+using System.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Samples.EntityFramework;
 using Speedy.Samples.Tests.EntityFactories;
 
 #endregion
@@ -20,12 +17,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddAddressTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.Addresses.Add(AddressFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -33,12 +30,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddFoodRelationshipTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.FoodRelationships.Add(FoodRelationshipFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -46,12 +43,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddFoodTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.Food.Add(FoodFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -59,12 +56,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddGroupMemberTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.GroupMembers.Add(GroupMemberFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -72,12 +69,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddGroupTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.Groups.Add(GroupFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -85,12 +82,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddLogEventTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.LogEvents.Add(LogEventFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -98,12 +95,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPersonTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.People.Add(PersonFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -111,12 +108,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPetTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.Pets.Add(PetFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -124,12 +121,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPetTypeTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.PetTypes.Add(PetTypeFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -137,12 +134,12 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddSyncTombstoneTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
 					database.SyncTombstones.Add(SyncTombstoneFactory.Get());
-					SaveDatabase(database);
+					database.SaveChanges();
 				}
 			}
 		}
@@ -150,28 +147,15 @@ namespace Speedy.Samples.Tests
 		[ClassInitialize]
 		public static void ClassInitialize(TestContext context)
 		{
-			System.Data.Entity.Database.SetInitializer(new CreateDatabaseIfNotExists<ContosoDatabase>());
-		}
-
-		private static void ProcessException(DbEntityValidationException ex)
-		{
-			foreach (var error in ex.EntityValidationErrors.SelectMany(x => x.ValidationErrors))
+			using (var database = new ContosoDatabase(GetOptions()))
 			{
-				Console.WriteLine(error.PropertyName + " => " + error.ErrorMessage);
+				database.Database.Migrate();
 			}
 		}
 
-		private void SaveDatabase(IDatabase database)
+		private static DbContextOptions<ContosoDatabase> GetOptions()
 		{
-			try
-			{
-				database.SaveChanges();
-			}
-			catch (DbEntityValidationException ex)
-			{
-				ProcessException(ex);
-				throw;
-			}
+			return new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString).Options;
 		}
 
 		#endregion

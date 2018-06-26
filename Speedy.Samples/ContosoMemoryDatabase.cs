@@ -1,7 +1,7 @@
 #region References
 
 using Speedy.Samples.Entities;
-using Speedy.Samples.Mappings;
+using Speedy.Samples.Mappings.Memory;
 
 #endregion
 
@@ -14,6 +14,8 @@ namespace Speedy.Samples
 		public ContosoMemoryDatabase(string directory = null, DatabaseOptions options = null)
 			: base(directory, options)
 		{
+			Options.SyncOrder = new[] { typeof(Address).FullName, typeof(Person).FullName };
+
 			Addresses = GetSyncableRepository<Address>();
 			AddressMap.ConfigureDatabase(this);
 
