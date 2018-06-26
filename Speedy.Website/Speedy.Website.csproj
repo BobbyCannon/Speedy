@@ -1,17 +1,30 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\css\site.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\site.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="1.0.20" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj" />
     <ProjectReference Include="..\Speedy\Speedy.csproj" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="powershell -file &quot;$(SolutionDir)Prebuild.ps1&quot;" />
+  </Target>
 
 </Project>

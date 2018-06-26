@@ -1,0 +1,13 @@
+﻿{
+	"defaultProvider": "cdnjs",
+	"libraries": [
+		{
+			"library": "jquery@3.3.1",
+			"destination": "wwwroot/lib/jquery"
+		},
+		{
+			"library": "vue@2.5.16",
+			"destination": "wwwroot/lib/vue"
+		}
+	]
+}

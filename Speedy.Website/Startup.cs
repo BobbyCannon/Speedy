@@ -48,13 +48,13 @@ namespace Speedy.Website
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
+			app.UseMvc(routes => { routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}"); });
 
-			app.UseMvc(routes =>
+			using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
 			{
-				routes.MapRoute(
-					"default",
-					"{controller=Home}/{action=Index}/{id?}");
-			});
+				var context = serviceScope.ServiceProvider.GetService<ContosoDatabase>();
+				context.Database.Migrate();
+			}
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.

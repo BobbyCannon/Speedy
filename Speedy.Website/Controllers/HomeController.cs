@@ -1,7 +1,10 @@
 ﻿#region References
 
+using System;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Speedy.Samples;
 using Speedy.Website.Models;
 
 #endregion
@@ -10,20 +13,26 @@ namespace Speedy.Website.Controllers
 {
 	public class HomeController : Controller
 	{
-		#region Methods
+		#region Fields
 
-		public IActionResult About()
+		private readonly ContosoDatabase _database;
+
+		#endregion
+
+		#region Constructors
+
+		public HomeController(ContosoDatabase database)
 		{
-			ViewData["Message"] = "Your application description page.";
-
-			return View();
+			_database = database;
 		}
 
-		public IActionResult Contact()
-		{
-			ViewData["Message"] = "Your contact page.";
+		#endregion
 
-			return View();
+		#region Methods
+
+		public IActionResult Boom()
+		{
+			throw new Exception("Boom");
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -34,12 +43,19 @@ namespace Speedy.Website.Controllers
 
 		public IActionResult Index()
 		{
-			return View();
+			var model = new IndexViewModel
+			{
+				AddressCount = _database.Addresses.Count(),
+				PeopleCount = _database.People.Count()
+			};
+
+			return View(model);
 		}
 
-		public IActionResult Privacy()
+		protected override void Dispose(bool disposing)
 		{
-			return View();
+			_database.Dispose();
+			base.Dispose(disposing);
 		}
 
 		#endregion
