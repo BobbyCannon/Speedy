@@ -277,9 +277,9 @@ namespace Speedy.Tests
 
 				var expected = new List<KeyValuePair<string, string>>
 				{
-					new KeyValuePair<string, string>("Item1", "Item1"),
 					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3")
+					new KeyValuePair<string, string>("Item3", "Item3"),
+					new KeyValuePair<string, string>("Item1", "Item1")
 				};
 
 				var actual = repository.Read().ToList();
@@ -339,9 +339,9 @@ namespace Speedy.Tests
 
 				var expected = new List<KeyValuePair<string, string>>
 				{
-					new KeyValuePair<string, string>("Item1", "Item10"),
 					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3")
+					new KeyValuePair<string, string>("Item3", "Item3"),
+					new KeyValuePair<string, string>("Item1", "Item10")
 				};
 
 				var actual = repository.Read().ToList();
@@ -363,9 +363,9 @@ namespace Speedy.Tests
 
 				var expected = new List<KeyValuePair<string, string>>
 				{
-					new KeyValuePair<string, string>("Item1", "Item10"),
 					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3")
+					new KeyValuePair<string, string>("Item3", "Item3"),
+					new KeyValuePair<string, string>("Item1", "Item10")
 				};
 
 				var actual = repository.Read().ToList();
@@ -584,8 +584,8 @@ namespace Speedy.Tests
 
 			var expected = new[]
 			{
-				new KeyValuePair<string, string>("Foo1", "1Bar"),
-				new KeyValuePair<string, string>("Foo2", "Bar2")
+				new KeyValuePair<string, string>("Foo2", "Bar2"),
+				new KeyValuePair<string, string>("Foo1", "1Bar")
 			};
 
 			var actual = repository.Read().ToArray();

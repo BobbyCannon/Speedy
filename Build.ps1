@@ -30,7 +30,7 @@ try {
     #$newVersion = .\IncrementVersion.ps1 -Build +
     $newVersion = .\IncrementVersion.ps1 -Major 5
     $nugetVersion = ([Version] $newVersion).ToString(3)
-    $nugetVersion = "$nugetVersion-RC10"
+    #$nugetVersion = "$nugetVersion-RC10"
     
     # Set the nuget version
     $filePath = "$scriptPath\Speedy\Speedy.csproj"
@@ -51,6 +51,7 @@ try {
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.dll" "$destination\bin\"
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.pdb" "$destination\bin\"
 	Copy-Item "$productName\bin\$Configuration\\$productName.$nugetVersion.nupkg" "$destination\"
+	Copy-Item "$productName\bin\$Configuration\\$productName.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Tests\bin\$Configuration\net461\" "$destination\Speedy.Tests\" -Recurse -Force
 	Copy-Item "$productName.Samples.Tests\bin\$Configuration\net461\" "$destination\Speedy.Samples.Tests\" -Recurse -Force
     

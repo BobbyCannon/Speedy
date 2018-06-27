@@ -25,5 +25,5 @@ function RunTest {
 	}
 }
 
-#RunTest -FilePath "$destination\Speedy.Tests\Speedy.Tests.dll"
-RunTest -FilePath "$destination\Speedy.Samples.Tests\Speedy.Samples.Tests.dll" -Filter SyncEngineUpdateItemOnClientThenServer
+RunTest -FilePath "$destination\Speedy.Tests\Speedy.Tests.dll"
+RunTest -FilePath "$destination\Speedy.Samples.Tests\Speedy.Samples.Tests.dll"

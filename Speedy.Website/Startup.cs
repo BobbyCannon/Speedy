@@ -69,6 +69,7 @@ namespace Speedy.Website
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 			services.AddDbContext<ContosoDatabase>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+			services.AddTransient<IContosoDatabase, ContosoDatabase>();
 		}
 
 		#endregion

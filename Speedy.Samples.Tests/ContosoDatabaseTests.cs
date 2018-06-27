@@ -155,7 +155,7 @@ namespace Speedy.Samples.Tests
 
 		private static DbContextOptions<ContosoDatabase> GetOptions()
 		{
-			return new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString).Options;
+			return new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(TestHelper.DefaultConnection).Options;
 		}
 
 		#endregion

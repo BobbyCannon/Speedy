@@ -15,13 +15,13 @@ namespace Speedy.Website.Controllers
 	{
 		#region Fields
 
-		private readonly ContosoDatabase _database;
+		private readonly IContosoDatabase _database;
 
 		#endregion
 
 		#region Constructors
 
-		public HomeController(ContosoDatabase database)
+		public HomeController(IContosoDatabase database)
 		{
 			_database = database;
 		}

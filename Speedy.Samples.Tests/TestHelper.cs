@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -32,8 +31,16 @@ namespace Speedy.Samples.Tests
 		static TestHelper()
 		{
 			Directory = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy");
-			//System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersionByContext<ContosoDatabase, Migrations.Configuration>());
+			DefaultConnection = "server=localhost;database=Speedy;integrated security=true;";
+			DefaultConnection2 = "server=localhost;database=Speedy2;integrated security=true;";
 		}
+
+		#endregion
+
+		#region Properties
+
+		public static string DefaultConnection { get; }
+		public static string DefaultConnection2 { get; }
 
 		#endregion
 
@@ -225,7 +232,7 @@ namespace Speedy.Samples.Tests
 
 		private static IDatabaseProvider<IContosoDatabase> GetEntityFrameworkProvider()
 		{
-			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString).Options;
+			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(DefaultConnection).Options;
 
 			using (var database = new ContosoDatabase(options))
 			{
@@ -252,7 +259,7 @@ namespace Speedy.Samples.Tests
 
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider()
 		{
-			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString).Options;
+			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(DefaultConnection).Options;
 
 			using (var database = new ContosoDatabase(options))
 			{
@@ -263,7 +270,7 @@ namespace Speedy.Samples.Tests
 
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2()
 		{
-			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection2"].ConnectionString).Options;
+			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(DefaultConnection2).Options;
 
 			using (var database = new ContosoDatabase(options))
 			{
