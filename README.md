@@ -2,6 +2,8 @@
 
 Speedy is a simple easy to use Entity Framework unit testing framework.
 
+>**Note**: Version 5 is currently in _beta_ testing.
+
 ### Setup an interface to describe your database
 
 ``` csharp
@@ -133,5 +135,5 @@ public void AddAddressTest()
 
 ## Versions
 
-- v5 supports Entity Framework Core
+- v5 supports Entity Framework Core (beta testing)
 - v4 supports Entity Framework 6
