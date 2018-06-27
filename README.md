@@ -14,6 +14,8 @@ public interface IContosoDatabase : IDatabase
 
 ### Setup your Entity Framework database
 
+Version 5 for Entity Framework Core
+
 ``` csharp
 public class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
 {
@@ -24,6 +26,27 @@ public class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
 
 	public ContosoDatabase(DbContextOptions contextOptions, DatabaseOptions options = null)
 		: base(contextOptions, options)
+	{
+	}
+
+	public IRepository<Address, int> Addresses => GetRepository<Address>();
+	public IRepository<Person, int> People => GetRepository<Person>();
+}
+```
+
+Version 4 for Entity Framework 6
+
+``` csharp
+public class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
+{
+	public ContosoDatabase()
+		: this("name=DefaultConnection")
+	{
+		// Default constructor needed for Add-Migration
+	}
+
+	public ContosoDatabase(string nameOrConnectionString, DatabaseOptions options = null)
+		: base(nameOrConnectionString, options)
 	{
 	}
 
@@ -53,11 +76,15 @@ public class ContosoMemoryDatabase : Database, IContosoDatabase
 
 Preferable you'll write all your _unit test_ using the memory database. You can then use the Entity Framework database for your _integration tests_.
 
+This is a test for v5 for Entity Framework Core.
+
 ``` csharp
 [TestMethod]
 public void AddAddressTest()
 {
-	foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+	var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer("server=localhost;database=Speedy;integrated security=true;").Options;
+
+	foreach (var database in new IContosoDatabase[] { new ContosoDatabase(options), new ContosoMemoryDatabase() })
 	{
 		using (database)
 		{
@@ -75,6 +102,33 @@ public void AddAddressTest()
 	}
 }
 
+```
+
+This is a test for v4 for Entity Framework 6.
+
+``` csharp
+[TestMethod]
+public void AddAddressTest()
+{
+	var connectionString = "server=localhost;database=Speedy;integrated security=true;";
+
+	foreach (var database in new IContosoDatabase[] { new ContosoDatabase(connectionString), new ContosoMemoryDatabase() })
+	{
+		using (database)
+		{
+			database.Addresses.Add(new Address
+				{
+					City = "Greenville",
+					Line1 = "Main Street",
+					Line2 = string.Empty,
+					Postal = "29671",
+					State = "SC"
+				});
+			
+			database.SaveChanges();
+		}
+	}
+}
 ```
 
 ## Versions
