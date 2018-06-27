@@ -50,10 +50,10 @@ try {
 
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.dll" "$destination\bin\"
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.pdb" "$destination\bin\"
-	Copy-Item "$productName\bin\$Configuration\\$productName.$nugetVersion.nupkg" "$destination\"
-	Copy-Item "$productName\bin\$Configuration\\$productName.$nugetVersion.nupkg" "$destination2\"
-	Copy-Item "$productName.Tests\bin\$Configuration\net461\" "$destination\Speedy.Tests\" -Recurse -Force
-	Copy-Item "$productName.Samples.Tests\bin\$Configuration\net461\" "$destination\Speedy.Samples.Tests\" -Recurse -Force
+	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination\"
+	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
+	Copy-Item "$productName.Tests\bin\$Configuration\netcoreapp2.1\" "$destination\Speedy.Tests\" -Recurse -Force
+	Copy-Item "$productName.Samples.Tests\bin\$Configuration\netcoreapp2.1\" "$destination\Speedy.Samples.Tests\" -Recurse -Force
     
     $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
     if ($versionInfo.FileVersion.ToString() -ne $newVersion) {
