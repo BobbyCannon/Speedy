@@ -51,8 +51,8 @@ namespace Speedy.Website
 			app.UseMvc(routes => { routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}"); });
 
 			using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+			using (var context = serviceScope.ServiceProvider.GetService<ContosoDatabase>())
 			{
-				var context = serviceScope.ServiceProvider.GetService<ContosoDatabase>();
 				context.Database.Migrate();
 			}
 		}
