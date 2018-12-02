@@ -5,8 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
+using Speedy.Exceptions;
 
 #endregion
 
@@ -112,7 +113,7 @@ namespace Speedy.EntityFramework
 		/// <returns> The results of the query including the related entities. </returns>
 		public IIncludableQueryable<T,T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
-			return new EntityIncludableQueryable<T, T3>(Set.Include(include));
+			return Including(include);
 		}
 
 		/// <summary>
@@ -122,8 +123,27 @@ namespace Speedy.EntityFramework
 		/// <returns> The results of the query including the related entities. </returns>
 		public IIncludableQueryable<T,T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
 		{
-			var a = includes.Aggregate(Set.AsQueryable(), (current, include) => current.Include(include));
-			return new EntityIncludableQueryable<T, T3>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3>) a);
+			var result = includes.Aggregate(Set.AsQueryable(), (current, include) => current.Include(include));
+			if (result is Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3> aiq)
+			{
+				return new EntityIncludableQueryable<T, T3>(aiq);
+			}
+
+			// Try to find the internal includable queryable, not good but it is what we have to do...
+			var includableQueryType = (Type) typeof(EntityFrameworkQueryableExtensions)
+				.GetMembers(BindingFlags.Instance | BindingFlags.NonPublic)
+				.FirstOrDefault(x => x.Name == "IncludableQueryable`2");
+
+			// Check to ensure we found the type
+			if (includableQueryType == null)
+			{
+				throw new SpeedyException("Critical: Need to look into IncludableQueryable");
+			}
+
+			// Create an instance of the includable queryable so we can pass it to ThenInclude
+			var includableQueryTypeGeneric = includableQueryType.MakeGenericType(typeof(T), typeof(T3));
+			var instance = Activator.CreateInstance(includableQueryTypeGeneric, result);
+			return new EntityIncludableQueryable<T, T3>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3>) instance);
 		}
 
 		/// <summary>

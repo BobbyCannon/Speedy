@@ -51,6 +51,7 @@ namespace Speedy.EntityFramework
 			return _query.GetEnumerator();
 		}
 
+		/// <inheritdoc />
 		public IIncludableQueryable<T, TProperty> ProcessCollectionThenInclude<TPreviousProperty, TProperty>(Expression<Func<TPreviousProperty, TProperty>> include)
 		{
 			return typeof(IEnumerable<TPreviousProperty>).IsAssignableFrom(typeof(T2)) 

@@ -1,25 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>5.0.0</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
-    <PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
-    <RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/BobbyCannon/Speedy/blob/master/LICENSE.md</PackageLicenseUrl>
-    <Copyright>© Copyright 2014 - 2019</Copyright>
-    <Company>Bobby Cannon</Company>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Speedy\Speedy.csproj" />
-  </ItemGroup>
-
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<Configurations>Debug;Release</Configurations>
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>false</DelaySign>
+		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+		<AssemblyTitle>Speedy.EntityFramework</AssemblyTitle>
+		<Company>Bobby Cannon</Company>
+		<Product>Speedy.EntityFrameworkCore</Product>
+		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
+		<Copyright>© Copyright 2014 - 2019</Copyright>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<AssemblyVersion>5.0.0.0</AssemblyVersion>
+		<FileVersion>5.0.0.0</FileVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<OutputPath>bin\Debug\</OutputPath>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<DocumentationFile>bin\Debug\Speedy.EntityFrameworkCore.XML</DocumentationFile>
+		<Prefer32Bit>false</Prefer32Bit>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release\</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<Prefer32Bit>false</Prefer32Bit>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<ProjectGuid>{E50E2118-8A6F-4FA1-A446-7571F542B844}</ProjectGuid>
+		<OutputType>Library</OutputType>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<RootNamespace>Speedy.EntityFramework</RootNamespace>
+		<AssemblyName>Speedy.EntityFramework</AssemblyName>
+		<FileAlignment>512</FileAlignment>
+		<TargetFrameworkProfile />
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>false</DelaySign>
+		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
+		<PackageLicenseFile>License.txt</PackageLicenseFile>
+		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
+		<RepositoryType></RepositoryType>
+		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
+		<Version>5.0.0</Version>
+		<PackageId>Speedy.EntityFrameworkCore</PackageId>
+		<Authors>Bobby Cannon</Authors>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.4" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+	</ItemGroup>
 </Project>

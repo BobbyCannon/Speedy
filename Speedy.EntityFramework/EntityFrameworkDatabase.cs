@@ -352,8 +352,7 @@ namespace Speedy.EntityFramework
 				return;
 			}
 
-			var entity = entry.Entity as IEntity;
-			if (entity == null)
+			if (!(entry.Entity is IEntity entity))
 			{
 				return;
 			}
