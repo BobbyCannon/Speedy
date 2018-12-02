@@ -11,7 +11,7 @@ namespace Speedy.Exceptions
 	/// Represents an validation issue.
 	/// </summary>
 	[Serializable]
-	public class ValidationException : Exception
+	public class ValidationException : SpeedyException
 	{
 		#region Constructors
 

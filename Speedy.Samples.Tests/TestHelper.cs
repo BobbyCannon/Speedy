@@ -40,6 +40,7 @@ namespace Speedy.Samples.Tests
 		#region Properties
 
 		public static string DefaultConnection { get; }
+
 		public static string DefaultConnection2 { get; }
 
 		#endregion

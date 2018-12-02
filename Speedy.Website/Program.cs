@@ -13,7 +13,10 @@ namespace Speedy.Website
 
 		public static IWebHostBuilder CreateWebHostBuilder(string[] args)
 		{
-			return WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
+			return WebHost.CreateDefaultBuilder(args)
+				//.CaptureStartupErrors(true)
+				//.UseSetting("detailedErrors", "true")
+				.UseStartup<Startup>();
 		}
 
 		public static void Main(string[] args)

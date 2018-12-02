@@ -10,7 +10,7 @@
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy</Product>
 		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
-		<Copyright>© Copyright 2014 - 2018</Copyright>
+		<Copyright>© Copyright 2014 - 2019</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<AssemblyVersion>5.0.0.0</AssemblyVersion>
 		<FileVersion>5.0.0.0</FileVersion>
@@ -52,15 +52,14 @@
 		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseUrl>https://github.com/BobbyCannon/Speedy/blob/master/LICENSE.md</PackageLicenseUrl>
-		<RepositoryUrl></RepositoryUrl>
+		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
 		<Version>5.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.3" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />

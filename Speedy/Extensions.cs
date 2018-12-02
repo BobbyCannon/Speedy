@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Speedy.Storage;
 using Speedy.Sync;
 
@@ -117,7 +119,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="info"> The property information to get the generic arguments for. </param>
 		/// <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
-		/// <returns> The method informations with generice. </returns>
+		/// <returns> The method information with generics. </returns>
 		public static MethodInfo CachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
 		{
 			MethodInfo response;
@@ -408,7 +410,7 @@ namespace Speedy
 			var response = new JsonSerializerSettings();
 
 			response.Converters.Add(new IsoDateTimeConverter());
-			response.Converters.Add(new StringEnumConverter { CamelCaseText = camelCase });
+			response.Converters.Add(new StringEnumConverter { NamingStrategy = camelCase ? (NamingStrategy) new CamelCaseNamingStrategy() : new DefaultNamingStrategy() });
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 			response.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
@@ -611,6 +613,20 @@ namespace Speedy
 				newLocation.Refresh();
 				return !fileLocation.Exists && newLocation.Exists;
 			}, 1000, 10);
+		}
+
+		/// <summary>
+		/// Specifies additional related data to be further included based on a related type that was just included.
+		/// </summary>
+		/// <typeparam name="T"> The type of entity being queried. </typeparam>
+		/// <typeparam name="TPreviousProperty"> The type of the entity that was just included. </typeparam>
+		/// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
+		/// <param name="source"> The source query. </param>
+		/// <param name="include"> A lambda expression representing the navigation property to be included (<c> t =&gt; t.Property1 </c>). </param>
+		/// <returns> A new query with the related data included. </returns>
+		public static IIncludableQueryable<T, TProperty> ThenInclude<T, TPreviousProperty, TProperty>(this IIncludableQueryable<T, ICollection<TPreviousProperty>> source, Expression<Func<TPreviousProperty, TProperty>> include) where T : class
+		{
+			return source.ProcessCollectionThenInclude(include);
 		}
 
 		/// <summary>

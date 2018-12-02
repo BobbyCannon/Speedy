@@ -13,7 +13,7 @@ namespace Speedy.Exceptions
 	/// Represents a sync issue exception.
 	/// </summary>
 	[Serializable]
-	public class SyncIssueException : Exception
+	public class SyncIssueException : SpeedyException
 	{
 		#region Constructors
 

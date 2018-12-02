@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>5.0.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
+    <PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
+    <RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/BobbyCannon/Speedy/blob/master/LICENSE.md</PackageLicenseUrl>
+    <Copyright>© Copyright 2014 - 2019</Copyright>
+    <Company>Bobby Cannon</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Speedy\Speedy.csproj" />
+  </ItemGroup>
+
+</Project>

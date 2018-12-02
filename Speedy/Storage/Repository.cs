@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Speedy.Sync;
 
 #endregion
@@ -233,15 +231,15 @@ namespace Speedy.Storage
 		}
 
 		/// <inheritdoc />
-		public IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include)
+		public IIncludableQueryable<T,T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
-			return _query.Include(include);
+			return new IncludableQueryable<T,T3>(_query);
 		}
 
 		/// <inheritdoc />
-		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
+		public IIncludableQueryable<T,T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
 		{
-			return (IIncludableQueryable<T, T3>) includes.Aggregate(_query, (current, include) => current.Include(include));
+			return new IncludableQueryable<T,T3>(_query);
 		}
 
 		/// <summary>

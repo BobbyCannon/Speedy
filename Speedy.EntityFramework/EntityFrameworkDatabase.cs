@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Speedy.Exceptions;
 using Speedy.Sync;
 
 #endregion
@@ -305,6 +306,11 @@ namespace Speedy.EntityFramework
 		/// <param name="exception"> The exception that occurred when trying to save changes. </param>
 		protected virtual void ProcessException(Exception exception)
 		{
+			if (exception is DbUpdateException ue)
+			{
+				// Wrap in a Speedy exception for consistency
+				throw new UpdateException(ue.Message, ue);
+			}
 		}
 
 		/// <summary>

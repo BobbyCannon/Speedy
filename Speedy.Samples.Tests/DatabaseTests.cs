@@ -1,10 +1,12 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Exceptions;
 using Speedy.Samples.Entities;
 
 #endregion
@@ -64,11 +66,7 @@ namespace Speedy.Samples.Tests
 
 					using (var database = provider.GetDatabase())
 					{
-						var actual = EntityFrameworkQueryableExtensions.Include(database.Food, x => x.ChildRelationships)
-							.ThenInclude(x => x.Child)
-							.First(x => x.Name == food.Name);
-
-						actual = database.Food
+						var actual = database.Food
 							.Include(x => x.ChildRelationships)
 							.ThenInclude(x => x.Child)
 							.First(x => x.Name == food.Name);
@@ -717,7 +715,7 @@ namespace Speedy.Samples.Tests
 						database.Addresses.Remove(address);
 
 						// ReSharper disable once AccessToDisposedClosure
-						TestHelper.ExpectedException<DbUpdateException>(() => database.SaveChanges(), "The DELETE statement conflicted with the REFERENCE constraint");
+						TestHelper.ExpectedException<UpdateException>(() => database.SaveChanges(), "The DELETE statement conflicted with the REFERENCE constraint");
 					}
 				});
 		}

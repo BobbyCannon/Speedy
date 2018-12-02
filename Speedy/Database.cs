@@ -7,8 +7,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Speedy.Configuration;
+using Speedy.Exceptions;
 using Speedy.Storage;
 using Speedy.Sync;
 
@@ -474,7 +474,7 @@ namespace Speedy
 				}
 
 				var message = "The DELETE statement conflicted with the REFERENCE constraint.";
-				throw new DbUpdateException(message, new InvalidOperationException());
+				throw new UpdateException(message, new InvalidOperationException());
 			}
 		}
 
