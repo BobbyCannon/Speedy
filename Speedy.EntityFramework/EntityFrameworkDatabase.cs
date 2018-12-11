@@ -245,13 +245,13 @@ namespace Speedy.EntityFramework
 			{
 				ChangeTracker.Entries().ToList().ForEach(ProcessEntity);
 
-				// The local relationships may have changed. We need keep our sync IDs in sync with 
-				// any relationships that may have changed.
-				ChangeTracker.Entries().ForEach(x => (x.Entity as SyncEntity)?.UpdateLocalSyncIds());
+				// The local relationships may have changed. We need keep our sync IDs in sync with any relationships that may have changed.
+				ChangeTracker.Entries().ToList().ForEach(x => (x.Entity as SyncEntity)?.UpdateLocalSyncIds());
 
 				var response = base.SaveChanges();
-
-				if (ChangeTracker.Entries().Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged))
+				var needsMoreSaving = ChangeTracker.Entries().Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged);
+				
+				if (needsMoreSaving)
 				{
 					response += SaveChanges();
 				}
