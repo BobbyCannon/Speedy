@@ -233,10 +233,9 @@ namespace Speedy.Samples.Tests
 
 		private static IDatabaseProvider<IContosoDatabase> GetEntityFrameworkProvider()
 		{
-			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(DefaultConnection).Options;
-
-			using (var database = new ContosoDatabase(options))
+			using (var database = ContosoDatabase.UseSql(DefaultConnection))
 			{
+				database.Database.Migrate();
 				database.ClearDatabase();
 				return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(database.DbContextOptions, x));
 			}
@@ -251,6 +250,7 @@ namespace Speedy.Samples.Tests
 
 		private static IEnumerable<Tuple<ISyncClient, ISyncClient>> GetServerClientScenarios()
 		{
+			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetSyncableEntityFrameworkProvider2()));
 			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (EF)", GetSyncableEntityFrameworkProvider()));
 			//yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new WebSyncClient("Client (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"));
 			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
@@ -260,10 +260,9 @@ namespace Speedy.Samples.Tests
 
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider()
 		{
-			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(DefaultConnection).Options;
-
-			using (var database = new ContosoDatabase(options))
+			using (var database = ContosoDatabase.UseSql(DefaultConnection))
 			{
+				database.Database.Migrate();
 				database.ClearDatabase();
 				return new SyncDatabaseProvider(x => new ContosoDatabase(database.DbContextOptions, x));
 			}
@@ -271,12 +270,11 @@ namespace Speedy.Samples.Tests
 
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2()
 		{
-			var options = new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(DefaultConnection2).Options;
-
-			using (var database = new ContosoDatabase(options))
+			using (var database = ContosoDatabase.UseSql(DefaultConnection2))
 			{
+				database.Database.Migrate();
 				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoDatabase(options, x));
+				return new SyncDatabaseProvider(x => new ContosoDatabase(database.DbContextOptions, x));
 			}
 		}
 

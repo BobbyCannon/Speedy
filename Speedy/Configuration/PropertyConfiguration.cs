@@ -85,7 +85,7 @@ namespace Speedy.Configuration
 		/// <returns> The configuration after updated. </returns>
 		public PropertyConfiguration<T, T2> IsOptional()
 		{
-			_isNullable = true;
+			IsRequired(false);
 			return this;
 		}
 
@@ -93,9 +93,9 @@ namespace Speedy.Configuration
 		/// Marks the property as a required member.
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T, T2> IsRequired()
+		public PropertyConfiguration<T, T2> IsRequired(bool required = true)
 		{
-			_isNullable = false;
+			_isNullable = !required;
 			return this;
 		}
 
@@ -116,8 +116,7 @@ namespace Speedy.Configuration
 		/// <param name="repository"> The repository of entities. </param>
 		public void Validate(object entity, IQueryable repository)
 		{
-			var typedEntity = entity as T;
-			if (typedEntity == null)
+			if (!(entity is T typedEntity))
 			{
 				throw new ArgumentNullException(nameof(typedEntity));
 			}

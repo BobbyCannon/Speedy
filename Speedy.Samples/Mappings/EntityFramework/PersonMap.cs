@@ -21,14 +21,14 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.HasKey(x => x.Id);
 
 			b.Property(x => x.AddressId).HasColumnName("AddressId").HasColumnType("int").IsRequired();
-			b.Property(x => x.AddressSyncId).HasColumnName("AddressSyncId").HasColumnType("uniqueidentifier").IsRequired();
+			b.Property(x => x.AddressSyncId).HasColumnName("AddressSyncId").IsRequired();
 			b.Property(x => x.BillingAddressId).HasColumnName("BillingAddressId").HasColumnType("int").IsRequired(false);
-			b.Property(x => x.BillingAddressSyncId).HasColumnName("BillingAddressSyncId").HasColumnType("uniqueidentifier").IsRequired(false);
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
+			b.Property(x => x.BillingAddressSyncId).HasColumnName("BillingAddressSyncId").IsRequired(false);
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired();
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.Name).HasColumnName("Name").HasColumnType("nvarchar(256)").IsRequired();
-			b.Property(x => x.SyncId).HasColumnName("SyncId").HasColumnType("uniqueidentifier").IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
+			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
+			b.Property(x => x.SyncId).HasColumnName("SyncId").IsRequired();
 
 			b.HasIndex(x => x.AddressId).HasName("IX_AddressId");
 			b.HasIndex(x => x.BillingAddressId).HasName("IX_BillingAddressId");

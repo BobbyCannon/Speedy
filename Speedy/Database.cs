@@ -347,7 +347,7 @@ namespace Speedy
 			processed.Add(entity);
 
 			UpdateDependantIds(entity, properties, processed);
-			UpdateDependantCollectionIds(entity, properties, processed);
+			UpdateDependentCollectionIds(entity, properties, processed);
 		}
 
 		private static void AssignNewValue<T1, T2>(T1 obj, Expression<Func<T1, T2>> expression, T2 value)
@@ -519,7 +519,7 @@ namespace Speedy
 			return repository;
 		}
 
-		private void UpdateDependantCollectionIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
+		private void UpdateDependentCollectionIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
 		{
 			var enumerableType = typeof(IEnumerable);
 			var collectionRelationships = properties
@@ -530,8 +530,7 @@ namespace Speedy
 
 			foreach (var relationship in collectionRelationships)
 			{
-				var currentCollection = relationship.GetValue(entity, null) as IEnumerable<IEntity>;
-				if (currentCollection == null)
+				if (!(relationship.GetValue(entity, null) is IEnumerable<IEntity> currentCollection))
 				{
 					continue;
 				}
@@ -558,8 +557,7 @@ namespace Speedy
 
 			foreach (var entityRelationship in entityRelationships)
 			{
-				var expectedEntity = entityRelationship.GetValue(entity, null) as IEntity;
-				if (expectedEntity == null)
+				if (!(entityRelationship.GetValue(entity, null) is IEntity expectedEntity))
 				{
 					continue;
 				}
@@ -710,10 +708,9 @@ namespace Speedy
 						entityRelationshipIdProperty.SetValue(entity, otherId, null);
 					}
 
-					var syncEntity = entityRelationship.GetValue(entity, null) as SyncEntity;
 					var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
 
-					if (syncEntity != null && entityRelationshipSyncIdProperty != null)
+					if (entityRelationship.GetValue(entity, null) is SyncEntity syncEntity && entityRelationshipSyncIdProperty != null)
 					{
 						var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(entity, null);
 						if (otherEntitySyncId != syncEntity.SyncId)

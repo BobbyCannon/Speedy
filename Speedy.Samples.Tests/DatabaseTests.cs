@@ -1,10 +1,8 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Exceptions;
 using Speedy.Samples.Entities;
@@ -416,7 +414,7 @@ namespace Speedy.Samples.Tests
 
 					using (var database = provider.GetDatabase())
 					{
-						var actual = database.LogEvents.First();
+						var actual = database.LogEvents.ToList().First().Unwrap<LogEvent>();
 						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
 					}
 				});
@@ -495,6 +493,52 @@ namespace Speedy.Samples.Tests
 				}
 			});
 		}
+		
+		[TestMethod]
+		public void QueryUsingIncluding()
+		{
+			var providers = TestHelper.GetDataContextProviders().ToList();
+
+			providers.ForEach(provider =>
+			{
+				using (var database = provider.GetDatabase())
+				{
+					Console.WriteLine(database.GetType().Name);
+
+					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					address.People.Add(new Person { Name = "John Doe", Address = address });
+					database.Addresses.Add(address);
+
+					var address2 = new Address { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+					database.Addresses.Add(address2);
+					address2.People.Add(new Person { Name = "Jane Doe", Address = address2 });
+
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
+
+					database.SaveChanges();
+
+					Assert.AreEqual(2, database.Addresses.Count());
+					Assert.AreEqual(2, database.People.Count());
+					Assert.AreEqual(1, database.Addresses.First().People.Count);
+				}
+			});
+
+			providers.ForEach(provider =>
+			{
+				using (var database = provider.GetDatabase())
+				{
+					Console.WriteLine(database.GetType().Name);
+
+					var person = database.People
+						.Including(x => x.Address, x => x.Groups)
+						.First(x => x.Name == "John Doe");
+
+					Assert.IsTrue(person.Address != null);
+					Assert.IsTrue(person.Groups != null);
+				}
+			});
+		}
 
 		[TestMethod]
 		public void QueryUsingRecursiveRelationshipsUsingExtensionMethods()
@@ -529,6 +573,54 @@ namespace Speedy.Samples.Tests
 						Assert.IsNotNull(address);
 					}
 				});
+		}
+
+		[TestMethod]
+		public void QueryUsingThenInclude()
+		{
+			var providers = TestHelper.GetDataContextProviders().ToList();
+
+			providers.ForEach(provider =>
+			{
+				using (var database = provider.GetDatabase())
+				{
+					Console.WriteLine(database.GetType().Name);
+
+					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var person = new Person { Name = "John Doe", Address = address };
+					person.Groups.Add(new GroupMember { Group = new Group { Name = "Group", Description = "Description" }, Role = "Role" });
+					address.People.Add(person);
+					database.Addresses.Add(address);
+
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
+					Assert.AreEqual(0, database.People.Count());
+
+					database.SaveChanges();
+
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(1, database.People.Count());
+					Assert.AreEqual(1, database.Groups.Count());
+					Assert.AreEqual(1, database.GroupMembers.Count());
+				}
+			});
+
+			providers.ForEach(provider =>
+			{
+				using (var database = provider.GetDatabase())
+				{
+					Console.WriteLine(database.GetType().Name);
+
+					var person = database.People
+						.Include(x => x.Groups)
+						.ThenInclude(x => x.Group)
+						.First(x => x.Name == "John Doe");
+
+					Assert.IsTrue(person.Groups != null);
+					Assert.IsTrue(person.Groups.First().Group != null);
+					Assert.AreEqual("Group", person.Groups.First().Group.Name);
+				}
+			});
 		}
 
 		[TestMethod]

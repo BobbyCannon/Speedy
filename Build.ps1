@@ -34,7 +34,7 @@ try
 	# $newVersion = .\IncrementVersion.ps1 -Build +
 	$newVersion = .\IncrementVersion.ps1 -Major 5 -Minor 0 -Build 0
 	$nugetVersion = ([Version] $newVersion).ToString(3)
-	#$nugetVersion = "$nugetVersion-RC11"
+	# $nugetVersion = "$nugetVersion-RC11"
 
 	$projectFiles = "$scriptPath\Speedy\Speedy.csproj", "$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj"
 
@@ -45,7 +45,7 @@ try
 		$fileXml.Project.PropertyGroup[3].Version = $nugetVersion
 		Set-Content -Path $filePath -Value (Format-Xml $fileXml.OuterXml) -Encoding UTF8
 	}
-	
+
 	& nuget.exe restore "$scriptPath\$productName.sln"
 
 	$msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe"
@@ -59,15 +59,15 @@ try
 
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.dll" "$destination\bin\"
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.pdb" "$destination\bin\"
-	
+
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination\"
-	
+
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination2\"
-	
+
 	$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
-	
+
 	if ($versionInfo.FileVersion.ToString() -ne $newVersion)
 	{
 		Write-Error "The new version $($versionInfo.FileVersion.ToString()) does not match the expected version ($newVersion)"

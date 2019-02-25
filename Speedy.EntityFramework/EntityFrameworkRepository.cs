@@ -111,7 +111,17 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <param name="include"> The related entities to include. </param>
 		/// <returns> The results of the query including the related entities. </returns>
-		public IIncludableQueryable<T,T3> Include<T3>(Expression<Func<T, T3>> include)
+		public IIncludableQueryable<T, object> Include(Expression<Func<T, object>> include)
+		{
+			return Including(include);
+		}
+
+		/// <summary>
+		/// Configures the query to include related entities in the results.
+		/// </summary>
+		/// <param name="include"> The related entities to include. </param>
+		/// <returns> The results of the query including the related entities. </returns>
+		public IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
 			return Including(include);
 		}
@@ -121,7 +131,17 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <param name="includes"> The related entities to include. </param>
 		/// <returns> The results of the query including the related entities. </returns>
-		public IIncludableQueryable<T,T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
+		public IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes)
+		{
+			return Including<object>(includes);
+		}
+
+		/// <summary>
+		/// Configures the query to include multiple related entities in the results.
+		/// </summary>
+		/// <param name="includes"> The related entities to include. </param>
+		/// <returns> The results of the query including the related entities. </returns>
+		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
 		{
 			var result = includes.Aggregate(Set.AsQueryable(), (current, include) => current.Include(include));
 			if (result is Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3> aiq)

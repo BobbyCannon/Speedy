@@ -20,11 +20,11 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.ToTable("Groups", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.Description).HasColumnName("Description").HasColumnType("nvarchar(4000)").IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
+			b.Property(x => x.Description).HasColumnName("Description").HasMaxLength(4000).IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired();
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.Name).HasColumnName("Name").HasColumnType("nvarchar(256)").IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
+			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
 		}
 
 		#endregion

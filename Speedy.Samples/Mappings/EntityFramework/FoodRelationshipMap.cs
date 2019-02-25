@@ -21,9 +21,9 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.HasKey(x => x.Id);
 
 			b.Property(x => x.ChildId).HasColumnName("ChildId").HasColumnType("int").IsRequired();
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired();
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.ParentId).HasColumnName("ParentId").HasColumnType("int").IsRequired();
 			b.Property(x => x.Quantity).HasColumnName("Quantity").HasColumnType("decimal").IsRequired();
 

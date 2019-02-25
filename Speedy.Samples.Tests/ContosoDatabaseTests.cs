@@ -3,6 +3,7 @@
 using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.EntityFramework;
 using Speedy.Samples.Tests.EntityFactories;
 
 #endregion
@@ -155,7 +156,7 @@ namespace Speedy.Samples.Tests
 
 		private static DbContextOptions<ContosoDatabase> GetOptions()
 		{
-			return new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(TestHelper.DefaultConnection).Options;
+			return new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(TestHelper.DefaultConnection, EntityFrameworkDatabase.UpdateOptions).Options;
 		}
 
 		#endregion

@@ -20,14 +20,14 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.ToTable("GroupMembers", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.GroupId).HasColumnName("GroupId").HasColumnType("int").IsRequired();
-			b.Property(x => x.GroupSyncId).HasColumnName("GroupSyncId").HasColumnType("uniqueidentifier").IsRequired();
+			b.Property(x => x.GroupSyncId).HasColumnName("GroupSyncId").IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired();
 			b.Property(x => x.MemberId).HasColumnName("MemberId").HasColumnType("int").IsRequired();
-			b.Property(x => x.MemberSyncId).HasColumnName("MemberSyncId").HasColumnType("uniqueidentifier").IsRequired();
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.Role).HasColumnName("Role").HasColumnType("nvarchar(4000)").IsRequired();
+			b.Property(x => x.MemberSyncId).HasColumnName("MemberSyncId").IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
+			b.Property(x => x.Role).HasColumnName("Role").HasMaxLength(4000).IsRequired();
 
 			b.HasIndex(x => x.GroupId).HasName("IX_GroupId");
 			b.HasIndex(x => x.MemberId).HasName("IX_MemberId");

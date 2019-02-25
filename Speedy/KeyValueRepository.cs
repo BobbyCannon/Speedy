@@ -504,7 +504,7 @@ namespace Speedy
 			var response = Read(new HashSet<string> { key }).FirstOrDefault();
 			if (response.Key != key)
 			{
-				value = default(T);
+				value = default;
 				return false;
 			}
 

@@ -102,24 +102,28 @@ namespace Speedy.EntityFramework
 			return _query.GetEnumerator();
 		}
 
-		/// <summary>
-		/// Configures the query to include related entities in the results.
-		/// </summary>
-		/// <param name="include"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
-		public IIncludableQueryable<T,T3> Include<T3>(Expression<Func<T, T3>> include)
+		/// <inheritdoc />
+		public IIncludableQueryable<T, object> Include(Expression<Func<T, object>> include)
 		{
-			return new EntityIncludableQueryable<T,T3>(_query.Include(include));
+			throw new NotImplementedException();
 		}
 
-		/// <summary>
-		/// Configures the query to include multiple related entities in the results.
-		/// </summary>
-		/// <param name="includes"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
-		public IIncludableQueryable<T,T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
+		/// <inheritdoc />
+		public IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
-			return new EntityIncludableQueryable<T,T3>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3>) includes.Aggregate(_query, (current, include) => current.Include(include)));
+			return new EntityIncludableQueryable<T, T3>(_query.Include(include));
+		}
+
+		/// <inheritdoc />
+		public IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes)
+		{
+			return new EntityIncludableQueryable<T, object>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, object>) includes.Aggregate(_query, (current, include) => current.Include(include)));
+		}
+
+		/// <inheritdoc />
+		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
+		{
+			return new EntityIncludableQueryable<T, T3>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3>) includes.Aggregate(_query, (current, include) => current.Include(include)));
 		}
 
 		/// <summary>

@@ -20,17 +20,17 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.ToTable("Addresses", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.City).HasColumnName("City").HasColumnType("nvarchar(256)").IsRequired();
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
+			b.Property(x => x.City).HasColumnName("City").HasMaxLength(256).IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired();
-			b.Property(x => x.Line1).HasColumnName("Line1").HasColumnType("nvarchar(256)").IsRequired();
-			b.Property(x => x.Line2).HasColumnName("Line2").HasColumnType("nvarchar(256)").IsRequired();
+			b.Property(x => x.Line1).HasColumnName("Line1").HasMaxLength(256).IsRequired();
+			b.Property(x => x.Line2).HasColumnName("Line2").HasMaxLength(256).IsRequired();
 			b.Property(x => x.LinkedAddressId).HasColumnName("LinkedAddressId").HasColumnType("int").IsRequired(false);
-			b.Property(x => x.LinkedAddressSyncId).HasColumnName("LinkedAddressSyncId").HasColumnType("uniqueidentifier").IsRequired(false);
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.Postal).HasColumnName("Postal").HasColumnType("nvarchar(128)").IsRequired();
-			b.Property(x => x.State).HasColumnName("State").HasColumnType("nvarchar(128)").IsRequired();
-			b.Property(x => x.SyncId).HasColumnName("SyncId").HasColumnType("uniqueidentifier").IsRequired();
+			b.Property(x => x.LinkedAddressSyncId).HasColumnName("LinkedAddressSyncId").IsRequired(false);
+			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
+			b.Property(x => x.Postal).HasColumnName("Postal").HasMaxLength(128).IsRequired();
+			b.Property(x => x.State).HasColumnName("State").HasMaxLength(128).IsRequired();
+			b.Property(x => x.SyncId).HasColumnName("SyncId").IsRequired();
 
 			b.HasIndex(x => x.LinkedAddressId).HasName("IX_LinkedAddressId");
 			b.HasIndex(x => x.SyncId).HasName("IX_SyncId").IsUnique();

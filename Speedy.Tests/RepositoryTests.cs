@@ -936,8 +936,7 @@ namespace Speedy.Tests
 		{
 			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
 			{
-				string value;
-				var actual = repository.TryRead("Blah", out value);
+				var actual = repository.TryRead("Blah", out var value);
 				Assert.AreEqual(false, actual);
 				Assert.AreEqual(null, value);
 			}
@@ -951,8 +950,7 @@ namespace Speedy.Tests
 				repository.Write("Blah", "Value");
 				repository.Save();
 
-				string value;
-				var actual = repository.TryRead("Blah", out value);
+				var actual = repository.TryRead("Blah", out var value);
 				Assert.AreEqual(true, actual);
 				Assert.AreEqual("Value", value);
 			}

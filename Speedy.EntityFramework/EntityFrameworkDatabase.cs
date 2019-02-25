@@ -3,13 +3,16 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Speedy.Exceptions;
 using Speedy.Sync;
+using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 #endregion
 
@@ -243,6 +246,8 @@ namespace Speedy.EntityFramework
 
 			try
 			{
+				Validate();
+
 				ChangeTracker.Entries().ToList().ForEach(ProcessEntity);
 
 				// The local relationships may have changed. We need keep our sync IDs in sync with any relationships that may have changed.
@@ -250,7 +255,7 @@ namespace Speedy.EntityFramework
 
 				var response = base.SaveChanges();
 				var needsMoreSaving = ChangeTracker.Entries().Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged);
-				
+
 				if (needsMoreSaving)
 				{
 					response += SaveChanges();
@@ -267,6 +272,15 @@ namespace Speedy.EntityFramework
 			{
 				_saveChangeCount = 0;
 			}
+		}
+
+		/// <summary>
+		/// Update the options for default Speedy values. Ex. Migration History will be [system].[MigrationHistory] instead of [dbo].[__EFMigrationsHistory].
+		/// </summary>
+		/// <param name="builder"> The builder to set the options on. </param>
+		public static void UpdateOptions(SqlServerDbContextOptionsBuilder builder)
+		{
+			builder.MigrationsHistoryTable("MigrationHistory", "system");
 		}
 
 		/// <summary>
@@ -297,6 +311,8 @@ namespace Speedy.EntityFramework
 				config.Map(modelBuilder);
 			}
 
+			ProcessModelTypes(modelBuilder);
+
 			base.OnModelCreating(modelBuilder);
 		}
 
@@ -306,10 +322,51 @@ namespace Speedy.EntityFramework
 		/// <param name="exception"> The exception that occurred when trying to save changes. </param>
 		protected virtual void ProcessException(Exception exception)
 		{
-			if (exception is DbUpdateException ue)
+			switch (exception)
 			{
-				// Wrap in a Speedy exception for consistency
-				throw new UpdateException(ue.Message, ue);
+				case ValidationException ve:
+					throw new Exceptions.ValidationException(ve.Message);
+
+				case DbUpdateException ue:
+					// Wrap in a Speedy exception for consistency
+					throw new UpdateException(ue.Message, ue);
+			}
+		}
+
+		/// <summary>
+		/// Processes the model builder for the Speedy default types.
+		/// </summary>
+		/// <remarks>
+		/// DateTime values will default to "datetime2".
+		/// Guid values default to "uniqueidentifier" type.
+		/// Strings default to non-unicode.
+		/// </remarks>
+		/// <param name="modelBuilder"> </param>
+		protected virtual void ProcessModelTypes(ModelBuilder modelBuilder)
+		{
+			foreach (var entity in modelBuilder.Model.GetEntityTypes())
+			{
+				var properties = entity.GetProperties();
+
+				foreach (var p in properties)
+				{
+					switch (p.ClrType)
+					{
+						case Type _ when p.ClrType == typeof(DateTime):
+						case Type _ when p.ClrType == typeof(DateTime?):
+							p.Relational().ColumnType = "datetime2";
+							break;
+
+						case Type _ when p.ClrType == typeof(Guid):
+						case Type _ when p.ClrType == typeof(Guid?):
+							p.Relational().ColumnType = "uniqueidentifier";
+							break;
+
+						case Type _ when p.ClrType == typeof(string):
+							p.IsUnicode(false);
+							break;
+					}
+				}
 			}
 		}
 
@@ -429,6 +486,23 @@ namespace Speedy.EntityFramework
 
 					entity.EntityDeleted();
 					break;
+			}
+		}
+
+		/// <summary>
+		/// Validate entities before saving.
+		/// </summary>
+		private void Validate()
+		{
+			var entities = ChangeTracker.Entries()
+				.Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+				.Select(e => e.Entity)
+				.ToList();
+
+			foreach (var entity in entities)
+			{
+				var validationContext = new ValidationContext(entity);
+				Validator.ValidateObject(entity, validationContext, true);
 			}
 		}
 

@@ -20,11 +20,11 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.ToTable("SyncTombstones", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("bigint").IsRequired();
-			b.Property(x => x.ReferenceId).HasColumnName("ReferenceId").HasColumnType("nvarchar(128)").IsRequired();
-			b.Property(x => x.SyncId).HasColumnName("SyncId").HasColumnType("uniqueidentifier").IsRequired();
-			b.Property(x => x.TypeName).HasColumnName("TypeName").HasColumnType("nvarchar(768)").IsRequired();
+			b.Property(x => x.ReferenceId).HasColumnName("ReferenceId").HasMaxLength(128).IsRequired();
+			b.Property(x => x.SyncId).HasColumnName("SyncId").IsRequired();
+			b.Property(x => x.TypeName).HasColumnName("TypeName").HasMaxLength(768).IsRequired();
 
 			b.HasIndex(x => x.CreatedOn).HasName("IX_CreatedOn");
 			b.HasIndex(x => new { x.TypeName, x.ReferenceId }).HasName("IX_SyncTombstones_TypeName_ReferenceId");

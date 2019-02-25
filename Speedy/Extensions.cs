@@ -384,8 +384,8 @@ namespace Speedy
 		public static Type GetRealType(this object item)
 		{
 			var type = item.GetType();
-			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies");
-			return isProxy == true ? type.BaseType : type;
+			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true || type.FullName?.Contains("Castle.Proxies") == true;
+			return isProxy ? type.BaseType : type;
 		}
 
 		/// <summary>
@@ -673,7 +673,7 @@ namespace Speedy
 		/// </summary>
 		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
 		/// <param name="item"> The object to serialize. </param>
-		/// <param name="settings"> The settigs to use during serialization. </param>
+		/// <param name="settings"> The settings to use during serialization. </param>
 		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
 		public static string ToJson<T>(this T item, JsonSerializerSettings settings, bool indented = false)
@@ -702,7 +702,7 @@ namespace Speedy
 		/// <returns> The result of the action or default(T). </returns>
 		public static T UpdateIf<T>(this object item, Func<bool> test, Func<T> action)
 		{
-			return test() ? action() : default(T);
+			return test() ? action() : default;
 		}
 
 		/// <summary>
@@ -734,16 +734,6 @@ namespace Speedy
 			}
 
 			return true;
-		}
-
-		internal static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
-		{
-			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
-
-			if (ex.InnerException != null)
-			{
-				AddExceptionToBuilder(builder, ex.InnerException);
-			}
 		}
 
 		internal static FileStream CopyToAndOpen(this FileStream from, FileInfo to, int timeout)
@@ -832,6 +822,16 @@ namespace Speedy
 		internal static Task Wrap(Action action)
 		{
 			return Task.Factory.StartNew(action);
+		}
+
+		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
+		{
+			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
+
+			if (ex.InnerException != null)
+			{
+				AddExceptionToBuilder(builder, ex.InnerException);
+			}
 		}
 
 		#endregion

@@ -16,9 +16,11 @@ namespace Speedy.EntityFramework
 		public abstract void Map(EntityTypeBuilder<T> builder);
 
 		/// <inheritdoc />
-		public void Map(ModelBuilder builder)
+		public object Map(ModelBuilder builder)
 		{
-			Map(builder.Entity<T>());
+			var entity = builder.Entity<T>();
+			Map(entity);
+			return entity;
 		}
 
 		#endregion

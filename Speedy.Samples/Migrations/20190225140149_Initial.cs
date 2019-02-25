@@ -65,18 +65,18 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
+					Id = table.Column<int>("int", nullable: false)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
 					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
 					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
 					SyncId = table.Column<Guid>("uniqueidentifier", nullable: false),
-					City = table.Column<string>("nvarchar(256)", nullable: false),
-					Id = table.Column<int>("int", nullable: false)
-						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-					Line1 = table.Column<string>("nvarchar(256)", nullable: false),
-					Line2 = table.Column<string>("nvarchar(256)", nullable: false),
+					City = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+					Line1 = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+					Line2 = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
 					LinkedAddressId = table.Column<int>("int", nullable: true),
 					LinkedAddressSyncId = table.Column<Guid>("uniqueidentifier", nullable: true),
-					Postal = table.Column<string>("nvarchar(128)", nullable: false),
-					State = table.Column<string>("nvarchar(128)", nullable: false)
+					Postal = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+					State = table.Column<string>(unicode: false, maxLength: 128, nullable: false)
 				},
 				constraints: table =>
 				{
@@ -95,11 +95,11 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
-					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
-					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
 					Id = table.Column<int>("int", nullable: false)
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-					Name = table.Column<string>("nvarchar(256)", nullable: false)
+					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
+					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
+					Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false)
 				},
 				constraints: table => { table.PrimaryKey("PK_Foods", x => x.Id); });
 
@@ -108,12 +108,12 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
-					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
-					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
-					Description = table.Column<string>("nvarchar(4000)", nullable: false),
 					Id = table.Column<int>("int", nullable: false)
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-					Name = table.Column<string>("nvarchar(256)", nullable: false)
+					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
+					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
+					Description = table.Column<string>(unicode: false, maxLength: 4000, nullable: false),
+					Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false)
 				},
 				constraints: table => { table.PrimaryKey("PK_Groups", x => x.Id); });
 
@@ -122,9 +122,9 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
+					Id = table.Column<string>(unicode: false, maxLength: 250, nullable: false),
 					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
-					Id = table.Column<string>("nvarchar(250)", nullable: false),
-					Message = table.Column<string>("nvarchar(4000)", nullable: true)
+					Message = table.Column<string>(unicode: false, nullable: true)
 				},
 				constraints: table => { table.PrimaryKey("PK_LogEvents", x => x.Id); });
 
@@ -133,8 +133,8 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
-					PetTypeId = table.Column<string>("nvarchar(25)", nullable: false),
-					Type = table.Column<string>("nvarchar(200)", nullable: true)
+					PetTypeId = table.Column<string>(unicode: false, maxLength: 25, nullable: false),
+					Type = table.Column<string>(unicode: false, maxLength: 200, nullable: true)
 				},
 				constraints: table => { table.PrimaryKey("PK_PetType", x => x.PetTypeId); });
 
@@ -143,12 +143,12 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
-					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
 					Id = table.Column<long>("bigint", nullable: false)
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-					ReferenceId = table.Column<string>("nvarchar(128)", nullable: false),
+					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
+					ReferenceId = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
 					SyncId = table.Column<Guid>("uniqueidentifier", nullable: false),
-					TypeName = table.Column<string>("nvarchar(768)", nullable: false)
+					TypeName = table.Column<string>(unicode: false, maxLength: 768, nullable: false)
 				},
 				constraints: table => { table.PrimaryKey("PK_SyncTombstones", x => x.Id); });
 
@@ -157,6 +157,8 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
+					Id = table.Column<int>("int", nullable: false)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
 					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
 					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
 					SyncId = table.Column<Guid>("uniqueidentifier", nullable: false),
@@ -164,9 +166,7 @@ namespace Speedy.Samples.Migrations
 					AddressSyncId = table.Column<Guid>("uniqueidentifier", nullable: false),
 					BillingAddressId = table.Column<int>("int", nullable: true),
 					BillingAddressSyncId = table.Column<Guid>("uniqueidentifier", nullable: true),
-					Id = table.Column<int>("int", nullable: false)
-						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-					Name = table.Column<string>("nvarchar(256)", nullable: false)
+					Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false)
 				},
 				constraints: table =>
 				{
@@ -192,11 +192,11 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
+					Id = table.Column<int>("int", nullable: false)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
 					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
 					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
 					ChildId = table.Column<int>("int", nullable: false),
-					Id = table.Column<int>("int", nullable: false)
-						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
 					ParentId = table.Column<int>("int", nullable: false),
 					Quantity = table.Column<decimal>("decimal", nullable: false)
 				},
@@ -224,15 +224,15 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
+					Id = table.Column<int>("int", nullable: false)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
 					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
 					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
 					GroupId = table.Column<int>("int", nullable: false),
 					GroupSyncId = table.Column<Guid>("uniqueidentifier", nullable: false),
-					Id = table.Column<int>("int", nullable: false)
-						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
 					MemberId = table.Column<int>("int", nullable: false),
 					MemberSyncId = table.Column<Guid>("uniqueidentifier", nullable: false),
-					Role = table.Column<string>("nvarchar(4000)", nullable: false)
+					Role = table.Column<string>(unicode: false, maxLength: 4000, nullable: false)
 				},
 				constraints: table =>
 				{
@@ -258,11 +258,11 @@ namespace Speedy.Samples.Migrations
 				schema: "dbo",
 				columns: table => new
 				{
+					Name = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+					OwnerId = table.Column<int>("int", nullable: false),
 					CreatedOn = table.Column<DateTime>("datetime2", nullable: false),
 					ModifiedOn = table.Column<DateTime>("datetime2", nullable: false),
-					Name = table.Column<string>("nvarchar(128)", nullable: false),
-					OwnerId = table.Column<int>("int", nullable: false),
-					TypeId = table.Column<string>("nvarchar(25)", nullable: false)
+					TypeId = table.Column<string>(unicode: false, maxLength: 25, nullable: false)
 				},
 				constraints: table =>
 				{

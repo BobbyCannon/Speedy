@@ -20,11 +20,11 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.ToTable("Pets", "dbo");
 			b.HasKey(x => new { x.Name, x.OwnerId });
 
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.Name).HasColumnName("Name").HasColumnType("nvarchar(128)").IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
+			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(128).IsRequired();
 			b.Property(x => x.OwnerId).HasColumnName("OwnerId").HasColumnType("int").IsRequired();
-			b.Property(x => x.TypeId).HasColumnName("TypeId").HasColumnType("nvarchar(25)").IsRequired();
+			b.Property(x => x.TypeId).HasColumnName("TypeId").HasMaxLength(25).IsRequired();
 			b.Ignore(x => x.Id);
 
 			b.HasIndex(x => x.OwnerId).HasName("IX_OwnerId");

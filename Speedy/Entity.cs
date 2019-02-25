@@ -9,7 +9,7 @@
 		#region Properties
 
 		/// <summary>
-		/// Gets or sets the ID of the enitity.
+		/// Gets or sets the ID of the entity.
 		/// </summary>
 		public abstract T Id { get; set; }
 
@@ -45,7 +45,7 @@
 		/// <returns> The new key to be used in. </returns>
 		public virtual T NewId(ref T currentKey)
 		{
-			return default(T);
+			return default;
 		}
 
 		/// <inheritdoc />
@@ -60,6 +60,30 @@
 			{
 				return false;
 			}
+		}
+
+		/// <summary>
+		/// Unwrap the entity from the proxy as a specific type.
+		/// </summary>
+		/// <returns>
+		/// The real entity unwrapped from the Entity Framework proxy.
+		/// </returns>
+		public T1 Unwrap<T1>()
+		{
+			return (T1) Unwrap();
+		}
+		
+		/// <summary>
+		/// Unwrap the entity from the proxy.
+		/// </summary>
+		/// <returns>
+		/// The real entity unwrapped from the Entity Framework proxy.
+		/// </returns>
+		public object Unwrap()
+		{
+			var json = this.ToJson(ignoreVirtuals: true);
+			var type = this.GetRealType();
+			return json.FromJson(type);
 		}
 
 		#endregion

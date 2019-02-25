@@ -1,5 +1,6 @@
 #region References
 
+using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
@@ -41,6 +42,27 @@ namespace Speedy.Samples
 		public IRepository<Person, int> People => GetSyncableRepository<Person>();
 		public IRepository<Pet, Pet.PetKey> Pets => GetRepository<Pet, Pet.PetKey>();
 		public IRepository<PetType, string> PetTypes => GetRepository<PetType, string>();
+
+		#endregion
+
+		#region Methods
+
+		public static ContosoDatabase UseSql(string connectionString)
+		{
+			var builder = new DbContextOptionsBuilder<ContosoDatabase>();
+			return new ContosoDatabase(builder.UseSqlServer(connectionString, UpdateOptions).Options);
+		}
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			if (!optionsBuilder.IsConfigured)
+			{
+				var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+				optionsBuilder.UseSqlServer(connectionString, UpdateOptions);
+			}
+
+			base.OnConfiguring(optionsBuilder);
+		}
 
 		#endregion
 	}

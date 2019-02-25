@@ -18,7 +18,7 @@ namespace Speedy.Samples.Migrations
 		{
 #pragma warning disable 612, 618
 			modelBuilder
-				.HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
+				.HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
 				.HasAnnotation("Relational:MaxIdentifierLength", 128)
 				.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -33,7 +33,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("City")
 					.IsRequired()
 					.HasColumnName("City")
-					.HasColumnType("nvarchar(256)");
+					.HasMaxLength(256)
+					.IsUnicode(false);
 
 				b.Property<DateTime>("CreatedOn")
 					.HasColumnName("CreatedOn")
@@ -42,12 +43,14 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Line1")
 					.IsRequired()
 					.HasColumnName("Line1")
-					.HasColumnType("nvarchar(256)");
+					.HasMaxLength(256)
+					.IsUnicode(false);
 
 				b.Property<string>("Line2")
 					.IsRequired()
 					.HasColumnName("Line2")
-					.HasColumnType("nvarchar(256)");
+					.HasMaxLength(256)
+					.IsUnicode(false);
 
 				b.Property<int?>("LinkedAddressId")
 					.HasColumnName("LinkedAddressId")
@@ -64,12 +67,14 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Postal")
 					.IsRequired()
 					.HasColumnName("Postal")
-					.HasColumnType("nvarchar(128)");
+					.HasMaxLength(128)
+					.IsUnicode(false);
 
 				b.Property<string>("State")
 					.IsRequired()
 					.HasColumnName("State")
-					.HasColumnType("nvarchar(128)");
+					.HasMaxLength(128)
+					.IsUnicode(false);
 
 				b.Property<Guid>("SyncId")
 					.HasColumnName("SyncId")
@@ -106,7 +111,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Name")
 					.IsRequired()
 					.HasColumnName("Name")
-					.HasColumnType("nvarchar(256)");
+					.HasMaxLength(256)
+					.IsUnicode(false);
 
 				b.HasKey("Id");
 
@@ -167,7 +173,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Description")
 					.IsRequired()
 					.HasColumnName("Description")
-					.HasColumnType("nvarchar(4000)");
+					.HasMaxLength(4000)
+					.IsUnicode(false);
 
 				b.Property<DateTime>("ModifiedOn")
 					.HasColumnName("ModifiedOn")
@@ -176,7 +183,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Name")
 					.IsRequired()
 					.HasColumnName("Name")
-					.HasColumnType("nvarchar(256)");
+					.HasMaxLength(256)
+					.IsUnicode(false);
 
 				b.HasKey("Id");
 
@@ -218,7 +226,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Role")
 					.IsRequired()
 					.HasColumnName("Role")
-					.HasColumnType("nvarchar(4000)");
+					.HasMaxLength(4000)
+					.IsUnicode(false);
 
 				b.HasKey("Id");
 
@@ -236,7 +245,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Id")
 					.ValueGeneratedOnAdd()
 					.HasColumnName("Id")
-					.HasColumnType("nvarchar(250)");
+					.HasMaxLength(250)
+					.IsUnicode(false);
 
 				b.Property<DateTime>("CreatedOn")
 					.HasColumnName("CreatedOn")
@@ -244,7 +254,7 @@ namespace Speedy.Samples.Migrations
 
 				b.Property<string>("Message")
 					.HasColumnName("Message")
-					.HasColumnType("nvarchar(4000)");
+					.IsUnicode(false);
 
 				b.HasKey("Id");
 
@@ -286,7 +296,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Name")
 					.IsRequired()
 					.HasColumnName("Name")
-					.HasColumnType("nvarchar(256)");
+					.HasMaxLength(256)
+					.IsUnicode(false);
 
 				b.Property<Guid>("SyncId")
 					.HasColumnName("SyncId")
@@ -315,7 +326,8 @@ namespace Speedy.Samples.Migrations
 			{
 				b.Property<string>("Name")
 					.HasColumnName("Name")
-					.HasColumnType("nvarchar(128)");
+					.HasMaxLength(128)
+					.IsUnicode(false);
 
 				b.Property<int>("OwnerId")
 					.HasColumnName("OwnerId")
@@ -332,7 +344,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("TypeId")
 					.IsRequired()
 					.HasColumnName("TypeId")
-					.HasColumnType("nvarchar(25)");
+					.HasMaxLength(25)
+					.IsUnicode(false);
 
 				b.HasKey("Name", "OwnerId");
 
@@ -350,11 +363,13 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("Id")
 					.ValueGeneratedOnAdd()
 					.HasColumnName("PetTypeId")
-					.HasColumnType("nvarchar(25)");
+					.HasMaxLength(25)
+					.IsUnicode(false);
 
 				b.Property<string>("Type")
 					.HasColumnName("Type")
-					.HasColumnType("nvarchar(200)");
+					.HasMaxLength(200)
+					.IsUnicode(false);
 
 				b.HasKey("Id");
 
@@ -376,7 +391,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("ReferenceId")
 					.IsRequired()
 					.HasColumnName("ReferenceId")
-					.HasColumnType("nvarchar(128)");
+					.HasMaxLength(128)
+					.IsUnicode(false);
 
 				b.Property<Guid>("SyncId")
 					.HasColumnName("SyncId")
@@ -385,7 +401,8 @@ namespace Speedy.Samples.Migrations
 				b.Property<string>("TypeName")
 					.IsRequired()
 					.HasColumnName("TypeName")
-					.HasColumnType("nvarchar(768)");
+					.HasMaxLength(768)
+					.IsUnicode(false);
 
 				b.HasKey("Id");
 

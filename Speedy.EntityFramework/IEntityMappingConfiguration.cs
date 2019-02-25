@@ -32,7 +32,7 @@ namespace Speedy.EntityFramework
 		/// Maps configuration for an entity.
 		/// </summary>
 		/// <param name="builder"> The builder to use for the mapping. </param>
-		void Map(ModelBuilder builder);
+		object Map(ModelBuilder builder);
 
 		#endregion
 	}

@@ -38,7 +38,7 @@ namespace Speedy.Storage
 			_database = database;
 			Cache = new List<EntityState<T, T2>>(4096);
 			_type = typeof(T);
-			_currentKey = default(T2);
+			_currentKey = default;
 
 			if (!string.IsNullOrWhiteSpace(_database.Directory))
 			{
@@ -111,8 +111,7 @@ namespace Speedy.Storage
 		/// <param name="entity"> The entity to be added. </param>
 		public void AddOrUpdate(object entity)
 		{
-			var myEntity = entity as T;
-			if (myEntity == null)
+			if (!(entity is T myEntity))
 			{
 				throw new ArgumentException("The entity is not the correct type.");
 			}
@@ -128,8 +127,7 @@ namespace Speedy.Storage
 				return;
 			}
 
-			var item = entity as Entity<T2>;
-			if (item == null)
+			if (!(entity is Entity<T2> item))
 			{
 				throw new ArgumentException("Entity is not for this repository.");
 			}
@@ -145,8 +143,7 @@ namespace Speedy.Storage
 				}
 			}
 
-			var syncableEntity = entity as SyncEntity;
-			if (syncableEntity == null)
+			if (!(entity is SyncEntity syncableEntity))
 			{
 				return;
 			}
@@ -224,6 +221,7 @@ namespace Speedy.Storage
 			return GetChanges().Any();
 		}
 
+		/// <inheritdoc />
 		public bool HasDependentRelationship(object[] value, object id)
 		{
 			var foreignKeyFunction = (Func<T, object>) value[4];
@@ -231,15 +229,27 @@ namespace Speedy.Storage
 		}
 
 		/// <inheritdoc />
-		public IIncludableQueryable<T,T3> Include<T3>(Expression<Func<T, T3>> include)
+		public IIncludableQueryable<T, object> Include(Expression<Func<T, object>> include)
 		{
-			return new IncludableQueryable<T,T3>(_query);
+			return new IncludableQueryable<T, object>(_query);
 		}
 
 		/// <inheritdoc />
-		public IIncludableQueryable<T,T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
+		public IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
-			return new IncludableQueryable<T,T3>(_query);
+			return new IncludableQueryable<T, T3>(_query);
+		}
+
+		/// <inheritdoc />
+		public IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes)
+		{
+			return new IncludableQueryable<T, object>(_query);
+		}
+
+		/// <inheritdoc />
+		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
+		{
+			return new IncludableQueryable<T, T3>(_query);
 		}
 
 		/// <summary>
@@ -331,8 +341,7 @@ namespace Speedy.Storage
 
 			foreach (var item in removed)
 			{
-				var syncableEntity = item.Entity as SyncEntity;
-				if (syncableEntity != null)
+				if (item.Entity is SyncEntity syncableEntity)
 				{
 					if (syncableEntity.SyncId == Guid.Empty)
 					{
@@ -377,8 +386,7 @@ namespace Speedy.Storage
 
 						if (createdEntity != null && maintainDates)
 						{
-							var oldCreatedEntity = entry.OldEntity as ICreatedEntity;
-							if (oldCreatedEntity != null && oldCreatedEntity.CreatedOn != createdEntity.CreatedOn)
+							if (entry.OldEntity is ICreatedEntity oldCreatedEntity && oldCreatedEntity.CreatedOn != createdEntity.CreatedOn)
 							{
 								createdEntity.CreatedOn = oldCreatedEntity.CreatedOn;
 							}
@@ -389,8 +397,7 @@ namespace Speedy.Storage
 							// Do not allow sync ID to change for entities.
 							if (maintainSyncId)
 							{
-								var oldSyncableEntity = entry.OldEntity as SyncEntity;
-								if (oldSyncableEntity != null)
+								if (entry.OldEntity is SyncEntity oldSyncableEntity)
 								{
 									syncableEntity.SyncId = oldSyncableEntity.SyncId;
 								}

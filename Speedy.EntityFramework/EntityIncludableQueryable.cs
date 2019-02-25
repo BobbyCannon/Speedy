@@ -16,14 +16,14 @@ namespace Speedy.EntityFramework
 	{
 		#region Fields
 
-		private readonly Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T,T2> _query;
-		
+		private readonly Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T2> _query;
+
 		#endregion
 
 		#region Constructors
 
 		/// <inheritdoc />
-		public EntityIncludableQueryable(Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T,T2> query)
+		public EntityIncludableQueryable(Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T2> query)
 		{
 			_query = query;
 		}
@@ -54,7 +54,7 @@ namespace Speedy.EntityFramework
 		/// <inheritdoc />
 		public IIncludableQueryable<T, TProperty> ProcessCollectionThenInclude<TPreviousProperty, TProperty>(Expression<Func<TPreviousProperty, TProperty>> include)
 		{
-			return typeof(IEnumerable<TPreviousProperty>).IsAssignableFrom(typeof(T2)) 
+			return typeof(IEnumerable<TPreviousProperty>).IsAssignableFrom(typeof(T2))
 				? new EntityIncludableQueryable<T, TProperty>(((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, IEnumerable<TPreviousProperty>>) _query).ThenInclude(include))
 				: null;
 		}
@@ -64,8 +64,6 @@ namespace Speedy.EntityFramework
 		{
 			return new EntityIncludableQueryable<T, T3>(_query.ThenInclude(include));
 		}
-
-		
 
 		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()

@@ -56,7 +56,7 @@ namespace Speedy.Storage
 		void UpdateRelationships();
 
 		/// <summary>
-		/// Validotes all entities in the repository.
+		/// Validates all entities in the repository.
 		/// </summary>
 		void ValidateEntities();
 

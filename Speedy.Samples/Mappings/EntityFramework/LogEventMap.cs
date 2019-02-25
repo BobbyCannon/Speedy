@@ -20,9 +20,9 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.ToTable("LogEvents", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").HasColumnType("datetime2").IsRequired();
-			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("nvarchar(250)").IsRequired();
-			b.Property(x => x.Message).HasColumnName("Message").HasColumnType("nvarchar(4000)").IsRequired(false);
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
+			b.Property(x => x.Id).HasColumnName("Id").HasMaxLength(250).IsRequired();
+			b.Property(x => x.Message).HasColumnName("Message").IsRequired(false);
 		}
 
 		#endregion
