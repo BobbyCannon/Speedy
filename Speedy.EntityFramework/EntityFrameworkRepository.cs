@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Speedy.Exceptions;
 
 #endregion
@@ -91,8 +92,13 @@ namespace Speedy.EntityFramework
 		/// <param name="entity"> The entity to be added. </param>
 		public void AddOrUpdate(T entity)
 		{
-			throw new NotImplementedException();
-			//Set.AddOrUpdate(entity);
+			if (Set.Any(x => x.Id.Equals(entity.Id)))
+			{
+				Set.Update(entity);
+				return;
+			}
+
+			Set.Add(entity);
 		}
 
 		/// <summary>

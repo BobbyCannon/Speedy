@@ -653,11 +653,12 @@ namespace Speedy
 		{
 			var settings = GetSerializerSettings(camelCase, ignoreNullValues);
 			var resolver = (SpeedySerializeContractResolver) settings.ContractResolver;
-			var type = item.GetRealType();
+			var type = item.GetType();
 
 			if (ignoreVirtuals)
 			{
-				var values = type.GetVirtualPropertyNames().ToArray();
+				var baseType = item.GetRealType();
+				var values = baseType.GetVirtualPropertyNames().ToArray();
 
 				if (values.Length > 0)
 				{

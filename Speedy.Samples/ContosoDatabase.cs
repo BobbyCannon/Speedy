@@ -61,6 +61,8 @@ namespace Speedy.Samples
 				optionsBuilder.UseSqlServer(connectionString, UpdateOptions);
 			}
 
+			optionsBuilder.UseLazyLoadingProxies();
+
 			base.OnConfiguring(optionsBuilder);
 		}
 
