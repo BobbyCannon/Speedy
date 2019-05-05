@@ -6,7 +6,7 @@
 
 $ErrorActionPreference = "Stop"
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
-$scriptPath = Split-Path(Get-Variable MyInvocation).Value.MyCommand.Path
+$scriptPath = $PSScriptRoot
 $productName = "Speedy"
 $destination = "$scriptPath\Binaries"
 $destination2 = "C:\Workspaces\Nuget\Developer"
