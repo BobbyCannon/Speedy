@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
 using Speedy.Storage;
 using Speedy.Sync;
 
@@ -36,7 +38,9 @@ namespace Speedy
 		private static readonly ConcurrentDictionary<string, ParameterInfo[]> _parameterInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _propertyInfos;
 		private static readonly JsonSerializerSettings _serializationSettings;
+		private static readonly ConcurrentDictionary<Type, string> _typeAssemblyNames;
 		private static readonly ConcurrentDictionary<string, Type[]> _types;
+		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _virtualPropertyInfos;
 
 		#endregion
 
@@ -50,8 +54,10 @@ namespace Speedy
 			_methods = new ConcurrentDictionary<string, MethodInfo>();
 			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_parameterInfos = new ConcurrentDictionary<string, ParameterInfo[]>();
-			_serializationSettings = GetSerializerSettings(false, false);
+			_serializationSettings = GetSerializerSettings(false, true, true);
 			_types = new ConcurrentDictionary<string, Type[]>();
+			_typeAssemblyNames = new ConcurrentDictionary<Type, string>();
+			_virtualPropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 		}
 
 		#endregion
@@ -66,7 +72,7 @@ namespace Speedy
 		/// <param name="dictionary"> The dictionary to update. </param>
 		/// <param name="key"> The value of the key. </param>
 		/// <param name="value"> The value of the value. </param>
-		public static void AddOrUpdate<T1, T2>(this Dictionary<T1, T2> dictionary, T1 key, T2 value)
+		public static void AddOrUpdate<T1, T2>(this IDictionary<T1, T2> dictionary, T1 key, T2 value)
 		{
 			if (dictionary.ContainsKey(key))
 			{
@@ -78,17 +84,48 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Add multiple items to a hash set.
+		/// Add multiple items to a collection
 		/// </summary>
 		/// <param name="set"> The set to add items to. </param>
 		/// <param name="items"> The items to add. </param>
-		/// <typeparam name="T"> The type of the items in the hash set. </typeparam>
-		public static void AddRange<T>(this HashSet<T> set, params T[] items)
+		/// <typeparam name="T"> The type of the items in the collection. </typeparam>
+		public static void AddRange<T>(this ICollection<T> set, IEnumerable<T> items)
 		{
 			foreach (var item in items)
 			{
 				set.Add(item);
 			}
+		}
+
+		/// <summary>
+		/// Add multiple items to a collection
+		/// </summary>
+		/// <param name="set"> The set to add items to. </param>
+		/// <param name="items"> The items to add. </param>
+		/// <typeparam name="T"> The type of the items in the collection. </typeparam>
+		public static void AddRange<T>(this ICollection<T> set, params T[] items)
+		{
+			foreach (var item in items)
+			{
+				set.Add(item);
+			}
+		}
+
+		/// <summary>
+		/// Creates a expression that represents a conditional AND operation that evaluates the second operand only if the first operand evaluates to true.
+		/// </summary>
+		/// <typeparam name="T"> The type used in the expression. </typeparam>
+		/// <param name="left"> A Expression to set the Left property equal to. </param>
+		/// <param name="right"> A Expression to set the Right property equal to. </param>
+		/// <returns> The updated expression. </returns>
+		public static Expression<Func<T, bool>> AndAlso<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
+		{
+			var parameter = Expression.Parameter(typeof(T));
+			var leftVisitor = new ReplaceExpressionVisitor(left.Parameters[0], parameter);
+			var vLeft = leftVisitor.Visit(left.Body);
+			var rightVisitor = new ReplaceExpressionVisitor(right.Parameters[0], parameter);
+			var vRight = rightVisitor.Visit(right.Body);
+			return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(vLeft, vRight), parameter);
 		}
 
 		/// <summary> Searches for the specified public method whose parameters match the specified argument types. The results are cached so the next query is much faster. </summary>
@@ -196,7 +233,19 @@ namespace Speedy
 		/// <returns> The deserialized object. </returns>
 		public static object FromJson(this string item, Type type)
 		{
-			return string.IsNullOrWhiteSpace(item) ? null : JsonConvert.DeserializeObject(item, type, _serializationSettings);
+			return FromJson(item, type, _serializationSettings);
+		}
+
+		/// <summary>
+		/// Convert the string into an object.
+		/// </summary>
+		/// <param name="item"> The JSON data to deserialize. </param>
+		/// <param name="type"> The type to convert into. </param>
+		/// <param name="settings"> The settings to be used. </param>
+		/// <returns> The deserialized object. </returns>
+		public static object FromJson(this string item, Type type, JsonSerializerSettings settings)
+		{
+			return string.IsNullOrWhiteSpace(item) ? null : JsonConvert.DeserializeObject(item, type, settings);
 		}
 
 		/// <summary>
@@ -207,7 +256,7 @@ namespace Speedy
 		public static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
 		{
 			MethodInfo[] response;
-			var key = info.ReflectedType?.FullName + "." + info.Name;
+			var key = $"{info.ReflectedType?.FullName}.{info.Name}";
 
 			if (_methodInfos.ContainsKey(key))
 			{
@@ -262,7 +311,7 @@ namespace Speedy
 		public static IList<Type> GetCachedGenericArguments(this MethodInfo info)
 		{
 			Type[] response;
-			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			var fullName = $"{info.ReflectedType?.FullName}.{info.Name}";
 			var key = info.ToString().Replace(info.Name, fullName);
 
 			if (_types.ContainsKey(key))
@@ -296,6 +345,17 @@ namespace Speedy
 
 			response = type.GetGenericArguments();
 			return _types.AddOrUpdate(type.FullName, response, (s, types) => response);
+		}
+
+		/// <summary>
+		/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="value"> The value to get the methods for. </param>
+		/// <param name="flags"> The flags used to query with. </param>
+		/// <returns> The list of method infos for the type. </returns>
+		public static IList<MethodInfo> GetCachedMethods(this object value, BindingFlags flags)
+		{
+			return value.GetType().GetCachedMethods(flags);
 		}
 
 		/// <summary>
@@ -347,7 +407,7 @@ namespace Speedy
 		/// Gets a list of property types for the provided object type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="value"> The value to get the properties for. </param>
-		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Heiarchy </param>
+		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
 		/// <returns> The list of properties for the type of the value. </returns>
 		public static IList<PropertyInfo> GetCachedProperties(this object value, BindingFlags? flags = null)
 		{
@@ -358,7 +418,7 @@ namespace Speedy
 		/// Gets a list of property types for the provided type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="type"> The type to get the properties for. </param>
-		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Heiarchy </param>
+		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
 		/// <returns> The list of properties for the type. </returns>
 		public static IList<PropertyInfo> GetCachedProperties(this Type type, BindingFlags? flags = null)
 		{
@@ -374,6 +434,59 @@ namespace Speedy
 
 			response = type.GetProperties(flags ?? BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		/// <summary>
+		/// Gets a list of virtual property types for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the properties for. </param>
+		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+		/// <returns> The list of properties for the type. </returns>
+		public static IList<PropertyInfo> GetCachedVirtualProperties(this Type type, BindingFlags? flags = null)
+		{
+			PropertyInfo[] response;
+
+			if (_virtualPropertyInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
+			{
+				if (_virtualPropertyInfos.TryGetValue(type.FullName, out response))
+				{
+					return response;
+				}
+			}
+
+			response = type.GetCachedProperties(flags)
+				.Where(x => x.GetMethod.IsVirtual && !x.GetMethod.IsAbstract && !x.GetMethod.IsFinal && x.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
+				.OrderBy(x => x.Name)
+				.ToArray();
+
+			return _virtualPropertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		/// <summary>
+		/// Gets the public or private member using reflection.
+		/// </summary>
+		/// <param name="obj"> The source target. </param>
+		/// <param name="memberName"> Name of the field or property. </param>
+		/// <returns> the value of member </returns>
+		public static object GetMemberValue(this object obj, string memberName)
+		{
+			var memInf = GetMemberInfo(obj, memberName);
+
+			if (memInf == null)
+			{
+				throw new Exception("memberName");
+			}
+
+			switch (memInf)
+			{
+				case PropertyInfo propertyInfo:
+					return propertyInfo.GetValue(obj, null);
+
+				case FieldInfo fieldInfo:
+					return fieldInfo.GetValue(obj);
+			}
+
+			throw new Exception();
 		}
 
 		/// <summary>
@@ -395,8 +508,8 @@ namespace Speedy
 		/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
 		public static Type GetRealType(this Type type)
 		{
-			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies");
-			return isProxy == true ? type.BaseType : type;
+			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true || type.FullName?.Contains("Castle.Proxies") == true;
+			return isProxy ? type.BaseType : type;
 		}
 
 		/// <summary>
@@ -404,17 +517,17 @@ namespace Speedy
 		/// </summary>
 		/// <param name="camelCase"> True to camelCase or else use PascalCase. </param>
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
 		/// <returns> The serialization settings. </returns>
-		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreNullValues)
+		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreNullValues, bool ignoreReadOnly)
 		{
 			var response = new JsonSerializerSettings();
 
 			response.Converters.Add(new IsoDateTimeConverter());
-			response.Converters.Add(new StringEnumConverter { NamingStrategy = camelCase ? (NamingStrategy) new CamelCaseNamingStrategy() : new DefaultNamingStrategy() });
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			response.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 			response.NullValueHandling = ignoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
-			response.ContractResolver = new SpeedySerializeContractResolver { UseCamelCase = camelCase };
+			response.ContractResolver = new SerializeContractResolver(camelCase, ignoreReadOnly);
 
 			return response;
 		}
@@ -422,15 +535,75 @@ namespace Speedy
 		/// <summary>
 		/// Gets a list of virtual property names. The results are cached so the next query is much faster.
 		/// </summary>
-		/// <param name="value"> The value to get the property names for. </param>
+		/// <param name="type"> The value to get the property names for. </param>
 		/// <returns> The list of virtual property names for the type. </returns>
-		public static IList<string> GetVirtualPropertyNames(this Type value)
+		public static IEnumerable<string> GetVirtualPropertyNames(this Type type)
 		{
-			return value.GetCachedProperties()
-				.Where(x => x.GetMethod.IsVirtual && !x.GetMethod.IsAbstract && !x.GetMethod.IsFinal && x.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
-				.Select(x => x.Name)
-				.OrderBy(x => x)
-				.ToList();
+			return GetCachedVirtualProperties(type).Select(x => x.Name).ToArray();
+		}
+
+		/// <summary>
+		/// Determines if the string is a JSON string.
+		/// </summary>
+		/// <param name="input"> The value to validate. </param>
+		/// <returns> True if the input is JSON or false if otherwise. </returns>
+		public static bool IsJson(this string input)
+		{
+			input = input.Trim();
+
+			var isWellFormed = new Func<bool>(() =>
+			{
+				try
+				{
+					JToken.Parse(input);
+				}
+				catch
+				{
+					return false;
+				}
+
+				return true;
+			});
+
+			return (input.StartsWith("{") && input.EndsWith("}") || input.StartsWith("[") && input.EndsWith("]")) && isWellFormed();
+		}
+
+		/// <summary>
+		/// Natural sort a string collection.
+		/// </summary>
+		/// <param name="collection"> The collection to sort. </param>
+		/// <returns> The sorted collection. </returns>
+		public static IEnumerable<string> NaturalSort(this IEnumerable<string> collection)
+		{
+			return NaturalSort(collection, CultureInfo.CurrentCulture);
+		}
+
+		/// <summary>
+		/// Natural sort a string collection.
+		/// </summary>
+		/// <param name="collection"> The collection to sort. </param>
+		/// <param name="cultureInfo"> The culture information to use during sort. </param>
+		/// <returns> The sorted collection. </returns>
+		public static IEnumerable<string> NaturalSort(this IEnumerable<string> collection, CultureInfo cultureInfo)
+		{
+			return collection.OrderBy(s => s, new SyncKeyComparer(cultureInfo));
+		}
+
+		/// <summary>
+		/// Creates a expression that represents a conditional OR operation.
+		/// </summary>
+		/// <typeparam name="T"> The type used in the expression. </typeparam>
+		/// <param name="left"> A Expression to set the Left property equal to. </param>
+		/// <param name="right"> A Expression to set the Right property equal to. </param>
+		/// <returns> The updated expression. </returns>
+		public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
+		{
+			var parameter = Expression.Parameter(typeof(T));
+			var leftVisitor = new ReplaceExpressionVisitor(left.Parameters[0], parameter);
+			var vLeft = leftVisitor.Visit(left.Body);
+			var rightVisitor = new ReplaceExpressionVisitor(right.Parameters[0], parameter);
+			var vRight = rightVisitor.Visit(right.Body);
+			return Expression.Lambda<Func<T, bool>>(Expression.Or(vLeft, vRight), parameter);
 		}
 
 		/// <summary>
@@ -616,6 +789,41 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets the public or private member using reflection.
+		/// </summary>
+		/// <param name="obj"> The target object. </param>
+		/// <param name="memberName"> Name of the field or property. </param>
+		/// <param name="newValue"> The new value to be set. </param>
+		/// <returns> Old Value </returns>
+		public static object SetMemberValue(this object obj, string memberName, object newValue)
+		{
+			var memInf = GetMemberInfo(obj, memberName);
+
+			if (memInf == null)
+			{
+				throw new Exception("memberName");
+			}
+
+			var oldValue = obj.GetMemberValue(memberName);
+
+			switch (memInf)
+			{
+				case PropertyInfo propertyInfo:
+					propertyInfo.SetValue(obj, newValue, null);
+					break;
+
+				case FieldInfo fieldInfo:
+					fieldInfo.SetValue(obj, newValue);
+					break;
+
+				default:
+					throw new Exception();
+			}
+
+			return oldValue;
+		}
+
+		/// <summary>
 		/// Specifies additional related data to be further included based on a related type that was just included.
 		/// </summary>
 		/// <typeparam name="T"> The type of entity being queried. </typeparam>
@@ -636,7 +844,7 @@ namespace Speedy
 		/// <returns> The assembly name for the provided type. </returns>
 		public static string ToAssemblyName(this Type type)
 		{
-			return type.FullName + "," + type.Assembly.GetName().Name;
+			return _typeAssemblyNames.GetOrAdd(type, $"{type.FullName},{type.Assembly.GetName().Name}");
 		}
 
 		/// <summary>
@@ -646,27 +854,14 @@ namespace Speedy
 		/// <param name="item"> The object to serialize. </param>
 		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
 		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
-		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
-		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreVirtuals = false, bool ignoreNullValues = false)
+		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false)
 		{
-			var settings = GetSerializerSettings(camelCase, ignoreNullValues);
-			var resolver = (SpeedySerializeContractResolver) settings.ContractResolver;
-			var type = item.GetType();
-
-			if (ignoreVirtuals)
-			{
-				var baseType = item.GetRealType();
-				var values = baseType.GetVirtualPropertyNames().ToArray();
-
-				if (values.Length > 0)
-				{
-					resolver.ResetIgnores(new KeyValuePair<Type, string[]>(type, values));
-				}
-			}
-
-			return JsonConvert.SerializeObject(item, type, indented ? Formatting.Indented : Formatting.None, settings);
+			var settings = ToJsonSettings(item, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals);
+			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
 		}
 
 		/// <summary>
@@ -674,7 +869,7 @@ namespace Speedy
 		/// </summary>
 		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
 		/// <param name="item"> The object to serialize. </param>
-		/// <param name="settings"> The settings to use during serialization. </param>
+		/// <param name="settings"> The settings to be used. </param>
 		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
 		public static string ToJson<T>(this T item, JsonSerializerSettings settings, bool indented = false)
@@ -683,14 +878,82 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <param name="type"> The type of the object to serialize. </param>
+		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
+		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static JsonSerializerSettings ToJsonSettings(this Type type, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false)
+		{
+			var settings = GetSerializerSettings(camelCase, ignoreNullValues, ignoreReadOnly);
+			var resolver = (SerializeContractResolver) settings.ContractResolver;
+
+			if (ignoreVirtuals)
+			{
+				var realType = type.GetRealType();
+				var values = realType.GetVirtualPropertyNames().ToArray();
+
+				if (values.Length > 0)
+				{
+					resolver.ResetIgnores(new KeyValuePair<string, string[]>(realType.FullName, values));
+				}
+			}
+
+			return settings;
+		}
+
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
+		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
+		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static JsonSerializerSettings ToJsonSettings<T>(this T item, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false)
+		{
+			return ToJsonSettings(item.GetType(), camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals);
+		}
+
+		/// <summary>
+		/// Convert the event written event argument to its payload string
+		/// </summary>
+		/// <param name="args"> The item to process. </param>
+		/// <returns> The formatted message. </returns>
+		public static string ToPayloadString(this EventWrittenEventArgs args)
+		{
+			return string.Format(args.Message, args.Payload.ToArray());
+		}
+
+		/// <summary>
 		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
 		/// </summary>
-		/// <typeparam name="T"> The type of the entity. </typeparam>
-		/// <param name="entity"> The entity to unwrap from entity framework proxy. </param>
+		/// <typeparam name="T"> The type of the incoming object. </typeparam>
+		/// <typeparam name="T2"> The type of the outgoing object. </typeparam>
+		/// <param name="value"> The value to unwrap from the proxy. </param>
+		/// <param name="update"> An optional update method. </param>
 		/// <returns> The disconnected entity. </returns>
-		public static T Unwrap<T>(this T entity) where T : SyncEntity
+		public static T2 Unwrap<T, T2>(this T value, Action<T2> update = null)
 		{
-			return (T) entity.ToSyncObject().ToSyncEntity();
+			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
+			update?.Invoke(response);
+			return response;
+		}
+		
+		/// <summary>
+		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
+		/// </summary>
+		/// <param name="value"> The value to unwrap from the proxy. </param>
+		/// <param name="type"> The type of the outgoing object. </param>
+		/// <returns> The disconnected entity. </returns>
+		public static object Unwrap(this object value, Type type)
+		{
+			return value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson(type);
 		}
 
 		/// <summary>
@@ -833,6 +1096,46 @@ namespace Speedy
 			{
 				AddExceptionToBuilder(builder, ex.InnerException);
 			}
+		}
+
+		private static MemberInfo GetMemberInfo(object obj, string memberName)
+		{
+			var type = obj.GetType();
+			var flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+			return (MemberInfo) type.GetProperty(memberName, flags) ?? type.GetField(memberName, flags);
+		}
+
+		#endregion
+
+		#region Classes
+
+		private class ReplaceExpressionVisitor : ExpressionVisitor
+		{
+			#region Fields
+
+			private readonly Expression _newValue;
+			private readonly Expression _oldValue;
+
+			#endregion
+
+			#region Constructors
+
+			public ReplaceExpressionVisitor(Expression oldValue, Expression newValue)
+			{
+				_oldValue = oldValue;
+				_newValue = newValue;
+			}
+
+			#endregion
+
+			#region Methods
+
+			public override Expression Visit(Expression node)
+			{
+				return node == _oldValue ? _newValue : base.Visit(node);
+			}
+
+			#endregion
 		}
 
 		#endregion

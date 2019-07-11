@@ -13,19 +13,22 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static Address Get(Action<Address> update = null)
+		public static AddressEntity Get(Action<AddressEntity> update = null, string line1 = null, string postal = null, string state = null)
 		{
-			var result = new Address
+			var time = TimeService.UtcNow;
+			var result = new AddressEntity
 			{
 				City = Guid.NewGuid().ToString(),
-				Id = default(int),
-				Line1 = Guid.NewGuid().ToString(),
+				Id = default,
+				Line1 = line1 ?? Guid.NewGuid().ToString(),
 				Line2 = Guid.NewGuid().ToString(),
 				LinkedAddressId = null,
 				LinkedAddressSyncId = null,
-				Postal = Guid.NewGuid().ToString(),
-				State = Guid.NewGuid().ToString(),
-				SyncId = default(Guid)
+				Postal = postal ?? Guid.NewGuid().ToString(),
+				State = state ?? Guid.NewGuid().ToString(),
+				SyncId = Guid.NewGuid(),
+				CreatedOn = time,
+				ModifiedOn = time
 			};
 
 			update?.Invoke(result);

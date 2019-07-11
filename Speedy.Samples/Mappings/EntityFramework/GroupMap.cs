@@ -11,18 +11,18 @@ using Speedy.Samples.Entities;
 namespace Speedy.Samples.Mappings.EntityFramework
 {
 	[ExcludeFromCodeCoverage]
-	public class GroupMap : EntityMappingConfiguration<Group>
+	public class GroupMap : EntityMappingConfiguration<GroupEntity>
 	{
 		#region Methods
 
-		public override void Map(EntityTypeBuilder<Group> b)
+		public override void Map(EntityTypeBuilder<GroupEntity> b)
 		{
 			b.ToTable("Groups", "dbo");
 			b.HasKey(x => x.Id);
 
 			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.Description).HasColumnName("Description").HasMaxLength(4000).IsRequired();
-			b.Property(x => x.Id).HasColumnName("Id").HasColumnType("int").IsRequired();
+			b.Property(x => x.Id).HasColumnName("Id").IsRequired();
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
 		}

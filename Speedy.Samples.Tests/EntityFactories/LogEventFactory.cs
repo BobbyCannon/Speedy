@@ -13,9 +13,9 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static LogEvent Get(Action<LogEvent> update = null)
+		public static LogEventEntity Get(Action<LogEventEntity> update = null)
 		{
-			var result = new LogEvent
+			var result = new LogEventEntity
 			{
 				Id = Guid.NewGuid().ToString(),
 				Message = null

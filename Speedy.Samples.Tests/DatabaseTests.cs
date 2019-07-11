@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Exceptions;
 using Speedy.Samples.Entities;
+using Speedy.Storage;
 
 #endregion
 
@@ -27,19 +28,25 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-
+						var tracker = new CollectionChangeTracker();
+						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						database.CollectionChanged += (sender, args) => tracker.Update(args);
 						database.Addresses.Add(expected);
 						var actual = database.Addresses.FirstOrDefault();
 						Assert.IsNull(actual);
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
 
 						database.SaveChanges();
+						Assert.AreEqual(1, tracker.Added.Count);
+						Assert.AreEqual(expected, tracker.Added[0]);
+						Assert.AreEqual(0, tracker.Removed.Count);
 
 						actual = database.Addresses.FirstOrDefault();
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
 						Assert.AreEqual(1, actual.Id);
-						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
+						Assert.AreNotEqual(default, actual.CreatedOn);
 						TestHelper.AreEqual(expected, actual);
 					}
 				});
@@ -51,12 +58,12 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					Food food;
+					FoodEntity food;
 
 					using (var database = provider.GetDatabase())
 					{
 						Console.WriteLine(database.GetType().Name);
-						food = new Food { Name = "Bourbon Reduction", ChildRelationships = new[] { new FoodRelationship { Child = new Food { Name = "Bourbon" }, Quantity = 2 } } };
+						food = new FoodEntity { Name = "Bourbon Reduction", ChildRelationships = new[] { new FoodRelationshipEntity { Child = new FoodEntity { Name = "Bourbon" }, Quantity = 2 } } };
 
 						database.Food.Add(food);
 						database.SaveChanges();
@@ -92,12 +99,12 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						var expected = new Person { Name = "Foo", Address = address };
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new PersonEntity { Name = "Foo", Address = address };
 						database.People.Add(expected);
 						database.SaveChanges();
 
-						var pet = new Pet { Name = "Max", Owner = expected, Type = new PetType { Id = "Dog", Type = "Boston" } };
+						var pet = new PetEntity { Name = "Max", Owner = expected, Type = new PetTypeEntity { Id = "Dog", Type = "Boston" } };
 						database.Pets.Add(pet);
 						database.SaveChanges();
 					}
@@ -123,14 +130,15 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						database.Addresses.Add(new Address { City = "City", Line2 = "Line2", Postal = "Postal", State = "State" });
+						database.Addresses.Add(new AddressEntity { City = "City", Line2 = "Line2", Postal = "Postal", State = "State" });
 						var test = database.Addresses.ToList();
 						Assert.AreEqual(0, test.Count);
 
 						// ReSharper disable once AccessToDisposedClosure
 						TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-							"Address: The Line1 field is required.",
-							"Cannot insert the value NULL into column 'Line1'");
+							"SQLite Error 19: 'NOT NULL constraint failed: Addresses.Line1'.",
+							"Cannot insert the value NULL into column 'Line1', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
+							"AddressEntity: The Line1 field is required.");
 					}
 				});
 		}
@@ -144,9 +152,10 @@ namespace Speedy.Samples.Tests
 					using (var database = provider.GetDatabase())
 					{
 						Console.WriteLine(database.GetType().Name);
-						database.Options.MaintainDates = false;
+						database.Options.MaintainCreatedOn = false;
+						database.Options.MaintainModifiedOn = false;
 
-						var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
 						database.Addresses.Add(expected);
 						var actual = database.Addresses.FirstOrDefault();
@@ -157,7 +166,7 @@ namespace Speedy.Samples.Tests
 						actual = database.Addresses.FirstOrDefault();
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
-						Assert.AreEqual(default(DateTime), actual.CreatedOn);
+						Assert.AreEqual(default, actual.CreatedOn);
 						TestHelper.AreEqual(expected, actual);
 					}
 				});
@@ -172,9 +181,9 @@ namespace Speedy.Samples.Tests
 					using (var database = provider.GetDatabase())
 					{
 						Console.WriteLine(database.GetType().Name);
-						database.Options.UnmaintainEntities = new[] { typeof(Address) };
+						database.Options.UnmaintainEntities = new[] { typeof(AddressEntity) };
 
-						var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
 						database.Addresses.Add(expected);
 						var actual = database.Addresses.FirstOrDefault();
@@ -185,8 +194,8 @@ namespace Speedy.Samples.Tests
 						actual = database.Addresses.FirstOrDefault();
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
-						Assert.AreEqual(default(DateTime), actual.CreatedOn);
-						Assert.AreEqual(default(DateTime), actual.ModifiedOn);
+						Assert.AreEqual(default, actual.CreatedOn);
+						Assert.AreEqual(default, actual.ModifiedOn);
 						TestHelper.AreEqual(expected, actual);
 					}
 				});
@@ -202,8 +211,8 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						address.People.Add(new Person { Name = "John Doe" });
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						address.People.Add(new PersonEntity { Name = "John Doe" });
 						database.Addresses.Add(address);
 
 						Assert.AreEqual(0, database.Addresses.Count());
@@ -231,7 +240,7 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var expected = new LogEvent { Message = "The new log message that is really important.", Id = "Message" };
+						var expected = new LogEventEntity { Message = "The new log message that is really important.", Id = "Message" };
 
 						database.LogEvents.Add(expected);
 						var actual = database.LogEvents.FirstOrDefault();
@@ -242,8 +251,8 @@ namespace Speedy.Samples.Tests
 						actual = database.LogEvents.FirstOrDefault();
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
-						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
+						Assert.AreNotEqual(default, actual.CreatedOn);
+						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 					}
 				});
 		}
@@ -258,7 +267,7 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						database.Addresses.Add(new Address
+						database.Addresses.Add(new AddressEntity
 						{
 							Line1 = "123 Main Street",
 							Line2 = string.Empty,
@@ -286,10 +295,29 @@ namespace Speedy.Samples.Tests
 					using (var database = provider.GetDatabase())
 					{
 						Console.WriteLine(database.GetType().Name);
-						database.Addresses.Add(new Address { Line1 = null, Line2 = string.Empty, City = "Easley", State = "SC", Postal = "29640" });
-						TestHelper.ExpectedException<Exception>(() => database.SaveChanges(), "Address: The Line1 field is required.", "Cannot insert the value NULL into column 'Line1'");
+						database.Addresses.Add(new AddressEntity { Line1 = null, Line2 = string.Empty, City = "Easley", State = "SC", Postal = "29640" });
+						TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+							"SQLite Error 19: 'NOT NULL constraint failed: Addresses.Line1'.",
+							"Cannot insert the value NULL into column 'Line1', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
+							"AddressEntity: The Line1 field is required.");
 					}
 				});
+		}
+
+		[TestMethod]
+		public void AddSingleEntityMissingRequiredRelationship()
+		{
+			// todo: finish this test
+			//TestHelper.GetDataContexts()
+			//	.ForEach(provider =>
+			//	{
+			//		using (var database = provider.GetDatabase())
+			//		{
+			//			Console.WriteLine(database.GetType().Name);
+			//			database.People.Add(new PersonEntity { Name = "John" });
+			//			TestHelper.ExpectedException<Exception>(() => database.SaveChanges(), "The INSERT statement conflicted with the FOREIGN KEY constraint");
+			//		}
+			//	});
 		}
 
 		[TestMethod]
@@ -302,10 +330,10 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 						database.Addresses.Add(address);
 
-						var address2 = new Address { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
 						database.Addresses.Add(address2);
 
 						Assert.AreEqual(0, database.Addresses.Count());
@@ -316,7 +344,7 @@ namespace Speedy.Samples.Tests
 						Assert.AreEqual(2, database.Addresses.Count());
 						Assert.AreEqual(0, database.People.Count());
 
-						address.People.Add(new Person { Name = "John Doe" });
+						address.People.Add(new PersonEntity { Name = "John Doe" });
 						Assert.AreEqual(1, address.People.Count);
 
 						database.SaveChanges();
@@ -338,7 +366,7 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
 						database.Addresses.Add(expected);
 						var actual = database.Addresses.FirstOrDefault();
@@ -350,10 +378,10 @@ namespace Speedy.Samples.Tests
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
 						Assert.AreEqual(1, actual.Id);
-						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
+						Assert.AreNotEqual(default, actual.CreatedOn);
 						TestHelper.AreEqual(expected, actual);
 
-						expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 						database.Addresses.Add(expected);
 						database.SaveChanges();
 
@@ -361,8 +389,8 @@ namespace Speedy.Samples.Tests
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
 						Assert.AreEqual(2, actual.Id);
-						Assert.AreNotEqual(default(DateTime), actual.CreatedOn);
-						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
+						Assert.AreNotEqual(default, actual.CreatedOn);
+						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 					}
 				});
 		}
@@ -377,7 +405,7 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
 						database.Addresses.Add(expected);
 						var actual = database.Addresses.FirstOrDefault();
@@ -402,7 +430,7 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					var expected = new LogEvent { Message = "This is a test.", Id = "Test" };
+					var expected = new LogEventEntity { Message = "This is a test.", Id = "Test" };
 
 					using (var database = provider.GetDatabase())
 					{
@@ -414,8 +442,8 @@ namespace Speedy.Samples.Tests
 
 					using (var database = provider.GetDatabase())
 					{
-						var actual = database.LogEvents.ToList().First().Unwrap<LogEvent>();
-						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
+						var actual = database.LogEvents.ToList().First().Unwrap<LogEventEntity>();
+						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 					}
 				});
 		}
@@ -436,15 +464,53 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var address1 = new Address { City = "City", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
-						var address2 = new Address { City = "City2", Line1 = "Line2", Line2 = "Line2", Postal = "Postal2", State = "State2" };
+						var address1 = new AddressEntity { City = "City", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+						var address2 = new AddressEntity { City = "City2", Line1 = "Line2", Line2 = "Line2", Postal = "Postal2", State = "State2" };
 						address1.LinkedAddress = address2;
 						database.Addresses.Add(address1);
 						database.SaveChanges();
 
 						var expected = new[] { address2, address1 };
 						var actual = database.Addresses.ToArray();
-						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
+						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
+					}
+				});
+		}
+
+		[TestMethod]
+		public void UnmodifiableEntityShouldNotAllowSave()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						var logEvent = new LogEventEntity{ Id = "Log1", Message = "Hello World" };
+						database.LogEvents.Add(logEvent);
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.LogEvents.Count());
+
+						var entity = database.LogEvents.First();
+						entity.Message = "Test";
+						var count = database.SaveChanges();
+						Assert.AreEqual(0, count);
+
+						entity = database.LogEvents.First();
+						Assert.AreEqual("Hello World", entity.Message);
+					}
+					
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.LogEvents.Count());
+
+						var entity = database.LogEvents.First();
+						Assert.AreEqual("Hello World", entity.Message);
 					}
 				});
 		}
@@ -460,13 +526,13 @@ namespace Speedy.Samples.Tests
 				{
 					Console.WriteLine(database.GetType().Name);
 
-					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					address.People.Add(new Person { Name = "John Doe", Address = address });
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
 					database.Addresses.Add(address);
 
-					var address2 = new Address { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
 					database.Addresses.Add(address2);
-					address2.People.Add(new Person { Name = "Jane Doe", Address = address2 });
+					address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
 
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, database.People.Count());
@@ -493,7 +559,7 @@ namespace Speedy.Samples.Tests
 				}
 			});
 		}
-		
+
 		[TestMethod]
 		public void QueryUsingIncluding()
 		{
@@ -505,13 +571,13 @@ namespace Speedy.Samples.Tests
 				{
 					Console.WriteLine(database.GetType().Name);
 
-					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					address.People.Add(new Person { Name = "John Doe", Address = address });
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
 					database.Addresses.Add(address);
 
-					var address2 = new Address { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
 					database.Addresses.Add(address2);
-					address2.People.Add(new Person { Name = "Jane Doe", Address = address2 });
+					address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
 
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, database.People.Count());
@@ -554,8 +620,8 @@ namespace Speedy.Samples.Tests
 
 						for (var i = 0; i < length; i++)
 						{
-							var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-							address.People.Add(new Person { Name = "John Doe #" + i, Address = address });
+							var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+							address.People.Add(new PersonEntity { Name = "John Doe #" + i, Address = address });
 							database.Addresses.Add(address);
 						}
 
@@ -586,9 +652,9 @@ namespace Speedy.Samples.Tests
 				{
 					Console.WriteLine(database.GetType().Name);
 
-					var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					var person = new Person { Name = "John Doe", Address = address };
-					person.Groups.Add(new GroupMember { Group = new Group { Name = "Group", Description = "Description" }, Role = "Role" });
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var person = new PersonEntity { Name = "John Doe", Address = address };
+					person.Groups.Add(new GroupMemberEntity { Group = new GroupEntity { Name = "Group", Description = "Description" }, Role = "Role" });
 					address.People.Add(person);
 					database.Addresses.Add(address);
 
@@ -633,10 +699,10 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						var person = new Person { Name = "John Doe" };
-						var group = new Group { Description = "For those who are epic and code.", Name = "Epic Coders" };
-						person.Groups.Add(new GroupMember { Role = "Leader", Group = group });
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var person = new PersonEntity { Name = "John Doe" };
+						var group = new GroupEntity { Description = "For those who are epic and code.", Name = "Epic Coders" };
+						person.Groups.Add(new GroupMemberEntity { Role = "Leader", Group = group });
 						address.People.Add(person);
 						database.Addresses.Add(address);
 
@@ -674,13 +740,13 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						address.People.Add(new Person { Name = "John Doe", Address = address });
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
 						database.Addresses.Add(address);
 
-						var address2 = new Address { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
 						database.Addresses.Add(address2);
-						address2.People.Add(new Person { Name = "Jane Doe", Address = address2 });
+						address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
 
 						Assert.AreEqual(0, database.Addresses.Count());
 						Assert.AreEqual(0, database.People.Count());
@@ -695,32 +761,6 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
-		public void RemoveEntity()
-		{
-			TestHelper.GetDataContexts()
-				.ForEach(provider =>
-				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
-
-						database.Addresses.Add(new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-						Assert.AreEqual(0, database.Addresses.Count());
-
-						database.SaveChanges();
-						Assert.AreEqual(1, database.Addresses.Count());
-
-						var address = database.Addresses.First();
-						database.Addresses.Remove(address);
-						Assert.AreEqual(1, database.Addresses.Count());
-
-						database.SaveChanges();
-						Assert.AreEqual(0, database.Addresses.Count());
-					}
-				});
-		}
-
-		[TestMethod]
 		public void RemoveEntityById()
 		{
 			TestHelper.GetDataContexts()
@@ -730,7 +770,7 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						database.Addresses.Add(new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 						Assert.AreEqual(0, database.Addresses.Count());
 
 						database.SaveChanges();
@@ -741,7 +781,8 @@ namespace Speedy.Samples.Tests
 						Assert.AreEqual(1, database.Addresses.Count());
 
 						database.SaveChanges();
-						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
 					}
 				});
 		}
@@ -757,7 +798,7 @@ namespace Speedy.Samples.Tests
 				{
 					Console.WriteLine(database.GetType().Name);
 
-					database.Addresses.Add(new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 
 					database.SaveChanges();
@@ -776,9 +817,91 @@ namespace Speedy.Samples.Tests
 					Assert.AreEqual(1, database.Addresses.Count());
 
 					database.SaveChanges();
-					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
+					Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
 				}
 			});
+		}
+
+		[TestMethod]
+		public void RemoveEntityHardDelete()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						database.Options.PermanentSyncEntityDeletions = true;
+
+						Console.WriteLine(database.GetType().Name);
+
+						var tracker = new CollectionChangeTracker();
+						database.CollectionChanged += (sender, args) => tracker.Update(args);
+						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						tracker.Reset();
+						var address = database.Addresses.First();
+						database.Addresses.Remove(address);
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						database.SaveChanges();
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(1, tracker.Removed.Count);
+						Assert.AreEqual(address, tracker.Removed[0]);
+					}
+				});
+		}
+
+		[TestMethod]
+		public void RemoveEntitySoftDelete()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						database.Options.PermanentSyncEntityDeletions = false;
+
+						Console.WriteLine(database.GetType().Name);
+
+						var tracker = new CollectionChangeTracker();
+						database.CollectionChanged += (sender, args) => tracker.Update(args);
+						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						tracker.Reset();
+						var address = database.Addresses.First();
+						database.Addresses.Remove(address);
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+					}
+				});
 		}
 
 		[TestMethod]
@@ -789,10 +912,12 @@ namespace Speedy.Samples.Tests
 				{
 					using (var database = provider.GetDatabase())
 					{
+						database.Options.PermanentSyncEntityDeletions = true;
+
 						Console.WriteLine(database.GetType().Name);
 
-						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						address.People.Add(new Person { Name = "John Doe" });
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						address.People.Add(new PersonEntity { Name = "John Doe" });
 						database.Addresses.Add(address);
 
 						Assert.AreEqual(0, database.Addresses.Count());
@@ -807,7 +932,10 @@ namespace Speedy.Samples.Tests
 						database.Addresses.Remove(address);
 
 						// ReSharper disable once AccessToDisposedClosure
-						TestHelper.ExpectedException<UpdateException>(() => database.SaveChanges(), "The DELETE statement conflicted with the REFERENCE constraint");
+						TestHelper.ExpectedException<UpdateException>(() => database.SaveChanges(),
+							"SQLite Error 19: 'FOREIGN KEY constraint failed'.",
+							"The DELETE statement conflicted with the REFERENCE constraint \"FK_People_Addresses_AddressId\". The conflict occurred in database \"Speedy\", table \"dbo.People\", column 'AddressId'.",
+							"The DELETE statement conflicted with the REFERENCE constraint.");
 					}
 				});
 		}
@@ -820,10 +948,11 @@ namespace Speedy.Samples.Tests
 				{
 					using (var database = provider.GetDatabase())
 					{
+						database.Options.PermanentSyncEntityDeletions = true;
 						Console.WriteLine(database.GetType().Name);
 
-						var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						address.People.Add(new Person { Name = "John Doe" });
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						address.People.Add(new PersonEntity { Name = "John Doe" });
 						database.Addresses.Add(address);
 
 						Assert.AreEqual(0, database.Addresses.Count());
@@ -837,9 +966,6 @@ namespace Speedy.Samples.Tests
 
 						database.People.Remove(address.People.First());
 						database.SaveChanges();
-
-						// Note: https://github.com/aspnet/EntityFrameworkCore/issues/12114, https://github.com/aspnet/EntityFrameworkCore/issues/8172
-						// Addresses -> People is not being updated...
 
 						Assert.AreEqual(1, database.Addresses.Count());
 						Assert.AreEqual(0, database.Addresses.First().People.Count);
@@ -858,16 +984,16 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var pepper = new Food { Name = "Pepper" };
-						var salt = new Food { Name = "Salt" };
+						var pepper = new FoodEntity { Name = "Pepper" };
+						var salt = new FoodEntity { Name = "Salt" };
 
-						var steak = new Food
+						var steak = new FoodEntity
 						{
 							Name = "Steak",
 							ChildRelationships = new[]
 							{
-								new FoodRelationship { Child = pepper, Quantity = 1 },
-								new FoodRelationship { Child = salt, Quantity = 1 }
+								new FoodRelationshipEntity { Child = pepper, Quantity = 1 },
+								new FoodRelationshipEntity { Child = salt, Quantity = 1 }
 							}
 						};
 
@@ -895,15 +1021,18 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
+						var expected = new PersonEntity { Name = "Foo", Address = NewAddress("Bar") };
 						database.People.Add(expected);
 						database.SaveChanges();
 
-						expected = new Person { Name = "Foo", Address = NewAddress("Bar") };
+						expected = new PersonEntity { Name = "Foo", Address = NewAddress("Bar") };
 						database.People.Add(expected);
 
 						// ReSharper disable once AccessToDisposedClosure
-						TestHelper.ExpectedException<Exception>(() => database.SaveChanges(), "The duplicate key value is");
+						TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+							"SQLite Error 19: 'UNIQUE constraint failed: People.Name'.",
+							"Cannot insert duplicate key row in object 'dbo.People' with unique index 'IX_People_Name'. The duplicate key value is (Foo).",
+							"PersonEntity: Cannot insert duplicate row. The duplicate key value is (Foo).");
 					}
 				});
 		}
@@ -918,7 +1047,7 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var expected = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
 						database.Addresses.Add(expected);
 						var actual = database.Addresses.FirstOrDefault();
@@ -928,7 +1057,7 @@ namespace Speedy.Samples.Tests
 						actual = database.Addresses.FirstOrDefault();
 						Assert.IsNotNull(actual);
 						Assert.AreNotEqual(0, actual.Id);
-						TestHelper.AreEqual(expected, actual, nameof(Address.CreatedOn), nameof(Address.ModifiedOn));
+						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 
 						var originalDate = actual.CreatedOn;
 						actual.CreatedOn = DateTime.MaxValue;
@@ -952,7 +1081,7 @@ namespace Speedy.Samples.Tests
 				{
 					Console.WriteLine(database.GetType().Name);
 
-					database.Addresses.Add(new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					database.SaveChanges();
 
@@ -990,7 +1119,7 @@ namespace Speedy.Samples.Tests
 				{
 					Console.WriteLine(database.GetType().Name);
 
-					database.Addresses.Add(new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					database.SaveChanges();
 
@@ -1019,9 +1148,50 @@ namespace Speedy.Samples.Tests
 			});
 		}
 
-		private static Address NewAddress(string line1, string line2 = "")
+		[TestMethod]
+		public void VirtualPropertyShouldNotSerialize()
 		{
-			return new Address { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						var address = new AddressEntity
+						{
+							City = "City",
+							Line1 = "Line1",
+							Line2 = "Line2",
+							SyncId = Guid.Parse("513B9CF1-7596-4E2E-888D-835622A3FB2B"),
+							Postal = "29640",
+							State = "SC"
+						};
+
+						database.Addresses.Add(address);
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						var entity = database.Addresses.First();
+						// Easier to assert on, over write automated values.
+						entity.CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03);
+						entity.ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03);
+
+						var actual = entity.ToSyncObject();
+						var expect = "{\"$id\":\"1\",\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":1,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
+
+						actual.Data.Dump();
+
+						Assert.AreEqual(expect, actual.Data);
+					}
+				});
+		}
+
+		private static AddressEntity NewAddress(string line1, string line2 = "")
+		{
+			return new AddressEntity { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
 		}
 
 		#endregion

@@ -14,14 +14,14 @@ namespace Speedy.Samples.Mappings.Memory
 
 		public static void ConfigureDatabase(Database database)
 		{
-			database.Property<FoodRelationship, int>(x => x.ChildId).IsRequired();
-			database.Property<FoodRelationship, int>(x => x.CreatedOn).IsRequired();
-			database.Property<FoodRelationship, int>(x => x.Id).IsRequired().IsUnique();
-			database.Property<FoodRelationship, int>(x => x.ModifiedOn).IsRequired();
-			database.Property<FoodRelationship, int>(x => x.ParentId).IsRequired();
-			database.Property<FoodRelationship, int>(x => x.Quantity).IsRequired();
-			database.HasRequired<FoodRelationship, Food, int>(x => x.Child, x => x.ChildId, x => x.ParentRelationships);
-			database.HasRequired<FoodRelationship, Food, int>(x => x.Parent, x => x.ParentId, x => x.ChildRelationships);
+			database.Property<FoodRelationshipEntity, int>(x => x.ChildId).IsRequired();
+			database.Property<FoodRelationshipEntity, int>(x => x.CreatedOn).IsRequired();
+			database.Property<FoodRelationshipEntity, int>(x => x.Id).IsRequired().IsUnique();
+			database.Property<FoodRelationshipEntity, int>(x => x.ModifiedOn).IsRequired();
+			database.Property<FoodRelationshipEntity, int>(x => x.ParentId).IsRequired();
+			database.Property<FoodRelationshipEntity, int>(x => x.Quantity).IsRequired();
+			database.HasRequired<FoodRelationshipEntity, int, FoodEntity, int>(x => x.Child, x => x.ChildId, x => x.ParentRelationships);
+			database.HasRequired<FoodRelationshipEntity, int, FoodEntity, int>(x => x.Parent, x => x.ParentId, x => x.ChildRelationships);
 		}
 
 		#endregion

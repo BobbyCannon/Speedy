@@ -11,11 +11,11 @@ using Speedy.Samples.Entities;
 namespace Speedy.Samples.Mappings.EntityFramework
 {
 	[ExcludeFromCodeCoverage]
-	public class LogEventMap : EntityMappingConfiguration<LogEvent>
+	public class LogEventMap : EntityMappingConfiguration<LogEventEntity>
 	{
 		#region Methods
 
-		public override void Map(EntityTypeBuilder<LogEvent> b)
+		public override void Map(EntityTypeBuilder<LogEventEntity> b)
 		{
 			b.ToTable("LogEvents", "dbo");
 			b.HasKey(x => x.Id);

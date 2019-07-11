@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
-using System.Linq;
 
 #endregion
 
@@ -18,14 +17,6 @@ namespace Speedy.Logging
 	/// </remarks>
 	public class LogListener : EventListener
 	{
-		#region Fields
-
-		private readonly EventLevel _level;
-
-		private readonly Guid _sessionId;
-
-		#endregion
-
 		#region Constructors
 
 		/// <summary>
@@ -35,13 +26,13 @@ namespace Speedy.Logging
 		/// <param name="level"> The level in which to log. </param>
 		public LogListener(Guid sessionId, EventLevel level = EventLevel.Informational)
 		{
-			_sessionId = sessionId;
-			_level = level;
+			SessionId = sessionId;
+			Level = level;
 
 			Events = new List<EventWrittenEventArgs>();
 			OnlyEventsWithMessages = true;
 
-			EnableEvents(Logger.Instance, _level);
+			EnableEvents(Logger.Instance, Level);
 		}
 
 		#endregion
@@ -52,6 +43,11 @@ namespace Speedy.Logging
 		/// The events that have been captured from the event source (logger).
 		/// </summary>
 		public List<EventWrittenEventArgs> Events { get; }
+
+		/// <summary>
+		/// The level in which to log.
+		/// </summary>
+		public EventLevel Level { get; set; }
 
 		/// <summary>
 		/// Flag to capture only events with messages
@@ -65,6 +61,11 @@ namespace Speedy.Logging
 		/// Flag to write incoming events to the console.
 		/// </summary>
 		public bool OutputToConsole { get; set; }
+
+		/// <summary>
+		/// The ID of the session.
+		/// </summary>
+		public Guid SessionId { get; set; }
 
 		#endregion
 
@@ -87,7 +88,7 @@ namespace Speedy.Logging
 		/// <inheritdoc />
 		protected override void OnEventWritten(EventWrittenEventArgs args)
 		{
-			if (_sessionId != Guid.Empty && !Equals(args.Payload[0], _sessionId))
+			if (SessionId != Guid.Empty && !Equals(args.Payload[0], SessionId))
 			{
 				return;
 			}
@@ -98,13 +99,22 @@ namespace Speedy.Logging
 			}
 
 			Events.Add(args);
+			EventWritten?.Invoke(this, args);
 
 			if (OutputToConsole)
 			{
-				Console.WriteLine("SessionId: {0}", args.Payload[0]);
-				Console.WriteLine(args.Message, args.Payload.ToArray());
+				Console.WriteLine($"{args.Payload[0]}: {args.ToPayloadString()}");
 			}
 		}
+
+		#endregion
+
+		#region Events
+
+		/// <summary>
+		/// Occurs when an event is written.
+		/// </summary>
+		public event EventHandler<EventWrittenEventArgs> EventWritten;
 
 		#endregion
 	}

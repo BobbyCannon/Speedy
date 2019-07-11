@@ -1,5 +1,6 @@
 ﻿#region References
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Speedy.Samples;
+using Speedy.Samples.Sql;
+using Speedy.Website.Handlers;
 
 #endregion
 
@@ -42,16 +45,19 @@ namespace Speedy.Website
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
+				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
+			app.UseAuthentication();
+
 			app.UseMvc(routes => { routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}"); });
 
 			using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-			using (var context = serviceScope.ServiceProvider.GetService<ContosoDatabase>())
+			using (var context = serviceScope.ServiceProvider.GetService<ContosoSqlDatabase>())
 			{
 				context.Database.Migrate();
 			}
@@ -67,9 +73,15 @@ namespace Speedy.Website
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
 
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-			services.AddDbContext<ContosoDatabase>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-			services.AddTransient<IContosoDatabase, ContosoDatabase>();
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+			// configure basic authentication 
+			services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
+			// The database context will be disposed of at the end of each request
+			services.AddDbContext<ContosoSqlDatabase>(ContosoSqlDatabase.ConfigureOptions);
+			services.AddTransient<IContosoDatabase, ContosoSqlDatabase>();
+			services.AddTransient<IDatabaseProvider<IContosoDatabase>, DatabaseProvider<IContosoDatabase>>(x => new DatabaseProvider<IContosoDatabase>(y => ContosoSqlDatabase.UseSql(options: y)));
 		}
 
 		#endregion

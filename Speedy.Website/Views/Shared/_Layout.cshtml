@@ -1,26 +1,26 @@
 ﻿<!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<title>@ViewData["Title"] - Speedy.Website</title>
-	
-	<link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" asp-append-version="true" />
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>@ViewData["Title"] - Speedy.Website</title>
 
-	<environment include="Development">
-		<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-	</environment>
-	<environment exclude="Development">
-		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-	</environment>
-</head>
+		<link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" asp-append-version="true" />
+
+		<environment include="Development">
+			<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+		</environment>
+		<environment exclude="Development">
+			<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+		</environment>
+	</head>
 	<body>
 		<div id="root" class="container">
 			@RenderBody()
 			<hr />
 			<footer>
-				<p>&copy; @(DateTime.Now.Year) - Speedy.Website</p>
+				<p>&copy; @(TimeService.Now.Year) - Speedy.Website</p>
 			</footer>
 		</div>
 

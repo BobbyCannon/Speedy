@@ -13,15 +13,15 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static GroupMember Get(Action<GroupMember> update = null)
+		public static GroupMemberEntity Get(Action<GroupMemberEntity> update = null)
 		{
-			var result = new GroupMember
+			var result = new GroupMemberEntity
 			{
 				Group = GroupFactory.Get(),
-				GroupSyncId = default(Guid),
-				Id = default(int),
+				GroupSyncId = default,
+				Id = default,
 				Member = PersonFactory.Get(),
-				MemberSyncId = default(Guid),
+				MemberSyncId = default,
 				Role = Guid.NewGuid().ToString()
 			};
 

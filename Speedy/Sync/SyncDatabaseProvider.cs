@@ -48,6 +48,12 @@ namespace Speedy.Sync
 			return _function(Options.DeepClone());
 		}
 
+		/// <inheritdoc />
+		public ISyncableDatabase GetDatabase(DatabaseOptions options)
+		{
+			return _function(options);
+		}
+
 		#endregion
 	}
 }

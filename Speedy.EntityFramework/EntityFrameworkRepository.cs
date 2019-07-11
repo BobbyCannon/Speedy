@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Speedy.Exceptions;
 
 #endregion
@@ -19,7 +18,7 @@ namespace Speedy.EntityFramework
 	/// </summary>
 	/// <typeparam name="T"> The entity type this collection is for. </typeparam>
 	/// <typeparam name="T2"> The type of the entity key. </typeparam>
-	public class EntityFrameworkRepository<T, T2> : IRepository<T, T2> where T : Entity<T2>, new()
+	public class EntityFrameworkRepository<T, T2> : IRepository<T, T2> where T : Entity<T2>
 	{
 		#region Fields
 
@@ -181,7 +180,8 @@ namespace Speedy.EntityFramework
 			var entity = Set.Local.FirstOrDefault(x => Equals(x.Id, id));
 			if (entity == null)
 			{
-				entity = new T { Id = id };
+				entity = Activator.CreateInstance<T>();
+				entity.Id = id;
 				Set.Attach(entity);
 			}
 

@@ -23,6 +23,16 @@
 		/// <summary>
 		/// This stage is to push changes from the client and apply to the server.
 		/// </summary>
-		Pushing = 3
+		Pushing = 3,
+
+		/// <summary>
+		/// The sync engine was completed successfully.
+		/// </summary>
+		Completed = 4,
+
+		/// <summary>
+		/// The sync engine was cancelled.
+		/// </summary>
+		Cancelled = 5
 	}
 }

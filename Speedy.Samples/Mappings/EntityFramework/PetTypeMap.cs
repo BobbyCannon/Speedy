@@ -11,11 +11,11 @@ using Speedy.Samples.Entities;
 namespace Speedy.Samples.Mappings.EntityFramework
 {
 	[ExcludeFromCodeCoverage]
-	public class PetTypeMap : EntityMappingConfiguration<PetType>
+	public class PetTypeMap : EntityMappingConfiguration<PetTypeEntity>
 	{
 		#region Methods
 
-		public override void Map(EntityTypeBuilder<PetType> b)
+		public override void Map(EntityTypeBuilder<PetTypeEntity> b)
 		{
 			b.ToTable("PetType", "dbo");
 			b.HasKey(x => x.Id);

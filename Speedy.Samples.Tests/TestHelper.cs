@@ -5,12 +5,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.EntityFramework;
+using Speedy.Net;
+using Speedy.Samples.Sql;
+using Speedy.Samples.Sqlite;
 using Speedy.Samples.Tests.Properties;
 using Speedy.Sync;
 
@@ -30,27 +34,47 @@ namespace Speedy.Samples.Tests
 
 		static TestHelper()
 		{
-			Directory = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\Speedy");
-			DefaultConnection = "server=localhost;database=Speedy;integrated security=true;";
-			DefaultConnection2 = "server=localhost;database=Speedy2;integrated security=true;";
+			Directory = new DirectoryInfo($"{Path.GetTempPath()}\\SpeedyTests");
+			DefaultSqlConnection = "server=localhost;database=Speedy;integrated security=true;";
+			DefaultSqlConnection2 = "server=localhost;database=Speedy2;integrated security=true;";
+			DefaultSqliteConnection = "Data Source=Speedy.db";
+			DefaultSqliteConnection2 = "Data Source=Speedy2.db";
+
+			var hostEntries = new List<string> { "speedy.local" };
+
+			var lines = File.ReadAllLines("C:\\Windows\\System32\\drivers\\etc\\hosts")
+				.Select(x => x.Trim())
+				.Where(x => !x.StartsWith("#") && x.Length > 0)
+				.ToList();
+
+			var missing = hostEntries.Where(x => !lines.Any(y => y.Contains(x))).ToList();
+			if (missing.Count > 0)
+			{
+				Console.WriteLine("Be sure to host file for development mode. Missing entries are:");
+				missing.ForEach(x => Console.WriteLine($"\t\t{x}"));
+				throw new Exception("Be sure to host file for development mode.");
+			}
 		}
 
 		#endregion
 
 		#region Properties
 
-		public static string DefaultConnection { get; }
+		public static string DefaultSqlConnection { get; }
 
-		public static string DefaultConnection2 { get; }
+		public static string DefaultSqlConnection2 { get; }
+
+		public static string DefaultSqliteConnection { get; }
+
+		public static string DefaultSqliteConnection2 { get; }
 
 		#endregion
 
 		#region Methods
 
-		public static void AddAndSaveChanges<T>(this IContosoDatabase database, T item) where T : SyncEntity
+		public static void AddSaveAndCleanup<T, T2>(this IContosoDatabase database, T item) where T : Entity<T2>
 		{
-			var repository = database.GetSyncableRepository(item.GetType());
-			repository.Add(item);
+			database.Add<T, T2>(item);
 			database.SaveChanges();
 			database.Dispose();
 		}
@@ -108,7 +132,7 @@ namespace Speedy.Samples.Tests
 
 		public static void Dump(this object item)
 		{
-			Debug.WriteLine(item);
+			Console.WriteLine(item);
 		}
 
 		public static void Dump(this byte[] item)
@@ -118,12 +142,13 @@ namespace Speedy.Samples.Tests
 				Debug.Write($"{i:X2},");
 			}
 
-			Debug.WriteLine("");
+			Console.WriteLine("");
 		}
 
-		public static void Dump<T>(this T item, Func<T, object> action)
+		public static void Dump<T>(this T item, string prefix)
 		{
-			Debug.WriteLine(action(item));
+			Console.Write(prefix);
+			Console.WriteLine(item);
 		}
 
 		public static void ExpectedException<T>(Action work, params string[] errorMessage) where T : Exception
@@ -135,11 +160,12 @@ namespace Speedy.Samples.Tests
 			catch (T ex)
 			{
 				var details = ex.ToDetailedString();
-				if (!errorMessage.Any(x => details.Contains(x)))
+				if (errorMessage.Any(x => details.Contains(x)))
 				{
-					Assert.Fail("Exception message did not contain expected error.");
+					return;
 				}
-				return;
+
+				Assert.Fail($"Exception message did not contain expected error. {details}");
 			}
 
 			Assert.Fail("The expected exception was not thrown.");
@@ -152,9 +178,15 @@ namespace Speedy.Samples.Tests
 
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null)
 		{
-			yield return GetEntityFrameworkProvider();
-			yield return GetMemoryProvider(null, options);
-			yield return GetMemoryProvider(Directory.FullName, options);
+			yield return GetSqliteProvider(options);
+			yield return GetSqlProvider(options);
+			yield return GetMemoryProvider(options);
+		}
+
+		public static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(DatabaseOptions options = null)
+		{
+			var database = new ContosoMemoryDatabase(options);
+			return new DatabaseProvider<IContosoDatabase>(x => database);
 		}
 
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
@@ -181,6 +213,26 @@ namespace Speedy.Samples.Tests
 			return list[index];
 		}
 
+		public static IDatabaseProvider<IContosoDatabase> GetSqliteProvider(DatabaseOptions options = null)
+		{
+			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, options))
+			{
+				database.Database.EnsureDeleted();
+				database.Database.Migrate();
+				return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), options);
+			}
+		}
+
+		public static IDatabaseProvider<IContosoDatabase> GetSqlProvider(DatabaseOptions options = null)
+		{
+			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options))
+			{
+				database.Database.Migrate();
+				database.ClearDatabase();
+				return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), options);
+			}
+		}
+
 		public static void Initialize()
 		{
 			Wait(() =>
@@ -198,32 +250,68 @@ namespace Speedy.Samples.Tests
 			});
 		}
 
-		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action)
+		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action, bool includeWeb = true)
 		{
-			GetServerClientScenarios().ForEach(x =>
+			GetServerClientScenarios(includeWeb).ForEach(x =>
 			{
 				Console.WriteLine(x.Item1.Name + " -> " + x.Item2.Name);
 				action(x.Item1, x.Item2);
 			});
 		}
 
+		internal static ISyncableDatabaseProvider GetSyncableMemoryProvider(DatabaseOptions options = null)
+		{
+			var database = new ContosoMemoryDatabase(options);
+			return new SyncDatabaseProvider(x =>
+			{
+				database.Options.Update(x);
+				return database;
+			}, database.Options);
+		}
+
+		internal static ISyncableDatabaseProvider GetSyncableSqliteProvider()
+		{
+			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection))
+			{
+				database.Database.EnsureDeleted();
+				database.Database.Migrate();
+				return new SyncDatabaseProvider(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+			}
+		}
+
+		internal static ISyncableDatabaseProvider GetSyncableSqliteProvider2()
+		{
+			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2))
+			{
+				database.Database.EnsureDeleted();
+				database.Database.Migrate();
+				return new SyncDatabaseProvider(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+			}
+		}
+
+		internal static ISyncableDatabaseProvider GetSyncableSqlProvider()
+		{
+			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection))
+			{
+				database.Database.Migrate();
+				database.ClearDatabase();
+				return new SyncDatabaseProvider(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+			}
+		}
+
+		internal static ISyncableDatabaseProvider GetSyncableSqlProvider2()
+		{
+			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2))
+			{
+				database.Database.Migrate();
+				database.ClearDatabase();
+				return new SyncDatabaseProvider(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+			}
+		}
+
 		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
 		{
 			builder.AppendLine(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
-
-			// Needs a better way to do this?
-			//if (ex is Microsoft.EntityFrameworkCore.DbUpdateException entityException)
-			//{
-			//	foreach (var details in entityException.)
-			//	{
-			//		foreach (var error in details.ValidationErrors)
-			//		{
-			//			builder.AppendLine(details.Entry.Entity.GetType().Name + ": " + error.ErrorMessage);
-			//		}
-
-			//		builder.AppendLine();
-			//	}
-			//}
 
 			if (ex.InnerException != null)
 			{
@@ -231,58 +319,31 @@ namespace Speedy.Samples.Tests
 			}
 		}
 
-		private static IDatabaseProvider<IContosoDatabase> GetEntityFrameworkProvider()
+		private static IEnumerable<(ISyncClient server, ISyncClient client)> GetServerClientScenarios(bool includeWeb)
 		{
-			using (var database = ContosoDatabase.UseSql(DefaultConnection))
+			(ISyncClient server, ISyncClient client) process(ISyncClient server, ISyncClient client)
 			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-				return new DatabaseProvider<IContosoDatabase>(x => new ContosoDatabase(database.DbContextOptions, x));
+				server.Options.MaintainModifiedOn = true;
+				return (server, client);
 			}
-		}
 
-		private static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(string directory = null, DatabaseOptions options = null)
-		{
-			var database = new ContosoMemoryDatabase(directory, options);
-			// todo: support new options?
-			return new DatabaseProvider<IContosoDatabase>(x => database);
-		}
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (Sqlite2)", GetSyncableSqliteProvider2()));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
 
-		private static IEnumerable<Tuple<ISyncClient, ISyncClient>> GetServerClientScenarios()
-		{
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetSyncableEntityFrameworkProvider2()));
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (EF)", GetSyncableEntityFrameworkProvider()));
-			//yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new WebSyncClient("Client (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"));
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			//yield return new Tuple<ISyncClient, ISyncClient>(new WebSyncClient("Server (WEB)", GetSyncableEntityFrameworkProvider(), "http://speedy.local"), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			yield return new Tuple<ISyncClient, ISyncClient>(new SyncClient("Server (EF)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (EF2)", GetSyncableEntityFrameworkProvider2()));
-		}
-
-		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider()
-		{
-			using (var database = ContosoDatabase.UseSql(DefaultConnection))
+			if (includeWeb)
 			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoDatabase(database.DbContextOptions, x));
+				var credential = new NetworkCredential(string.Empty, "Password");
+				yield return process(new WebSyncClient("Server (WEB Secure)", GetSyncableSqlProvider(), "https://speedy.local", "api/SecureSync", credential), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()));
+				yield return process(new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(), "https://speedy.local"), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+				yield return process(new WebSyncClient("Server (WEB Secure)", GetSyncableSqlProvider(), "https://speedy.local", "api/SecureSync", credential), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
 			}
-		}
-
-		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2()
-		{
-			using (var database = ContosoDatabase.UseSql(DefaultConnection2))
-			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoDatabase(database.DbContextOptions, x));
-			}
-		}
-
-		private static ISyncableDatabaseProvider GetSyncableMemoryProvider(string directory = null)
-		{
-			var database = new ContosoMemoryDatabase(directory);
-			// todo: support new options?
-			return new SyncDatabaseProvider(x => database);
 		}
 
 		private static string ToDetailedString(this Exception ex)

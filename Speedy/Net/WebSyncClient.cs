@@ -1,7 +1,8 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
+using System.Net;
+using Speedy.Exceptions;
 using Speedy.Sync;
 
 #endregion
@@ -16,8 +17,7 @@ namespace Speedy.Net
 		#region Fields
 
 		private readonly ISyncableDatabaseProvider _provider;
-		private readonly string _serverUri;
-		private readonly int _timeout;
+		private readonly string _syncUri;
 
 		#endregion
 
@@ -29,13 +29,18 @@ namespace Speedy.Net
 		/// <param name="provider"> The database provider for the client </param>
 		/// <param name="name"> The name of the client. </param>
 		/// <param name="serverUri"> The server to send data to. </param>
-		/// <param name="timeout"> The timeout for each transaction. </param>
-		public WebSyncClient(string name, ISyncableDatabaseProvider provider, string serverUri, int timeout = 10000)
+		/// <param name="syncUri"> The sync URI. Defaults to "api/Sync". </param>
+		/// <param name="credential"> The optional credential for the sync client. </param>
+		/// <param name="timeout"> The timeout in milliseconds for each transaction. </param>
+		public WebSyncClient(string name, ISyncableDatabaseProvider provider, string serverUri, string syncUri = "api/Sync", NetworkCredential credential = null, int timeout = 10000)
 		{
-			Name = name;
 			_provider = provider;
-			_serverUri = serverUri;
-			_timeout = timeout;
+			_syncUri = syncUri;
+
+			Name = name;
+			Options = new SyncClientOptions();
+			Statistics = new SyncStatistics();
+			WebClient = new WebClient(serverUri, timeout, credential);
 		}
 
 		#endregion
@@ -46,60 +51,67 @@ namespace Speedy.Net
 		public string Name { get; }
 
 		/// <inheritdoc />
-		public Guid SessionId { get; set; }
+		public SyncClientConverter IncomingConverter { get; set; }
+
+		/// <inheritdoc />
+		public SyncClientConverter OutgoingConverter { get; set; }
+
+		/// <summary>
+		/// The web client to use to connect to the server.
+		/// </summary>
+		public WebClient WebClient { get; }
+
+		/// <inheritdoc />
+		public SyncClientOptions Options { get; set; }
+
+		/// <inheritdoc />
+		public SyncStatistics Statistics { get; }
 
 		#endregion
 
 		#region Methods
 
-		/// <summary>
-		/// Sends changes to a server.
-		/// </summary>
-		/// <param name="changes"> The changes to write to the server. </param>
-		/// <returns> The date and time for the sync process. </returns>
-		public IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes)
+		/// <inheritdoc />
+		public ServiceResult<SyncIssue> ApplyChanges(Guid sessionId, ServiceRequest<SyncObject> changes)
 		{
-			return WebClient.Post<IEnumerable<SyncObject>, IEnumerable<SyncIssue>>(_serverUri, $"api/Sync/{nameof(ApplyChanges)}/{SessionId}", changes, _timeout);
+			return WebClient.Post<ServiceRequest<SyncObject>, ServiceResult<SyncIssue>>($"{_syncUri}/{nameof(ApplyChanges)}/{sessionId}", changes);
 		}
 
-		/// <summary>
-		/// Sends issue corrections to a server.
-		/// </summary>
-		/// <param name="corrections"> The corrections to write to the server. </param>
-		/// <returns> A list of sync issues if there were any. </returns>
-		public IEnumerable<SyncIssue> ApplyCorrections(IEnumerable<SyncObject> corrections)
+		/// <inheritdoc />
+		public ServiceResult<SyncIssue> ApplyCorrections(Guid sessionId, ServiceRequest<SyncObject> corrections)
 		{
-			return WebClient.Post<IEnumerable<SyncObject>, IEnumerable<SyncIssue>>(_serverUri, $"api/Sync/{nameof(ApplyCorrections)}/{SessionId}", corrections, _timeout);
+			return WebClient.Post<ServiceRequest<SyncObject>, ServiceResult<SyncIssue>>($"{_syncUri}/{nameof(ApplyCorrections)}/{sessionId}", corrections);
 		}
 
-		/// <summary>
-		/// Gets the changes from the server.
-		/// </summary>
-		/// <param name="request"> The details for the request. </param>
-		/// <returns> The list of changes from the server. </returns>
-		public int GetChangeCount(SyncRequest request)
+		/// <inheritdoc />
+		public void BeginSync(Guid sessionId, SyncOptions options)
 		{
-			return WebClient.Post<SyncRequest, int>(_serverUri, $"api/Sync/{nameof(GetChangeCount)}/{SessionId}", request, _timeout);
+			using (var result = WebClient.Post($"{_syncUri}/{nameof(BeginSync)}/{sessionId}", options))
+			{
+				if (!result.IsSuccessStatusCode)
+				{
+					throw new WebClientException(result);
+				}
+			}
 		}
 
-		/// <summary>
-		/// Gets the changes from the server.
-		/// </summary>
-		/// <param name="request"> The details for the request. </param>
-		/// <returns> The list of changes from the server. </returns>
-		public IEnumerable<SyncObject> GetChanges(SyncRequest request)
+		/// <inheritdoc />
+		public void EndSync(Guid sessionId)
 		{
-			return WebClient.Post<SyncRequest, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetChanges)}/{SessionId}", request, _timeout);
+			var statistics = WebClient.Post<string, SyncStatistics>($"{_syncUri}/{nameof(EndSync)}/{sessionId}", string.Empty);
+			Statistics.Update(statistics);
 		}
 
-		/// <summary>
-		/// Gets the list of sync objects to try and resolve the issue list.
-		/// </summary>
-		/// <param name="issues"> The issues to process. </param>
-		/// <returns> The sync objects to resolve the issues. </returns>
-		public IEnumerable<SyncObject> GetCorrections(IEnumerable<SyncIssue> issues)
+		/// <inheritdoc />
+		public ServiceResult<SyncObject> GetChanges(Guid sessionId, SyncRequest request)
 		{
-			return WebClient.Post<IEnumerable<SyncIssue>, IEnumerable<SyncObject>>(_serverUri, $"api/Sync/{nameof(GetCorrections)}/{SessionId}", issues, _timeout);
+			return WebClient.Post<SyncRequest, ServiceResult<SyncObject>>($"{_syncUri}/{nameof(GetChanges)}/{sessionId}", request);
+		}
+
+		/// <inheritdoc />
+		public ServiceResult<SyncObject> GetCorrections(Guid sessionId, ServiceRequest<SyncIssue> issues)
+		{
+			return WebClient.Post<ServiceRequest<SyncIssue>, ServiceResult<SyncObject>>($"{_syncUri}/{nameof(GetCorrections)}/{sessionId}", issues);
 		}
 
 		/// <inheritdoc />
@@ -109,9 +121,21 @@ namespace Speedy.Net
 		}
 
 		/// <inheritdoc />
-		public T GetDatabase<T>() where T : class, ISyncableDatabase, IDatabase
+		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
 			return (T) _provider.GetDatabase();
+		}
+
+		/// <inheritdoc />
+		public void UpdateOptions(Guid sessionId, SyncClientOptions options)
+		{
+			using (var result = WebClient.Post($"{_syncUri}/{nameof(UpdateOptions)}/{sessionId}", options))
+			{
+				if (!result.IsSuccessStatusCode)
+				{
+					throw new WebClientException(result);
+				}
+			}
 		}
 
 		#endregion

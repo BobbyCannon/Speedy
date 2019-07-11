@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 
 #endregion
@@ -12,8 +11,17 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represent an entity that can be synced.
 	/// </summary>
-	public abstract class SyncEntity : IncrementingModifiableEntity
+	public abstract class SyncEntity<T> : Entity<T>, ISyncEntity
 	{
+		#region Fields
+
+		/// <summary>
+		/// Properties to ignore when syncing
+		/// </summary>
+		private HashSet<string> _excludedPropertiesForSync;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -21,98 +29,139 @@ namespace Speedy.Sync
 		/// </summary>
 		protected SyncEntity()
 		{
-			ExcludedPropertiesForUpdate = new HashSet<string>(new[] { "Id", "SyncId" });
-			ExcludedPropertiesForSerializing = new HashSet<string>();
+			_excludedPropertiesForSync = new HashSet<string>(GetDefaultExclusionsForSync());
 		}
 
 		#endregion
 
 		#region Properties
 
-		/// <summary>
-		/// The ID of the sync entity.
-		/// </summary>
-		/// <remarks>
-		/// This ID is should be globally unique. Never reuse GUIDs.
-		/// </remarks>
+		/// <inheritdoc />
+		public DateTime CreatedOn { get; set; }
+
+		/// <inheritdoc />
+		public bool IsDeleted { get; set; }
+
+		/// <inheritdoc />
+		public DateTime ModifiedOn { get; set; }
+
+		/// <inheritdoc />
 		public Guid SyncId { get; set; }
-
-		/// <summary>
-		/// Properties to ignore when updating.
-		/// </summary>
-		protected HashSet<string> ExcludedPropertiesForSerializing { get; }
-
-		/// <summary>
-		/// Properties to ignore when updating.
-		/// </summary>
-		protected HashSet<string> ExcludedPropertiesForUpdate { get; }
 
 		#endregion
 
 		#region Methods
 
+		/// <inheritdoc />
+		public void ExcludePropertiesForSync(params string[] propertyNames)
+		{
+			foreach (var propertyName in propertyNames)
+			{
+				if (_excludedPropertiesForSync.Contains(propertyName))
+				{
+					continue;
+				}
+
+				_excludedPropertiesForSync.Add(propertyName);
+			}
+		}
+
 		/// <summary>
-		/// Converts the entity into an object to transmit.
+		/// Gets the default exclusions for sync. Warning: this is called during constructor, overrides need to be 
+		/// sure to only return static values as to not cause issues.
 		/// </summary>
-		/// <returns> The sync object for this entity. </returns>
+		/// <returns> The values to exclude during sync. </returns>
+		public virtual HashSet<string> GetDefaultExclusionsForSync()
+		{
+			return new HashSet<string> { nameof(Id) };
+		}
+
+		/// <inheritdoc />
+		public bool IsPropertyExcludedForSync(string propertyName)
+		{
+			return _excludedPropertiesForSync.Contains(propertyName);
+		}
+
+		/// <inheritdoc />
+		public void ResetPropertySyncExclusions(bool setToDefault = true)
+		{
+			_excludedPropertiesForSync = setToDefault ? new HashSet<string>(GetDefaultExclusionsForSync()) : new HashSet<string>();
+		}
+
+		/// <inheritdoc />
+		public void ResetId()
+		{
+			Id = default;
+		}
+
+		/// <inheritdoc />
 		public SyncObject ToSyncObject()
 		{
-			var json = this.ToJson(ignoreVirtuals: true);
 			var type = this.GetRealType();
+			var settings = SyncObject.GetOrAddCachedSettings(type);
+			var json = this.ToJson(settings);
 
 			return new SyncObject
 			{
 				Data = json,
+				ModifiedOn = ModifiedOn,
 				SyncId = SyncId,
 				TypeName = type.ToAssemblyName(),
 				Status = CreatedOn == ModifiedOn ? SyncObjectStatus.Added : SyncObjectStatus.Modified
 			};
 		}
 
-		/// <summary>
-		/// Creates a tombstone for this entity.
-		/// </summary>
-		/// <param name="referenceId"> The reference ID to the owner of this tombstone. </param>
-		/// <returns> The tombstone for this entity. </returns>
-		public SyncTombstone ToSyncTombstone(string referenceId)
+		/// <inheritdoc />
+		public override object Unwrap()
 		{
-			return new SyncTombstone { CreatedOn = DateTime.UtcNow, TypeName = this.GetRealType().ToAssemblyName(), SyncId = SyncId, ReferenceId = referenceId ?? string.Empty };
+			var syncObject = ToSyncObject();
+			return syncObject.ToSyncEntity();
 		}
 
-		/// <summary>
-		/// Update the entity with the changes.
-		/// </summary>
-		/// <param name="update"> The entity with the changes. </param>
-		public void Update(SyncEntity update)
+		/// <inheritdoc />
+		public void Update(ISyncEntity update, bool allowSyncExclusions = true, bool allowUpdateExclusions = true)
 		{
-			var type = this.GetRealType();
-			var typeName = type.ToAssemblyName();
-			var updateTypeName = update.GetRealType().ToAssemblyName();
+			var destinationType = this.GetRealType();
+			var sourceType = update.GetRealType();
+			var destinationProperties = destinationType.GetCachedProperties();
+			var sourceProperties = sourceType.GetCachedProperties();
+			var virtualProperties = destinationType.GetVirtualPropertyNames().ToArray();
 
-			if (typeName != updateTypeName)
+			foreach (var thisProperty in destinationProperties)
 			{
-				throw new DataException("Trying update a sync entity with a mismatched type.");
-			}
-
-			var properties = type.GetCachedProperties();
-			foreach (var property in properties)
-			{
-				if (!property.CanWrite || ExcludedPropertiesForUpdate.Contains(property.Name))
+				// Ensure the destination can write this property
+				var canWrite = thisProperty.CanWrite && thisProperty.SetMethod.IsPublic;
+				if (!canWrite)
 				{
 					continue;
 				}
 
-				property.SetValue(this, property.GetValue(update));
+				var isPropertyExcludedForSync = allowSyncExclusions && (IsPropertyExcludedForSync(thisProperty.Name) || update.IsPropertyExcludedForSync(thisProperty.Name));
+				var isPropertyExcludedForUpdate = allowUpdateExclusions && (IsPropertyExcludedForUpdate(thisProperty.Name) || update.IsPropertyExcludedForUpdate(thisProperty.Name));
+				
+				// We always ignore virtual properties and possible some exclusions
+				if (isPropertyExcludedForSync || isPropertyExcludedForUpdate || virtualProperties.Contains(thisProperty.Name))
+				{
+					continue;
+				}
+
+				// Check to see if the update source entity has the property
+				var updateProperty = sourceProperties.FirstOrDefault(x => x.Name == thisProperty.Name && x.PropertyType == thisProperty.PropertyType);
+				if (updateProperty == null)
+				{
+					// Skip this because target type does not have correct property.
+					continue;
+				}
+
+				thisProperty.SetValue(this, updateProperty.GetValue(update));
 			}
 		}
 
-		/// <summary>
-		/// Updates the sync ids using relationships.
-		/// </summary>
+		/// <inheritdoc />
 		public virtual void UpdateLocalSyncIds()
 		{
 			var type = this.GetRealType();
-			var baseEntityType = typeof(SyncEntity);
+			var baseEntityType = typeof(ISyncEntity);
 			var properties = type.GetCachedProperties().ToList();
 
 			var entityRelationships = properties
@@ -122,10 +171,9 @@ namespace Speedy.Sync
 
 			foreach (var entityRelationship in entityRelationships)
 			{
-				var syncEntity = entityRelationship.GetValue(this, null) as SyncEntity;
-				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
+				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == $"{entityRelationship.Name}SyncId");
 
-				if (syncEntity != null && entityRelationshipSyncIdProperty != null)
+				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && entityRelationshipSyncIdProperty != null)
 				{
 					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
 					if (otherEntitySyncId != syncEntity.SyncId)

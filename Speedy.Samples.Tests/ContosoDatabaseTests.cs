@@ -1,9 +1,8 @@
 #region References
 
-using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.EntityFramework;
+using Speedy.Samples.Sql;
 using Speedy.Samples.Tests.EntityFactories;
 
 #endregion
@@ -18,7 +17,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddAddressTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -31,7 +30,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddFoodRelationshipTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -44,7 +43,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddFoodTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -57,7 +56,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddGroupMemberTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -70,7 +69,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddGroupTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -83,7 +82,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddLogEventTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -96,7 +95,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPersonTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -109,7 +108,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPetTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -122,7 +121,7 @@ namespace Speedy.Samples.Tests
 		[TestMethod]
 		public void AddPetTypeTest()
 		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
+			foreach (var database in new IContosoDatabase[] { new ContosoSqlDatabase(GetOptions()), new ContosoMemoryDatabase() })
 			{
 				using (database)
 				{
@@ -132,31 +131,18 @@ namespace Speedy.Samples.Tests
 			}
 		}
 
-		[TestMethod]
-		public void AddSyncTombstoneTest()
-		{
-			foreach (var database in new IContosoDatabase[] { new ContosoDatabase(GetOptions()), new ContosoMemoryDatabase() })
-			{
-				using (database)
-				{
-					database.SyncTombstones.Add(SyncTombstoneFactory.Get());
-					database.SaveChanges();
-				}
-			}
-		}
-
 		[ClassInitialize]
 		public static void ClassInitialize(TestContext context)
 		{
-			using (var database = new ContosoDatabase(GetOptions()))
+			using (var database = new ContosoSqlDatabase(GetOptions()))
 			{
 				database.Database.Migrate();
 			}
 		}
 
-		private static DbContextOptions<ContosoDatabase> GetOptions()
+		private static DbContextOptions<ContosoSqlDatabase> GetOptions()
 		{
-			return new DbContextOptionsBuilder<ContosoDatabase>().UseSqlServer(TestHelper.DefaultConnection, EntityFrameworkDatabase.UpdateOptions).Options;
+			return new DbContextOptionsBuilder<ContosoSqlDatabase>().UseSqlServer(TestHelper.DefaultSqlConnection, ContosoDatabase.UpdateOptions).Options;
 		}
 
 		#endregion

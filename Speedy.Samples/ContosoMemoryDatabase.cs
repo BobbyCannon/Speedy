@@ -1,7 +1,7 @@
 #region References
 
+using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
-using Speedy.Samples.Mappings.Memory;
 
 #endregion
 
@@ -11,55 +11,38 @@ namespace Speedy.Samples
 	{
 		#region Constructors
 
-		public ContosoMemoryDatabase(string directory = null, DatabaseOptions options = null)
-			: base(directory, options)
+		public ContosoMemoryDatabase(DatabaseOptions options = null) : base(options)
 		{
-			Options.SyncOrder = new[] { typeof(Address).FullName, typeof(Person).FullName };
+			Options.SyncOrder = new[] { typeof(AddressEntity).ToAssemblyName(), typeof(PersonEntity).ToAssemblyName() };
 
-			Addresses = GetSyncableRepository<Address>();
-			AddressMap.ConfigureDatabase(this);
+			Addresses = GetSyncableRepository<AddressEntity, long>();
+			Food = GetRepository<FoodEntity, int>();
+			FoodRelationships = GetRepository<FoodRelationshipEntity, int>();
+			Groups = GetRepository<GroupEntity, int>();
+			GroupMembers = GetRepository<GroupMemberEntity, int>();
+			LogEvents = GetRepository<LogEventEntity, string>();
+			People = GetSyncableRepository<PersonEntity, int>();
+			Pets = GetRepository<PetEntity, PetEntity.PetKey>();
+			PetTypes = GetRepository<PetTypeEntity, string>();
 
-			Food = GetRepository<Food, int>();
-			FoodMap.ConfigureDatabase(this);
+			Property<AddressEntity, long>(x => x.Id);
 
-			FoodRelationships = GetRepository<FoodRelationship, int>();
-			FoodRelationshipMap.ConfigureDatabase(this);
-
-			Groups = GetRepository<Group, int>();
-			GroupMap.ConfigureDatabase(this);
-
-			GroupMembers = GetRepository<GroupMember, int>();
-			GroupMemberMap.ConfigureDatabase(this);
-
-			LogEvents = GetRepository<LogEvent, string>();
-			LogEventMap.ConfigureDatabase(this);
-
-			People = GetSyncableRepository<Person>();
-			PersonMap.ConfigureDatabase(this);
-
-			Pets = GetRepository<Pet, Pet.PetKey>();
-			PetMap.ConfigureDatabase(this);
-
-			PetTypes = GetRepository<PetType, string>();
-			PetTypeMap.ConfigureDatabase(this);
-
-			// Configuration for the sync tombstone
-			SyncTombstoneMap.ConfigureDatabase(this);
+			this.ConfigureModelViaMapping();
 		}
 
 		#endregion
 
 		#region Properties
 
-		public IRepository<Address, int> Addresses { get; }
-		public IRepository<Food, int> Food { get; }
-		public IRepository<FoodRelationship, int> FoodRelationships { get; }
-		public IRepository<GroupMember, int> GroupMembers { get; }
-		public IRepository<Group, int> Groups { get; }
-		public IRepository<LogEvent, string> LogEvents { get; }
-		public IRepository<Person, int> People { get; }
-		public IRepository<Pet, Pet.PetKey> Pets { get; }
-		public IRepository<PetType, string> PetTypes { get; }
+		public IRepository<AddressEntity, long> Addresses { get; }
+		public IRepository<FoodEntity, int> Food { get; }
+		public IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }
+		public IRepository<GroupMemberEntity, int> GroupMembers { get; }
+		public IRepository<GroupEntity, int> Groups { get; }
+		public IRepository<LogEventEntity, string> LogEvents { get; }
+		public IRepository<PersonEntity, int> People { get; }
+		public IRepository<PetEntity, PetEntity.PetKey> Pets { get; }
+		public IRepository<PetTypeEntity, string> PetTypes { get; }
 
 		#endregion
 	}

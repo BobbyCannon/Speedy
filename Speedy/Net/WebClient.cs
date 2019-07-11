@@ -1,138 +1,351 @@
 ﻿#region References
 
+using Speedy.Exceptions;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
-using Newtonsoft.Json;
+using System.Text;
+using System.Threading.Tasks;
 
 #endregion
 
 namespace Speedy.Net
 {
 	/// <summary>
-	/// Client used to get and post web data.
+	/// This class is used for making GET and POST calls to an HTTP endpoint.
 	/// </summary>
-	[ExcludeFromCodeCoverage]
-	public static class WebClient
+	public class WebClient
 	{
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new HTTP helper to point at a specific URI, and with the specified session identifier.
+		/// </summary>
+		/// <param name="baseUri"> The base URI. </param>
+		/// <param name="timeout"> The timeout in milliseconds. </param>
+		/// <param name="credential"> The optional credential to authenticate with. </param>
+		public WebClient(string baseUri, int timeout, NetworkCredential credential = null)
+		{
+			BaseUri = baseUri;
+			Cookies = new CookieCollection();
+			Credential = credential;
+			Headers = new Dictionary<string, string>();
+			Timeout = TimeSpan.FromMilliseconds(timeout);
+		}
+
+		#endregion
+
+		#region Properties
+
+		/// <summary>
+		/// Gets the base URI for connecting.
+		/// </summary>
+		public string BaseUri { get; set; }
+
+		/// <summary>
+		/// The cookies for this client.
+		/// </summary>
+		public CookieCollection Cookies { get; set; }
+
+		/// <summary>
+		/// The credentials for the connection.
+		/// </summary>
+		public NetworkCredential Credential { get; set; }
+
+		/// <summary>
+		/// The headers for the connection.
+		/// </summary>
+		public IDictionary<string, string> Headers { get; set; }
+
+		/// <summary>
+		/// Determines if the connection is authenticated.
+		/// </summary>
+		public bool IsAuthenticated
+		{
+			get
+			{
+				foreach (Cookie cookie in Cookies)
+				{
+					if (cookie.Name == ".ASPXAUTH")
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets the number of milliseconds to wait before the request times out. The default value is 100 seconds.
+		/// </summary>
+		public TimeSpan Timeout { get; set; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
-		/// Gets the string values from a URI.
+		/// Delete request
 		/// </summary>
-		/// <param name="uri"> The URI to read from. </param>
-		/// <param name="location"> The relative location to read from. </param>
-		/// <param name="timeout"> The amount of time to wait (in milliseconds) before timing out. </param>
-		/// <returns> The data that was read from the uri and location. </returns>
-		public static string Get(string uri, string location, int timeout = 5000)
+		/// <param name="uri"> The URI to use. </param>
+		/// <returns> The response from the server. </returns>
+		public HttpResponseMessage Delete(string uri)
 		{
-			using (var client = new HttpClient())
+			using (var handler = new HttpClientHandler())
 			{
-				client.BaseAddress = new Uri(uri);
-				client.Timeout = TimeSpan.FromMilliseconds(timeout);
-				client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-				var response = client.GetAsync(location).Result;
-				if (!response.IsSuccessStatusCode)
+				using (var client = CreateHttpClient(handler))
 				{
-					throw new Exception($"{response.StatusCode} ({response.ReasonPhrase})");
+					var response = client.DeleteAsync(uri).Result;
+					return ProcessResponse(response, handler);
 				}
-
-				return response.Content.ReadAsStringAsync().Result;
 			}
 		}
 
 		/// <summary>
-		/// Gets the deserialized typed value from a URI.
+		/// Deserialize the response.
 		/// </summary>
 		/// <typeparam name="T"> The type to deserialize into. </typeparam>
-		/// <param name="uri"> The URI to read from. </param>
-		/// <param name="location"> The relative location to read from. </param>
-		/// <param name="timeout"> The amount of time to wait (in milliseconds) before timing out. </param>
-		/// <returns> The data that was read from the URI and location. </returns>
-		public static T Get<T>(string uri, string location, int timeout = 5000)
+		/// <param name="result"> The result to deserialize. </param>
+		/// <returns> The deserialized type. </returns>
+		public T Deserialize<T>(HttpResponseMessage result)
 		{
-			var result = Get(uri, location, timeout);
-			return JsonConvert.DeserializeObject<T>(result);
+			return result.Content.ReadAsStringAsync().Result.FromJson<T>();
 		}
 
 		/// <summary>
-		/// Serializes the content then post the data to the URI.
+		/// Gets a response and deserialize it.
 		/// </summary>
-		/// <typeparam name="T"> The type to serialize the response to. </typeparam>
-		/// <param name="uri"> The URI to send to. </param>
-		/// <param name="location"> The relative location to send to. </param>
-		/// <param name="content"> The to serialize and send. </param>
-		/// <param name="timeout"> The amount of time to wait (in milliseconds) before timing out. </param>
-		/// <returns> The response for the post. </returns>
-		public static void Post<T>(string uri, string location, T content = null, int timeout = 5000) where T : class
+		/// <typeparam name="T"> The type to deserialize into. </typeparam>
+		/// <param name="content"> The content to deserialize. </param>
+		/// <returns> The deserialized type. </returns>
+		public static T Get<T>(HttpContent content)
 		{
-			using (var client = new HttpClient())
-			{
-				client.BaseAddress = new Uri(uri);
-				client.Timeout = TimeSpan.FromMilliseconds(timeout);
+			return content.ReadAsStringAsync().Result.FromJson<T>();
+		}
 
-				HttpResponseMessage response;
-				using (HttpContent httpContent = new StringContent((content ?? new object()).ToJson(ignoreVirtuals: true)))
+		/// <summary>
+		/// Gets a response and deserialize it.
+		/// </summary>
+		/// <typeparam name="T"> The type to deserialize into. </typeparam>
+		/// <param name="uri"> The URI of the content to deserialize. </param>
+		/// <returns> The deserialized type. </returns>
+		public virtual T Get<T>(string uri)
+		{
+			using (var result = Get(uri))
+			{
+				if (!result.IsSuccessStatusCode)
 				{
-					httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-					response = client.PostAsync(location, httpContent).Result;
+					throw new WebClientException(result);
 				}
 
-				if (!response.IsSuccessStatusCode)
+				return Get<T>(result.Content);
+			}
+		}
+
+		/// <summary>
+		/// Gets a response and deserialize it.
+		/// </summary>
+		/// <param name="uri"> The URI of the content to deserialize. </param>
+		/// <returns> The response from the server. </returns>
+		public virtual HttpResponseMessage Get(string uri)
+		{
+			using (var handler = new HttpClientHandler())
+			{
+				using (var client = CreateHttpClient(handler))
 				{
-					throw new Exception($"{response.StatusCode} ({response.ReasonPhrase})");
+					var response = client.GetAsync(uri).Result;
+					return ProcessResponse(response, handler);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Serializes the content then post the data to the URI. The response is deserialized into the provided type.
+		/// Patch an item on the server with the provide content.
 		/// </summary>
-		/// <typeparam name="T1"> The type to serialize and send. </typeparam>
-		/// <typeparam name="T2"> The type to serialize the response to. </typeparam>
-		/// <param name="uri"> The URI to send to. </param>
-		/// <param name="location"> The relative location to send to. </param>
-		/// <param name="content"> The to serialize and send. </param>
-		/// <param name="timeout"> The amount of time to wait (in milliseconds) before timing out. </param>
-		/// <returns> The deserialized response of the post. </returns>
-		public static T2 Post<T1, T2>(string uri, string location, T1 content, int timeout = 5000)
+		/// <typeparam name="TContent"> The type to update with. </typeparam>
+		/// <param name="uri"> The URI to patch to. </param>
+		/// <param name="content"> The content to update with. </param>
+		/// <returns> The response from the server. </returns>
+		public virtual HttpResponseMessage Patch<TContent>(string uri, TContent content)
 		{
-			using (var client = new HttpClient())
+			return InternalPatch(uri, content);
+		}
+
+		/// <summary>
+		/// Post an item on the server with the provide content.
+		/// </summary>
+		/// <typeparam name="TContent"> The type to update with. </typeparam>
+		/// <typeparam name="TResult"> The type to respond with. </typeparam>
+		/// <param name="uri"> The URI to post to. </param>
+		/// <param name="content"> The content to update with. </param>
+		/// <returns> The server result. </returns>
+		public virtual TResult Post<TContent, TResult>(string uri, TContent content)
+		{
+			using (var result = InternalPost(uri, content))
 			{
-				client.BaseAddress = new Uri(uri);
-				client.Timeout = TimeSpan.FromMilliseconds(timeout);
-
-				HttpResponseMessage response;
-				var json = content.ToJson(ignoreVirtuals: true);
-
-				using (HttpContent httpContent = new StringContent(json))
+				if (!result.IsSuccessStatusCode)
 				{
-					httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-					response = client.PostAsync(location, httpContent).Result;
+					throw new WebClientException(result);
 				}
 
-				if (!response.IsSuccessStatusCode)
+				return Deserialize<TResult>(result);
+			}
+		}
+
+		/// <summary>
+		/// Post an item on the server with the provide content.
+		/// </summary>
+		/// <typeparam name="TContent"> The type to update with. </typeparam>
+		/// <param name="uri"> The URI to post to. </param>
+		/// <param name="content"> The content to update with. </param>
+		/// <returns> The response from the server. </returns>
+		public virtual HttpResponseMessage Post<TContent>(string uri, TContent content)
+		{
+			return InternalPost(uri, content);
+		}
+
+		/// <summary>
+		/// Post an item on the server with the provide content.
+		/// </summary>
+		/// <param name="uri"> The URI to post to. </param>
+		/// <param name="content"> The content to update with. </param>
+		/// <returns> The response from the server. </returns>
+		public virtual HttpResponseMessage Post(string uri, string content)
+		{
+			return InternalPost(uri, content);
+		}
+
+		/// <summary>
+		/// Put an item on the server with the provide content.
+		/// </summary>
+		/// <param name="uri"> The URI to put to. </param>
+		/// <param name="content"> The content to update with. </param>
+		/// <returns> The response from the server. </returns>
+		public virtual TResult Put<TContent, TResult>(string uri, TContent content)
+		{
+			using (var result = InternalPut(uri, content))
+			{
+				if (!result.IsSuccessStatusCode)
 				{
-					if (response.StatusCode == HttpStatusCode.Conflict)
+					throw new WebClientException(result);
+				}
+
+				return result.Content.ReadAsStringAsync().Result.FromJson<TResult>();
+			}
+		}
+
+		/// <summary>
+		/// Put (update) an item on the server with the provide content.
+		/// </summary>
+		/// <typeparam name="TContent"> The type to update with. </typeparam>
+		/// <param name="uri"> The URI to post to. </param>
+		/// <param name="content"> The content to update with. </param>
+		/// <returns> The response from the server. </returns>
+		public virtual HttpResponseMessage Put<TContent>(string uri, TContent content)
+		{
+			return InternalPut(uri, content);
+		}
+
+		private HttpClient CreateHttpClient(HttpClientHandler handler)
+		{
+			foreach (Cookie ck in Cookies)
+			{
+				handler.CookieContainer.Add(ck);
+			}
+
+			var client = new HttpClient(handler)
+			{
+				BaseAddress = new Uri(BaseUri),
+				Timeout = Timeout
+			};
+
+			if (Credential != null)
+			{
+				var value = $"{Credential.UserName}:{Credential.Password}";
+				var headerValue = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(value)));
+				client.DefaultRequestHeaders.Authorization = headerValue;
+			}
+
+			Headers.ForEach(x => client.DefaultRequestHeaders.Add(x.Key, x.Value));
+			return client;
+		}
+
+		private string GetJson(object content)
+		{
+			var s = content as string;
+			var json = s?.IsJson() == true ? s : content.ToJson();
+			return json;
+		}
+
+		private HttpResponseMessage InternalPatch<T>(string uri, T content)
+		{
+			using (var handler = new HttpClientHandler())
+			{
+				using (var client = CreateHttpClient(handler))
+				{
+					var json = GetJson(content);
+
+					using (var objectContent = new StringContent(json, Encoding.UTF8, "application/json-patch+json"))
 					{
-						var responseContent = response.Content.ReadAsStringAsync().Result;
-						if (responseContent.Contains("You may only perform this action") && responseContent.Contains(" per second."))
-						{
-							Thread.Sleep(250);
-							return Post<T1, T2>(uri, location, content, timeout);
-						}
+						var response = PatchAsync(client, uri, objectContent).Result;
+						return ProcessResponse(response, handler);
 					}
-
-					throw new Exception($"{response.StatusCode} ({response.ReasonPhrase})");
 				}
-
-				var result = response.Content.ReadAsStringAsync().Result;
-				return JsonConvert.DeserializeObject<T2>(result);
 			}
+		}
+
+		private HttpResponseMessage InternalPost<T>(string uri, T content)
+		{
+			using (var handler = new HttpClientHandler())
+			{
+				using (var client = CreateHttpClient(handler))
+				{
+					var json = GetJson(content);
+
+					using (var objectContent = new StringContent(json, Encoding.UTF8, "application/json"))
+					{
+						var response = client.PostAsync(uri, objectContent).Result;
+						return ProcessResponse(response, handler);
+					}
+				}
+			}
+		}
+
+		private HttpResponseMessage InternalPut<T>(string uri, T content)
+		{
+			using (var handler = new HttpClientHandler())
+			{
+				using (var client = CreateHttpClient(handler))
+				{
+					var json = GetJson(content);
+
+					using (var objectContent = new StringContent(json, Encoding.UTF8, "application/json"))
+					{
+						var response = client.PutAsync(uri, objectContent).Result;
+						return ProcessResponse(response, handler);
+					}
+				}
+			}
+		}
+
+		private async Task<HttpResponseMessage> PatchAsync(HttpClient client, string uri, HttpContent content)
+		{
+			var method = new HttpMethod("PATCH");
+			var request = new HttpRequestMessage(method, uri) { Content = content };
+			return await client.SendAsync(request);
+		}
+
+		private HttpResponseMessage ProcessResponse(HttpResponseMessage response, HttpClientHandler handler)
+		{
+			if (handler.CookieContainer != null && Uri.IsWellFormedUriString(BaseUri, UriKind.Absolute))
+			{
+				Cookies = handler.CookieContainer.GetCookies(new Uri(BaseUri));
+			}
+
+			return response;
 		}
 
 		#endregion

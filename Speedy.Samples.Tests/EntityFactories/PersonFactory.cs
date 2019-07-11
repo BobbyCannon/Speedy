@@ -13,17 +13,17 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static Person Get(Action<Person> update = null)
+		public static PersonEntity Get(Action<PersonEntity> update = null, string name = null, AddressEntity address = null)
 		{
-			var result = new Person
+			var result = new PersonEntity
 			{
-				Address = AddressFactory.Get(),
-				AddressSyncId = default(Guid),
+				Address = address ?? AddressFactory.Get(),
+				AddressSyncId = default,
 				BillingAddressId = null,
 				BillingAddressSyncId = null,
-				Id = default(int),
-				Name = Guid.NewGuid().ToString(),
-				SyncId = default(Guid)
+				Id = default,
+				Name = name ?? Guid.NewGuid().ToString(),
+				SyncId = Guid.NewGuid()
 			};
 
 			update?.Invoke(result);

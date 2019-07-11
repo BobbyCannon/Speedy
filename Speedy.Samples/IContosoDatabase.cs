@@ -10,15 +10,15 @@ namespace Speedy.Samples
 	{
 		#region Properties
 
-		IRepository<Address, int> Addresses { get; }
-		IRepository<Food, int> Food { get; }
-		IRepository<FoodRelationship, int> FoodRelationships { get; }
-		IRepository<GroupMember, int> GroupMembers { get; }
-		IRepository<Group, int> Groups { get; }
-		IRepository<LogEvent, string> LogEvents { get; }
-		IRepository<Person, int> People { get; }
-		IRepository<Pet, Pet.PetKey> Pets { get; }
-		IRepository<PetType, string> PetTypes { get; }
+		IRepository<AddressEntity, long> Addresses { get; }
+		IRepository<FoodEntity, int> Food { get; }
+		IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }
+		IRepository<GroupMemberEntity, int> GroupMembers { get; }
+		IRepository<GroupEntity, int> Groups { get; }
+		IRepository<LogEventEntity, string> LogEvents { get; }
+		IRepository<PersonEntity, int> People { get; }
+		IRepository<PetEntity, PetEntity.PetKey> Pets { get; }
+		IRepository<PetTypeEntity, string> PetTypes { get; }
 
 		#endregion
 	}

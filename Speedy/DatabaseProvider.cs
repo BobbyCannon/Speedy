@@ -20,7 +20,7 @@ namespace Speedy
 		#region Constructors
 
 		/// <summary>
-		/// Instanciate an instance of the database provider.
+		/// Instantiate an instance of the database provider.
 		/// </summary>
 		/// <param name="provider"> The database provider function. </param>
 		/// <param name="options"> The options for this provider. </param>
@@ -42,13 +42,16 @@ namespace Speedy
 
 		#region Methods
 
-		/// <summary>
-		/// Gets an instance of the database.
-		/// </summary>
-		/// <returns> The database instance. </returns>
+		/// <inheritdoc />
 		public T GetDatabase()
 		{
 			return _provider(Options.DeepClone());
+		}
+
+		/// <inheritdoc />
+		public T GetDatabase(DatabaseOptions options)
+		{
+			return _provider(options);
 		}
 
 		#endregion

@@ -30,7 +30,7 @@ namespace Speedy.Storage
 	/// <typeparam name="T"> The type for the relationship. </typeparam>
 	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	[Serializable]
-	internal class RelationshipRepository<T, T2> : IRelationshipRepository, ICollection<T> where T : Entity<T2>, new()
+	internal class RelationshipRepository<T, T2> : IRelationshipRepository, ICollection<T> where T : Entity<T2>
 	{
 		#region Fields
 

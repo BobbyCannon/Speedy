@@ -20,12 +20,12 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					Food food;
+					FoodEntity food;
 
 					using (var database = provider.GetDatabase())
 					{
 						Console.WriteLine(database.GetType().Name);
-						food = new Food { Name = "Bourbon Reduction", ChildRelationships = new[] { new FoodRelationship { Child = new Food { Name = "Bourbon" }, Quantity = 2 } } };
+						food = new FoodEntity { Name = "Bourbon Reduction", ChildRelationships = new[] { new FoodRelationshipEntity { Child = new FoodEntity { Name = "Bourbon" }, Quantity = 2 } } };
 
 						database.Food.Add(food);
 						database.SaveChanges();
@@ -33,10 +33,11 @@ namespace Speedy.Samples.Tests
 
 					using (var database = provider.GetDatabase())
 					{
-						var actual = database.Food.Including(x => x.ChildRelationships).First(x => x.Name == food.Name);
-						var expected = new Food { Name = "Bourbon Reduction" };
+						var entity = database.Food.Including(x => x.ChildRelationships).First(x => x.Name == food.Name);
+						var actual = entity.Unwrap();
+						var expected = new FoodEntity { Name = "Bourbon Reduction" };
 
-						TestHelper.AreEqual(expected, actual.Unwrap(), true, nameof(Food.Id), nameof(Food.CreatedOn), nameof(Food.ModifiedOn));
+						TestHelper.AreEqual(expected, actual, true, nameof(FoodEntity.Id), nameof(FoodEntity.CreatedOn), nameof(FoodEntity.ModifiedOn));
 					}
 				});
 		}

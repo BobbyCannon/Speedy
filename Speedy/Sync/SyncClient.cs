@@ -8,6 +8,7 @@ using System.Linq;
 using Speedy.Configuration;
 using Speedy.Exceptions;
 using Speedy.Logging;
+using Speedy.Net;
 
 #endregion
 
@@ -20,7 +21,10 @@ namespace Speedy.Sync
 	{
 		#region Fields
 
+		private int _changeCount;
+		private SyncOptions _options;
 		private readonly ISyncableDatabaseProvider _provider;
+		private Guid _sessionId;
 
 		#endregion
 
@@ -30,157 +34,169 @@ namespace Speedy.Sync
 		/// Instantiates a sync client.
 		/// </summary>
 		public SyncClient(string name, ISyncableDatabaseProvider provider)
-			: this(name, Guid.NewGuid(), provider)
 		{
-		}
-
-		/// <summary>
-		/// Instantiates a sync client.
-		/// </summary>
-		public SyncClient(string name, Guid sessionId, ISyncableDatabaseProvider provider)
-		{
-			_provider = provider;
 			Name = name;
-			SessionId = sessionId;
+			Options = new SyncClientOptions();
+			Statistics = new SyncStatistics();
+
+			_changeCount = -1;
+			_provider = provider;
 		}
 
 		#endregion
 
 		#region Properties
 
-		/// <summary>
-		/// Gets or sets the name of the sync client.
-		/// </summary>
+		/// <inheritdoc />
 		public string Name { get; }
 
 		/// <inheritdoc />
-		public Guid SessionId { get; set; }
+		public SyncClientConverter IncomingConverter { get; set; }
+		
+		/// <inheritdoc />
+		public SyncClientConverter OutgoingConverter { get; set; }
 
+		/// <inheritdoc />
+		public SyncClientOptions Options { get; set;}
+
+		/// <inheritdoc />
+		public SyncStatistics Statistics { get; set; }
+		
 		#endregion
 
 		#region Methods
 
-		/// <summary>
-		/// Sends changes to a server.
-		/// </summary>
-		/// <param name="changes"> The changes to write to the server. </param>
-		/// <returns> The date and time for the sync process. </returns>
-		public IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes)
+		/// <inheritdoc />
+		public ServiceResult<SyncIssue> ApplyChanges(Guid sessionId, ServiceRequest<SyncObject> changes)
 		{
 			return ApplyChanges(changes, false);
 		}
 
-		/// <summary>
-		/// Sends issue corrections to a server.
-		/// </summary>
-		/// <param name="corrections"> The corrections to write to the server. </param>
-		/// <returns> A list of sync issues if there were any. </returns>
-		public IEnumerable<SyncIssue> ApplyCorrections(IEnumerable<SyncObject> corrections)
+		/// <inheritdoc />
+		public ServiceResult<SyncIssue> ApplyCorrections(Guid sessionId, ServiceRequest<SyncObject> corrections)
 		{
 			return ApplyChanges(corrections, true);
 		}
 
-		/// <summary>
-		/// Gets the changes from the server.
-		/// </summary>
-		/// <param name="request"> The details for the request. </param>
-		/// <returns> The list of changes from the server. </returns>
-		public int GetChangeCount(SyncRequest request)
+		/// <inheritdoc />
+		public void BeginSync(Guid sessionId, SyncOptions options)
 		{
-			using (var database = _provider.GetDatabase())
-			{
-				return database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until).Count()
-					+ database.GetSyncableRepositories().Sum(repository => repository.GetChangeCount(request.Since, request.Until));
-			}
+			_sessionId = sessionId;
+			_options = options;
+
+			Statistics.Reset();
 		}
 
-		/// <summary>
-		/// Gets the changes from the server.
-		/// </summary>
-		/// <param name="request"> The details for the request. </param>
-		/// <returns> The list of changes from the server. </returns>
-		public IEnumerable<SyncObject> GetChanges(SyncRequest request)
+		/// <inheritdoc />
+		public void EndSync(Guid sessionId)
 		{
-			var response = new List<SyncObject>();
+		}
+
+		/// <inheritdoc />
+		public ServiceResult<SyncObject> GetChanges(Guid sessionId, SyncRequest request)
+		{
 			var currentSkippedCount = 0;
+			var response = new ServiceResult<SyncObject>
+			{
+				Skipped = request.Skip,
+				TotalCount = GetChangeCount(request)
+			};
+
+			if (response.TotalCount == 0)
+			{
+				_changeCount = -1;
+				return response;
+			}
+
+			// if the since and until are equal that means we should get all changes from since to now
+			if (request.Since == request.Until)
+			{
+				request.Until = TimeService.UtcNow;
+			}
+
+			var take = request.Take <= 0 || request.Take > _options.ItemsPerSyncRequest ? _options.ItemsPerSyncRequest : request.Take;
 
 			using (var database = _provider.GetDatabase())
 			{
-				foreach (var repository in database.GetSyncableRepositories())
+				foreach (var repository in database.GetSyncableRepositories(_options))
 				{
-					var changeCount = repository.GetChangeCount(request.Since, request.Until);
+					var filter = _options.GetRepositoryFilter(repository);
+					var changeCount = repository.GetChangeCount(request.Since, request.Until, filter);
+
 					if (changeCount + currentSkippedCount <= request.Skip)
 					{
 						currentSkippedCount += changeCount;
 						continue;
 					}
 
-					var items = repository.GetChanges(request.Since, request.Until, request.Skip - currentSkippedCount, request.Take).ToList();
-					response.AddRange(items);
+					var changes = repository.GetChanges(request.Since, request.Until, request.Skip - currentSkippedCount, _options.ItemsPerSyncRequest - currentSkippedCount, filter).ToList();
+					var items = OutgoingConverter != null ? OutgoingConverter.Process(changes).ToList() : changes;
+					response.Collection.AddRange(items);
 					currentSkippedCount += items.Count;
 
-					if (response.Count >= request.Take)
+					if (response.Collection.Count >= take)
 					{
-						return response;
+						break;
 					}
 				}
 
-				var tombstoneQuery = database.GetSyncTombstones(x => x.CreatedOn >= request.Since && x.CreatedOn < request.Until);
-				var tombstoneCount = tombstoneQuery.Count();
-				if (tombstoneCount + currentSkippedCount <= request.Skip)
-				{
-					return response;
-				}
+				_changeCount = -1;
 
-				tombstoneQuery = tombstoneQuery
-					.OrderBy(x => x.CreatedOn)
-					.ThenBy(x => x.Id)
-					.AsQueryable();
+				Statistics.Changes += response.Collection.Count;
 
-				if (request.Skip - currentSkippedCount > 0)
-				{
-					tombstoneQuery = tombstoneQuery.Skip(request.Skip - currentSkippedCount);
-				}
-
-				var tombStones = tombstoneQuery
-					.Take(request.Take)
-					.ToList()
-					.Select(x => x.ToSyncObject())
-					.ToList();
-
-				response.AddRange(tombStones);
 				return response;
 			}
 		}
 
-		/// <summary>
-		/// Gets the list of sync objects to try and resolve the issue list.
-		/// </summary>
-		/// <param name="issues"> The issues to process. </param>
-		/// <returns> The sync objects to resolve the issues. </returns>
-		public IEnumerable<SyncObject> GetCorrections(IEnumerable<SyncIssue> issues)
+		/// <inheritdoc />
+		public ServiceResult<SyncObject> GetCorrections(Guid sessionId, ServiceRequest<SyncIssue> issues)
 		{
-			var response = new List<SyncObject>();
+			var response = new ServiceResult<SyncObject>();
+
+			if (issues == null)
+			{
+				return response;
+			}
 
 			using (var database = _provider.GetDatabase())
 			{
-				foreach (var issue in issues)
+				foreach (var issue in issues.Collection)
 				{
 					switch (issue.IssueType)
 					{
 						default:
+							var type = Type.GetType(issue.TypeName);
+
+							if (_options?.ShouldFilterRepository(type) == true)
+							{
+								// Do not process this issue because the repository is not in the filter.
+								continue;
+							}
+
 							// Assuming this is because this entity or a relationship it depends on was deleted but then used 
 							// in another client or server. This means we should sync it again.
-							var repository = database.GetSyncableRepository(Type.GetType(issue.TypeName));
-							var entity = repository.Read(issue.Id);
+							var repository = database.GetSyncableRepository(type);
+							var entity = repository?.Read(issue.Id);
 
 							if (entity != null)
 							{
-								response.Add(entity.ToSyncObject());
+								var syncObject = entity.ToSyncObject();
+								
+								if (OutgoingConverter != null)
+								{
+									syncObject = OutgoingConverter.Process(syncObject);
+								}
+
+								if (syncObject != null)
+								{
+									response.Collection.Add(syncObject);
+								}
 							}
 							break;
 					}
 				}
+
+				Statistics.Corrections += response.Collection.Count;
 
 				return response;
 			}
@@ -193,33 +209,67 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public T GetDatabase<T>() where T : class, ISyncableDatabase, IDatabase
+		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
 			return (T) _provider.GetDatabase();
 		}
 
-		private IEnumerable<SyncIssue> ApplyChanges(IEnumerable<SyncObject> changes, bool corrections)
+		/// <inheritdoc />
+		public void UpdateOptions(Guid id, SyncClientOptions options)
 		{
-			var groups = changes.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
+			Options.Update(options);
+		}
+
+		private ServiceResult<SyncIssue> ApplyChanges(ServiceRequest<SyncObject> changes, bool corrections)
+		{
+			var objects = (IncomingConverter?.Process(changes.Collection) ?? changes.Collection).ToList();
+			var groups = objects.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
+
+			if (corrections)
+			{
+				Statistics.AppliedCorrections += objects.Count;
+			}
+			else
+			{
+				Statistics.AppliedChanges += objects.Count;
+			}
 
 			if (_provider.Options.SyncOrder.Any())
 			{
-				var order = _provider.Options.SyncOrder;
-				groups = groups.OrderBy(x => x.Key == order[0]);
-				groups = order.Skip(1).Aggregate(groups, (current, typeName) => current.ThenBy(x => x.Key == typeName));
+				var order = _provider.Options.SyncOrder.ToList();
+				groups = groups.OrderBy(x => order.IndexOf(x.Key));
 			}
 
-			var response = new List<SyncIssue>();
+			var response = new ServiceResult<SyncIssue> { Collection = new List<SyncIssue>() };
 
-			groups.ForEach(x => ProcessSyncObjects(_provider, x.Where(y => y.Status != SyncObjectStatus.Deleted), response, corrections));
-			groups.Reverse().ForEach(x => ProcessSyncObjects(_provider, x.Where(y => y.Status == SyncObjectStatus.Deleted), response, corrections));
+			groups.ForEach(x => ProcessSyncObjects(_provider, x.Where(y => y.Status != SyncObjectStatus.Deleted), response.Collection, corrections));
+			groups.Reverse().ForEach(x => ProcessSyncObjects(_provider, x.Where(y => y.Status == SyncObjectStatus.Deleted), response.Collection, corrections));
 
 			return response;
 		}
 
-		private static IEnumerable<Relationship> GetRelationshipConfigurations(SyncEntity entity)
+		private int GetChangeCount(SyncRequest request)
 		{
-			var syncEntityType = typeof(SyncEntity);
+			if (_changeCount >= 0)
+			{
+				return _changeCount;
+			}
+
+			using (var database = _provider.GetDatabase())
+			{
+				_changeCount = database.GetSyncableRepositories(_options).Sum(repository =>
+				{
+					var filter = _options.GetRepositoryFilter(repository);
+					return repository.GetChangeCount(request.Since, request.Until, filter);
+				});
+
+				return _changeCount;
+			}
+		}
+
+		private static IEnumerable<Relationship> GetRelationshipConfigurations(ISyncEntity entity)
+		{
+			var syncEntityType = typeof(ISyncEntity);
 			var properties = entity.GetRealType().GetProperties();
 			var syncProperties = properties
 				.Where(x => syncEntityType.IsAssignableFrom(x.PropertyType))
@@ -227,7 +277,8 @@ namespace Speedy.Sync
 				{
 					IdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "Id"),
 					SyncIdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "SyncId"),
-					Type = x.PropertyType
+					Type = x.PropertyType,
+					TypeIdPropertyInfo = x.PropertyType.GetProperties().First(p => p.Name == "Id")
 				})
 				.ToList();
 
@@ -238,7 +289,8 @@ namespace Speedy.Sync
 				{
 					IdPropertyInfo = x.IdProperty,
 					SyncId = (Guid?) x.SyncIdProperty.GetValue(entity),
-					Type = x.Type
+					Type = x.Type,
+					TypeIdPropertyInfo = x.TypeIdPropertyInfo
 				})
 				.ToList();
 
@@ -247,18 +299,25 @@ namespace Speedy.Sync
 
 		private void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction)
 		{
-			Logger.Instance.Write(SessionId, correction ? $"Processing sync object correction {syncObject.SyncId}." : $"Processing sync object {syncObject.SyncId}.", EventLevel.Verbose);
+			Logger.Instance.Write(_sessionId, correction ? $"Processing sync object correction {syncObject.SyncId}." : $"Processing sync object {syncObject.SyncId}.", EventLevel.Verbose);
 
 			var syncEntity = syncObject.ToSyncEntity();
-			var tombstone = database.GetSyncTombstones(x => x.SyncId == syncEntity.SyncId).FirstOrDefault();
-			if (tombstone != null)
-			{
-				if (!correction)
-				{
-					return;
-				}
 
-				database.RemoveSyncTombstones(x => x.SyncId == syncEntity.SyncId);
+			if (syncEntity == null)
+			{
+				return;
+			}
+
+			if (_options.ShouldFilterRepository(syncObject.TypeName))
+			{
+				Logger.Instance.Write(_sessionId, "Ignoring this type because this repository is being filtered.", EventLevel.Verbose);
+				return;
+			}
+
+			if (_options.ShouldFilterEntity(syncObject.TypeName, syncEntity))
+			{
+				Logger.Instance.Write(_sessionId, "Ignoring this type because this entity is being filtered.", EventLevel.Verbose);
+				return;
 			}
 
 			var type = syncEntity.GetType();
@@ -283,24 +342,33 @@ namespace Speedy.Sync
 			switch (syncStatus)
 			{
 				case SyncObjectStatus.Added:
-					syncEntity.Id = 0;
+					syncEntity.ResetId();
 					UpdateLocalRelationships(syncEntity, database);
 					repository.Add(syncEntity);
 					break;
 
 				case SyncObjectStatus.Modified:
-					UpdateLocalRelationships(foundEntity, database);
-
-					if (foundEntity?.ModifiedOn < syncEntity.ModifiedOn || correction)
+					if (foundEntity != null)
 					{
-						foundEntity?.Update(syncEntity);
+						if (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction)
+						{
+							UpdateLocalRelationships(foundEntity, database);
+							foundEntity.Update(syncEntity, true, true);
+						}
 					}
 					break;
 
 				case SyncObjectStatus.Deleted:
 					if (foundEntity != null)
 					{
-						repository.Remove(foundEntity);
+						if (_options.PermanentDeletions)
+						{
+							repository.Remove(foundEntity);
+						}
+						else
+						{
+							foundEntity.IsDeleted = true;
+						}
 					}
 					break;
 
@@ -313,18 +381,24 @@ namespace Speedy.Sync
 		{
 			var syncObjectList = syncObjects.ToList();
 
+			if (!syncObjectList.Any())
+			{
+				return;
+			}
+
 			try
 			{
 				using (var database = provider.GetDatabase())
 				{
-					database.Options.MaintainDates = false;
+					database.Options.MaintainCreatedOn = false;
+					database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
 					syncObjectList.ForEach(x => ProcessSyncObject(x, database, corrections));
 					database.SaveChanges();
 				}
 			}
 			catch
 			{
-				Logger.Instance.Write(SessionId, "Failed to process sync objects in the batch.");
+				Logger.Instance.Write(_sessionId, "Failed to process sync objects in the batch.");
 				ProcessSyncObjectsIndividually(provider, syncObjectList, issues, corrections);
 			}
 		}
@@ -337,7 +411,8 @@ namespace Speedy.Sync
 				{
 					using (var database = provider.GetDatabase())
 					{
-						database.Options.MaintainDates = false;
+						database.Options.MaintainCreatedOn = false;
+						database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
 						ProcessSyncObject(syncObject, database, corrections);
 						database.SaveChanges();
 					}
@@ -345,25 +420,48 @@ namespace Speedy.Sync
 				catch (SyncIssueException ex)
 				{
 					ex.Issues.ForEach(issues.Add);
-					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
+					issues.Add(new SyncIssue
+					{
+						Id = syncObject.SyncId,
+						IssueType = SyncIssueType.RelationshipConstraint,
+						Message = "This entity has relationship issue with other entities.",
+						TypeName = syncObject.TypeName
+					});
 				}
 				catch (InvalidOperationException)
 				{
-					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
+					issues.Add(new SyncIssue
+					{
+						Id = syncObject.SyncId,
+						IssueType = SyncIssueType.RelationshipConstraint,
+						Message = "Invalid operation exception...",
+						TypeName = syncObject.TypeName
+					});
 				}
 				catch (Exception ex)
 				{
 					var details = ex.ToDetailedString();
 
 					// Cannot catch the DbUpdateException without reference EntityFramework.
-					if (details.Contains("conflicted with the FOREIGN KEY constraint")
-						|| details.Contains("The DELETE statement conflicted with the REFERENCE constraint"))
+					if (details.Contains("conflicted with the FOREIGN KEY constraint") || details.Contains("The DELETE statement conflicted with the REFERENCE constraint"))
 					{
-						issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.RelationshipConstraint, TypeName = syncObject.TypeName });
+						issues.Add(new SyncIssue
+						{
+							Id = syncObject.SyncId,
+							IssueType = SyncIssueType.RelationshipConstraint,
+							Message = "This entity has relationship issue with another entity.",
+							TypeName = syncObject.TypeName
+						});
 						continue;
 					}
 
-					issues.Add(new SyncIssue { Id = syncObject.SyncId, IssueType = SyncIssueType.Unknown, TypeName = syncObject.TypeName });
+					issues.Add(new SyncIssue
+					{
+						Id = syncObject.SyncId,
+						IssueType = SyncIssueType.Unknown,
+						Message = "Unknown issue...",
+						TypeName = syncObject.TypeName
+					});
 				}
 			}
 		}
@@ -374,13 +472,13 @@ namespace Speedy.Sync
 		/// <param name="entity"> The entity to update. </param>
 		/// <param name="database"> The database with the relationship repositories. </param>
 		/// <exception cref="SyncIssueException"> An exception will all sync issues. </exception>
-		private static void UpdateLocalRelationships(SyncEntity entity, ISyncableDatabase database)
+		private static void UpdateLocalRelationships(ISyncEntity entity, ISyncableDatabase database)
 		{
 			var response = new List<SyncIssue>();
 
 			foreach (var relationship in GetRelationshipConfigurations(entity))
 			{
-				if (!relationship.SyncId.HasValue)
+				if (!relationship.SyncId.HasValue || relationship.SyncId == Guid.Empty)
 				{
 					continue;
 				}
@@ -388,11 +486,18 @@ namespace Speedy.Sync
 				var foundEntity = database.GetSyncableRepository(relationship.Type)?.Read(relationship.SyncId.Value);
 				if (foundEntity != null)
 				{
-					relationship.IdPropertyInfo.SetValue(entity, foundEntity.Id);
+					var id = relationship.TypeIdPropertyInfo.GetValue(foundEntity);
+					relationship.IdPropertyInfo.SetValue(entity, id);
 					continue;
 				}
 
-				response.Add(new SyncIssue { Id = relationship.SyncId.Value, IssueType = SyncIssueType.RelationshipConstraint, TypeName = relationship.Type.ToAssemblyName() });
+				response.Add(new SyncIssue
+				{
+					Id = relationship.SyncId.Value,
+					IssueType = SyncIssueType.RelationshipConstraint,
+					Message = "Failed to find the entity",
+					TypeName = relationship.Type.ToAssemblyName()
+				});
 			}
 
 			if (response.Any(x => x != null))

@@ -13,11 +13,11 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static Food Get(Action<Food> update = null)
+		public static FoodEntity Get(Action<FoodEntity> update = null)
 		{
-			var result = new Food
+			var result = new FoodEntity
 			{
-				Id = default(int),
+				Id = default,
 				Name = Guid.NewGuid().ToString()
 			};
 

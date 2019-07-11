@@ -22,6 +22,13 @@
 		/// <returns> The database instance. </returns>
 		T GetDatabase();
 
+		/// <summary>
+		/// Gets an instance of the database.
+		/// </summary>
+		/// <param name="options"> The database options to use for the new database instance. </param>
+		/// <returns> The database instance. </returns>
+		T GetDatabase(DatabaseOptions options);
+
 		#endregion
 	}
 }

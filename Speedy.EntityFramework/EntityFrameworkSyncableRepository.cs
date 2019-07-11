@@ -14,7 +14,8 @@ namespace Speedy.EntityFramework
 	/// Represents a syncable repository.
 	/// </summary>
 	/// <typeparam name="T"> The entity for the repository. </typeparam>
-	public class EntityFrameworkSyncableRepository<T> : EntityFrameworkRepository<T, int>, ISyncableRepository<T> where T : SyncEntity, new()
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
+	public class EntityFrameworkSyncableRepository<T, T2> : EntityFrameworkRepository<T, T2>, ISyncableRepository<T, T2> where T : SyncEntity<T2>
 	{
 		#region Constructors
 
@@ -39,72 +40,55 @@ namespace Speedy.EntityFramework
 
 		#region Methods
 
-		/// <summary>
-		/// Add an entity to the repository. The ID of the entity must be the default value.
-		/// </summary>
-		/// <param name="entity"> The entity to be added. </param>
-		public void Add(SyncEntity entity)
+		/// <inheritdoc />
+		public void Add(ISyncEntity entity)
 		{
 			base.Add((T) entity);
 		}
 
-		/// <summary>
-		/// Gets the count of changes from the repository.
-		/// </summary>
-		/// <param name="since"> The start date and time get changes for. </param>
-		/// <param name="until"> The end date and time get changes for. </param>
-		/// <returns> The count of changes from the repository. </returns>
-		public int GetChangeCount(DateTime since, DateTime until)
+		/// <inheritdoc />
+		public int GetChangeCount(DateTime since, DateTime until, SyncRepositoryFilter filter)
 		{
-			return GetChangesQuery(since, until).Count();
+			return GetChangesQuery(since, until, filter).Count();
 		}
 
-		/// <summary>
-		/// Gets the changes from the repository.
-		/// </summary>
-		/// <param name="since"> The start date and time get changes for. </param>
-		/// <param name="until"> The end date and time get changes for. </param>
-		/// <param name="skip"> The number of items to skip. </param>
-		/// <param name="take"> The number of items to take. </param>
-		/// <returns> The list of changes from the repository. </returns>
-		public IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int skip, int take)
+		/// <inheritdoc />
+		public IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int skip, int take, SyncRepositoryFilter filter)
 		{
-			var query = GetChangesQuery(since, until);
+			var query = GetChangesQuery(since, until, filter);
 
 			if (skip > 0)
 			{
 				query = query.Skip(skip);
 			}
 
-			return query
-				.Take(take)
-				.ToList()
-				.Select(x => x.ToSyncObject())
-				.ToList();
+			var entities = query.Take(take).ToList();
+			var objects = entities.Select(x => x.ToSyncObject()).ToList();
+			return objects;
 		}
 
-		/// <summary>
-		/// Gets the sync entity by the ID.
-		/// </summary>
-		/// <param name="syncId"> The ID of the sync entity. </param>
-		/// <returns> The sync entity or null. </returns>
-		public SyncEntity Read(Guid syncId)
+		/// <inheritdoc />
+		public ISyncEntity Read(Guid syncId)
 		{
 			return Set.FirstOrDefault(x => x.SyncId == syncId);
 		}
 
-		/// <summary>
-		/// Remove an entity to the repository.
-		/// </summary>
-		/// <param name="entity"> The entity to be removed. </param>
-		public void Remove(SyncEntity entity)
+		/// <inheritdoc />
+		public void Remove(ISyncEntity entity)
 		{
 			base.Remove((T) entity);
 		}
 
-		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until)
+		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until, SyncRepositoryFilter filter)
 		{
-			return Set.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until)
+			var query = Set.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until);
+
+			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
+			{
+				query = query.Where(srf.OutgoingFilter);
+			}
+
+			return query
 				.OrderBy(x => x.ModifiedOn)
 				.ThenBy(x => x.Id)
 				.AsQueryable();

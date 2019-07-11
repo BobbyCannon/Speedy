@@ -3,18 +3,24 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <IsPackable>false</IsPackable>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CompareNETObjects" Version="4.57.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="CompareNETObjects" Version="4.61.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Moq" Version="4.12.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
+    <ProjectReference Include="..\Speedy.Samples.Sqlite\Speedy.Samples.Sqlite.csproj" />
+    <ProjectReference Include="..\Speedy.Samples.Sql\Speedy.Samples.Sql.csproj" />
     <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj" />
+    <ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
     <ProjectReference Include="..\Speedy\Speedy.csproj" />
   </ItemGroup>
 

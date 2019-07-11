@@ -19,7 +19,6 @@ namespace Speedy.Configuration
 		#region Fields
 
 		private readonly Type _entityType;
-		private bool? _isNullable;
 		private bool? _isUnique;
 		private int _maxLength;
 		private int _minLength;
@@ -39,11 +38,18 @@ namespace Speedy.Configuration
 			_entityType = typeof(T);
 			_property = property;
 			_propertyFunction = _property.Compile();
-			_isNullable = null;
+			IsNullable = null;
 			_isUnique = null;
 			_maxLength = -1;
 			_minLength = -1;
 		}
+
+		#endregion
+
+		#region Properties
+
+		/// <inheritdoc />
+		public bool? IsNullable { get; set; }
 
 		#endregion
 
@@ -95,12 +101,12 @@ namespace Speedy.Configuration
 		/// <returns> The configuration after updated. </returns>
 		public PropertyConfiguration<T, T2> IsRequired(bool required = true)
 		{
-			_isNullable = !required;
+			IsNullable = !required;
 			return this;
 		}
 
 		/// <summary>
-		/// Marks the property as a required member.
+		/// Marks the property as a unique member.
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
 		public PropertyConfiguration<T, T2> IsUnique()
@@ -116,14 +122,22 @@ namespace Speedy.Configuration
 		/// <param name="repository"> The repository of entities. </param>
 		public void Validate(object entity, IQueryable repository)
 		{
+			Validate(entity, repository as IRepository<T, T2>);
+		}
+
+		/// <summary>
+		/// Validates the entity using this configuration.
+		/// </summary>
+		/// <param name="entity"> The entity to validate. </param>
+		/// <param name="entityRepository"> The repository of entities. </param>
+		public void Validate(object entity, IRepository<T, T2> entityRepository)
+		{
 			if (!(entity is T typedEntity))
 			{
 				throw new ArgumentNullException(nameof(typedEntity));
 			}
 
-			var entityRepository = repository.Cast<T>().AsQueryable();
 			var property = _propertyFunction.Invoke(typedEntity);
-			var propertyValue = property?.ToString();
 			var dValue = _property as dynamic;
 			var nodeType = dValue.Body.NodeType.ToString();
 
@@ -136,14 +150,15 @@ namespace Speedy.Configuration
 				? dValue.Body.Operand.Member.Name
 				: dValue.Body.Member.Name;
 
-			if (_isNullable.HasValue && _isNullable.Value == false && property == null)
+			if (IsNullable.HasValue && IsNullable.Value == false && property == null)
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
 
-			if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => x != entity && Equals(_propertyFunction.Invoke(x), property)))
+			//if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => x != entity && Equals(_propertyFunction.Invoke(x), property)))
+			if (_isUnique.HasValue && _isUnique.Value && entityRepository.FirstOrDefault(x => x != entity && Equals(_propertyFunction.Invoke(x), property)) != null)
 			{
-				throw new ValidationException($"{_entityType.Name}: The {memberName} field must be unique. The duplicate key value is ({propertyValue}).");
+				throw new ValidationException($"{_entityType.Name}: Cannot insert duplicate row. The duplicate key value is ({property}).");
 			}
 
 			var stringEntity = property as string;
@@ -157,10 +172,20 @@ namespace Speedy.Configuration
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is too short.");
 			}
 
-			if (_isNullable.HasValue && _isNullable.Value == false && property == null)
+			if (IsNullable.HasValue && IsNullable.Value == false && property == null)
 			{
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
+		}
+
+		IPropertyConfiguration IPropertyConfiguration.HasMaximumLength(int maxLength)
+		{
+			return HasMaximumLength(maxLength);
+		}
+
+		IPropertyConfiguration IPropertyConfiguration.IsUnique()
+		{
+			return IsUnique();
 		}
 
 		#endregion

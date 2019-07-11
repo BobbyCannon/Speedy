@@ -12,7 +12,8 @@ namespace Speedy
 	/// Represents a collection of entities for a Speedy database.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
-	public interface ISyncableRepository<T> : ISyncableRepository, IRepository<T, int> where T : SyncEntity, new()
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
+	public interface ISyncableRepository<T, in T2> : ISyncableRepository, IRepository<T, T2> where T : SyncEntity<T2>
 	{
 	}
 
@@ -33,18 +34,19 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
-		/// Add an entity to the repository. The ID of the entity must be the default value.
+		/// Adds a sync entity to the repository.
 		/// </summary>
 		/// <param name="entity"> The entity to be added. </param>
-		void Add(SyncEntity entity);
+		void Add(ISyncEntity entity);
 
 		/// <summary>
 		/// Gets the count of changes from the repository.
 		/// </summary>
 		/// <param name="since"> The start date and time get changes for. </param>
 		/// <param name="until"> The end date and time get changes for. </param>
+		/// <param name="filter"> The optional filter expression to filter changes. </param>
 		/// <returns> The count of changes from the repository. </returns>
-		int GetChangeCount(DateTime since, DateTime until);
+		int GetChangeCount(DateTime since, DateTime until, SyncRepositoryFilter filter);
 
 		/// <summary>
 		/// Gets the changes from the repository.
@@ -53,21 +55,22 @@ namespace Speedy
 		/// <param name="until"> The end date and time get changes for. </param>
 		/// <param name="skip"> The number of items to skip. </param>
 		/// <param name="take"> The number of items to take. </param>
+		/// <param name="filter"> The optional filter expression to filter changes. </param>
 		/// <returns> The list of changes from the repository. </returns>
-		IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int skip, int take);
+		IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int skip, int take, SyncRepositoryFilter filter);
 
 		/// <summary>
 		/// Gets the sync entity by the ID.
 		/// </summary>
 		/// <param name="syncId"> The ID of the sync entity. </param>
 		/// <returns> The sync entity or null. </returns>
-		SyncEntity Read(Guid syncId);
+		ISyncEntity Read(Guid syncId);
 
 		/// <summary>
-		/// Remove an entity to the repository.
+		/// Removes a sync entity to the repository.
 		/// </summary>
-		/// <param name="entity"> The entity to be removed. </param>
-		void Remove(SyncEntity entity);
+		/// <param name="entity"> The entity to be added. </param>
+		void Remove(ISyncEntity entity);
 
 		#endregion
 	}

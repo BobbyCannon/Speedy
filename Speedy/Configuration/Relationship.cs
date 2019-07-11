@@ -14,6 +14,7 @@ namespace Speedy.Configuration
 		public PropertyInfo IdPropertyInfo { get; set; }
 		public Guid? SyncId { get; set; }
 		public Type Type { get; set; }
+		public PropertyInfo TypeIdPropertyInfo { get; internal set; }
 
 		#endregion
 	}

@@ -13,9 +13,9 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static PetType Get(Action<PetType> update = null)
+		public static PetTypeEntity Get(Action<PetTypeEntity> update = null)
 		{
-			var result = new PetType
+			var result = new PetTypeEntity
 			{
 				Id = Guid.NewGuid().ToString().Substring(0, 25),
 				Type = null

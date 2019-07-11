@@ -14,18 +14,18 @@ namespace Speedy.Samples.Mappings.Memory
 
 		public static void ConfigureDatabase(Database database)
 		{
-			database.Property<Address, int>(x => x.City).IsRequired().HasMaximumLength(256);
-			database.Property<Address, int>(x => x.CreatedOn).IsRequired();
-			database.Property<Address, int>(x => x.Id).IsRequired().IsUnique();
-			database.Property<Address, int>(x => x.Line1).IsRequired().HasMaximumLength(256);
-			database.Property<Address, int>(x => x.Line2).IsRequired().HasMaximumLength(256);
-			database.Property<Address, int>(x => x.LinkedAddressId).IsOptional();
-			database.Property<Address, int>(x => x.LinkedAddressSyncId).IsOptional();
-			database.Property<Address, int>(x => x.ModifiedOn).IsRequired();
-			database.Property<Address, int>(x => x.Postal).IsRequired().HasMaximumLength(128);
-			database.Property<Address, int>(x => x.State).IsRequired().HasMaximumLength(128);
-			database.Property<Address, int>(x => x.SyncId).IsRequired().IsUnique();
-			database.HasOptional<Address, Address, int>(x => x.LinkedAddress, x => x.LinkedAddressId, x => x.LinkedAddresses);
+			database.Property<AddressEntity, long>(x => x.City).IsRequired().HasMaximumLength(256);
+			database.Property<AddressEntity, long>(x => x.CreatedOn).IsRequired();
+			database.Property<AddressEntity, long>(x => x.Id).IsRequired().IsUnique();
+			database.Property<AddressEntity, long>(x => x.Line1).IsRequired().HasMaximumLength(256);
+			database.Property<AddressEntity, long>(x => x.Line2).IsRequired().HasMaximumLength(256);
+			database.Property<AddressEntity, long>(x => x.LinkedAddressId).IsOptional();
+			database.Property<AddressEntity, long>(x => x.LinkedAddressSyncId).IsOptional();
+			database.Property<AddressEntity, long>(x => x.ModifiedOn).IsRequired();
+			database.Property<AddressEntity, long>(x => x.Postal).IsRequired().HasMaximumLength(128);
+			database.Property<AddressEntity, long>(x => x.State).IsRequired().HasMaximumLength(128);
+			database.Property<AddressEntity, long>(x => x.SyncId).IsRequired().IsUnique();
+			database.HasOptional<AddressEntity, long, AddressEntity, long>(x => x.LinkedAddress, x => x.LinkedAddressId, x => x.LinkedAddresses);
 		}
 
 		#endregion

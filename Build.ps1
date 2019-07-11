@@ -1,7 +1,9 @@
 ﻿param
 (
-	[Parameter(Mandatory = $false, Position = 0)]
-	[string] $Configuration = "Release"
+	[Parameter()]
+	[string] $Configuration = "Release",
+	[Parameter()]
+	[string] $BuildNumber
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,12 +31,17 @@ if (!(Test-Path $destination2 -PathType Container))
 try
 {
 	& "ResetAssemblyInfos.ps1"
+	
+	if ($BuildNumber.Length -le 0)
+	{
+		$BuildNumber = "+";
+	}
 
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 5 -Minor 0 -Build 0
+	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 0 -Build $BuildNumber
 	$nugetVersion = ([Version] $newVersion).ToString(3)
-	# $nugetVersion = "$nugetVersion-RC11"
+	#$nugetVersion = "$nugetVersion-RC1"
 
 	$projectFiles = "$scriptPath\Speedy\Speedy.csproj", "$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj"
 

@@ -14,8 +14,8 @@ namespace Speedy.Samples.Mappings.Memory
 
 		public static void ConfigureDatabase(Database database)
 		{
-			database.Property<PetType, string>(x => x.Id).IsRequired().HasMaximumLength(25).IsUnique();
-			database.Property<PetType, string>(x => x.Type).IsOptional().HasMaximumLength(200);
+			database.Property<PetTypeEntity, string>(x => x.Id).IsRequired().HasMaximumLength(25).IsUnique();
+			database.Property<PetTypeEntity, string>(x => x.Type).IsOptional().HasMaximumLength(200);
 		}
 
 		#endregion

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<Version>6.0.0-RC1</Version>
+	<LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20190705162505_Initial.cs" />
+    <Compile Remove="Migrations\20190705162505_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20190705163237_Initial.cs" />
+    <Compile Remove="Migrations\20190705163237_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20190705163513_Initial.cs" />
+    <Compile Remove="Migrations\20190705163513_Initial.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
+    <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj" />
+    <ProjectReference Include="..\Speedy\Speedy.csproj" />
+  </ItemGroup>
+
+</Project>

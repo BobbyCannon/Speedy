@@ -14,11 +14,11 @@ namespace Speedy.Samples.Mappings.Memory
 
 		public static void ConfigureDatabase(Database database)
 		{
-			database.Property<Group, int>(x => x.CreatedOn).IsRequired();
-			database.Property<Group, int>(x => x.Description).IsRequired().HasMaximumLength(4000);
-			database.Property<Group, int>(x => x.Id).IsRequired().IsUnique();
-			database.Property<Group, int>(x => x.ModifiedOn).IsRequired();
-			database.Property<Group, int>(x => x.Name).IsRequired().HasMaximumLength(256);
+			database.Property<GroupEntity, int>(x => x.CreatedOn).IsRequired();
+			database.Property<GroupEntity, int>(x => x.Description).IsRequired().HasMaximumLength(4000);
+			database.Property<GroupEntity, int>(x => x.Id).IsRequired().IsUnique();
+			database.Property<GroupEntity, int>(x => x.ModifiedOn).IsRequired();
+			database.Property<GroupEntity, int>(x => x.Name).IsRequired().HasMaximumLength(256);
 		}
 
 		#endregion

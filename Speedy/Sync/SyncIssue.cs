@@ -24,6 +24,11 @@ namespace Speedy.Sync
 		public SyncIssueType IssueType { get; set; }
 
 		/// <summary>
+		/// Get the description of the issue.
+		/// </summary>
+		public string Message { get; internal set; }
+
+		/// <summary>
 		/// Gets or sets the type name of the object.
 		/// </summary>
 		public string TypeName { get; set; }

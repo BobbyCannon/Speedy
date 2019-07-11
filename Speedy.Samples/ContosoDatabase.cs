@@ -1,7 +1,10 @@
 #region References
 
-using System.Configuration;
+using System.IO;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Speedy.EntityFramework;
 using Speedy.Samples.Entities;
 
@@ -9,60 +12,91 @@ using Speedy.Samples.Entities;
 
 namespace Speedy.Samples
 {
-	public class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
+	public abstract class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
 	{
 		#region Constructors
 
-		public ContosoDatabase()
+		protected ContosoDatabase()
 		{
 			// Default constructor needed for Add-Migration
 		}
 
-		public ContosoDatabase(DbContextOptions<ContosoDatabase> options)
+		protected ContosoDatabase(DbContextOptions<ContosoDatabase> options)
 			: this(options, null)
 		{
 		}
 
-		public ContosoDatabase(DbContextOptions contextOptions, DatabaseOptions options)
+		protected ContosoDatabase(DbContextOptions contextOptions, DatabaseOptions options)
 			: base(contextOptions, options)
 		{
-			Options.SyncOrder = new[] { typeof(Address).FullName, typeof(Person).FullName };
+			Options.SyncOrder = new[] { typeof(AddressEntity).ToAssemblyName(), typeof(PersonEntity).ToAssemblyName() };
 		}
 
 		#endregion
 
 		#region Properties
 
-		public IRepository<Address, int> Addresses => GetSyncableRepository<Address>();
-		public IRepository<Food, int> Food => GetRepository<Food, int>();
-		public IRepository<FoodRelationship, int> FoodRelationships => GetRepository<FoodRelationship, int>();
-		public IRepository<GroupMember, int> GroupMembers => GetRepository<GroupMember, int>();
-		public IRepository<Group, int> Groups => GetRepository<Group, int>();
-		public IRepository<LogEvent, string> LogEvents => GetRepository<LogEvent, string>();
-		public IRepository<Person, int> People => GetSyncableRepository<Person>();
-		public IRepository<Pet, Pet.PetKey> Pets => GetRepository<Pet, Pet.PetKey>();
-		public IRepository<PetType, string> PetTypes => GetRepository<PetType, string>();
+		public IRepository<AddressEntity, long> Addresses => GetSyncableRepository<AddressEntity, long>();
+		public IRepository<FoodEntity, int> Food => GetRepository<FoodEntity, int>();
+		public IRepository<FoodRelationshipEntity, int> FoodRelationships => GetRepository<FoodRelationshipEntity, int>();
+		public IRepository<GroupMemberEntity, int> GroupMembers => GetRepository<GroupMemberEntity, int>();
+		public IRepository<GroupEntity, int> Groups => GetRepository<GroupEntity, int>();
+		public IRepository<LogEventEntity, string> LogEvents => GetRepository<LogEventEntity, string>();
+		public IRepository<PersonEntity, int> People => GetSyncableRepository<PersonEntity, int>();
+		public IRepository<PetEntity, PetEntity.PetKey> Pets => GetRepository<PetEntity, PetEntity.PetKey>();
+		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
 
 		#endregion
 
 		#region Methods
 
-		public static ContosoDatabase UseSql(string connectionString)
+		public static string GetConnectionString()
 		{
-			var builder = new DbContextOptionsBuilder<ContosoDatabase>();
-			return new ContosoDatabase(builder.UseSqlServer(connectionString, UpdateOptions).Options);
+			var configuration = new ConfigurationBuilder()
+				.SetBasePath(Directory.GetCurrentDirectory())
+				.AddJsonFile("AppSettings.json", true)
+				.Build();
+
+			var connectionString = configuration.GetConnectionString("DefaultConnection");
+			return connectionString;
+		}
+
+		/// <summary>
+		/// Update the options for default Speedy values. Ex. Migration History will be [system].[MigrationHistory] instead of [dbo].[__EFMigrationsHistory].
+		/// </summary>
+		/// <param name="builder"> The builder to set the options on. </param>
+		public static void UpdateOptions(SqlServerDbContextOptionsBuilder builder)
+		{
+			builder.MigrationsHistoryTable("MigrationHistory", "system");
+		}
+
+		/// <summary>
+		/// Update the options for default Speedy values. Ex. Migration History will be [system].[MigrationHistory] instead of [dbo].[__EFMigrationsHistory].
+		/// </summary>
+		/// <param name="builder"> The builder to set the options on. </param>
+		public static void UpdateOptions(SqliteDbContextOptionsBuilder builder)
+		{
+			builder.MigrationsHistoryTable("MigrationHistory", "system");
+		}
+
+		protected virtual void ConfigureDatabaseOptions(DbContextOptionsBuilder options)
+		{
+			options.UseLazyLoadingProxies();
+		}
+
+		protected static void ConfigureGlobalOptions(DbContextOptionsBuilder options)
+		{
+			options.UseLazyLoadingProxies();
+		}
+
+		protected override Assembly GetMappingAssembly()
+		{
+			return typeof(AddressEntity).Assembly;
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			if (!optionsBuilder.IsConfigured)
-			{
-				var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-				optionsBuilder.UseSqlServer(connectionString, UpdateOptions);
-			}
-
-			optionsBuilder.UseLazyLoadingProxies();
-
+			ConfigureDatabaseOptions(optionsBuilder);
 			base.OnConfiguring(optionsBuilder);
 		}
 

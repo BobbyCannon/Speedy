@@ -14,10 +14,10 @@ namespace Speedy.Samples.Mappings.Memory
 
 		public static void ConfigureDatabase(Database database)
 		{
-			database.Property<Food, int>(x => x.CreatedOn).IsRequired();
-			database.Property<Food, int>(x => x.Id).IsRequired().IsUnique();
-			database.Property<Food, int>(x => x.ModifiedOn).IsRequired();
-			database.Property<Food, int>(x => x.Name).IsRequired().HasMaximumLength(256);
+			database.Property<FoodEntity, int>(x => x.CreatedOn).IsRequired();
+			database.Property<FoodEntity, int>(x => x.Id).IsRequired().IsUnique();
+			database.Property<FoodEntity, int>(x => x.ModifiedOn).IsRequired();
+			database.Property<FoodEntity, int>(x => x.Name).IsRequired().HasMaximumLength(256);
 		}
 
 		#endregion

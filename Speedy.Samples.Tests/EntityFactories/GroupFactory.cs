@@ -13,12 +13,12 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static Group Get(Action<Group> update = null)
+		public static GroupEntity Get(Action<GroupEntity> update = null)
 		{
-			var result = new Group
+			var result = new GroupEntity
 			{
 				Description = Guid.NewGuid().ToString(),
-				Id = default(int),
+				Id = default,
 				Name = Guid.NewGuid().ToString()
 			};
 

@@ -13,14 +13,14 @@ namespace Speedy.Samples.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static FoodRelationship Get(Action<FoodRelationship> update = null)
+		public static FoodRelationshipEntity Get(Action<FoodRelationshipEntity> update = null)
 		{
-			var result = new FoodRelationship
+			var result = new FoodRelationshipEntity
 			{
 				Child = FoodFactory.Get(),
-				Id = default(int),
+				Id = default,
 				Parent = FoodFactory.Get(),
-				Quantity = default(decimal)
+				Quantity = default
 			};
 
 			update?.Invoke(result);
