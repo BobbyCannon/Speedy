@@ -41,8 +41,7 @@ try
 	# $newVersion = .\IncrementVersion.ps1 -Build +
 	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 0 -Build $BuildNumber
 	$nugetVersion = ([Version] $newVersion).ToString(3)
-	#$nugetVersion = "$nugetVersion-RC1"
-
+	$nugetVersion = "$nugetVersion-RC1"
 	$projectFiles = "$scriptPath\Speedy\Speedy.csproj", "$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj"
 
 	# Set the nuget version
