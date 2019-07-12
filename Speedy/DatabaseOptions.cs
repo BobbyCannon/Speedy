@@ -85,7 +85,7 @@ namespace Speedy
 		#region Methods
 
 		/// <inheritdoc />
-		public void Update(DatabaseOptions value)
+		public void UpdateWith(DatabaseOptions value, bool excludeVirtuals = true, params string[] exclusions)
 		{
 			if (value == null)
 			{
@@ -104,9 +104,9 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public void Update(object value)
+		public void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions)
 		{
-			Update(value as DatabaseOptions);
+			UpdateWith(value as DatabaseOptions, excludeVirtuals, exclusions);
 		}
 
 		#endregion

@@ -146,7 +146,7 @@ namespace Speedy.Website.WebApi
 		public void UpdateOptions(Guid id, SyncClientOptions options)
 		{
 			var client = GetSyncClient(id);
-			client.Options.Update(options);
+			client.Options.UpdateWith(options);
 		}
 
 		#endregion

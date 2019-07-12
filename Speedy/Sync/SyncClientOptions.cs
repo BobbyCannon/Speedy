@@ -24,7 +24,7 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <inheritdoc />
-		public void Update(SyncClientOptions value)
+		public void UpdateWith(SyncClientOptions value, bool excludeVirtuals = true, params string[] exclusions)
 		{
 			if (value is null)
 			{
@@ -35,9 +35,9 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public void Update(object value)
+		public void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions)
 		{
-			Update(value as SyncClientOptions);
+			UpdateWith(value as SyncClientOptions, excludeVirtuals, exclusions);
 		}
 
 		#endregion

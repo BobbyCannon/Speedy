@@ -6,19 +6,19 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Samples.Tests.EntityFactories
+namespace Speedy.Tests.EntityFactories
 {
 	[ExcludeFromCodeCoverage]
-	public class PetTypeFactory
+	public class FoodFactory
 	{
 		#region Methods
 
-		public static PetTypeEntity Get(Action<PetTypeEntity> update = null)
+		public static FoodEntity Get(Action<FoodEntity> update = null)
 		{
-			var result = new PetTypeEntity
+			var result = new FoodEntity
 			{
-				Id = Guid.NewGuid().ToString().Substring(0, 25),
-				Type = null
+				Id = default,
+				Name = Guid.NewGuid().ToString()
 			};
 
 			update?.Invoke(result);

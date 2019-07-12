@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Sql;
-using Speedy.Samples.Tests.EntityFactories;
+using Speedy.Tests.EntityFactories;
 
 #endregion
 

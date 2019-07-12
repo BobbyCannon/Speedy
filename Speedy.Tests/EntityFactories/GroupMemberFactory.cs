@@ -6,7 +6,7 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Samples.Tests.EntityFactories
+namespace Speedy.Tests.EntityFactories
 {
 	[ExcludeFromCodeCoverage]
 	public class GroupMemberFactory

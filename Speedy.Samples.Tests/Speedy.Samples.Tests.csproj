@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Speedy.Samples.Sqlite\Speedy.Samples.Sqlite.csproj" />
     <ProjectReference Include="..\Speedy.Samples.Sql\Speedy.Samples.Sql.csproj" />
     <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj" />
+    <ProjectReference Include="..\Speedy.Tests\Speedy.Tests.csproj" />
     <ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
     <ProjectReference Include="..\Speedy\Speedy.csproj" />
   </ItemGroup>

@@ -931,6 +931,55 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <typeparam name="T"> The type to be updated. </typeparam>
+		/// <typeparam name="T2"> The source type of the provided update. </typeparam>
+		/// <param name="value"> The value to be updated. </param>
+		/// <param name="update"> The source of the updates. </param>
+		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
+		/// <param name="exclusions"> An optional list of members to exclude. </param>
+		public static void UpdateWith<T, T2>(this T value, T2 update, bool excludeVirtuals = true, params string[] exclusions)
+		{
+			var destinationType = value.GetRealType();
+			var sourceType = update.GetRealType();
+			var destinationProperties = destinationType.GetCachedProperties();
+			var sourceProperties = sourceType.GetCachedProperties();
+			var virtualProperties = destinationType.GetVirtualPropertyNames().ToArray();
+
+			foreach (var thisProperty in destinationProperties)
+			{
+				// Ensure the destination can write this property
+				var canWrite = thisProperty.CanWrite && thisProperty.SetMethod.IsPublic;
+				if (!canWrite)
+				{
+					continue;
+				}
+
+				var isPropertyExcluded = exclusions.Contains(thisProperty.Name);
+				if (isPropertyExcluded)
+				{
+					continue;
+				}
+
+				if (excludeVirtuals && virtualProperties.Contains(thisProperty.Name))
+				{
+					continue;
+				}
+
+				// Check to see if the update source entity has the property
+				var updateProperty = sourceProperties.FirstOrDefault(x => x.Name == thisProperty.Name && x.PropertyType == thisProperty.PropertyType);
+				if (updateProperty == null)
+				{
+					// Skip this because target type does not have correct property.
+					continue;
+				}
+
+				thisProperty.SetValue(value, updateProperty.GetValue(update));
+			}
+		}
+
+		/// <summary>
 		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
 		/// </summary>
 		/// <typeparam name="T"> The type of the incoming object. </typeparam>

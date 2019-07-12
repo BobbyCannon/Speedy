@@ -6,7 +6,7 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Samples.Tests.EntityFactories
+namespace Speedy.Tests.EntityFactories
 {
 	[ExcludeFromCodeCoverage]
 	public class PersonFactory
@@ -15,15 +15,20 @@ namespace Speedy.Samples.Tests.EntityFactories
 
 		public static PersonEntity Get(Action<PersonEntity> update = null, string name = null, AddressEntity address = null)
 		{
+			var time = TimeService.UtcNow;
+			var personAddress = address ?? AddressFactory.Get();
+			
 			var result = new PersonEntity
 			{
-				Address = address ?? AddressFactory.Get(),
-				AddressSyncId = default,
+				Address = personAddress,
+				AddressSyncId = personAddress.SyncId,
 				BillingAddressId = null,
 				BillingAddressSyncId = null,
 				Id = default,
 				Name = name ?? Guid.NewGuid().ToString(),
-				SyncId = Guid.NewGuid()
+				SyncId = Guid.NewGuid(),
+				CreatedOn = time,
+				ModifiedOn = time
 			};
 
 			update?.Invoke(result);

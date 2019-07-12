@@ -264,7 +264,7 @@ namespace Speedy.Samples.Tests
 			var database = new ContosoMemoryDatabase(options);
 			return new SyncDatabaseProvider(x =>
 			{
-				database.Options.Update(x);
+				database.Options.UpdateWith(x);
 				return database;
 			}, database.Options);
 		}

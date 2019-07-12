@@ -119,7 +119,7 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public void Update(ISyncEntity update, bool allowSyncExclusions = true, bool allowUpdateExclusions = true)
+		public void UpdateWith(ISyncEntity update, bool allowSyncExclusions = true, bool allowUpdateExclusions = true)
 		{
 			var destinationType = this.GetRealType();
 			var sourceType = update.GetRealType();
@@ -138,7 +138,7 @@ namespace Speedy.Sync
 
 				var isPropertyExcludedForSync = allowSyncExclusions && (IsPropertyExcludedForSync(thisProperty.Name) || update.IsPropertyExcludedForSync(thisProperty.Name));
 				var isPropertyExcludedForUpdate = allowUpdateExclusions && (IsPropertyExcludedForUpdate(thisProperty.Name) || update.IsPropertyExcludedForUpdate(thisProperty.Name));
-				
+
 				// We always ignore virtual properties and possible some exclusions
 				if (isPropertyExcludedForSync || isPropertyExcludedForUpdate || virtualProperties.Contains(thisProperty.Name))
 				{

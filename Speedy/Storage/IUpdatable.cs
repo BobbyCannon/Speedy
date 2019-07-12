@@ -8,10 +8,12 @@
 		#region Methods
 
 		/// <summary>
-		/// Update the entity with the value.
+		/// Update the entity with the provided value.
 		/// </summary>
 		/// <param name="value"> The value to update this object with. </param>
-		void Update(T value);
+		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
+		/// <param name="exclusions"> An optional list of members to exclude. </param>
+		void UpdateWith(T value, bool excludeVirtuals = true, params string[] exclusions);
 
 		#endregion
 	}
@@ -24,10 +26,12 @@
 		#region Methods
 
 		/// <summary>
-		/// Update the entity with the value.
+		/// Update the entity with the provided value.
 		/// </summary>
 		/// <param name="value"> The value to update this object with. </param>
-		void Update(object value);
+		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
+		/// <param name="exclusions"> An optional list of members to exclude. </param>
+		void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions);
 
 		#endregion
 	}

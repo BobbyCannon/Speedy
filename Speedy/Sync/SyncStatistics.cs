@@ -54,7 +54,7 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdocs />
-		public void Update(SyncStatistics value)
+		public void UpdateWith(SyncStatistics value, bool excludeVirtuals = true, params string[] exclusions)
 		{
 			if (value == null)
 			{
@@ -68,9 +68,9 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdocs />
-		public void Update(object value)
+		public void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions)
 		{
-			Update(value as SyncStatistics);
+			UpdateWith(value as SyncStatistics, excludeVirtuals, exclusions);
 		}
 
 		#endregion

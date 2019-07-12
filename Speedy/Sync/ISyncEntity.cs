@@ -66,7 +66,7 @@ namespace Speedy.Sync
 		/// <param name="update"> The source of the update. </param>
 		/// <param name="allowSyncExclusions"> If true excluded sync properties will not be updated otherwise all matching properties will be updated. </param>
 		/// <param name="allowUpdateExclusions"> If true excluded update properties will not be updated otherwise all matching properties will be updated. </param>
-		void Update(ISyncEntity update, bool allowSyncExclusions = true, bool allowUpdateExclusions = true);
+		void UpdateWith(ISyncEntity update, bool allowSyncExclusions = true, bool allowUpdateExclusions = true);
 
 		/// <summary>
 		/// Update all local sync IDs.

@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Net;
 using Speedy.Samples.Entities;
-using Speedy.Samples.Tests.EntityFactories;
+using Speedy.Tests.EntityFactories;
 using Speedy.Sync;
 using Speedy.Website.Models;
 
@@ -335,7 +335,7 @@ namespace Speedy.Samples.Tests
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);
 
-			var address = ModelFactories.AddressFactory.Get();
+			var address = Speedy.Tests.ModelFactories.AddressFactory.Get();
 			var updates = new ServiceRequest<SyncObject>(address.ToSyncObject());
 			var result = client.ApplyChanges(sessionId, updates);
 

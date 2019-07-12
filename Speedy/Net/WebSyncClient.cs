@@ -99,7 +99,7 @@ namespace Speedy.Net
 		public void EndSync(Guid sessionId)
 		{
 			var statistics = WebClient.Post<string, SyncStatistics>($"{_syncUri}/{nameof(EndSync)}/{sessionId}", string.Empty);
-			Statistics.Update(statistics);
+			Statistics.UpdateWith(statistics);
 		}
 
 		/// <inheritdoc />

@@ -6,7 +6,7 @@ using Speedy.Website.Models;
 
 #endregion
 
-namespace Speedy.Samples.Tests.ModelFactories
+namespace Speedy.Tests.ModelFactories
 {
 	[ExcludeFromCodeCoverage]
 	public class AddressFactory

@@ -88,7 +88,7 @@ namespace Speedy.Sync
 
 			// Handle all one to one properties (same name & type) and all sync entity base properties.
 			// This will override any exclusions. Meaning this entity will copy all possible properties.
-			destination.Update(source, allowSyncExclusions, allowUpdateExclusions);
+			destination.UpdateWith(source, allowSyncExclusions, allowUpdateExclusions);
 
 			// Update will not set the sync ID
 			destination.SyncId = source.SyncId;

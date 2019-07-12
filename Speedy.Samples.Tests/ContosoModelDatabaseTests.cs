@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Net;
 using Speedy.Samples.Entities;
-using Speedy.Samples.Tests.EntityFactories;
+using Speedy.Tests.EntityFactories;
 using Speedy.Sync;
 using Speedy.Website.Models;
 using Speedy.Website.Storage;

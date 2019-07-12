@@ -3,7 +3,9 @@
 	[Parameter()]
 	[string] $Configuration = "Release",
 	[Parameter()]
-	[string] $BuildNumber
+	[string] $BuildNumber,
+	[Parameter()]
+	[string] $VersionSuffix
 )
 
 $ErrorActionPreference = "Stop"
@@ -41,7 +43,12 @@ try
 	# $newVersion = .\IncrementVersion.ps1 -Build +
 	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 0 -Build $BuildNumber
 	$nugetVersion = ([Version] $newVersion).ToString(3)
-	$nugetVersion = "$nugetVersion-RC1"
+	
+	if ($VersionSuffix.Length -gt 0)
+	{
+		$nugetVersion = "$nugetVersion-$VersionSuffix"
+	}
+	
 	$projectFiles = "$scriptPath\Speedy\Speedy.csproj", "$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj"
 
 	# Set the nuget version

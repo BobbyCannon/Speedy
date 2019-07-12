@@ -3,6 +3,8 @@
 using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Samples.Entities;
+using Speedy.Tests.EntityFactories;
 
 #endregion
 
@@ -96,6 +98,81 @@ namespace Speedy.Tests
 			Assert.AreEqual(2, count);
 			Assert.IsTrue(watch.Elapsed.TotalMilliseconds > 100, watch.Elapsed.TotalMilliseconds.ToString());
 			Assert.IsTrue(watch.Elapsed.TotalMilliseconds < 150, watch.Elapsed.TotalMilliseconds.ToString());
+		}
+
+		[TestMethod]
+		public void UpdateShouldUpdateAllMembers()
+		{
+			var destination = new PersonEntity();
+			var source = PersonFactory.Get();
+			
+			source.Id = 99;
+			source.SyncId = Guid.NewGuid();
+			source.IsDeleted = true;
+			source.Address.Id = 199;
+			source.AddressId = 199;
+			
+			Assert.AreNotEqual(destination.Address, source.Address);
+			Assert.AreNotEqual(destination.AddressId, source.AddressId);
+			Assert.AreNotEqual(destination.AddressSyncId, source.AddressSyncId);
+			Assert.AreEqual(null, source.BillingAddress);
+			Assert.AreEqual(destination.BillingAddress, source.BillingAddress);
+			Assert.AreEqual(null, source.BillingAddressId);
+			Assert.AreEqual(destination.BillingAddressId, source.BillingAddressId);
+			Assert.AreEqual(null, source.BillingAddressSyncId);
+			Assert.AreEqual(destination.BillingAddressSyncId, source.BillingAddressSyncId);
+			Assert.AreNotEqual(destination.CreatedOn, source.CreatedOn);
+			Assert.AreNotEqual(destination.Groups, source.Groups);
+			Assert.AreNotEqual(destination.Id, source.Id);
+			Assert.AreNotEqual(destination.IsDeleted, source.IsDeleted);
+			Assert.AreNotEqual(destination.ModifiedOn, source.ModifiedOn);
+			Assert.AreNotEqual(destination.Name, source.Name);
+			Assert.AreNotEqual(destination.Owners, source.Owners);
+			Assert.AreNotEqual(destination.SyncId, source.SyncId);
+
+			// Update all members that are not virtual
+			Extensions.UpdateWith(destination, source);
+
+			// All non virtual should be equal
+			Assert.AreNotEqual(destination.Address, source.Address);
+			Assert.AreEqual(destination.AddressId, source.AddressId);
+			Assert.AreEqual(destination.AddressSyncId, source.AddressSyncId);
+			Assert.AreEqual(null, source.BillingAddress);
+			Assert.AreEqual(destination.BillingAddress, source.BillingAddress);
+			Assert.AreEqual(null, source.BillingAddressId);
+			Assert.AreEqual(destination.BillingAddressId, source.BillingAddressId);
+			Assert.AreEqual(null, source.BillingAddressSyncId);
+			Assert.AreEqual(destination.BillingAddressSyncId, source.BillingAddressSyncId);
+			Assert.AreEqual(destination.CreatedOn, source.CreatedOn);
+			Assert.AreNotEqual(destination.Groups, source.Groups);
+			Assert.AreEqual(destination.Id, source.Id);
+			Assert.AreEqual(destination.IsDeleted, source.IsDeleted);
+			Assert.AreEqual(destination.ModifiedOn, source.ModifiedOn);
+			Assert.AreEqual(destination.Name, source.Name);
+			Assert.AreNotEqual(destination.Owners, source.Owners);
+			Assert.AreEqual(destination.SyncId, source.SyncId);
+			
+			// Update all members that are not virtual
+			Extensions.UpdateWith(destination, source, false);
+
+			// All members should be equal now
+			Assert.AreEqual(destination.Address, source.Address);
+			Assert.AreEqual(destination.AddressId, source.AddressId);
+			Assert.AreEqual(destination.AddressSyncId, source.AddressSyncId);
+			Assert.AreEqual(null, source.BillingAddress);
+			Assert.AreEqual(destination.BillingAddress, source.BillingAddress);
+			Assert.AreEqual(null, source.BillingAddressId);
+			Assert.AreEqual(destination.BillingAddressId, source.BillingAddressId);
+			Assert.AreEqual(null, source.BillingAddressSyncId);
+			Assert.AreEqual(destination.BillingAddressSyncId, source.BillingAddressSyncId);
+			Assert.AreEqual(destination.CreatedOn, source.CreatedOn);
+			Assert.AreEqual(destination.Groups, source.Groups);
+			Assert.AreEqual(destination.Id, source.Id);
+			Assert.AreEqual(destination.IsDeleted, source.IsDeleted);
+			Assert.AreEqual(destination.ModifiedOn, source.ModifiedOn);
+			Assert.AreEqual(destination.Name, source.Name);
+			Assert.AreEqual(destination.Owners, source.Owners);
+			Assert.AreEqual(destination.SyncId, source.SyncId);
 		}
 
 		[TestMethod]

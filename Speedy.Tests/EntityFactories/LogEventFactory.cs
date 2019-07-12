@@ -6,19 +6,19 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Samples.Tests.EntityFactories
+namespace Speedy.Tests.EntityFactories
 {
 	[ExcludeFromCodeCoverage]
-	public class FoodFactory
+	public class LogEventFactory
 	{
 		#region Methods
 
-		public static FoodEntity Get(Action<FoodEntity> update = null)
+		public static LogEventEntity Get(Action<LogEventEntity> update = null)
 		{
-			var result = new FoodEntity
+			var result = new LogEventEntity
 			{
-				Id = default,
-				Name = Guid.NewGuid().ToString()
+				Id = Guid.NewGuid().ToString(),
+				Message = null
 			};
 
 			update?.Invoke(result);

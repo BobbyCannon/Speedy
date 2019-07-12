@@ -6,19 +6,19 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Samples.Tests.EntityFactories
+namespace Speedy.Tests.EntityFactories
 {
 	[ExcludeFromCodeCoverage]
-	public class LogEventFactory
+	public class PetTypeFactory
 	{
 		#region Methods
 
-		public static LogEventEntity Get(Action<LogEventEntity> update = null)
+		public static PetTypeEntity Get(Action<PetTypeEntity> update = null)
 		{
-			var result = new LogEventEntity
+			var result = new PetTypeEntity
 			{
-				Id = Guid.NewGuid().ToString(),
-				Message = null
+				Id = Guid.NewGuid().ToString().Substring(0, 25),
+				Type = null
 			};
 
 			update?.Invoke(result);

@@ -217,7 +217,7 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public void UpdateOptions(Guid id, SyncClientOptions options)
 		{
-			Options.Update(options);
+			Options.UpdateWith(options);
 		}
 
 		private ServiceResult<SyncIssue> ApplyChanges(ServiceRequest<SyncObject> changes, bool corrections)
@@ -353,7 +353,7 @@ namespace Speedy.Sync
 						if (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction)
 						{
 							UpdateLocalRelationships(foundEntity, database);
-							foundEntity.Update(syncEntity, true, true);
+							foundEntity.UpdateWith(syncEntity, true, true);
 						}
 					}
 					break;

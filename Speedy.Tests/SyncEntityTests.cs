@@ -28,7 +28,7 @@ namespace Speedy.Tests
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 
-			destination.Update(source, false);
+			destination.UpdateWith(source, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual("Test", destination.Line1);
@@ -40,12 +40,12 @@ namespace Speedy.Tests
 			Assert.AreEqual(null, destination.Line1);
 
 			destination.ExcludePropertiesForUpdate(nameof(AddressEntity.Line1));
-			destination.Update(source, false, true);
+			destination.UpdateWith(source, false, true);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 			
-			destination.Update(source, false, false);
+			destination.UpdateWith(source, false, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual("Test", destination.Line1);
@@ -62,7 +62,7 @@ namespace Speedy.Tests
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 
-			destination.Update(source, false);
+			destination.UpdateWith(source, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual("Test", destination.Line1);
@@ -74,12 +74,12 @@ namespace Speedy.Tests
 			Assert.AreEqual(null, destination.Line1);
 
 			destination.ExcludePropertiesForSync(nameof(AddressEntity.Line1));
-			destination.Update(source, true, false);
+			destination.UpdateWith(source, true, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 			
-			destination.Update(source, false, false);
+			destination.UpdateWith(source, false, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual("Test", destination.Line1);
@@ -118,7 +118,7 @@ namespace Speedy.Tests
 				SyncId = Guid.Parse("3584456b-cf36-4049-9491-7d83d0fd8255")
 			};
 
-			entity.Update(model);
+			entity.UpdateWith(model);
 
 			Assert.AreEqual("City2", entity.City);
 		}
