@@ -25,8 +25,6 @@ namespace Speedy.Samples
 			Pets = GetRepository<PetEntity, PetEntity.PetKey>();
 			PetTypes = GetRepository<PetTypeEntity, string>();
 
-			Property<AddressEntity, long>(x => x.Id);
-
 			this.ConfigureModelViaMapping();
 		}
 

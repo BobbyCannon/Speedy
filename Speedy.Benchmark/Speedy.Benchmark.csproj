@@ -1,98 +1,97 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-		<ProjectGuid>{74B6FACC-8A18-4DE7-A8BC-CBD42D7890B5}</ProjectGuid>
-		<OutputType>Exe</OutputType>
-		<RootNamespace>Speedy.Benchmark</RootNamespace>
-		<AssemblyName>Speedy.Benchmark</AssemblyName>
-		<TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-		<FileAlignment>512</FileAlignment>
-		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-		<Deterministic>true</Deterministic>
-		<TargetFrameworkProfile />
-		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<OutputPath>bin\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-	</PropertyGroup>
-	<ItemGroup>
-		<Reference Include="System" />
-		<Reference Include="System.Core" />
-		<Reference Include="System.Xml.Linq" />
-		<Reference Include="System.Data.DataSetExtensions" />
-		<Reference Include="Microsoft.CSharp" />
-		<Reference Include="System.Data" />
-		<Reference Include="System.Net.Http" />
-		<Reference Include="System.Xml" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="Program.cs" />
-		<Compile Include="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="App.config" />
-		<Content Include="appsettings.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj">
-			<Project>{e50e2118-8a6f-4fa1-a446-7571f542b844}</Project>
-			<Name>Speedy.EntityFramework</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\Speedy.Samples.Sqlite\Speedy.Samples.Sqlite.csproj">
-			<Project>{8bf6d1c6-0541-4b05-a23d-3d7719497018}</Project>
-			<Name>Speedy.Samples.Sqlite</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\Speedy.Samples.Sql\Speedy.Samples.Sql.csproj">
-			<Project>{71EE749A-5914-489C-B7C7-9BA7C59A35D2}</Project>
-			<Name>Speedy.Samples.Sql</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj">
-			<Project>{a8716e62-358c-44f2-a18e-c5e585d097fd}</Project>
-			<Name>Speedy.Samples</Name>
-		</ProjectReference>
-		<ProjectReference Include="..\Speedy\Speedy.csproj">
-			<Project>{de1fcaf6-d683-44b7-b8e3-ff6a19569c16}</Project>
-			<Name>Speedy</Name>
-		</ProjectReference>
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore">
-			<Version>2.2.4</Version>
-		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies">
-			<Version>2.2.4</Version>
-		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational">
-			<Version>2.2.4</Version>
-		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
-			<Version>2.2.4</Version>
-		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
-			<Version>2.2.4</Version>
-		</PackageReference>
-	</ItemGroup>
-	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{74B6FACC-8A18-4DE7-A8BC-CBD42D7890B5}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Speedy.Benchmark</RootNamespace>
+    <AssemblyName>Speedy.Benchmark</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj">
+      <Project>{e50e2118-8a6f-4fa1-a446-7571f542b844}</Project>
+      <Name>Speedy.EntityFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Speedy.Samples.Sqlite\Speedy.Samples.Sqlite.csproj">
+      <Project>{8bf6d1c6-0541-4b05-a23d-3d7719497018}</Project>
+      <Name>Speedy.Samples.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Speedy.Samples.Sql\Speedy.Samples.Sql.csproj">
+      <Project>{71EE749A-5914-489C-B7C7-9BA7C59A35D2}</Project>
+      <Name>Speedy.Samples.Sql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj">
+      <Project>{a8716e62-358c-44f2-a18e-c5e585d097fd}</Project>
+      <Name>Speedy.Samples</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Speedy\Speedy.csproj">
+      <Project>{de1fcaf6-d683-44b7-b8e3-ff6a19569c16}</Project>
+      <Name>Speedy</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore">
+      <Version>2.2.6</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies">
+      <Version>2.2.6</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational">
+      <Version>2.2.6</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
+      <Version>2.2.6</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
+      <Version>2.2.6</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

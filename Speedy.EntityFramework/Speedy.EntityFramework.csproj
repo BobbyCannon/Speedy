@@ -55,7 +55,7 @@
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
-		<Version>6.0.0-RC3</Version>
+		<Version>6.0.0-RC4</Version>
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
@@ -64,9 +64,9 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.6" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

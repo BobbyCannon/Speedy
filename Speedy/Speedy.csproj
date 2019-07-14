@@ -55,7 +55,7 @@
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
-		<Version>6.0.0-RC3</Version>
+		<Version>6.0.0-RC4</Version>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
