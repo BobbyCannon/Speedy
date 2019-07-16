@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Speedy.Sync;
 
 #endregion
@@ -317,6 +318,31 @@ namespace Speedy.Storage
 		}
 
 		/// <inheritdoc />
+		public void RemoveDependent(object[] value, object id)
+		{
+			var foreignKeyFunction = (Func<T, object>) value[4];
+			Remove(x => id.Equals(foreignKeyFunction.Invoke(x)));
+		}
+		
+		/// <inheritdoc />
+		public void SetDependentToNull(object[] value, object id)
+		{
+			var entityExpression = (LambdaExpression) value[1]; 
+			var foreignKeyExpression = (LambdaExpression) value[3]; 
+			var foreignKeyFunction = (Func<T, object>) value[4];
+			
+			var values = this.Where(x => foreignKeyFunction.Invoke(x) == id);
+			var entityName = entityExpression.GetExpressionName();
+			var foreignKeyName = foreignKeyExpression.GetExpressionName();
+			
+			foreach (var v in values)
+			{
+				v.SetMemberValue(entityName, null);
+				v.SetMemberValue(foreignKeyName, null);
+			}
+		}
+		
+		/// <inheritdoc />
 		public int SaveChanges()
 		{
 			var changeCount = GetChanges().Count();
@@ -353,7 +379,7 @@ namespace Speedy.Storage
 				var syncableEntity = entity as ISyncEntity;
 				var maintainedEntity = Database.Options.UnmaintainEntities.All(x => x != entry.Entity.GetType());
 				var maintainCreatedOnDate = maintainedEntity && Database.Options.MaintainCreatedOn;
-			var maintainModifiedOnDate = maintainedEntity && Database.Options.MaintainModifiedOn;
+				var maintainModifiedOnDate = maintainedEntity && Database.Options.MaintainModifiedOn;
 				var maintainSyncId = maintainedEntity && Database.Options.MaintainSyncId;
 
 				switch (entry.State)

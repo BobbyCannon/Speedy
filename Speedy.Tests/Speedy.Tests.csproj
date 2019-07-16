@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj" />
+    <ProjectReference Include="..\Speedy.Website.Samples\Speedy.Website.Samples.csproj" />
     <ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
     <ProjectReference Include="..\Speedy\Speedy.csproj" />
   </ItemGroup>

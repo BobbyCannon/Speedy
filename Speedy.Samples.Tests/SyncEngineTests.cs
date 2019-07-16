@@ -10,7 +10,7 @@ using Speedy.Logging;
 using Speedy.Net;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
-using Speedy.Website.Models;
+using Speedy.Website.Samples.Models;
 
 #endregion
 

@@ -49,6 +49,9 @@ namespace Speedy.Configuration
 		#region Properties
 
 		/// <inheritdoc />
+		public RelationshipDeleteBehavior DeleteBehavior { get; private set; }
+
+		/// <inheritdoc />
 		public bool? IsNullable { get; set; }
 
 		#endregion
@@ -86,18 +89,9 @@ namespace Speedy.Configuration
 		}
 
 		/// <summary>
-		/// Marks the property as an optional member.
-		/// </summary>
-		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T, T2> IsOptional()
-		{
-			IsRequired(false);
-			return this;
-		}
-
-		/// <summary>
 		/// Marks the property as a required member.
 		/// </summary>
+		/// <param name="required"> The value to determine if the property is required. </param>
 		/// <returns> The configuration after updated. </returns>
 		public PropertyConfiguration<T, T2> IsRequired(bool required = true)
 		{
@@ -113,6 +107,12 @@ namespace Speedy.Configuration
 		{
 			_isUnique = true;
 			return this;
+		}
+
+		/// <inheritdoc />
+		public void OnDelete(RelationshipDeleteBehavior behavior)
+		{
+			DeleteBehavior = behavior;
 		}
 
 		/// <summary>

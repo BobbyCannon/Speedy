@@ -14,6 +14,11 @@ namespace Speedy.Configuration
 		#region Properties
 
 		/// <summary>
+		/// The delete behavior for this property. Only applies to foreign keys.
+		/// </summary>
+		RelationshipDeleteBehavior DeleteBehavior { get; }
+
+		/// <summary>
 		/// Indicates this property can be set to null.
 		/// </summary>
 		bool? IsNullable { get; set; }
@@ -41,6 +46,11 @@ namespace Speedy.Configuration
 		/// </summary>
 		/// <returns> The configuration after updated. </returns>
 		IPropertyConfiguration IsUnique();
+
+		/// <summary>
+		/// </summary>
+		/// <param name="behavior"> The delete behavior for the foreign key relationship. </param>
+		void OnDelete(RelationshipDeleteBehavior behavior);
 
 		/// <summary>
 		/// Validates the entity using this configuration.

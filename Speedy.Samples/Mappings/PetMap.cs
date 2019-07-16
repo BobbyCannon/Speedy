@@ -8,7 +8,7 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Samples.Mappings.EntityFramework
+namespace Speedy.Samples.Mappings
 {
 	[ExcludeFromCodeCoverage]
 	public class PetMap : EntityMappingConfiguration<PetEntity>
@@ -24,14 +24,14 @@ namespace Speedy.Samples.Mappings.EntityFramework
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(128).IsRequired();
 			b.Property(x => x.OwnerId).HasColumnName("OwnerId").IsRequired();
-			b.Property(x => x.TypeId).HasColumnName("TypeId").HasMaxLength(25).IsRequired();
+			b.Property(x => x.TypeId).HasColumnName("TypeId").HasMaxLength(25).IsRequired(false);
 			b.Ignore(x => x.Id);
 
 			b.HasIndex(x => x.OwnerId).HasName("IX_Pets_OwnerId");
 			b.HasIndex(x => x.TypeId).HasName("IX_Pets_TypeId");
 
 			b.HasOne(x => x.Owner).WithMany(x => x.Owners).HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Restrict);
-			b.HasOne(x => x.Type).WithMany(x => x.Types).HasForeignKey(x => x.TypeId).OnDelete(DeleteBehavior.Restrict);
+			b.HasOne(x => x.Type).WithMany(x => x.Types).HasForeignKey(x => x.TypeId).OnDelete(DeleteBehavior.SetNull);
 		}
 
 		#endregion

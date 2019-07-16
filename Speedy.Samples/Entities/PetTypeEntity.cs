@@ -31,6 +31,7 @@ namespace Speedy.Samples.Entities
 		public DateTime ModifiedOn { get; set; }
 
 		public string Type { get; set; }
+
 		public virtual ICollection<PetEntity> Types { get; set; }
 
 		#endregion

@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Samples.Entities;
+using Speedy.Website.Models;
 
 #endregion
 
@@ -13,16 +14,20 @@ namespace Speedy.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static GroupMemberEntity Get(Action<GroupMemberEntity> update = null)
+		public static GroupMemberEntity Get(GroupEntity group, PersonEntity person, Action<GroupMemberEntity> update = null)
 		{
+			var time = TimeService.UtcNow;
+
 			var result = new GroupMemberEntity
 			{
-				Group = GroupFactory.Get(),
-				GroupSyncId = default,
+				Group = group,
+				GroupId = group.Id,
 				Id = default,
-				Member = PersonFactory.Get(),
-				MemberSyncId = default,
-				Role = Guid.NewGuid().ToString()
+				Member = person,
+				MemberSyncId = person.SyncId,
+				Role = Guid.NewGuid().ToString(),
+				CreatedOn = time,
+				ModifiedOn = time
 			};
 
 			update?.Invoke(result);

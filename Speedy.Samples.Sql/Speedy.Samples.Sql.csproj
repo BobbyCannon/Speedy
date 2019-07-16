@@ -7,15 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20190705162505_Initial.cs" />
-    <Compile Remove="Migrations\20190705162505_Initial.Designer.cs" />
-    <Compile Remove="Migrations\20190705163237_Initial.cs" />
-    <Compile Remove="Migrations\20190705163237_Initial.Designer.cs" />
-    <Compile Remove="Migrations\20190705163513_Initial.cs" />
-    <Compile Remove="Migrations\20190705163513_Initial.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6" />
   </ItemGroup>
 

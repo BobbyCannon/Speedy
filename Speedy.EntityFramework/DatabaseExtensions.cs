@@ -33,9 +33,6 @@ namespace Speedy.EntityFramework
 			var databaseHasRequiredMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.HasRequired))
 				?? throw new Exception($"Failed to find the '{nameof(Database.HasRequired)}' method on the '{nameof(Database)}' class.");
 
-			var databaseHasOptionalMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.HasOptional))
-				?? throw new Exception($"Failed to find the '{nameof(Database.HasOptional)}' method on the '{nameof(Database)}' class.");
-
 			var assembly = database.GetMappingAssembly();
 			var types = assembly.GetTypes();
 			var mappingTypes = types.Where(x => !x.IsAbstract && x.GetInterfaces().Any(y => y == typeof(IEntityMappingConfiguration)));
@@ -44,7 +41,7 @@ namespace Speedy.EntityFramework
 			foreach (var config in mappingTypes.Select(Activator.CreateInstance).Cast<IEntityMappingConfiguration>())
 			{
 				var entityBuilder = (EntityTypeBuilder) config.Map(builder);
-				var primaryKey = entityBuilder.Metadata.ClrType.BaseType?.GenericTypeArguments.FirstOrDefault();
+				var primaryKey = entityBuilder.Metadata.ClrType.GetPrimaryKeyType();
 
 				if (primaryKey == null)
 				{
@@ -89,27 +86,58 @@ namespace Speedy.EntityFramework
 					var firstParameter = GetPropertyExpression(foreignKey.DeclaringEntityType.ClrType, foreignKey.DependentToPrincipal.Name);
 					var secondParameter = GetPropertyObjectExpression(foreignKey.DeclaringEntityType.ClrType, foreignKey.Properties[0].Name);
 					var thirdParameter = foreignKey.PrincipalToDependent != null ? GetPropertyExpression(foreignKey.PrincipalEntityType.ClrType, foreignKey.PrincipalToDependent.Name) : null;
-
+					
+					// Get the types for the property configurations
 					var firstType = foreignKey.DeclaringEntityType.ClrType;
-					var secondType = foreignKey.DeclaringEntityType.ClrType.BaseType?.GenericTypeArguments.FirstOrDefault();
+					var secondType = foreignKey.DeclaringEntityType.ClrType.GetPrimaryKeyType();
 					var thirdType = foreignKey.PrincipalEntityType.ClrType;
-					var fourthType = foreignKey.PrincipalEntityType.ClrType.BaseType?.GenericTypeArguments.FirstOrDefault();
+					var fourthType = foreignKey.PrincipalEntityType.ClrType.GetPrimaryKeyType();
+					
+					// Get the configuration for the property
+					var method = databaseHasRequiredMethod.MakeGenericMethod(firstType, secondType, thirdType, fourthType);
+					var configuration = (IPropertyConfiguration) method.Invoke(database, new object[] { foreignKey.IsRequired, firstParameter, secondParameter, thirdParameter });
 
-					if (foreignKey.IsRequired)
+					switch (foreignKey.DeleteBehavior)
 					{
-						var method = databaseHasRequiredMethod.MakeGenericMethod(firstType, secondType, thirdType, fourthType);
-						method.Invoke(database, new object[] { firstParameter, secondParameter, thirdParameter });
-					}
-					else
-					{
-						var method = databaseHasOptionalMethod.MakeGenericMethod(firstType, secondType, thirdType, fourthType);
-						method.Invoke(database, new object[] { firstParameter, secondParameter, thirdParameter });
+						case DeleteBehavior.ClientSetNull:
+						case DeleteBehavior.SetNull:
+							configuration.OnDelete(RelationshipDeleteBehavior.SetNull);
+							break;
+
+						case DeleteBehavior.Restrict:
+							configuration.OnDelete(RelationshipDeleteBehavior.Restrict);
+							break;
+						
+						case DeleteBehavior.Cascade:
+							configuration.OnDelete(RelationshipDeleteBehavior.Cascade);
+							break;
 					}
 				}
 			}
 		}
 
-		private static Expression GetPropertyExpression(Type type, string name)
+		internal static Type GetPrimaryKeyType(this Type type)
+		{
+			while (true)
+			{
+				var baseType = type.BaseType;
+				if (baseType == null)
+				{
+					return null;
+				}
+
+				var arg = baseType.GenericTypeArguments.FirstOrDefault();
+				if (arg == null)
+				{
+					type = baseType;
+					continue;
+				}
+
+				return arg;
+			}
+		}
+		
+		private static Expression GetPropertyExpression(this Type type, string name)
 		{
 			var parameter = Expression.Parameter(type, "x");
 			var memberExpression = Expression.Property(parameter, name);
@@ -117,7 +145,7 @@ namespace Speedy.EntityFramework
 			return lambdaExpression;
 		}
 
-		private static Expression GetPropertyObjectExpression(Type type, string name)
+		private static Expression GetPropertyObjectExpression(this Type type, string name)
 		{
 			var parameter = Expression.Parameter(type, "x");
 			var memberExpression = Expression.Property(parameter, name);

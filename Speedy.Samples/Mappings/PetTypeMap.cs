@@ -8,7 +8,7 @@ using Speedy.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Samples.Mappings.EntityFramework
+namespace Speedy.Samples.Mappings
 {
 	[ExcludeFromCodeCoverage]
 	public class PetTypeMap : EntityMappingConfiguration<PetTypeEntity>

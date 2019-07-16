@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Exceptions;
 using Speedy.Samples.Entities;
 using Speedy.Storage;
+using Speedy.Tests.EntityFactories;
 
 #endregion
 
@@ -478,44 +479,6 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
-		public void UnmodifiableEntityShouldNotAllowSave()
-		{
-			TestHelper.GetDataContexts()
-				.ForEach(provider =>
-				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
-
-						var logEvent = new LogEventEntity{ Id = "Log1", Message = "Hello World" };
-						database.LogEvents.Add(logEvent);
-						database.SaveChanges();
-					}
-
-					using (var database = provider.GetDatabase())
-					{
-						Assert.AreEqual(1, database.LogEvents.Count());
-
-						var entity = database.LogEvents.First();
-						entity.Message = "Test";
-						var count = database.SaveChanges();
-						Assert.AreEqual(0, count);
-
-						entity = database.LogEvents.First();
-						Assert.AreEqual("Hello World", entity.Message);
-					}
-					
-					using (var database = provider.GetDatabase())
-					{
-						Assert.AreEqual(1, database.LogEvents.Count());
-
-						var entity = database.LogEvents.First();
-						Assert.AreEqual("Hello World", entity.Message);
-					}
-				});
-		}
-
-		[TestMethod]
 		public void QueryUsingInclude()
 		{
 			var providers = TestHelper.GetDataContextProviders().ToList();
@@ -824,7 +787,105 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
-		public void RemoveEntityHardDelete()
+		public void RemoveEntityDeleteCascade()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					GroupEntity group;
+
+					using (var database = provider.GetDatabase())
+					{
+						database.Options.PermanentSyncEntityDeletions = true;
+
+						Console.WriteLine(database.GetType().Name);
+
+						group = GroupFactory.Get();
+						database.Groups.Add(group);
+
+						var address = AddressFactory.Get(null, "123 Main");
+						var person = PersonFactory.Get(null, "John", address);
+						var member = GroupMemberFactory.Get(group, person);
+						database.GroupMembers.Add(member);
+
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.People.Count());
+						Assert.AreEqual(1, database.Groups.Count());
+						Assert.AreEqual(1, database.GroupMembers.Count());
+
+						database.Groups.Remove(group.Id);
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.People.Count());
+						Assert.AreEqual(0, database.Groups.Count());
+						Assert.AreEqual(0, database.GroupMembers.Count());
+					}
+				});
+		}
+
+		[TestMethod]
+		public void RemoveEntityDeleteSetNull()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					PetEntity pet;
+					PetTypeEntity type;
+
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						var address = AddressFactory.Get(null, "123 Main");
+						var person = PersonFactory.Get(null, "John", address);
+						database.People.Add(person);
+						database.SaveChanges();
+
+						type = PetTypeFactory.Get();
+						pet = PetFactory.Get(null, person);
+						pet.Type = type;
+						database.Pets.Add(pet);
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.People.Count());
+						Assert.AreEqual(1, database.Pets.Count());
+						Assert.AreEqual(1, database.PetTypes.Count());
+
+						database.Options.PermanentSyncEntityDeletions = true;
+						var petTypes = database.PetTypes.FirstOrDefault();
+						database.PetTypes.Remove(petTypes);
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.People.Count());
+						Assert.AreEqual(1, database.Pets.Count());
+						Assert.AreEqual(0, database.PetTypes.Count());
+						
+						var actual = database.Pets.First();
+						Assert.AreEqual(pet.Id, actual.Id);
+						Assert.AreEqual(null, actual.TypeId);
+					}
+				});
+		}
+
+		[TestMethod]
+		public void RemoveEntityDeleteHard()
 		{
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
@@ -864,7 +925,7 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
-		public void RemoveEntitySoftDelete()
+		public void RemoveEntityDeleteSoft()
 		{
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
@@ -1033,6 +1094,44 @@ namespace Speedy.Samples.Tests
 							"SQLite Error 19: 'UNIQUE constraint failed: People.Name'.",
 							"Cannot insert duplicate key row in object 'dbo.People' with unique index 'IX_People_Name'. The duplicate key value is (Foo).",
 							"PersonEntity: Cannot insert duplicate row. The duplicate key value is (Foo).");
+					}
+				});
+		}
+
+		[TestMethod]
+		public void UnmodifiableEntityShouldNotAllowSave()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						var logEvent = new LogEventEntity { Id = "Log1", Message = "Hello World" };
+						database.LogEvents.Add(logEvent);
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.LogEvents.Count());
+
+						var entity = database.LogEvents.First();
+						entity.Message = "Test";
+						var count = database.SaveChanges();
+						Assert.AreEqual(0, count);
+
+						entity = database.LogEvents.First();
+						Assert.AreEqual("Hello World", entity.Message);
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(1, database.LogEvents.Count());
+
+						var entity = database.LogEvents.First();
+						Assert.AreEqual("Hello World", entity.Message);
 					}
 				});
 		}

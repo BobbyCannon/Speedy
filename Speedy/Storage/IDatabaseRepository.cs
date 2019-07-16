@@ -55,10 +55,24 @@ namespace Speedy.Storage
 		object Read(object id);
 
 		/// <summary>
+		/// Remove the dependencies for the entity.
+		/// </summary>
+		/// <param name="value"> The values to check. </param>
+		/// <param name="id"> The ID of the entity. </param>
+		void RemoveDependent(object[] value, object id);
+
+		/// <summary>
 		/// Save the data to the data store.
 		/// </summary>
 		/// <returns> The number of items saved. </returns>
 		int SaveChanges();
+
+		/// <summary>
+		/// Set the foreign key values for this dependent to null.
+		/// </summary>
+		/// <param name="value"> The values for processing. </param>
+		/// <param name="id"> The ID of the entity. </param>
+		void SetDependentToNull(object[] value, object id);
 
 		/// <summary>
 		/// Sorts the repository by the primary key.

@@ -178,8 +178,8 @@ namespace Speedy.Samples.Tests
 
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null)
 		{
-			yield return GetSqliteProvider(options);
 			yield return GetSqlProvider(options);
+			yield return GetSqliteProvider(options);
 			yield return GetMemoryProvider(options);
 		}
 

@@ -30,9 +30,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Website", "Speedy.We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Benchmark", "Speedy.Benchmark\Speedy.Benchmark.csproj", "{74B6FACC-8A18-4DE7-A8BC-CBD42D7890B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples.Sql", "Speedy.Samples.Sql\Speedy.Samples.Sql.csproj", "{71EE749A-5914-489C-B7C7-9BA7C59A35D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples.Sql", "Speedy.Samples.Sql\Speedy.Samples.Sql.csproj", "{71EE749A-5914-489C-B7C7-9BA7C59A35D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples.Sqlite", "Speedy.Samples.Sqlite\Speedy.Samples.Sqlite.csproj", "{8BF6D1C6-0541-4B05-A23D-3D7719497018}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples.Sqlite", "Speedy.Samples.Sqlite\Speedy.Samples.Sqlite.csproj", "{8BF6D1C6-0541-4B05-A23D-3D7719497018}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Website.Samples", "Speedy.Website.Samples\Speedy.Website.Samples.csproj", "{6490EA68-27AD-4321-BE2D-A1854DE2D992}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +78,10 @@ Global
 		{8BF6D1C6-0541-4B05-A23D-3D7719497018}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BF6D1C6-0541-4B05-A23D-3D7719497018}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BF6D1C6-0541-4B05-A23D-3D7719497018}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6490EA68-27AD-4321-BE2D-A1854DE2D992}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6490EA68-27AD-4321-BE2D-A1854DE2D992}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6490EA68-27AD-4321-BE2D-A1854DE2D992}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6490EA68-27AD-4321-BE2D-A1854DE2D992}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Storage.KeyValue;
 using Speedy.Website.Models;
+using Speedy.Website.Samples.Models;
 
 #endregion
 

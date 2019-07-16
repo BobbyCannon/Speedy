@@ -18,7 +18,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Speedy.Storage;
-using Speedy.Sync;
 
 #endregion
 
@@ -460,6 +459,48 @@ namespace Speedy
 				.ToArray();
 
 			return _virtualPropertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+		}
+
+		/// <summary>
+		/// Get the name of the expression.
+		/// </summary>
+		/// <param name="expression"> The expression to process. </param>
+		/// <returns> The name of the expression. </returns>
+		public static string GetExpressionName(this LambdaExpression expression)
+		{
+			if (expression.Body is UnaryExpression unaryExpression)
+			{
+				return ((dynamic) unaryExpression.Operand).Member?.Name;
+			}
+
+			return (expression as dynamic).Body.Member.Name;
+		}
+
+		/// <summary>
+		/// Get the types for the generic.
+		/// </summary>
+		/// <param name="value"> The value to get the types for. </param>
+		/// <returns> The type values for the generic object. </returns>
+		public static Type[] GetGenericTypes(this object value)
+		{
+			var type = value.GetType();
+
+			while (true)
+			{
+				if (type == null)
+				{
+					return null;
+				}
+
+				var arg = type.GenericTypeArguments?.ToArray();
+				if (arg == null || arg.Length <= 0)
+				{
+					type = type.BaseType;
+					continue;
+				}
+
+				return arg;
+			}
 		}
 
 		/// <summary>
@@ -931,6 +972,45 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
+		/// </summary>
+		/// <typeparam name="T"> The type of the incoming object. </typeparam>
+		/// <typeparam name="T2"> The type of the outgoing object. </typeparam>
+		/// <param name="value"> The value to unwrap from the proxy. </param>
+		/// <param name="update"> An optional update method. </param>
+		/// <returns> The disconnected entity. </returns>
+		public static T2 Unwrap<T, T2>(this T value, Action<T2> update = null)
+		{
+			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
+			update?.Invoke(response);
+			return response;
+		}
+
+		/// <summary>
+		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
+		/// </summary>
+		/// <param name="value"> The value to unwrap from the proxy. </param>
+		/// <param name="type"> The type of the outgoing object. </param>
+		/// <returns> The disconnected entity. </returns>
+		public static object Unwrap(this object value, Type type)
+		{
+			return value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson(type);
+		}
+
+		/// <summary>
+		/// Runs action if the test is true.
+		/// </summary>
+		/// <param name="item"> The item to process. (does nothing) </param>
+		/// <param name="test"> The test to validate. </param>
+		/// <param name="action"> The action to run if test is true. </param>
+		/// <typeparam name="T"> The type the function returns </typeparam>
+		/// <returns> The result of the action or default(T). </returns>
+		public static T UpdateIf<T>(this object item, Func<bool> test, Func<T> action)
+		{
+			return test() ? action() : default;
+		}
+
+		/// <summary>
 		/// Allows updating of one type to another based on member Name and Type.
 		/// </summary>
 		/// <typeparam name="T"> The type to be updated. </typeparam>
@@ -977,45 +1057,6 @@ namespace Speedy
 
 				thisProperty.SetValue(value, updateProperty.GetValue(update));
 			}
-		}
-
-		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
-		/// </summary>
-		/// <typeparam name="T"> The type of the incoming object. </typeparam>
-		/// <typeparam name="T2"> The type of the outgoing object. </typeparam>
-		/// <param name="value"> The value to unwrap from the proxy. </param>
-		/// <param name="update"> An optional update method. </param>
-		/// <returns> The disconnected entity. </returns>
-		public static T2 Unwrap<T, T2>(this T value, Action<T2> update = null)
-		{
-			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
-			update?.Invoke(response);
-			return response;
-		}
-		
-		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
-		/// </summary>
-		/// <param name="value"> The value to unwrap from the proxy. </param>
-		/// <param name="type"> The type of the outgoing object. </param>
-		/// <returns> The disconnected entity. </returns>
-		public static object Unwrap(this object value, Type type)
-		{
-			return value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson(type);
-		}
-
-		/// <summary>
-		/// Runs action if the test is true.
-		/// </summary>
-		/// <param name="item"> The item to process. (does nothing) </param>
-		/// <param name="test"> The test to validate. </param>
-		/// <param name="action"> The action to run if test is true. </param>
-		/// <typeparam name="T"> The type the function returns </typeparam>
-		/// <returns> The result of the action or default(T). </returns>
-		public static T UpdateIf<T>(this object item, Func<bool> test, Func<T> action)
-		{
-			return test() ? action() : default;
 		}
 
 		/// <summary>

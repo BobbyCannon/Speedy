@@ -15,11 +15,14 @@ namespace Speedy.Tests.EntityFactories
 
 		public static GroupEntity Get(Action<GroupEntity> update = null)
 		{
+			var time = TimeService.UtcNow;
 			var result = new GroupEntity
 			{
 				Description = Guid.NewGuid().ToString(),
 				Id = default,
-				Name = Guid.NewGuid().ToString()
+				Name = Guid.NewGuid().ToString(),
+				CreatedOn = time,
+				ModifiedOn = time
 			};
 
 			update?.Invoke(result);

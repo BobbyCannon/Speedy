@@ -115,12 +115,6 @@ namespace Speedy.Tests
 			Assert.AreNotEqual(destination.Address, source.Address);
 			Assert.AreNotEqual(destination.AddressId, source.AddressId);
 			Assert.AreNotEqual(destination.AddressSyncId, source.AddressSyncId);
-			Assert.AreEqual(null, source.BillingAddress);
-			Assert.AreEqual(destination.BillingAddress, source.BillingAddress);
-			Assert.AreEqual(null, source.BillingAddressId);
-			Assert.AreEqual(destination.BillingAddressId, source.BillingAddressId);
-			Assert.AreEqual(null, source.BillingAddressSyncId);
-			Assert.AreEqual(destination.BillingAddressSyncId, source.BillingAddressSyncId);
 			Assert.AreNotEqual(destination.CreatedOn, source.CreatedOn);
 			Assert.AreNotEqual(destination.Groups, source.Groups);
 			Assert.AreNotEqual(destination.Id, source.Id);
@@ -137,12 +131,6 @@ namespace Speedy.Tests
 			Assert.AreNotEqual(destination.Address, source.Address);
 			Assert.AreEqual(destination.AddressId, source.AddressId);
 			Assert.AreEqual(destination.AddressSyncId, source.AddressSyncId);
-			Assert.AreEqual(null, source.BillingAddress);
-			Assert.AreEqual(destination.BillingAddress, source.BillingAddress);
-			Assert.AreEqual(null, source.BillingAddressId);
-			Assert.AreEqual(destination.BillingAddressId, source.BillingAddressId);
-			Assert.AreEqual(null, source.BillingAddressSyncId);
-			Assert.AreEqual(destination.BillingAddressSyncId, source.BillingAddressSyncId);
 			Assert.AreEqual(destination.CreatedOn, source.CreatedOn);
 			Assert.AreNotEqual(destination.Groups, source.Groups);
 			Assert.AreEqual(destination.Id, source.Id);
@@ -159,12 +147,6 @@ namespace Speedy.Tests
 			Assert.AreEqual(destination.Address, source.Address);
 			Assert.AreEqual(destination.AddressId, source.AddressId);
 			Assert.AreEqual(destination.AddressSyncId, source.AddressSyncId);
-			Assert.AreEqual(null, source.BillingAddress);
-			Assert.AreEqual(destination.BillingAddress, source.BillingAddress);
-			Assert.AreEqual(null, source.BillingAddressId);
-			Assert.AreEqual(destination.BillingAddressId, source.BillingAddressId);
-			Assert.AreEqual(null, source.BillingAddressSyncId);
-			Assert.AreEqual(destination.BillingAddressSyncId, source.BillingAddressSyncId);
 			Assert.AreEqual(destination.CreatedOn, source.CreatedOn);
 			Assert.AreEqual(destination.Groups, source.Groups);
 			Assert.AreEqual(destination.Id, source.Id);
@@ -176,7 +158,7 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void WaitShouldCompleteWhenConditionIsSatified()
+		public void WaitShouldCompleteWhenConditionIsSatisfied()
 		{
 			var count = 0;
 			var watch = Stopwatch.StartNew();
@@ -189,7 +171,7 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void WaitShouldCompleteWhenConditionIsSatifiedWithCustomTimeoutAndDelay()
+		public void WaitShouldCompleteWhenConditionIsSatisfiedWithCustomTimeoutAndDelay()
 		{
 			var count = 0;
 			var watch = Stopwatch.StartNew();
@@ -202,7 +184,7 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void WaitShouldTimeOutIfConditionIsNotSatified()
+		public void WaitShouldTimeOutIfConditionIsNotSatisfied()
 		{
 			var count = 0;
 			var watch = Stopwatch.StartNew();
@@ -215,7 +197,7 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
-		public void WaitShouldTimeOutIfConditionIsNotSatifiedWithCustomTimeoutAndDelay()
+		public void WaitShouldTimeOutIfConditionIsNotSatisfiedWithCustomTimeoutAndDelay()
 		{
 			var count = 0;
 			var watch = Stopwatch.StartNew();

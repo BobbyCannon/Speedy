@@ -17,8 +17,6 @@ namespace Speedy.Samples.Entities
 
 		public int GroupId { get; set; }
 
-		public Guid GroupSyncId { get; set; }
-
 		public override int Id { get; set; }
 
 		public virtual PersonEntity Member { get; set; }

@@ -45,6 +45,7 @@ namespace Speedy.Samples.Entities
 			#region Properties
 
 			public string Name { get; set; }
+
 			public int OwnerId { get; set; }
 
 			#endregion

@@ -1,10 +1,10 @@
 ﻿#region References
 
-using Speedy.Website.Models;
+using Speedy.Website.Samples.Models;
 
 #endregion
 
-namespace Speedy.Website.Storage
+namespace Speedy.Website.Samples
 {
 	/// <summary>
 	/// Represents a model database that would be a client side representation of their data model.
@@ -24,7 +24,8 @@ namespace Speedy.Website.Storage
 
 			Options.SyncOrder = new[] { typeof(Address).ToAssemblyName(), typeof(Person).ToAssemblyName() };
 
-			HasRequired<Person, int, Address, long>(x => x.Address, x => x.AddressId, x => x.People);
+			// This is our only mapping
+			HasRequired<Person, int, Address, long>(true, x => x.Address, x => x.AddressId, x => x.People);
 		}
 
 		#endregion

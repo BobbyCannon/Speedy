@@ -22,8 +22,6 @@ namespace Speedy.Tests.EntityFactories
 			{
 				Address = personAddress,
 				AddressSyncId = personAddress.SyncId,
-				BillingAddressId = null,
-				BillingAddressSyncId = null,
 				Id = default,
 				Name = name ?? Guid.NewGuid().ToString(),
 				SyncId = Guid.NewGuid(),

@@ -5,7 +5,7 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.Website.Models
+namespace Speedy.Website.Samples.Models
 {
 	public class Person : SyncModel<int>
 	{

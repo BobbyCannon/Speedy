@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
 using Speedy.Website.Models;
+using Speedy.Website.Samples.Models;
 
 #endregion
 
@@ -202,8 +203,8 @@ namespace Speedy.Tests
 			var itemsToTest = new Dictionary<Type, string[]>
 			{
 				{ typeof(AddressEntity), new[] { nameof(AddressEntity.LinkedAddress), nameof(AddressEntity.LinkedAddresses), nameof(AddressEntity.People) } },
-				{ typeof(PersonEntity), new[] { nameof(PersonEntity.Address), nameof(PersonEntity.BillingAddress), nameof(PersonEntity.Groups), nameof(PersonEntity.Owners) } },
-				{ typeof(GroupEntity), new[] { nameof(GroupEntity.Members) } },
+				{ typeof(PersonEntity), new[] { nameof(PersonEntity.Address), nameof(PersonEntity.Groups), nameof(PersonEntity.Owners) } },
+				{ typeof(GroupEntity), new[] { nameof(GroupEntity.Members) } }, 
 				{ typeof(SyncRequest), new[] { nameof(SyncRequest.HasChanges) } }
 			};
 

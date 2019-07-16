@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Speedy.Configuration;
 using Speedy.Exceptions;
 using Speedy.Storage;
@@ -40,7 +41,7 @@ namespace Speedy
 		{
 			OneToManyRelationships = new Dictionary<string, object[]>();
 			Options = options?.DeepClone() ?? new DatabaseOptions();
-			PropertyConfigurations = new List<IPropertyConfiguration>();
+			PropertyConfigurations = new Dictionary<string, IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IDatabaseRepository>();
 
 			_collectionChangeTracker = new CollectionChangeTracker();
@@ -59,7 +60,7 @@ namespace Speedy
 
 		private Dictionary<string, object[]> OneToManyRelationships { get; }
 
-		private ICollection<IPropertyConfiguration> PropertyConfigurations { get; }
+		private IDictionary<string, IPropertyConfiguration> PropertyConfigurations { get; }
 
 		#endregion
 
@@ -83,7 +84,7 @@ namespace Speedy
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		public void Dispose()
+		public virtual void Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
@@ -179,6 +180,7 @@ namespace Speedy
 		/// <summary>
 		/// Creates a configuration that represent a required one to many relationship.
 		/// </summary>
+		/// <param name="required"> The value to determine if this property is required. </param>
 		/// <param name="entity"> The entity to relate to. </param>
 		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
 		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
@@ -186,42 +188,20 @@ namespace Speedy
 		/// <typeparam name="T2"> The type of the entity key of the host. </typeparam>
 		/// <typeparam name="T3"> The entity to build a relationship to. </typeparam>
 		/// <typeparam name="T4"> The type of the entity key to build the relationship to. </typeparam>
-		public void HasOptional<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
+		public PropertyConfiguration<T1, T2> HasRequired<T1, T2, T3, T4>(bool required, Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
 			where T1 : Entity<T2>
 			where T3 : Entity<T4>
 		{
-			Property<T1, T2>(foreignKey).IsOptional();
+			var property = Property<T1, T2>(foreignKey).IsRequired(required);
 
 			if (collectionKey != null)
 			{
-				var key = typeof(T3).Name + (collectionKey as dynamic).Body.Member.Name;
+				var key = typeof(T3).Name + collectionKey.GetExpressionName();
 				var repositoryFactory = GetRepository<T1, T2>();
-				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
+				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile(), property });
 			}
-		}
 
-		/// <summary>
-		/// Creates a configuration that represent a required one to many relationship.
-		/// </summary>
-		/// <param name="entity"> The entity to relate to. </param>
-		/// <param name="collectionKey"> The collection on the entity that relates back to this entity. </param>
-		/// <param name="foreignKey"> The ID for the entity to relate to. </param>
-		/// <typeparam name="T1"> The entity that host the relationship. </typeparam>
-		/// <typeparam name="T2"> The type of the entity key of the host. </typeparam>
-		/// <typeparam name="T3"> The entity to build a relationship to. </typeparam>
-		/// <typeparam name="T4"> The type of the entity key to build the relationship to. </typeparam>
-		public void HasRequired<T1, T2, T3, T4>(Expression<Func<T1, T3>> entity, Expression<Func<T1, object>> foreignKey, Expression<Func<T3, ICollection<T1>>> collectionKey = null)
-			where T1 : Entity<T2>
-			where T3 : Entity<T4>
-		{
-			Property<T1, T2>(foreignKey).IsRequired();
-
-			if (collectionKey != null)
-			{
-				var key = typeof(T3).Name + (collectionKey as dynamic).Body.Member.Name;
-				var repositoryFactory = GetRepository<T1, T2>();
-				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile() });
-			}
+			return property;
 		}
 
 		/// <summary>
@@ -233,8 +213,15 @@ namespace Speedy
 		/// <returns> The configuration for the entity property. </returns>
 		public PropertyConfiguration<T, T2> Property<T, T2>(Expression<Func<T, object>> expression) where T : Entity<T2>
 		{
+			var name = $"{typeof(T).ToAssemblyName()}.{expression.GetExpressionName()}";
+
+			if (PropertyConfigurations.ContainsKey(name))
+			{
+				return (PropertyConfiguration<T, T2>) PropertyConfigurations[name];
+			}
+
 			var response = new PropertyConfiguration<T, T2>(expression);
-			PropertyConfigurations.Add(response);
+			PropertyConfigurations.Add(name, response);
 			return response;
 		}
 
@@ -280,6 +267,15 @@ namespace Speedy
 			{
 				_saveChangeCount = 0;
 			}
+		}
+
+		/// <summary>
+		/// Save the data to the data store.
+		/// </summary>
+		/// <returns> The number of items saved. </returns>
+		public virtual Task<int> SaveChangesAsync()
+		{
+			return Task.Run(SaveChanges);
 		}
 
 		/// <summary>
@@ -363,7 +359,7 @@ namespace Speedy
 			var collectionKey = collectionTypeProperties.First(x => x.Name == "Id").PropertyType;
 			var entityProperties = entityType.GetCachedProperties();
 			var entityKey = entityProperties.First(x => x.Name == "Id").PropertyType;
-			var genericMethod = GetGenericMethod("BuildRelationship", new[] { entityType, entityKey, collectionType, collectionKey }, entityType, typeof(IEnumerable), typeof(string));
+			var genericMethod = GetGenericMethod(nameof(BuildRelationship), new[] { entityType, entityKey, collectionType, collectionKey }, entityType, typeof(IEnumerable), typeof(string));
 			return (IEnumerable) genericMethod.Invoke(this, new object[] { entity, collection, key });
 		}
 
@@ -390,7 +386,7 @@ namespace Speedy
 
 			var value = OneToManyRelationships[key];
 			var repository = (IRepository<T2, T2K>) value[0];
-			var entityExpression = (Expression<Func<T2, T1>>) value[1];
+			var entityExpression = (Expression<Func<T2, T1>>) value[1]; 
 			var entityFunction = (Func<T2, T1>) value[2];
 			var foreignKeyExpression = (Expression<Func<T2, object>>) value[3];
 			var foreignKeyFunction = (Func<T2, object>) value[4];
@@ -405,14 +401,15 @@ namespace Speedy
 
 				var invokedEntity = entityFunction.Invoke(x);
 				return invokedEntity == entity;
-			}, x =>
-			{
+			}, x => {
 				if (entity.IdIsSet())
 				{
+					// Should I use SetMemberValue instead? which is faster?
 					AssignNewValue(x, foreignKeyExpression, entity.Id);
 				}
 				else
 				{
+					// Should I use SetMemberValue instead? which is faster?
 					AssignNewValue(x, entityExpression, entity);
 				}
 			}, x =>
@@ -463,6 +460,20 @@ namespace Speedy
 			foreach (var relationship in OneToManyRelationships.Where(x => x.Key.StartsWith(key)))
 			{
 				var repository = (IDatabaseRepository) relationship.Value[0];
+				var configuration = (IPropertyConfiguration) relationship.Value[5];
+
+				if (configuration.DeleteBehavior == RelationshipDeleteBehavior.Cascade)
+				{
+					repository.RemoveDependent(relationship.Value, entity.Id);
+					continue;
+				}
+
+				if (configuration.DeleteBehavior == RelationshipDeleteBehavior.SetNull)
+				{
+					repository.SetDependentToNull(relationship.Value, entity.Id);
+					continue;
+				}
+
 				if (!repository.HasDependentRelationship(relationship.Value, entity.Id))
 				{
 					continue;
@@ -742,7 +753,7 @@ namespace Speedy
 				return;
 			}
 
-			foreach (var configuration in PropertyConfigurations.Where(x => x.IsMappingFor(entity)))
+			foreach (var configuration in PropertyConfigurations.Values.Where(x => x.IsMappingFor(entity)))
 			{
 				if (configuration is PropertyConfiguration<T, T2> validation)
 				{

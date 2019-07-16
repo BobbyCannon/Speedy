@@ -32,12 +32,6 @@ namespace Speedy.Samples.Entities
 
 		public Guid AddressSyncId { get; set; }
 
-		public virtual AddressEntity BillingAddress { get; set; }
-
-		public long? BillingAddressId { get; set; }
-
-		public Guid? BillingAddressSyncId { get; set; }
-
 		public virtual ICollection<GroupMemberEntity> Groups { get; set; }
 
 		public override int Id { get; set; }

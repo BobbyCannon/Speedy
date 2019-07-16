@@ -13,8 +13,10 @@ namespace Speedy.Samples.Entities
 		/// <inheritdoc />
 		public DateTime CreatedOn { get; set; }
 
+		/// <inheritdoc />
 		public override string Id { get; set; }
 
+		/// <inheritdoc />
 		public string Message { get; set; }
 
 		/// <inheritdoc />

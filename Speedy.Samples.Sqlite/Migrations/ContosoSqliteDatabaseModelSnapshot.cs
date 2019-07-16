@@ -14,7 +14,7 @@ namespace Speedy.Samples.Sqlite.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062");
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
             modelBuilder.Entity("Speedy.Samples.Entities.AddressEntity", b =>
                 {
@@ -188,10 +188,6 @@ namespace Speedy.Samples.Sqlite.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnName("GroupId");
 
-                    b.Property<Guid>("GroupSyncId")
-                        .HasColumnName("GroupSyncId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("MemberId")
                         .HasColumnName("MemberId");
 
@@ -216,6 +212,9 @@ namespace Speedy.Samples.Sqlite.Migrations
 
                     b.HasIndex("MemberId")
                         .HasName("IX_GroupMembers_MemberId");
+
+                    b.HasIndex("MemberSyncId")
+                        .HasName("IX_GroupMembers_MemberSyncId");
 
                     b.ToTable("GroupMembers","dbo");
                 });
@@ -257,13 +256,6 @@ namespace Speedy.Samples.Sqlite.Migrations
                         .HasColumnName("AddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long?>("BillingAddressId")
-                        .HasColumnName("BillingAddressId");
-
-                    b.Property<Guid?>("BillingAddressSyncId")
-                        .HasColumnName("BillingAddressSyncId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
                         .HasColumnType("datetime2");
@@ -288,9 +280,6 @@ namespace Speedy.Samples.Sqlite.Migrations
 
                     b.HasIndex("AddressId")
                         .HasName("IX_People_AddressId");
-
-                    b.HasIndex("BillingAddressId")
-                        .HasName("IX_People_BillingAddressId");
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -322,7 +311,6 @@ namespace Speedy.Samples.Sqlite.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TypeId")
-                        .IsRequired()
                         .HasColumnName("TypeId")
                         .HasMaxLength(25)
                         .IsUnicode(false);
@@ -402,11 +390,6 @@ namespace Speedy.Samples.Sqlite.Migrations
                         .WithMany("People")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Speedy.Samples.Entities.AddressEntity", "BillingAddress")
-                        .WithMany("BillingPeople")
-                        .HasForeignKey("BillingAddressId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Speedy.Samples.Entities.PetEntity", b =>
@@ -419,7 +402,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                     b.HasOne("Speedy.Samples.Entities.PetTypeEntity", "Type")
                         .WithMany("Types")
                         .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }

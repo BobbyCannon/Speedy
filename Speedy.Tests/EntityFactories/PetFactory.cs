@@ -13,15 +13,18 @@ namespace Speedy.Tests.EntityFactories
 	{
 		#region Methods
 
-		public static PetEntity Get(Action<PetEntity> update = null)
+		public static PetEntity Get(Action<PetEntity> update = null, PersonEntity person = null)
 		{
+			var time = DateTime.UtcNow;
+			var petPerson = person ?? PersonFactory.Get(null, "John");
+
 			var result = new PetEntity
 			{
-				CreatedOn = default,
-				ModifiedOn = default,
 				Name = Guid.NewGuid().ToString(),
-				Owner = PersonFactory.Get(),
-				Type = PetTypeFactory.Get()
+				Owner = petPerson,
+				Type = PetTypeFactory.Get(),
+				CreatedOn = time,
+				ModifiedOn = time
 			};
 
 			update?.Invoke(result);

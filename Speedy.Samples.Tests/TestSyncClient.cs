@@ -46,9 +46,9 @@ namespace Speedy.Samples.Tests
 
 		public string Name { get; }
 
-		public SyncClientConverter OutgoingConverter { get; set; }
-
 		public SyncClientOptions Options { get; set; }
+
+		public SyncClientConverter OutgoingConverter { get; set; }
 
 		public SyncStatistics Statistics { get; set; }
 

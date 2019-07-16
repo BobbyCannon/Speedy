@@ -2,31 +2,27 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Speedy.Samples.Sql;
+using Speedy.Samples.Sqlite;
 
-namespace Speedy.Samples.Sql.Migrations
+namespace Speedy.Samples.Sqlite.Migrations
 {
-    [DbContext(typeof(ContosoSqlDatabase))]
-    [Migration("20190705173448_Initial")]
+    [DbContext(typeof(ContosoSqliteDatabase))]
+    [Migration("20190716013420_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
             modelBuilder.Entity("Speedy.Samples.Entities.AddressEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnName("Id");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -95,8 +91,7 @@ namespace Speedy.Samples.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnName("Id");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -121,8 +116,7 @@ namespace Speedy.Samples.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnName("Id");
 
                     b.Property<int>("ChildId")
                         .HasColumnName("ChildId");
@@ -156,8 +150,7 @@ namespace Speedy.Samples.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnName("Id");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -188,8 +181,7 @@ namespace Speedy.Samples.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnName("Id");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -197,10 +189,6 @@ namespace Speedy.Samples.Sql.Migrations
 
                     b.Property<int>("GroupId")
                         .HasColumnName("GroupId");
-
-                    b.Property<Guid>("GroupSyncId")
-                        .HasColumnName("GroupSyncId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("MemberId")
                         .HasColumnName("MemberId");
@@ -226,6 +214,9 @@ namespace Speedy.Samples.Sql.Migrations
 
                     b.HasIndex("MemberId")
                         .HasName("IX_GroupMembers_MemberId");
+
+                    b.HasIndex("MemberSyncId")
+                        .HasName("IX_GroupMembers_MemberSyncId");
 
                     b.ToTable("GroupMembers","dbo");
                 });
@@ -258,21 +249,13 @@ namespace Speedy.Samples.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnName("Id");
 
                     b.Property<long>("AddressId")
                         .HasColumnName("AddressId");
 
                     b.Property<Guid>("AddressSyncId")
                         .HasColumnName("AddressSyncId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<long?>("BillingAddressId")
-                        .HasColumnName("BillingAddressId");
-
-                    b.Property<Guid?>("BillingAddressSyncId")
-                        .HasColumnName("BillingAddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
@@ -299,9 +282,6 @@ namespace Speedy.Samples.Sql.Migrations
 
                     b.HasIndex("AddressId")
                         .HasName("IX_People_AddressId");
-
-                    b.HasIndex("BillingAddressId")
-                        .HasName("IX_People_BillingAddressId");
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -333,7 +313,6 @@ namespace Speedy.Samples.Sql.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TypeId")
-                        .IsRequired()
                         .HasColumnName("TypeId")
                         .HasMaxLength(25)
                         .IsUnicode(false);
@@ -413,11 +392,6 @@ namespace Speedy.Samples.Sql.Migrations
                         .WithMany("People")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Speedy.Samples.Entities.AddressEntity", "BillingAddress")
-                        .WithMany("BillingPeople")
-                        .HasForeignKey("BillingAddressId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Speedy.Samples.Entities.PetEntity", b =>
@@ -430,7 +404,7 @@ namespace Speedy.Samples.Sql.Migrations
                     b.HasOne("Speedy.Samples.Entities.PetTypeEntity", "Type")
                         .WithMany("Types")
                         .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }
