@@ -245,7 +245,8 @@ namespace Speedy
 				}
 
 				Repositories.Values.ForEach(x => x.ValidateEntities());
-				Repositories.Values.ForEach(x => x.UpdateRelationships());
+				// todo: I'm pretty sure this can be removed, need more testing, rolling with it in RC
+				//Repositories.Values.ForEach(x => x.UpdateRelationships());
 				Repositories.Values.ForEach(x => x.AssignKeys(new List<IEntity>()));
 				Repositories.Values.ForEach(x => x.UpdateRelationships());
 

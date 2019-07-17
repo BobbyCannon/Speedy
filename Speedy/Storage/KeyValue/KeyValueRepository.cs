@@ -73,7 +73,7 @@ namespace Speedy.Storage.KeyValue
 		public KeyValueRepository(string directory, string name, KeyValueRepositoryOptions options)
 			: this(new DirectoryInfo(directory), name, options)
 		{
-			_settings = Extensions.GetSerializerSettings(false, false, true);
+			_settings = Extensions.GetSerializerSettings(false, false, true, false);
 		}
 
 		/// <summary>

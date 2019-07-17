@@ -231,6 +231,8 @@ namespace Speedy.Samples.Sqlite.Migrations
                         .HasColumnName("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Level");
+
                     b.Property<string>("Message")
                         .HasColumnName("Message")
                         .IsUnicode(false);

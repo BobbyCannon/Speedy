@@ -34,6 +34,7 @@ namespace Speedy.Samples.Entities
 		public DateTime ModifiedOn { get; set; }
 
 		public string Name { get; set; }
+
 		public virtual ICollection<FoodRelationshipEntity> ParentRelationships { get; set; }
 
 		#endregion

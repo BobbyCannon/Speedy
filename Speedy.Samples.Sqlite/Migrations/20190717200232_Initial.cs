@@ -81,6 +81,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                 {
                     Id = table.Column<string>(unicode: false, maxLength: 250, nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Level = table.Column<int>(nullable: false),
                     Message = table.Column<string>(unicode: false, nullable: true),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

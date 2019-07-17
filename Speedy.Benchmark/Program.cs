@@ -98,9 +98,95 @@ namespace Speedy.Benchmark
 			DefaultSqliteConnection = "Data Source=Speedy.db";
 			DefaultSqliteConnection2 = "Data Source=Speedy2.db";
 
-			var options = new DatabaseOptions { DisableEntityValidations = true };
-			var options2 = new DatabaseOptions { DisableEntityValidations = true };
+			WriteManyValuesToDatabase();
+			//ProcessAllDatabases();
 
+			Console.ReadKey(true);
+		}
+
+		private static void WriteManyValuesToDatabase()
+		{
+			var memProvider = GetSyncableMemoryProvider();
+			var liteProvider = GetEntityFrameworkSqliteProvider();
+			var watch = Stopwatch.StartNew();
+			
+			// Generate the data
+			var data = GenerateData();
+			Console.WriteLine(watch.Elapsed + ": Data Created");
+			watch.Restart();
+
+			using (var database = (IContosoDatabase) liteProvider.GetDatabase())
+			{
+				foreach (var item in data)
+				{
+					database.Addresses.Add(item);
+				}
+
+				Console.WriteLine(watch.Elapsed + ": Data Added");
+				watch.Restart();
+
+				database.SaveChanges();
+				Console.WriteLine(watch.Elapsed + ": Data Saved");
+			}
+
+			watch.Restart();
+
+			using (var database = (IContosoDatabase) liteProvider.GetDatabase())
+			{
+				var count = database.Addresses.Count();
+				Console.WriteLine(watch.Elapsed + $": {count}");
+			}
+
+			watch.Restart();
+
+			using (var source = (IContosoDatabase) liteProvider.GetDatabase())
+			using (var destination = (IContosoDatabase) memProvider.GetDatabase())
+			{
+				foreach (var item in source.Addresses)
+				{
+					// ~2.6s - Could speed this up by see UpdateWith for notes
+					var address = new AddressEntity();
+					address.UpdateWith(item);
+					destination.Addresses.Add(address);
+					
+					// ~9s - Unwrap uses serialization and take a long time
+					// May want to update unwrap to use "UpdateWith"?
+					//destination.Addresses.Add(item.Unwrap<AddressEntity>());
+				}
+
+				Console.WriteLine(watch.Elapsed + ": Data Added");
+				watch.Restart();
+
+				destination.SaveChanges();
+				Console.WriteLine(watch.Elapsed + ": Data Saved");
+			}
+		}
+
+		private static IEnumerable<AddressEntity> GenerateData()
+		{
+			var list = new List<AddressEntity>(10000);
+			
+			for (var i = 0; i < 10000; i++)
+			{
+				list.Add(new AddressEntity
+				{
+					City = Guid.NewGuid().ToString(),
+					Id = default,
+					Line1 = Guid.NewGuid().ToString(),
+					Line2 = Guid.NewGuid().ToString(),
+					LinkedAddressId = null,
+					LinkedAddressSyncId = null,
+					Postal = Guid.NewGuid().ToString(),
+					State = Guid.NewGuid().ToString(),
+					SyncId = Guid.NewGuid()
+				});
+			}
+
+			return list;
+		}
+
+		private static void ProcessAllDatabases()
+		{
 			IEnumerable<(SyncClient server, SyncClient client)> GetScenarios()
 			{
 				//(new SyncClient("Server (mem)", GetSyncableMemoryProvider(options: options)), new SyncClient("Client (mem)", GetSyncableMemoryProvider(options: options2))),
@@ -119,8 +205,6 @@ namespace Speedy.Benchmark
 				ProcessScenario(scenario);
 				ProcessScenario(scenario);
 			}
-
-			Console.ReadKey(true);
 		}
 
 		private static void ProcessScenario((SyncClient server, SyncClient client) scenario)

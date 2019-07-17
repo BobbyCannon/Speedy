@@ -125,6 +125,8 @@ namespace Speedy.Sync
 			var sourceType = update.GetRealType();
 			var destinationProperties = destinationType.GetCachedProperties();
 			var sourceProperties = sourceType.GetCachedProperties();
+
+			// Need to cache this? would this save on GC?
 			var virtualProperties = destinationType.GetVirtualPropertyNames().ToArray();
 
 			foreach (var thisProperty in destinationProperties)

@@ -53,7 +53,7 @@ namespace Speedy
 			_methods = new ConcurrentDictionary<string, MethodInfo>();
 			_propertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_parameterInfos = new ConcurrentDictionary<string, ParameterInfo[]>();
-			_serializationSettings = GetSerializerSettings(false, true, true);
+			_serializationSettings = GetSerializerSettings(false, true, true, false);
 			_types = new ConcurrentDictionary<string, Type[]>();
 			_typeAssemblyNames = new ConcurrentDictionary<Type, string>();
 			_virtualPropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
@@ -559,10 +559,16 @@ namespace Speedy
 		/// <param name="camelCase"> True to camelCase or else use PascalCase. </param>
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
 		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
+		/// <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
 		/// <returns> The serialization settings. </returns>
-		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreNullValues, bool ignoreReadOnly)
+		public static JsonSerializerSettings GetSerializerSettings(bool camelCase, bool ignoreNullValues, bool ignoreReadOnly, bool convertEnumsToString)
 		{
 			var response = new JsonSerializerSettings();
+
+			if (convertEnumsToString)
+			{
+				response.Converters.Add(new StringEnumConverter());
+			}
 
 			response.Converters.Add(new IsoDateTimeConverter());
 			response.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
@@ -898,10 +904,11 @@ namespace Speedy
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
 		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
 		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
-		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false)
+		public static string ToJson<T>(this T item, bool camelCase = false, bool indented = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
 		{
-			var settings = ToJsonSettings(item, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals);
+			var settings = ToJsonSettings(item, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString);
 			return JsonConvert.SerializeObject(item, indented ? Formatting.Indented : Formatting.None, settings);
 		}
 
@@ -926,10 +933,11 @@ namespace Speedy
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
 		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
 		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
-		public static JsonSerializerSettings ToJsonSettings(this Type type, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false)
+		public static JsonSerializerSettings ToJsonSettings(this Type type, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
 		{
-			var settings = GetSerializerSettings(camelCase, ignoreNullValues, ignoreReadOnly);
+			var settings = GetSerializerSettings(camelCase, ignoreNullValues, ignoreReadOnly, convertEnumsToString);
 			var resolver = (SerializeContractResolver) settings.ContractResolver;
 
 			if (ignoreVirtuals)
@@ -955,10 +963,11 @@ namespace Speedy
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
 		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
 		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
-		public static JsonSerializerSettings ToJsonSettings<T>(this T item, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false)
+		public static JsonSerializerSettings ToJsonSettings<T>(this T item, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
 		{
-			return ToJsonSettings(item.GetType(), camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals);
+			return ToJsonSettings(item.GetType(), camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString);
 		}
 
 		/// <summary>

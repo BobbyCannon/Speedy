@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples", "Speedy.Sa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{482440A1-EDF1-4557-BC4F-FE8C8554271D}"
 	ProjectSection(SolutionItems) = preProject
+		Development.md = Development.md
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 	EndProjectSection
@@ -34,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples.Sql", "Speed
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples.Sqlite", "Speedy.Samples.Sqlite\Speedy.Samples.Sqlite.csproj", "{8BF6D1C6-0541-4B05-A23D-3D7719497018}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Website.Samples", "Speedy.Website.Samples\Speedy.Website.Samples.csproj", "{6490EA68-27AD-4321-BE2D-A1854DE2D992}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Website.Samples", "Speedy.Website.Samples\Speedy.Website.Samples.csproj", "{6490EA68-27AD-4321-BE2D-A1854DE2D992}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

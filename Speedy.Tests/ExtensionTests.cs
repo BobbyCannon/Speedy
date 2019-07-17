@@ -101,17 +101,93 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void ToJsonCamelCaseParameter()
+		{
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
+			var logEvent = LogEventFactory.Get(x =>
+			{
+				x.Id = "098e05d6-8086-402a-acd7-56cf6bfb80fc";
+				x.Message = "Hello";
+			});
+
+			// First use the default values
+			var expected = "{\"$id\":\"1\",\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":\"098e05d6-8086-402a-acd7-56cf6bfb80fc\",\"Level\":3,\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\"}";
+			var actual = logEvent.ToJson();
+			Assert.AreEqual(expected, actual);
+
+			// Now override the default
+			expected = "{\"$id\":\"1\",\"createdOn\":\"2019-07-17T20:05:55Z\",\"id\":\"098e05d6-8086-402a-acd7-56cf6bfb80fc\",\"level\":3,\"message\":\"Hello\",\"modifiedOn\":\"2019-07-17T20:05:55Z\"}";
+			actual = logEvent.ToJson(true);
+			Assert.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
+		public void ToJsonConvertEnumToStringParameter()
+		{
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
+			var logEvent = LogEventFactory.Get(x =>
+			{
+				x.Id = "098e05d6-8086-402a-acd7-56cf6bfb80fc";
+				x.Message = "Hello";
+			});
+
+			// First use the default values
+			var expected = "{\"$id\":\"1\",\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":\"098e05d6-8086-402a-acd7-56cf6bfb80fc\",\"Level\":3,\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\"}";
+			var actual = logEvent.ToJson();
+			Assert.AreEqual(expected, actual);
+
+			// Now override the default
+			expected = "{\"$id\":\"1\",\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":\"098e05d6-8086-402a-acd7-56cf6bfb80fc\",\"Level\":\"Information\",\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\"}";
+			actual = logEvent.ToJson(convertEnumsToString: true);
+			Assert.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
+		public void ToJsonIgnoreNullParameter()
+		{
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
+			var logEvent = LogEventFactory.Get(x =>
+			{
+				x.Id = null;
+				x.Message = "Hello";
+			});
+
+			// First use the default values
+			var expected = "{\"$id\":\"1\",\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":null,\"Level\":3,\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\"}";
+			var actual = logEvent.ToJson();
+			Assert.AreEqual(expected, actual);
+
+			// Now override the default
+			expected = "{\"$id\":\"1\",\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Level\":3,\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\"}";
+			actual = logEvent.ToJson(ignoreNullValues: true);
+			Assert.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
+		public void ToJsonIndentParameter()
+		{
+			var test = new { Name = "John", Age = 21 };
+			var expected = "{\"$id\":\"1\",\"Age\":21,\"Name\":\"John\"}";
+			var actual = test.ToJson();
+			Assert.AreEqual(expected, actual);
+
+			expected = "{\r\n  \"$id\": \"1\",\r\n  \"Age\": 21,\r\n  \"Name\": \"John\"\r\n}";
+			actual = test.ToJson(indented: true);
+			Assert.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
 		public void UpdateShouldUpdateAllMembers()
 		{
 			var destination = new PersonEntity();
 			var source = PersonFactory.Get();
-			
+
 			source.Id = 99;
 			source.SyncId = Guid.NewGuid();
 			source.IsDeleted = true;
 			source.Address.Id = 199;
 			source.AddressId = 199;
-			
+
 			Assert.AreNotEqual(destination.Address, source.Address);
 			Assert.AreNotEqual(destination.AddressId, source.AddressId);
 			Assert.AreNotEqual(destination.AddressSyncId, source.AddressSyncId);
@@ -139,7 +215,7 @@ namespace Speedy.Tests
 			Assert.AreEqual(destination.Name, source.Name);
 			Assert.AreNotEqual(destination.Owners, source.Owners);
 			Assert.AreEqual(destination.SyncId, source.SyncId);
-			
+
 			// Update all members that are not virtual
 			Extensions.UpdateWith(destination, source, false);
 

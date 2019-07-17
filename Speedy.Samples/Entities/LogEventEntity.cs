@@ -1,6 +1,7 @@
 #region References
 
 using System;
+using Speedy.Samples.Enumerations;
 
 #endregion
 
@@ -15,6 +16,8 @@ namespace Speedy.Samples.Entities
 
 		/// <inheritdoc />
 		public override string Id { get; set; }
+
+		public LogLevel Level { get; set; }
 
 		/// <inheritdoc />
 		public string Message { get; set; }
