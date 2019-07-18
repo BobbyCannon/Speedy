@@ -140,6 +140,11 @@ namespace Speedy.Tests
 			expected = "{\"$id\":\"1\",\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":\"098e05d6-8086-402a-acd7-56cf6bfb80fc\",\"Level\":\"Information\",\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\"}";
 			actual = logEvent.ToJson(convertEnumsToString: true);
 			Assert.AreEqual(expected, actual);
+			
+			// Now override the default and use camel casing
+			expected = "{\"$id\":\"1\",\"createdOn\":\"2019-07-17T20:05:55Z\",\"id\":\"098e05d6-8086-402a-acd7-56cf6bfb80fc\",\"level\":\"information\",\"message\":\"Hello\",\"modifiedOn\":\"2019-07-17T20:05:55Z\"}";
+			actual = logEvent.ToJson(camelCase: true, convertEnumsToString: true);
+			Assert.AreEqual(expected, actual);
 		}
 
 		[TestMethod]

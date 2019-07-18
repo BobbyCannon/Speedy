@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using Speedy.Storage;
 
 #endregion
@@ -567,7 +568,8 @@ namespace Speedy
 
 			if (convertEnumsToString)
 			{
-				response.Converters.Add(new StringEnumConverter());
+				var namingStrategy = camelCase ? (NamingStrategy) new CamelCaseNamingStrategy() : new DefaultNamingStrategy();
+				response.Converters.Add(new StringEnumConverter { NamingStrategy = namingStrategy });
 			}
 
 			response.Converters.Add(new IsoDateTimeConverter());
