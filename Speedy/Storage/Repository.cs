@@ -668,11 +668,12 @@ namespace Speedy.Storage
 				.ToList()
 				.ForEach(x => Cache.Remove(x));
 
-			Cache.ForEach(x =>
-			{
-				UpdateEntity(x.Entity, x.OldEntity);
-				x.State = EntityStateType.Unmodified;
-			});
+			Cache.ToList()
+				.ForEach(x =>
+				{
+					UpdateEntity(x.Entity, x.OldEntity);
+					x.State = EntityStateType.Unmodified;
+				});
 		}
 
 		private void UpdateCacheQuery()
