@@ -93,7 +93,7 @@ namespace Speedy
 			}
 
 			DetectSyncableRepositories = value.DetectSyncableRepositories;
-			DisableEntityValidations = value.DetectSyncableRepositories;
+			DisableEntityValidations = value.DisableEntityValidations;
 			MaintainCreatedOn = value.MaintainCreatedOn;
 			MaintainModifiedOn = value.MaintainModifiedOn;
 			MaintainSyncId = value.MaintainSyncId;
