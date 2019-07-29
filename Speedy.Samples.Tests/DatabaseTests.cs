@@ -560,7 +560,9 @@ namespace Speedy.Samples.Tests
 					Console.WriteLine(database.GetType().Name);
 
 					var person = database.People
-						.Including(x => x.Address, x => x.Groups)
+						.Include(x => x.Address)
+							.ThenInclude(x => x.People)
+						.Include(x => x.Groups)
 						.First(x => x.Name == "John Doe");
 
 					Assert.IsTrue(person.Address != null);

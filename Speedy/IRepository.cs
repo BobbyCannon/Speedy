@@ -35,21 +35,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="include"> The related entities to include. </param>
 		/// <returns> The results of the query including the related entities. </returns>
-		IIncludableQueryable<T, object> Include(Expression<Func<T, object>> include);
-
-		/// <summary>
-		/// Configures the query to include related entities in the results.
-		/// </summary>
-		/// <param name="include"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
 		IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include);
-
-		/// <summary>
-		/// Configures the query to include multiple related entities in the results.
-		/// </summary>
-		/// <param name="includes"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
-		IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes);
 
 		/// <summary>
 		/// Configures the query to include multiple related entities in the results.

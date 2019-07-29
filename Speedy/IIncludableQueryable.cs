@@ -13,9 +13,16 @@ namespace Speedy
 	/// </summary>
 	/// <typeparam name="T"> The entity type. </typeparam>
 	/// <typeparam name="T2"> The type of the related entity to be included. </typeparam>
-	public interface IIncludableQueryable<out T, T2> : IQueryable<T> where T : class
+	public interface IIncludableQueryable<T, T2> : IQueryable<T> where T : class
 	{
 		#region Methods
+
+		/// <summary>
+		/// Configures the query to include related entities in the results.
+		/// </summary>
+		/// <param name="include"> The related entities to include. </param>
+		/// <returns> The results of the query including the related entities. </returns>
+		IIncludableQueryable<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> include);
 
 		/// <summary>
 		/// Process the ThenInclude on an entity collection.

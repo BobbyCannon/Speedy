@@ -52,6 +52,12 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <inheritdoc />
+		public IIncludableQueryable<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> include)
+		{
+			return new EntityIncludableQueryable<T, TProperty>(_query.Include(include));
+		}
+
+		/// <inheritdoc />
 		public IIncludableQueryable<T, TProperty> ProcessCollectionThenInclude<TPreviousProperty, TProperty>(Expression<Func<TPreviousProperty, TProperty>> include)
 		{
 			return typeof(IEnumerable<TPreviousProperty>).IsAssignableFrom(typeof(T2))
@@ -60,9 +66,9 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <inheritdoc />
-		public IIncludableQueryable<T, T3> ThenInclude<T3>(Expression<Func<T2, T3>> include)
+		public IIncludableQueryable<T, TProperty> ThenInclude<TProperty>(Expression<Func<T2, TProperty>> include)
 		{
-			return new EntityIncludableQueryable<T, T3>(_query.ThenInclude(include));
+			return new EntityIncludableQueryable<T, TProperty>(_query.ThenInclude(include));
 		}
 
 		/// <inheritdoc />
