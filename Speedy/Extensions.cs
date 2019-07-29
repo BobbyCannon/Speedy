@@ -883,7 +883,7 @@ namespace Speedy
 		/// <returns> A new query with the related data included. </returns>
 		public static IIncludableQueryable<T, TProperty> ThenInclude<T, TPreviousProperty, TProperty>(this IIncludableQueryable<T, ICollection<TPreviousProperty>> source, Expression<Func<TPreviousProperty, TProperty>> include) where T : class
 		{
-			return source.ProcessCollectionThenInclude(include);
+			return source.ThenInclude(include);
 		}
 
 		/// <summary>

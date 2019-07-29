@@ -42,7 +42,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="includes"> The related entities to include. </param>
 		/// <returns> The results of the query including the related entities. </returns>
-		IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes);
+		IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes);
 
 		/// <summary>
 		/// Removes an entity from the repository.

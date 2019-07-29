@@ -31,7 +31,7 @@ namespace Speedy
 		/// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
 		/// <param name="include"> A lambda expression representing the navigation property to be included (<c> t =&gt; t.Property1 </c>). </param>
 		/// <returns> A new query with the related data included. </returns>
-		IIncludableQueryable<T, TProperty> ProcessCollectionThenInclude<TPreviousProperty, TProperty>(Expression<Func<TPreviousProperty, TProperty>> include);
+		IIncludableQueryable<T, TProperty> ThenInclude<TPreviousProperty, TProperty>(Expression<Func<TPreviousProperty, TProperty>> include);
 
 		/// <summary>
 		/// Specifies additional related data to be further included based on a related type that was just included.

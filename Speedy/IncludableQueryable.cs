@@ -57,7 +57,7 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public IIncludableQueryable<T, TProperty> ProcessCollectionThenInclude<TPreviousProperty, TProperty>(Expression<Func<TPreviousProperty, TProperty>> include)
+		public IIncludableQueryable<T, TProperty> ThenInclude<TPreviousProperty, TProperty>(Expression<Func<TPreviousProperty, TProperty>> include)
 		{
 			return new IncludableQueryable<T, TProperty>(_query);
 		}
