@@ -130,13 +130,13 @@ namespace Speedy.EntityFramework
 		/// <inheritdoc />
 		public IRepository<T, T2> GetReadOnlyRepository<T, T2>() where T : Entity<T2>
 		{
-			return new ReadOnlyEntityFrameworkRepository<T, T2>(Set<T>());
+			return new ReadOnlyEntityFrameworkRepository<T, T2>(this, Set<T>());
 		}
 
 		/// <inheritdoc />
 		public IRepository<T, T2> GetRepository<T, T2>() where T : Entity<T2>
 		{
-			return new EntityFrameworkRepository<T, T2>(Set<T>());
+			return new EntityFrameworkRepository<T, T2>(this, Set<T>());
 		}
 
 		/// <inheritdoc />
@@ -153,7 +153,7 @@ namespace Speedy.EntityFramework
 				return _syncableRepositories
 					.Values
 					.Where(x => !options.ShouldFilterRepository(x.TypeName))
-					.ToList();;
+					.ToList();
 			}
 
 			var order = Options.SyncOrder.Reverse().ToList();
@@ -173,7 +173,7 @@ namespace Speedy.EntityFramework
 		/// <inheritdoc />
 		public ISyncableRepository<T, T2> GetSyncableRepository<T, T2>() where T : SyncEntity<T2>
 		{
-			return new EntityFrameworkSyncableRepository<T, T2>(Set<T>());
+			return new EntityFrameworkSyncableRepository<T, T2>(this, Set<T>());
 		}
 
 		/// <summary>
@@ -193,7 +193,7 @@ namespace Speedy.EntityFramework
 			var method = setMethod.MakeGenericMethod(type);
 			var entitySet = method.Invoke(this, null);
 			var repositoryType = typeof(EntityFrameworkSyncableRepository<,>).MakeGenericType(type, idType);
-			repository = Activator.CreateInstance(repositoryType, entitySet) as ISyncableRepository;
+			repository = Activator.CreateInstance(repositoryType, this, entitySet) as ISyncableRepository;
 
 			_syncableRepositories.AddOrUpdate(type.ToAssemblyName(), repository, (k, v) => repository);
 
@@ -280,6 +280,7 @@ namespace Speedy.EntityFramework
 		/// <param name="modelBuilder"> The builder that defines the model for the context being created. </param>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+
 			var assembly = GetMappingAssembly();
 			var types = assembly.GetTypes();
 			var mappingTypes = types.Where(x => !x.IsAbstract && x.GetInterfaces().Any(y => y == typeof(IEntityMappingConfiguration)));

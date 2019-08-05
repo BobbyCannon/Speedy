@@ -167,6 +167,67 @@ namespace Speedy.Storage
 			}
 		}
 
+		/// <inheritdoc />
+		public int BulkRemove(Expression<Func<T, bool>> filter)
+		{
+			var count = 0;
+			
+			foreach (var item in this.Where(filter))
+			{
+				Remove(item);
+				count++;
+			}
+
+			// Temporarily mark the permanently delete flag
+			var value = Database.Options.PermanentSyncEntityDeletions;
+			Database.Options.PermanentSyncEntityDeletions = true;
+
+			SaveChanges();
+
+			// Restore the previous permanently delete flag
+			Database.Options.PermanentSyncEntityDeletions = value;
+
+			return count;
+		}
+		
+		/// <inheritdoc />
+		public int BulkUpdate(Expression<Func<T, bool>> filter, Expression<Func<T, T>> update)
+		{
+			var count = 0;
+			
+			foreach (var item in this.Where(filter))
+			{
+				var updated = false;
+
+				switch (update.Body)
+				{
+					case MemberInitExpression memberInitExpression:
+					{
+						for (var index = 0; index < memberInitExpression.Bindings.Count; index++)
+						{
+							var binding = memberInitExpression.Bindings[index];
+							if (!(binding is MemberAssignment assignment))
+							{
+								continue;
+							}
+
+							var name = assignment.Member.Name;
+							item.SetMemberValue(name, Expression.Lambda(assignment.Expression).Compile().DynamicInvoke());
+							updated = true;
+						}
+						break;
+					}
+				}
+
+				if (updated)
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
 		/// <summary>
 		/// Check to see if the repository contains this entity.
 		/// </summary>

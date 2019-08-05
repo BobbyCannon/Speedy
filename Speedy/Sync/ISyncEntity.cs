@@ -9,7 +9,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represent an entity that can be synced.
 	/// </summary>
-	public interface ISyncEntity : IEntity, IModifiableEntity
+	public interface ISyncEntity : IModifiableEntity
 	{
 		#region Properties
 

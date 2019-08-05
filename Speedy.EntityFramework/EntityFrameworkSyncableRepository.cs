@@ -22,8 +22,9 @@ namespace Speedy.EntityFramework
 		/// <summary>
 		/// Instantiates a repository.
 		/// </summary>
+		/// <param name="database"> The database where this repository resides. </param>
 		/// <param name="set"> The database set this repository is for. </param>
-		public EntityFrameworkSyncableRepository(DbSet<T> set) : base(set)
+		public EntityFrameworkSyncableRepository(EntityFrameworkDatabase database, DbSet<T> set) : base(database, set)
 		{
 		}
 

@@ -22,6 +22,7 @@ namespace Speedy.EntityFramework
 	{
 		#region Fields
 
+		private readonly EntityFrameworkDatabase _database;
 		private readonly IQueryable<T> _query;
 
 		#endregion
@@ -31,9 +32,11 @@ namespace Speedy.EntityFramework
 		/// <summary>
 		/// Instantiates a repository.
 		/// </summary>
+		/// <param name="database"> The database where this repository resides. </param>
 		/// <param name="set"> The database set this repository is for. </param>
-		public ReadOnlyEntityFrameworkRepository(DbSet<T> set)
+		public ReadOnlyEntityFrameworkRepository(EntityFrameworkDatabase database, DbSet<T> set)
 		{
+			_database = database;
 			_query = set.AsNoTracking().AsQueryable();
 		}
 
@@ -91,6 +94,18 @@ namespace Speedy.EntityFramework
 			throw new NotSupportedException();
 		}
 
+		/// <inheritdoc />
+		public int BulkRemove(Expression<Func<T, bool>> filter)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <inheritdoc />
+		public int BulkUpdate(Expression<Func<T, bool>> filter, Expression<Func<T, T>> update)
+		{
+			throw new NotSupportedException();
+		}
+
 		/// <summary>
 		/// Returns an enumerator that iterates through the collection.
 		/// </summary>
@@ -103,12 +118,6 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <inheritdoc />
-		public IIncludableQueryable<T, object> Include(Expression<Func<T, object>> include)
-		{
-			throw new NotImplementedException();
-		}
-
-		/// <inheritdoc />
 		public IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
 			return new EntityIncludableQueryable<T, T3>(_query.Include(include));
@@ -118,12 +127,6 @@ namespace Speedy.EntityFramework
 		public IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes)
 		{
 			return new EntityIncludableQueryable<T, object>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, object>) includes.Aggregate(_query, (current, include) => current.Include(include)));
-		}
-
-		/// <inheritdoc />
-		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
-		{
-			return new EntityIncludableQueryable<T, T3>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3>) includes.Aggregate(_query, (current, include) => current.Include(include)));
 		}
 
 		/// <summary>

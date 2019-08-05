@@ -397,6 +397,110 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
+		public void BulkDeleteShouldDelete()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						for (var i = 0; i < 10; i++)
+						{
+							var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+							database.Addresses.Add(address);
+						}
+
+						database.SaveChanges();
+
+						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(10, database.Addresses.Count(x => !x.IsDeleted));
+
+						var count = database.Addresses.BulkRemove(x => !x.IsDeleted);
+
+						Assert.AreEqual(10, count);
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+					}
+				}
+			);
+		}
+		
+		[TestMethod]
+		public void BulkDeleteShouldDeletePartial()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						for (var i = 0; i < 10; i++)
+						{
+							var address = new AddressEntity { City = "City", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+							database.Addresses.Add(address);
+						}
+
+						database.SaveChanges();
+
+						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(10, database.Addresses.Count(x => !x.IsDeleted));
+
+						var count = database.Addresses.BulkRemove(x => x.Id >= 5);
+
+						Assert.AreEqual(6, count);
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(4, database.Addresses.Count(x => !x.IsDeleted));
+					}
+				}
+			);
+		}
+		
+		[TestMethod]
+		public void BulkUpdateShouldUpdate()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						for (var i = 0; i < 10; i++)
+						{
+							var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+							database.Addresses.Add(address);
+						}
+
+						database.SaveChanges();
+
+						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+
+						var count = database.Addresses.BulkUpdate(x => !x.IsDeleted, x => new AddressEntity { IsDeleted = true });
+						Assert.AreEqual(10, count);
+						Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+						
+						count = database.Addresses.BulkUpdate(x => x.Id < 5 && x.Id >= 2, x => new AddressEntity { City = "city" });
+						Assert.AreEqual(3, count);
+						Assert.AreEqual(3, database.Addresses.Count(x => x.City == "city"));
+						Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
+					}
+				}
+			);
+		}
+
+		[TestMethod]
 		public void DiscardChanges()
 		{
 			TestHelper.GetDataContexts()

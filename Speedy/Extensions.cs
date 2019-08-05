@@ -983,7 +983,10 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
+		/// Unwraps a sync entity and disconnects it from the Entity Framework context. Check the value to see if the 
+		/// IUnwrappable interface is implemented. If so the value's implementation is used instead.
+		/// 
+		/// The default behavior is to ignore read only and virtual properties.
 		/// </summary>
 		/// <typeparam name="T"> The type of the incoming object. </typeparam>
 		/// <typeparam name="T2"> The type of the outgoing object. </typeparam>
@@ -992,6 +995,11 @@ namespace Speedy
 		/// <returns> The disconnected entity. </returns>
 		public static T2 Unwrap<T, T2>(this T value, Action<T2> update = null)
 		{
+			if (value is IUnwrappable unwrappable)
+			{
+				return (T2) unwrappable.Unwrap();
+			}
+
 			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
 			update?.Invoke(response);
 			return response;

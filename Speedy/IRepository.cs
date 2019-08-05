@@ -31,6 +31,25 @@ namespace Speedy
 		void AddOrUpdate(T entity);
 
 		/// <summary>
+		/// Bulk remove based on provided filter. Only simple expressions are supported.
+		/// </summary>
+		/// <param name="filter"> The filter for the items to be removed. </param>
+		/// <remarks>
+		/// Please let me know if you find an expression that does not work.
+		/// </remarks>
+		int BulkRemove(Expression<Func<T, bool>> filter);
+		
+		/// <summary>
+		/// Bulk update base on provided query and update expression. Only simple expressions are supported.
+		/// </summary>
+		/// <param name="filter"> The filter for the items to be updated. </param>
+		/// <param name="update"> The update to be applied. </param>
+		/// <remarks>
+		/// Please let me know if you find an expression that does not work.
+		/// </remarks>
+		int BulkUpdate(Expression<Func<T, bool>> filter, Expression<Func<T, T>> update);
+
+		/// <summary>
 		/// Configures the query to include related entities in the results.
 		/// </summary>
 		/// <param name="include"> The related entities to include. </param>

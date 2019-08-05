@@ -9,7 +9,7 @@ using Speedy.Sync;
 
 namespace Speedy.Samples.Entities
 {
-	public class PersonEntity : SyncEntity<int>
+	public class PersonEntity : SyncEntity<int>, IUnwrappable
 	{
 		#region Constructors
 
@@ -39,6 +39,25 @@ namespace Speedy.Samples.Entities
 		public string Name { get; set; }
 
 		public virtual ICollection<PetEntity> Owners { get; set; }
+
+		#endregion
+
+		#region Methods
+		
+		public override object Unwrap()
+		{
+			return new PersonEntity
+			{
+				AddressId = AddressId,
+				AddressSyncId = AddressSyncId,
+				Id = Id,
+				Name = Name,
+				CreatedOn = CreatedOn,
+				ModifiedOn = ModifiedOn,
+				IsDeleted = IsDeleted,
+				SyncId = SyncId
+			};
+		}
 
 		#endregion
 	}

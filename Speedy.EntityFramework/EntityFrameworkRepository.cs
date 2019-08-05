@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Speedy.EntityFramework.Sql;
 using Speedy.Exceptions;
 
 #endregion
@@ -34,15 +35,22 @@ namespace Speedy.EntityFramework
 		/// <summary>
 		/// Instantiates a repository.
 		/// </summary>
+		/// <param name="database"> The database where this repository resides. </param>
 		/// <param name="set"> The database set this repository is for. </param>
-		public EntityFrameworkRepository(DbSet<T> set)
+		public EntityFrameworkRepository(EntityFrameworkDatabase database, DbSet<T> set)
 		{
+			Database = database;
 			Set = set;
 		}
 
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// The database where this repository resides.
+		/// </summary>
+		public EntityFrameworkDatabase Database { get; }
 
 		/// <summary>
 		/// Gets the type of the element(s) that are returned when the expression tree associated with this instance of
@@ -98,6 +106,20 @@ namespace Speedy.EntityFramework
 			}
 
 			Set.Add(entity);
+		}
+
+		/// <inheritdoc />
+		public int BulkRemove(Expression<Func<T, bool>> filter)
+		{
+			var (sql, parameters) = SqlBuilder.GetSqlDelete(Database, this.Where(filter));
+			return Database.Database.ExecuteSqlCommand(sql, parameters);
+		}
+		
+		/// <inheritdoc />
+		public int BulkUpdate(Expression<Func<T, bool>> filter, Expression<Func<T, T>> update)
+		{
+			var (sql, parameters) = SqlBuilder.GetSqlUpdate(Database, this.Where(filter), update);
+			return Database.Database.ExecuteSqlCommand(sql, parameters);
 		}
 
 		/// <summary>

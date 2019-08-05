@@ -114,6 +114,11 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public override object Unwrap()
 		{
+			if (this is IUnwrappable)
+			{
+				return ((IUnwrappable) this).Unwrap();
+			}
+
 			var syncObject = ToSyncObject();
 			return syncObject.ToSyncEntity();
 		}
@@ -184,6 +189,8 @@ namespace Speedy.Sync
 						entityRelationshipSyncIdProperty.SetValue(this, syncEntity.SyncId, null);
 					}
 				}
+
+				// todo: maybe?, support setting EntityId would then query the entity sync id and set it?
 			}
 		}
 
