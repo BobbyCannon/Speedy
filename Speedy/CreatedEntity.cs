@@ -7,15 +7,15 @@ using System;
 namespace Speedy
 {
 	/// <summary>
-	/// Represents a modifiable entity.
+	/// Represents a created entity.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class ModifiableEntity<T> : CreatedEntity<T>, IModifiableEntity
+	public abstract class CreatedEntity<T> : Entity<T>, ICreatedEntity
 	{
 		#region Properties
 
 		/// <inheritdoc />
-		public DateTime ModifiedOn { get; set; }
+		public DateTime CreatedOn { get; set; }
 
 		#endregion
 	}

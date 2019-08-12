@@ -98,20 +98,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Add multiple items to a collection
-		/// </summary>
-		/// <param name="set"> The set to add items to. </param>
-		/// <param name="items"> The items to add. </param>
-		/// <typeparam name="T"> The type of the items in the collection. </typeparam>
-		public static void AddRange<T>(this ICollection<T> set, params T[] items)
-		{
-			foreach (var item in items)
-			{
-				set.Add(item);
-			}
-		}
-
-		/// <summary>
 		/// Creates a expression that represents a conditional AND operation that evaluates the second operand only if the first operand evaluates to true.
 		/// </summary>
 		/// <typeparam name="T"> The type used in the expression. </typeparam>
