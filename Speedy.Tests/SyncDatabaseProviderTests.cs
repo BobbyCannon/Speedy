@@ -22,7 +22,7 @@ namespace Speedy.Tests
 			var database = new Mock<ISyncableDatabase>();
 			var provider = new SyncDatabaseProvider(x => database.Object);
 
-			Assert.IsTrue(database.Object == provider.GetDatabase());
+			Assert.IsTrue(database.Object == provider.GetSyncableDatabase());
 		}
 
 		#endregion

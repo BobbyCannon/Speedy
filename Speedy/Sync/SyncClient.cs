@@ -116,7 +116,7 @@ namespace Speedy.Sync
 
 			var take = request.Take <= 0 || request.Take > _options.ItemsPerSyncRequest ? _options.ItemsPerSyncRequest : request.Take;
 
-			using (var database = _provider.GetDatabase())
+			using (var database = _provider.GetSyncableDatabase())
 			{
 				foreach (var repository in database.GetSyncableRepositories(_options))
 				{
@@ -158,7 +158,7 @@ namespace Speedy.Sync
 				return response;
 			}
 
-			using (var database = _provider.GetDatabase())
+			using (var database = _provider.GetSyncableDatabase())
 			{
 				foreach (var issue in issues.Collection)
 				{
@@ -205,13 +205,13 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public ISyncableDatabase GetDatabase()
 		{
-			return _provider.GetDatabase();
+			return _provider.GetSyncableDatabase();
 		}
 
 		/// <inheritdoc />
 		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
-			return (T) _provider.GetDatabase();
+			return (T) _provider.GetSyncableDatabase();
 		}
 
 		/// <inheritdoc />
@@ -255,7 +255,7 @@ namespace Speedy.Sync
 				return _changeCount;
 			}
 
-			using (var database = _provider.GetDatabase())
+			using (var database = _provider.GetSyncableDatabase())
 			{
 				_changeCount = database.GetSyncableRepositories(_options).Sum(repository =>
 				{
@@ -388,7 +388,7 @@ namespace Speedy.Sync
 
 			try
 			{
-				using (var database = provider.GetDatabase())
+				using (var database = provider.GetSyncableDatabase())
 				{
 					database.Options.MaintainCreatedOn = false;
 					database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
@@ -409,7 +409,7 @@ namespace Speedy.Sync
 			{
 				try
 				{
-					using (var database = provider.GetDatabase())
+					using (var database = provider.GetSyncableDatabase())
 					{
 						database.Options.MaintainCreatedOn = false;
 						database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;

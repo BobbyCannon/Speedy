@@ -275,7 +275,7 @@ namespace Speedy.Samples.Tests
 			{
 				database.Database.EnsureDeleted();
 				database.Database.Migrate();
-				return new SyncDatabaseProvider(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+				return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
 
@@ -285,7 +285,7 @@ namespace Speedy.Samples.Tests
 			{
 				database.Database.EnsureDeleted();
 				database.Database.Migrate();
-				return new SyncDatabaseProvider(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+				return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
 
@@ -295,7 +295,7 @@ namespace Speedy.Samples.Tests
 			{
 				database.Database.Migrate();
 				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+				return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
 
@@ -305,7 +305,7 @@ namespace Speedy.Samples.Tests
 			{
 				database.Database.Migrate();
 				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+				return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
 

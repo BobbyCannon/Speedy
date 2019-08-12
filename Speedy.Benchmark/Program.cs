@@ -115,7 +115,7 @@ namespace Speedy.Benchmark
 			Console.WriteLine(watch.Elapsed + ": Data Created");
 			watch.Restart();
 
-			using (var database = (IContosoDatabase) liteProvider.GetDatabase())
+			using (var database = (IContosoDatabase) liteProvider.GetSyncableDatabase())
 			{
 				foreach (var item in data)
 				{
@@ -131,7 +131,7 @@ namespace Speedy.Benchmark
 
 			watch.Restart();
 
-			using (var database = (IContosoDatabase) liteProvider.GetDatabase())
+			using (var database = (IContosoDatabase) liteProvider.GetSyncableDatabase())
 			{
 				var count = database.Addresses.Count();
 				Console.WriteLine(watch.Elapsed + $": {count}");
@@ -139,8 +139,8 @@ namespace Speedy.Benchmark
 
 			watch.Restart();
 
-			using (var source = (IContosoDatabase) liteProvider.GetDatabase())
-			using (var destination = (IContosoDatabase) memProvider.GetDatabase())
+			using (var source = (IContosoDatabase) liteProvider.GetSyncableDatabase())
+			using (var destination = (IContosoDatabase) memProvider.GetSyncableDatabase())
 			{
 				foreach (var item in source.Addresses)
 				{

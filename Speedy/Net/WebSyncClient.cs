@@ -117,13 +117,13 @@ namespace Speedy.Net
 		/// <inheritdoc />
 		public ISyncableDatabase GetDatabase()
 		{
-			return _provider.GetDatabase();
+			return _provider.GetSyncableDatabase();
 		}
 
 		/// <inheritdoc />
 		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
-			return (T) _provider.GetDatabase();
+			return (T) _provider.GetSyncableDatabase();
 		}
 
 		/// <inheritdoc />
