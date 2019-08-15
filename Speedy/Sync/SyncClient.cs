@@ -160,8 +160,15 @@ namespace Speedy.Sync
 
 			using (var database = _provider.GetSyncableDatabase())
 			{
-				foreach (var issue in issues.Collection)
+				foreach (var item in issues.Collection)
 				{
+					var issue = item;
+
+					if (IncomingConverter != null)
+					{
+						issue = IncomingConverter.Process(issue);
+					}
+
 					switch (issue.IssueType)
 					{
 						default:
@@ -176,21 +183,29 @@ namespace Speedy.Sync
 							// Assuming this is because this entity or a relationship it depends on was deleted but then used 
 							// in another client or server. This means we should sync it again.
 							var repository = database.GetSyncableRepository(type);
-							var entity = repository?.Read(issue.Id);
-
-							if (entity != null)
+							if (repository == null)
 							{
-								var syncObject = entity.ToSyncObject();
-								
-								if (OutgoingConverter != null)
-								{
-									syncObject = OutgoingConverter.Process(syncObject);
-								}
+								// todo: How would we communicate this error back to the request?
+								continue;
+							}
 
-								if (syncObject != null)
-								{
-									response.Collection.Add(syncObject);
-								}
+							var entity = repository.Read(issue.Id);
+							if (entity == null)
+							{
+								// todo: How would we communicate this error back to the request?
+								break;
+							}
+
+							var syncObject = entity.ToSyncObject();
+
+							if (OutgoingConverter != null)
+							{
+								syncObject = OutgoingConverter.Process(syncObject);
+							}
+
+							if (syncObject != null)
+							{
+								response.Collection.Add(syncObject);
 							}
 							break;
 					}
@@ -353,7 +368,7 @@ namespace Speedy.Sync
 						if (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction)
 						{
 							UpdateLocalRelationships(foundEntity, database);
-							foundEntity.UpdateWith(syncEntity, true, true);
+							foundEntity.UpdateWith(syncEntity, includeSyncExclusions: true, includeUpdateExclusions: true);
 						}
 					}
 					break;

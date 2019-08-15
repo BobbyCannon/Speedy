@@ -7,7 +7,6 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Speedy.Sync;
 
 #endregion
@@ -171,7 +170,7 @@ namespace Speedy.Storage
 		public int BulkRemove(Expression<Func<T, bool>> filter)
 		{
 			var count = 0;
-			
+
 			foreach (var item in this.Where(filter))
 			{
 				Remove(item);
@@ -189,12 +188,12 @@ namespace Speedy.Storage
 
 			return count;
 		}
-		
+
 		/// <inheritdoc />
 		public int BulkUpdate(Expression<Func<T, bool>> filter, Expression<Func<T, T>> update)
 		{
 			var count = 0;
-			
+
 			foreach (var item in this.Where(filter))
 			{
 				var updated = false;
@@ -284,7 +283,6 @@ namespace Speedy.Storage
 			return this.Any(x => id.Equals(foreignKeyFunction.Invoke(x)));
 		}
 
-		/// <inheritdoc />
 		public IIncludableQueryable<T, object> Include(Expression<Func<T, object>> include)
 		{
 			return new IncludableQueryable<T, object>(_query);
@@ -302,7 +300,6 @@ namespace Speedy.Storage
 			return new IncludableQueryable<T, object>(_query);
 		}
 
-		/// <inheritdoc />
 		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
 		{
 			return new IncludableQueryable<T, T3>(_query);
@@ -384,25 +381,7 @@ namespace Speedy.Storage
 			var foreignKeyFunction = (Func<T, object>) value[4];
 			Remove(x => id.Equals(foreignKeyFunction.Invoke(x)));
 		}
-		
-		/// <inheritdoc />
-		public void SetDependentToNull(object[] value, object id)
-		{
-			var entityExpression = (LambdaExpression) value[1]; 
-			var foreignKeyExpression = (LambdaExpression) value[3]; 
-			var foreignKeyFunction = (Func<T, object>) value[4];
-			
-			var values = this.Where(x => foreignKeyFunction.Invoke(x) == id);
-			var entityName = entityExpression.GetExpressionName();
-			var foreignKeyName = foreignKeyExpression.GetExpressionName();
-			
-			foreach (var v in values)
-			{
-				v.SetMemberValue(entityName, null);
-				v.SetMemberValue(foreignKeyName, null);
-			}
-		}
-		
+
 		/// <inheritdoc />
 		public int SaveChanges()
 		{
@@ -503,6 +482,24 @@ namespace Speedy.Storage
 			OnCollectionChanged(added.Select(x => x.Entity).ToList(), removed.Where(x => x.State == EntityStateType.Removed).Select(x => x.Entity).ToList());
 
 			return changeCount;
+		}
+
+		/// <inheritdoc />
+		public void SetDependentToNull(object[] value, object id)
+		{
+			var entityExpression = (LambdaExpression) value[1];
+			var foreignKeyExpression = (LambdaExpression) value[3];
+			var foreignKeyFunction = (Func<T, object>) value[4];
+
+			var values = this.Where(x => foreignKeyFunction.Invoke(x) == id);
+			var entityName = entityExpression.GetExpressionName();
+			var foreignKeyName = foreignKeyExpression.GetExpressionName();
+
+			foreach (var v in values)
+			{
+				v.SetMemberValue(entityName, null);
+				v.SetMemberValue(foreignKeyName, null);
+			}
 		}
 
 		/// <inheritdoc />

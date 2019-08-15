@@ -9,7 +9,7 @@ using Speedy.Website.Samples.Models;
 namespace Speedy.Tests.ModelFactories
 {
 	[ExcludeFromCodeCoverage]
-	public class AddressFactory
+	public static class AddressFactory
 	{
 		#region Methods
 

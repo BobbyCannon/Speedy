@@ -55,7 +55,7 @@ namespace Speedy.Samples.Tests
 
 			using (var database = server.GetDatabase<IContosoDatabase>())
 			{
-				person = new PersonEntity { Name = "John", Address = AddressFactory.Get(), SyncId = Guid.NewGuid() };
+				person = new PersonEntity { Name = "John", Address = AddressEntityFactory.Get(), SyncId = Guid.NewGuid() };
 				database.People.Add(person);
 				database.SaveChanges();
 			}

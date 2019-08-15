@@ -9,7 +9,7 @@ using Speedy.Samples.Entities;
 namespace Speedy.Tests.EntityFactories
 {
 	[ExcludeFromCodeCoverage]
-	public class AddressFactory
+	public static class AddressEntityFactory
 	{
 		#region Methods
 

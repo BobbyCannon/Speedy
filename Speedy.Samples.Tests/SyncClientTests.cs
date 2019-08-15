@@ -7,6 +7,7 @@ using Speedy.Net;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
 using Speedy.Tests.EntityFactories;
+using Speedy.Tests.ModelFactories;
 using Speedy.Website.Samples.Models;
 
 #endregion
@@ -36,8 +37,8 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				database.Addresses.Add(AddressFactory.Get(line1: "Home", state: "SC"));
-				database.Addresses.Add(AddressFactory.Get(line1: "Work", state: "GA"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home", state: "SC"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Work", state: "GA"));
 				database.SaveChanges();
 			}
 
@@ -80,9 +81,9 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				database.Addresses.Add(AddressFactory.Get(line1: "Home", state: "SC", postal: "12345"));
-				database.Addresses.Add(AddressFactory.Get(line1: "Home2", state: "SC", postal: "54321"));
-				database.Addresses.Add(AddressFactory.Get(line1: "Work", state: "GA"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home", state: "SC", postal: "12345"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home2", state: "SC", postal: "54321"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Work", state: "GA"));
 				database.SaveChanges();
 			}
 
@@ -131,9 +132,9 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				database.Addresses.Add(AddressFactory.Get(line1: "Home", state: "SC"));
-				database.Addresses.Add(AddressFactory.Get(line1: "Home2", state: "NC"));
-				database.Addresses.Add(AddressFactory.Get(line1: "Work", state: "GA"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home", state: "SC"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home2", state: "NC"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Work", state: "GA"));
 				database.SaveChanges();
 			}
 
@@ -186,10 +187,10 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				var address = AddressFactory.Get(line1: "Home", state: "SC");
+				var address = AddressEntityFactory.Get(line1: "Home", state: "SC");
 				database.Addresses.Add(address);
 				address.People.Add(PersonFactory.Get(x => x.Name = "John Doe"));
-				database.Addresses.Add(AddressFactory.Get(line1: "Work", state: "GA"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Work", state: "GA"));
 				database.SaveChanges();
 			}
 
@@ -232,7 +233,7 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				var address = AddressFactory.Get(x => x.Line1 = "Home");
+				var address = AddressEntityFactory.Get(x => x.Line1 = "Home");
 				var person = PersonFactory.Get(name: "John Doe", address: address);
 				database.People.Add(person);
 				database.SaveChanges();
@@ -276,7 +277,7 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				database.Addresses.Add(AddressFactory.Get(line1: "Home", state: "SC"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home", state: "SC"));
 				database.SaveChanges();
 			}
 
@@ -289,7 +290,7 @@ namespace Speedy.Samples.Tests
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);
 
-			var address = AddressFactory.Get(line1: "Work", state: "GA");
+			var address = AddressEntityFactory.Get(line1: "Work", state: "GA");
 			var updates = new ServiceRequest<SyncObject>(address.ToSyncObject());
 			var result = client.ApplyChanges(sessionId, updates);
 
@@ -322,7 +323,7 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				database.Addresses.Add(AddressFactory.Get(line1: "Home", state: "SC"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home", state: "SC"));
 				database.SaveChanges();
 			}
 
@@ -335,7 +336,7 @@ namespace Speedy.Samples.Tests
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);
 
-			var address = Speedy.Tests.ModelFactories.AddressFactory.Get();
+			var address = AddressFactory.Get();
 			var updates = new ServiceRequest<SyncObject>(address.ToSyncObject());
 			var result = client.ApplyChanges(sessionId, updates);
 
@@ -347,6 +348,36 @@ namespace Speedy.Samples.Tests
 			{
 				Assert.AreEqual(2, database.Addresses.Count());
 			}
+		}
+
+		[TestMethod]
+		public void GetCorrectionShouldBeProcessWithConverter()
+		{
+			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider())
+			{
+				OutgoingConverter = null,
+				IncomingConverter = new SyncClientConverter(false, false, new SyncObjectConverter<Address, long, AddressEntity, long>())
+			};
+
+			AddressEntity address;
+
+			using (var database = client.GetDatabase<IContosoDatabase>())
+			{
+				address = AddressEntityFactory.Get(line1: "Home", state: "SC");
+				database.Addresses.Add(address);
+				database.SaveChanges();
+			}
+
+			var issue = new SyncIssue { Id = address.SyncId, IssueType = SyncIssueType.RelationshipConstraint, Message = "Errors", TypeName = typeof(Address).ToAssemblyName() };
+			var request = new ServiceRequest<SyncIssue>(issue);
+			var options = new SyncOptions();
+			var sessionId = Guid.NewGuid();
+			client.BeginSync(sessionId, options);
+
+			var corrections = client.GetCorrections(sessionId, request);
+			Assert.AreEqual(1, corrections.Collection.Count);
+			Assert.AreEqual(typeof(AddressEntity).ToAssemblyName(), corrections.Collection[0].TypeName);
+			Assert.AreEqual(SyncObjectStatus.Added, corrections.Collection[0].Status);
 		}
 
 		[TestMethod]
@@ -368,7 +399,7 @@ namespace Speedy.Samples.Tests
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
-				database.Addresses.Add(AddressFactory.Get(line1: "Home", state: "SC"));
+				database.Addresses.Add(AddressEntityFactory.Get(line1: "Home", state: "SC"));
 				database.SaveChanges();
 			}
 
@@ -381,7 +412,7 @@ namespace Speedy.Samples.Tests
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);
 
-			var address = AddressFactory.Get(line1: "Work", state: "GA");
+			var address = AddressEntityFactory.Get(line1: "Work", state: "GA");
 			var updates = new ServiceRequest<SyncObject>(address.ToSyncObject());
 			var result = client.ApplyChanges(sessionId, updates);
 

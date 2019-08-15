@@ -59,7 +59,7 @@ namespace Speedy.Samples.Tests
 			{
 				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Foo"));
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Bar"));
-				
+
 				var options = new SyncOptions();
 				var issues = SyncEngine.Run(client, server, options);
 
@@ -618,36 +618,31 @@ namespace Speedy.Samples.Tests
 
 		/// <summary>
 		/// This test will test the proposed scenario
-		/// 
 		/// Server adds address       - 11:59:00
 		/// Sync Set 1
 		/// Client 1 Full Syncs       - 11:59:01
 		/// Client 2 Full Syncs       - 11:59:02
 		/// Client 2 updates address  - 11:59:04
-		///
 		/// Manual Sync
 		/// Client 1 Starts Sync      - 12:00:00
 		/// Client 1 Reads Server     - 12:00:00
 		/// Client 2 Starts Sync      - 12:01:00
 		/// Client 2 Reads Server     - 12:01:00
 		/// Client 2 Writes Server    - 12:02:00
-		///   Server now has new address and the ModifiedOn is set to server time of 12:02:00
+		/// Server now has new address and the ModifiedOn is set to server time of 12:02:00
 		/// Client 2 Ends Sync        - 12:02:01 (Last Synced on: 12:01:00)
 		/// Client 1 Writes Server    - 12:03:00
 		/// Client 1 Ends Sync        - 12:03:01 (Last Synced on: 12:00:00)
-		/// 
 		/// Sync Set 2
 		/// Next sync should pull down the address again due to server maintaining modified on.
 		/// Client 1 Full Syncs       - 12:04:00 (Since: 12:00:00 - Until: 12:04:00) (Last Synced On: 12:04:00)
-		///   Client gets new address because server update ModifiedOn to it's time which is greater than sync start
+		/// Client gets new address because server update ModifiedOn to it's time which is greater than sync start
 		/// Client 2 Full Syncs       - 12:04:01 (Since: 12:01:00 - Until: 12:04:01) (Last Synced On: 12:04:01)
-		///   Client gets new address because server update ModifiedOn to it's time which is greater than sync start
-		/// 
+		/// Client gets new address because server update ModifiedOn to it's time which is greater than sync start
 		/// Sync Set 3
 		/// Final sync should not move any data
 		/// Client 1 Full Syncs       - 12:05:00 (Since: 12:04:00 - Until: 12:05:00) (Last Synced On: 12:05:00)
 		/// Client 2 Full Syncs       - 12:05:01 (Since: 12:04:01 - Until: 12:05:01) (Last Synced On: 12:05:01)
-		///		
 		/// </summary>
 		[TestMethod]
 		public void ThreeWaySyncShouldWork()
@@ -710,14 +705,14 @@ namespace Speedy.Samples.Tests
 			var client2Id = Guid.NewGuid();
 
 			// Manual Sync
-			
+
 			// Do first part of syncing client 1 (client1 <- server)
 			// The should not have any updates as the server has not changed
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 00);
-			var client1start = TimeService.UtcNow;
+			var client1Start = TimeService.UtcNow;
 			client1.BeginSync(client1Id, client1Options);
 			server.BeginSync(client1Id, client1Options);
-			var client1Request = new SyncRequest { Since = client1Options.LastSyncedOn, Until = client1start, Skip = 0 };
+			var client1Request = new SyncRequest { Since = client1Options.LastSyncedOn, Until = client1Start, Skip = 0 };
 			var client1Results = server.GetChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Results.TotalCount);
 			Assert.AreEqual(0, client1Results.Collection.Count);
@@ -746,10 +741,10 @@ namespace Speedy.Samples.Tests
 			// Do first part of syncing client 2 (client2 <- server)
 			// This should not have any updates as the server has not changed
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 00);
-			var client2start = TimeService.UtcNow;
+			var client2Start = TimeService.UtcNow;
 			client2.BeginSync(client2Id, client2Options);
 			server.BeginSync(client2Id, client2Options);
-			var client2Request = new SyncRequest { Since = client2Options.LastSyncedOn, Until = client2start, Skip = 0 };
+			var client2Request = new SyncRequest { Since = client2Options.LastSyncedOn, Until = client2Start, Skip = 0 };
 			var client2Results = server.GetChanges(client2Id, client2Request);
 			Assert.AreEqual(0, client2Results.TotalCount);
 			Assert.AreEqual(0, client2Results.Collection.Count);
@@ -774,10 +769,10 @@ namespace Speedy.Samples.Tests
 				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(Address.ModifiedOn));
 				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(Address.ModifiedOn));
 			}
-			
+
 			// Do second part of client 2 (client2 -> server)
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 02, 00);
-			client2Request = new SyncRequest { Since = client2Options.LastSyncedOn, Until = client2start, Skip = 0 };
+			client2Request = new SyncRequest { Since = client2Options.LastSyncedOn, Until = client2Start, Skip = 0 };
 			client2Results = client2.GetChanges(client2Id, client2Request);
 			Assert.AreEqual(1, client2Results.TotalCount);
 			Assert.AreEqual(1, client2Results.Collection.Count);
@@ -808,7 +803,7 @@ namespace Speedy.Samples.Tests
 
 			// Do second part of client 1 (client1 -> server)
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 03, 00);
-			client1Request = new SyncRequest { Since = client1Options.LastSyncedOn, Until = client1start, Skip = 0 };
+			client1Request = new SyncRequest { Since = client1Options.LastSyncedOn, Until = client1Start, Skip = 0 };
 			client1Results = client1.GetChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Results.TotalCount);
 			Assert.AreEqual(0, client1Results.Collection.Count);
@@ -838,12 +833,12 @@ namespace Speedy.Samples.Tests
 
 			// Sync Set 2: Go ahead and sync the data to all locations
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 04, 00);
-			client1Options.LastSyncedOn = client1start;
+			client1Options.LastSyncedOn = client1Start;
 			SyncEngine.Run(client1, server, client1Options);
 			Assert.IsFalse(client1.Statistics.IsReset);
 			Assert.IsFalse(server.Statistics.IsReset);
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 04, 01);
-			client2Options.LastSyncedOn = client2start;
+			client2Options.LastSyncedOn = client2Start;
 			SyncEngine.Run(client2, server, client2Options);
 			Assert.IsFalse(client2.Statistics.IsReset);
 			Assert.IsFalse(server.Statistics.IsReset);
@@ -862,7 +857,7 @@ namespace Speedy.Samples.Tests
 				var client2Address = client2Database.Addresses.First();
 				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(Address.ModifiedOn));
 				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(Address.ModifiedOn));
-				
+
 				serverAddress = serverDatabase.Addresses.Skip(1).First();
 				client1Address = client1Database.Addresses.Skip(1).First();
 				client2Address = client2Database.Addresses.Skip(1).First();
@@ -872,7 +867,7 @@ namespace Speedy.Samples.Tests
 
 			// Sync Set 3
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 05, 00);
-			client1Options.LastSyncedOn = client1Options.LastSyncedOn ;
+			client1Options.LastSyncedOn = client1Options.LastSyncedOn;
 			SyncEngine.Run(client1, server, client1Options);
 			Assert.IsTrue(client1.Statistics.IsReset);
 			Assert.IsTrue(server.Statistics.IsReset);
@@ -1092,7 +1087,7 @@ namespace Speedy.Samples.Tests
 			SyncEngine.Run(client, server, options);
 			Assert.IsFalse(server.Statistics.IsReset);
 			Assert.IsFalse(client.Statistics.IsReset);
-				
+
 			// Final sync
 			SyncEngine.Run(client, server, options);
 			Assert.IsTrue(server.Statistics.IsReset);

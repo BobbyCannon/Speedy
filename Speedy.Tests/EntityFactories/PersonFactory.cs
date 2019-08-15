@@ -16,7 +16,7 @@ namespace Speedy.Tests.EntityFactories
 		public static PersonEntity Get(Action<PersonEntity> update = null, string name = null, AddressEntity address = null)
 		{
 			var time = TimeService.UtcNow;
-			var personAddress = address ?? AddressFactory.Get();
+			var personAddress = address ?? AddressEntityFactory.Get();
 			
 			var result = new PersonEntity
 			{

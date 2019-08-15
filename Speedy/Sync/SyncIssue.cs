@@ -26,12 +26,32 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Get the description of the issue.
 		/// </summary>
-		public string Message { get; internal set; }
+		public string Message { get; set; }
 
 		/// <summary>
 		/// Gets or sets the type name of the object.
 		/// </summary>
 		public string TypeName { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// Convert this sync object to a different sync object
+		/// </summary>
+		/// <returns> The converted sync entity in a sync object format. </returns>
+		public SyncIssue Convert(string newTypeName)
+		{
+			var destination = new SyncIssue();
+
+			// Handle all one to one properties (same name & type) and all sync entity base properties.
+			// This will override any exclusions. Meaning this entity will copy all possible properties.
+			destination.UpdateWith(this);
+			destination.TypeName = newTypeName;
+
+			return destination;
+		}
 
 		#endregion
 	}

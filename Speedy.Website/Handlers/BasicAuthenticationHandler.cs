@@ -12,6 +12,8 @@ using Microsoft.Extensions.Options;
 
 #endregion
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+
 namespace Speedy.Website.Handlers
 {
 	public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>

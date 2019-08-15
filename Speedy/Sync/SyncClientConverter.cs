@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -70,6 +71,16 @@ namespace Speedy.Sync
 		public SyncObject Process(SyncObject value)
 		{
 			return SyncObjectConverter.Convert(value, AllowSyncExclusions, AllowUpdateExclusions, _converters);
+		}
+
+		/// <summary>
+		/// Process the provided sync issue through the converters.
+		/// </summary>
+		/// <param name="issue"> The sync issue to process. </param>
+		/// <returns> The process sync issue. </returns>
+		public SyncIssue Process(SyncIssue issue)
+		{
+			return SyncObjectConverter.Convert(issue, _converters);
 		}
 
 		#endregion

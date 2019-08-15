@@ -908,7 +908,7 @@ namespace Speedy.Samples.Tests
 						group = GroupFactory.Get();
 						database.Groups.Add(group);
 
-						var address = AddressFactory.Get(null, "123 Main");
+						var address = AddressEntityFactory.Get(null, "123 Main");
 						var person = PersonFactory.Get(null, "John", address);
 						var member = GroupMemberFactory.Get(group, person);
 						database.GroupMembers.Add(member);
@@ -950,7 +950,7 @@ namespace Speedy.Samples.Tests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var address = AddressFactory.Get(null, "123 Main");
+						var address = AddressEntityFactory.Get(null, "123 Main");
 						var person = PersonFactory.Get(null, "John", address);
 						database.People.Add(person);
 						database.SaveChanges();
