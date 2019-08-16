@@ -442,6 +442,49 @@ namespace Speedy.Samples.Tests
 			TimeService.Reset();
 		}
 
+		/// <summary>
+		/// This test will test the proposed scenario
+		/// Server adds address       - 11:59:00
+		/// Manual Sync
+		/// Client Starts Sync      - 12:00:00
+		/// Server updates address    - 12:00:01
+		/// Client Reads Server     - 12:01:00
+		/// </summary>
+		[TestMethod]
+		public void NewlyCreatedItemModifiedAfterSyncStartShouldStillSync()
+		{
+			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
+
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
+			var address = NewAddress("123 Elm Street");
+			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+
+			var client1Options = new SyncOptions();
+			var client1Id = Guid.NewGuid();
+
+			// Do first part of syncing client 1 (client1 <- server)
+			// The should not have any updates as the server has not changed
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 00);
+			var clientStart = TimeService.UtcNow;
+			client.BeginSync(client1Id, client1Options);
+			server.BeginSync(client1Id, client1Options);
+
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 01);
+			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			{
+				address = serverDatabase.Addresses.First(x => x.Id == address.Id);
+				address.City = "Test";
+				serverDatabase.SaveChanges();
+			}
+
+			var clientRequest = new SyncRequest { Since = client1Options.LastSyncedOn, Until = clientStart, Skip = 0 };
+			var clientResults = server.GetChanges(client1Id, clientRequest);
+			Assert.AreEqual(1, clientResults.TotalCount);
+			Assert.AreEqual(1, clientResults.Collection.Count);
+			clientRequest.Collection = clientResults.Collection;
+		}
+
 		[TestMethod]
 		public void ServerClientShouldNotAcceptFilteredCorrections()
 		{

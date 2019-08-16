@@ -75,7 +75,8 @@ namespace Speedy.Storage
 
 		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until, SyncRepositoryFilter filter)
 		{
-			var query = this.Where(x => x.ModifiedOn >= since && x.ModifiedOn < until);
+			var query = this.Where(x => (x.CreatedOn >= since && x.CreatedOn < until)
+				|| (x.ModifiedOn >= since && x.ModifiedOn < until));
 
 			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
 			{
