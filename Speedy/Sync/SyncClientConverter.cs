@@ -24,13 +24,13 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates a sync converter to be used during syncing.
 		/// </summary>
-		/// <param name="allowSyncExclusions"> Allow sync exclusion during conversion. </param>
-		/// <param name="allowUpdateExclusions"> Allow update exclusion during conversion. </param>
+		/// <param name="excludePropertiesForSync"> Allow property exclusion during conversion in sync. </param>
+		/// <param name="excludePropertiesForUpdate"> Allow property exclusion during conversion in update. </param>
 		/// <param name="converters"> The converters to process during conversion. </param>
-		public SyncClientConverter(bool allowSyncExclusions = true, bool allowUpdateExclusions = true, params SyncObjectConverter[] converters)
+		public SyncClientConverter(bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true, params SyncObjectConverter[] converters)
 		{
-			AllowSyncExclusions = allowSyncExclusions;
-			AllowUpdateExclusions = allowUpdateExclusions;
+			ExcludePropertiesForSync = excludePropertiesForSync;
+			ExcludePropertiesForUpdate = excludePropertiesForUpdate;
 
 			_converters = converters;
 		}
@@ -40,14 +40,14 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <summary>
-		/// If true excluded sync properties will not be updated otherwise all matching properties will be updated.
+		/// If true excluded properties will not be changed during sync.
 		/// </summary>
-		public bool AllowSyncExclusions { get; set; }
+		public bool ExcludePropertiesForSync { get; set; }
 
 		/// <summary>
-		/// If true excluded update properties will not be updated otherwise all matching properties will be updated.
+		/// If true excluded properties will not be changed during update.
 		/// </summary>
-		public bool AllowUpdateExclusions { get; set; }
+		public bool ExcludePropertiesForUpdate { get; set; }
 
 		#endregion
 
@@ -60,7 +60,7 @@ namespace Speedy.Sync
 		/// <returns> The request with an updated collection. </returns>
 		public IEnumerable<SyncObject> Process(IList<SyncObject> collection)
 		{
-			return SyncObjectConverter.Convert(collection, AllowSyncExclusions, AllowUpdateExclusions, _converters).Where(x => x != null).ToList();
+			return SyncObjectConverter.Convert(collection, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters).Where(x => x != null).ToList();
 		}
 
 		/// <summary>
@@ -70,7 +70,7 @@ namespace Speedy.Sync
 		/// <returns> The process sync object. </returns>
 		public SyncObject Process(SyncObject value)
 		{
-			return SyncObjectConverter.Convert(value, AllowSyncExclusions, AllowUpdateExclusions, _converters);
+			return SyncObjectConverter.Convert(value, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters);
 		}
 
 		/// <summary>

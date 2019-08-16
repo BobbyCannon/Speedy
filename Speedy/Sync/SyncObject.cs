@@ -70,10 +70,10 @@ namespace Speedy.Sync
 		/// <typeparam name="T3"> The sync entity type to convert to. </typeparam>
 		/// <typeparam name="T4"> The primary key of the entity to convert to. </typeparam>
 		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
-		/// <param name="includeSyncExclusions"> If true excluded sync properties will not be updated otherwise all matching properties will be updated. </param>
-		/// <param name="includeUpdateExclusions"> If true excluded update properties will not be updated otherwise all matching properties will be updated. </param>
+		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
+		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
 		/// <returns> The converted sync entity in a sync object format. </returns>
-		public SyncObject Convert<T1, T2, T3, T4>(Action<T1, T3> convert = null, bool includeSyncExclusions = true, bool includeUpdateExclusions = true)
+		public SyncObject Convert<T1, T2, T3, T4>(Action<T1, T3> convert = null, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
 			where T1 : SyncEntity<T2>
 			where T3 : SyncEntity<T4>
 		{
@@ -88,7 +88,7 @@ namespace Speedy.Sync
 
 			// Handle all one to one properties (same name & type) and all sync entity base properties.
 			// This will override any exclusions. Meaning this entity will copy all possible properties.
-			destination.UpdateWith(source, includeSyncExclusions, includeUpdateExclusions);
+			destination.UpdateWith(source, excludePropertiesForSync, excludePropertiesForUpdate);
 
 			// Update will not set the sync ID
 			destination.SyncId = source.SyncId;

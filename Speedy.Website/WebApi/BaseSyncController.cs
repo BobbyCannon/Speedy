@@ -40,12 +40,6 @@ namespace Speedy.Website.WebApi
 
 		#region Methods
 
-		[HttpGet("Hello")]
-		public string Hello()
-		{
-			return "Hello";
-		}
-
 		protected ISyncClient BeginSyncSession(Guid sessionId, SyncOptions options)
 		{
 			// Limit items per request
@@ -60,8 +54,7 @@ namespace Speedy.Website.WebApi
 			return _sessions.GetOrAdd(sessionId, key =>
 			{
 				// The server should always maintain dates as they are the "Master" dataset
-				var client = new SyncClient("Web Client", DatabaseProvider);
-				client.Options.MaintainModifiedOn = true;
+				var client = new SyncClient("Web Client", DatabaseProvider) { Options = { MaintainModifiedOn = true } };
 				client.BeginSync(sessionId, options);
 				return client;
 			});

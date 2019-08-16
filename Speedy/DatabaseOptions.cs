@@ -48,7 +48,7 @@ namespace Speedy
 		/// Gets or sets the flag to manage the optional CreatedOn property.
 		/// </summary>
 		public bool MaintainCreatedOn { get; set; }
-		
+
 		/// <summary>
 		/// Gets or sets the flag to manage the optional ModifiedOn properties.
 		/// </summary>

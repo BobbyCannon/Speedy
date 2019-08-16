@@ -32,6 +32,8 @@ namespace Speedy.Website.WebApi
 
 		public SyncStatistics Statistics { get; set; }
 
+		public SyncOptions SyncOptions { get; set; }
+
 		#endregion
 
 		#region Methods

@@ -46,6 +46,11 @@ namespace Speedy.Sync
 		public string Id { get; set; }
 
 		/// <summary>
+		/// Include the detail of the exception in the SyncIssue(s) returned.
+		/// </summary>
+		public bool IncludeIssueDetails { get; set; }
+
+		/// <summary>
 		/// Gets or sets the number of objects to be processed per sync request.
 		/// </summary>
 		public int ItemsPerSyncRequest { get; set; }

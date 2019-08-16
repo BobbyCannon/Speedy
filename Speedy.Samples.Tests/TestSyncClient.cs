@@ -24,6 +24,7 @@ namespace Speedy.Samples.Tests
 			Name = name;
 			Options = new SyncClientOptions();
 			Statistics = new SyncStatistics();
+			SyncOptions = new SyncOptions();
 		}
 
 		#endregion
@@ -51,6 +52,8 @@ namespace Speedy.Samples.Tests
 		public SyncClientConverter OutgoingConverter { get; set; }
 
 		public SyncStatistics Statistics { get; set; }
+
+		public SyncOptions SyncOptions { get; }
 
 		#endregion
 

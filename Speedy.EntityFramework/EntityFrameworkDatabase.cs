@@ -434,7 +434,6 @@ namespace Speedy.EntityFramework
 			switch (entry.State)
 			{
 				case EntityState.Added:
-					entity.EntityAdded();
 					_collectionChangeTracker.Add(entity);
 
 					if (createdEntity != null && maintainCreatedOnDate)
@@ -455,6 +454,7 @@ namespace Speedy.EntityFramework
 					{
 						modifiableEntity.ModifiedOn = now;
 					}
+					entity.EntityAdded();
 					break;
 
 				case EntityState.Modified:
@@ -464,8 +464,6 @@ namespace Speedy.EntityFramework
 						entry.State = EntityState.Unchanged;
 						break;
 					}
-
-					entity.EntityModified();
 
 					if (createdEntity != null && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
 					{
@@ -487,6 +485,8 @@ namespace Speedy.EntityFramework
 						// Update modified to now for new entities.
 						modifiableEntity.ModifiedOn = now;
 					}
+					
+					entity.EntityModified();
 					break;
 
 				case EntityState.Deleted:

@@ -67,6 +67,9 @@ namespace Speedy.Net
 		/// <inheritdoc />
 		public SyncStatistics Statistics { get; }
 
+		/// <inheritdoc />
+		public SyncOptions SyncOptions { get; private set; }
+
 		#endregion
 
 		#region Methods
@@ -86,6 +89,8 @@ namespace Speedy.Net
 		/// <inheritdoc />
 		public void BeginSync(Guid sessionId, SyncOptions options)
 		{
+			SyncOptions = options;
+
 			using (var result = WebClient.Post($"{_syncUri}/{nameof(BeginSync)}/{sessionId}", options))
 			{
 				if (!result.IsSuccessStatusCode)

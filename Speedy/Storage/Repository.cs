@@ -409,6 +409,8 @@ namespace Speedy.Storage
 				}
 
 				Cache.Remove(item);
+
+				item.Entity.EntityDeleted();
 			}
 
 			foreach (var entry in Cache.ToList())
@@ -425,7 +427,6 @@ namespace Speedy.Storage
 				switch (entry.State)
 				{
 					case EntityStateType.Added:
-						entity.EntityAdded();
 						if (createdEntity != null && maintainCreatedOnDate)
 						{
 							createdEntity.CreatedOn = now;
@@ -435,6 +436,8 @@ namespace Speedy.Storage
 						{
 							modifiableEntity.ModifiedOn = now;
 						}
+
+						entity.EntityAdded();
 						break;
 
 					case EntityStateType.Modified:
@@ -445,8 +448,6 @@ namespace Speedy.Storage
 							changeCount--;
 							continue;
 						}
-
-						entity.EntityModified();
 
 						if (createdEntity != null && maintainCreatedOnDate)
 						{
@@ -472,6 +473,8 @@ namespace Speedy.Storage
 						{
 							modifiableEntity.ModifiedOn = now;
 						}
+
+						entity.EntityModified();
 						break;
 				}
 

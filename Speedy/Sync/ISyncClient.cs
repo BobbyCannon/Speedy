@@ -39,6 +39,11 @@ namespace Speedy.Sync
 		/// </summary>
 		SyncStatistics Statistics { get; }
 
+		/// <summary>
+		/// The options for the sync
+		/// </summary>
+		SyncOptions SyncOptions { get; }
+
 		#endregion
 
 		#region Methods

@@ -22,7 +22,6 @@ namespace Speedy.Sync
 		#region Fields
 
 		private int _changeCount;
-		private SyncOptions _options;
 		private readonly ISyncableDatabaseProvider _provider;
 		private Guid _sessionId;
 
@@ -48,20 +47,23 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <inheritdoc />
+		public SyncClientConverter IncomingConverter { get; set; }
+
+		/// <inheritdoc />
 		public string Name { get; }
 
 		/// <inheritdoc />
-		public SyncClientConverter IncomingConverter { get; set; }
-		
+		public SyncClientOptions Options { get; set; }
+
 		/// <inheritdoc />
 		public SyncClientConverter OutgoingConverter { get; set; }
 
 		/// <inheritdoc />
-		public SyncClientOptions Options { get; set;}
+		public SyncStatistics Statistics { get; set; }
 
 		/// <inheritdoc />
-		public SyncStatistics Statistics { get; set; }
-		
+		public SyncOptions SyncOptions { get; set; }
+
 		#endregion
 
 		#region Methods
@@ -82,8 +84,8 @@ namespace Speedy.Sync
 		public void BeginSync(Guid sessionId, SyncOptions options)
 		{
 			_sessionId = sessionId;
-			_options = options;
 
+			SyncOptions = options;
 			Statistics.Reset();
 		}
 
@@ -114,13 +116,13 @@ namespace Speedy.Sync
 				request.Until = TimeService.UtcNow;
 			}
 
-			var take = request.Take <= 0 || request.Take > _options.ItemsPerSyncRequest ? _options.ItemsPerSyncRequest : request.Take;
+			var take = request.Take <= 0 || request.Take > SyncOptions.ItemsPerSyncRequest ? SyncOptions.ItemsPerSyncRequest : request.Take;
 
 			using (var database = _provider.GetSyncableDatabase())
 			{
-				foreach (var repository in database.GetSyncableRepositories(_options))
+				foreach (var repository in database.GetSyncableRepositories(SyncOptions))
 				{
-					var filter = _options.GetRepositoryFilter(repository);
+					var filter = SyncOptions.GetRepositoryFilter(repository);
 					var changeCount = repository.GetChangeCount(request.Since, request.Until, filter);
 
 					if (changeCount + currentSkippedCount <= request.Skip)
@@ -129,7 +131,7 @@ namespace Speedy.Sync
 						continue;
 					}
 
-					var changes = repository.GetChanges(request.Since, request.Until, request.Skip - currentSkippedCount, _options.ItemsPerSyncRequest - currentSkippedCount, filter).ToList();
+					var changes = repository.GetChanges(request.Since, request.Until, request.Skip - currentSkippedCount, SyncOptions.ItemsPerSyncRequest - currentSkippedCount, filter).ToList();
 					var items = OutgoingConverter != null ? OutgoingConverter.Process(changes).ToList() : changes;
 					response.Collection.AddRange(items);
 					currentSkippedCount += items.Count;
@@ -174,7 +176,7 @@ namespace Speedy.Sync
 						default:
 							var type = Type.GetType(issue.TypeName);
 
-							if (_options?.ShouldFilterRepository(type) == true)
+							if (SyncOptions?.ShouldFilterRepository(type) == true)
 							{
 								// Do not process this issue because the repository is not in the filter.
 								continue;
@@ -272,9 +274,9 @@ namespace Speedy.Sync
 
 			using (var database = _provider.GetSyncableDatabase())
 			{
-				_changeCount = database.GetSyncableRepositories(_options).Sum(repository =>
+				_changeCount = database.GetSyncableRepositories(SyncOptions).Sum(repository =>
 				{
-					var filter = _options.GetRepositoryFilter(repository);
+					var filter = SyncOptions.GetRepositoryFilter(repository);
 					return repository.GetChangeCount(request.Since, request.Until, filter);
 				});
 
@@ -314,7 +316,10 @@ namespace Speedy.Sync
 
 		private void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction)
 		{
-			Logger.Instance.Write(_sessionId, correction ? $"Processing sync object correction {syncObject.SyncId}." : $"Processing sync object {syncObject.SyncId}.", EventLevel.Verbose);
+			Logger.Instance.Write(_sessionId, correction
+					? $"Processing sync object correction {syncObject.SyncId}."
+					: $"Processing sync object {syncObject.SyncId}.",
+				EventLevel.Verbose);
 
 			var syncEntity = syncObject.ToSyncEntity();
 
@@ -323,13 +328,13 @@ namespace Speedy.Sync
 				return;
 			}
 
-			if (_options.ShouldFilterRepository(syncObject.TypeName))
+			if (SyncOptions.ShouldFilterRepository(syncObject.TypeName))
 			{
 				Logger.Instance.Write(_sessionId, "Ignoring this type because this repository is being filtered.", EventLevel.Verbose);
 				return;
 			}
 
-			if (_options.ShouldFilterEntity(syncObject.TypeName, syncEntity))
+			if (SyncOptions.ShouldFilterEntity(syncObject.TypeName, syncEntity))
 			{
 				Logger.Instance.Write(_sessionId, "Ignoring this type because this entity is being filtered.", EventLevel.Verbose);
 				return;
@@ -337,6 +342,7 @@ namespace Speedy.Sync
 
 			var type = syncEntity.GetType();
 			var repository = database.GetSyncableRepository(type);
+
 			if (repository == null)
 			{
 				throw new InvalidDataException("Failed to find a syncable repository for the entity.");
@@ -368,7 +374,7 @@ namespace Speedy.Sync
 						if (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction)
 						{
 							UpdateLocalRelationships(foundEntity, database);
-							foundEntity.UpdateWith(syncEntity, includeSyncExclusions: true, includeUpdateExclusions: true);
+							foundEntity.UpdateWith(syncEntity);
 						}
 					}
 					break;
@@ -376,7 +382,7 @@ namespace Speedy.Sync
 				case SyncObjectStatus.Deleted:
 					if (foundEntity != null)
 					{
-						if (_options.PermanentDeletions)
+						if (SyncOptions.PermanentDeletions)
 						{
 							repository.Remove(foundEntity);
 						}
@@ -435,48 +441,67 @@ namespace Speedy.Sync
 				catch (SyncIssueException ex)
 				{
 					ex.Issues.ForEach(issues.Add);
-					issues.Add(new SyncIssue
+
+					var issue = new SyncIssue
 					{
 						Id = syncObject.SyncId,
 						IssueType = SyncIssueType.RelationshipConstraint,
 						Message = "This entity has relationship issue with other entities.",
 						TypeName = syncObject.TypeName
-					});
+					};
+
+					if (SyncOptions.IncludeIssueDetails)
+					{
+						issue.Message += Environment.NewLine + ex.ToDetailedString();
+					}
+
+					issues.Add(issue);
 				}
-				catch (InvalidOperationException)
+				catch (InvalidOperationException ex)
 				{
-					issues.Add(new SyncIssue
+					var issue = new SyncIssue
 					{
 						Id = syncObject.SyncId,
 						IssueType = SyncIssueType.RelationshipConstraint,
 						Message = "Invalid operation exception...",
 						TypeName = syncObject.TypeName
-					});
+					};
+
+					if (SyncOptions.IncludeIssueDetails)
+					{
+						issue.Message += Environment.NewLine + ex.ToDetailedString();
+					}
+
+					issues.Add(issue);
 				}
 				catch (Exception ex)
 				{
 					var details = ex.ToDetailedString();
 
 					// Cannot catch the DbUpdateException without reference EntityFramework.
-					if (details.Contains("conflicted with the FOREIGN KEY constraint") || details.Contains("The DELETE statement conflicted with the REFERENCE constraint"))
+					var issue = details.Contains("conflicted with the FOREIGN KEY constraint")
+						|| details.Contains("The DELETE statement conflicted with the REFERENCE constraint")
+							? new SyncIssue
+							{
+								Id = syncObject.SyncId,
+								IssueType = SyncIssueType.RelationshipConstraint,
+								Message = "This entity has relationship issue with another entity.",
+								TypeName = syncObject.TypeName
+							}
+							: new SyncIssue
+							{
+								Id = syncObject.SyncId,
+								IssueType = SyncIssueType.Unknown,
+								Message = "Unknown issue...",
+								TypeName = syncObject.TypeName
+							};
+
+					if (SyncOptions.IncludeIssueDetails)
 					{
-						issues.Add(new SyncIssue
-						{
-							Id = syncObject.SyncId,
-							IssueType = SyncIssueType.RelationshipConstraint,
-							Message = "This entity has relationship issue with another entity.",
-							TypeName = syncObject.TypeName
-						});
-						continue;
+						issue.Message += Environment.NewLine + ex.ToDetailedString();
 					}
 
-					issues.Add(new SyncIssue
-					{
-						Id = syncObject.SyncId,
-						IssueType = SyncIssueType.Unknown,
-						Message = "Unknown issue...",
-						TypeName = syncObject.TypeName
-					});
+					issues.Add(issue);
 				}
 			}
 		}

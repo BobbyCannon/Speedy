@@ -81,9 +81,9 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public override SyncObject Convert(SyncObject syncObject, bool includeSyncExclusions = true, bool includeUpdateExclusions = true)
+		public override SyncObject Convert(SyncObject syncObject, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
 		{
-			return syncObject.Convert<T1, T2, T3, T4>(_convert, includeSyncExclusions, includeUpdateExclusions);
+			return syncObject.Convert<T1, T2, T3, T4>(_convert, excludePropertiesForSync, excludePropertiesForUpdate);
 		}
 
 		/// <inheritdoc />
@@ -120,10 +120,10 @@ namespace Speedy.Sync
 		/// Convert this sync object to a different sync object
 		/// </summary>
 		/// <param name="syncObject"> The sync object to process. </param>
-		/// <param name="includeSyncExclusions"> If true excluded sync properties will not be updated otherwise all matching properties will be updated. </param>
-		/// <param name="includeUpdateExclusions"> If true excluded update properties will not be updated otherwise all matching properties will be updated. </param>
+		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
+		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
 		/// <returns> The converted sync entity in a sync object format. </returns>
-		public abstract SyncObject Convert(SyncObject syncObject, bool includeSyncExclusions = true, bool includeUpdateExclusions = true);
+		public abstract SyncObject Convert(SyncObject syncObject, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true);
 
 		/// <summary>
 		/// Convert this sync issue to a different sync object
@@ -136,15 +136,15 @@ namespace Speedy.Sync
 		/// Converts a collection of sync objects using the provided converters.
 		/// </summary>
 		/// <param name="syncObjects"> The sync objects to convert. </param>
-		/// <param name="includeSyncExclusions"> If true excluded sync properties will not be updated otherwise all matching properties will be updated. </param>
-		/// <param name="includeUpdateExclusions"> If true excluded update properties will not be updated otherwise all matching properties will be updated. </param>
+		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
+		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
 		/// <param name="converters"> The converters to projects the sync objects. </param>
 		/// <returns> The converted sync objects. </returns>
-		public static IEnumerable<SyncObject> Convert(IEnumerable<SyncObject> syncObjects, bool includeSyncExclusions = true, bool includeUpdateExclusions = true, params SyncObjectConverter[] converters)
+		public static IEnumerable<SyncObject> Convert(IEnumerable<SyncObject> syncObjects, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true, params SyncObjectConverter[] converters)
 		{
 			foreach (var syncObject in syncObjects)
 			{
-				yield return Convert(syncObject, includeSyncExclusions, includeUpdateExclusions, converters);
+				yield return Convert(syncObject, excludePropertiesForSync, excludePropertiesForUpdate, converters);
 			}
 		}
 
@@ -152,11 +152,11 @@ namespace Speedy.Sync
 		/// Converts a sync objects using the provided converters.
 		/// </summary>
 		/// <param name="syncObject"> The sync object to convert. </param>
-		/// <param name="includeSyncExclusions"> If true excluded sync properties will not be updated otherwise all matching properties will be updated. </param>
-		/// <param name="includeUpdateExclusions"> If true excluded update properties will not be updated otherwise all matching properties will be updated. </param>
+		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
+		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
 		/// <param name="converters"> The converters to projects the sync objects. </param>
 		/// <returns> The converted sync objects. </returns>
-		public static SyncObject Convert(SyncObject syncObject, bool includeSyncExclusions = true, bool includeUpdateExclusions = true, params SyncObjectConverter[] converters)
+		public static SyncObject Convert(SyncObject syncObject, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true, params SyncObjectConverter[] converters)
 		{
 			// Cycle through each converter to process each object.
 			foreach (var converter in converters)
@@ -168,7 +168,7 @@ namespace Speedy.Sync
 				}
 
 				// Convert the object.
-				return converter.Convert(syncObject, includeSyncExclusions, includeUpdateExclusions);
+				return converter.Convert(syncObject, excludePropertiesForSync, excludePropertiesForUpdate);
 			}
 
 			return null;
