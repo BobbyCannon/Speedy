@@ -29,7 +29,8 @@ namespace Speedy.Sync
 		public SyncOptions(string id = null)
 		{
 			Id = id ?? Guid.NewGuid().ToString();
-			LastSyncedOn = DateTime.MinValue;
+			LastSyncedOnClient = DateTime.MinValue;
+			LastSyncedOnServer = DateTime.MinValue;
 			ItemsPerSyncRequest = 300;
 			Values = new Dictionary<string, string>();
 
@@ -56,9 +57,14 @@ namespace Speedy.Sync
 		public int ItemsPerSyncRequest { get; set; }
 
 		/// <summary>
-		/// Gets or sets the last synced on date and time.
+		/// Gets or sets the client was last synced on date and time.
 		/// </summary>
-		public DateTime LastSyncedOn { get; set; }
+		public DateTime LastSyncedOnClient { get; set; }
+
+		/// <summary>
+		/// Gets or sets the server was last synced on date and time.
+		/// </summary>
+		public DateTime LastSyncedOnServer { get; set; }
 
 		/// <summary>
 		/// If true the sync will actually delete entities marked for deletion. Defaults to false where IsDeleted will be marked "true".

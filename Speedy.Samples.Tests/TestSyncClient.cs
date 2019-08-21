@@ -71,11 +71,12 @@ namespace Speedy.Samples.Tests
 			return new ServiceResult<SyncIssue>();
 		}
 
-		public void BeginSync(Guid sessionId, SyncOptions options)
+		public SyncSession BeginSync(Guid sessionId, SyncOptions options)
 		{
+			return new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
 		}
 
-		public void EndSync(Guid sessionId)
+		public void EndSync(SyncSession session)
 		{
 		}
 

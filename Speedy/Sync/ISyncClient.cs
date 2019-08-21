@@ -69,13 +69,13 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="sessionId"> The ID of the sync session. </param>
 		/// <param name="options"> The options for the sync session. </param>
-		void BeginSync(Guid sessionId, SyncOptions options);
+		SyncSession BeginSync(Guid sessionId, SyncOptions options);
 
 		/// <summary>
 		/// Ends the sync session.
 		/// </summary>
-		/// <param name="sessionId"> The ID of the sync session. </param>
-		void EndSync(Guid sessionId);
+		/// <param name="session"> The details of the sync session. </param>
+		void EndSync(SyncSession session);
 
 		/// <summary>
 		/// Gets the changes from the server.

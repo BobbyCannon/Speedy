@@ -53,13 +53,13 @@ namespace Speedy.Website.WebApi
 		}
 
 		[HttpPost("BeginSync/{id}")]
-		public void BeginSync(Guid id, SyncOptions options)
+		public SyncSession BeginSync(Guid id, SyncOptions options)
 		{
 			// note: never trust the sync options. These are just suggestions from the client, you MUST ensure these suggestions are valid.
-			BeginSyncSession(id, options);
+			return BeginSyncSession(id, options).session;
 		}
 
-		public void EndSync(Guid id)
+		public void EndSync(SyncSession session)
 		{
 			// Not actually used, just implement due to the interface
 			// See method EndSyncAndReturnStatistics below

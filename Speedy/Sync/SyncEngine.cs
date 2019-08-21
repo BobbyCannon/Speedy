@@ -87,11 +87,6 @@ namespace Speedy.Sync
 		public Guid SessionId { get; }
 
 		/// <summary>
-		/// Gets or sets the start date and time.
-		/// </summary>
-		public DateTime StartTime { get; set; }
-
-		/// <summary>
 		/// Current state of the sync engine.
 		/// </summary>
 		public SyncEngineState State { get; set; }
@@ -112,40 +107,36 @@ namespace Speedy.Sync
 		{
 			_syncIssues.Clear();
 
-			StartTime = TimeService.UtcNow;
-			OnSyncStateChanged($"{StartTime:hh:mm:ss tt}.", SyncEngineStatus.Starting);
-			Thread.Sleep(10);
-
 			Server.Statistics.Reset();
 			Client.Statistics.Reset();
 
-			Server.BeginSync(SessionId, Options);
-			Client.BeginSync(SessionId, Options);
+			var serverSession = Server.BeginSync(SessionId, Options);
+			var clientSession = Client.BeginSync(SessionId, Options);
+
+			OnSyncStateChanged($"{clientSession.StartedOn:hh:mm:ss tt}.", SyncEngineStatus.Starting);
 
 			var incoming = new Dictionary<Guid, DateTime>();
 
 			if (!CancellationSource.IsCancellationRequested)
 			{
 				OnSyncStateChanged(status: SyncEngineStatus.Pulling);
-				incoming = Process(Server, Client, StartTime, incoming);
+				incoming = Process(Server, Client, Options.LastSyncedOnServer, serverSession.StartedOn, incoming);
 			}
-
-			Thread.Sleep(10);
 
 			if (!CancellationSource.IsCancellationRequested)
 			{
 				OnSyncStateChanged(status: SyncEngineStatus.Pushing);
-				Process(Client, Server, StartTime, incoming);
+				Process(Client, Server, Options.LastSyncedOnClient, clientSession.StartedOn, incoming);
 			}
 
-			Client.EndSync(SessionId);
-			Server.EndSync(SessionId);
+			Client.EndSync(clientSession);
+			Server.EndSync(serverSession);
 
 			SortLocalDatabases();
 
-			Thread.Sleep(10);
+			Options.LastSyncedOnClient = clientSession.StartedOn;
+			Options.LastSyncedOnServer = serverSession.StartedOn;
 
-			Options.LastSyncedOn = StartTime;
 			OnSyncStateChanged($"{TimeService.UtcNow:hh:mm:ss tt}", CancellationSource.IsCancellationRequested ? SyncEngineStatus.Cancelled : SyncEngineStatus.Completed);
 		}
 
@@ -226,12 +217,13 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="sourceClient"> The source to get changes from. </param>
 		/// <param name="destinationClient"> The destination to apply changes to. </param>
+		/// <param name="since"> The start date and time to get changes for. </param>
 		/// <param name="until"> The end date and time to get changes for. </param>
 		/// <param name="exclude"> The optional collection of items to exclude. </param>
-		private Dictionary<Guid, DateTime> Process(ISyncClient sourceClient, ISyncClient destinationClient, DateTime until, IDictionary<Guid, DateTime> exclude)
+		private Dictionary<Guid, DateTime> Process(ISyncClient sourceClient, ISyncClient destinationClient, DateTime since, DateTime until, IDictionary<Guid, DateTime> exclude)
 		{
 			var issues = new ServiceRequest<SyncIssue>();
-			var request = new SyncRequest { Since = Options.LastSyncedOn, Until = until, Skip = 0 };
+			var request = new SyncRequest { Since = since, Until = until, Skip = 0 };
 			var response = new Dictionary<Guid, DateTime>();
 			bool hasMore;
 

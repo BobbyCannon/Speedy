@@ -24,7 +24,7 @@ namespace Speedy.Sync
 
 		private int _changeCount;
 		private readonly ISyncableDatabaseProvider _provider;
-		private Guid _sessionId;
+		private SyncSession _session;
 
 		#endregion
 
@@ -82,16 +82,18 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public void BeginSync(Guid sessionId, SyncOptions options)
+		public SyncSession BeginSync(Guid sessionId, SyncOptions options)
 		{
-			_sessionId = sessionId;
+			_session = new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
 
 			SyncOptions = options;
 			Statistics.Reset();
+
+			return _session;
 		}
 
 		/// <inheritdoc />
-		public void EndSync(Guid sessionId)
+		public void EndSync(SyncSession session)
 		{
 		}
 
@@ -318,7 +320,7 @@ namespace Speedy.Sync
 
 		private void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction)
 		{
-			Logger.Instance.Write(_sessionId, correction
+			Logger.Instance.Write(_session.Id, correction
 					? $"Processing sync object correction {syncObject.SyncId}."
 					: $"Processing sync object {syncObject.SyncId}.",
 				EventLevel.Verbose);
@@ -332,13 +334,13 @@ namespace Speedy.Sync
 
 			if (SyncOptions.ShouldFilterRepository(syncObject.TypeName))
 			{
-				Logger.Instance.Write(_sessionId, "Ignoring this type because this repository is being filtered.", EventLevel.Verbose);
+				Logger.Instance.Write(_session.Id, "Ignoring this type because this repository is being filtered.", EventLevel.Verbose);
 				return;
 			}
 
 			if (SyncOptions.ShouldFilterEntity(syncObject.TypeName, syncEntity))
 			{
-				Logger.Instance.Write(_sessionId, "Ignoring this type because this entity is being filtered.", EventLevel.Verbose);
+				Logger.Instance.Write(_session.Id, "Ignoring this type because this entity is being filtered.", EventLevel.Verbose);
 				return;
 			}
 
@@ -421,7 +423,7 @@ namespace Speedy.Sync
 			}
 			catch
 			{
-				Logger.Instance.Write(_sessionId, "Failed to process sync objects in the batch.");
+				Logger.Instance.Write(_session.Id, "Failed to process sync objects in the batch.");
 				ProcessSyncObjectsIndividually(provider, syncObjectList, issues, corrections);
 			}
 		}

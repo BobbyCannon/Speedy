@@ -87,25 +87,28 @@ namespace Speedy.Website.WebApi
 
 		[HttpPost]
 		[Route("BeginSync/{id}")]
-		public void BeginSync(Guid id, [FromBody] SyncOptions options)
+		public SyncSession BeginSync(Guid id, [FromBody] SyncOptions options)
 		{
 			// note: never trust the sync options. These are just suggestions from the client, you MUST ensure these suggestions are valid.
 			var sessionOptions = new SyncOptions
 			{
 				ItemsPerSyncRequest = options.ItemsPerSyncRequest > 300 ? 300 : options.ItemsPerSyncRequest,
 				PermanentDeletions = false,
-				LastSyncedOn = options.LastSyncedOn
+				LastSyncedOnClient = options.LastSyncedOnClient,
+				LastSyncedOnServer = options.LastSyncedOnServer
 			};
 
 			sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 			sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<PersonEntity>());
 
-			var client = BeginSyncSession(id, sessionOptions);
-			client.OutgoingConverter = _outgoingConverter;
-			client.IncomingConverter = _incomingConverter;
+			var result = BeginSyncSession(id, sessionOptions);
+			result.client.OutgoingConverter = _outgoingConverter;
+			result.client.IncomingConverter = _incomingConverter;
+
+			return result.session;
 		}
 
-		public void EndSync(Guid id)
+		public void EndSync(SyncSession session)
 		{
 			// Not actually used, just implement due to the interface
 			// See method EndSyncAndReturnStatistics below

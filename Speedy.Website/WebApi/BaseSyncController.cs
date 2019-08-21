@@ -40,7 +40,7 @@ namespace Speedy.Website.WebApi
 
 		#region Methods
 
-		protected ISyncClient BeginSyncSession(Guid sessionId, SyncOptions options)
+		protected (ISyncClient client, SyncSession session) BeginSyncSession(Guid sessionId, SyncOptions options)
 		{
 			// Limit items per request
 			if (options.ItemsPerSyncRequest > 300)
@@ -51,13 +51,11 @@ namespace Speedy.Website.WebApi
 			// Do not allow clients to permanently delete entities.
 			options.PermanentDeletions = false;
 
-			return _sessions.GetOrAdd(sessionId, key =>
-			{
-				// The server should always maintain dates as they are the "Master" dataset
-				var client = new SyncClient("Web Client", DatabaseProvider) { Options = { MaintainModifiedOn = true } };
-				client.BeginSync(sessionId, options);
-				return client;
-			});
+			// The server should always maintain dates as they are the "Master" dataset
+			var client = _sessions.GetOrAdd(sessionId, key => new SyncClient("Web Client", DatabaseProvider) { Options = { MaintainModifiedOn = true } });
+			var session = client.BeginSync(sessionId, options);
+			
+			return (client, session);
 		}
 
 		protected ISyncClient EndSyncSession(Guid sessionId)

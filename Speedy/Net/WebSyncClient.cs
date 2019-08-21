@@ -87,23 +87,16 @@ namespace Speedy.Net
 		}
 
 		/// <inheritdoc />
-		public void BeginSync(Guid sessionId, SyncOptions options)
+		public SyncSession BeginSync(Guid sessionId, SyncOptions options)
 		{
 			SyncOptions = options;
-
-			using (var result = WebClient.Post($"{_syncUri}/{nameof(BeginSync)}/{sessionId}", options))
-			{
-				if (!result.IsSuccessStatusCode)
-				{
-					throw new WebClientException(result);
-				}
-			}
+			return WebClient.Post<SyncOptions, SyncSession>($"{_syncUri}/{nameof(BeginSync)}/{sessionId}", options);
 		}
 
 		/// <inheritdoc />
-		public void EndSync(Guid sessionId)
+		public void EndSync(SyncSession session)
 		{
-			var statistics = WebClient.Post<string, SyncStatistics>($"{_syncUri}/{nameof(EndSync)}/{sessionId}", string.Empty);
+			var statistics = WebClient.Post<string, SyncStatistics>($"{_syncUri}/{nameof(EndSync)}/{session.Id}", string.Empty);
 			Statistics.UpdateWith(statistics);
 		}
 
