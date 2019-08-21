@@ -146,6 +146,7 @@ namespace Speedy.Sync
 				return false;
 			}
 
+			// Find the "TestEntity" method so we can invoke it
 			var methods = filter.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
 			var method = methods.First(x => x.Name == "TestEntity");
 			return !(bool) method.Invoke(filter, new object[] { entity });

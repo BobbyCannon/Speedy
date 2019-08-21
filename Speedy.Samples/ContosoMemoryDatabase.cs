@@ -22,7 +22,7 @@ namespace Speedy.Samples
 			GroupMembers = GetRepository<GroupMemberEntity, int>();
 			LogEvents = GetRepository<LogEventEntity, string>();
 			People = GetSyncableRepository<PersonEntity, int>();
-			Pets = GetRepository<PetEntity, PetEntity.PetKey>();
+			Pets = GetRepository<PetEntity, (string Name, int OwnerId)>();
 			PetTypes = GetRepository<PetTypeEntity, string>();
 
 			this.ConfigureModelViaMapping();
@@ -39,7 +39,7 @@ namespace Speedy.Samples
 		public IRepository<GroupEntity, int> Groups { get; }
 		public IRepository<LogEventEntity, string> LogEvents { get; }
 		public IRepository<PersonEntity, int> People { get; }
-		public IRepository<PetEntity, PetEntity.PetKey> Pets { get; }
+		public IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		public IRepository<PetTypeEntity, string> PetTypes { get; }
 
 		#endregion

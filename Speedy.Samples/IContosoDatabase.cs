@@ -17,7 +17,7 @@ namespace Speedy.Samples
 		IRepository<GroupEntity, int> Groups { get; }
 		IRepository<LogEventEntity, string> LogEvents { get; }
 		IRepository<PersonEntity, int> People { get; }
-		IRepository<PetEntity, PetEntity.PetKey> Pets { get; }
+		IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		IRepository<PetTypeEntity, string> PetTypes { get; }
 
 		#endregion

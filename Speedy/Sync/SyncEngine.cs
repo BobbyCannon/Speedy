@@ -264,7 +264,9 @@ namespace Speedy.Sync
 				OnSyncStateChanged(count: request.Skip, total: changes.TotalCount);
 			} while (!CancellationSource.IsCancellationRequested && hasMore);
 
-			while (!CancellationSource.IsCancellationRequested && issues.Collection.Any())
+			_syncIssues.AddRange(issues.Collection);
+
+			if (!CancellationSource.IsCancellationRequested && issues.Collection.Any())
 			{
 				var issuesToProcess = new ServiceRequest<SyncIssue>
 				{
@@ -279,23 +281,19 @@ namespace Speedy.Sync
 
 					if (results != null && results.Collection.Any())
 					{
+						RemoveIssues(_syncIssues, results.Collection);
 						request.Collection = results.Collection;
 						_syncIssues.AddRange(destinationClient.ApplyCorrections(SessionId, request).Collection);
-						issuesToProcess.Collection.ForEach(x => issues.Collection.Remove(x));
-						continue;
 					}
 
 					results = destinationClient.GetCorrections(SessionId, issuesToProcess);
 
 					if (results != null && results.Collection.Any())
 					{
+						RemoveIssues(_syncIssues, results.Collection);
 						request.Collection = results.Collection;
 						_syncIssues.AddRange(sourceClient.ApplyCorrections(SessionId, request).Collection);
-						issuesToProcess.Collection.ForEach(x => issues.Collection.Remove(x));
-						continue;
 					}
-
-					issuesToProcess.Collection.ForEach(x => issues.Collection.Remove(x));
 				}
 				catch (Exception ex)
 				{
@@ -305,6 +303,13 @@ namespace Speedy.Sync
 			}
 
 			return response;
+		}
+
+		private void RemoveIssues(ICollection<SyncIssue> syncIssues, IList<SyncObject> collection)
+		{
+			// Remove any issue that will be processed because we'll read add any issues during processing
+			syncIssues.Where(x => collection.Any(y => y.SyncId == x.Id)).ToList()
+				.ForEach(x => syncIssues.Remove(syncIssues.FirstOrDefault(y => y.Id == x.Id)));
 		}
 
 		/// <summary>

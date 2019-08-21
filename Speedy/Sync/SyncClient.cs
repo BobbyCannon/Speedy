@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
@@ -164,16 +165,17 @@ namespace Speedy.Sync
 			{
 				foreach (var item in issues.Collection)
 				{
-					var issue = item;
+					var issue = IncomingConverter == null ? item : IncomingConverter.Process(item);
 
-					if (IncomingConverter != null)
+					switch (issue?.IssueType)
 					{
-						issue = IncomingConverter.Process(issue);
-					}
-
-					switch (issue.IssueType)
-					{
+						case SyncIssueType.Unknown:
+						case SyncIssueType.ConstraintException:
 						default:
+							// Do not process these issues
+							break;
+
+						case SyncIssueType.RelationshipConstraint:
 							var type = Type.GetType(issue.TypeName);
 
 							if (SyncOptions?.ShouldFilterRepository(type) == true)
@@ -447,6 +449,23 @@ namespace Speedy.Sync
 						Id = syncObject.SyncId,
 						IssueType = SyncIssueType.RelationshipConstraint,
 						Message = "This entity has relationship issue with other entities.",
+						TypeName = syncObject.TypeName
+					};
+
+					if (SyncOptions.IncludeIssueDetails)
+					{
+						issue.Message += Environment.NewLine + ex.ToDetailedString();
+					}
+
+					issues.Add(issue);
+				}
+				catch (InvalidConstraintException ex)
+				{
+					var issue = new SyncIssue
+					{
+						Id = syncObject.SyncId,
+						IssueType = SyncIssueType.ConstraintException,
+						Message = "Invalid constraint exception...",
 						TypeName = syncObject.TypeName
 					};
 

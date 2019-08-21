@@ -43,7 +43,7 @@ namespace Speedy.Samples
 		public IRepository<GroupEntity, int> Groups => GetRepository<GroupEntity, int>();
 		public IRepository<LogEventEntity, string> LogEvents => GetRepository<LogEventEntity, string>();
 		public IRepository<PersonEntity, int> People => GetSyncableRepository<PersonEntity, int>();
-		public IRepository<PetEntity, PetEntity.PetKey> Pets => GetRepository<PetEntity, PetEntity.PetKey>();
+		public IRepository<PetEntity, (string Name, int OwnerId)> Pets => GetRepository<PetEntity, (string Name, int OwnerId)>();
 		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
 
 		#endregion

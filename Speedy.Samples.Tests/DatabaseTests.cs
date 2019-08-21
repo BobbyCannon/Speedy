@@ -13,6 +13,9 @@ using Speedy.Tests.EntityFactories;
 
 namespace Speedy.Samples.Tests
 {
+	/// <summary>
+	/// Add test for Bulk Remove with default of true (x => true), not working
+	/// </summary>
 	[TestClass]
 	[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
 	public class DatabaseTests
@@ -122,6 +125,60 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
+		public void AddEntityWithCompositeKeyShouldNotAllowDuplicatesAssignedUsingId()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new PersonEntity { Name = "Foo", Address = address };
+						database.People.Add(expected);
+						database.SaveChanges();
+
+						var pet = new PetEntity { Name = "Max", OwnerId = expected.Id, Type = new PetTypeEntity { Id = "Dog", Type = "Boston" } };
+						database.Pets.Add(pet);
+						database.SaveChanges();
+
+						pet = new PetEntity { Name = "Max", OwnerId = expected.Id, Type = new PetTypeEntity { Id = "Dog", Type = "Boston" } };
+
+						TestHelper.ExpectedException<InvalidOperationException>(() => database.Pets.Add(pet),
+							"The instance of entity type 'PetEntity' cannot be tracked because another instance with the same key value");
+					}
+				});
+		}
+
+		[TestMethod]
+		public void AddEntityWithCompositeKeyShouldNotAllowDuplicatesAssignUsingType()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+						var expected = new PersonEntity { Name = "Foo", Address = address };
+						database.People.Add(expected);
+						database.SaveChanges();
+
+						var pet = new PetEntity { Name = "Max", Owner = expected, Type = new PetTypeEntity { Id = "Dog", Type = "Boston" } };
+						database.Pets.Add(pet);
+						database.SaveChanges();
+
+						pet = new PetEntity { Name = "Max", Owner = expected, Type = new PetTypeEntity { Id = "Dog", Type = "Boston" } };
+
+						TestHelper.ExpectedException<InvalidOperationException>(() => database.Pets.Add(pet),
+							"The instance of entity type 'PetEntity' cannot be tracked because another instance with the same key value");
+					}
+				});
+		}
+
+		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
 			TestHelper.GetDataContexts()
@@ -140,6 +197,23 @@ namespace Speedy.Samples.Tests
 							"SQLite Error 19: 'NOT NULL constraint failed: Addresses.Line1'.",
 							"Cannot insert the value NULL into column 'Line1', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
 							"AddressEntity: The Line1 field is required.");
+					}
+				});
+		}
+
+		[TestMethod]
+		public void AddEntityWithMultipleDefaultKeys()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+
+						database.LogEvents.Add(LogEventFactory.Get(x => x.Message = "foo"));
+						database.LogEvents.Add(LogEventFactory.Get(x => x.Message = "bar"));
+						database.LogEvents.Add(LogEventFactory.Get(x => x.Message = "foo"));
 					}
 				});
 		}
@@ -401,103 +475,103 @@ namespace Speedy.Samples.Tests
 		{
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
-				{
-					using (var database = provider.GetDatabase())
 					{
-						Console.WriteLine(database.GetType().Name);
-
-						for (var i = 0; i < 10; i++)
+						using (var database = provider.GetDatabase())
 						{
-							var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
-							database.Addresses.Add(address);
+							Console.WriteLine(database.GetType().Name);
+
+							for (var i = 0; i < 10; i++)
+							{
+								var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+								database.Addresses.Add(address);
+							}
+
+							database.SaveChanges();
+
+							Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+							Assert.AreEqual(10, database.Addresses.Count(x => !x.IsDeleted));
+
+							var count = database.Addresses.BulkRemove(x => !x.IsDeleted);
+
+							Assert.AreEqual(10, count);
 						}
 
-						database.SaveChanges();
-
-						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
-						Assert.AreEqual(10, database.Addresses.Count(x => !x.IsDeleted));
-
-						var count = database.Addresses.BulkRemove(x => !x.IsDeleted);
-
-						Assert.AreEqual(10, count);
+						using (var database = provider.GetDatabase())
+						{
+							Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+							Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+						}
 					}
-
-					using (var database = provider.GetDatabase())
-					{
-						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
-						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
-					}
-				}
-			);
+				);
 		}
-		
+
 		[TestMethod]
 		public void BulkDeleteShouldDeletePartial()
 		{
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
-				{
-					using (var database = provider.GetDatabase())
 					{
-						Console.WriteLine(database.GetType().Name);
-
-						for (var i = 0; i < 10; i++)
+						using (var database = provider.GetDatabase())
 						{
-							var address = new AddressEntity { City = "City", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
-							database.Addresses.Add(address);
+							Console.WriteLine(database.GetType().Name);
+
+							for (var i = 0; i < 10; i++)
+							{
+								var address = new AddressEntity { City = "City", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+								database.Addresses.Add(address);
+							}
+
+							database.SaveChanges();
+
+							Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+							Assert.AreEqual(10, database.Addresses.Count(x => !x.IsDeleted));
+
+							var count = database.Addresses.BulkRemove(x => x.Id >= 5);
+
+							Assert.AreEqual(6, count);
 						}
 
-						database.SaveChanges();
-
-						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
-						Assert.AreEqual(10, database.Addresses.Count(x => !x.IsDeleted));
-
-						var count = database.Addresses.BulkRemove(x => x.Id >= 5);
-
-						Assert.AreEqual(6, count);
+						using (var database = provider.GetDatabase())
+						{
+							Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+							Assert.AreEqual(4, database.Addresses.Count(x => !x.IsDeleted));
+						}
 					}
-
-					using (var database = provider.GetDatabase())
-					{
-						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
-						Assert.AreEqual(4, database.Addresses.Count(x => !x.IsDeleted));
-					}
-				}
-			);
+				);
 		}
-		
+
 		[TestMethod]
 		public void BulkUpdateShouldUpdate()
 		{
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
-				{
-					using (var database = provider.GetDatabase())
 					{
-						Console.WriteLine(database.GetType().Name);
-
-						for (var i = 0; i < 10; i++)
+						using (var database = provider.GetDatabase())
 						{
-							var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
-							database.Addresses.Add(address);
+							Console.WriteLine(database.GetType().Name);
+
+							for (var i = 0; i < 10; i++)
+							{
+								var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+								database.Addresses.Add(address);
+							}
+
+							database.SaveChanges();
+
+							Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+
+							var count = database.Addresses.BulkUpdate(x => !x.IsDeleted, x => new AddressEntity { IsDeleted = true });
+							Assert.AreEqual(10, count);
+							Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
+							Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+
+							count = database.Addresses.BulkUpdate(x => x.Id < 5 && x.Id >= 2, x => new AddressEntity { City = "city" });
+							Assert.AreEqual(3, count);
+							Assert.AreEqual(3, database.Addresses.Count(x => x.City == "city"));
+							Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
 						}
-
-						database.SaveChanges();
-
-						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
-
-						var count = database.Addresses.BulkUpdate(x => !x.IsDeleted, x => new AddressEntity { IsDeleted = true });
-						Assert.AreEqual(10, count);
-						Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
-						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
-						
-						count = database.Addresses.BulkUpdate(x => x.Id < 5 && x.Id >= 2, x => new AddressEntity { City = "city" });
-						Assert.AreEqual(3, count);
-						Assert.AreEqual(3, database.Addresses.Count(x => x.City == "city"));
-						Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
 					}
-				}
-			);
+				);
 		}
 
 		[TestMethod]
@@ -938,6 +1012,46 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
+		public void RemoveEntityDeleteHard()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using (var database = provider.GetDatabase())
+					{
+						database.Options.PermanentSyncEntityDeletions = true;
+
+						Console.WriteLine(database.GetType().Name);
+
+						var tracker = new CollectionChangeTracker();
+						database.CollectionChanged += (sender, args) => tracker.Update(args);
+						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						tracker.Reset();
+						var address = database.Addresses.First();
+						database.Addresses.Remove(address);
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(0, tracker.Removed.Count);
+
+						database.SaveChanges();
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(0, tracker.Added.Count);
+						Assert.AreEqual(1, tracker.Removed.Count);
+						Assert.AreEqual(address, tracker.Removed[0]);
+					}
+				});
+		}
+
+		[TestMethod]
 		public void RemoveEntityDeleteSetNull()
 		{
 			TestHelper.GetDataContexts()
@@ -981,50 +1095,10 @@ namespace Speedy.Samples.Tests
 						Assert.AreEqual(1, database.People.Count());
 						Assert.AreEqual(1, database.Pets.Count());
 						Assert.AreEqual(0, database.PetTypes.Count());
-						
+
 						var actual = database.Pets.First();
 						Assert.AreEqual(pet.Id, actual.Id);
 						Assert.AreEqual(null, actual.TypeId);
-					}
-				});
-		}
-
-		[TestMethod]
-		public void RemoveEntityDeleteHard()
-		{
-			TestHelper.GetDataContexts()
-				.ForEach(provider =>
-				{
-					using (var database = provider.GetDatabase())
-					{
-						database.Options.PermanentSyncEntityDeletions = true;
-
-						Console.WriteLine(database.GetType().Name);
-
-						var tracker = new CollectionChangeTracker();
-						database.CollectionChanged += (sender, args) => tracker.Update(args);
-						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
-
-						database.SaveChanges();
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(1, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
-
-						tracker.Reset();
-						var address = database.Addresses.First();
-						database.Addresses.Remove(address);
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
-
-						database.SaveChanges();
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(1, tracker.Removed.Count);
-						Assert.AreEqual(address, tracker.Removed[0]);
 					}
 				});
 		}
@@ -1379,6 +1453,7 @@ namespace Speedy.Samples.Tests
 					using (var database = provider.GetDatabase())
 					{
 						var entity = database.Addresses.First();
+
 						// Easier to assert on, over write automated values.
 						entity.CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03);
 						entity.ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03);

@@ -41,7 +41,7 @@ try
 
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 0 -Build $BuildNumber
+	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 1 -Build $BuildNumber
 	$nugetVersion = ([Version] $newVersion).ToString(3)
 	
 	if ($VersionSuffix.Length -gt 0)

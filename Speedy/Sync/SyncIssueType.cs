@@ -8,13 +8,18 @@
 		/// <summary>
 		/// Could not determine the issue with the syncing object.
 		/// </summary>
-		Unknown,
+		Unknown = 0,
 
 		/// <summary>
 		/// The sync item is having issue due to a relationship. Example another entity depends on the
 		/// entity that is trying to be deleted. Another example is trying to sync an entity with a
 		/// relationship to an entity that has not synced yet.
 		/// </summary>
-		RelationshipConstraint
+		RelationshipConstraint = 1,
+
+		/// <summary>
+		/// The sync item is having issue with a constraint (ex. Unique Index)
+		/// </summary>
+		ConstraintException = 2
 	}
 }

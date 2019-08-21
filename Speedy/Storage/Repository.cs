@@ -82,6 +82,12 @@ namespace Speedy.Storage
 				return;
 			}
 
+			var duplicateId = Cache.FirstOrDefault(x => !x.Entity.Id.Equals(default(T2)) && Equals(x.Entity.Id, entity.Id));
+			if (duplicateId != null)
+			{
+				throw new InvalidOperationException($"The instance of entity type '{typeof(T).Name}' cannot be tracked because another instance with the same key value is already being tracked.");
+			}
+
 			Cache.Add(new EntityState<T, T2>(entity, CloneEntity(entity), EntityStateType.Added));
 			OnUpdateEntityRelationships(entity);
 		}
