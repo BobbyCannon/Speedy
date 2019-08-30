@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 
 #endregion
 
@@ -37,11 +38,22 @@ namespace Speedy.Sync
 		void ExcludePropertiesForSync(params string[] propertyNames);
 
 		/// <summary>
+		/// Get the properties excluded during sync.
+		/// </summary>
+		/// <returns> The names of the property to exclude. </returns>
+		IEnumerable<string> GetExcludedPropertiesForSync();
+
+		/// <summary>
 		/// Checks a property to see if it can be synced.
 		/// </summary>
 		/// <param name="propertyName"> The property name to be tested. </param>
 		/// <returns> True if the property can be update during sync or false if otherwise. </returns>
 		bool IsPropertyExcludedForSync(string propertyName);
+
+		/// <summary>
+		/// Reset the ID back to it's default
+		/// </summary>
+		void ResetId();
 
 		/// <summary>
 		/// Resets exclusion back to default values or just clears if setToDefault is false.
@@ -50,15 +62,15 @@ namespace Speedy.Sync
 		void ResetPropertySyncExclusions(bool setToDefault = true);
 
 		/// <summary>
-		/// Reset the ID back to it's default
-		/// </summary>
-		void ResetId();
-
-		/// <summary>
 		/// Converts the entity into an object to transmit.
 		/// </summary>
 		/// <returns> The sync object for this entity. </returns>
 		SyncObject ToSyncObject();
+
+		/// <summary>
+		/// Update all local sync IDs.
+		/// </summary>
+		void UpdateLocalSyncIds();
 
 		/// <summary>
 		/// Updates the entity with the provided entity.
@@ -67,11 +79,6 @@ namespace Speedy.Sync
 		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
 		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
 		void UpdateWith(ISyncEntity update, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true);
-
-		/// <summary>
-		/// Update all local sync IDs.
-		/// </summary>
-		void UpdateLocalSyncIds();
 
 		#endregion
 	}

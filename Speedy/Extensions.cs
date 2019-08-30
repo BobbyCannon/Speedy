@@ -241,8 +241,14 @@ namespace Speedy
 		/// <returns> The list of generic arguments for the property information of the value. </returns>
 		public static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
 		{
-			MethodInfo[] response;
+			if (info == null)
+			{
+				throw new InvalidOperationException();
+			}
+
 			var key = $"{info.ReflectedType?.FullName}.{info.Name}";
+
+			MethodInfo[] response;
 
 			if (_methodInfos.ContainsKey(key))
 			{
@@ -275,18 +281,26 @@ namespace Speedy
 		/// <returns> The list of field infos for the type. </returns>
 		public static IList<FieldInfo> GetCachedFields(this Type type, BindingFlags? flags)
 		{
+			if (type == null)
+			{
+				throw new InvalidOperationException();
+			}
+
+			var typeFlags = flags ?? BindingFlags.Instance | BindingFlags.GetField | BindingFlags.FlattenHierarchy;
+			var key = GetCacheKey(type, typeFlags);
+
 			FieldInfo[] response;
 
-			if (_fieldInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
+			if (_fieldInfos.ContainsKey(key))
 			{
-				if (_fieldInfos.TryGetValue(type.FullName, out response))
+				if (_fieldInfos.TryGetValue(key, out response))
 				{
 					return response;
 				}
 			}
 
-			response = type.GetFields(flags ?? BindingFlags.Instance | BindingFlags.GetField | BindingFlags.FlattenHierarchy);
-			return _fieldInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+			response = type.GetFields(typeFlags);
+			return _fieldInfos.AddOrUpdate(key, response, (s, infos) => response);
 		}
 
 		/// <summary>
@@ -339,9 +353,9 @@ namespace Speedy
 		/// <param name="value"> The value to get the methods for. </param>
 		/// <param name="flags"> The flags used to query with. </param>
 		/// <returns> The list of method infos for the type. </returns>
-		public static IList<MethodInfo> GetCachedMethods(this object value, BindingFlags flags)
+		public static IList<MethodInfo> GetCachedMethods(this object value, BindingFlags? flags = null)
 		{
-			return value.GetType().GetCachedMethods(flags);
+			return GetCachedMethods(value?.GetType(), flags);
 		}
 
 		/// <summary>
@@ -350,20 +364,28 @@ namespace Speedy
 		/// <param name="type"> The type to get the methods for. </param>
 		/// <param name="flags"> The flags used to query with. </param>
 		/// <returns> The list of method infos for the type. </returns>
-		public static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags flags)
+		public static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags? flags = null)
 		{
+			if (type == null)
+			{
+				throw new InvalidOperationException();
+			}
+
+			var typeFlags = flags ?? BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
+			var key = GetCacheKey(type, typeFlags);
+
 			MethodInfo[] response;
 
-			if (_methodInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
+			if (_methodInfos.ContainsKey(key))
 			{
-				if (_methodInfos.TryGetValue(type.FullName, out response))
+				if (_methodInfos.TryGetValue(key, out response))
 				{
 					return response;
 				}
 			}
 
-			response = type.GetMethods(flags);
-			return _methodInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+			response = type.GetMethods(typeFlags);
+			return _methodInfos.AddOrUpdate(key, response, (s, infos) => response);
 		}
 
 		/// <summary>
@@ -373,9 +395,16 @@ namespace Speedy
 		/// <returns> The list of parameter infos for the type. </returns>
 		public static IList<ParameterInfo> GetCachedParameters(this MethodInfo info)
 		{
-			ParameterInfo[] response;
-			var fullName = info.ReflectedType?.FullName + "." + info.Name;
+			if (info == null)
+			{
+				throw new InvalidOperationException();
+			}
+
+			var reflectedName = info.ReflectedType?.FullName;
+			var fullName = reflectedName != null ? $"{reflectedName}.{info.Name}" : info.Name;
 			var key = info.ToString().Replace(info.Name, fullName);
+
+			ParameterInfo[] response;
 
 			if (_parameterInfos.ContainsKey(key))
 			{
@@ -408,18 +437,26 @@ namespace Speedy
 		/// <returns> The list of properties for the type. </returns>
 		public static IList<PropertyInfo> GetCachedProperties(this Type type, BindingFlags? flags = null)
 		{
+			if (type == null)
+			{
+				throw new InvalidOperationException();
+			}
+
+			var typeFlags = flags ?? BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
+			var key = GetCacheKey(type, typeFlags);
+
 			PropertyInfo[] response;
 
-			if (_propertyInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
+			if (_propertyInfos.ContainsKey(key))
 			{
-				if (_propertyInfos.TryGetValue(type.FullName, out response))
+				if (_propertyInfos.TryGetValue(key, out response))
 				{
 					return response;
 				}
 			}
 
-			response = type.GetProperties(flags ?? BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-			return _propertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+			response = type.GetProperties(typeFlags);
+			return _propertyInfos.AddOrUpdate(key, response, (s, infos) => response);
 		}
 
 		/// <summary>
@@ -430,22 +467,30 @@ namespace Speedy
 		/// <returns> The list of properties for the type. </returns>
 		public static IList<PropertyInfo> GetCachedVirtualProperties(this Type type, BindingFlags? flags = null)
 		{
+			if (type == null)
+			{
+				throw new InvalidOperationException();
+			}
+
+			var typeFlags = flags ?? BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
+			var key = GetCacheKey(type, typeFlags);
+
 			PropertyInfo[] response;
 
-			if (_virtualPropertyInfos.ContainsKey(type.FullName ?? throw new InvalidOperationException()))
+			if (_virtualPropertyInfos.ContainsKey(key))
 			{
-				if (_virtualPropertyInfos.TryGetValue(type.FullName, out response))
+				if (_virtualPropertyInfos.TryGetValue(key, out response))
 				{
 					return response;
 				}
 			}
 
-			response = type.GetCachedProperties(flags)
+			response = type.GetCachedProperties(typeFlags)
 				.Where(x => x.GetMethod.IsVirtual && !x.GetMethod.IsAbstract && !x.GetMethod.IsFinal && x.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
 				.OrderBy(x => x.Name)
 				.ToArray();
 
-			return _virtualPropertyInfos.AddOrUpdate(type.FullName, response, (s, infos) => response);
+			return _virtualPropertyInfos.AddOrUpdate(key, response, (s, infos) => response);
 		}
 
 		/// <summary>
@@ -969,9 +1014,8 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context. Check the value to see if the 
+		/// Unwraps a sync entity and disconnects it from the Entity Framework context. Check the value to see if the
 		/// IUnwrappable interface is implemented. If so the value's implementation is used instead.
-		/// 
 		/// The default behavior is to ignore read only and virtual properties.
 		/// </summary>
 		/// <typeparam name="T"> The type of the incoming object. </typeparam>
@@ -1060,7 +1104,13 @@ namespace Speedy
 					continue;
 				}
 
-				thisProperty.SetValue(value, updateProperty.GetValue(update));
+				var updateValue = updateProperty.GetValue(update);
+				var thisValue = thisProperty.GetValue(value);
+
+				if (!Equals(updateValue, thisValue))
+				{
+					thisProperty.SetValue(value, updateValue);
+				}
 			}
 		}
 
@@ -1191,6 +1241,11 @@ namespace Speedy
 			{
 				AddExceptionToBuilder(builder, ex.InnerException);
 			}
+		}
+
+		private static string GetCacheKey(Type type, BindingFlags flags)
+		{
+			return type.FullName + flags;
 		}
 
 		private static MemberInfo GetMemberInfo(object obj, string memberName)

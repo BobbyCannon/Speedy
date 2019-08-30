@@ -1,9 +1,10 @@
 ﻿#region References
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -13,29 +14,8 @@ namespace Speedy
 	/// Represents a Speedy entity.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class Entity<T> : IEntity
+	public abstract class Entity<T> : Entity
 	{
-		#region Fields
-
-		/// <summary>
-		/// Properties to ignore when updating.
-		/// </summary>
-		private HashSet<string> _excludedPropertiesForUpdate;
-
-		#endregion
-
-		#region Constructors
-
-		/// <summary>
-		/// Instantiates an entity
-		/// </summary>
-		protected Entity()
-		{
-			_excludedPropertiesForUpdate = new HashSet<string>(GetDefaultExclusionsForUpdate());
-		}
-
-		#endregion
-
 		#region Properties
 
 		/// <summary>
@@ -48,60 +28,9 @@ namespace Speedy
 		#region Methods
 
 		/// <inheritdoc />
-		public virtual bool CanBeModified()
-		{
-			return true;
-		}
-
-		/// <inheritdoc />
-		public virtual void EntityAdded()
-		{
-		}
-
-		/// <inheritdoc />
-		public virtual void EntityDeleted()
-		{
-		}
-
-		/// <inheritdoc />
-		public virtual void EntityModified()
-		{
-		}
-
-		/// <inheritdoc />
-		public void ExcludePropertiesForUpdate(params string[] propertyNames)
-		{
-			foreach (var propertyName in propertyNames)
-			{
-				if (_excludedPropertiesForUpdate.Contains(propertyName))
-				{
-					continue;
-				}
-			
-				_excludedPropertiesForUpdate.Add(propertyName);
-			}
-		}
-
-		/// <summary>
-		/// Gets the default exclusions for update. Warning: this is called during constructor, overrides need to be 
-		/// sure to only return static values as to not cause issues.
-		/// </summary>
-		/// <returns> The values to exclude during update. </returns>
-		public virtual HashSet<string> GetDefaultExclusionsForUpdate()
-		{
-			return new HashSet<string> { nameof(Id) };
-		}
-
-		/// <inheritdoc />
-		public virtual bool IdIsSet()
+		public override bool IdIsSet()
 		{
 			return !Equals(Id, default(T));
-		}
-
-		/// <inheritdoc />
-		public bool IsPropertyExcludedForUpdate(string propertyName)
-		{
-			return _excludedPropertiesForUpdate.Contains(propertyName);
 		}
 
 		/// <summary>
@@ -150,13 +79,7 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public void ResetPropertyUpdateExclusions(bool setToDefault = true)
-		{
-			_excludedPropertiesForUpdate = setToDefault ? new HashSet<string>(GetDefaultExclusionsForUpdate()) : new HashSet<string>();
-		}
-
-		/// <inheritdoc />
-		public virtual bool TrySetId(string id)
+		public override bool TrySetId(string id)
 		{
 			try
 			{
@@ -180,6 +103,218 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets the default exclusions for update. Warning: this is called during constructor, overrides need to be
+		/// sure to only return static values as to not cause issues.
+		/// </summary>
+		/// <returns> The values to exclude during update. </returns>
+		protected override IEnumerable<string> GetDefaultExclusionsForUpdate()
+		{
+			return new HashSet<string> { nameof(Id) };
+		}
+
+		#endregion
+	}
+
+	/// <summary>
+	/// Represents a Speedy entity.
+	/// </summary>
+	public abstract class Entity : IEntity
+	{
+		#region Fields
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
+		protected static readonly ConcurrentDictionary<Type, HashSet<string>> ExclusionsForSync;
+
+		/// <summary>
+		/// Properties to ignore when tracking changes.
+		/// </summary>
+		private readonly HashSet<string> _excludedPropertiesForChangeTracking;
+
+		/// <summary>
+		/// Properties to ignore when updating.
+		/// </summary>
+		private readonly HashSet<string> _excludedPropertiesForUpdate;
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
+		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionsForChangeTracking;
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
+		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionsForUpdate;
+
+		/// <summary>
+		/// Represents if the entity has had changes or not.
+		/// </summary>
+		private bool _hasChanges;
+
+		#endregion
+
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates an entity
+		/// </summary>
+		protected Entity()
+		{
+			var type = GetType();
+			_excludedPropertiesForChangeTracking = _exclusionsForChangeTracking.GetOrAdd(type, new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
+			_excludedPropertiesForUpdate = _exclusionsForUpdate.GetOrAdd(type, new HashSet<string>(GetDefaultExclusionsForUpdate()));
+		}
+
+		/// <summary>
+		/// Instantiates an entity
+		/// </summary>
+		static Entity()
+		{
+			_exclusionsForChangeTracking = new ConcurrentDictionary<Type, HashSet<string>>();
+			ExclusionsForSync = new ConcurrentDictionary<Type, HashSet<string>>();
+			_exclusionsForUpdate = new ConcurrentDictionary<Type, HashSet<string>>();
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <inheritdoc />
+		public virtual bool CanBeModified()
+		{
+			return true;
+		}
+
+		/// <inheritdoc />
+		public virtual void EntityAdded()
+		{
+		}
+
+		/// <inheritdoc />
+		public virtual void EntityDeleted()
+		{
+		}
+
+		/// <inheritdoc />
+		public virtual void EntityModified()
+		{
+		}
+
+		/// <summary>
+		/// Exclude properties from changing tracking.
+		/// </summary>
+		/// <param name="propertyNames"> The member names to exclude </param>
+		public void ExcludePropertiesForChangeTracking(params string[] propertyNames)
+		{
+			foreach (var propertyName in propertyNames)
+			{
+				if (_excludedPropertiesForChangeTracking.Contains(propertyName))
+				{
+					continue;
+				}
+
+				_excludedPropertiesForChangeTracking.Add(propertyName);
+			}
+		}
+
+		/// <inheritdoc />
+		public void ExcludePropertiesForUpdate(params string[] propertyNames)
+		{
+			foreach (var propertyName in propertyNames)
+			{
+				if (_excludedPropertiesForUpdate.Contains(propertyName))
+				{
+					continue;
+				}
+
+				_excludedPropertiesForUpdate.Add(propertyName);
+			}
+		}
+
+		/// <inheritdoc />
+		public IEnumerable<string> GetExcludedPropertiesForChangeTracking()
+		{
+			return _excludedPropertiesForChangeTracking;
+		}
+
+		/// <inheritdoc />
+		public IEnumerable<string> GetExcludedPropertiesForUpdate()
+		{
+			return _excludedPropertiesForUpdate;
+		}
+
+		/// <summary>
+		/// Determines if the object has changes.
+		/// </summary>
+		public virtual bool HasChanges()
+		{
+			return _hasChanges;
+		}
+
+		/// <inheritdoc />
+		public abstract bool IdIsSet();
+
+		/// <inheritdoc />
+		public bool IsPropertyExcludedForChangeTracking(string propertyName)
+		{
+			return _excludedPropertiesForChangeTracking.Contains(propertyName);
+		}
+
+		/// <inheritdoc />
+		public bool IsPropertyExcludedForUpdate(string propertyName)
+		{
+			return _excludedPropertiesForUpdate.Contains(propertyName);
+		}
+
+		/// <summary>
+		/// Notify that a property has changed
+		/// </summary>
+		/// <param name="propertyName"> The name of the property that changed. </param>
+		public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		{
+			if (!_excludedPropertiesForChangeTracking.Contains(propertyName))
+			{
+				_hasChanges = true;
+			}
+
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		/// <summary>
+		/// Reset the change tracking flag.
+		/// </summary>
+		public void ResetChangeTracking()
+		{
+			_hasChanges = false;
+		}
+
+		/// <inheritdoc />
+		public void ResetPropertyChangeTrackingExclusions(bool setToDefault = true)
+		{
+			_excludedPropertiesForChangeTracking.Clear();
+
+			if (setToDefault)
+			{
+				_excludedPropertiesForChangeTracking.AddRange(GetDefaultExclusionsForChangeTracking());
+			}
+		}
+
+		/// <inheritdoc />
+		public void ResetPropertyUpdateExclusions(bool setToDefault = true)
+		{
+			_excludedPropertiesForUpdate.Clear();
+
+			if (setToDefault)
+			{
+				_excludedPropertiesForUpdate.AddRange(GetDefaultExclusionsForUpdate());
+			}
+		}
+
+		/// <inheritdoc />
+		public abstract bool TrySetId(string id);
+
+		/// <summary>
 		/// Unwrap the entity from the proxy.
 		/// </summary>
 		/// <returns>
@@ -191,13 +326,37 @@ namespace Speedy
 			return this.Unwrap(type);
 		}
 
+		/// <summary>
+		/// Gets the default exclusions for change tracking. Warning: this is called during constructor, overrides need to be
+		/// sure to only return static values as to not cause issues.
+		/// </summary>
+		/// <returns> The values to exclude during change tracking. </returns>
+		protected virtual IEnumerable<string> GetDefaultExclusionsForChangeTracking()
+		{
+			return new HashSet<string>();
+		}
+
+		/// <summary>
+		/// Gets the default exclusions for update. Warning: this is called during constructor, overrides need to be
+		/// sure to only return static values as to not cause issues.
+		/// </summary>
+		/// <returns> The values to exclude during update. </returns>
+		protected abstract IEnumerable<string> GetDefaultExclusionsForUpdate();
+
+		#endregion
+
+		#region Events
+
+		/// <inheritdoc />
+		public event PropertyChangedEventHandler PropertyChanged;
+
 		#endregion
 	}
 
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	public interface IEntity
+	public interface IEntity : INotifyPropertyChanged
 	{
 		#region Methods
 
@@ -222,10 +381,28 @@ namespace Speedy
 		void EntityModified();
 
 		/// <summary>
+		/// Add a property to exclude from change tracking.
+		/// </summary>
+		/// <param name="propertyNames"> The names of the property to exclude. </param>
+		void ExcludePropertiesForChangeTracking(params string[] propertyNames);
+
+		/// <summary>
 		/// Add a property to exclude during update.
 		/// </summary>
 		/// <param name="propertyNames"> The names of the property to exclude. </param>
 		void ExcludePropertiesForUpdate(params string[] propertyNames);
+
+		/// <summary>
+		/// Get the properties excluded from change tracking.
+		/// </summary>
+		/// <returns> The names of the property to exclude. </returns>
+		IEnumerable<string> GetExcludedPropertiesForChangeTracking();
+
+		/// <summary>
+		/// Get the properties excluded during update.
+		/// </summary>
+		/// <returns> The names of the property to exclude. </returns>
+		IEnumerable<string> GetExcludedPropertiesForUpdate();
 
 		/// <summary>
 		/// Determine if the ID is set on the entity.
@@ -234,11 +411,24 @@ namespace Speedy
 		bool IdIsSet();
 
 		/// <summary>
-		/// Checks a property to see if it can be updated.
+		/// Checks a property has been excluded for change tracking.
+		/// </summary>
+		/// <param name="propertyName"> The property name to be tested. </param>
+		/// <returns> True if the property is excluded or false if otherwise. </returns>
+		bool IsPropertyExcludedForChangeTracking(string propertyName);
+
+		/// <summary>
+		/// Checks a property has been excluded from updating.
 		/// </summary>
 		/// <param name="propertyName"> The property name to be tested. </param>
 		/// <returns> True if the property can be written during an update or false if otherwise. </returns>
 		bool IsPropertyExcludedForUpdate(string propertyName);
+
+		/// <summary>
+		/// Resets exclusion back to default values or just clears if setToDefault is false.
+		/// </summary>
+		/// <param name="setToDefault"> Set to default excluded values. Defaults to true. </param>
+		void ResetPropertyChangeTrackingExclusions(bool setToDefault = true);
 
 		/// <summary>
 		/// Resets exclusion back to default values or just clears if setToDefault is false.

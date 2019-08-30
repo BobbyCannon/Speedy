@@ -45,8 +45,6 @@ namespace Speedy.Website
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-				app.UseHsts();
 			}
 
 			app.UseHttpsRedirection();
@@ -66,6 +64,12 @@ namespace Speedy.Website
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddHttpsRedirection(options =>
+			{
+				options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+				options.HttpsPort = 443;
+			});
+
 			services.Configure<CookiePolicyOptions>(options =>
 			{
 				// This lambda determines whether user consent for non-essential cookies is needed for a given request.

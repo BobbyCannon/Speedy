@@ -18,7 +18,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Properties to ignore when syncing
 		/// </summary>
-		private HashSet<string> _excludedPropertiesForSync;
+		private readonly HashSet<string> _excludedPropertiesForSync;
 
 		#endregion
 
@@ -29,7 +29,7 @@ namespace Speedy.Sync
 		/// </summary>
 		protected SyncEntity()
 		{
-			_excludedPropertiesForSync = new HashSet<string>(GetDefaultExclusionsForSync());
+			_excludedPropertiesForSync = ExclusionsForSync.GetOrAdd(GetType(), new HashSet<string>(GetDefaultExclusionsForSync()));
 		}
 
 		#endregion
@@ -66,14 +66,10 @@ namespace Speedy.Sync
 			}
 		}
 
-		/// <summary>
-		/// Gets the default exclusions for sync. Warning: this is called during constructor, overrides need to be 
-		/// sure to only return static values as to not cause issues.
-		/// </summary>
-		/// <returns> The values to exclude during sync. </returns>
-		public virtual HashSet<string> GetDefaultExclusionsForSync()
+		/// <inheritdoc />
+		public IEnumerable<string> GetExcludedPropertiesForSync()
 		{
-			return new HashSet<string> { nameof(Id) };
+			return _excludedPropertiesForSync;
 		}
 
 		/// <inheritdoc />
@@ -83,15 +79,20 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public void ResetPropertySyncExclusions(bool setToDefault = true)
-		{
-			_excludedPropertiesForSync = setToDefault ? new HashSet<string>(GetDefaultExclusionsForSync()) : new HashSet<string>();
-		}
-
-		/// <inheritdoc />
 		public void ResetId()
 		{
 			Id = default;
+		}
+
+		/// <inheritdoc />
+		public void ResetPropertySyncExclusions(bool setToDefault = true)
+		{
+			_excludedPropertiesForSync.Clear();
+
+			if (setToDefault)
+			{
+				_excludedPropertiesForSync.AddRange(GetDefaultExclusionsForSync());
+			}
 		}
 
 		/// <inheritdoc />
@@ -121,6 +122,36 @@ namespace Speedy.Sync
 
 			var syncObject = ToSyncObject();
 			return syncObject.ToSyncEntity();
+		}
+
+		/// <inheritdoc />
+		public virtual void UpdateLocalSyncIds()
+		{
+			var type = this.GetRealType();
+			var baseEntityType = typeof(ISyncEntity);
+			var properties = type.GetCachedProperties().ToList();
+
+			var entityRelationships = properties
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => baseEntityType.IsAssignableFrom(x.PropertyType))
+				.ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == $"{entityRelationship.Name}SyncId");
+
+				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && entityRelationshipSyncIdProperty != null)
+				{
+					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
+					if (otherEntitySyncId != syncEntity.SyncId)
+					{
+						// resets entitySyncId to entity.SyncId if it does not match
+						entityRelationshipSyncIdProperty.SetValue(this, syncEntity.SyncId, null);
+					}
+				}
+
+				// todo: maybe?, support setting EntityId would then query the entity sync id and set it?
+			}
 		}
 
 		/// <inheritdoc />
@@ -160,38 +191,24 @@ namespace Speedy.Sync
 					continue;
 				}
 
-				thisProperty.SetValue(this, updateProperty.GetValue(update));
+				var updateValue = updateProperty.GetValue(update);
+				var thisValue = thisProperty.GetValue(this);
+
+				if (!Equals(updateValue, thisValue))
+				{
+					thisProperty.SetValue(this, updateValue);
+				}
 			}
 		}
 
-		/// <inheritdoc />
-		public virtual void UpdateLocalSyncIds()
+		/// <summary>
+		/// Gets the default exclusions for sync. Warning: this is called during constructor, overrides need to be
+		/// sure to only return static values as to not cause issues.
+		/// </summary>
+		/// <returns> The values to exclude during sync. </returns>
+		protected virtual IEnumerable<string> GetDefaultExclusionsForSync()
 		{
-			var type = this.GetRealType();
-			var baseEntityType = typeof(ISyncEntity);
-			var properties = type.GetCachedProperties().ToList();
-
-			var entityRelationships = properties
-				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
-				.Where(x => baseEntityType.IsAssignableFrom(x.PropertyType))
-				.ToList();
-
-			foreach (var entityRelationship in entityRelationships)
-			{
-				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == $"{entityRelationship.Name}SyncId");
-
-				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && entityRelationshipSyncIdProperty != null)
-				{
-					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
-					if (otherEntitySyncId != syncEntity.SyncId)
-					{
-						// resets entitySyncId to entity.SyncId if it does not match
-						entityRelationshipSyncIdProperty.SetValue(this, syncEntity.SyncId, null);
-					}
-				}
-
-				// todo: maybe?, support setting EntityId would then query the entity sync id and set it?
-			}
+			return new HashSet<string> { nameof(Id) };
 		}
 
 		#endregion

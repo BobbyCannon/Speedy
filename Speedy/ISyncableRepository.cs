@@ -49,7 +49,7 @@ namespace Speedy
 		int GetChangeCount(DateTime since, DateTime until, SyncRepositoryFilter filter);
 
 		/// <summary>
-		/// Gets the changes from the repository.
+		/// Gets the changes from the repository. The results are read only and will not have tracking enabled.
 		/// </summary>
 		/// <param name="since"> The start date and time get changes for. </param>
 		/// <param name="until"> The end date and time get changes for. </param>

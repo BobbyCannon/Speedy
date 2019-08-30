@@ -11,7 +11,7 @@ namespace Speedy.Sync
 	/// Represents a sync model, usually used in a web API model.
 	/// </summary>
 	/// <typeparam name="T"> The type for the key. </typeparam>
-	public abstract class SyncModel<T> : SyncEntity<T>, INotifyPropertyChanged
+	public abstract class SyncModel<T> : SyncEntity<T>
 	{
 		#region Constructors
 
@@ -22,19 +22,11 @@ namespace Speedy.Sync
 		protected SyncModel(IDispatcher dispatcher = null)
 		{
 			Dispatcher = dispatcher;
-			ExcludePropertiesForUpdate(nameof(HasChanges));
 		}
 
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// Determines if the object has changes.
-		/// </summary>
-		[Browsable(false)]
-		[JsonIgnore]
-		public virtual bool HasChanges { get; set; }
 
 		/// <summary>
 		/// Represents a thread dispatcher to help with cross threaded request.
@@ -51,7 +43,7 @@ namespace Speedy.Sync
 		/// Indicates the property has changed on the bindable object.
 		/// </summary>
 		/// <param name="propertyName"> The name of the property has changed. </param>
-		public virtual void OnPropertyChanged(string propertyName = null)
+		public override void OnPropertyChanged(string propertyName = null)
 		{
 			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
 			{
@@ -59,12 +51,7 @@ namespace Speedy.Sync
 				return;
 			}
 
-			if (propertyName != nameof(HasChanges))
-			{
-				HasChanges = true;
-			}
-
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			base.OnPropertyChanged(propertyName);
 		}
 
 		/// <summary>
@@ -75,13 +62,6 @@ namespace Speedy.Sync
 		{
 			Dispatcher = dispatcher;
 		}
-
-		#endregion
-
-		#region Events
-
-		/// <inheritdoc />
-		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 	}

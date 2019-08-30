@@ -15,6 +15,194 @@ namespace Speedy.Samples.Tests
 		#region Methods
 
 		[TestMethod]
+		public void EntitiesOfDifferentTypesShouldStoreDifferentUpdateProperties()
+		{
+			var address = new AddressEntity();
+			address.ResetPropertyChangeTrackingExclusions(false);
+			address.ExcludePropertiesForChangeTracking(nameof(AddressEntity.City));
+
+			var person = new PersonEntity();
+			person.ResetPropertyChangeTrackingExclusions(false);
+			person.ExcludePropertiesForChangeTracking(nameof(PersonEntity.Name));
+
+			var actual1 = address.GetExcludedPropertiesForChangeTracking().ToList();
+			var actual2 = person.GetExcludedPropertiesForChangeTracking().ToList();
+
+			Assert.AreEqual(1, actual1.Count);
+			Assert.AreEqual(1, actual2.Count);
+			Assert.AreNotEqual(actual1[0], actual2[0]);
+
+			Assert.AreEqual(nameof(AddressEntity.City), actual1[0]);
+			Assert.AreEqual(nameof(PersonEntity.Name), actual2[0]);
+		}
+
+		[TestMethod]
+		public void EntitiesOfSameTypesExclusionCollectionsShouldNotInterfereWithOthers()
+		{
+			var address1 = new AddressEntity();
+			address1.ResetPropertyChangeTrackingExclusions(false);
+			address1.ResetPropertySyncExclusions(false);
+			address1.ResetPropertyUpdateExclusions(false);
+			address1.ExcludePropertiesForChangeTracking(nameof(AddressEntity.IsDeleted));
+
+			var actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
+			var actual2 = address1.GetExcludedPropertiesForSync().ToList();
+			var actual3 = address1.GetExcludedPropertiesForUpdate().ToList();
+
+			Assert.AreEqual(1, actual1.Count);
+			Assert.AreEqual(nameof(AddressEntity.IsDeleted), actual1[0]);
+			Assert.AreEqual(0, actual2.Count);
+			Assert.AreEqual(0, actual3.Count);
+
+			address1.ResetPropertyChangeTrackingExclusions(false);
+			address1.ResetPropertySyncExclusions(false);
+			address1.ResetPropertyUpdateExclusions(false);
+			address1.ExcludePropertiesForSync(nameof(AddressEntity.City));
+
+			actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
+			actual2 = address1.GetExcludedPropertiesForSync().ToList();
+			actual3 = address1.GetExcludedPropertiesForUpdate().ToList();
+
+			Assert.AreEqual(0, actual1.Count);
+			Assert.AreEqual(1, actual2.Count);
+			Assert.AreEqual(nameof(AddressEntity.City), actual2[0]);
+			Assert.AreEqual(0, actual3.Count);
+			
+			address1.ResetPropertyChangeTrackingExclusions(false);
+			address1.ResetPropertySyncExclusions(false);
+			address1.ResetPropertyUpdateExclusions(false);
+			address1.ExcludePropertiesForUpdate(nameof(AddressEntity.Line1));
+
+			actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
+			actual2 = address1.GetExcludedPropertiesForSync().ToList();
+			actual3 = address1.GetExcludedPropertiesForUpdate().ToList();
+
+			Assert.AreEqual(0, actual1.Count);
+			Assert.AreEqual(0, actual2.Count);
+			Assert.AreEqual(1, actual3.Count);
+			Assert.AreEqual(nameof(AddressEntity.Line1), actual3[0]);
+		}
+
+		[TestMethod]
+		public void EntitiesOfSameTypesShouldShareSameExclusionCollectionForChangeTracking()
+		{
+			var address1 = new AddressEntity();
+			var address2 = new AddressEntity();
+
+			address1.ExcludePropertiesForChangeTracking(nameof(AddressEntity.IsDeleted));
+
+			var actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
+			var actual2 = address2.GetExcludedPropertiesForChangeTracking().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(1, actual1.Count);
+			Assert.AreEqual(1, actual2.Count);
+			Assert.AreEqual(actual1[0], actual2[0]);
+
+			address1.ExcludePropertiesForChangeTracking(nameof(AddressEntity.City));
+
+			actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
+			actual2 = address2.GetExcludedPropertiesForChangeTracking().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(2, actual1.Count);
+			Assert.AreEqual(2, actual2.Count);
+			Assert.AreEqual(actual1[0], actual2[0]);
+			Assert.AreEqual(actual1[1], actual2[1]);
+			Assert.AreEqual(nameof(AddressEntity.IsDeleted), actual1[0]);
+			Assert.AreEqual(nameof(AddressEntity.City), actual1[1]);
+
+			address1.ResetPropertyChangeTrackingExclusions(false);
+
+			actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
+			actual2 = address2.GetExcludedPropertiesForChangeTracking().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(0, actual1.Count);
+			Assert.AreEqual(0, actual2.Count);
+		}
+
+		[TestMethod]
+		public void EntitiesOfSameTypesShouldShareSameExclusionCollectionForSync()
+		{
+			var address1 = new AddressEntity();
+			var address2 = new AddressEntity();
+			address1.ResetPropertySyncExclusions(false);
+
+			address1.ExcludePropertiesForSync(nameof(AddressEntity.IsDeleted));
+
+			var actual1 = address1.GetExcludedPropertiesForSync().ToList();
+			var actual2 = address2.GetExcludedPropertiesForSync().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(1, actual1.Count);
+			Assert.AreEqual(1, actual2.Count);
+			Assert.AreEqual(actual1[0], actual2[0]);
+
+			address1.ExcludePropertiesForSync(nameof(AddressEntity.City));
+
+			actual1 = address1.GetExcludedPropertiesForSync().ToList();
+			actual2 = address2.GetExcludedPropertiesForSync().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(2, actual1.Count);
+			Assert.AreEqual(2, actual2.Count);
+			Assert.AreEqual(actual1[0], actual2[0]);
+			Assert.AreEqual(actual1[1], actual2[1]);
+			Assert.AreEqual(nameof(AddressEntity.IsDeleted), actual1[0]);
+			Assert.AreEqual(nameof(AddressEntity.City), actual1[1]);
+
+			address1.ResetPropertySyncExclusions(false);
+
+			actual1 = address1.GetExcludedPropertiesForSync().ToList();
+			actual2 = address2.GetExcludedPropertiesForSync().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(0, actual1.Count);
+			Assert.AreEqual(0, actual2.Count);
+		}
+
+		[TestMethod]
+		public void EntitiesOfSameTypesShouldShareSameExclusionCollectionForUpdate()
+		{
+			var address1 = new AddressEntity();
+			var address2 = new AddressEntity();
+			address1.ResetPropertyUpdateExclusions(false);
+
+			address1.ExcludePropertiesForUpdate(nameof(AddressEntity.IsDeleted));
+
+			var actual1 = address1.GetExcludedPropertiesForUpdate().ToList();
+			var actual2 = address2.GetExcludedPropertiesForUpdate().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(1, actual1.Count);
+			Assert.AreEqual(1, actual2.Count);
+			Assert.AreEqual(actual1[0], actual2[0]);
+
+			address1.ExcludePropertiesForUpdate(nameof(AddressEntity.City));
+
+			actual1 = address1.GetExcludedPropertiesForUpdate().ToList();
+			actual2 = address2.GetExcludedPropertiesForUpdate().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(2, actual1.Count);
+			Assert.AreEqual(2, actual2.Count);
+			Assert.AreEqual(actual1[0], actual2[0]);
+			Assert.AreEqual(actual1[1], actual2[1]);
+			Assert.AreEqual(nameof(AddressEntity.IsDeleted), actual1[0]);
+			Assert.AreEqual(nameof(AddressEntity.City), actual1[1]);
+
+			address1.ResetPropertyUpdateExclusions(false);
+
+			actual1 = address1.GetExcludedPropertiesForUpdate().ToList();
+			actual2 = address2.GetExcludedPropertiesForUpdate().ToList();
+
+			TestHelper.AreEqual(actual1, actual2);
+			Assert.AreEqual(0, actual1.Count);
+			Assert.AreEqual(0, actual2.Count);
+		}
+
+		[TestMethod]
 		public void UnwrapCustomShouldWork()
 		{
 			var people = new PersonEntity
