@@ -45,6 +45,7 @@ namespace Speedy.Samples
 		public IRepository<PersonEntity, int> People => GetSyncableRepository<PersonEntity, int>();
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets => GetRepository<PetEntity, (string Name, int OwnerId)>();
 		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
+		public IRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
 
 		#endregion
 

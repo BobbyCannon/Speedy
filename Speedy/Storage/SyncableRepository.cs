@@ -75,8 +75,8 @@ namespace Speedy.Storage
 
 		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until, SyncRepositoryFilter filter)
 		{
-			var query = this.Where(x => (x.CreatedOn >= since && x.CreatedOn < until)
-				|| (x.ModifiedOn >= since && x.ModifiedOn < until));
+			var query = this.Where(x => x.CreatedOn >= since && x.CreatedOn < until
+				|| x.ModifiedOn >= since && x.ModifiedOn < until);
 
 			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
 			{
@@ -93,6 +93,23 @@ namespace Speedy.Storage
 		ISyncEntity ISyncableRepository.Read(Guid syncId)
 		{
 			var state = Cache.FirstOrDefault(x => x.Entity.SyncId == syncId);
+			return state?.Entity;
+		}
+
+		/// <inheritdoc />
+		ISyncEntity ISyncableRepository.Read(ISyncEntity syncEntity, SyncRepositoryFilter filter)
+		{
+			if (!(syncEntity is T entity))
+			{
+				throw new Exception("The sync entity is not the correct type.");
+			}
+
+			if (filter is SyncRepositoryFilter<T> srf && srf.LookupFilter != null)
+			{
+				return Cache.Select(x => x.Entity).AsQueryable().FirstOrDefault(srf.LookupFilter.Invoke(entity));
+			}
+
+			var state = Cache.FirstOrDefault(x => x.Entity.SyncId == syncEntity.SyncId);
 			return state?.Entity;
 		}
 

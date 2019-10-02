@@ -65,6 +65,14 @@ namespace Speedy
 		/// <param name="syncId"> The ID of the sync entity. </param>
 		/// <returns> The sync entity or null. </returns>
 		ISyncEntity Read(Guid syncId);
+		
+		/// <summary>
+		/// Gets the sync entity by the ID.
+		/// </summary>
+		/// <param name="entity"> The entity to use with the filter. </param>
+		/// <param name="filter"> An optional sync filter to locate the entity. </param>
+		/// <returns> The sync entity or null. </returns>
+		ISyncEntity Read(ISyncEntity entity, SyncRepositoryFilter filter);
 
 		/// <summary>
 		/// Removes a sync entity to the repository.

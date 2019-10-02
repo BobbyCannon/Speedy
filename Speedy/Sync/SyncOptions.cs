@@ -111,7 +111,7 @@ namespace Speedy.Sync
 		/// <returns> True if the type is filter or false if otherwise. </returns>
 		public bool ShouldFilterRepository(Type type)
 		{
-			return ShouldFilterRepository(type.ToAssemblyName());
+			return ShouldFilterRepository(type?.ToAssemblyName());
 		}
 
 		/// <summary>
@@ -131,7 +131,7 @@ namespace Speedy.Sync
 		/// <returns> The filter if found or null otherwise. </returns>
 		internal SyncRepositoryFilter GetRepositoryFilter(ISyncableRepository repository)
 		{
-			return GetRepositoryFilter(repository.TypeName);
+			return GetRepositoryFilter(repository?.TypeName);
 		}
 
 		/// <summary>

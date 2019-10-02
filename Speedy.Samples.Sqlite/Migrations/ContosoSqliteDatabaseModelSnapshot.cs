@@ -352,6 +352,50 @@ namespace Speedy.Samples.Sqlite.Migrations
                     b.ToTable("PetType","dbo");
                 });
 
+            modelBuilder.Entity("Speedy.Samples.Entities.SettingEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("Id");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("Name")
+                        .HasMaxLength(256)
+                        .IsUnicode(false);
+
+                    b.Property<Guid>("SyncId")
+                        .HasColumnName("SyncId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnName("Value")
+                        .IsUnicode(false);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasName("IX_Settings_Name");
+
+                    b.HasIndex("SyncId")
+                        .IsUnique()
+                        .HasName("IX_Settings_SyncId");
+
+                    b.ToTable("Settings","dbo");
+                });
+
             modelBuilder.Entity("Speedy.Samples.Entities.AddressEntity", b =>
                 {
                     b.HasOne("Speedy.Samples.Entities.AddressEntity", "LinkedAddress")

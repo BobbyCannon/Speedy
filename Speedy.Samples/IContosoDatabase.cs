@@ -19,6 +19,7 @@ namespace Speedy.Samples
 		IRepository<PersonEntity, int> People { get; }
 		IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		IRepository<PetTypeEntity, string> PetTypes { get; }
+		IRepository<SettingEntity, long> Settings { get; }
 
 		#endregion
 	}

@@ -24,6 +24,7 @@ namespace Speedy.Samples
 			People = GetSyncableRepository<PersonEntity, int>();
 			Pets = GetRepository<PetEntity, (string Name, int OwnerId)>();
 			PetTypes = GetRepository<PetTypeEntity, string>();
+			Settings = GetSyncableRepository<SettingEntity, long>();
 
 			this.ConfigureModelViaMapping();
 		}
@@ -41,6 +42,7 @@ namespace Speedy.Samples
 		public IRepository<PersonEntity, int> People { get; }
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		public IRepository<PetTypeEntity, string> PetTypes { get; }
+		public IRepository<SettingEntity, long> Settings { get; }
 
 		#endregion
 	}

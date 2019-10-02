@@ -346,13 +346,14 @@ namespace Speedy.Sync
 
 			var type = syncEntity.GetType();
 			var repository = database.GetSyncableRepository(type);
-
+			
 			if (repository == null)
 			{
 				throw new InvalidDataException("Failed to find a syncable repository for the entity.");
 			}
 
-			var foundEntity = repository.Read(syncEntity.SyncId);
+			var filter = SyncOptions.GetRepositoryFilter(repository);
+			var foundEntity = repository.Read(syncEntity, filter);
 			var syncStatus = syncObject.Status;
 
 			if (foundEntity != null && syncObject.Status == SyncObjectStatus.Added)
@@ -533,7 +534,7 @@ namespace Speedy.Sync
 		/// <param name="entity"> The entity to update. </param>
 		/// <param name="database"> The database with the relationship repositories. </param>
 		/// <exception cref="SyncIssueException"> An exception will all sync issues. </exception>
-		private static void UpdateLocalRelationships(ISyncEntity entity, ISyncableDatabase database)
+		private void UpdateLocalRelationships(ISyncEntity entity, ISyncableDatabase database)
 		{
 			var response = new List<SyncIssue>();
 
@@ -544,7 +545,8 @@ namespace Speedy.Sync
 					continue;
 				}
 
-				var foundEntity = database.GetSyncableRepository(relationship.Type)?.Read(relationship.SyncId.Value);
+				var repository = database.GetSyncableRepository(relationship.Type);
+				var foundEntity = repository?.Read(relationship.SyncId.Value);
 				if (foundEntity != null)
 				{
 					var id = relationship.TypeIdPropertyInfo.GetValue(foundEntity);

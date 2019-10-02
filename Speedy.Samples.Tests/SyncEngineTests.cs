@@ -359,6 +359,93 @@ namespace Speedy.Samples.Tests
 			TestHelper.Initialize();
 		}
 
+		/// <summary>
+		/// This test will test the proposed scenario, client time is behind than server time by 10s
+		/// Server adds address     - 12:00:59s / 12:00:49c
+		/// Manual Sync
+		/// Client Starts Sync      - 12:01:00s / 12:00:50c
+		/// Client Reads Server     - 12:01:01s / 12:00:51c
+		/// Client Writes Server    - 12:01:02s / 12:00:52c
+		/// Client adds address     - 12:01:03s / 12:00:53c
+		/// Client End Sync         - 12:01:04s / 12:00:54c
+		/// Full Sync               - 12:01:05s / 12:00:55c
+		/// Should sync the new client address
+		/// </summary>
+		[TestMethod]
+		public void ClientTimeFasterThanServerTimeSyncStartShouldStillSync()
+		{
+			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
+
+			// Server add address, on server time
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 59);
+			var address = NewAddress("123 Elm Street");
+			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+
+			var clientOptions = new SyncOptions();
+			var sessionId = Guid.NewGuid();
+
+			// Do first part of syncing client 1 (client1 <- server)
+			// The should not have any updates as the server has not changed
+			// Set the time as server time
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 00);
+			var clientStart = TimeService.UtcNow;
+			var serverSession = server.BeginSync(sessionId, clientOptions);
+
+			// Begin sync on client time
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 50);
+			var clientSession = client.BeginSync(sessionId, clientOptions);
+
+			// Reset time back to server time
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 01);
+			var clientRequest = new SyncRequest { Since = clientOptions.LastSyncedOnServer, Until = clientStart, Skip = 0 };
+			var clientResults = server.GetChanges(sessionId, clientRequest);
+			Assert.AreEqual(1, clientResults.TotalCount);
+			Assert.AreEqual(1, clientResults.Collection.Count);
+			clientRequest.Collection = clientResults.Collection;
+
+			// Reset time back to client time, check for client writes to server, should be none
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 52);
+			clientRequest = new SyncRequest { Since = clientOptions.LastSyncedOnClient, Until = clientStart, Skip = 0 };
+			clientResults = client.GetChanges(sessionId, clientRequest);
+			Assert.AreEqual(0, clientResults.TotalCount);
+			Assert.AreEqual(0, clientResults.Collection.Count);
+			clientRequest.Collection = clientResults.Collection;
+
+			// Reset time back to client time, let's add a new address on the client mid sync but behind server time
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 53);
+			var clientAddress = NewAddress("123 Main Street");
+			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(clientAddress);
+
+			// Reset time back to client time, and end the sync
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 54);
+			client.EndSync(clientSession);
+			server.EndSync(serverSession);
+
+			// Now do a full normal sync and ensure the client address gets synced, we will set the time to server time
+			// Full Sync : Go ahead and sync the data to all locations
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 05);
+			clientOptions.LastSyncedOnServer = serverSession.StartedOn;
+			clientOptions.LastSyncedOnClient = clientSession.StartedOn;
+
+			Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 50), clientOptions.LastSyncedOnClient);
+			Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 00), clientOptions.LastSyncedOnServer);
+
+			// Server should only have 1 address
+			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			{
+				Assert.AreEqual(1, serverDatabase.Addresses.Count());
+			}
+
+			SyncEngine.Run(client, server, clientOptions);
+
+			// Server should now have 2 addresses
+			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			{
+				Assert.AreEqual(2, serverDatabase.Addresses.Count());
+			}
+		}
+
 		[TestMethod]
 		public void DeleteItemOnClient()
 		{
@@ -442,6 +529,70 @@ namespace Speedy.Samples.Tests
 			TimeService.Reset();
 		}
 
+		[TestMethod]
+		public void LookupFilterExpressionShouldOverrideSyncId()
+		{
+			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
+			var options = new SyncOptions();
+			var engine = new SyncEngine(client, server, options);
+			var settingName1 = "Setting1";
+			var settingName2 = "Setting2";
+			var clientSetting1 = NewSetting(settingName1, "foo");
+			var clientSetting2 = NewSetting(settingName2, "bar");
+			var serverSetting1 = NewSetting(settingName1, "hello");
+			var serverSetting2 = NewSetting(settingName2, "world");
+
+			using (var database = client.GetDatabase<IContosoDatabase>())
+			{
+				database.Settings.Add(clientSetting1);
+				database.Settings.Add(clientSetting2);
+				database.SaveChanges();
+			}
+
+			using (var database = server.GetDatabase<IContosoDatabase>())
+			{
+				database.Settings.Add(serverSetting1);
+				database.Settings.Add(serverSetting2);
+				database.SaveChanges();
+			}
+
+			options.AddSyncableFilter(new SyncRepositoryFilter<SettingEntity>(null, null, o => x => x.Name == o.Name));
+			engine.Run();
+
+			using (var database = client.GetDatabase<IContosoDatabase>())
+			{
+				var count = database.Settings.Count();
+				Assert.AreEqual(2, count);
+
+				var actual = database.Settings.First(x => x.Name == settingName1);
+				Assert.AreEqual(settingName1, actual.Name);
+				Assert.AreEqual("hello", actual.Value);
+				Assert.AreEqual(serverSetting1.SyncId, actual.SyncId);
+				
+				actual = database.Settings.First(x => x.Name == settingName2);
+				Assert.AreEqual(settingName2, actual.Name);
+				Assert.AreEqual("world", actual.Value);
+				Assert.AreEqual(serverSetting2.SyncId, actual.SyncId);
+			}
+
+			using (var database = server.GetDatabase<IContosoDatabase>())
+			{
+				var count = database.Settings.Count();
+				Assert.AreEqual(2, count);
+
+				var actual = database.Settings.First(x => x.Name == settingName1);
+				Assert.AreEqual(settingName1, actual.Name);
+				Assert.AreEqual("hello", actual.Value);
+				Assert.AreEqual(clientSetting2.SyncId, actual.SyncId);
+				
+				actual = database.Settings.First(x => x.Name == settingName2);
+				Assert.AreEqual(settingName2, actual.Name);
+				Assert.AreEqual("world", actual.Value);
+				Assert.AreEqual(clientSetting1.SyncId, actual.SyncId);
+			}
+		}
+
 		/// <summary>
 		/// This test will test the proposed scenario
 		/// Server adds address       - 11:59:00
@@ -483,96 +634,6 @@ namespace Speedy.Samples.Tests
 			Assert.AreEqual(1, clientResults.TotalCount);
 			Assert.AreEqual(1, clientResults.Collection.Count);
 			clientRequest.Collection = clientResults.Collection;
-		}
-		
-		/// <summary>
-		/// This test will test the proposed scenario, client time is behind than server time by 10s
-		/// 
-		/// Server adds address     - 12:00:59s / 12:00:49c
-		/// 
-		/// Manual Sync
-		/// Client Starts Sync      - 12:01:00s / 12:00:50c
-		/// Client Reads Server     - 12:01:01s / 12:00:51c
-		/// Client Writes Server    - 12:01:02s / 12:00:52c
-		/// Client adds address     - 12:01:03s / 12:00:53c
-		/// Client End Sync         - 12:01:04s / 12:00:54c
-		///
-		/// Full Sync               - 12:01:05s / 12:00:55c
-		///
-		/// Should sync the new client address
-		/// </summary>
-		[TestMethod]
-		public void ClientTimeFasterThanServerTimeSyncStartShouldStillSync()
-		{
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
-
-			// Server add address, on server time
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 59);
-			var address = NewAddress("123 Elm Street");
-			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
-
-			var clientOptions = new SyncOptions();
-			var sessionId = Guid.NewGuid();
-
-			// Do first part of syncing client 1 (client1 <- server)
-			// The should not have any updates as the server has not changed
-			// Set the time as server time
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 00);
-			var clientStart = TimeService.UtcNow;
-			var serverSession = server.BeginSync(sessionId, clientOptions);
-			// Begin sync on client time
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 50);
-			var clientSession = client.BeginSync(sessionId, clientOptions);
-			
-			// Reset time back to server time
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 01);
-			var clientRequest = new SyncRequest { Since = clientOptions.LastSyncedOnServer, Until = clientStart, Skip = 0 };
-			var clientResults = server.GetChanges(sessionId, clientRequest);
-			Assert.AreEqual(1, clientResults.TotalCount);
-			Assert.AreEqual(1, clientResults.Collection.Count);
-			clientRequest.Collection = clientResults.Collection;
-			
-			// Reset time back to client time, check for client writes to server, should be none
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 52);
-			clientRequest = new SyncRequest { Since = clientOptions.LastSyncedOnClient, Until = clientStart, Skip = 0 };
-			clientResults = client.GetChanges(sessionId, clientRequest);
-			Assert.AreEqual(0, clientResults.TotalCount);
-			Assert.AreEqual(0, clientResults.Collection.Count);
-			clientRequest.Collection = clientResults.Collection;
-
-			// Reset time back to client time, let's add a new address on the client mid sync but behind server time
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 53);
-			var clientAddress = NewAddress("123 Main Street");
-			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(clientAddress);
-
-			// Reset time back to client time, and end the sync
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 54);
-			client.EndSync(clientSession);
-			server.EndSync(serverSession);
-			
-			// Now do a full normal sync and ensure the client address gets synced, we will set the time to server time
-			// Full Sync : Go ahead and sync the data to all locations
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 05);
-			clientOptions.LastSyncedOnServer = serverSession.StartedOn;
-			clientOptions.LastSyncedOnClient = clientSession.StartedOn;
-
-			Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 50), clientOptions.LastSyncedOnClient);
-			Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 00), clientOptions.LastSyncedOnServer);
-
-			// Server should only have 1 address
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-			{
-				Assert.AreEqual(1, serverDatabase.Addresses.Count());
-			}
-
-			SyncEngine.Run(client, server, clientOptions);
-			
-			// Server should now have 2 addresses
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-			{
-				Assert.AreEqual(2, serverDatabase.Addresses.Count());
-			}
 		}
 
 		[TestMethod]
@@ -1258,6 +1319,19 @@ namespace Speedy.Samples.Tests
 			{
 				Address = address,
 				Name = name,
+				SyncId = Guid.NewGuid(),
+				CreatedOn = time,
+				ModifiedOn = time
+			};
+		}
+
+		private static SettingEntity NewSetting(string name, string value)
+		{
+			var time = TimeService.UtcNow;
+			return new SettingEntity
+			{
+				Name = name,
+				Value = value,
 				SyncId = Guid.NewGuid(),
 				CreatedOn = time,
 				ModifiedOn = time

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Speedy.Sync;
 
 #endregion
@@ -72,6 +73,22 @@ namespace Speedy.EntityFramework
 		public ISyncEntity Read(Guid syncId)
 		{
 			return Set.FirstOrDefault(x => x.SyncId == syncId);
+		}
+		
+		/// <inheritdoc />
+		public ISyncEntity Read(ISyncEntity syncEntity, SyncRepositoryFilter filter)
+		{
+			if (!(syncEntity is T entity))
+			{
+				throw new Exception("The sync entity is not the correct type.");
+			}
+
+			if (filter is SyncRepositoryFilter<T> srf && srf.LookupFilter != null)
+			{
+				return Set.FirstOrDefault(srf.LookupFilter.Invoke(entity));
+			}
+
+			return Set.FirstOrDefault(x => x.SyncId == syncEntity.SyncId);
 		}
 
 		/// <inheritdoc />

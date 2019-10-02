@@ -36,6 +36,9 @@
 		<Prefer32Bit>false</Prefer32Bit>
 	</PropertyGroup>
 	<PropertyGroup>
+		<PackageIcon>Speedy.png</PackageIcon>
+	</PropertyGroup>
+	<PropertyGroup>
 		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 		<ProjectGuid>{E50E2118-8A6F-4FA1-A446-7571F542B844}</ProjectGuid>
@@ -72,5 +75,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Speedy.png" Pack="true" PackagePath="\"/>
 	</ItemGroup>
 </Project>

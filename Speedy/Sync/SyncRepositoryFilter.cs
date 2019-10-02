@@ -20,8 +20,9 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="outgoingFilter"> The filter for the type for outgoing (GetChanges/GetCorrections). </param>
 		/// <param name="incomingFilter"> The filter for the type for incoming (ApplyChanges/ApplyCorrections). </param>
-		public SyncRepositoryFilter(Expression<Func<T, bool>> outgoingFilter = null, Expression<Func<T, bool>> incomingFilter = null)
-			: base(typeof(T).ToAssemblyName(), outgoingFilter, incomingFilter)
+		/// <param name="lookupFilter"> The filter for the type for looking up the entity (GetChanges/GetCorrections). </param>
+		public SyncRepositoryFilter(Expression<Func<T, bool>> outgoingFilter = null, Expression<Func<T, bool>> incomingFilter = null, Func<T, Expression<Func<T, bool>>> lookupFilter = null)
+			: base(typeof(T).ToAssemblyName(), outgoingFilter, incomingFilter, lookupFilter)
 		{
 		}
 
@@ -33,6 +34,11 @@ namespace Speedy.Sync
 		/// The incoming filter for the type.
 		/// </summary>
 		public Expression<Func<T, bool>> IncomingFilter => IncomingExpression as Expression<Func<T, bool>>;
+
+		/// <summary>
+		/// The look up expression for the type
+		/// </summary>
+		public Func<T, Expression<Func<T, bool>>> LookupFilter => LookupExpression as Func<T, Expression<Func<T, bool>>>;
 
 		/// <summary>
 		/// The outgoing filter for the type.
@@ -69,11 +75,13 @@ namespace Speedy.Sync
 		/// <param name="type"> The type this filter is for. </param>
 		/// <param name="outgoingFilter"> The outgoing filter for the type. </param>
 		/// <param name="incomingFilter"> The incoming filter for the type. </param>
-		public SyncRepositoryFilter(string type, object outgoingFilter, object incomingFilter)
+		/// <param name="lookupFilter"> The lookup filter for the type. </param>
+		public SyncRepositoryFilter(string type, object outgoingFilter, object incomingFilter, object lookupFilter)
 		{
 			RepositoryType = type;
 			OutgoingExpression = outgoingFilter;
 			IncomingExpression = incomingFilter;
+			LookupExpression = lookupFilter;
 		}
 
 		#endregion
@@ -84,6 +92,11 @@ namespace Speedy.Sync
 		/// The incoming filter as a generic object.
 		/// </summary>
 		public object IncomingExpression { get; }
+
+		/// <summary>
+		/// The lookup filter as a generic object.
+		/// </summary>
+		public object LookupExpression { get; }
 
 		/// <summary>
 		/// The outgoing filter as a generic object.
