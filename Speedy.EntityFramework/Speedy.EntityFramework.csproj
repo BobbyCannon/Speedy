@@ -12,8 +12,8 @@
 		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
 		<Copyright>© Copyright 2014 - 2019</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-		<AssemblyVersion>6.1.2.0</AssemblyVersion>
-		<FileVersion>6.1.2.0</FileVersion>
+		<AssemblyVersion>6.1.3.0</AssemblyVersion>
+		<FileVersion>6.1.3.0</FileVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<DebugSymbols>true</DebugSymbols>
@@ -55,10 +55,13 @@
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
-		<Version>6.1.2-RC</Version>
+		<Version>6.1.3-RC</Version>
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup>
+		<PackageIcon>Speedy.png</PackageIcon>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
@@ -68,9 +71,12 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.2.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.6" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>

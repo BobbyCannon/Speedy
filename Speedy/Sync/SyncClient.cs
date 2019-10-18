@@ -100,7 +100,6 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public ServiceResult<SyncObject> GetChanges(Guid sessionId, SyncRequest request)
 		{
-			var currentSkippedCount = 0;
 			var response = new ServiceResult<SyncObject>
 			{
 				Skipped = request.Skip,
@@ -120,6 +119,7 @@ namespace Speedy.Sync
 			}
 
 			var take = request.Take <= 0 || request.Take > SyncOptions.ItemsPerSyncRequest ? SyncOptions.ItemsPerSyncRequest : request.Take;
+			var remainingSkip = request.Skip;
 
 			using (var database = _provider.GetSyncableDatabase())
 			{
@@ -128,19 +128,23 @@ namespace Speedy.Sync
 					var filter = SyncOptions.GetRepositoryFilter(repository);
 					var changeCount = repository.GetChangeCount(request.Since, request.Until, filter);
 
-					if (changeCount + currentSkippedCount <= request.Skip)
+					// Check to see if this repository should be skipped
+					if (changeCount <= remainingSkip)
 					{
-						currentSkippedCount += changeCount;
+						// this repo changes was processed in a previous GetChanges request
+						remainingSkip -= changeCount;
 						continue;
 					}
 
-					var changes = repository.GetChanges(request.Since, request.Until, request.Skip - currentSkippedCount, SyncOptions.ItemsPerSyncRequest - currentSkippedCount, filter).ToList();
+					var changes = repository.GetChanges(request.Since, request.Until, remainingSkip, take - response.Collection.Count, filter).ToList();
 					var items = OutgoingConverter != null ? OutgoingConverter.Process(changes).ToList() : changes;
+
 					response.Collection.AddRange(items);
-					currentSkippedCount += items.Count;
+					remainingSkip = 0;
 
 					if (response.Collection.Count >= take)
 					{
+						// We have filled up the response so time to return
 						break;
 					}
 				}
