@@ -588,6 +588,11 @@ namespace Speedy.Storage
 			handler?.Invoke(obj, this);
 		}
 
+		internal bool AnyNew(object entity, Func<T, bool> func)
+		{
+			return Cache.Any(x => !x.Entity.Equals(entity) && func(x.OldEntity));
+		}
+
 		private T CloneEntity(T entity)
 		{
 			var constructorInfo = _type.GetConstructor(new Type[0]);

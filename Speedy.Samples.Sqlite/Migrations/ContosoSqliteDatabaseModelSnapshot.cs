@@ -107,6 +107,10 @@ namespace Speedy.Samples.Sqlite.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasName("IX_Foods_Name");
+
                     b.ToTable("Foods","dbo");
                 });
 

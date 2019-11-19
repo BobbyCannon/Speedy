@@ -1,7 +1,8 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Speedy.Samples.Sqlite.Migrations
+namespace Speedy.Samples.Sql.Migrations
 {
     public partial class Initial : Migration
     {
@@ -16,7 +17,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -47,7 +48,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false)
@@ -63,7 +64,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(unicode: false, maxLength: 4000, nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -111,7 +112,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -138,7 +139,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ChildId = table.Column<int>(nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -170,7 +171,7 @@ namespace Speedy.Samples.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GroupId = table.Column<int>(nullable: false),
                     MemberId = table.Column<int>(nullable: false),
@@ -251,6 +252,13 @@ namespace Speedy.Samples.Sqlite.Migrations
                 schema: "dbo",
                 table: "FoodRelationships",
                 column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Foods_Name",
+                schema: "dbo",
+                table: "Foods",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_GroupMembers_GroupId",
