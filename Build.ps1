@@ -11,6 +11,7 @@
 $ErrorActionPreference = "Stop"
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = $PSScriptRoot
+#$scriptPath = "C:\Workspaces\GitHub\Speedy"
 $productName = "Speedy"
 $destination = "$scriptPath\Binaries"
 $destination2 = "C:\Workspaces\Nuget\Developer"

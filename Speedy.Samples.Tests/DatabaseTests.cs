@@ -401,33 +401,31 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						database.Addresses.Add(address);
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					database.Addresses.Add(address);
 
-						var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
-						database.Addresses.Add(address2);
+					var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+					database.Addresses.Add(address2);
 
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, database.People.Count());
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
 
-						database.SaveChanges();
+					database.SaveChanges();
 
-						Assert.AreEqual(2, database.Addresses.Count());
-						Assert.AreEqual(0, database.People.Count());
+					Assert.AreEqual(2, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
 
-						address.People.Add(new PersonEntity { Name = "John Doe" });
-						Assert.AreEqual(1, address.People.Count);
+					address.People.Add(new PersonEntity { Name = "John Doe" });
+					Assert.AreEqual(1, address.People.Count);
 
-						database.SaveChanges();
+					database.SaveChanges();
 
-						Assert.AreEqual(2, database.Addresses.Count());
-						Assert.AreEqual(1, database.Addresses.First().People.Count);
-						Assert.AreEqual(1, database.People.Count());
-					}
+					Assert.AreEqual(2, database.Addresses.Count());
+					Assert.AreEqual(1, database.Addresses.First().People.Count);
+					Assert.AreEqual(1, database.People.Count());
 				});
 		}
 
@@ -624,6 +622,24 @@ namespace Speedy.Samples.Tests
 						var actual = database.LogEvents.ToList().First().Unwrap<LogEventEntity>();
 						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 					}
+				});
+		}
+
+		[TestMethod]
+		public void IndexesWithUniqueShouldException()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					database.Food.Add(FoodFactory.Get(x => x.Name = "Bread"));
+					database.Food.Add(FoodFactory.Get(x => x.Name = "Bread"));
+
+					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+						"Cannot insert duplicate key row in object 'dbo.Foods' with unique index 'IX_Foods_Name'. The duplicate key value is (Bread)",
+						"SQLite Error 19: 'UNIQUE constraint failed: Foods.Name'",
+						"FoodEntity: Cannot insert duplicate row. The duplicate key value is (Bread)."
+					);
 				});
 		}
 
@@ -1257,23 +1273,21 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						var expected = new PersonEntity { Name = "Foo", Address = NewAddress("Bar") };
-						database.People.Add(expected);
-						database.SaveChanges();
+					var expected = new PersonEntity { Name = "Foo", Address = NewAddress("Bar") };
+					database.People.Add(expected);
+					database.SaveChanges();
 
-						expected = new PersonEntity { Name = "Foo", Address = NewAddress("Bar") };
-						database.People.Add(expected);
+					expected = new PersonEntity { Name = "Foo", Address = NewAddress("Bar") };
+					database.People.Add(expected);
 
-						// ReSharper disable once AccessToDisposedClosure
-						TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-							"SQLite Error 19: 'UNIQUE constraint failed: People.Name'.",
-							"Cannot insert duplicate key row in object 'dbo.People' with unique index 'IX_People_Name'. The duplicate key value is (Foo).",
-							"PersonEntity: Cannot insert duplicate row. The duplicate key value is (Foo).");
-					}
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+						"SQLite Error 19: 'UNIQUE constraint failed: People.Name'.",
+						"Cannot insert duplicate key row in object 'dbo.People' with unique index 'IX_People_Name'. The duplicate key value is (Foo).",
+						"PersonEntity: Cannot insert duplicate row. The duplicate key value is (Foo).");
 				});
 		}
 

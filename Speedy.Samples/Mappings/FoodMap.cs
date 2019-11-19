@@ -24,6 +24,8 @@ namespace Speedy.Samples.Mappings
 			b.Property(x => x.Id).HasColumnName("Id").IsRequired();
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
+
+			b.HasIndex(x => x.Name).HasName("IX_Foods_Name").IsUnique();
 		}
 
 		#endregion

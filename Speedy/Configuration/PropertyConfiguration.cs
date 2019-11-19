@@ -4,6 +4,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Speedy.Exceptions;
+using Speedy.Storage;
+using Speedy.Sync;
 
 #endregion
 
@@ -155,10 +157,18 @@ namespace Speedy.Configuration
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
 
-			//if (_isUnique.HasValue && _isUnique.Value && entityRepository.Any(x => x != entity && Equals(_propertyFunction.Invoke(x), property)))
-			if (_isUnique.HasValue && _isUnique.Value && entityRepository.FirstOrDefault(x => x != entity && Equals(_propertyFunction.Invoke(x), property)) != null)
+			// Convert repository into local type so we can check new items
+			var repository = (Repository<T, T2>) entityRepository;
+
+			if (_isUnique.HasValue && _isUnique.Value && (entityRepository.Any(x => !Equals(x, entity) && Equals(_propertyFunction.Invoke(x), property)) 
+				|| repository?.AnyNew(entity, x => Equals(_propertyFunction.Invoke(x), property)) == true))
 			{
-				throw new ValidationException($"{_entityType.Name}: Cannot insert duplicate row. The duplicate key value is ({property}).");
+				var ignore = (memberName == "SyncId" && Equals(property, Guid.Empty));
+
+				if (!ignore)
+				{
+					throw new ValidationException($"{_entityType.Name}: Cannot insert duplicate row. The duplicate key value is ({property}).");
+				}
 			}
 
 			var stringEntity = property as string;
