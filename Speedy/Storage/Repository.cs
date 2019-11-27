@@ -590,7 +590,7 @@ namespace Speedy.Storage
 
 		internal bool AnyNew(object entity, Func<T, bool> func)
 		{
-			return Cache.Any(x => !x.Entity.Equals(entity) && func(x.OldEntity));
+			return Cache.Any(x => !ReferenceEquals(x.Entity, entity) && func(x.OldEntity));
 		}
 
 		private T CloneEntity(T entity)

@@ -29,6 +29,7 @@ namespace Speedy.Samples.Mappings
 
 			b.HasIndex(x => x.OwnerId).HasName("IX_Pets_OwnerId");
 			b.HasIndex(x => x.TypeId).HasName("IX_Pets_TypeId");
+			b.HasIndex(x => new { x.Name, x.OwnerId }).IsUnique();
 
 			b.HasOne(x => x.Owner).WithMany(x => x.Owners).HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Restrict);
 			b.HasOne(x => x.Type).WithMany(x => x.Types).HasForeignKey(x => x.TypeId).OnDelete(DeleteBehavior.SetNull);

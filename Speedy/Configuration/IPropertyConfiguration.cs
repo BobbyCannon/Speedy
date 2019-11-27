@@ -1,10 +1,4 @@
-﻿#region References
-
-using System.Linq;
-
-#endregion
-
-namespace Speedy.Configuration
+﻿namespace Speedy.Configuration
 {
 	/// <summary>
 	/// The interface for the property configuration.
@@ -23,9 +17,26 @@ namespace Speedy.Configuration
 		/// </summary>
 		bool? IsNullable { get; set; }
 
+		/// <summary>
+		/// Gets the member name of the property this configuration is for.
+		/// </summary>
+		string MemberName { get; set; }
+
+		/// <summary>
+		/// Gets the type name of the property this configuration is for.
+		/// </summary>
+		string TypeName { get; }
+
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Get the value for the property configuration.
+		/// </summary>
+		/// <param name="entity"> The entity to get the value of. </param>
+		/// <returns> The value in string format. </returns>
+		object GetValue(object entity);
 
 		/// <summary>
 		/// Sets the max length for this property.
@@ -42,22 +53,17 @@ namespace Speedy.Configuration
 		bool IsMappingFor(object entity);
 
 		/// <summary>
-		/// Marks the property as a unique member.
+		/// Checks two objects to see if the properties match
 		/// </summary>
-		/// <returns> The configuration after updated. </returns>
-		IPropertyConfiguration IsUnique();
+		/// <param name="object1"> The first object. </param>
+		/// <param name="object2"> The second object. </param>
+		/// <returns> </returns>
+		bool Matches(object object1, object object2);
 
 		/// <summary>
 		/// </summary>
 		/// <param name="behavior"> The delete behavior for the foreign key relationship. </param>
 		void OnDelete(RelationshipDeleteBehavior behavior);
-
-		/// <summary>
-		/// Validates the entity using this configuration.
-		/// </summary>
-		/// <param name="entity"> The entity to validate. </param>
-		/// <param name="repository"> The entity repository. </param>
-		void Validate(object entity, IQueryable repository);
 
 		#endregion
 	}

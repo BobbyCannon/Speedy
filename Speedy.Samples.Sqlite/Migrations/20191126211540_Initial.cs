@@ -106,6 +106,25 @@ namespace Speedy.Samples.Sqlite.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Settings",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+                    Value = table.Column<string>(unicode: false, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Settings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "People",
                 schema: "dbo",
                 columns: table => new
@@ -308,6 +327,27 @@ namespace Speedy.Samples.Sqlite.Migrations
                 schema: "dbo",
                 table: "Pets",
                 column: "TypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Pets_Name_OwnerId",
+                schema: "dbo",
+                table: "Pets",
+                columns: new[] { "Name", "OwnerId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Settings_Name",
+                schema: "dbo",
+                table: "Settings",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Settings_SyncId",
+                schema: "dbo",
+                table: "Settings",
+                column: "SyncId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -326,6 +366,10 @@ namespace Speedy.Samples.Sqlite.Migrations
 
             migrationBuilder.DropTable(
                 name: "Pets",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "Settings",
                 schema: "dbo");
 
             migrationBuilder.DropTable(

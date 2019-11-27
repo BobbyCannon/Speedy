@@ -568,12 +568,12 @@ namespace Speedy.Samples.Tests
 				var actual = database.Settings.First(x => x.Name == settingName1);
 				Assert.AreEqual(settingName1, actual.Name);
 				Assert.AreEqual("hello", actual.Value);
-				Assert.AreEqual(serverSetting1.SyncId, actual.SyncId);
+				Assert.AreNotEqual(serverSetting1.SyncId, actual.SyncId);
 				
 				actual = database.Settings.First(x => x.Name == settingName2);
 				Assert.AreEqual(settingName2, actual.Name);
 				Assert.AreEqual("world", actual.Value);
-				Assert.AreEqual(serverSetting2.SyncId, actual.SyncId);
+				Assert.AreNotEqual(serverSetting2.SyncId, actual.SyncId);
 			}
 
 			using (var database = server.GetDatabase<IContosoDatabase>())
@@ -584,12 +584,12 @@ namespace Speedy.Samples.Tests
 				var actual = database.Settings.First(x => x.Name == settingName1);
 				Assert.AreEqual(settingName1, actual.Name);
 				Assert.AreEqual("hello", actual.Value);
-				Assert.AreEqual(clientSetting2.SyncId, actual.SyncId);
+				Assert.AreNotEqual(clientSetting2.SyncId, actual.SyncId);
 				
 				actual = database.Settings.First(x => x.Name == settingName2);
 				Assert.AreEqual(settingName2, actual.Name);
 				Assert.AreEqual("world", actual.Value);
-				Assert.AreEqual(clientSetting1.SyncId, actual.SyncId);
+				Assert.AreNotEqual(clientSetting1.SyncId, actual.SyncId);
 			}
 		}
 

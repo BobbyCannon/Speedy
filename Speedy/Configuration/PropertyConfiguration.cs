@@ -1,11 +1,8 @@
 ﻿#region References
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using Speedy.Exceptions;
-using Speedy.Storage;
-using Speedy.Sync;
 
 #endregion
 
@@ -21,9 +18,9 @@ namespace Speedy.Configuration
 		#region Fields
 
 		private readonly Type _entityType;
-		private bool? _isUnique;
 		private int _maxLength;
 		private int _minLength;
+		private string _typeName;
 		private readonly Expression<Func<T, object>> _property;
 		private readonly Func<T, object> _propertyFunction;
 
@@ -41,7 +38,6 @@ namespace Speedy.Configuration
 			_property = property;
 			_propertyFunction = _property.Compile();
 			IsNullable = null;
-			_isUnique = null;
 			_maxLength = -1;
 			_minLength = -1;
 		}
@@ -56,9 +52,26 @@ namespace Speedy.Configuration
 		/// <inheritdoc />
 		public bool? IsNullable { get; set; }
 
+		/// <inheritdoc />
+		public string MemberName { get; set; }
+
+		/// <inheritdoc />
+		public string TypeName => _typeName ??= typeof(T).Name;
+
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc />
+		public object GetValue(object entity)
+		{
+			if (!(entity is T typedEntity))
+			{
+				throw new ArgumentNullException(nameof(typedEntity));
+			}
+
+			return _propertyFunction.Invoke(typedEntity);
+		}
 
 		/// <summary>
 		/// Sets the maximum length of the member.
@@ -101,30 +114,29 @@ namespace Speedy.Configuration
 			return this;
 		}
 
-		/// <summary>
-		/// Marks the property as a unique member.
-		/// </summary>
-		/// <returns> The configuration after updated. </returns>
-		public PropertyConfiguration<T, T2> IsUnique()
+		/// <inheritdoc />
+		public bool Matches(object object1, object object2)
 		{
-			_isUnique = true;
-			return this;
+			if (!(object1 is T typedEntity1))
+			{
+				throw new ArgumentNullException(nameof(typedEntity1));
+			}
+
+			if (!(object2 is T typedEntity2))
+			{
+				throw new ArgumentNullException(nameof(typedEntity2));
+			}
+
+			var property1 = _propertyFunction.Invoke(typedEntity1);
+			var property2 = _propertyFunction.Invoke(typedEntity2);
+
+			return Equals(property1, property2);
 		}
 
 		/// <inheritdoc />
 		public void OnDelete(RelationshipDeleteBehavior behavior)
 		{
 			DeleteBehavior = behavior;
-		}
-
-		/// <summary>
-		/// Validates the entity using this configuration.
-		/// </summary>
-		/// <param name="entity"> The entity to validate. </param>
-		/// <param name="repository"> The repository of entities. </param>
-		public void Validate(object entity, IQueryable repository)
-		{
-			Validate(entity, repository as IRepository<T, T2>);
 		}
 
 		/// <summary>
@@ -157,20 +169,6 @@ namespace Speedy.Configuration
 				throw new ValidationException($"{_entityType.Name}: The {memberName} field is required.");
 			}
 
-			// Convert repository into local type so we can check new items
-			var repository = (Repository<T, T2>) entityRepository;
-
-			if (_isUnique.HasValue && _isUnique.Value && (entityRepository.Any(x => !Equals(x, entity) && Equals(_propertyFunction.Invoke(x), property)) 
-				|| repository?.AnyNew(entity, x => Equals(_propertyFunction.Invoke(x), property)) == true))
-			{
-				var ignore = (memberName == "SyncId" && Equals(property, Guid.Empty));
-
-				if (!ignore)
-				{
-					throw new ValidationException($"{_entityType.Name}: Cannot insert duplicate row. The duplicate key value is ({property}).");
-				}
-			}
-
 			var stringEntity = property as string;
 			if (stringEntity != null && _maxLength > 0 && stringEntity.Length > _maxLength)
 			{
@@ -188,14 +186,10 @@ namespace Speedy.Configuration
 			}
 		}
 
+		/// <inheritdoc />
 		IPropertyConfiguration IPropertyConfiguration.HasMaximumLength(int maxLength)
 		{
 			return HasMaximumLength(maxLength);
-		}
-
-		IPropertyConfiguration IPropertyConfiguration.IsUnique()
-		{
-			return IsUnique();
 		}
 
 		#endregion

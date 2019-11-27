@@ -338,6 +338,9 @@ namespace Speedy.Samples.Sql.Migrations
                     b.HasIndex("TypeId")
                         .HasName("IX_Pets_TypeId");
 
+                    b.HasIndex("Name", "OwnerId")
+                        .IsUnique();
+
                     b.ToTable("Pets","dbo");
                 });
 

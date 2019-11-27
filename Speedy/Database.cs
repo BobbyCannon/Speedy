@@ -39,6 +39,7 @@ namespace Speedy
 		/// <param name="options"> The options for this database. </param>
 		protected Database(DatabaseOptions options)
 		{
+			IndexConfigurations = new Dictionary<string, IndexConfiguration>();
 			OneToManyRelationships = new Dictionary<string, object[]>();
 			Options = options?.DeepClone() ?? new DatabaseOptions();
 			PropertyConfigurations = new Dictionary<string, IPropertyConfiguration>();
@@ -57,6 +58,8 @@ namespace Speedy
 		public DatabaseOptions Options { get; }
 
 		internal Dictionary<string, IDatabaseRepository> Repositories { get; }
+
+		private IDictionary<string, IndexConfiguration> IndexConfigurations { get; }
 
 		private Dictionary<string, object[]> OneToManyRelationships { get; }
 
@@ -175,6 +178,25 @@ namespace Speedy
 			}
 
 			return r.Value as ISyncableRepository;
+		}
+
+		/// <summary>
+		/// Create a configuration that represents an Index.
+		/// </summary>
+		/// <param name="name"> The name of the index. </param>
+		/// <returns> The index configuration. </returns>
+		public IndexConfiguration HasIndex(string name)
+		{
+			var indexName = $"{name}";
+
+			if (IndexConfigurations.ContainsKey(indexName))
+			{
+				return IndexConfigurations[indexName];
+			}
+
+			var response = new IndexConfiguration(indexName);
+			IndexConfigurations.Add(indexName, response);
+			return response;
 		}
 
 		/// <summary>
@@ -387,7 +409,7 @@ namespace Speedy
 
 			var value = OneToManyRelationships[key];
 			var repository = (IRepository<T2, T2K>) value[0];
-			var entityExpression = (Expression<Func<T2, T1>>) value[1]; 
+			var entityExpression = (Expression<Func<T2, T1>>) value[1];
 			var entityFunction = (Func<T2, T1>) value[2];
 			var foreignKeyExpression = (Expression<Func<T2, object>>) value[3];
 			var foreignKeyFunction = (Func<T2, object>) value[4];
@@ -402,7 +424,8 @@ namespace Speedy
 
 				var invokedEntity = entityFunction.Invoke(x);
 				return invokedEntity == entity;
-			}, x => {
+			}, x =>
+			{
 				if (entity.IdIsSet())
 				{
 					// Should I use SetMemberValue instead? which is faster?
@@ -760,6 +783,11 @@ namespace Speedy
 				{
 					validation.Validate(entity, repository);
 				}
+			}
+
+			foreach (var configuration in IndexConfigurations.Values.Where(x => x.IsMappingFor(entity)))
+			{
+				configuration.Validate(entity, repository);
 			}
 		}
 

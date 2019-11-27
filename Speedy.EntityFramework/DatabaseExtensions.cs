@@ -5,8 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Speedy.Configuration;
 
 #endregion
@@ -63,6 +65,7 @@ namespace Speedy.EntityFramework
 					var propertyConfiguration = (IPropertyConfiguration) propertyMethod.Invoke(database, new object[] { lambdaExpression });
 
 					propertyConfiguration.IsNullable = property.IsNullable;
+					propertyConfiguration.MemberName = property.Name;
 
 					foreach (var annotation in propertyAnnotations)
 					{
@@ -72,9 +75,18 @@ namespace Speedy.EntityFramework
 						}
 					}
 
-					if (indexes.Any(x => x.IsUnique && x.Properties.Any(p => p.Name == property.Name)))
+					foreach (var mutableIndex in indexes.Where(x => x.IsUnique && x.Properties.Any(p => p.Name == property.Name)))
 					{
-						propertyConfiguration.IsUnique();
+						var index = mutableIndex as Index;
+						if (index == null)
+						{
+							continue;
+						}
+
+						var name = index.Builder.Metadata.FindAnnotation("Relational:Name")?.Value.ToString() ?? index.ToString();
+						var indexConfiguration = database.HasIndex(name);
+						indexConfiguration.IsUnique();
+						indexConfiguration.AddProperty(propertyConfiguration);
 					}
 				}
 
@@ -116,7 +128,7 @@ namespace Speedy.EntityFramework
 			}
 		}
 
-		internal static Type GetPrimaryKeyType(this Type type)
+		private static Type GetPrimaryKeyType(this Type type)
 		{
 			while (true)
 			{

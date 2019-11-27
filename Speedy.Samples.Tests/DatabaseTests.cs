@@ -306,6 +306,37 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
+		public void AddMultipleEntitiesUsingRelationshipWithSaves()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					database.Addresses.Add(address);
+
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
+					database.SaveChanges();
+
+					database.People.Add(new PersonEntity { Name = "John Doe", AddressId = address.Id });
+
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
+					database.SaveChanges();
+
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreNotEqual(0, database.Addresses.First().Id);
+					Assert.AreEqual(1, database.People.Count());
+					Assert.AreNotEqual(0, database.People.First().Id);
+					Assert.AreEqual(1, database.Addresses.First().People.Count);
+					Assert.AreNotEqual(0, database.Addresses.First().People.First().AddressId);
+				});
+		}
+
+		[TestMethod]
 		public void AddNonModifiableEntity()
 		{
 			TestHelper.GetDataContexts()
@@ -544,30 +575,28 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 					{
-						using (var database = provider.GetDatabase())
+						using var database = provider.GetDatabase();
+						Console.WriteLine(database.GetType().Name);
+
+						for (var i = 0; i < 10; i++)
 						{
-							Console.WriteLine(database.GetType().Name);
-
-							for (var i = 0; i < 10; i++)
-							{
-								var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
-								database.Addresses.Add(address);
-							}
-
-							database.SaveChanges();
-
-							Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
-
-							var count = database.Addresses.BulkUpdate(x => !x.IsDeleted, x => new AddressEntity { IsDeleted = true });
-							Assert.AreEqual(10, count);
-							Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
-							Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
-
-							count = database.Addresses.BulkUpdate(x => x.Id < 5 && x.Id >= 2, x => new AddressEntity { City = "city" });
-							Assert.AreEqual(3, count);
-							Assert.AreEqual(3, database.Addresses.Count(x => x.City == "city"));
-							Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
+							var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+							database.Addresses.Add(address);
 						}
+
+						database.SaveChanges();
+
+						Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+
+						var count = database.Addresses.BulkUpdate(x => !x.IsDeleted, x => new AddressEntity { IsDeleted = true });
+						Assert.AreEqual(10, count);
+						Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
+						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+
+						count = database.Addresses.BulkUpdate(x => x.Id < 5 && x.Id >= 2, x => new AddressEntity { City = "city" });
+						Assert.AreEqual(3, count);
+						Assert.AreEqual(3, database.Addresses.Count(x => x.City == "city"));
+						Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
 					}
 				);
 		}
@@ -578,26 +607,24 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
-						database.Addresses.Add(expected);
-						var actual = database.Addresses.FirstOrDefault();
-						Assert.IsNull(actual);
+					database.Addresses.Add(expected);
+					var actual = database.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
 
-						database.DiscardChanges();
+					database.DiscardChanges();
 
-						actual = database.Addresses.FirstOrDefault();
-						Assert.IsNull(actual);
+					actual = database.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
 
-						database.SaveChanges();
+					database.SaveChanges();
 
-						actual = database.Addresses.FirstOrDefault();
-						Assert.IsNull(actual);
-					}
+					actual = database.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
 				});
 		}
 
@@ -626,6 +653,25 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
+		public void IndexesWithMultipleColumnsAndUniqueShouldNotException()
+		{
+			TestHelper.GetDataContexts()
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					var person1 = PersonFactory.Get(x => x.Name = "John");
+					var person2 = PersonFactory.Get(x => x.Name = "Jane");
+					database.People.Add(person1);
+					database.People.Add(person2);
+					database.SaveChanges();
+
+					database.Pets.Add(new PetEntity { Name = "Spot", Owner = person1 });
+					database.Pets.Add(new PetEntity { Name = "Spot", Owner = person2 });
+					database.SaveChanges();
+				});
+		}
+
+		[TestMethod]
 		public void IndexesWithUniqueShouldException()
 		{
 			TestHelper.GetDataContexts()
@@ -638,7 +684,7 @@ namespace Speedy.Samples.Tests
 					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
 						"Cannot insert duplicate key row in object 'dbo.Foods' with unique index 'IX_Foods_Name'. The duplicate key value is (Bread)",
 						"SQLite Error 19: 'UNIQUE constraint failed: Foods.Name'",
-						"FoodEntity: Cannot insert duplicate row. The duplicate key value is (Bread)."
+						"IX_Foods_Name: Cannot insert duplicate row. The duplicate key value is (Bread)."
 					);
 				});
 		}
@@ -655,20 +701,18 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						var address1 = new AddressEntity { City = "City", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
-						var address2 = new AddressEntity { City = "City2", Line1 = "Line2", Line2 = "Line2", Postal = "Postal2", State = "State2" };
-						address1.LinkedAddress = address2;
-						database.Addresses.Add(address1);
-						database.SaveChanges();
+					var address1 = new AddressEntity { City = "City", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State" };
+					var address2 = new AddressEntity { City = "City2", Line1 = "Line2", Line2 = "Line2", Postal = "Postal2", State = "State2" };
+					address1.LinkedAddress = address2;
+					database.Addresses.Add(address1);
+					database.SaveChanges();
 
-						var expected = new[] { address2, address1 };
-						var actual = database.Addresses.ToArray();
-						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
-					}
+					var expected = new[] { address2, address1 };
+					var actual = database.Addresses.ToArray();
+					TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 				});
 		}
 
@@ -679,41 +723,37 @@ namespace Speedy.Samples.Tests
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
-					database.Addresses.Add(address);
+				var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+				address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
+				database.Addresses.Add(address);
 
-					var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
-					database.Addresses.Add(address2);
-					address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
+				var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+				database.Addresses.Add(address2);
+				address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
 
-					Assert.AreEqual(0, database.Addresses.Count());
-					Assert.AreEqual(0, database.People.Count());
+				Assert.AreEqual(0, database.Addresses.Count());
+				Assert.AreEqual(0, database.People.Count());
 
-					database.SaveChanges();
+				database.SaveChanges();
 
-					Assert.AreEqual(2, database.Addresses.Count());
-					Assert.AreEqual(2, database.People.Count());
-					Assert.AreEqual(1, database.Addresses.First().People.Count);
-				}
+				Assert.AreEqual(2, database.Addresses.Count());
+				Assert.AreEqual(2, database.People.Count());
+				Assert.AreEqual(1, database.Addresses.First().People.Count);
 			});
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var person = database.People
-						.Include(x => x.Address)
-						.First(x => x.Name == "John Doe");
+				var person = database.People
+					.Include(x => x.Address)
+					.First(x => x.Name == "John Doe");
 
-					Assert.IsTrue(person.Address != null);
-				}
+				Assert.IsTrue(person.Address != null);
 			});
 		}
 
@@ -724,42 +764,38 @@ namespace Speedy.Samples.Tests
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
-					database.Addresses.Add(address);
+				var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+				address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
+				database.Addresses.Add(address);
 
-					var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
-					database.Addresses.Add(address2);
-					address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
+				var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+				database.Addresses.Add(address2);
+				address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
 
-					Assert.AreEqual(0, database.Addresses.Count());
-					Assert.AreEqual(0, database.People.Count());
+				Assert.AreEqual(0, database.Addresses.Count());
+				Assert.AreEqual(0, database.People.Count());
 
-					database.SaveChanges();
+				database.SaveChanges();
 
-					Assert.AreEqual(2, database.Addresses.Count());
-					Assert.AreEqual(2, database.People.Count());
-					Assert.AreEqual(1, database.Addresses.First().People.Count);
-				}
+				Assert.AreEqual(2, database.Addresses.Count());
+				Assert.AreEqual(2, database.People.Count());
+				Assert.AreEqual(1, database.Addresses.First().People.Count);
 			});
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var person = database.People
-						.Including(x => x.Address, x => x.Groups)
-						.First(x => x.Name == "John Doe");
+				var person = database.People
+					.Including(x => x.Address, x => x.Groups)
+					.First(x => x.Name == "John Doe");
 
-					Assert.IsTrue(person.Address != null);
-					Assert.IsTrue(person.Groups != null);
-				}
+				Assert.IsTrue(person.Address != null);
+				Assert.IsTrue(person.Groups != null);
 			});
 		}
 
@@ -805,45 +841,41 @@ namespace Speedy.Samples.Tests
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					var person = new PersonEntity { Name = "John Doe", Address = address };
-					person.Groups.Add(new GroupMemberEntity { Group = new GroupEntity { Name = "Group", Description = "Description" }, Role = "Role" });
-					address.People.Add(person);
-					database.Addresses.Add(address);
+				var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+				var person = new PersonEntity { Name = "John Doe", Address = address };
+				person.Groups.Add(new GroupMemberEntity { Group = new GroupEntity { Name = "Group", Description = "Description" }, Role = "Role" });
+				address.People.Add(person);
+				database.Addresses.Add(address);
 
-					Assert.AreEqual(0, database.Addresses.Count());
-					Assert.AreEqual(0, database.People.Count());
-					Assert.AreEqual(0, database.People.Count());
+				Assert.AreEqual(0, database.Addresses.Count());
+				Assert.AreEqual(0, database.People.Count());
+				Assert.AreEqual(0, database.People.Count());
 
-					database.SaveChanges();
+				database.SaveChanges();
 
-					Assert.AreEqual(1, database.Addresses.Count());
-					Assert.AreEqual(1, database.People.Count());
-					Assert.AreEqual(1, database.Groups.Count());
-					Assert.AreEqual(1, database.GroupMembers.Count());
-				}
+				Assert.AreEqual(1, database.Addresses.Count());
+				Assert.AreEqual(1, database.People.Count());
+				Assert.AreEqual(1, database.Groups.Count());
+				Assert.AreEqual(1, database.GroupMembers.Count());
 			});
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var person = database.People
-						.Include(x => x.Owners)
-						.Include(x => x.Groups)
-						.ThenInclude(x => x.Group)
-						.First(x => x.Name == "John Doe");
+				var person = database.People
+					.Include(x => x.Owners)
+					.Include(x => x.Groups)
+					.ThenInclude(x => x.Group)
+					.First(x => x.Name == "John Doe");
 
-					Assert.IsTrue(person.Groups != null);
-					Assert.IsTrue(person.Groups.First().Group != null);
-					Assert.AreEqual("Group", person.Groups.First().Group.Name);
-				}
+				Assert.IsTrue(person.Groups != null);
+				Assert.IsTrue(person.Groups.First().Group != null);
+				Assert.AreEqual("Group", person.Groups.First().Group.Name);
 			});
 		}
 
@@ -853,38 +885,36 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						var person = new PersonEntity { Name = "John Doe" };
-						var group = new GroupEntity { Description = "For those who are epic and code.", Name = "Epic Coders" };
-						person.Groups.Add(new GroupMemberEntity { Role = "Leader", Group = group });
-						address.People.Add(person);
-						database.Addresses.Add(address);
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var person = new PersonEntity { Name = "John Doe" };
+					var group = new GroupEntity { Description = "For those who are epic and code.", Name = "Epic Coders" };
+					person.Groups.Add(new GroupMemberEntity { Role = "Leader", Group = group });
+					address.People.Add(person);
+					database.Addresses.Add(address);
 
-						Assert.AreEqual(1, address.People.Count);
-						Assert.AreEqual(1, person.Groups.Count);
-						Assert.AreEqual(1, group.Members.Count);
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, database.People.Count());
-						Assert.AreEqual(0, database.GroupMembers.Count());
-						Assert.AreEqual(0, database.Groups.Count());
+					Assert.AreEqual(1, address.People.Count);
+					Assert.AreEqual(1, person.Groups.Count);
+					Assert.AreEqual(1, group.Members.Count);
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
+					Assert.AreEqual(0, database.GroupMembers.Count());
+					Assert.AreEqual(0, database.Groups.Count());
 
-						database.SaveChanges();
+					database.SaveChanges();
 
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreNotEqual(0, database.Addresses.First().Id);
-						Assert.AreEqual(1, database.Addresses.First().People.Count);
-						Assert.AreEqual(1, database.People.Count());
-						Assert.AreNotEqual(0, database.People.First().Id);
-						Assert.AreEqual(1, database.People.First().Groups.Count);
-						Assert.AreEqual(1, database.GroupMembers.Count());
-						Assert.AreNotEqual(0, database.GroupMembers.First().Id);
-						Assert.AreEqual(1, database.Groups.Count());
-						Assert.AreNotEqual(0, database.Groups.First().Id);
-					}
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreNotEqual(0, database.Addresses.First().Id);
+					Assert.AreEqual(1, database.Addresses.First().People.Count);
+					Assert.AreEqual(1, database.People.Count());
+					Assert.AreNotEqual(0, database.People.First().Id);
+					Assert.AreEqual(1, database.People.First().Groups.Count);
+					Assert.AreEqual(1, database.GroupMembers.Count());
+					Assert.AreNotEqual(0, database.GroupMembers.First().Id);
+					Assert.AreEqual(1, database.Groups.Count());
+					Assert.AreNotEqual(0, database.Groups.First().Id);
 				});
 		}
 
@@ -894,27 +924,25 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
-						database.Addresses.Add(address);
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					address.People.Add(new PersonEntity { Name = "John Doe", Address = address });
+					database.Addresses.Add(address);
 
-						var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
-						database.Addresses.Add(address2);
-						address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
+					var address2 = new AddressEntity { City = "City", Line1 = "Line2", Line2 = "Line2", Postal = "Postal", State = "State" };
+					database.Addresses.Add(address2);
+					address2.People.Add(new PersonEntity { Name = "Jane Doe", Address = address2 });
 
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, database.People.Count());
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
 
-						database.SaveChanges();
+					database.SaveChanges();
 
-						Assert.AreEqual(2, database.Addresses.Count());
-						Assert.AreEqual(1, database.Addresses.First().People.Count);
-						Assert.AreEqual(2, database.People.Count());
-					}
+					Assert.AreEqual(2, database.Addresses.Count());
+					Assert.AreEqual(1, database.Addresses.First().People.Count);
+					Assert.AreEqual(2, database.People.Count());
 				});
 		}
 
@@ -924,24 +952,22 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-						Assert.AreEqual(0, database.Addresses.Count());
+					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+					Assert.AreEqual(0, database.Addresses.Count());
 
-						database.SaveChanges();
-						Assert.AreEqual(1, database.Addresses.Count());
+					database.SaveChanges();
+					Assert.AreEqual(1, database.Addresses.Count());
 
-						var address = database.Addresses.First();
-						database.Addresses.Remove(address.Id);
-						Assert.AreEqual(1, database.Addresses.Count());
+					var address = database.Addresses.First();
+					database.Addresses.Remove(address.Id);
+					Assert.AreEqual(1, database.Addresses.Count());
 
-						database.SaveChanges();
-						Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
-						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
-					}
+					database.SaveChanges();
+					Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
+					Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
 				});
 		}
 
@@ -952,32 +978,28 @@ namespace Speedy.Samples.Tests
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-					Assert.AreEqual(0, database.Addresses.Count());
+				database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+				Assert.AreEqual(0, database.Addresses.Count());
 
-					database.SaveChanges();
-					Assert.AreEqual(1, database.Addresses.Count());
-				}
+				database.SaveChanges();
+				Assert.AreEqual(1, database.Addresses.Count());
 			});
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var address = database.Addresses.First();
-					database.Addresses.Remove(address.Id);
-					Assert.AreEqual(1, database.Addresses.Count());
+				var address = database.Addresses.First();
+				database.Addresses.Remove(address.Id);
+				Assert.AreEqual(1, database.Addresses.Count());
 
-					database.SaveChanges();
-					Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
-					Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
-				}
+				database.SaveChanges();
+				Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
+				Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
 			});
 		}
 
@@ -1033,37 +1055,35 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						database.Options.PermanentSyncEntityDeletions = true;
+					using var database = provider.GetDatabase();
+					database.Options.PermanentSyncEntityDeletions = true;
 
-						Console.WriteLine(database.GetType().Name);
+					Console.WriteLine(database.GetType().Name);
 
-						var tracker = new CollectionChangeTracker();
-						database.CollectionChanged += (sender, args) => tracker.Update(args);
-						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
+					var tracker = new CollectionChangeTracker();
+					database.CollectionChanged += (sender, args) => tracker.Update(args);
+					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
 
-						database.SaveChanges();
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(1, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
+					database.SaveChanges();
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(1, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
 
-						tracker.Reset();
-						var address = database.Addresses.First();
-						database.Addresses.Remove(address);
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
+					tracker.Reset();
+					var address = database.Addresses.First();
+					database.Addresses.Remove(address);
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(0, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
 
-						database.SaveChanges();
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(1, tracker.Removed.Count);
-						Assert.AreEqual(address, tracker.Removed[0]);
-					}
+					database.SaveChanges();
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, tracker.Added.Count);
+					Assert.AreEqual(1, tracker.Removed.Count);
+					Assert.AreEqual(address, tracker.Removed[0]);
 				});
 		}
 
@@ -1074,7 +1094,6 @@ namespace Speedy.Samples.Tests
 				.ForEach(provider =>
 				{
 					PetEntity pet;
-					PetTypeEntity type;
 
 					using (var database = provider.GetDatabase())
 					{
@@ -1085,7 +1104,7 @@ namespace Speedy.Samples.Tests
 						database.People.Add(person);
 						database.SaveChanges();
 
-						type = PetTypeFactory.Get();
+						var type = PetTypeFactory.Get();
 						pet = PetFactory.Get(null, person);
 						pet.Type = type;
 						database.Pets.Add(pet);
@@ -1125,38 +1144,36 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						database.Options.PermanentSyncEntityDeletions = false;
+					using var database = provider.GetDatabase();
+					database.Options.PermanentSyncEntityDeletions = false;
 
-						Console.WriteLine(database.GetType().Name);
+					Console.WriteLine(database.GetType().Name);
 
-						var tracker = new CollectionChangeTracker();
-						database.CollectionChanged += (sender, args) => tracker.Update(args);
-						database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
+					var tracker = new CollectionChangeTracker();
+					database.CollectionChanged += (sender, args) => tracker.Update(args);
+					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
 
-						database.SaveChanges();
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(1, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
+					database.SaveChanges();
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(1, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
 
-						tracker.Reset();
-						var address = database.Addresses.First();
-						database.Addresses.Remove(address);
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
+					tracker.Reset();
+					var address = database.Addresses.First();
+					database.Addresses.Remove(address);
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(0, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
 
-						database.SaveChanges();
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
-						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
-						Assert.AreEqual(0, tracker.Added.Count);
-						Assert.AreEqual(0, tracker.Removed.Count);
-					}
+					database.SaveChanges();
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(1, database.Addresses.Count(x => x.IsDeleted));
+					Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+					Assert.AreEqual(0, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
 				});
 		}
 
@@ -1166,33 +1183,31 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						database.Options.PermanentSyncEntityDeletions = true;
+					using var database = provider.GetDatabase();
+					database.Options.PermanentSyncEntityDeletions = true;
 
-						Console.WriteLine(database.GetType().Name);
+					Console.WriteLine(database.GetType().Name);
 
-						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						address.People.Add(new PersonEntity { Name = "John Doe" });
-						database.Addresses.Add(address);
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					address.People.Add(new PersonEntity { Name = "John Doe" });
+					database.Addresses.Add(address);
 
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, database.People.Count());
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
 
-						database.SaveChanges();
+					database.SaveChanges();
 
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(1, database.Addresses.First().People.Count);
-						Assert.AreEqual(1, database.People.Count());
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(1, database.Addresses.First().People.Count);
+					Assert.AreEqual(1, database.People.Count());
 
-						database.Addresses.Remove(address);
+					database.Addresses.Remove(address);
 
-						// ReSharper disable once AccessToDisposedClosure
-						TestHelper.ExpectedException<UpdateException>(() => database.SaveChanges(),
-							"SQLite Error 19: 'FOREIGN KEY constraint failed'.",
-							"The DELETE statement conflicted with the REFERENCE constraint \"FK_People_Addresses_AddressId\". The conflict occurred in database \"Speedy\", table \"dbo.People\", column 'AddressId'.",
-							"The DELETE statement conflicted with the REFERENCE constraint.");
-					}
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<UpdateException>(() => database.SaveChanges(),
+						"SQLite Error 19: 'FOREIGN KEY constraint failed'.",
+						"The DELETE statement conflicted with the REFERENCE constraint \"FK_People_Addresses_AddressId\". The conflict occurred in database \"Speedy\", table \"dbo.People\", column 'AddressId'.",
+						"The DELETE statement conflicted with the REFERENCE constraint.");
 				});
 		}
 
@@ -1202,31 +1217,29 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						database.Options.PermanentSyncEntityDeletions = true;
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					database.Options.PermanentSyncEntityDeletions = true;
+					Console.WriteLine(database.GetType().Name);
 
-						var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-						address.People.Add(new PersonEntity { Name = "John Doe" });
-						database.Addresses.Add(address);
+					var address = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					address.People.Add(new PersonEntity { Name = "John Doe" });
+					database.Addresses.Add(address);
 
-						Assert.AreEqual(0, database.Addresses.Count());
-						Assert.AreEqual(0, database.People.Count());
+					Assert.AreEqual(0, database.Addresses.Count());
+					Assert.AreEqual(0, database.People.Count());
 
-						database.SaveChanges();
+					database.SaveChanges();
 
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(1, database.Addresses.First().People.Count);
-						Assert.AreEqual(1, database.People.Count());
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(1, database.Addresses.First().People.Count);
+					Assert.AreEqual(1, database.People.Count());
 
-						database.People.Remove(address.People.First());
-						database.SaveChanges();
+					database.People.Remove(address.People.First());
+					database.SaveChanges();
 
-						Assert.AreEqual(1, database.Addresses.Count());
-						Assert.AreEqual(0, database.Addresses.First().People.Count);
-						Assert.AreEqual(0, database.People.Count());
-					}
+					Assert.AreEqual(1, database.Addresses.Count());
+					Assert.AreEqual(0, database.Addresses.First().People.Count);
+					Assert.AreEqual(0, database.People.Count());
 				});
 		}
 
@@ -1236,34 +1249,32 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					var pepper = new FoodEntity { Name = "Pepper" };
+					var salt = new FoodEntity { Name = "Salt" };
+
+					var steak = new FoodEntity
 					{
-						Console.WriteLine(database.GetType().Name);
-
-						var pepper = new FoodEntity { Name = "Pepper" };
-						var salt = new FoodEntity { Name = "Salt" };
-
-						var steak = new FoodEntity
+						Name = "Steak",
+						ChildRelationships = new[]
 						{
-							Name = "Steak",
-							ChildRelationships = new[]
-							{
-								new FoodRelationshipEntity { Child = pepper, Quantity = 1 },
-								new FoodRelationshipEntity { Child = salt, Quantity = 1 }
-							}
-						};
+							new FoodRelationshipEntity { Child = pepper, Quantity = 1 },
+							new FoodRelationshipEntity { Child = salt, Quantity = 1 }
+						}
+					};
 
-						database.Food.Add(steak);
-						database.SaveChanges();
+					database.Food.Add(steak);
+					database.SaveChanges();
 
-						var actual = database.Food.First(x => x.Name == "Steak");
-						Assert.AreEqual(steak.Id, actual.Id);
+					var actual = database.Food.First(x => x.Name == "Steak");
+					Assert.AreEqual(steak.Id, actual.Id);
 
-						var children = actual.ChildRelationships.ToList();
-						Assert.AreEqual(2, children.Count);
-						Assert.AreEqual(pepper.Name, children[0].Child.Name);
-						Assert.AreEqual(salt.Name, children[1].Child.Name);
-					}
+					var children = actual.ChildRelationships.ToList();
+					Assert.AreEqual(2, children.Count);
+					Assert.AreEqual(pepper.Name, children[0].Child.Name);
+					Assert.AreEqual(salt.Name, children[1].Child.Name);
 				});
 		}
 
@@ -1287,7 +1298,7 @@ namespace Speedy.Samples.Tests
 					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
 						"SQLite Error 19: 'UNIQUE constraint failed: People.Name'.",
 						"Cannot insert duplicate key row in object 'dbo.People' with unique index 'IX_People_Name'. The duplicate key value is (Foo).",
-						"PersonEntity: Cannot insert duplicate row. The duplicate key value is (Foo).");
+						"IX_People_Name: Cannot insert duplicate row. The duplicate key value is (Foo).");
 				});
 		}
 
@@ -1335,30 +1346,28 @@ namespace Speedy.Samples.Tests
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
 				{
-					using (var database = provider.GetDatabase())
-					{
-						Console.WriteLine(database.GetType().Name);
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
 
-						var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
-						database.Addresses.Add(expected);
-						var actual = database.Addresses.FirstOrDefault();
-						Assert.IsNull(actual);
-						database.SaveChanges();
+					database.Addresses.Add(expected);
+					var actual = database.Addresses.FirstOrDefault();
+					Assert.IsNull(actual);
+					database.SaveChanges();
 
-						actual = database.Addresses.FirstOrDefault();
-						Assert.IsNotNull(actual);
-						Assert.AreNotEqual(0, actual.Id);
-						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
+					actual = database.Addresses.FirstOrDefault();
+					Assert.IsNotNull(actual);
+					Assert.AreNotEqual(0, actual.Id);
+					TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 
-						var originalDate = actual.CreatedOn;
-						actual.CreatedOn = DateTime.MaxValue;
-						database.SaveChanges();
+					var originalDate = actual.CreatedOn;
+					actual.CreatedOn = DateTime.MaxValue;
+					database.SaveChanges();
 
-						actual = database.Addresses.FirstOrDefault();
-						Assert.IsNotNull(actual);
-						Assert.AreEqual(originalDate, actual.CreatedOn);
-					}
+					actual = database.Addresses.FirstOrDefault();
+					Assert.IsNotNull(actual);
+					Assert.AreEqual(originalDate, actual.CreatedOn);
 				});
 		}
 
@@ -1369,34 +1378,30 @@ namespace Speedy.Samples.Tests
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-					Assert.AreEqual(0, database.Addresses.Count());
-					database.SaveChanges();
+				database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+				Assert.AreEqual(0, database.Addresses.Count());
+				database.SaveChanges();
 
-					Assert.AreEqual(1, database.Addresses.Count());
-					Assert.AreNotEqual(0, database.Addresses.First().Id);
+				Assert.AreEqual(1, database.Addresses.Count());
+				Assert.AreNotEqual(0, database.Addresses.First().Id);
 
-					var address1 = database.Addresses.First();
-					address1.Line1 = "Line One";
+				var address1 = database.Addresses.First();
+				address1.Line1 = "Line One";
 
-					var address2 = database.Addresses.First();
-					TestHelper.AreEqual(address1, address2);
-				}
+				var address2 = database.Addresses.First();
+				TestHelper.AreEqual(address1, address2);
 			});
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var address1 = database.Addresses.First();
-					Assert.AreEqual("Line1", address1.Line1);
-				}
+				var address1 = database.Addresses.First();
+				Assert.AreEqual("Line1", address1.Line1);
 			});
 		}
 
@@ -1407,36 +1412,32 @@ namespace Speedy.Samples.Tests
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
-					Assert.AreEqual(0, database.Addresses.Count());
-					database.SaveChanges();
+				database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
+				Assert.AreEqual(0, database.Addresses.Count());
+				database.SaveChanges();
 
-					Assert.AreEqual(1, database.Addresses.Count());
-					Assert.AreNotEqual(0, database.Addresses.First().Id);
+				Assert.AreEqual(1, database.Addresses.Count());
+				Assert.AreNotEqual(0, database.Addresses.First().Id);
 
-					var address1 = database.Addresses.First();
-					address1.Line1 = "Line One";
+				var address1 = database.Addresses.First();
+				address1.Line1 = "Line One";
 
-					var address2 = database.Addresses.First();
-					TestHelper.AreEqual(address1, address2);
+				var address2 = database.Addresses.First();
+				TestHelper.AreEqual(address1, address2);
 
-					database.SaveChanges();
-				}
+				database.SaveChanges();
 			});
 
 			providers.ForEach(provider =>
 			{
-				using (var database = provider.GetDatabase())
-				{
-					Console.WriteLine(database.GetType().Name);
+				using var database = provider.GetDatabase();
+				Console.WriteLine(database.GetType().Name);
 
-					var address1 = database.Addresses.First();
-					Assert.AreEqual("Line One", address1.Line1);
-				}
+				var address1 = database.Addresses.First();
+				Assert.AreEqual("Line One", address1.Line1);
 			});
 		}
 

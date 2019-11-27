@@ -2,27 +2,31 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Speedy.Samples.Sqlite;
+using Speedy.Samples.Sql;
 
-namespace Speedy.Samples.Sqlite.Migrations
+namespace Speedy.Samples.Sql.Migrations
 {
-    [DbContext(typeof(ContosoSqliteDatabase))]
-    [Migration("20191118162638_Initial")]
+    [DbContext(typeof(ContosoSqlDatabase))]
+    [Migration("20191126211522_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Speedy.Samples.Entities.AddressEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -91,7 +95,8 @@ namespace Speedy.Samples.Sqlite.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -120,7 +125,8 @@ namespace Speedy.Samples.Sqlite.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("ChildId")
                         .HasColumnName("ChildId");
@@ -154,7 +160,8 @@ namespace Speedy.Samples.Sqlite.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -185,7 +192,8 @@ namespace Speedy.Samples.Sqlite.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -255,7 +263,8 @@ namespace Speedy.Samples.Sqlite.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id");
+                        .HasColumnName("Id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<long>("AddressId")
                         .HasColumnName("AddressId");
@@ -331,6 +340,9 @@ namespace Speedy.Samples.Sqlite.Migrations
                     b.HasIndex("TypeId")
                         .HasName("IX_Pets_TypeId");
 
+                    b.HasIndex("Name", "OwnerId")
+                        .IsUnique();
+
                     b.ToTable("Pets","dbo");
                 });
 
@@ -356,6 +368,51 @@ namespace Speedy.Samples.Sqlite.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PetType","dbo");
+                });
+
+            modelBuilder.Entity("Speedy.Samples.Entities.SettingEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("Id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnName("Name")
+                        .HasMaxLength(256)
+                        .IsUnicode(false);
+
+                    b.Property<Guid>("SyncId")
+                        .HasColumnName("SyncId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnName("Value")
+                        .IsUnicode(false);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasName("IX_Settings_Name");
+
+                    b.HasIndex("SyncId")
+                        .IsUnique()
+                        .HasName("IX_Settings_SyncId");
+
+                    b.ToTable("Settings","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Samples.Entities.AddressEntity", b =>
