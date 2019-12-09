@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Speedy.EntityFramework.Sql
 		/// <returns> </returns>
 		public static (string, List<object>) GetSqlDelete<T>(EntityFrameworkDatabase database, IQueryable<T> query) where T : class
 		{
-			(var tableAlias, var tableName, var isLite) = GetBatchSql(query);
+			var (tableAlias, tableName, isLite) = GetBatchSql(query);
 			var sqlWhere = new StringBuilder();
 			var sqlParameters = new List<object>();
 			var columnNames = SqlTableInformation.CreateInstance<T>(database).PropertyColumnNames;
@@ -56,7 +57,7 @@ namespace Speedy.EntityFramework.Sql
 		/// <returns> </returns>
 		public static (string, List<object>) GetSqlUpdate<T>(EntityFrameworkDatabase database, IQueryable<T> query, Expression<Func<T, T>> expression) where T : class
 		{
-			(var tableAlias, var tableName, var isLite) = GetBatchSql(query);
+			var (tableAlias, tableName, isLite) = GetBatchSql(query);
 			var sqlColumns = new StringBuilder();
 			var sqlWhere = new StringBuilder();
 			var sqlParameters = new List<object>();
@@ -132,7 +133,7 @@ namespace Speedy.EntityFramework.Sql
 				}
 				case BinaryExpression binaryExpression:
 				{
-					var valueIsNull = (binaryExpression.Right is ConstantExpression constantExpression) && constantExpression.Value == null;
+					var valueIsNull = binaryExpression.Right is ConstantExpression constantExpression && constantExpression.Value == null;
 					CreateUpdateBody(columnNames, tableAlias, binaryExpression.Left, ref sqlColumns, ref sqlParameters, isLite);
 					sqlColumns.Append(GetNodeType(binaryExpression, valueIsNull));
 					if (!valueIsNull)
@@ -156,13 +157,17 @@ namespace Speedy.EntityFramework.Sql
 		{
 			switch (expression)
 			{
-				case MemberExpression memberExpression when memberExpression.Expression is ParameterExpression:
+				case MemberExpression memberExpression:
 				{
-					sqlWhere.Append(columnNames.TryGetValue(memberExpression.Member.Name, out var value)
-						? isLite ? $" \"{value}\"" : $" [{tableAlias}].[{value}]"
-						: isLite
-							? $" \"{memberExpression.Member.Name}\""
-							: $" [{tableAlias}].[{memberExpression.Member.Name}]");
+					var result = Process(memberExpression, isLite, sqlWhere, sqlParameters);
+					if (!result)
+					{
+						sqlWhere.Append(columnNames.TryGetValue(memberExpression.Member.Name, out var value)
+							? isLite ? $" \"{value}\"" : $" [{tableAlias}].[{value}]"
+							: isLite
+								? $" \"{memberExpression.Member.Name}\""
+								: $" [{tableAlias}].[{memberExpression.Member.Name}]");
+					}
 					break;
 				}
 				case ConstantExpression constantExpression:
@@ -196,7 +201,7 @@ namespace Speedy.EntityFramework.Sql
 				}
 				case BinaryExpression binaryExpression:
 				{
-					var valueIsNull = (binaryExpression.Right is ConstantExpression constantExpression) && constantExpression.Value == null;
+					var valueIsNull = binaryExpression.Right is ConstantExpression constantExpression && constantExpression.Value == null;
 					CreateWhere(columnNames, tableAlias, binaryExpression.Left, ref sqlWhere, ref sqlParameters, isLite);
 					sqlWhere.Append(GetNodeType(binaryExpression, valueIsNull));
 					if (!valueIsNull)
@@ -212,7 +217,8 @@ namespace Speedy.EntityFramework.Sql
 						sqlWhere.Append(" WHERE");
 					}
 
-					CreateWhere(columnNames, tableAlias, methodExpression.Arguments[1], ref sqlWhere, ref sqlParameters, isLite);
+					var offset = methodExpression.Arguments.Count == 1 ? 0 : 1;
+					CreateWhere(columnNames, tableAlias, methodExpression.Arguments[offset], ref sqlWhere, ref sqlParameters, isLite);
 					break;
 				}
 				default:
@@ -267,7 +273,7 @@ namespace Speedy.EntityFramework.Sql
 			{
 				case ExpressionType.AndAlso:
 					return " AND";
-				
+
 				case ExpressionType.OrElse:
 					return " OR";
 
@@ -332,6 +338,38 @@ namespace Speedy.EntityFramework.Sql
 				default:
 					throw new NotSupportedException(expression.NodeType.ToString());
 			}
+		}
+
+		private static bool Process(MemberExpression memberExpression, bool isLite, StringBuilder sqlWhere, List<object> sqlParameters)
+		{
+			if (memberExpression.Expression != null && !(memberExpression.Expression is ConstantExpression))
+			{
+				return false;
+			}
+
+			var name = $"param_{sqlParameters.Count}";
+			object parameter;
+			
+			if (memberExpression.Member.DeclaringType == typeof(DateTime))
+			{
+				var value = memberExpression.Member.Name switch
+				{
+					nameof(DateTime.MinValue) => DateTime.MinValue,
+					nameof(DateTime.MaxValue) => DateTime.MaxValue,
+					_ => (object) null
+				};
+				parameter = isLite ? (object) new SqliteParameter(name, value) : new SqlParameter(name, SqlDbType.DateTime2) { Value = value };
+			}
+			else
+			{
+				var value = Expression.Lambda(memberExpression).Compile().DynamicInvoke();
+				parameter = isLite ? (object) new SqliteParameter(name, value) : new SqlParameter(name, value);
+			}
+
+			sqlParameters.Add(parameter);
+			sqlWhere.Append($" @{name}");
+
+			return true;
 		}
 
 		private static string RemoveAlias(string query, string alias)
