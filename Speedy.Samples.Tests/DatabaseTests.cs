@@ -478,7 +478,7 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
-		public void BulkDeleteShouldDelete()
+		public void BulkRemoveShouldDelete()
 		{
 			TestHelper.GetDataContexts()
 				.ForEach(provider =>
@@ -529,7 +529,7 @@ namespace Speedy.Samples.Tests
 		}
 
 		[TestMethod]
-		public void BulkDeleteShouldDeletePartial()
+		public void BulkRemoveShouldDeletePartial()
 		{
 			var address1Guid = Guid.Parse("5C5C5A2E-29CB-497D-A5CB-7027A66DD6B8");
 
@@ -539,7 +539,7 @@ namespace Speedy.Samples.Tests
 						var filters = new Dictionary<Expression<Func<AddressEntity, bool>>, int>
 						{
 							//{ x => x.Id >= 5, 4 },
-							{ x => x.SyncId == address1Guid, 9 },
+							{ x => x.SyncId == address1Guid, 9 }
 						};
 
 						filters.ForEach(filter =>
@@ -567,7 +567,7 @@ namespace Speedy.Samples.Tests
 								{
 									database.Addresses.Add(address);
 								}
-								
+
 								database.SaveChanges();
 
 								Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));

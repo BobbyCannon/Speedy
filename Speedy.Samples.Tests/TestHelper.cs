@@ -86,6 +86,26 @@ namespace Speedy.Samples.Tests
 		/// <param name="expected"> The item that is expected. </param>
 		/// <param name="actual"> The item that is to be tested. </param>
 		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static void AreEqual<T>(T[] expected, T[] actual, params string[] membersToIgnore)
+		{
+			if (expected.Length != actual.Length)
+			{
+				throw new Exception($"Expected ({expected.Length}) != Actual ({actual.Length}) Length");
+			}
+
+			for (var i = 0; i < expected.Length; i++)
+			{
+				AreEqual(expected[i], actual[i], true, membersToIgnore);
+			}
+		}
+		
+		/// <summary>
+		/// Compares two objects to see if they are equal.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object. </typeparam>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The item that is to be tested. </param>
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
 		public static void AreEqual<T>(T expected, T actual, params string[] membersToIgnore)
 		{
 			AreEqual(expected, actual, true, membersToIgnore);

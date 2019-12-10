@@ -19,6 +19,40 @@ namespace Speedy.EntityFramework.Sql
 	/// </summary>
 	public static class SqlBuilder
 	{
+		#region Fields
+
+		private static readonly Dictionary<Type, SqlDbType> _typeToSqlDbTypeDictionary;
+
+		#endregion
+
+		#region Constructors
+
+		static SqlBuilder()
+		{
+			_typeToSqlDbTypeDictionary = new Dictionary<Type, SqlDbType>
+			{
+				{ typeof(long), SqlDbType.BigInt },
+				{ typeof(long?), SqlDbType.BigInt },
+				{ typeof(int), SqlDbType.Int },
+				{ typeof(int?), SqlDbType.Int },
+				{ typeof(byte), SqlDbType.TinyInt },
+				{ typeof(byte?), SqlDbType.TinyInt },
+				{ typeof(DateTime), SqlDbType.DateTime },
+				{ typeof(DateTime?), SqlDbType.DateTime },
+				{ typeof(bool), SqlDbType.Bit },
+				{ typeof(bool?), SqlDbType.Bit },
+				{ typeof(decimal), SqlDbType.Decimal },
+				{ typeof(decimal?), SqlDbType.Decimal },
+				{ typeof(double), SqlDbType.Float },
+				{ typeof(double?), SqlDbType.Float },
+				{ typeof(Guid), SqlDbType.UniqueIdentifier },
+				{ typeof(Guid?), SqlDbType.UniqueIdentifier },
+				{ typeof(string), SqlDbType.NVarChar }
+			};
+		}
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
@@ -178,7 +212,10 @@ namespace Speedy.EntityFramework.Sql
 					}
 
 					var name = $"param_{sqlParameters.Count}";
-					sqlParameters.Add(isLite ? (object) new SqliteParameter(name, constantExpression.Value) : new SqlParameter(name, constantExpression.Value));
+					sqlParameters.Add(isLite
+						? (object) new SqliteParameter(name, GetSqlType(constantExpression)) { Value = constantExpression.Value }
+						: new SqlParameter(name, GetSqlType(constantExpression)) { Value = constantExpression.Value }
+					);
 					sqlWhere.Append($" @{name}");
 					break;
 				}
@@ -340,6 +377,16 @@ namespace Speedy.EntityFramework.Sql
 			}
 		}
 
+		private static SqlDbType GetSqlType(ConstantExpression expression)
+		{
+			if (_typeToSqlDbTypeDictionary.ContainsKey(expression.Type))
+			{
+				return _typeToSqlDbTypeDictionary[expression.Type];
+			}
+			
+			return SqlDbType.BigInt;
+		}
+
 		private static bool Process(MemberExpression memberExpression, bool isLite, StringBuilder sqlWhere, List<object> sqlParameters)
 		{
 			if (memberExpression.Expression != null && !(memberExpression.Expression is ConstantExpression))
@@ -349,7 +396,7 @@ namespace Speedy.EntityFramework.Sql
 
 			var name = $"param_{sqlParameters.Count}";
 			object parameter;
-			
+
 			if (memberExpression.Member.DeclaringType == typeof(DateTime))
 			{
 				var value = memberExpression.Member.Name switch
