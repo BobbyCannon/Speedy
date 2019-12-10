@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Speedy.Sync;
 
 #endregion
 
@@ -123,9 +124,9 @@ namespace Speedy
 		#region Fields
 
 		/// <summary>
-		/// All hash sets for types, this is for optimization
+		/// Represents the base type for a sync entity interface, just a quick lookup value.
 		/// </summary>
-		protected static readonly ConcurrentDictionary<Type, HashSet<string>> ExclusionsForSync;
+		protected static readonly Type SyncEntityInterfaceType;
 
 		/// <summary>
 		/// Properties to ignore when tracking changes.
@@ -145,12 +146,22 @@ namespace Speedy
 		/// <summary>
 		/// All hash sets for types, this is for optimization
 		/// </summary>
+		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionsForSync;
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
 		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionsForUpdate;
 
 		/// <summary>
 		/// Represents if the entity has had changes or not.
 		/// </summary>
 		private bool _hasChanges;
+
+		/// <summary>
+		/// Cached version of the "real" type, meaning not EF proxy but rather root type
+		/// </summary>
+		private Type _realType;
 
 		#endregion
 
@@ -172,8 +183,10 @@ namespace Speedy
 		static Entity()
 		{
 			_exclusionsForChangeTracking = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExclusionsForSync = new ConcurrentDictionary<Type, HashSet<string>>();
+			_exclusionsForSync = new ConcurrentDictionary<Type, HashSet<string>>();
 			_exclusionsForUpdate = new ConcurrentDictionary<Type, HashSet<string>>();
+
+			SyncEntityInterfaceType = typeof(ISyncEntity);
 		}
 
 		#endregion
@@ -322,8 +335,20 @@ namespace Speedy
 		/// </returns>
 		public virtual object Unwrap()
 		{
-			var type = this.GetRealType();
+			var type = _realType ??= this.GetRealType();
 			return this.Unwrap(type);
+		}
+
+		/// <summary>
+		/// Used by the ISyncEntity class to set the exclusion. Do not use this method directly,
+		/// you should be implementing the SyncEntity.GetDefaultExclusionsForSync method instead.
+		/// </summary>
+		/// <param name="type"> The type of the sync entity. </param>
+		/// <param name="values"> The values to be excluded. </param>
+		/// <returns> The excluded values. </returns>
+		protected HashSet<string> AddExclusionsForSync(Type type, HashSet<string> values)
+		{
+			return _exclusionsForSync.GetOrAdd(type, values);
 		}
 
 		/// <summary>

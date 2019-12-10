@@ -206,6 +206,40 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void UpdateWithWithExclusions()
+		{
+			var expectedGuid = Guid.Parse("D3773475-D395-40E1-A230-266A845CB21D");
+			var address = new AddressEntity { Id = 1, SyncId = expectedGuid };
+			var expected = new AddressEntity();
+			var properties = typeof(AddressEntity).GetCachedProperties().Select(x => x.Name).ToList();
+
+			// All properties excluded
+			var actual = new AddressEntity();
+			actual.UpdateWith(address, properties.ToArray());
+			TestHelper.AreEqual(expected, actual);
+			Assert.AreEqual(0, actual.Id);
+			Assert.AreEqual(Guid.Empty, actual.SyncId);
+
+			// Remove Id exclusions
+			properties = properties.Except(new[] { nameof(AddressEntity.Id) }).ToList();
+			expected.Id = 1;
+			actual = new AddressEntity();
+			actual.UpdateWith(address, properties.ToArray());
+			TestHelper.AreEqual(expected, actual);
+			Assert.AreEqual(1, actual.Id);
+			Assert.AreEqual(Guid.Empty, actual.SyncId);
+			
+			// Remove SyncId exclusions
+			properties = properties.Except(new[] { nameof(AddressEntity.SyncId) }).ToList();
+			expected.SyncId = address.SyncId;
+			actual = new AddressEntity();
+			actual.UpdateWith(address, properties.ToArray());
+			TestHelper.AreEqual(expected, actual);
+			Assert.AreEqual(1, actual.Id);
+			Assert.AreEqual(expectedGuid, actual.SyncId);
+		}
+
+		[TestMethod]
 		public void VirtualPropertyNames()
 		{
 			var itemsToTest = new Dictionary<Type, string[]>

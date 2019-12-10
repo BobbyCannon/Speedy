@@ -20,6 +20,11 @@ namespace Speedy.Sync
 		/// </summary>
 		private readonly HashSet<string> _excludedPropertiesForSync;
 
+		/// <summary>
+		/// Cached version of the "real" type, meaning not EF proxy but rather root type
+		/// </summary>
+		private Type _realType;
+
 		#endregion
 
 		#region Constructors
@@ -29,7 +34,7 @@ namespace Speedy.Sync
 		/// </summary>
 		protected SyncEntity()
 		{
-			_excludedPropertiesForSync = ExclusionsForSync.GetOrAdd(GetType(), new HashSet<string>(GetDefaultExclusionsForSync()));
+			_excludedPropertiesForSync = AddExclusionsForSync(GetType(), new HashSet<string>(GetDefaultExclusionsForSync()));
 		}
 
 		#endregion
@@ -127,13 +132,12 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public virtual void UpdateLocalSyncIds()
 		{
-			var type = this.GetRealType();
-			var baseEntityType = typeof(ISyncEntity);
+			var type = _realType ??= this.GetRealType();
 			var properties = type.GetCachedProperties().ToList();
 
 			var entityRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
-				.Where(x => baseEntityType.IsAssignableFrom(x.PropertyType))
+				.Where(x => SyncEntityInterfaceType.IsAssignableFrom(x.PropertyType))
 				.ToList();
 
 			foreach (var entityRelationship in entityRelationships)
@@ -157,13 +161,32 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public void UpdateWith(ISyncEntity update, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
 		{
-			var destinationType = this.GetRealType();
+			var destinationType = _realType ??= this.GetRealType();
+			var exclusions = new HashSet<string>();
+
+			// Need to cache this? would this save on GC?
+			exclusions.AddRange(destinationType.GetVirtualPropertyNames());
+
+			if (excludePropertiesForSync)
+			{
+				exclusions.AddRange(GetExcludedPropertiesForSync());
+			}
+
+			if (excludePropertiesForUpdate)
+			{
+				exclusions.AddRange(GetExcludedPropertiesForUpdate());
+			}
+
+			UpdateWith(update, exclusions.ToArray());
+		}
+
+		/// <inheritdoc />
+		public virtual void UpdateWith(ISyncEntity update, params string[] exclusions)
+		{
+			var destinationType = _realType ??= this.GetRealType();
 			var sourceType = update.GetRealType();
 			var destinationProperties = destinationType.GetCachedProperties();
 			var sourceProperties = sourceType.GetCachedProperties();
-
-			// Need to cache this? would this save on GC?
-			var virtualProperties = destinationType.GetVirtualPropertyNames().ToArray();
 
 			foreach (var thisProperty in destinationProperties)
 			{
@@ -174,11 +197,9 @@ namespace Speedy.Sync
 					continue;
 				}
 
-				var isPropertyExcludedForSync = excludePropertiesForSync && (IsPropertyExcludedForSync(thisProperty.Name) || update.IsPropertyExcludedForSync(thisProperty.Name));
-				var isPropertyExcludedForUpdate = excludePropertiesForUpdate && (IsPropertyExcludedForUpdate(thisProperty.Name) || update.IsPropertyExcludedForUpdate(thisProperty.Name));
-
-				// We always ignore virtual properties and possible some exclusions
-				if (isPropertyExcludedForSync || isPropertyExcludedForUpdate || virtualProperties.Contains(thisProperty.Name))
+				// See if the property is excluded
+				var isPropertyExcluded = exclusions.Contains(thisProperty.Name);
+				if (isPropertyExcluded)
 				{
 					continue;
 				}

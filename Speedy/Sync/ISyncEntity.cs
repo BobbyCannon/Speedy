@@ -80,6 +80,13 @@ namespace Speedy.Sync
 		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
 		void UpdateWith(ISyncEntity update, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true);
 
+		/// <summary>
+		/// Updates the entity with the provided entity.
+		/// </summary>
+		/// <param name="update"> The source of the update. </param>
+		/// <param name="exclusions"> Excluded properties will not be set during update. </param>
+		void UpdateWith(ISyncEntity update, params string[] exclusions);
+
 		#endregion
 	}
 }

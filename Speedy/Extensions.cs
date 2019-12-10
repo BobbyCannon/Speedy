@@ -1043,6 +1043,11 @@ namespace Speedy
 		/// <returns> The disconnected entity. </returns>
 		public static object Unwrap(this object value, Type type)
 		{
+			if (value is IUnwrappable unwrappable)
+			{
+				return unwrappable.Unwrap();
+			}
+
 			return value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson(type);
 		}
 
