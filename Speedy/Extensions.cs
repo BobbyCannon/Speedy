@@ -1025,10 +1025,7 @@ namespace Speedy
 		/// <returns> The disconnected entity. </returns>
 		public static T2 Unwrap<T, T2>(this T value, Action<T2> update = null)
 		{
-			if (value is IUnwrappable unwrappable)
-			{
-				return (T2) unwrappable.Unwrap();
-			}
+			// notice: do not use Unwrappable until it can support to specific types
 
 			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
 			update?.Invoke(response);
