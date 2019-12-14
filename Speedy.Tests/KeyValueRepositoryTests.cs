@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Storage.KeyValue;
-using Speedy.Website.Models;
 using Speedy.Website.Samples.Models;
 
 #endregion
@@ -25,29 +24,27 @@ namespace Speedy.Tests
 		public void Archive()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
-			{
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Foo2", "Bar2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Foo2", "Bar2");
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
 
-				var archiveFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy.archive");
-				var repositoryFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsFalse(archiveFile.Exists);
-				Assert.IsTrue(repositoryFile.Exists);
+			var archiveFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy.archive");
+			var repositoryFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsFalse(archiveFile.Exists);
+			Assert.IsTrue(repositoryFile.Exists);
 
-				repository.Archive();
-				archiveFile.Refresh();
-				repositoryFile.Refresh();
+			repository.Archive();
+			archiveFile.Refresh();
+			repositoryFile.Refresh();
 
-				Assert.IsTrue(archiveFile.Exists);
-				Assert.IsFalse(repositoryFile.Exists);
+			Assert.IsTrue(archiveFile.Exists);
+			Assert.IsFalse(repositoryFile.Exists);
 
-				var expected = string.Format("Foo1|\"Bar1\"{0}Foo2|\"Bar2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine);
-				var actual = archiveFile.ReadAllText();
-				Assert.AreEqual(expected, actual);
-			}
+			var expected = string.Format("Foo1|\"Bar1\"{0}Foo2|\"Bar2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine);
+			var actual = archiveFile.ReadAllText();
+			Assert.AreEqual(expected, actual);
 		}
 
 		[ClassCleanup]
@@ -57,27 +54,43 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void Clear()
+		{
+			var name = Guid.NewGuid().ToString();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Write("Item3", "Item3");
+			repository.Write("Item1", "Item1");
+			repository.Save();
+
+			var actual = repository.ToList();
+			Assert.AreEqual(3, actual.Count);
+
+			repository.Clear();
+			Assert.AreEqual(0, repository.Count);
+		}
+
+		[TestMethod]
 		public void ClearItemFromDisk()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
-			{
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Foo2", "Bar2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Foo2", "Bar2");
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
 
-				// Only Foo1 should be in the file.
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var expected = string.Format("Foo1|\"Bar1\"{0}Foo2|\"Bar2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine);
-				var actual = info.ReadAllText();
-				Assert.AreEqual(expected, actual);
-				Assert.IsTrue(info.Length > 0);
+			// Only Foo1 should be in the file.
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			var expected = string.Format("Foo1|\"Bar1\"{0}Foo2|\"Bar2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine);
+			var actual = info.ReadAllText();
+			Assert.AreEqual(expected, actual);
+			Assert.IsTrue(info.Length > 0);
 
-				repository.Clear();
-				info.Refresh();
-				Assert.AreEqual(0, info.Length);
-			}
+			repository.Clear();
+			info.Refresh();
+			Assert.AreEqual(0, info.Length);
 		}
 
 		[TestMethod]
@@ -148,73 +161,63 @@ namespace Speedy.Tests
 			var badData = string.Format("Foo3{0}Bar2|\"Foo2\"{0}{0}|{0}Foo1|\"Bar1\"{0}", Environment.NewLine);
 			File.WriteAllText(info.FullName, badData, Encoding.UTF8);
 
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
-			{
-				Assert.AreEqual(2, repository.Count);
-			}
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			Assert.AreEqual(2, repository.Count);
 		}
 
 		[TestMethod]
 		public void CountShouldReturnCorrectValue()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
-			{
-				repository.Write("Item1", "Item1");
-				repository.Write("Item2", "Item2");
-				repository.Remove("Item2");
-				repository.Write("Item3", "Item3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Remove("Item2");
+			repository.Write("Item3", "Item3");
+			repository.Save();
 
-				Assert.AreEqual(2, repository.Count);
-			}
+			Assert.AreEqual(2, repository.Count);
 		}
 
 		[TestMethod]
 		public void CountShouldReturnZero()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
-			{
-				repository.Write("Item1", "Item1");
-				repository.Save();
-				Assert.AreEqual(1, repository.Count);
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Save();
+			Assert.AreEqual(1, repository.Count);
 
-				repository.Remove("Item1");
-				repository.Save();
-				Assert.AreEqual(0, repository.Count);
-			}
+			repository.Remove("Item1");
+			repository.Save();
+			Assert.AreEqual(0, repository.Count);
 		}
 
 		[TestMethod]
 		public void CountShouldReturnZeroWithoutSave()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
-			{
-				repository.Write("Item1", "Item1");
-				repository.Write("Item2", "Item2");
-				repository.Write("Item3", "Item3");
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Write("Item3", "Item3");
 
-				Assert.AreEqual(0, repository.Count);
-			}
+			Assert.AreEqual(0, repository.Count);
 		}
 
 		[TestMethod]
 		public void Delete()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
-			{
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Foo2", "Bar2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Foo2", "Bar2");
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
 
-				var repositoryFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(repositoryFile.Exists);
+			var repositoryFile = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(repositoryFile.Exists);
 
-				repository.Delete();
-				repositoryFile.Refresh();
-				Assert.IsFalse(repositoryFile.Exists);
-			}
+			repository.Delete();
+			repositoryFile.Refresh();
+			Assert.IsFalse(repositoryFile.Exists);
 		}
 
 		[TestMethod]
@@ -241,53 +244,66 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringMultipleWrites()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Write("Bar2", "Foo2");
+			repository.Write("Item3", "Item3");
+			repository.Save();
+			Assert.AreEqual(3, repository.Count);
+
+			repository.Write("Item1", "Item1");
+			repository.Save();
+			Assert.AreEqual(3, repository.Count);
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				repository.Write("Item1", "Item1");
-				repository.Write("Bar2", "Foo2");
-				repository.Write("Item3", "Item3");
-				repository.Save();
-				Assert.AreEqual(3, repository.Count);
+				new KeyValuePair<string, string>("Bar2", "Foo2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item1")
+			};
 
-				repository.Write("Item1", "Item1");
-				repository.Save();
-				Assert.AreEqual(3, repository.Count);
-
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Bar2", "Foo2"),
-					new KeyValuePair<string, string>("Item3", "Item3"),
-					new KeyValuePair<string, string>("Item1", "Item1")
-				};
-
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(3, actual.Count);
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void DuplicateKeysShouldNotHappenDuringWrite()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Write("Item3", "Item3");
+			repository.Write("Item1", "Item1");
+			repository.Save();
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				repository.Write("Item1", "Item1");
-				repository.Write("Item2", "Item2");
-				repository.Write("Item3", "Item3");
-				repository.Write("Item1", "Item1");
-				repository.Save();
+				new KeyValuePair<string, string>("Item2", "Item2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item1")
+			};
 
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3"),
-					new KeyValuePair<string, string>("Item1", "Item1")
-				};
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
+		}
 
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(3, actual.Count);
-				TestHelper.AreEqual(expected, actual);
-			}
+		[TestMethod]
+		public void Enumeration()
+		{
+			var name = Guid.NewGuid().ToString();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Write("Item3", "Item3");
+			repository.Write("Item1", "Item1");
+			repository.Save();
+
+			var expected = new List<string> { "Item2", "Item3", "Item1" };
+			var actual = repository.ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		//[TestMethod]
@@ -311,169 +327,157 @@ namespace Speedy.Tests
 		public void FlushShouldWriteAllItems()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 20))
-			{
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Foo2", "Bar2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 20);
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Foo2", "Bar2");
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
 
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(0, info.Length);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.AreEqual(0, info.Length);
 
-				repository.Flush();
-				info.Refresh();
-				Assert.IsTrue(info.Length > 0);
-			}
+			repository.Flush();
+			info.Refresh();
+			Assert.IsTrue(info.Length > 0);
 		}
 
 		[TestMethod]
 		public void LastActionForKeyShouldWin()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Write("Item3", "Item3");
+			repository.Remove("Item1");
+			repository.Write("Item1", "Item10");
+			repository.Save();
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				repository.Write("Item1", "Item1");
-				repository.Write("Item2", "Item2");
-				repository.Write("Item3", "Item3");
-				repository.Remove("Item1");
-				repository.Write("Item1", "Item10");
-				repository.Save();
+				new KeyValuePair<string, string>("Item2", "Item2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item10")
+			};
 
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3"),
-					new KeyValuePair<string, string>("Item1", "Item10")
-				};
-
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(3, actual.Count);
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void LastWriteForKeyShouldWin()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1");
+			repository.Write("Item2", "Item2");
+			repository.Write("Item3", "Item3");
+			repository.Write("Item1", "Item10");
+			repository.Save();
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				repository.Write("Item1", "Item1");
-				repository.Write("Item2", "Item2");
-				repository.Write("Item3", "Item3");
-				repository.Write("Item1", "Item10");
-				repository.Save();
+				new KeyValuePair<string, string>("Item2", "Item2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item10")
+			};
 
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Item2", "Item2"),
-					new KeyValuePair<string, string>("Item3", "Item3"),
-					new KeyValuePair<string, string>("Item1", "Item10")
-				};
-
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(3, actual.Count);
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void LoadUsingDictionary()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
-			{
-				repository.Load(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
-				Assert.AreEqual(2, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
-				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine + "Foo2|\"Bar2\"" + Environment.NewLine, actual);
-			}
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1));
+			repository.Load(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
+			Assert.AreEqual(2, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
+			var actual = info.ReadAllText();
+			Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine + "Foo2|\"Bar2\"" + Environment.NewLine, actual);
 		}
 
 		[TestMethod]
 		public void MultithreadedWriteAndReadTest()
 		{
-			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 10))
+			using var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 10);
+			var repository = context;
+			var random = new Random();
+
+			var readAction = new Action<IKeyValueRepository<string>>(repo =>
 			{
-				var repository = context;
-				var random = new Random();
+				Thread.Sleep(random.Next(10, 50));
+				repository.Read().ToList();
+			});
 
-				var readAction = new Action<IKeyValueRepository<string>>(repo =>
+			var writeAction = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
+			{
+				for (var i = min; i < max; i++)
 				{
-					Thread.Sleep(random.Next(10, 50));
-					repository.Read().ToList();
-				});
+					repository.Write("Key" + i, "Value" + i);
+					repository.Save();
+				}
 
-				var writeAction = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
-				{
-					for (var i = min; i < max; i++)
-					{
-						repository.Write("Key" + i, "Value" + i);
-						repository.Save();
-					}
+				repository.Flush();
+			});
 
-					repository.Flush();
-				});
+			var size = 20;
 
-				var size = 20;
+			var tasks = new[]
+			{
+				Task.Factory.StartNew(() => writeAction(repository, 0, size)),
+				Task.Factory.StartNew(() => readAction(repository)),
+				Task.Factory.StartNew(() => writeAction(repository, 1 * size, 1 * size + size)),
+				Task.Factory.StartNew(() => readAction(repository)),
+				Task.Factory.StartNew(() => writeAction(repository, 2 * size, 2 * size + size)),
+				Task.Factory.StartNew(() => readAction(repository)),
+				Task.Factory.StartNew(() => writeAction(repository, 3 * size, 3 * size + size)),
+				Task.Factory.StartNew(() => readAction(repository))
+			};
 
-				var tasks = new[]
-				{
-					Task.Factory.StartNew(() => writeAction(repository, 0, size)),
-					Task.Factory.StartNew(() => readAction(repository)),
-					Task.Factory.StartNew(() => writeAction(repository, 1 * size, 1 * size + size)),
-					Task.Factory.StartNew(() => readAction(repository)),
-					Task.Factory.StartNew(() => writeAction(repository, 2 * size, 2 * size + size)),
-					Task.Factory.StartNew(() => readAction(repository)),
-					Task.Factory.StartNew(() => writeAction(repository, 3 * size, 3 * size + size)),
-					Task.Factory.StartNew(() => readAction(repository))
-				};
+			Task.WaitAll(tasks);
 
-				Task.WaitAll(tasks);
-
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(tasks.Length / 2 * size, actual.Count);
-			}
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(tasks.Length / 2 * size, actual.Count);
 		}
 
 		[TestMethod]
 		public void MultithreadedWriteTest()
 		{
-			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
+			using var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5);
+			var repository = context;
+			var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
 			{
-				var repository = context;
-				var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
+				for (var i = min; i < max; i++)
 				{
-					for (var i = min; i < max; i++)
-					{
-						repository.Write("Key" + i, "Value" + i);
-						repository.Save();
-					}
+					repository.Write("Key" + i, "Value" + i);
+					repository.Save();
+				}
 
-					repository.Flush();
-				});
-
-				var size = 10;
-
-				var tasks = new[]
-				{
-					Task.Factory.StartNew(() => action(repository, 0, size)),
-					Task.Factory.StartNew(() => action(repository, 1 * size, 1 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 2 * size, 2 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 3 * size, 3 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 4 * size, 4 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 5 * size, 5 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 6 * size, 6 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 7 * size, 7 * size + size))
-				};
-
-				Task.WaitAll(tasks);
 				repository.Flush();
+			});
 
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(tasks.Length * size, actual.Count);
-			}
+			var size = 10;
+
+			var tasks = new[]
+			{
+				Task.Factory.StartNew(() => action(repository, 0, size)),
+				Task.Factory.StartNew(() => action(repository, 1 * size, 1 * size + size)),
+				Task.Factory.StartNew(() => action(repository, 2 * size, 2 * size + size)),
+				Task.Factory.StartNew(() => action(repository, 3 * size, 3 * size + size)),
+				Task.Factory.StartNew(() => action(repository, 4 * size, 4 * size + size)),
+				Task.Factory.StartNew(() => action(repository, 5 * size, 5 * size + size)),
+				Task.Factory.StartNew(() => action(repository, 6 * size, 6 * size + size)),
+				Task.Factory.StartNew(() => action(repository, 7 * size, 7 * size + size))
+			};
+
+			Task.WaitAll(tasks);
+			repository.Flush();
+
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(tasks.Length * size, actual.Count);
 		}
 
 		/// <summary>
@@ -482,40 +486,38 @@ namespace Speedy.Tests
 		[TestMethod]
 		public void MultithreadedWriteTestOverlappingEvents()
 		{
-			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
+			using var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5);
+			var repository = context;
+			var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
 			{
-				var repository = context;
-				var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
+				for (var i = min; i < max; i++)
 				{
-					for (var i = min; i < max; i++)
-					{
-						repository.Write("Key" + i, "Value" + i);
-						repository.Save();
-					}
+					repository.Write("Key" + i, "Value" + i);
+					repository.Save();
+				}
 
-					repository.Flush();
-				});
-
-				var size = 10;
-
-				var tasks = new[]
-				{
-					Task.Factory.StartNew(() => action(repository, 0, size)),
-					Task.Factory.StartNew(() => action(repository, 1, 1 + size)),
-					Task.Factory.StartNew(() => action(repository, 2, 2 + size)),
-					Task.Factory.StartNew(() => action(repository, 3, 3 + size)),
-					Task.Factory.StartNew(() => action(repository, 4, 4 + size)),
-					Task.Factory.StartNew(() => action(repository, 5, 5 + size)),
-					Task.Factory.StartNew(() => action(repository, 6, 6 + size)),
-					Task.Factory.StartNew(() => action(repository, 7, 7 + size))
-				};
-
-				Task.WaitAll(tasks);
 				repository.Flush();
+			});
 
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(tasks.Length + size - 1, actual.Count);
-			}
+			var size = 10;
+
+			var tasks = new[]
+			{
+				Task.Factory.StartNew(() => action(repository, 0, size)),
+				Task.Factory.StartNew(() => action(repository, 1, 1 + size)),
+				Task.Factory.StartNew(() => action(repository, 2, 2 + size)),
+				Task.Factory.StartNew(() => action(repository, 3, 3 + size)),
+				Task.Factory.StartNew(() => action(repository, 4, 4 + size)),
+				Task.Factory.StartNew(() => action(repository, 5, 5 + size)),
+				Task.Factory.StartNew(() => action(repository, 6, 6 + size)),
+				Task.Factory.StartNew(() => action(repository, 7, 7 + size))
+			};
+
+			Task.WaitAll(tasks);
+			repository.Flush();
+
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(tasks.Length + size - 1, actual.Count);
 		}
 
 		[TestMethod]
@@ -605,18 +607,16 @@ namespace Speedy.Tests
 			var badData = string.Format("Foo3{0}Bar2|\"Foo2\"{0}{0}|{0}Foo1|\"Bar1\"{0}", Environment.NewLine);
 			File.WriteAllText(info.FullName, badData, Encoding.UTF8);
 
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Bar2", "Foo2"),
-					new KeyValuePair<string, string>("Foo1", "Bar1")
-				};
+				new KeyValuePair<string, string>("Bar2", "Foo2"),
+				new KeyValuePair<string, string>("Foo1", "Bar1")
+			};
 
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(2, actual.Count);
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(2, actual.Count);
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -634,24 +634,22 @@ namespace Speedy.Tests
 		public void ReadItemFromCache()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
-			{
-				repository.Write("Foo1", "Bar1");
-				Thread.Sleep(1500);
-				repository.Write("Bar2", "Foo2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
+			repository.Write("Foo1", "Bar1");
+			Thread.Sleep(1500);
+			repository.Write("Bar2", "Foo2");
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
 
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
 
-				// Only Foo1 should be in the file.
-				var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
-				var actual = info.ReadAllText();
-				Assert.AreEqual(expected, actual);
-				actual = repository.Read("Bar2");
-				Assert.AreEqual("Foo2", actual);
-			}
+			// Only Foo1 should be in the file.
+			var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
+			var actual = info.ReadAllText();
+			Assert.AreEqual(expected, actual);
+			actual = repository.Read("Bar2");
+			Assert.AreEqual("Foo2", actual);
 		}
 
 		[TestMethod]
@@ -674,158 +672,163 @@ namespace Speedy.Tests
 		}
 
 		[TestMethod]
+		public void ReadKeys()
+		{
+			var name = Guid.NewGuid().ToString();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Key1", "Item1");
+			repository.Write("Key2", "Item2");
+			repository.Write("Key3", "Item3");
+			repository.Write("Key1", "Item1");
+			repository.Save();
+
+			var expected = new List<string> { "Key2", "Key3", "Key1" };
+			var actual = repository.ReadKeys().ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
 		public void ReadOnlyWrittenItemsFromDisk()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
-			{
-				repository.Write("Foo1", "Bar1");
-				Thread.Sleep(1500);
-				repository.Write("Foo2", "Bar2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
+			repository.Write("Foo1", "Bar1");
+			Thread.Sleep(1500);
+			repository.Write("Foo2", "Bar2");
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
 
-				// Only Foo1 should be in the file.
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
+			// Only Foo1 should be in the file.
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
 
-				var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
-				var actual = info.ReadAllText();
-				Assert.AreEqual(expected, actual);
-				actual = repository.Read("Foo1");
-				Assert.AreEqual("Bar1", actual);
-			}
+			var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
+			var actual = info.ReadAllText();
+			Assert.AreEqual(expected, actual);
+			actual = repository.Read("Foo1");
+			Assert.AreEqual("Bar1", actual);
 		}
 
 		[TestMethod]
 		public void ReadOrderWithCaching()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 10))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 10);
+			repository.Write("Foo4", "Bar4");
+			repository.Write("Bar4", "Foo4");
+			repository.Write("Yo", "Nope");
+			repository.Remove("Yo");
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Bar1", "Foo1");
+			repository.Save();
+
+			Assert.AreEqual(4, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.AreEqual(0, info.Length);
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				repository.Write("Foo4", "Bar4");
-				repository.Write("Bar4", "Foo4");
-				repository.Write("Yo", "Nope");
-				repository.Remove("Yo");
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Bar1", "Foo1");
-				repository.Save();
+				new KeyValuePair<string, string>("Foo4", "Bar4"),
+				new KeyValuePair<string, string>("Bar4", "Foo4"),
+				new KeyValuePair<string, string>("Foo1", "Bar1"),
+				new KeyValuePair<string, string>("Bar1", "Foo1")
+			};
 
-				Assert.AreEqual(4, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(0, info.Length);
-
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Foo4", "Bar4"),
-					new KeyValuePair<string, string>("Bar4", "Foo4"),
-					new KeyValuePair<string, string>("Foo1", "Bar1"),
-					new KeyValuePair<string, string>("Bar1", "Foo1")
-				};
-
-				var actual = repository.Read().ToList();
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read().ToList();
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void ReadOrderWithNoCaching()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Foo4", "Bar4");
+			repository.Write("Bar4", "Foo4");
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Bar1", "Foo1");
+			repository.Save();
+
+			Assert.AreEqual(4, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
+			var actualText = info.ReadAllText();
+			Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actualText);
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				repository.Write("Foo4", "Bar4");
-				repository.Write("Bar4", "Foo4");
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Bar1", "Foo1");
-				repository.Save();
+				new KeyValuePair<string, string>("Foo4", "Bar4"),
+				new KeyValuePair<string, string>("Bar4", "Foo4"),
+				new KeyValuePair<string, string>("Foo1", "Bar1"),
+				new KeyValuePair<string, string>("Bar1", "Foo1")
+			};
 
-				Assert.AreEqual(4, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
-				var actualText = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actualText);
-
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Foo4", "Bar4"),
-					new KeyValuePair<string, string>("Bar4", "Foo4"),
-					new KeyValuePair<string, string>("Foo1", "Bar1"),
-					new KeyValuePair<string, string>("Bar1", "Foo1")
-				};
-
-				var actual = repository.Read().ToList();
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read().ToList();
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void ReadUsingCondition()
 		{
-			using (var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using var context = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			var repository = context;
+
+			repository.Write(repository.Name, "Root object");
+			repository.Write("ChildItem1", "ChildItemValue1");
+			repository.Write("ChildItem2", "ChildItemValue2");
+			repository.Save();
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				var repository = context;
+				new KeyValuePair<string, string>("ChildItem1", "ChildItemValue1"),
+				new KeyValuePair<string, string>("ChildItem2", "ChildItemValue2")
+			};
 
-				repository.Write(repository.Name, "Root object");
-				repository.Write("ChildItem1", "ChildItemValue1");
-				repository.Write("ChildItem2", "ChildItemValue2");
-				repository.Save();
-
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("ChildItem1", "ChildItemValue1"),
-					new KeyValuePair<string, string>("ChildItem2", "ChildItemValue2")
-				};
-
-				var actual = repository.Read(key => key != repository.Name).ToList();
-				Assert.AreEqual(2, actual.Count);
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read(key => key != repository.Name).ToList();
+			Assert.AreEqual(2, actual.Count);
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void RemoveShouldRemoveItem()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
-			{
-				repository.Write("Item1", "Value1");
-				repository.Write("Item2", "Value2");
-				repository.Write("Item3", "Value3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Value1");
+			repository.Write("Item2", "Value2");
+			repository.Write("Item3", "Value3");
+			repository.Save();
 
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(actual.Count, 3);
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(actual.Count, 3);
 
-				repository.Remove(new HashSet<string>(new[] { "Item2" }));
-				repository.Save();
+			repository.Remove(new HashSet<string>(new[] { "Item2" }));
+			repository.Save();
 
-				actual = repository.Read().ToList();
-				Assert.AreEqual(actual.Count, 2);
-				Assert.AreEqual("Item1", actual[0].Key);
-				Assert.AreEqual("Value1", actual[0].Value);
-				Assert.AreEqual("Item3", actual[1].Key);
-				Assert.AreEqual("Value3", actual[1].Value);
-			}
+			actual = repository.Read().ToList();
+			Assert.AreEqual(actual.Count, 2);
+			Assert.AreEqual("Item1", actual[0].Key);
+			Assert.AreEqual("Value1", actual[0].Value);
+			Assert.AreEqual("Item3", actual[1].Key);
+			Assert.AreEqual("Value3", actual[1].Value);
 		}
 
 		[TestMethod]
 		public void RepositoryWithComplexRelationship()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository<Person>.Create(TestHelper.Directory, name))
-			{
-				var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-				var expected = new Person { Address = address, Name = "Bob Smith" };
-				var id = Guid.NewGuid().ToString();
+			using var repository = KeyValueRepository<Person>.Create(TestHelper.Directory, name);
+			var address = new Address { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+			var expected = new Person { Address = address, Name = "Bob Smith" };
+			var id = Guid.NewGuid().ToString();
 
-				repository.Write(id, expected);
-				repository.Save();
-				repository.Flush();
+			repository.Write(id, expected);
+			repository.Save();
+			repository.Flush();
 
-				var actual = repository.Read(id);
+			var actual = repository.Read(id);
 
-				TestHelper.AreEqual(expected, actual);
-			}
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -837,14 +840,12 @@ namespace Speedy.Tests
 			var badData = string.Format("Foo3{0}Bar2|\"Foo2\"{0}{0}|{0}Foo1|\"Bar1\"{0}", Environment.NewLine);
 			File.WriteAllText(tempInfo.FullName, badData, Encoding.UTF8);
 
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
-			{
-				Assert.AreEqual(2, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var expected = string.Format("Bar2|\"Foo2\"{0}Foo1|\"Bar1\"{0}", Environment.NewLine);
-				var actual = info.ReadAllText();
-				TestHelper.AreEqual(expected, actual);
-			}
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			Assert.AreEqual(2, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			var expected = string.Format("Bar2|\"Foo2\"{0}Foo1|\"Bar1\"{0}", Environment.NewLine);
+			var actual = info.ReadAllText();
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -856,239 +857,213 @@ namespace Speedy.Tests
 			var expected = string.Format("Foo3|\"Bar3\"{0}Bar2|\"Foo2\"{0}Foo1|\"Bar1\"{0}", Environment.NewLine);
 			File.WriteAllText(tempInfo.FullName, expected);
 
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
-			{
-				Assert.AreEqual(3, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var actual = info.ReadAllText();
-				Assert.AreEqual(expected.Length, actual.Length);
-				Assert.AreEqual(expected, actual);
-			}
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			Assert.AreEqual(3, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			var actual = info.ReadAllText();
+			Assert.AreEqual(expected.Length, actual.Length);
+			Assert.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void SaveShouldNotWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 10))
-			{
-				repository.Write("Foo", "Bar");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 10);
+			repository.Write("Foo", "Bar");
+			repository.Save();
 
-				Assert.AreEqual(1, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.AreEqual(0, info.Length);
-			}
+			Assert.AreEqual(1, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.AreEqual(0, info.Length);
 		}
 
 		[TestMethod]
 		public void SaveShouldOnlyWriteItemsOverLimitToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 2))
-			{
-				repository.Write("Foo3", "Bar3");
-				repository.Write("Bar2", "Foo2");
-				repository.Write("Foo1", "Bar1");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1), 2);
+			repository.Write("Foo3", "Bar3");
+			repository.Write("Bar2", "Foo2");
+			repository.Write("Foo1", "Bar1");
+			repository.Save();
 
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
-				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo3|\"Bar3\"" + Environment.NewLine, actual);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
+			var actual = info.ReadAllText();
+			Assert.AreEqual("Foo3|\"Bar3\"" + Environment.NewLine, actual);
 
-				repository.Flush();
-				info.Refresh();
-				Assert.IsTrue(info.Length > 0);
-				actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo3|\"Bar3\"{0}Bar2|\"Foo2\"{0}Foo1|\"Bar1\"{0}", Environment.NewLine), actual);
-			}
+			repository.Flush();
+			info.Refresh();
+			Assert.IsTrue(info.Length > 0);
+			actual = info.ReadAllText();
+			Assert.AreEqual(string.Format("Foo3|\"Bar3\"{0}Bar2|\"Foo2\"{0}Foo1|\"Bar1\"{0}", Environment.NewLine), actual);
 		}
 
 		[TestMethod]
 		public void SaveShouldOnlyWriteItemsOverTimeoutToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
-			{
-				repository.Write("Foo1", "Bar1");
-				Thread.Sleep(1500);
-				repository.Write("Bar2", "Foo2");
-				repository.Write("Foo3", "Bar3");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
+			repository.Write("Foo1", "Bar1");
+			Thread.Sleep(1500);
+			repository.Write("Bar2", "Foo2");
+			repository.Write("Foo3", "Bar3");
+			repository.Save();
 
-				// Only Foo1 should be in the file.
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
-				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine, actual);
+			// Only Foo1 should be in the file.
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
+			var actual = info.ReadAllText();
+			Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine, actual);
 
-				repository.Flush();
-				info.Refresh();
-				Assert.IsTrue(info.Length > 0);
-				actual = info.ReadAllText();
-				Assert.AreEqual(39, actual.Length);
-				actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo1|\"Bar1\"{0}Bar2|\"Foo2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine), actual);
-			}
+			repository.Flush();
+			info.Refresh();
+			Assert.IsTrue(info.Length > 0);
+			actual = info.ReadAllText();
+			Assert.AreEqual(39, actual.Length);
+			actual = info.ReadAllText();
+			Assert.AreEqual(string.Format("Foo1|\"Bar1\"{0}Bar2|\"Foo2\"{0}Foo3|\"Bar3\"{0}", Environment.NewLine), actual);
 		}
 
 		[TestMethod]
 		public void TryReadInvalidKeyShouldReturnFalse()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
-			{
-				var actual = repository.TryRead("Blah", out var value);
-				Assert.AreEqual(false, actual);
-				Assert.AreEqual(null, value);
-			}
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			var actual = repository.TryRead("Blah", out var value);
+			Assert.AreEqual(false, actual);
+			Assert.AreEqual(null, value);
 		}
 
 		[TestMethod]
 		public void TryReadInvalidKeyShouldReturnTrue()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
-			{
-				repository.Write("Blah", "Value");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Blah", "Value");
+			repository.Save();
 
-				var actual = repository.TryRead("Blah", out var value);
-				Assert.AreEqual(true, actual);
-				Assert.AreEqual("Value", value);
-			}
+			var actual = repository.TryRead("Blah", out var value);
+			Assert.AreEqual(true, actual);
+			Assert.AreEqual("Value", value);
 		}
 
 		[TestMethod]
 		public void WriteItemValueWithPipeCharacter()
 		{
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString()))
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, Guid.NewGuid().ToString());
+			repository.Write("Item1", "Item1|Item2");
+			repository.Write("Item2", "Item2|Boo");
+			repository.Write("Item3", "Item3|Foo|Bar|Again");
+			repository.Save();
+
+			var expected = new List<KeyValuePair<string, string>>
 			{
-				repository.Write("Item1", "Item1|Item2");
-				repository.Write("Item2", "Item2|Boo");
-				repository.Write("Item3", "Item3|Foo|Bar|Again");
-				repository.Save();
+				new KeyValuePair<string, string>("Item1", "Item1|Item2"),
+				new KeyValuePair<string, string>("Item2", "Item2|Boo"),
+				new KeyValuePair<string, string>("Item3", "Item3|Foo|Bar|Again")
+			};
 
-				var expected = new List<KeyValuePair<string, string>>
-				{
-					new KeyValuePair<string, string>("Item1", "Item1|Item2"),
-					new KeyValuePair<string, string>("Item2", "Item2|Boo"),
-					new KeyValuePair<string, string>("Item3", "Item3|Foo|Bar|Again")
-				};
-
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(3, actual.Count);
-				TestHelper.AreEqual(expected, actual);
-			}
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
 		public void WriteOrderWithCachingLimit()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 2))
-			{
-				repository.Write("Foo4", "Bar4");
-				repository.Write("Bar4", "Foo4");
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Bar1", "Foo1");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromMinutes(1), 2);
+			repository.Write("Foo4", "Bar4");
+			repository.Write("Bar4", "Foo4");
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Bar1", "Foo1");
+			repository.Save();
 
-				Assert.AreEqual(4, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}", Environment.NewLine), actual);
+			Assert.AreEqual(4, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			var actual = info.ReadAllText();
+			Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}", Environment.NewLine), actual);
 
-				repository.Flush();
-				info.Refresh();
-				Assert.IsTrue(info.Length > 0);
-				actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actual);
-			}
+			repository.Flush();
+			info.Refresh();
+			Assert.IsTrue(info.Length > 0);
+			actual = info.ReadAllText();
+			Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actual);
 		}
 
 		[TestMethod]
 		public void WriteOrderWithNoCaching()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name))
-			{
-				repository.Write("Foo4", "Bar4");
-				repository.Write("Bar4", "Foo4");
-				repository.Write("Foo1", "Bar1");
-				repository.Write("Bar1", "Foo1");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
+			repository.Write("Foo4", "Bar4");
+			repository.Write("Bar4", "Foo4");
+			repository.Write("Foo1", "Bar1");
+			repository.Write("Bar1", "Foo1");
+			repository.Save();
 
-				Assert.AreEqual(4, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
-				var actual = info.ReadAllText();
-				Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actual);
-			}
+			Assert.AreEqual(4, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
+			var actual = info.ReadAllText();
+			Assert.AreEqual(string.Format("Foo4|\"Bar4\"{0}Bar4|\"Foo4\"{0}Foo1|\"Bar1\"{0}Bar1|\"Foo1\"{0}", Environment.NewLine), actual);
 		}
 
 		[TestMethod]
 		public void WriteUsingDictionary()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
-			{
-				repository.Write(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1));
+			repository.Write(new Dictionary<string, string> { { "Foo1", "Bar1" }, { "Foo2", "Bar2" } });
+			repository.Save();
 
-				Assert.AreEqual(2, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				Assert.IsTrue(info.Length > 0);
-				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine + "Foo2|\"Bar2\"" + Environment.NewLine, actual);
-			}
+			Assert.AreEqual(2, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			Assert.IsTrue(info.Length > 0);
+			var actual = info.ReadAllText();
+			Assert.AreEqual("Foo1|\"Bar1\"" + Environment.NewLine + "Foo2|\"Bar2\"" + Environment.NewLine, actual);
 		}
 
 		[TestMethod]
 		public void ZeroLimitShouldSaveShouldWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1)))
-			{
-				repository.Write("Foo", "Bar");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromDays(1));
+			repository.Write("Foo", "Bar");
+			repository.Save();
 
-				Assert.AreEqual(1, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
-			}
+			Assert.AreEqual(1, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			var actual = info.ReadAllText();
+			Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
 		}
 
 		[TestMethod]
 		public void ZeroTimeoutShouldSaveShouldWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.Zero, 10))
-			{
-				repository.Write("Foo", "Bar");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.Zero, 10);
+			repository.Write("Foo", "Bar");
+			repository.Save();
 
-				Assert.AreEqual(1, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
-			}
+			Assert.AreEqual(1, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			var actual = info.ReadAllText();
+			Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
 		}
 
 		[TestMethod]
 		public void ZeroTimeoutViaNullShouldSaveShouldWriteToFile()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var repository = KeyValueRepository.Create(TestHelper.Directory, name, null, 10))
-			{
-				repository.Write("Foo", "Bar");
-				repository.Save();
+			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, null, 10);
+			repository.Write("Foo", "Bar");
+			repository.Save();
 
-				Assert.AreEqual(1, repository.Count);
-				var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-				var actual = info.ReadAllText();
-				Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
-			}
+			Assert.AreEqual(1, repository.Count);
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
+			var actual = info.ReadAllText();
+			Assert.AreEqual("Foo|\"Bar\"" + Environment.NewLine, actual);
 		}
 
 		#endregion

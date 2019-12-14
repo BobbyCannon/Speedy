@@ -12,8 +12,8 @@
 		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
 		<Copyright>© Copyright 2014 - 2019</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-		<AssemblyVersion>6.1.7.0</AssemblyVersion>
-		<FileVersion>6.1.7.0</FileVersion>
+		<AssemblyVersion>6.1.8.0</AssemblyVersion>
+		<FileVersion>6.1.8.0</FileVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<DebugSymbols>true</DebugSymbols>
@@ -55,7 +55,7 @@
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
-		<Version>6.1.7-RC</Version>
+		<Version>6.1.8-RC</Version>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup>
