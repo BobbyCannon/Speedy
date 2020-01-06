@@ -6,11 +6,11 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Speedy.Client.Samples.Models;
 using Speedy.Logging;
 using Speedy.Net;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
-using Speedy.Website.Samples.Models;
 
 #endregion
 
@@ -1189,6 +1189,7 @@ namespace Speedy.Samples.Tests
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
+				AddressEntity removedAddress;
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 				{
@@ -1204,7 +1205,7 @@ namespace Speedy.Samples.Tests
 					person.Address = clientDatabase.Addresses.First(x => x.Line1 == "Bar");
 					clientDatabase.SaveChanges();
 
-					var removedAddress = serverDatabase.Addresses.First(x => x.Line1 == "Bar");
+					removedAddress = serverDatabase.Addresses.First(x => x.Line1 == "Bar");
 					serverDatabase.Addresses.Remove(removedAddress);
 					serverDatabase.SaveChanges();
 				}
@@ -1214,7 +1215,10 @@ namespace Speedy.Samples.Tests
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 				{
-					Assert.AreEqual("Foo", serverDatabase.People.Including(x => x.Address).First().Address.Line1);
+					var serverPerson = serverDatabase.People.Including(x => x.Address).First();
+					Assert.AreEqual("Bar", serverPerson.Address.Line1);
+					Assert.AreEqual(removedAddress.SyncId, serverPerson.AddressSyncId);
+					Assert.AreEqual(removedAddress.SyncId, serverPerson.Address.SyncId);
 					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
 					TestHelper.AreEqual(serverDatabase.People.Count(), clientDatabase.People.Count());
 					Assert.AreEqual(2, clientDatabase.Addresses.Count());

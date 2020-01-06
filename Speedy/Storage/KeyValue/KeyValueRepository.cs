@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using Newtonsoft.Json;
 using Speedy.Streams;
 
@@ -55,10 +56,11 @@ namespace Speedy.Storage.KeyValue
 	{
 		#region Fields
 
-		private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
-		private readonly Dictionary<string, Tuple<string, DateTime>> _changes;
+		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _cache;
+		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _changes;
 		private readonly KeyValueRepositoryOptions _options;
 		private readonly JsonSerializerSettings _settings;
+		private ulong _writeIndex;
 
 		#endregion
 
@@ -99,9 +101,10 @@ namespace Speedy.Storage.KeyValue
 		protected KeyValueRepository(DirectoryInfo directoryInfo, string name, KeyValueRepositoryOptions options)
 		{
 			_options = options;
-			_cache = new Dictionary<string, Tuple<string, DateTime>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
-			_changes = new Dictionary<string, Tuple<string, DateTime>>();
+			_cache = new Dictionary<string, Tuple<string, DateTime, ulong>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
+			_changes = new Dictionary<string, Tuple<string, DateTime, ulong>>();
 			_settings = Extensions.GetSerializerSettings(false, false, true, false);
+			_writeIndex = 0;
 
 			DirectoryInfo = directoryInfo;
 			Name = name;
@@ -166,10 +169,11 @@ namespace Speedy.Storage.KeyValue
 				_cache.Clear();
 				_changes.Clear();
 
-				using var stream = OpenFile(FileInfo, false);
-
-				stream.SetLength(0);
-				stream.Flush(true);
+				using (var stream = OpenFile(FileInfo, false))
+				{
+					stream.SetLength(0);
+					stream.Flush(true);
+				}
 			}
 		}
 
@@ -286,17 +290,19 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				using var stream = OpenFile(FileInfo, false);
-				stream.Position = stream.Length;
-				var writer = new NoCloseStreamWriter(stream);
-
-				foreach (var item in items)
+				using (var stream = OpenFile(FileInfo, false))
 				{
-					writer.WriteLine(item.Key + "|" + item.Value.ToJson(_settings));
-				}
+					stream.Position = stream.Length;
+					var writer = new NoCloseStreamWriter(stream);
 
-				writer.Flush();
-				writer.Dispose();
+					foreach (var item in items)
+					{
+						writer.WriteLine(item.Key + "|" + item.Value.ToJson(_settings));
+					}
+
+					writer.Flush();
+					writer.Dispose();
+				}
 			}
 		}
 
@@ -311,7 +317,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				foreach (var item in _cache.OrderBy(x => x.Value.Item2).Where(x => x.Value.Item1 != null))
+				foreach (var item in _cache.OrderBy(x => x.Value.Item3).Where(x => x.Value.Item1 != null))
 				{
 					yield return new KeyValuePair<string, T>(item.Key, item.Value.Item1.FromJson<T>());
 				}
@@ -321,34 +327,36 @@ namespace Speedy.Storage.KeyValue
 					yield break;
 				}
 
-				using var stream = OpenFile(FileInfo, true);
-				var reader = new StreamReader(stream);
-
-				while (reader.Peek() > 0)
+				using (var stream = OpenFile(FileInfo, true))
 				{
-					var line = reader.ReadLine();
-					if (string.IsNullOrWhiteSpace(line))
+					var reader = new StreamReader(stream);
+
+					while (reader.Peek() > 0)
 					{
-						continue;
+						var line = reader.ReadLine();
+						if (string.IsNullOrWhiteSpace(line))
+						{
+							continue;
+						}
+
+						var delimiter = line.IndexOf("|");
+						if (delimiter <= 0)
+						{
+							continue;
+						}
+
+						var readKey = line.Substring(0, delimiter);
+						if (_cache.ContainsKey(readKey))
+						{
+							// Skip this item because it's in the cache.
+							continue;
+						}
+
+						var item = line.Substring(delimiter + 1, line.Length - delimiter - 1).FromJson<T>();
+						(item as IEntity)?.TrySetId(readKey);
+
+						yield return new KeyValuePair<string, T>(readKey, item);
 					}
-
-					var delimiter = line.IndexOf("|");
-					if (delimiter <= 0)
-					{
-						continue;
-					}
-
-					var readKey = line.Substring(0, delimiter);
-					if (_cache.ContainsKey(readKey))
-					{
-						// Skip this item because it's in the cache.
-						continue;
-					}
-
-					var item = line.Substring(delimiter + 1, line.Length - delimiter - 1).FromJson<T>();
-					(item as IEntity)?.TrySetId(readKey);
-
-					yield return new KeyValuePair<string, T>(readKey, item);
 				}
 			}
 		}
@@ -430,7 +438,7 @@ namespace Speedy.Storage.KeyValue
 					}
 
 					var readKey = line.Substring(0, delimiter);
-					_cache.AddOrUpdate(readKey, new Tuple<string, DateTime>(line.Substring(delimiter + 1, line.Length - delimiter - 1), DateTime.UtcNow));
+					_cache.AddOrUpdate(readKey, new Tuple<string, DateTime, ulong>(line.Substring(delimiter + 1, line.Length - delimiter - 1), TimeService.UtcNow, _writeIndex++));
 				}
 			}
 		}
@@ -443,7 +451,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(null, DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime, ulong>(null, TimeService.UtcNow, _writeIndex++));
 			}
 		}
 
@@ -468,7 +476,7 @@ namespace Speedy.Storage.KeyValue
 			{
 				UpdateCache();
 
-				var threshold = DateTime.UtcNow - _options.Timeout;
+				var threshold = TimeService.UtcNow - _options.Timeout;
 				if (_cache.Count <= _options.Limit && !_cache.Any(x => x.Value.Item2 <= threshold))
 				{
 					return;
@@ -514,7 +522,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(_settings), DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime, ulong>(value.ToJson(_settings), TimeService.UtcNow, _writeIndex++));
 			}
 		}
 
@@ -527,7 +535,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>($"\"{value}\"", DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime, ulong>($"\"{value}\"", TimeService.UtcNow, _writeIndex++));
 			}
 		}
 
@@ -605,7 +613,7 @@ namespace Speedy.Storage.KeyValue
 				if (TempFileInfo.Exists)
 				{
 					// Finish our save.
-					SaveRepository(DateTime.UtcNow);
+					SaveRepository(TimeService.UtcNow);
 				}
 
 				// Load everything from disk.
@@ -664,14 +672,14 @@ namespace Speedy.Storage.KeyValue
 			// Append the expired cache.
 			var expiredCache = _cache
 				.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null)
-				.OrderBy(x => x.Value.Item2)
+				.OrderBy(x => x.Value.Item3)
 				.ToDictionary(x => x.Key, x => x.Value);
 
 			// Append all add / updates items over the cache limit.
 			var overLimit = _cache
 				.Where(x => x.Value.Item1 != null)
 				.Where(x => !expiredCache.ContainsKey(x.Key))
-				.OrderBy(x => x.Value.Item2)
+				.OrderBy(x => x.Value.Item3)
 				.Take(_cache.Count - _options.Limit)
 				.ToDictionary(x => x.Key, x => x.Value);
 
@@ -746,29 +754,31 @@ namespace Speedy.Storage.KeyValue
 				return;
 			}
 
-			using var fileStream = OpenFile(FileInfo, false);
-			var tempStream = TempFileInfo.Exists ? TempFileInfo.OpenRead() : fileStream.CopyToAndOpen(TempFileInfo, (int) _options.Timeout.TotalMilliseconds);
-
-			using (tempStream)
+			using (var fileStream = OpenFile(FileInfo, false))
 			{
-				fileStream.SetLength(0);
-				fileStream.Flush(true);
+				var tempStream = TempFileInfo.Exists ? TempFileInfo.OpenRead() : fileStream.CopyToAndOpen(TempFileInfo, (int) _options.Timeout.TotalMilliseconds);
 
-				var reader = new NoCloseStreamReader(tempStream);
-				var writer = new NoCloseStreamWriter(fileStream);
-
-				if (_options.Limit >= int.MaxValue)
+				using (tempStream)
 				{
-					ProcessCache(reader, writer);
-				}
-				else
-				{
-					ProcessLimitedCache(threshold, reader, writer);
-				}
+					fileStream.SetLength(0);
+					fileStream.Flush(true);
 
-				reader.Dispose();
-				writer.Flush();
-				writer.Dispose();
+					var reader = new NoCloseStreamReader(tempStream);
+					var writer = new NoCloseStreamWriter(fileStream);
+
+					if (_options.Limit >= int.MaxValue)
+					{
+						ProcessCache(reader, writer);
+					}
+					else
+					{
+						ProcessLimitedCache(threshold, reader, writer);
+					}
+
+					reader.Dispose();
+					writer.Flush();
+					writer.Dispose();
+				}
 			}
 		}
 

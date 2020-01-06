@@ -135,15 +135,11 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Find a filter for the provided repository.
+		/// Find the repository filter and check the entity to see if it should be filtered.
 		/// </summary>
-		/// <param name="typeAssemblyName"> The repository type assembly name to process. </param>
-		/// <returns> The filter if found or null otherwise. </returns>
-		internal SyncRepositoryFilter GetRepositoryFilter(string typeAssemblyName)
-		{
-			return _filterLookup.ContainsKey(typeAssemblyName) ? _filterLookup[typeAssemblyName] : null;
-		}
-
+		/// <param name="typeAssemblyName"> The type of the entity in assembly format. </param>
+		/// <param name="entity"> The entity to be tested. </param>
+		/// <returns> True if the entity should be filter or false if otherwise. </returns>
 		internal bool ShouldFilterEntity(string typeAssemblyName, ISyncEntity entity)
 		{
 			var filter = GetRepositoryFilter(typeAssemblyName);
@@ -152,10 +148,20 @@ namespace Speedy.Sync
 				return false;
 			}
 
-			// Find the "TestEntity" method so we can invoke it
+			// Find the "ShouldFilterEntity" method so we can invoke it
 			var methods = filter.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
-			var method = methods.First(x => x.Name == "TestEntity");
-			return !(bool) method.Invoke(filter, new object[] { entity });
+			var method = methods.First(x => x.Name == nameof(ShouldFilterEntity));
+			return (bool) method.Invoke(filter, new object[] { entity });
+		}
+
+		/// <summary>
+		/// Find a filter for the provided repository.
+		/// </summary>
+		/// <param name="typeAssemblyName"> The repository type assembly name to process. </param>
+		/// <returns> The filter if found or null otherwise. </returns>
+		private SyncRepositoryFilter GetRepositoryFilter(string typeAssemblyName)
+		{
+			return _filterLookup.ContainsKey(typeAssemblyName) ? _filterLookup[typeAssemblyName] : null;
 		}
 
 		#endregion

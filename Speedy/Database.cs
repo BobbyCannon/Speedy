@@ -147,16 +147,12 @@ namespace Speedy
 					.ToList();
 			}
 
-			var order = Options.SyncOrder.Reverse().ToList();
-			var query = syncableRepositories
-				.Where(x => !options.ShouldFilterRepository(x.Key))
-				.OrderBy(x => x.Key == order[0]);
-
-			var response = order
-				.Skip(1)
-				.Aggregate(query, (current, key) => current.ThenBy(x => x.Key == key))
-				.Select(x => x.Value)
-				.Cast<ISyncableRepository>()
+			var order = Options.SyncOrder.ToList();
+			
+			var response = syncableRepositories
+				.OrderBy(x => order.IndexOf(x.Key))
+				.Select(x => x.Value as ISyncableRepository)
+				.Where(x => x != null)
 				.ToList();
 
 			return response;
@@ -267,8 +263,6 @@ namespace Speedy
 				}
 
 				Repositories.Values.ForEach(x => x.ValidateEntities());
-				// todo: I'm pretty sure this can be removed, need more testing, rolling with it in RC
-				//Repositories.Values.ForEach(x => x.UpdateRelationships());
 				Repositories.Values.ForEach(x => x.AssignKeys(new List<IEntity>()));
 				Repositories.Values.ForEach(x => x.UpdateRelationships());
 

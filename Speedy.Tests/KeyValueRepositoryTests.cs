@@ -8,8 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Client.Samples.Models;
 using Speedy.Storage.KeyValue;
-using Speedy.Website.Samples.Models;
 
 #endregion
 
@@ -641,10 +641,8 @@ namespace Speedy.Tests
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
 
-			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-			Assert.IsTrue(info.Length > 0);
-
 			// Only Foo1 should be in the file.
+			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
 			var actual = info.ReadAllText();
 			Assert.AreEqual(expected, actual);
@@ -701,8 +699,6 @@ namespace Speedy.Tests
 
 			// Only Foo1 should be in the file.
 			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
-			Assert.IsTrue(info.Length > 0);
-
 			var expected = "Foo1|\"Bar1\"" + Environment.NewLine;
 			var actual = info.ReadAllText();
 			Assert.AreEqual(expected, actual);

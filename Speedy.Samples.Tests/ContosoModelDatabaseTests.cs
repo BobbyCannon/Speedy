@@ -4,12 +4,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Client.Samples;
+using Speedy.Client.Samples.Models;
 using Speedy.Net;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
 using Speedy.Tests.EntityFactories;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Models;
 
 #endregion
 

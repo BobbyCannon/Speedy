@@ -3,9 +3,9 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Client.Samples.Models;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
-using Speedy.Website.Samples.Models;
 
 #endregion
 
@@ -50,7 +50,7 @@ namespace Speedy.Tests
 			var addressSyncObject = address.ToSyncObject();
 			var personSyncObject = person.ToSyncObject();
 			var changes = new[] { addressSyncObject, personSyncObject };
-			var actual = SyncObjectConverter.Convert(changes, true, true,
+			var actual = SyncObjectConverter.Convert(changes, SyncConversionType.Converting, true, true,
 					new SyncObjectConverter<Address, long, AddressEntity, long>(),
 					new SyncObjectConverter<Person, int, PersonEntity, int>()
 				)
@@ -66,35 +66,6 @@ namespace Speedy.Tests
 			Assert.AreEqual(person.SyncId, actual[1].SyncId);
 			Assert.AreEqual(expectedPerson, actual[1].Data);
 			Assert.AreEqual(SyncObjectStatus.Modified, actual[1].Status);
-		}
-
-		[TestMethod]
-		public void ConvertModelToEntity()
-		{
-			var createdOn = new DateTime(2019, 01, 01, 02, 03, 04, DateTimeKind.Utc);
-			var modifiedOn = new DateTime(2019, 02, 03, 04, 05, 06, DateTimeKind.Utc);
-
-			var address = new Address
-			{
-				City = "City",
-				Line1 = "Line1",
-				Line2 = "Line2",
-				Postal = "Postal",
-				State = "State",
-				SyncId = Guid.Parse("efc2c530-37b6-4fa5-ab71-bd38a3b4d277"),
-				CreatedOn = createdOn,
-				ModifiedOn = modifiedOn
-			};
-
-			var modelSyncObject = address.ToSyncObject();
-			var changes = new[] { modelSyncObject };
-			var actual = SyncObject.Convert<Address, long, AddressEntity, long>(changes).ToList();
-
-			var expectedData = "{\"$id\":\"1\",\"City\":\"City\",\"CreatedOn\":\"2019-01-01T02:03:04Z\",\"Id\":0,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2019-02-03T04:05:06Z\",\"Postal\":\"Postal\",\"State\":\"State\",\"SyncId\":\"efc2c530-37b6-4fa5-ab71-bd38a3b4d277\"}";
-
-			Assert.AreEqual(address.SyncId, actual[0].SyncId);
-			Assert.AreEqual(expectedData, actual[0].Data);
-			Assert.AreEqual(SyncObjectStatus.Modified, actual[0].Status);
 		}
 
 		#endregion

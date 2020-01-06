@@ -53,6 +53,12 @@ namespace Speedy.Sync
 			return destination;
 		}
 
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"{IssueType}:{TypeName} - {Message}";
+		}
+
 		#endregion
 	}
 }

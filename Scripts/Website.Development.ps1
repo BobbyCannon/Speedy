@@ -15,6 +15,7 @@ Invoke-SqlNonQuery -Database "master" -Query "ALTER DATABASE [Sample2] SET SINGL
 
 $tempPath = [System.IO.Path]::GetTempPath()
 Get-ChildItem  -Filter *.db -Directory "$tempPath\SpeedyTests\" -Recurse
+Get-ChildItem  -Filter *.db -Directory "C:\Workspaces\GitHub\Speedy" -Recurse
 
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Samples.Sql\Migrations -Force -Recurse
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Samples.Sqlite\Migrations -Force -Recurse

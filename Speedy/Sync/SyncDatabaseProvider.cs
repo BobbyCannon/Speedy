@@ -6,13 +6,14 @@ using System;
 
 namespace Speedy.Sync
 {
-
 	/// <summary>
 	/// Represents a sync database provider.
 	/// </summary>
-	public class SyncDatabaseProvider<T> : SyncDatabaseProvider, ISyncableDatabaseProvider<T> 
+	public class SyncDatabaseProvider<T> : SyncDatabaseProvider, ISyncableDatabaseProvider<T>
 		where T : ISyncableDatabase
 	{
+		#region Constructors
+
 		/// <summary>
 		/// Instantiates a sync database provider using the provided function.
 		/// </summary>
@@ -21,20 +22,25 @@ namespace Speedy.Sync
 		public SyncDatabaseProvider(Func<DatabaseOptions, ISyncableDatabase> function, DatabaseOptions options = null)
 			: base(function, options)
 		{
-			
 		}
 
+		#endregion
+
+		#region Methods
+
 		/// <inheritdoc />
-		public T GetDatabase()
+		T IDatabaseProvider<T>.GetDatabase()
 		{
 			return (T) GetSyncableDatabase();
 		}
 
 		/// <inheritdoc />
-		public T GetDatabase(DatabaseOptions options)
+		T IDatabaseProvider<T>.GetDatabase(DatabaseOptions options)
 		{
 			return (T) GetSyncableDatabase(options);
 		}
+
+		#endregion
 	}
 
 	/// <summary>
@@ -72,6 +78,18 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc />
+		public IDatabase GetDatabase()
+		{
+			return GetSyncableDatabase();
+		}
+
+		/// <inheritdoc />
+		public IDatabase GetDatabase(DatabaseOptions options)
+		{
+			return GetSyncableDatabase(options);
+		}
 
 		/// <inheritdoc />
 		public ISyncableDatabase GetSyncableDatabase()

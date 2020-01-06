@@ -2,7 +2,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Speedy.Website.Samples.Models;
+using Speedy.Client.Samples.Models;
 
 #endregion
 

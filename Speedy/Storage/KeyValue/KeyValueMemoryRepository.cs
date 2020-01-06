@@ -51,10 +51,11 @@ namespace Speedy.Storage.KeyValue
 	{
 		#region Fields
 
-		private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
-		private readonly Dictionary<string, Tuple<string, DateTime>> _changes;
+		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _cache;
+		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _changes;
 		private readonly KeyValueRepositoryOptions _options;
 		private readonly JsonSerializerSettings _settings;
+		private ulong _writeIndex;
 
 		#endregion
 
@@ -82,9 +83,10 @@ namespace Speedy.Storage.KeyValue
 		public KeyValueMemoryRepository(string name, KeyValueRepositoryOptions options)
 		{
 			_options = options;
-			_cache = new Dictionary<string, Tuple<string, DateTime>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
-			_changes = new Dictionary<string, Tuple<string, DateTime>>();
+			_cache = new Dictionary<string, Tuple<string, DateTime, ulong>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
+			_changes = new Dictionary<string, Tuple<string, DateTime, ulong>>();
 			_settings = Extensions.GetSerializerSettings(false, false, true, false);
+			_writeIndex = 0;
 
 			Name = name;
 		}
@@ -205,7 +207,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				foreach (var item in _cache.OrderBy(x => x.Value.Item2).Where(x => x.Value.Item1 != null))
+				foreach (var item in _cache.OrderBy(x => x.Value.Item3).Where(x => x.Value.Item1 != null))
 				{
 					yield return new KeyValuePair<string, T>(item.Key, item.Value.Item1.FromJson<T>());
 				}
@@ -272,7 +274,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(null, DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime, ulong>(null, TimeService.UtcNow, _writeIndex++));
 			}
 		}
 
@@ -327,7 +329,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>(value.ToJson(_settings), DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime, ulong>(value.ToJson(_settings), TimeService.UtcNow, _writeIndex++));
 			}
 		}
 
@@ -340,7 +342,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			lock (_changes)
 			{
-				_changes.AddOrUpdate(key, new Tuple<string, DateTime>($"\"{value}\"", DateTime.UtcNow));
+				_changes.AddOrUpdate(key, new Tuple<string, DateTime, ulong>($"\"{value}\"", TimeService.UtcNow, _writeIndex++));
 			}
 		}
 

@@ -8,16 +8,16 @@
 		/// <summary>
 		/// This entity was added.
 		/// </summary>
-		Added,
+		Added = 0,
 
 		/// <summary>
 		/// This entity was last modified.
 		/// </summary>
-		Modified,
+		Modified = 1,
 
 		/// <summary>
 		/// This entity was delete.
 		/// </summary>
-		Deleted
+		Deleted = 2
 	}
 }

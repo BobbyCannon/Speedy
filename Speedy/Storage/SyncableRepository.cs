@@ -55,7 +55,10 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public IEnumerable<SyncObject> GetChanges(DateTime since, DateTime until, int skip, int take, SyncRepositoryFilter filter)
 		{
-			var query = GetChangesQuery(since, until, filter);
+			var query = GetChangesQuery(since, until, filter)
+				.OrderBy(x => x.ModifiedOn)
+				.ThenBy(x => x.Id)
+				.AsQueryable();
 
 			if (skip > 0)
 			{
@@ -83,10 +86,7 @@ namespace Speedy.Storage
 				query = query.Where(srf.OutgoingFilter);
 			}
 
-			return query
-				.OrderBy(x => x.ModifiedOn)
-				.ThenBy(x => x.Id)
-				.AsQueryable();
+			return query;
 		}
 
 		/// <inheritdoc />

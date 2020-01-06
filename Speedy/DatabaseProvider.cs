@@ -54,6 +54,18 @@ namespace Speedy
 			return _provider(options);
 		}
 
+		/// <inheritdoc />
+		IDatabase IDatabaseProvider.GetDatabase()
+		{
+			return GetDatabase();
+		}
+
+		/// <inheritdoc />
+		IDatabase IDatabaseProvider.GetDatabase(DatabaseOptions options)
+		{
+			return GetDatabase(options);
+		}
+
 		#endregion
 	}
 }

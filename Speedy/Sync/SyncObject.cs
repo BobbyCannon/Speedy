@@ -2,9 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 
 #endregion
@@ -70,53 +68,21 @@ namespace Speedy.Sync
 		/// <typeparam name="T3"> The sync entity type to convert to. </typeparam>
 		/// <typeparam name="T4"> The primary key of the entity to convert to. </typeparam>
 		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
+		/// <param name="type"> The type of conversion. </param>
 		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
 		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
 		/// <returns> The converted sync entity in a sync object format. </returns>
-		public SyncObject Convert<T1, T2, T3, T4>(Action<T1, T3> convert = null, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
+		public SyncObject Convert<T1, T2, T3, T4>(Func<T1, T3, SyncConversionType, bool> convert, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
 			where T1 : SyncEntity<T2>
 			where T3 : SyncEntity<T4>
 		{
-			var syncEntity = ToSyncEntity<T1, T2>();
-
-			if (!(syncEntity is T1 source))
-			{
-				return null;
-			}
-
+			var source = ToSyncEntity<T1, T2>();
 			var destination = Activator.CreateInstance<T3>();
-
-			// Handle all one to one properties (same name & type) and all sync entity base properties.
-			// This will override any exclusions. Meaning this entity will copy all possible properties.
-			destination.UpdateWith(source, excludePropertiesForSync, excludePropertiesForUpdate);
-
-			// Update will not set the sync ID
-			destination.SyncId = source.SyncId;
-
-			// Optional convert to do additional conversions
-			convert?.Invoke(source, destination);
-
-			return destination.ToSyncObject();
-		}
-
-		/// <summary>
-		/// Convert this collection of sync object to a different sync object collection
-		/// </summary>
-		/// <typeparam name="T1"> The sync entity type to convert from. </typeparam>
-		/// <typeparam name="T2"> The primary key of the entity to convert from. </typeparam>
-		/// <typeparam name="T3"> The sync entity type to convert to. </typeparam>
-		/// <typeparam name="T4"> The primary key of the entity to convert to. </typeparam>
-		/// <param name="objects"> The collection of objects to convert. </param>
-		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
-		/// <returns> The converted sync entity in a sync object format. </returns>
-		public static IEnumerable<SyncObject> Convert<T1, T2, T3, T4>(IEnumerable<SyncObject> objects, Action<T1, T3> convert = null)
-			where T1 : SyncEntity<T2>
-			where T3 : SyncEntity<T4>
-		{
-			return objects
-				.Select(x => x.Convert<T1, T2, T3, T4>(convert))
-				.Where(x => x != null)
-				.ToList();
+			SyncObjectConverter.Convert<T1, T2, T3, T4>(source, destination, convert, type, excludePropertiesForSync, excludePropertiesForUpdate);
+			var response = destination.ToSyncObject();
+			// Keep status because it should be the same, ex Deleted
+			response.Status = Status;
+			return response;
 		}
 
 		/// <summary>

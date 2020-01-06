@@ -125,10 +125,16 @@ namespace Speedy.Sync
 			{
 				foreach (var repository in database.GetSyncableRepositories(SyncOptions))
 				{
-					var filter = SyncOptions.GetRepositoryFilter(repository);
-					var changeCount = repository.GetChangeCount(request.Since, request.Until, filter);
+					if (SyncOptions.ShouldFilterRepository(repository.TypeName))
+					{
+						// Do not process this repository because we have filters and the repository is not in the filters.
+						continue;
+					}
 
+					var filter = SyncOptions.GetRepositoryFilter(repository);
+					
 					// Check to see if this repository should be skipped
+					var changeCount = repository.GetChangeCount(request.Since, request.Until, filter);
 					if (changeCount <= remainingSkip)
 					{
 						// this repo changes was processed in a previous GetChanges request
@@ -137,7 +143,7 @@ namespace Speedy.Sync
 					}
 
 					var changes = repository.GetChanges(request.Since, request.Until, remainingSkip, take - response.Collection.Count, filter).ToList();
-					var items = OutgoingConverter != null ? OutgoingConverter.Process(changes).ToList() : changes;
+					var items = OutgoingConverter?.Convert(changes).ToList() ?? changes;
 
 					response.Collection.AddRange(items);
 					remainingSkip = 0;
@@ -171,7 +177,7 @@ namespace Speedy.Sync
 			{
 				foreach (var item in issues.Collection)
 				{
-					var issue = IncomingConverter == null ? item : IncomingConverter.Process(item);
+					var issue = IncomingConverter == null ? item : IncomingConverter.Convert(item);
 
 					switch (issue?.IssueType)
 					{
@@ -184,9 +190,9 @@ namespace Speedy.Sync
 						case SyncIssueType.RelationshipConstraint:
 							var type = Type.GetType(issue.TypeName);
 
-							if (SyncOptions?.ShouldFilterRepository(type) == true)
+							if (SyncOptions.ShouldFilterRepository(type))
 							{
-								// Do not process this issue because the repository is not in the filter.
+								// Do not process this issue because we have filters and the repository is not in the filters.
 								continue;
 							}
 
@@ -210,7 +216,7 @@ namespace Speedy.Sync
 
 							if (OutgoingConverter != null)
 							{
-								syncObject = OutgoingConverter.Process(syncObject);
+								syncObject = OutgoingConverter.Convert(syncObject);
 							}
 
 							if (syncObject != null)
@@ -247,7 +253,11 @@ namespace Speedy.Sync
 
 		private ServiceResult<SyncIssue> ApplyChanges(ServiceRequest<SyncObject> changes, bool corrections)
 		{
-			var objects = (IncomingConverter?.Process(changes.Collection) ?? changes.Collection).ToList();
+			// The collection is incoming types
+			// todo: performance, could we increase performance by going straight to entity, currently we convert to entity then back to syncobject
+			// The only issue is processing entities individually. If an entity is added to a context then
+			// something goes wrong we'll need to disconnect before processing them individually
+			var objects = (IncomingConverter?.Convert(changes.Collection) ?? changes.Collection).ToList();
 			var groups = objects.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
 
 			if (corrections)
@@ -284,6 +294,12 @@ namespace Speedy.Sync
 			{
 				_changeCount = database.GetSyncableRepositories(SyncOptions).Sum(repository =>
 				{
+					if (SyncOptions.ShouldFilterRepository(repository.TypeName))
+					{
+						// Do not count this repository because we have filters and the repository is not in the filters.
+						return 0;
+					}
+
 					var filter = SyncOptions.GetRepositoryFilter(repository);
 					return repository.GetChangeCount(request.Since, request.Until, filter);
 				});
@@ -300,20 +316,22 @@ namespace Speedy.Sync
 				.Where(x => syncEntityType.IsAssignableFrom(x.PropertyType))
 				.Select(x => new
 				{
-					IdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "Id"),
-					SyncIdProperty = properties.FirstOrDefault(y => y.Name == x.Name + "SyncId"),
+					EntityPropertyInfo = x,
+					IdPropertyInfo = properties.FirstOrDefault(y => y.Name == x.Name + "Id"),
+					SyncIdPropertyInfo = properties.FirstOrDefault(y => y.Name == x.Name + "SyncId"),
 					Type = x.PropertyType,
 					TypeIdPropertyInfo = x.PropertyType.GetProperties().First(p => p.Name == "Id")
 				})
 				.ToList();
 
 			var response = syncProperties
-				.Where(x => x.IdProperty != null)
-				.Where(x => x.SyncIdProperty != null)
+				.Where(x => x.IdPropertyInfo != null)
+				.Where(x => x.SyncIdPropertyInfo != null)
 				.Select(x => new Relationship
 				{
-					IdPropertyInfo = x.IdProperty,
-					SyncId = (Guid?) x.SyncIdProperty.GetValue(entity),
+					EntityPropertyInfo = x.EntityPropertyInfo,
+					IdPropertyInfo = x.IdPropertyInfo,
+					SyncId = (Guid?) x.SyncIdPropertyInfo.GetValue(entity),
 					Type = x.Type,
 					TypeIdPropertyInfo = x.TypeIdPropertyInfo
 				})
@@ -329,6 +347,7 @@ namespace Speedy.Sync
 					: $"Processing sync object {syncObject.SyncId}.",
 				EventLevel.Verbose);
 
+			var converter = IncomingConverter?.GetConverter(syncObject);
 			var syncEntity = syncObject.ToSyncEntity();
 
 			if (syncEntity == null)
@@ -373,6 +392,11 @@ namespace Speedy.Sync
 			{
 				case SyncObjectStatus.Added:
 					syncEntity.ResetId();
+					if (!UpdateEntity(syncEntity, syncEntity, SyncConversionType.Adding, converter))
+					{
+						// todo: should we add a sync issue?
+						break;
+					}
 					UpdateLocalRelationships(syncEntity, database);
 					repository.Add(syncEntity);
 					break;
@@ -382,8 +406,13 @@ namespace Speedy.Sync
 					{
 						if (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction)
 						{
+							if (!UpdateEntity(syncEntity, foundEntity, SyncConversionType.Modifying, converter))
+							{
+								// todo: should we add a sync issue?
+								break;
+							}
+							
 							UpdateLocalRelationships(foundEntity, database);
-							foundEntity.UpdateWith(syncEntity);
 						}
 					}
 					break;
@@ -391,6 +420,12 @@ namespace Speedy.Sync
 				case SyncObjectStatus.Deleted:
 					if (foundEntity != null)
 					{
+						if (!UpdateEntity(null, syncEntity, SyncConversionType.Deleting, converter))
+						{
+							// todo: should we add a sync issue?
+							break;
+						}
+
 						if (SyncOptions.PermanentDeletions)
 						{
 							repository.Remove(foundEntity);
@@ -409,9 +444,9 @@ namespace Speedy.Sync
 
 		private void ProcessSyncObjects(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
 		{
-			var syncObjectList = syncObjects.ToList();
+			var sourceSyncObjects = syncObjects.ToList();
 
-			if (!syncObjectList.Any())
+			if (!sourceSyncObjects.Any())
 			{
 				return;
 			}
@@ -422,14 +457,14 @@ namespace Speedy.Sync
 				{
 					database.Options.MaintainCreatedOn = false;
 					database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
-					syncObjectList.ForEach(x => ProcessSyncObject(x, database, corrections));
+					sourceSyncObjects.ForEach(x => ProcessSyncObject(x, database, corrections));
 					database.SaveChanges();
 				}
 			}
 			catch
 			{
 				Logger.Instance.Write(_session.Id, "Failed to process sync objects in the batch.");
-				ProcessSyncObjectsIndividually(provider, syncObjectList, issues, corrections);
+				ProcessSyncObjectsIndividually(provider, sourceSyncObjects, issues, corrections);
 			}
 		}
 
@@ -532,6 +567,21 @@ namespace Speedy.Sync
 			}
 		}
 
+		private bool UpdateEntity(ISyncEntity source, ISyncEntity destination, SyncConversionType type, SyncObjectConverter converter)
+		{
+			if (converter != null)
+			{
+				return converter.Convert(source, destination, type);
+			}
+
+			if (destination != null && source != null)
+			{
+				destination.UpdateWith(source);
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Updates the entities local relationships.
 		/// </summary>
@@ -555,6 +605,15 @@ namespace Speedy.Sync
 				{
 					var id = relationship.TypeIdPropertyInfo.GetValue(foundEntity);
 					relationship.IdPropertyInfo.SetValue(entity, id);
+
+					// if we are a speedy database
+					if (database is Database)
+					{
+						// Then we also need to update the actual relationship so the database
+						// doesn't reset the relationship IDs thinking the entity has changed
+						relationship.EntityPropertyInfo.SetValue(entity, foundEntity);
+					}
+
 					continue;
 				}
 

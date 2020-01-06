@@ -3,7 +3,30 @@
 	/// <summary>
 	/// Represents a database provider for syncable databases.
 	/// </summary>
-	public interface IDatabaseProvider<out T> where T : IDatabase
+	public interface IDatabaseProvider<out T> : IDatabaseProvider where T : IDatabase
+	{
+		#region Methods
+
+		/// <summary>
+		/// Gets an instance of the database.
+		/// </summary>
+		/// <returns> The database instance. </returns>
+		new T GetDatabase();
+
+		/// <summary>
+		/// Gets an instance of the database.
+		/// </summary>
+		/// <param name="options"> The database options to use for the new database instance. </param>
+		/// <returns> The database instance. </returns>
+		new T GetDatabase(DatabaseOptions options);
+
+		#endregion
+	}
+	
+	/// <summary>
+	/// Represents a database provider for syncable databases.
+	/// </summary>
+	public interface IDatabaseProvider
 	{
 		#region Properties
 
@@ -20,14 +43,14 @@
 		/// Gets an instance of the database.
 		/// </summary>
 		/// <returns> The database instance. </returns>
-		T GetDatabase();
+		IDatabase GetDatabase();
 
 		/// <summary>
 		/// Gets an instance of the database.
 		/// </summary>
 		/// <param name="options"> The database options to use for the new database instance. </param>
 		/// <returns> The database instance. </returns>
-		T GetDatabase(DatabaseOptions options);
+		IDatabase GetDatabase(DatabaseOptions options);
 
 		#endregion
 	}

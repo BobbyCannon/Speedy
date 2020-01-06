@@ -8,8 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Client.Samples.Models;
 using Speedy.Storage.KeyValue;
-using Speedy.Website.Samples.Models;
 
 #endregion
 

@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -58,9 +57,9 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="collection"> The collection to process. </param>
 		/// <returns> The request with an updated collection. </returns>
-		public IEnumerable<SyncObject> Process(IList<SyncObject> collection)
+		public IEnumerable<SyncObject> Convert(IEnumerable<SyncObject> collection)
 		{
-			return SyncObjectConverter.Convert(collection, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters).Where(x => x != null).ToList();
+			return SyncObjectConverter.Convert(collection, SyncConversionType.Converting, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters).Where(x => x != null).ToList();
 		}
 
 		/// <summary>
@@ -68,9 +67,9 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="value"> The sync object to process. </param>
 		/// <returns> The process sync object. </returns>
-		public SyncObject Process(SyncObject value)
+		public SyncObject Convert(SyncObject value)
 		{
-			return SyncObjectConverter.Convert(value, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters);
+			return SyncObjectConverter.Convert(value, SyncConversionType.Converting, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters);
 		}
 
 		/// <summary>
@@ -78,9 +77,19 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="issue"> The sync issue to process. </param>
 		/// <returns> The process sync issue. </returns>
-		public SyncIssue Process(SyncIssue issue)
+		public SyncIssue Convert(SyncIssue issue)
 		{
 			return SyncObjectConverter.Convert(issue, _converters);
+		}
+
+		/// <summary>
+		/// Gets the converter for the sync object.
+		/// </summary>
+		/// <param name="syncObject"> The incoming sync object. </param>
+		/// <returns> The converter for the sync object. </returns>
+		public SyncObjectConverter GetConverter(SyncObject syncObject)
+		{
+			return _converters.FirstOrDefault(x => x.CanConvert(syncObject));
 		}
 
 		#endregion

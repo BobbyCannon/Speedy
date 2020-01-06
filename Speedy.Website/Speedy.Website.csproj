@@ -17,10 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Speedy.Client.Samples\Speedy.Client.Samples.csproj" />
     <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
     <ProjectReference Include="..\Speedy.Samples.Sql\Speedy.Samples.Sql.csproj" />
     <ProjectReference Include="..\Speedy.Samples\Speedy.Samples.csproj" />
-    <ProjectReference Include="..\Speedy.Website.Samples\Speedy.Website.Samples.csproj" />
     <ProjectReference Include="..\Speedy\Speedy.csproj" />
   </ItemGroup>
 

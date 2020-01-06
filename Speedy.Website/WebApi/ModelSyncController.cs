@@ -3,11 +3,11 @@
 using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Speedy.Client.Samples.Models;
 using Speedy.Net;
 using Speedy.Samples;
 using Speedy.Samples.Entities;
 using Speedy.Sync;
-using Speedy.Website.Samples.Models;
 
 #endregion
 
