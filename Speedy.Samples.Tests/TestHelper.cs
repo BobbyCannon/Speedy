@@ -348,22 +348,22 @@ namespace Speedy.Samples.Tests
 			}
 
 			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			//yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
-			//yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
-			//yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()));
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()));
 			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			//yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
-			//yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (Sqlite2)", GetSyncableSqliteProvider2()));
-			//yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			//yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (Sqlite2)", GetSyncableSqliteProvider2()));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
 
-			//if (includeWeb)
-			//{
-			//	var credential = new NetworkCredential(string.Empty, "Password");
-			//	yield return process(new WebSyncClient("Server (WEB Secure)", GetSyncableSqlProvider(), "https://speedy.local", "api/SecureSync", credential), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()));
-			//	yield return process(new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(), "https://speedy.local"), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			//	yield return process(new WebSyncClient("Server (WEB Secure)", GetSyncableSqlProvider(), "https://speedy.local", "api/SecureSync", credential), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
-			//}
+			if (includeWeb)
+			{
+				var credential = new NetworkCredential(string.Empty, "Password");
+				yield return process(new WebSyncClient("Server (WEB Secure)", GetSyncableSqlProvider(), "https://speedy.local", "api/SecureSync", credential), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()));
+				yield return process(new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(), "https://speedy.local"), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
+				yield return process(new WebSyncClient("Server (WEB Secure)", GetSyncableSqlProvider(), "https://speedy.local", "api/SecureSync", credential), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
+			}
 		}
 
 		private static string ToDetailedString(this Exception ex)

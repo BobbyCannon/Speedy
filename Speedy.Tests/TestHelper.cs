@@ -80,7 +80,7 @@ namespace Speedy.Tests
 
 		public static void Dump(this object item)
 		{
-			Debug.WriteLine(item);
+			Console.WriteLine(item);
 		}
 
 		public static void Dump(this byte[] item)
@@ -90,12 +90,12 @@ namespace Speedy.Tests
 				Debug.Write($"{i:X2},");
 			}
 
-			Debug.WriteLine("");
+			Console.WriteLine("");
 		}
 
 		public static void Dump<T>(this T item, Func<T, object> action)
 		{
-			Debug.WriteLine(action(item));
+			Console.WriteLine(action(item));
 		}
 
 		public static void ExpectedException<T>(Action work, params string[] errorMessage) where T : Exception

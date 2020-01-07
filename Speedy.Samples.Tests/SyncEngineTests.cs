@@ -34,7 +34,7 @@ namespace Speedy.Samples.Tests
 				var options = new SyncOptions();
 				var issues = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -46,7 +46,7 @@ namespace Speedy.Samples.Tests
 
 				issues = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 				Assert.IsTrue(client.Statistics.IsReset);
 				Assert.IsTrue(client.Statistics.IsReset);
 			});
@@ -63,7 +63,7 @@ namespace Speedy.Samples.Tests
 				var options = new SyncOptions();
 				var issues = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -98,7 +98,7 @@ namespace Speedy.Samples.Tests
 				var options = new SyncOptions();
 				var issues = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -129,7 +129,7 @@ namespace Speedy.Samples.Tests
 				var options = new SyncOptions();
 				var issues = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -141,7 +141,7 @@ namespace Speedy.Samples.Tests
 
 				issues = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 				Assert.IsTrue(client.Statistics.IsReset);
 				Assert.IsTrue(client.Statistics.IsReset);
 			});
@@ -176,6 +176,8 @@ namespace Speedy.Samples.Tests
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
+
+				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())

@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,9 +9,37 @@ using System.Linq;
 namespace Speedy.Sync
 {
 	/// <summary>
+	/// Represents a sync object input converter for the sync client.
+	/// </summary>
+	public class SyncClientIncomingConverter : SyncClientConverter
+	{
+		/// <summary>
+		/// Instantiates a sync input converter to be used during syncing.
+		/// </summary>
+		/// <param name="converters"> The converters to process during conversion. </param>
+		public SyncClientIncomingConverter(params SyncObjectIncomingConverter[] converters) : base(true, false, true, converters)
+		{
+		}
+	}
+	
+	/// <summary>
+	/// Represents a sync object output converter for the sync client.
+	/// </summary>
+	public class SyncClientOutgoingConverter : SyncClientConverter
+	{
+		/// <summary>
+		/// Instantiates a sync output converter to be used during syncing.
+		/// </summary>
+		/// <param name="converters"> The converters to process during conversion. </param>
+		public SyncClientOutgoingConverter(params SyncObjectOutgoingConverter[] converters) : base(false, true, false, converters)
+		{
+		}
+	}
+
+	/// <summary>
 	/// Represents a sync object converter for the sync client.
 	/// </summary>
-	public class SyncClientConverter
+	public abstract class SyncClientConverter
 	{
 		#region Fields
 
@@ -23,15 +52,17 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates a sync converter to be used during syncing.
 		/// </summary>
-		/// <param name="excludePropertiesForSync"> Allow property exclusion during conversion in sync. </param>
-		/// <param name="excludePropertiesForUpdate"> Allow property exclusion during conversion in update. </param>
+		/// <param name="excludePropertiesForIncomingSync"> Allow property exclusion during conversion in incoming sync. </param>
+		/// <param name="excludePropertiesForOutgoingSync"> Allow property exclusion during conversion in outgoing sync. </param>
+		/// <param name="excludePropertiesForSyncUpdate"> Allow property exclusion during conversion in update. </param>
 		/// <param name="converters"> The converters to process during conversion. </param>
-		public SyncClientConverter(bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true, params SyncObjectConverter[] converters)
+		protected SyncClientConverter(bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate, IEnumerable<SyncObjectConverter> converters)
 		{
-			ExcludePropertiesForSync = excludePropertiesForSync;
-			ExcludePropertiesForUpdate = excludePropertiesForUpdate;
+			ExcludePropertiesForIncomingSync = excludePropertiesForIncomingSync;
+			ExcludePropertiesForOutgoingSync = excludePropertiesForOutgoingSync;
+			ExcludePropertiesForSyncUpdate = excludePropertiesForSyncUpdate;
 
-			_converters = converters;
+			_converters = converters.ToArray();
 		}
 
 		#endregion
@@ -39,14 +70,19 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <summary>
-		/// If true excluded properties will not be changed during sync.
+		/// If true excluded properties will not processed during incoming sync.
 		/// </summary>
-		public bool ExcludePropertiesForSync { get; set; }
+		public bool ExcludePropertiesForIncomingSync { get; }
 
 		/// <summary>
-		/// If true excluded properties will not be changed during update.
+		/// If true excluded properties will not processed during outgoing sync.
 		/// </summary>
-		public bool ExcludePropertiesForUpdate { get; set; }
+		public bool ExcludePropertiesForOutgoingSync { get; }
+
+		/// <summary>
+		/// If true excluded properties will not be changed during sync updates.
+		/// </summary>
+		public bool ExcludePropertiesForSyncUpdate { get; }
 
 		#endregion
 
@@ -59,7 +95,32 @@ namespace Speedy.Sync
 		/// <returns> The request with an updated collection. </returns>
 		public IEnumerable<SyncObject> Convert(IEnumerable<SyncObject> collection)
 		{
-			return SyncObjectConverter.Convert(collection, SyncConversionType.Converting, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters).Where(x => x != null).ToList();
+			return collection.Select(Convert);
+		}
+
+		/// <summary>
+		/// Updates this sync object with another object.
+		/// </summary>
+		/// <param name="source"> The entity with the updates. </param>
+		/// <param name="destination"> The destination sync entity to be updated. </param>
+		/// <param name="status"> The status of the update. </param>
+		/// <returns> Return true if the entity was updated and should be saved. </returns>
+		public bool Update(ISyncEntity source, ISyncEntity destination, SyncObjectStatus status)
+		{
+			// Cycle through each converter to process each object.
+			foreach (var converter in _converters)
+			{
+				// Ensure this converter can process the object.
+				if (!converter.CanUpdate(source))
+				{
+					continue;
+				}
+
+				// Convert the object.
+				return converter.Update(source, destination, status, ExcludePropertiesForSyncUpdate);
+			}
+
+			return false;
 		}
 
 		/// <summary>
@@ -69,27 +130,43 @@ namespace Speedy.Sync
 		/// <returns> The process sync object. </returns>
 		public SyncObject Convert(SyncObject value)
 		{
-			return SyncObjectConverter.Convert(value, SyncConversionType.Converting, ExcludePropertiesForSync, ExcludePropertiesForUpdate, _converters);
+			// Cycle through each converter to process each object.
+			foreach (var converter in _converters)
+			{
+				// Ensure this converter can process the object.
+				if (!converter.CanConvert(value))
+				{
+					continue;
+				}
+
+				// Convert the object.
+				return converter.Convert(value, ExcludePropertiesForIncomingSync, ExcludePropertiesForOutgoingSync);
+			}
+
+			return null;
 		}
 
 		/// <summary>
 		/// Process the provided sync issue through the converters.
 		/// </summary>
 		/// <param name="issue"> The sync issue to process. </param>
-		/// <returns> The process sync issue. </returns>
+		/// <returns> The process sync issue otherwise null if could not be converted. </returns>
 		public SyncIssue Convert(SyncIssue issue)
 		{
-			return SyncObjectConverter.Convert(issue, _converters);
-		}
+			// Cycle through each converter to process each object.
+			foreach (var converter in _converters)
+			{
+				// Ensure this converter can process the object.
+				if (!converter.CanConvert(issue))
+				{
+					continue;
+				}
 
-		/// <summary>
-		/// Gets the converter for the sync object.
-		/// </summary>
-		/// <param name="syncObject"> The incoming sync object. </param>
-		/// <returns> The converter for the sync object. </returns>
-		public SyncObjectConverter GetConverter(SyncObject syncObject)
-		{
-			return _converters.FirstOrDefault(x => x.CanConvert(syncObject));
+				// Convert the object.
+				return converter.Convert(issue);
+			}
+
+			return null;
 		}
 
 		#endregion

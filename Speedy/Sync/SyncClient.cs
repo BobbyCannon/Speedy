@@ -48,7 +48,7 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <inheritdoc />
-		public SyncClientConverter IncomingConverter { get; set; }
+		public SyncClientIncomingConverter IncomingConverter { get; set; }
 
 		/// <inheritdoc />
 		public string Name { get; }
@@ -57,7 +57,7 @@ namespace Speedy.Sync
 		public SyncClientOptions Options { get; set; }
 
 		/// <inheritdoc />
-		public SyncClientConverter OutgoingConverter { get; set; }
+		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <inheritdoc />
 		public SyncStatistics Statistics { get; set; }
@@ -258,7 +258,7 @@ namespace Speedy.Sync
 			// The only issue is processing entities individually. If an entity is added to a context then
 			// something goes wrong we'll need to disconnect before processing them individually
 			var objects = (IncomingConverter?.Convert(changes.Collection) ?? changes.Collection).ToList();
-			var groups = objects.GroupBy(x => x.TypeName).OrderBy(x => x.Key);
+			var groups = objects.Where(x => x != null).GroupBy(x => x.TypeName).OrderBy(x => x.Key);
 
 			if (corrections)
 			{
@@ -347,7 +347,6 @@ namespace Speedy.Sync
 					: $"Processing sync object {syncObject.SyncId}.",
 				EventLevel.Verbose);
 
-			var converter = IncomingConverter?.GetConverter(syncObject);
 			var syncEntity = syncObject.ToSyncEntity();
 
 			if (syncEntity == null)
@@ -391,14 +390,18 @@ namespace Speedy.Sync
 			switch (syncStatus)
 			{
 				case SyncObjectStatus.Added:
-					syncEntity.ResetId();
-					if (!UpdateEntity(syncEntity, syncEntity, SyncConversionType.Adding, converter))
+					// Instantiate a new instance of the sync entity to update, also use the provided sync ID
+					// this is because it's possibly the sync entity is blocking updating of the sync ID so it 
+					// will need to be set manually being that it will be filtered on update.
+					foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
+					foundEntity.SyncId = syncObject.SyncId;
+					if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
 					{
 						// todo: should we add a sync issue?
 						break;
 					}
-					UpdateLocalRelationships(syncEntity, database);
-					repository.Add(syncEntity);
+					UpdateLocalRelationships(foundEntity, database);
+					repository.Add(foundEntity);
 					break;
 
 				case SyncObjectStatus.Modified:
@@ -406,7 +409,7 @@ namespace Speedy.Sync
 					{
 						if (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction)
 						{
-							if (!UpdateEntity(syncEntity, foundEntity, SyncConversionType.Modifying, converter))
+							if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
 							{
 								// todo: should we add a sync issue?
 								break;
@@ -420,7 +423,7 @@ namespace Speedy.Sync
 				case SyncObjectStatus.Deleted:
 					if (foundEntity != null)
 					{
-						if (!UpdateEntity(null, syncEntity, SyncConversionType.Deleting, converter))
+						if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
 						{
 							// todo: should we add a sync issue?
 							break;
@@ -567,16 +570,16 @@ namespace Speedy.Sync
 			}
 		}
 
-		private bool UpdateEntity(ISyncEntity source, ISyncEntity destination, SyncConversionType type, SyncObjectConverter converter)
+		private bool UpdateEntity(ISyncEntity source, ISyncEntity destination, SyncObjectStatus status)
 		{
-			if (converter != null)
+			if (IncomingConverter != null)
 			{
-				return converter.Convert(source, destination, type);
+				return IncomingConverter.Update(source, destination, status);
 			}
 
-			if (destination != null && source != null)
+			if (destination != null && source != null && destination != source)
 			{
-				destination.UpdateWith(source);
+				destination.UpdateWith(source, false, false, true);
 			}
 
 			return true;

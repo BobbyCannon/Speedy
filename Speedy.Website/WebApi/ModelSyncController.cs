@@ -23,8 +23,8 @@ namespace Speedy.Website.WebApi
 	{
 		#region Fields
 
-		private static readonly SyncClientConverter _incomingConverter;
-		private static readonly SyncClientConverter _outgoingConverter;
+		private static readonly SyncClientIncomingConverter _incomingConverter;
+		private static readonly SyncClientOutgoingConverter _outgoingConverter;
 
 		#endregion
 
@@ -36,16 +36,16 @@ namespace Speedy.Website.WebApi
 
 		static ModelSyncController()
 		{
-			// Converts entities to public models, allows exclusions because source data is trusted.
-			_outgoingConverter = new SyncClientConverter(false, false,
-				new SyncObjectConverter<AddressEntity, long, Address, long>(),
-				new SyncObjectConverter<PersonEntity, int, Person, int>()
+			// Converts entities to public models using outgoing converters.
+			_outgoingConverter = new SyncClientOutgoingConverter(
+				new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>(),
+				new SyncObjectOutgoingConverter<PersonEntity, int, Person, int>()
 			);
 
-			// Converts public models to entities as the data come into the sync client, ensure exclusion because data is not trusted.
-			_incomingConverter = new SyncClientConverter(true, true,
-				new SyncObjectConverter<Address, long, AddressEntity, long>(),
-				new SyncObjectConverter<Person, int, PersonEntity, int>()
+			// Converts public models to entities as the data come into the sync client when data is not trusted.
+			_incomingConverter = new SyncClientIncomingConverter(
+				new SyncObjectIncomingConverter<Address, long, AddressEntity, long>(),
+				new SyncObjectIncomingConverter<Person, int, PersonEntity, int>()
 			);
 		}
 
@@ -53,11 +53,11 @@ namespace Speedy.Website.WebApi
 
 		#region Properties
 
-		public SyncClientConverter IncomingConverter { get; set; }
+		public SyncClientIncomingConverter IncomingConverter { get; set; }
 
 		public string Name { get; set; }
 
-		public SyncClientConverter OutgoingConverter { get; set; }
+		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		public SyncClientOptions Options { get; set; }
 

@@ -264,7 +264,7 @@ namespace Speedy.Samples.Tests
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider())
 			{
 				OutgoingConverter = null,
-				IncomingConverter = new SyncClientConverter(false, false, new SyncObjectConverter<Address, long, AddressEntity, long>())
+				IncomingConverter = new SyncClientIncomingConverter(new SyncObjectIncomingConverter<Address, long, AddressEntity, long>())
 			};
 
 			var request = new SyncRequest();
@@ -310,7 +310,7 @@ namespace Speedy.Samples.Tests
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider())
 			{
 				OutgoingConverter = null,
-				IncomingConverter = new SyncClientConverter(false, false, new SyncObjectConverter<Address, long, AddressEntity, long>())
+				IncomingConverter = new SyncClientIncomingConverter(new SyncObjectIncomingConverter<Address, long, AddressEntity, long>())
 			};
 
 			var request = new SyncRequest();
@@ -356,7 +356,7 @@ namespace Speedy.Samples.Tests
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider())
 			{
 				OutgoingConverter = null,
-				IncomingConverter = new SyncClientConverter(false, false, new SyncObjectConverter<Address, long, AddressEntity, long>())
+				IncomingConverter = new SyncClientIncomingConverter(new SyncObjectIncomingConverter<Address, long, AddressEntity, long>())
 			};
 
 			AddressEntity address;

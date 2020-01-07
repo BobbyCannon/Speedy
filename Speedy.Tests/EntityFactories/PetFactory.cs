@@ -15,7 +15,7 @@ namespace Speedy.Tests.EntityFactories
 
 		public static PetEntity Get(Action<PetEntity> update = null, PersonEntity person = null)
 		{
-			var time = DateTime.UtcNow;
+			var time = TimeService.UtcNow;
 			var petPerson = person ?? PersonFactory.Get(null, "John");
 
 			var result = new PetEntity

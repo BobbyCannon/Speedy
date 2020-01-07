@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Speedy.Sync;
 
 #endregion
@@ -18,8 +19,6 @@ namespace Speedy.Samples.Entities
 		{
 			Groups = new List<GroupMemberEntity>();
 			Owners = new List<PetEntity>();
-
-			ExcludePropertiesForUpdate(nameof(Address), nameof(AddressId), nameof(Groups));
 		}
 
 		#endregion
@@ -57,6 +56,24 @@ namespace Speedy.Samples.Entities
 				IsDeleted = IsDeleted,
 				SyncId = SyncId
 			};
+		}
+
+		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
+		{
+			return new HashSet<string> { nameof(Address), nameof(AddressId), nameof(Groups), nameof(Id) };
+		}
+		
+		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
+		{
+			// Update defaults are the same as incoming sync defaults
+			return GetDefaultExclusionsForIncomingSync();
+		}
+
+		protected override HashSet<string> GetDefaultExclusionsForSyncUpdate()
+		{
+			// Update defaults are the same as incoming sync defaults plus some
+			return base.GetDefaultExclusionsForSyncUpdate()
+				.Append(GetDefaultExclusionsForIncomingSync());
 		}
 
 		#endregion

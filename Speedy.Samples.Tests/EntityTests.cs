@@ -41,13 +41,14 @@ namespace Speedy.Samples.Tests
 		{
 			var address1 = new AddressEntity();
 			address1.ResetPropertyChangeTrackingExclusions(false);
-			address1.ResetPropertySyncExclusions(false);
-			address1.ResetPropertyUpdateExclusions(false);
+			address1.ResetExcludedPropertiesForIncomingSync(false);
+			address1.ResetExcludedPropertiesForOutgoingSync(false);
+			address1.ResetExcludedPropertiesForSyncUpdate(false);
 			address1.ExcludePropertiesForChangeTracking(nameof(AddressEntity.IsDeleted));
 
 			var actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
-			var actual2 = address1.GetExcludedPropertiesForSync().ToList();
-			var actual3 = address1.GetExcludedPropertiesForUpdate().ToList();
+			var actual2 = address1.GetExcludedPropertiesForOutgoingSync().ToList();
+			var actual3 = address1.GetExcludedPropertiesForSyncUpdate().ToList();
 
 			Assert.AreEqual(1, actual1.Count);
 			Assert.AreEqual(nameof(AddressEntity.IsDeleted), actual1[0]);
@@ -55,13 +56,14 @@ namespace Speedy.Samples.Tests
 			Assert.AreEqual(0, actual3.Count);
 
 			address1.ResetPropertyChangeTrackingExclusions(false);
-			address1.ResetPropertySyncExclusions(false);
-			address1.ResetPropertyUpdateExclusions(false);
-			address1.ExcludePropertiesForSync(nameof(AddressEntity.City));
+			address1.ResetExcludedPropertiesForIncomingSync(false);
+			address1.ResetExcludedPropertiesForOutgoingSync(false);
+			address1.ResetExcludedPropertiesForSyncUpdate(false);
+			address1.ExcludePropertiesForOutgoingSync(nameof(AddressEntity.City));
 
 			actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
-			actual2 = address1.GetExcludedPropertiesForSync().ToList();
-			actual3 = address1.GetExcludedPropertiesForUpdate().ToList();
+			actual2 = address1.GetExcludedPropertiesForOutgoingSync().ToList();
+			actual3 = address1.GetExcludedPropertiesForSyncUpdate().ToList();
 
 			Assert.AreEqual(0, actual1.Count);
 			Assert.AreEqual(1, actual2.Count);
@@ -69,13 +71,14 @@ namespace Speedy.Samples.Tests
 			Assert.AreEqual(0, actual3.Count);
 			
 			address1.ResetPropertyChangeTrackingExclusions(false);
-			address1.ResetPropertySyncExclusions(false);
-			address1.ResetPropertyUpdateExclusions(false);
-			address1.ExcludePropertiesForUpdate(nameof(AddressEntity.Line1));
+			address1.ResetExcludedPropertiesForIncomingSync(false);
+			address1.ResetExcludedPropertiesForOutgoingSync(false);
+			address1.ResetExcludedPropertiesForSyncUpdate(false);
+			address1.ExcludePropertiesForSyncUpdate(nameof(AddressEntity.Line1));
 
 			actual1 = address1.GetExcludedPropertiesForChangeTracking().ToList();
-			actual2 = address1.GetExcludedPropertiesForSync().ToList();
-			actual3 = address1.GetExcludedPropertiesForUpdate().ToList();
+			actual2 = address1.GetExcludedPropertiesForOutgoingSync().ToList();
+			actual3 = address1.GetExcludedPropertiesForSyncUpdate().ToList();
 
 			Assert.AreEqual(0, actual1.Count);
 			Assert.AreEqual(0, actual2.Count);
@@ -127,22 +130,23 @@ namespace Speedy.Samples.Tests
 		{
 			var address1 = new AddressEntity();
 			var address2 = new AddressEntity();
-			address1.ResetPropertySyncExclusions(false);
+			
+			address1.ResetExcludedPropertiesForIncomingSync(false);
+			address1.ResetExcludedPropertiesForOutgoingSync(false);
+			address1.ExcludePropertiesForOutgoingSync(nameof(AddressEntity.IsDeleted));
 
-			address1.ExcludePropertiesForSync(nameof(AddressEntity.IsDeleted));
-
-			var actual1 = address1.GetExcludedPropertiesForSync().ToList();
-			var actual2 = address2.GetExcludedPropertiesForSync().ToList();
+			var actual1 = address1.GetExcludedPropertiesForOutgoingSync().ToList();
+			var actual2 = address2.GetExcludedPropertiesForOutgoingSync().ToList();
 
 			TestHelper.AreEqual(actual1, actual2);
 			Assert.AreEqual(1, actual1.Count);
 			Assert.AreEqual(1, actual2.Count);
 			Assert.AreEqual(actual1[0], actual2[0]);
 
-			address1.ExcludePropertiesForSync(nameof(AddressEntity.City));
+			address1.ExcludePropertiesForOutgoingSync(nameof(AddressEntity.City));
 
-			actual1 = address1.GetExcludedPropertiesForSync().ToList();
-			actual2 = address2.GetExcludedPropertiesForSync().ToList();
+			actual1 = address1.GetExcludedPropertiesForOutgoingSync().ToList();
+			actual2 = address2.GetExcludedPropertiesForOutgoingSync().ToList();
 
 			TestHelper.AreEqual(actual1, actual2);
 			Assert.AreEqual(2, actual1.Count);
@@ -152,10 +156,11 @@ namespace Speedy.Samples.Tests
 			Assert.AreEqual(nameof(AddressEntity.IsDeleted), actual1[0]);
 			Assert.AreEqual(nameof(AddressEntity.City), actual1[1]);
 
-			address1.ResetPropertySyncExclusions(false);
+			address1.ResetExcludedPropertiesForIncomingSync(false);
+			address1.ResetExcludedPropertiesForOutgoingSync(false);
 
-			actual1 = address1.GetExcludedPropertiesForSync().ToList();
-			actual2 = address2.GetExcludedPropertiesForSync().ToList();
+			actual1 = address1.GetExcludedPropertiesForOutgoingSync().ToList();
+			actual2 = address2.GetExcludedPropertiesForOutgoingSync().ToList();
 
 			TestHelper.AreEqual(actual1, actual2);
 			Assert.AreEqual(0, actual1.Count);
@@ -167,22 +172,22 @@ namespace Speedy.Samples.Tests
 		{
 			var address1 = new AddressEntity();
 			var address2 = new AddressEntity();
-			address1.ResetPropertyUpdateExclusions(false);
+			address1.ResetExcludedPropertiesForSyncUpdate(false);
 
-			address1.ExcludePropertiesForUpdate(nameof(AddressEntity.IsDeleted));
+			address1.ExcludePropertiesForSyncUpdate(nameof(AddressEntity.IsDeleted));
 
-			var actual1 = address1.GetExcludedPropertiesForUpdate().ToList();
-			var actual2 = address2.GetExcludedPropertiesForUpdate().ToList();
+			var actual1 = address1.GetExcludedPropertiesForSyncUpdate().ToList();
+			var actual2 = address2.GetExcludedPropertiesForSyncUpdate().ToList();
 
 			TestHelper.AreEqual(actual1, actual2);
 			Assert.AreEqual(1, actual1.Count);
 			Assert.AreEqual(1, actual2.Count);
 			Assert.AreEqual(actual1[0], actual2[0]);
 
-			address1.ExcludePropertiesForUpdate(nameof(AddressEntity.City));
+			address1.ExcludePropertiesForSyncUpdate(nameof(AddressEntity.City));
 
-			actual1 = address1.GetExcludedPropertiesForUpdate().ToList();
-			actual2 = address2.GetExcludedPropertiesForUpdate().ToList();
+			actual1 = address1.GetExcludedPropertiesForSyncUpdate().ToList();
+			actual2 = address2.GetExcludedPropertiesForSyncUpdate().ToList();
 
 			TestHelper.AreEqual(actual1, actual2);
 			Assert.AreEqual(2, actual1.Count);
@@ -192,10 +197,10 @@ namespace Speedy.Samples.Tests
 			Assert.AreEqual(nameof(AddressEntity.IsDeleted), actual1[0]);
 			Assert.AreEqual(nameof(AddressEntity.City), actual1[1]);
 
-			address1.ResetPropertyUpdateExclusions(false);
+			address1.ResetExcludedPropertiesForSyncUpdate(false);
 
-			actual1 = address1.GetExcludedPropertiesForUpdate().ToList();
-			actual2 = address2.GetExcludedPropertiesForUpdate().ToList();
+			actual1 = address1.GetExcludedPropertiesForSyncUpdate().ToList();
+			actual2 = address2.GetExcludedPropertiesForSyncUpdate().ToList();
 
 			TestHelper.AreEqual(actual1, actual2);
 			Assert.AreEqual(0, actual1.Count);

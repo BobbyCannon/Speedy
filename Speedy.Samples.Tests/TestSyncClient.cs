@@ -43,13 +43,13 @@ namespace Speedy.Samples.Tests
 
 		public int CorrectionsOffset { get; private set; }
 
-		public SyncClientConverter IncomingConverter { get; set; }
+		public SyncClientIncomingConverter IncomingConverter { get; set; }
 
 		public string Name { get; }
 
 		public SyncClientOptions Options { get; set; }
 
-		public SyncClientConverter OutgoingConverter { get; set; }
+		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		public SyncStatistics Statistics { get; set; }
 

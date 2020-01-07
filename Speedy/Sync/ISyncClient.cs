@@ -22,12 +22,12 @@ namespace Speedy.Sync
 		/// <summary>
 		/// An optional converter to process sync objects from Server to Client
 		/// </summary>
-		SyncClientConverter IncomingConverter { get; set; }
+		SyncClientIncomingConverter IncomingConverter { get; set; }
 		
 		/// <summary>
 		/// An optional converter to process sync objects from Client to Server
 		/// </summary>
-		SyncClientConverter OutgoingConverter { get; set; }
+		SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <summary>
 		/// The options for the sync client

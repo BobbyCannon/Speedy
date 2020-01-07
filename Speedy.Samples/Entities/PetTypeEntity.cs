@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Speedy.Samples.Entities
 {
-	public class PetTypeEntity : Entity<string>, IModifiableEntity
+	public class PetTypeEntity : ModifiableEntity<string>
 	{
 		#region Constructors
 
@@ -22,13 +22,7 @@ namespace Speedy.Samples.Entities
 
 		#region Properties
 
-		/// <inheritdoc />
-		public DateTime CreatedOn { get; set; }
-
 		public override string Id { get; set; }
-
-		/// <inheritdoc />
-		public DateTime ModifiedOn { get; set; }
 
 		public string Type { get; set; }
 

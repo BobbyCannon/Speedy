@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 
 #endregion
 
@@ -14,13 +13,14 @@ namespace Speedy.Sync
 	/// <typeparam name="T2"> The primary key of the entity to convert from. </typeparam>
 	/// <typeparam name="T3"> The sync entity type to convert to. </typeparam>
 	/// <typeparam name="T4"> The primary key of the entity to convert to. </typeparam>
-	public class SyncObjectConverter<T1, T2, T3, T4> : SyncObjectConverter
+	public class SyncObjectIncomingConverter<T1, T2, T3, T4> : SyncObjectIncomingConverter
 		where T1 : SyncEntity<T2>
 		where T3 : SyncEntity<T4>
 	{
 		#region Fields
 
-		private readonly Func<T1, T3, SyncConversionType, bool> _convert;
+		private readonly Action<T1, T3> _convert;
+		private readonly Func<T3, T3, SyncObjectStatus, bool> _update;
 
 		#endregion
 
@@ -29,20 +29,13 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates an instance of a converter.
 		/// </summary>
-		public SyncObjectConverter() : this(null)
-		{
-		}
-
-		/// <summary>
-		/// Instantiates an instance of a converter.
-		/// </summary>
 		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
-		public SyncObjectConverter(Func<T1, T3, SyncConversionType, bool> convert)
+		/// <param name="update"> An optional update method to do some additional updating. </param>
+		public SyncObjectIncomingConverter(Action<T1, T3> convert = null, Func<T3, T3, SyncObjectStatus, bool> update = null)
+			: base(typeof(T1).GetRealType().ToAssemblyName(), typeof(T3).GetRealType().ToAssemblyName())
 		{
 			_convert = convert;
-
-			SourceName = typeof(T1).GetRealType().ToAssemblyName();
-			DestinationName = typeof(T3).GetRealType().ToAssemblyName();
+			_update = update;
 		}
 
 		#endregion
@@ -50,46 +43,109 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <inheritdoc />
-		public override bool CanConvert(ISyncEntity syncEntity)
+		public override bool CanUpdate(ISyncEntity syncEntity)
 		{
-			return syncEntity is T1;
+			return syncEntity is T3;
 		}
 
 		/// <inheritdoc />
-		public override bool CanConvert(SyncObject syncObject)
+		public override SyncObject Convert(SyncObject syncObject, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync)
 		{
-			return SourceName == syncObject.TypeName;
+			return Convert<T1, T2, T3, T4>(syncObject, _convert, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync);
 		}
 
 		/// <inheritdoc />
-		public override bool CanConvert(SyncIssue syncIssue)
+		public override bool Update(ISyncEntity source, ISyncEntity destination, SyncObjectStatus status, bool excludePropertiesForSyncUpdate)
 		{
-			return SourceName == syncIssue.TypeName;
+			return Update<T3, T4>((T3) source, (T3) destination, _update, status, excludePropertiesForSyncUpdate);
+		}
+
+		#endregion
+	}
+
+	/// <summary>
+	/// Represents an outgoing object converter.
+	/// </summary>
+	/// <typeparam name="T1"> The sync entity type to convert from. </typeparam>
+	/// <typeparam name="T2"> The primary key of the entity to convert from. </typeparam>
+	/// <typeparam name="T3"> The sync entity type to convert to. </typeparam>
+	/// <typeparam name="T4"> The primary key of the entity to convert to. </typeparam>
+	public class SyncObjectOutgoingConverter<T1, T2, T3, T4> : SyncObjectOutgoingConverter
+		where T1 : SyncEntity<T2>
+		where T3 : SyncEntity<T4>
+	{
+		#region Fields
+
+		private readonly Action<T1, T3> _convert;
+
+		#endregion
+
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates an instance of a converter.
+		/// </summary>
+		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
+		public SyncObjectOutgoingConverter(Action<T1, T3> convert = null)
+			: base(typeof(T1).GetRealType().ToAssemblyName(), typeof(T3).GetRealType().ToAssemblyName())
+		{
+			_convert = convert;
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <inheritdoc />
+		public override bool CanUpdate(ISyncEntity syncEntity)
+		{
+			return false;
 		}
 
 		/// <inheritdoc />
-		public override SyncObject Convert(SyncObject syncObject, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
+		public override SyncObject Convert(SyncObject syncObject, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync)
 		{
-			return syncObject.Convert<T1, T2, T3, T4>(_convert, type, excludePropertiesForSync, excludePropertiesForUpdate);
+			return Convert<T1, T2, T3, T4>(syncObject, _convert, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync);
 		}
 
 		/// <inheritdoc />
-		public override void Convert(SyncObject syncObject, ISyncEntity destination, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
+		public override bool Update(ISyncEntity source, ISyncEntity destination, SyncObjectStatus status, bool excludePropertiesForSyncUpdate)
 		{
-			var source = syncObject.ToSyncEntity<T1, T2>();
-			Convert<T1, T2, T3, T4>(source, (T3) destination, _convert, type, excludePropertiesForSync, excludePropertiesForUpdate);
+			return false;
 		}
 
-		/// <inheritdoc />
-		public override bool Convert(ISyncEntity source, ISyncEntity destination, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
+		#endregion
+	}
+
+	/// <summary>
+	/// Represents an incoming object converter.
+	/// </summary>
+	public abstract class SyncObjectIncomingConverter : SyncObjectConverter
+	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiate an incoming object converter.
+		/// </summary>
+		protected SyncObjectIncomingConverter(string sourceName, string destinationName) : base(sourceName, destinationName)
 		{
-			return Convert<T1, T2, T3, T4>((T1) source, (T3) destination, _convert, type, excludePropertiesForSync, excludePropertiesForUpdate);
 		}
 
-		/// <inheritdoc />
-		public override SyncIssue Convert(SyncIssue syncIssue)
+		#endregion
+	}
+
+	/// <summary>
+	/// Represents an outgoing object converter.
+	/// </summary>
+	public abstract class SyncObjectOutgoingConverter : SyncObjectConverter
+	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiate an outgoing object converter.
+		/// </summary>
+		protected SyncObjectOutgoingConverter(string sourceName, string destinationName) : base(sourceName, destinationName)
 		{
-			return syncIssue.Convert(DestinationName);
 		}
 
 		#endregion
@@ -100,149 +156,90 @@ namespace Speedy.Sync
 	/// </summary>
 	public abstract class SyncObjectConverter
 	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiate an object converter.
+		/// </summary>
+		protected SyncObjectConverter(string sourceName, string destinationName)
+		{
+			SourceName = sourceName;
+			DestinationName = destinationName;
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
 		/// The destination type name.
 		/// </summary>
-		protected string DestinationName { get; set; }
+		protected string DestinationName { get; }
 
 		/// <summary>
 		/// The source type name.
 		/// </summary>
-		protected string SourceName { get; set; }
+		protected string SourceName { get; }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Test a sync entity to see if this converter can process this object.
-		/// </summary>
-		/// <param name="syncEntity"> The sync entity to test. </param>
-		/// <returns> True if the sync object can be process or false if otherwise. </returns>
-		public abstract bool CanConvert(ISyncEntity syncEntity);
-
-		/// <summary>
-		/// Test a sync object to see if this converter can process this object.
+		/// Test a sync object to see if this converter can convert this object.
 		/// </summary>
 		/// <param name="syncObject"> The sync object to test. </param>
-		/// <returns> True if the sync object can be process or false if otherwise. </returns>
-		public abstract bool CanConvert(SyncObject syncObject);
+		/// <returns> True if the sync object can be converted or false if otherwise. </returns>
+		public bool CanConvert(SyncObject syncObject)
+		{
+			return SourceName == syncObject.TypeName;
+		}
 
 		/// <summary>
-		/// Test a sync issue to see if this converter can process this object.
+		/// Test a sync issue to see if this converter can convert this object.
 		/// </summary>
 		/// <param name="syncIssue"> The sync issue to test. </param>
-		/// <returns> True if the sync issue can be process or false if otherwise. </returns>
-		public abstract bool CanConvert(SyncIssue syncIssue);
+		/// <returns> True if the sync issue can be converted or false if otherwise. </returns>
+		public bool CanConvert(SyncIssue syncIssue)
+		{
+			return SourceName == syncIssue.TypeName;
+		}
+
+		/// <summary>
+		/// Test a sync entity to see if this converter can update this object.
+		/// </summary>
+		/// <param name="syncEntity"> The sync entity to test. </param>
+		/// <returns> True if the sync entity can be updated or false if otherwise. </returns>
+		public abstract bool CanUpdate(ISyncEntity syncEntity);
 
 		/// <summary>
 		/// Convert this sync object to a different sync object
 		/// </summary>
 		/// <param name="syncObject"> The sync object to process. </param>
-		/// <param name="type"> The type of conversion. </param>
-		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
-		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
+		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
 		/// <returns> The converted sync entity in a sync object format. </returns>
-		public abstract SyncObject Convert(SyncObject syncObject, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true);
-
-		/// <summary>
-		/// Convert this sync object to a different sync object
-		/// </summary>
-		/// <param name="syncObject"> The sync object to process. </param>
-		/// <param name="destination"> The destination sync entity to be updated. </param>
-		/// <param name="type"> The type of conversion. </param>
-		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
-		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
-		/// <returns> The converted sync entity in a sync object format. </returns>
-		public abstract void Convert(SyncObject syncObject, ISyncEntity destination, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true);
-
-		/// <summary>
-		/// Convert this sync object to a different sync object
-		/// </summary>
-		/// <param name="source"> The source sync entity with the updates. </param>
-		/// <param name="destination"> The destination sync entity to be updated. </param>
-		/// <param name="type"> The type of conversion. </param>
-		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
-		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
-		/// <returns> The converted sync entity in a sync object format. </returns>
-		public abstract bool Convert(ISyncEntity source, ISyncEntity destination, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true);
+		public abstract SyncObject Convert(SyncObject syncObject, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync);
 
 		/// <summary>
 		/// Convert this sync issue to a different sync object
 		/// </summary>
 		/// <param name="syncIssue"> The sync issue to process. </param>
 		/// <returns> The converted sync issue in a sync issue format. </returns>
-		public abstract SyncIssue Convert(SyncIssue syncIssue);
-
-		/// <summary>
-		/// Converts a collection of sync objects using the provided converters.
-		/// </summary>
-		/// <param name="syncObjects"> The sync objects to convert. </param>
-		/// <param name="type"> The type of conversion. </param>
-		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
-		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
-		/// <param name="converters"> The converters to projects the sync objects. </param>
-		/// <returns> The converted sync objects. </returns>
-		public static IEnumerable<SyncObject> Convert(IEnumerable<SyncObject> syncObjects, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true, params SyncObjectConverter[] converters)
+		public SyncIssue Convert(SyncIssue syncIssue)
 		{
-			foreach (var syncObject in syncObjects)
-			{
-				yield return Convert(syncObject, type, excludePropertiesForSync, excludePropertiesForUpdate, converters);
-			}
+			return syncIssue.Convert(DestinationName);
 		}
 
 		/// <summary>
-		/// Converts a sync objects using the provided converters.
+		/// Updates this sync object with another object.
 		/// </summary>
-		/// <param name="syncObject"> The sync object to convert. </param>
-		/// <param name="type"> The type of conversion. </param>
-		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
-		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
-		/// <param name="converters"> The converters to projects the sync objects. </param>
-		/// <returns> The converted sync objects. </returns>
-		public static SyncObject Convert(SyncObject syncObject, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true, params SyncObjectConverter[] converters)
-		{
-			// Cycle through each converter to process each object.
-			foreach (var converter in converters)
-			{
-				// Ensure this converter can process the object.
-				if (!converter.CanConvert(syncObject))
-				{
-					continue;
-				}
-
-				// Convert the object.
-				return converter.Convert(syncObject, type, excludePropertiesForSync, excludePropertiesForUpdate);
-			}
-
-			return null;
-		}
-		
-		/// <summary>
-		/// Converts a sync issue using the provided converters.
-		/// </summary>
-		/// <param name="issue"> The sync issue to convert. </param>
-		/// <param name="converters"> The converters to projects the sync issue. </param>
-		/// <returns> The converted sync issue. </returns>
-		public static SyncIssue Convert(SyncIssue issue, params SyncObjectConverter[] converters)
-		{
-			// Cycle through each converter to process each object.
-			foreach (var converter in converters)
-			{
-				// Ensure this converter can process the object.
-				if (!converter.CanConvert(issue))
-				{
-					continue;
-				}
-
-				// Convert the object.
-				return converter.Convert(issue);
-			}
-
-			return null;
-		}
+		/// <param name="source"> The entity with the updates. </param>
+		/// <param name="destination"> The destination sync entity to be updated. </param>
+		/// <param name="status"> The status of the update. </param>
+		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+		/// <returns> Return true if the entity was updated and should be saved. </returns>
+		public abstract bool Update(ISyncEntity source, ISyncEntity destination, SyncObjectStatus status, bool excludePropertiesForSyncUpdate);
 
 		/// <summary>
 		/// Convert this sync object to a different sync object
@@ -251,25 +248,60 @@ namespace Speedy.Sync
 		/// <typeparam name="T2"> The primary key of the entity to convert from. </typeparam>
 		/// <typeparam name="T3"> The sync entity type to convert to. </typeparam>
 		/// <typeparam name="T4"> The primary key of the entity to convert to. </typeparam>
-		/// <param name="source"> The source sync entity with the updates. </param>
-		/// <param name="destination"> The destination sync entity to be updated. </param>
-		/// <param name="convert"> The convert method to do the conversion. </param>
-		/// <param name="type"> The type of conversion. </param>
-		/// <param name="excludePropertiesForSync"> If true excluded properties will not be set during sync. </param>
-		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
+		/// <param name="syncObject"> The sync object to be converted. </param>
+		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
+		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
 		/// <returns> The converted sync entity in a sync object format. </returns>
-		public static bool Convert<T1, T2, T3, T4>(T1 source, T3 destination, Func<T1, T3, SyncConversionType, bool> convert, SyncConversionType type, bool excludePropertiesForSync = true, bool excludePropertiesForUpdate = true)
+		protected static SyncObject Convert<T1, T2, T3, T4>(SyncObject syncObject, Action<T1, T3> convert, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync)
 			where T1 : SyncEntity<T2>
 			where T3 : SyncEntity<T4>
 		{
+			var source = syncObject.ToSyncEntity<T1, T2>();
+			var destination = Activator.CreateInstance<T3>();
+
 			// Handle all one to one properties (same name & type) and all sync entity base properties.
-			destination.UpdateWith(source, excludePropertiesForSync, excludePropertiesForUpdate);
+			destination.UpdateWith(source, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, false);
 
 			// Update will not set the sync ID
 			destination.SyncId = source.SyncId;
 
 			// Optional convert to do additional conversions
-			return convert?.Invoke(source, destination, type) ?? true;
+			convert?.Invoke(source, destination);
+
+			// Keep status because it should be the same, ex Deleted
+			var response = destination.ToSyncObject();
+			response.Status = syncObject.Status;
+			return response;
+		}
+
+		/// <summary>
+		/// Updates this sync object with another object.
+		/// </summary>
+		/// <typeparam name="T1"> The sync entity type to process. </typeparam>
+		/// <typeparam name="T2"> The primary key of the sync entity. </typeparam>
+		/// <param name="source"> The entity with the updates. </param>
+		/// <param name="destination"> The destination sync entity to be updated. </param>
+		/// <param name="action"> The function to do the updating. </param>
+		/// <param name="status"> The status of the update. </param>
+		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+		/// <returns> Return true if the entity was updated and should be saved. </returns>
+		protected static bool Update<T1, T2>(T1 source, T1 destination, Func<T1, T1, SyncObjectStatus, bool> action, SyncObjectStatus status, bool excludePropertiesForSyncUpdate)
+			where T1 : SyncEntity<T2>
+		{
+			if (destination == null)
+			{
+				destination = Activator.CreateInstance<T1>();
+			}
+
+			// Handle all one to one properties (same name & type) and all sync entity base properties.
+			destination.UpdateWith(source, false, false, excludePropertiesForSyncUpdate);
+
+			// Update will not set the sync ID
+			destination.SyncId = source.SyncId;
+
+			// Optional convert to do additional conversions
+			return action?.Invoke(source, destination, status) ?? true;
 		}
 
 		#endregion

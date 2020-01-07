@@ -18,7 +18,7 @@ namespace Speedy.Tests
 		#region Methods
 
 		[TestMethod]
-		public void ExcludePropertyForSync()
+		public void ExcludePropertyForIncomingSync()
 		{
 			var source = new AddressEntity();
 			var destination = new AddressEntity();
@@ -39,13 +39,47 @@ namespace Speedy.Tests
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 
-			destination.ExcludePropertiesForSync(nameof(AddressEntity.Line1));
-			destination.UpdateWith(source, true, false);
+			destination.ExcludePropertiesForIncomingSync(nameof(AddressEntity.Line1));
+			destination.UpdateWith(source, true, false, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 
-			destination.UpdateWith(source, false, false);
+			destination.UpdateWith(source, false, false, false);
+
+			Assert.AreEqual("Test", source.Line1);
+			Assert.AreEqual("Test", destination.Line1);
+		}
+		
+		[TestMethod]
+		public void ExcludePropertyForOutgoingSync()
+		{
+			var source = new AddressEntity();
+			var destination = new AddressEntity();
+
+			source.Line1 = "Test";
+
+			Assert.AreEqual("Test", source.Line1);
+			Assert.AreEqual(null, destination.Line1);
+
+			destination.UpdateWith(source, false);
+
+			Assert.AreEqual("Test", source.Line1);
+			Assert.AreEqual("Test", destination.Line1);
+
+			source.Line1 = "Test";
+			destination.Line1 = null;
+
+			Assert.AreEqual("Test", source.Line1);
+			Assert.AreEqual(null, destination.Line1);
+
+			destination.ExcludePropertiesForOutgoingSync(nameof(AddressEntity.Line1));
+			destination.UpdateWith(source, false, true, false);
+
+			Assert.AreEqual("Test", source.Line1);
+			Assert.AreEqual(null, destination.Line1);
+
+			destination.UpdateWith(source, false, false, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual("Test", destination.Line1);
@@ -73,78 +107,109 @@ namespace Speedy.Tests
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 
-			destination.ExcludePropertiesForUpdate(nameof(AddressEntity.Line1));
-			destination.UpdateWith(source, false);
+			destination.ExcludePropertiesForSyncUpdate(nameof(AddressEntity.Line1));
+			destination.UpdateWith(source, false, false, true);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual(null, destination.Line1);
 
-			destination.UpdateWith(source, false, false);
+			destination.UpdateWith(source, false, false, false);
 
 			Assert.AreEqual("Test", source.Line1);
 			Assert.AreEqual("Test", destination.Line1);
 		}
 
 		[TestMethod]
-		public void ResetExclusionsForSync()
+		public void ResetExclusionsForIncomingSync()
 		{
 			var entity = new AddressEntity();
 
 			// Defaults and one that should not be excluded
-			Assert.IsTrue(entity.IsPropertyExcludedForSync(nameof(AddressEntity.Id)));
-			Assert.IsFalse(entity.IsPropertyExcludedForSync(nameof(AddressEntity.City)));
+			Assert.IsTrue(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.City)));
 
 			// Add exclusion
-			entity.ExcludePropertiesForSync(nameof(AddressEntity.City));
+			entity.ExcludePropertiesForIncomingSync(nameof(AddressEntity.City));
 
 			// Defaults and one that should now be excluded
-			Assert.IsTrue(entity.IsPropertyExcludedForSync(nameof(AddressEntity.Id)));
-			Assert.IsTrue(entity.IsPropertyExcludedForSync(nameof(AddressEntity.City)));
+			Assert.IsTrue(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.Id)));
+			Assert.IsTrue(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.City)));
 
 			// Reset exclusion to default
-			entity.ResetPropertySyncExclusions();
+			entity.ResetExcludedPropertiesForIncomingSync();
 
 			// Defaults and one that should now be excluded
-			Assert.IsTrue(entity.IsPropertyExcludedForSync(nameof(AddressEntity.Id)));
-			Assert.IsFalse(entity.IsPropertyExcludedForSync(nameof(AddressEntity.City)));
+			Assert.IsTrue(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.City)));
 
 			// Reset exclusion completely
-			entity.ResetPropertySyncExclusions(false);
+			entity.ResetExcludedPropertiesForIncomingSync(false);
 
 			// Defaults and one that should now be excluded
-			Assert.IsFalse(entity.IsPropertyExcludedForSync(nameof(AddressEntity.Id)));
-			Assert.IsFalse(entity.IsPropertyExcludedForSync(nameof(AddressEntity.City)));
+			Assert.IsFalse(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.City)));
+		}
+		
+		[TestMethod]
+		public void ResetExclusionsForOutgoingSync()
+		{
+			var entity = new AddressEntity();
+
+			// Defaults and one that should not be excluded
+			Assert.IsTrue(entity.IsPropertyExcludedForOutgoingSync(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForOutgoingSync(nameof(AddressEntity.City)));
+
+			// Add exclusion
+			entity.ExcludePropertiesForOutgoingSync(nameof(AddressEntity.City));
+
+			// Defaults and one that should now be excluded
+			Assert.IsTrue(entity.IsPropertyExcludedForOutgoingSync(nameof(AddressEntity.Id)));
+			Assert.IsTrue(entity.IsPropertyExcludedForOutgoingSync(nameof(AddressEntity.City)));
+
+			// Reset exclusion to default
+			entity.ResetExcludedPropertiesForOutgoingSync();
+
+			// Defaults and one that should now be excluded
+			Assert.IsTrue(entity.IsPropertyExcludedForOutgoingSync(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForOutgoingSync(nameof(AddressEntity.City)));
+
+			// Reset exclusion completely
+			entity.ResetExcludedPropertiesForOutgoingSync(false);
+
+			// Defaults and one that should now be excluded
+			Assert.IsFalse(entity.IsPropertyExcludedForOutgoingSync(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForIncomingSync(nameof(AddressEntity.City)));
 		}
 
 		[TestMethod]
-		public void ResetExclusionsForUpdate()
+		public void ResetExclusionsForSyncUpdate()
 		{
 			var entity = new AddressEntity();
 
 			// Defaults and one that should not be excluded
-			Assert.IsTrue(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.Id)));
-			Assert.IsFalse(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.City)));
+			Assert.IsTrue(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.City)));
 
 			// Add exclusion
-			entity.ExcludePropertiesForUpdate(nameof(AddressEntity.City));
+			entity.ExcludePropertiesForSyncUpdate(nameof(AddressEntity.City));
 
 			// Defaults and one that should now be excluded
-			Assert.IsTrue(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.Id)));
-			Assert.IsTrue(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.City)));
+			Assert.IsTrue(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.Id)));
+			Assert.IsTrue(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.City)));
 
 			// Reset exclusion to default
-			entity.ResetPropertyUpdateExclusions();
+			entity.ResetExcludedPropertiesForSyncUpdate();
 
 			// Defaults and one that should now be excluded
-			Assert.IsTrue(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.Id)));
-			Assert.IsFalse(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.City)));
+			Assert.IsTrue(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.City)));
 
 			// Reset exclusion completely
-			entity.ResetPropertyUpdateExclusions(false);
+			entity.ResetExcludedPropertiesForSyncUpdate(false);
 
 			// Defaults and one that should now be excluded
-			Assert.IsFalse(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.Id)));
-			Assert.IsFalse(entity.IsPropertyExcludedForUpdate(nameof(AddressEntity.City)));
+			Assert.IsFalse(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.Id)));
+			Assert.IsFalse(entity.IsPropertyExcludedForSyncUpdate(nameof(AddressEntity.City)));
 		}
 
 		[TestInitialize]
@@ -153,8 +218,9 @@ namespace Speedy.Tests
 			TestHelper.Initialize();
 			var address = new AddressEntity();
 			address.ResetPropertyChangeTrackingExclusions();
-			address.ResetPropertySyncExclusions();
-			address.ResetPropertyUpdateExclusions();
+			address.ResetExcludedPropertiesForIncomingSync();
+			address.ResetExcludedPropertiesForOutgoingSync();
+			address.ResetExcludedPropertiesForSyncUpdate();
 		}
 
 		[TestMethod]

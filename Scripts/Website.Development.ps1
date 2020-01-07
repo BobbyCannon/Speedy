@@ -14,8 +14,9 @@ Invoke-SqlNonQuery -Database "master" -Query "ALTER DATABASE [Sample] SET SINGLE
 Invoke-SqlNonQuery -Database "master" -Query "ALTER DATABASE [Sample2] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [Sample2]"
 
 $tempPath = [System.IO.Path]::GetTempPath()
-Get-ChildItem  -Filter *.db -Directory "$tempPath\SpeedyTests\" -Recurse
-Get-ChildItem  -Filter *.db -Directory "C:\Workspaces\GitHub\Speedy" -Recurse
+Get-ChildItem *.db -Path "$tempPath\Speedy\" -Recurse | Remove-Item
+Get-ChildItem *.db -Path "$tempPath\SpeedyTests\" -Recurse | Remove-Item
+Get-ChildItem *.db -Path "C:\Workspaces\GitHub\Speedy" -Recurse | Remove-Item
 
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Samples.Sql\Migrations -Force -Recurse
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Samples.Sqlite\Migrations -Force -Recurse

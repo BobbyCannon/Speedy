@@ -22,11 +22,11 @@ namespace Speedy.Website.WebApi
 
 		#region Properties
 
-		public SyncClientConverter IncomingConverter { get; set; }
+		public SyncClientIncomingConverter IncomingConverter { get; set; }
 
 		public string Name { get; set; }
 
-		public SyncClientConverter OutgoingConverter { get; set; }
+		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		public SyncClientOptions Options { get; set; }
 

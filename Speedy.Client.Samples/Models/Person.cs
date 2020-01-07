@@ -13,7 +13,7 @@ namespace Speedy.Client.Samples.Models
 
 		public Person()
 		{
-			ExcludePropertiesForUpdate(nameof(AddressId));
+			ExcludePropertiesForSyncUpdate(nameof(AddressId));
 		}
 
 		#endregion

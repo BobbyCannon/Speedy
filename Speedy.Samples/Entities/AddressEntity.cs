@@ -52,5 +52,28 @@ namespace Speedy.Samples.Entities
 		public string State { get; set; }
 
 		#endregion
+
+		#region Methods
+
+		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
+		{
+			return base.GetDefaultExclusionsForIncomingSync()
+				.Append(nameof(LinkedAddress), nameof(LinkedAddressId), nameof(LinkedAddresses), nameof(People));
+		}
+
+		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
+		{
+			// Update defaults are the same as incoming sync defaults
+			return GetDefaultExclusionsForIncomingSync();
+		}
+
+		protected override HashSet<string> GetDefaultExclusionsForSyncUpdate()
+		{
+			// Update defaults are the same as incoming sync defaults plus some
+			return base.GetDefaultExclusionsForSyncUpdate()
+				.Append(GetDefaultExclusionsForIncomingSync());
+		}
+
+		#endregion
 	}
 }

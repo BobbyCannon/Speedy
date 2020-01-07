@@ -51,10 +51,10 @@ namespace Speedy.Net
 		public string Name { get; }
 
 		/// <inheritdoc />
-		public SyncClientConverter IncomingConverter { get; set; }
+		public SyncClientIncomingConverter IncomingConverter { get; set; }
 
 		/// <inheritdoc />
-		public SyncClientConverter OutgoingConverter { get; set; }
+		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <summary>
 		/// The web client to use to connect to the server.

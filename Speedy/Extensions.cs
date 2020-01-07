@@ -114,6 +114,30 @@ namespace Speedy
 			return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(vLeft, vRight), parameter);
 		}
 
+		/// <summary>
+		/// Appends new values to an existing HashSet.
+		/// </summary>
+		/// <typeparam name="T"> The type of value in the set. </typeparam>
+		/// <param name="set"> The set to append to. </param>
+		/// <param name="values"> The values to add. </param>
+		/// <returns> A new HashSet containing the new values. </returns>
+		public static HashSet<T> Append<T>(this HashSet<T> set, params T[] values)
+		{
+			return new HashSet<T>(set.Union(values));
+		}
+
+		/// <summary>
+		/// Appends new values to an existing HashSet.
+		/// </summary>
+		/// <typeparam name="T"> The type of value in the set. </typeparam>
+		/// <param name="set"> The set to append to. </param>
+		/// <param name="values"> The values to add. </param>
+		/// <returns> A new HashSet containing the new values. </returns>
+		public static HashSet<T> Append<T>(this HashSet<T> set, HashSet<T> values)
+		{
+			return new HashSet<T>(set.Union(values));
+		}
+
 		/// <summary> Searches for the specified public method whose parameters match the specified argument types. The results are cached so the next query is much faster. </summary>
 		/// <param name="type"> The type to get the method for. </param>
 		/// <param name="name"> The string containing the name of the public method to get. </param>
