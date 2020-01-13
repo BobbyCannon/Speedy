@@ -61,9 +61,10 @@ namespace Speedy.UnitTests
 				ModifiedOn = date2,
 				Postal = "Postal 2",
 				State = "State 2",
-				SyncId = Guid.Parse("3584456b-cf36-4049-9491-7d83d0fd8255")
+				SyncId = Guid.Parse("511EB735-7CE7-4362-B36F-066CD697303A")
 			};
 
+			// SyncId changes but that's up to the user of the framework, should not exclude unless they want to
 			TestHelper.AreEqual(expected, entity);
 		}
 

@@ -71,7 +71,8 @@ namespace Speedy.Website.Samples.Entities
 		{
 			// Update defaults are the same as incoming sync defaults plus some
 			return base.GetDefaultExclusionsForSyncUpdate()
-				.Append(GetDefaultExclusionsForIncomingSync());
+				.Append(GetDefaultExclusionsForIncomingSync())
+				.Append(nameof(IsDeleted));
 		}
 
 		#endregion
