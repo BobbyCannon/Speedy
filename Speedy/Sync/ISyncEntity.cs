@@ -32,30 +32,6 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
-		/// Add a property to exclude during sync for incoming data.
-		/// </summary>
-		/// <param name="propertyNames"> The names of the property to exclude. </param>
-		void ExcludePropertiesForIncomingSync(params string[] propertyNames);
-
-		/// <summary>
-		/// Get the properties excluded during sync for incoming data.
-		/// </summary>
-		/// <returns> The names of the property to exclude. </returns>
-		HashSet<string> GetExcludedPropertiesForIncomingSync();
-		
-		/// <summary>
-		/// Add a property to exclude during sync for outgoing data.
-		/// </summary>
-		/// <param name="propertyNames"> The names of the property to exclude. </param>
-		void ExcludePropertiesForOutgoingSync(params string[] propertyNames);
-
-		/// <summary>
-		/// Get the properties excluded during sync for outgoing data.
-		/// </summary>
-		/// <returns> The names of the property to exclude. </returns>
-		HashSet<string> GetExcludedPropertiesForOutgoingSync();
-
-		/// <summary>
 		/// Checks a property to see if it can be synced in incoming data.
 		/// </summary>
 		/// <param name="propertyName"> The property name to be tested. </param>
@@ -70,21 +46,11 @@ namespace Speedy.Sync
 		bool IsPropertyExcludedForOutgoingSync(string propertyName);
 
 		/// <summary>
-		/// Reset the ID back to it's default
+		/// Checks a property has been excluded from updating.
 		/// </summary>
-		void ResetId();
-
-		/// <summary>
-		/// Resets incoming sync exclusion back to default values or just clears if setToDefault is false.
-		/// </summary>
-		/// <param name="setToDefault"> Set to default excluded values. Defaults to true. </param>
-		void ResetExcludedPropertiesForIncomingSync(bool setToDefault = true);
-		
-		/// <summary>
-		/// Resets outgoing sync exclusion back to default values or just clears if setToDefault is false.
-		/// </summary>
-		/// <param name="setToDefault"> Set to default excluded values. Defaults to true. </param>
-		void ResetExcludedPropertiesForOutgoingSync(bool setToDefault = true);
+		/// <param name="propertyName"> The property name to be tested. </param>
+		/// <returns> True if the property can be written during an update or false if otherwise. </returns>
+		bool IsPropertyExcludedForSyncUpdate(string propertyName);
 
 		/// <summary>
 		/// Converts the entity into an object to transmit.
@@ -103,8 +69,8 @@ namespace Speedy.Sync
 		/// <param name="update"> The source of the update. </param>
 		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
 		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
-		/// <param name="excludePropertiesForUpdate"> If true excluded properties will not be set during update. </param>
-		void UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForUpdate);
+		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+		void UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate);
 
 		/// <summary>
 		/// Updates the entity with the provided entity.

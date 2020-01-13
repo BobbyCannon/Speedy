@@ -313,11 +313,12 @@ namespace Speedy.Sync
 			{
 				using (database)
 				{
-					if (database is Database d)
+					switch (database)
 					{
-						foreach (var r in d.Repositories)
+						case Database d:
 						{
-							r.Value.Sort();
+							d.Repositories.ForEach(x => x.Value.Sort());
+							break;
 						}
 					}
 				}

@@ -1,0 +1,439 @@
+﻿@mixin clearfix() {
+	&::before,
+	&::after {
+		content: " ";
+		display: table;
+	}
+
+	&::after {
+		clear: both;
+	}
+}
+
+@mixin rem-units($property, $values, $suffix: '') {
+	// placeholder variables
+	$shorthandPixels: "";
+	$shorthandRems: "";
+
+	// values may be a list; shorthand notation
+	@each $value in $values {
+		// if 0 or auto then don't add a unit to the value
+		@if $value == 0 or $value == auto {
+			$shorthandPixels: #{ $shorthandPixels + " " + $value };
+			$shorthandRems: #{ $shorthandRems + " " + $value };
+		}
+		@else {
+			$shorthandPixels: #{ $shorthandPixels + " " + $value + px };
+			$shorthandRems: #{ $shorthandRems + " " + ($value * 0.0625) + rem };
+		}
+	}
+	// output the property with a rem value and px fall back
+	@if ($suffix == '') {
+		#{$property}: $shorthandPixels;
+		#{$property}: $shorthandRems;
+	}
+	@else {
+		$suffix: ' ' + $suffix;
+		#{$property}: $shorthandPixels + $suffix;
+		#{$property}: $shorthandRems + $suffix;
+	}
+}
+
+@font-face {
+	font-family: 'DejaVuSansMono';
+	src: url('../Fonts/DejaVuSansMono.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Anonymous';
+	src: url('../Fonts/Anonymous Pro Minus.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'OpenSans';
+	src: url('../Fonts/OpenSans-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'OpenSansLight';
+	src: url('../Fonts/OpenSans-Light.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+$font-family: "OpenSans","Tahoma","Verdana","Arial","sans-serif";
+$font-family-light: "OpenSansLight","Tahoma","Verdana","Arial","sans-serif";
+$font-family-mono: "DejaVuSansMono","Anonymous","Lucida Console","Consolas";
+$font-size-base: 16;
+$font-scale: 3;
+$font-scale-small: 2;
+$line-height: 1.5;
+$numberArray: 0,2,4,6,8,10,12,14,16,18,20,30,40,60;
+
+$hoverPercent: 5%;
+$accentColor: #0085ee;
+$blueColor: #0085ee;
+$blackishColor: #232323;
+$burgundyColor: #8f191e;
+$grayColor: #ccc;
+$darkGrayColor: #999;
+$purpleColor: #8855ff;
+$redColor: #cc1122;
+$whiteColor: #eee;
+
+$colorArray: blackish $blackishColor,
+	burgundy $burgundyColor,
+	blue $blueColor,
+	darkGray $darkGrayColor,
+	gray $grayColor,
+	purple $purpleColor,
+	red $redColor,
+	white $whiteColor;
+
+$controlBackground: #565656;
+$controlBorder: #414141;
+$controlFocusedBackground: #212121;
+
+*, *::before, *::after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	vertical-align: top;
+}
+
+.row {
+	@include clearfix();
+	@include rem-units(margin, 0 0 20 0);
+	height: auto;
+	width: 100%;
+
+	&.align-center > [class*="span"] {
+		text-align: center;
+		float: none;
+		display: inline-block;
+	}
+
+	> [class*="span"]:last-of-type {
+		margin-right: 0;
+	}
+}
+
+[class*="span"] {
+	@include clearfix();
+	overflow-wrap: break-word;
+	float: left;
+}
+
+.span {
+	@include clearfix();
+	vertical-align: top;
+	width: auto;
+}
+
+@for $i from 1 through 24 {
+	.span#{$i} {
+		@include clearfix();
+		min-height: 1px;
+		vertical-align: top;
+		width: percentage($i / 24);
+	}
+}
+
+@for $i from 1 through 23 {
+	.offset#{$i} {
+		margin-left: percentage($i / 24);
+	}
+}
+
+a {
+	color: $blueColor;
+	text-decoration: none;
+
+	&:hover {
+		color: darken($blueColor, $hoverPercent);
+	}
+
+	&.disabled {
+		color: $grayColor;
+		cursor: not-allowed;
+	}
+}
+
+a.button,
+button {
+	display: inline-block;
+	@include rem-units(padding, 9 12);
+	background-color: $accentColor;
+	border: 1px solid $blackishColor;
+	color: $whiteColor;
+	cursor: pointer;
+	line-height: 1em;
+	font-family: Helvetica, Arial;
+	@include rem-units(font-size, 16);
+	@include rem-units(height, 36);
+	@include rem-units(min-height, 36);
+	@include rem-units(min-width, 76);
+	overflow: visible;
+	text-align: center;
+	vertical-align: top;
+
+	&:hover {
+		background-color: darken($accentColor, $hoverPercent);
+		border-color: darken($accentColor, $hoverPercent);
+	}
+
+	&.link {
+		background-color: transparent;
+		border: none;
+		color: $accentColor;
+
+		&:hover {
+			color: darken($accentColor, $hoverPercent);
+		}
+	}
+
+	&:disabled {
+		background-color: $darkGrayColor;
+		border-color: $darkGrayColor;
+		color: $grayColor;
+		cursor: not-allowed;
+	}
+
+	@each $colorName in $colorArray {
+		&.#{nth($colorName, 1)} {
+			background-color: nth($colorName, 2);
+			border-color: nth($colorName, 2);
+			color: $whiteColor;
+
+			&:hover {
+				background-color: darken(nth($colorName, 2), $hoverPercent);
+				border-color: darken(nth($colorName, 2), $hoverPercent);
+				color: $whiteColor;
+			}
+
+			&.link {
+				background-color: transparent;
+				border-color: transparent;
+				color: nth($colorName, 2);
+
+				&:hover {
+					background-color: transparent;
+					border-color: transparent;
+					color: darken(nth($colorName, 2), $hoverPercent);
+				}
+			}
+
+			&:disabled {
+				background-color: $darkGrayColor;
+				border-color: $darkGrayColor;
+				color: $grayColor;
+				cursor: not-allowed;
+			}
+		}
+	}
+}
+
+@for $i from 1 through 6 {
+	h#{$i} {
+		font-family: $font-family-light;
+		font-weight: lighter;
+		@include rem-units(font-size, $font-size-base + ($font-scale * (7 - $i)));
+		@include rem-units(margin, 0 0 10 0);
+	}
+}
+.container {
+	margin: 0 auto;
+}
+
+[v\:cloak],
+[v-cloak],
+.hide {
+	display: none;
+}
+
+.pull-left,
+.pull-left-then-none {
+	float: left;
+}
+
+.pull-right,
+.pull-right-then-none {
+	float: right;
+}
+
+.text-left,
+.text-left-then-center,
+input .text-left, 
+input[type=text] .text-left {
+	text-align: left; 
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-right,
+.text-right-then-center {
+	text-align: right;
+}
+
+textarea,
+datalist,
+select,
+input[type=email],
+input[type=number],
+input[type=password],
+input[type=date],
+input[type=datetime],
+input[type=datetime-local],
+input[type=text],
+input[list] {
+	@include rem-units(padding, 8 10);
+	@include rem-units(margin, 0 0 10 0);
+	border: 1px solid #000;
+	box-shadow: none;
+	color: $blackishColor;
+	line-height: normal;
+	font-family: Helvetica, Arial;
+	@include rem-units(font-size, 16);
+	@include rem-units(height, 36);
+	@include rem-units(min-height, 36);
+	@include rem-units(width, 260);
+	text-align: center;
+	position: relative;
+	vertical-align: top;
+
+	&:focus {
+		outline: none;
+		border-color: $accentColor;
+		box-shadow: none;
+	}
+
+	&::-webkit-input-placeholder {
+		color: $darkGrayColor;
+	}
+
+	&:-moz-placeholder {
+		color: $darkGrayColor;
+		opacity: 1;
+	}
+
+	&::-moz-placeholder {
+		color: $darkGrayColor;
+		opacity: 1;
+	}
+
+	&:-ms-input-placeholder {
+		color: $darkGrayColor;
+	}
+
+	&.stretch {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	&.collapsed {
+		padding: 0;
+		min-height: 26px;
+		height: 26px;
+		width: auto;
+	}
+}
+
+input[type=text]:read-only {
+	background: $darkGrayColor;
+	cursor: not-allowed;
+}
+
+.panel {
+	background: $controlBackground;
+	display: block;
+	color: $whiteColor;
+	@include rem-units(padding, 26);
+	margin: 0 auto;
+	@include rem-units(border-radius, 8);
+
+	&.inline {
+		display: inline-block;
+	}
+}
+
+.inline {
+	display: inline-block;
+}
+
+@each $i in $numberArray {
+	.margin-#{$i} {
+		@include rem-units(margin, $i, '!important');
+	}
+
+	.margin-top-#{$i},
+	.margin-top-#{$i}-then-0 {
+		@include rem-units(margin-top, $i, '!important');
+	}
+
+	.margin-bottom-#{$i} {
+		@include rem-units(margin-bottom, $i, '!important');
+	}
+
+	.margin-left-#{$i},
+	.margin-left-#{$i}-then-0 {
+		@include rem-units(margin-left, $i, '!important');
+	}
+
+	.margin-right-#{$i},
+	.margin-right-#{$i}-then-0 {
+		@include rem-units(margin-right, $i, '!important');
+	}
+
+	.margin-top-bottom-#{$i} {
+		@include rem-units(margin-top, $i, '!important');
+		@include rem-units(margin-bottom, $i, '!important');
+	}
+
+	.margin-left-right-#{$i} {
+		@include rem-units(margin-left, $i, '!important');
+		@include rem-units(margin-right, $i, '!important');
+	}
+
+	.padding-#{$i},
+	.padding-#{$i}-then-0 {
+		@include rem-units(padding, $i, '!important');
+	}
+
+	.padding-top-#{$i},
+	.padding-top-#{$i}-then-0 {
+		@include rem-units(padding-top, $i, '!important');
+	}
+
+	.padding-bottom-#{$i} {
+		@include rem-units(padding-bottom, $i, '!important');
+	}
+
+	.padding-left-#{$i},
+	.padding-left-#{$i}-then-0 {
+		@include rem-units(padding-left, $i, '!important');
+	}
+
+	.padding-right-#{$i},
+	.padding-right-#{$i}-then-0 {
+		@include rem-units(padding-right, $i, '!important');
+	}
+
+	.padding-top-bottom-#{$i} {
+		@include rem-units(padding-top, $i, '!important');
+		@include rem-units(padding-bottom, $i, '!important');
+	}
+
+	.padding-left-right-#{$i},
+	.padding-left-right-#{$i}-then-0 {
+		@include rem-units(padding-left, $i, '!important');
+		@include rem-units(padding-right, $i, '!important');
+	}
+}

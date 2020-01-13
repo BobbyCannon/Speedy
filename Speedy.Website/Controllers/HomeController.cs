@@ -1,61 +1,82 @@
 ﻿#region References
 
-using System;
-using System.Diagnostics;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Speedy.Samples;
-using Speedy.Website.Models;
+using System.Web.Mvc;
+using Speedy.Data;
+using Speedy.Website.Samples;
+using Speedy.Website.Services;
 
 #endregion
 
 namespace Speedy.Website.Controllers
 {
-	public class HomeController : Controller
+	public class HomeController : BaseController
 	{
-		#region Fields
-
-		private readonly IContosoDatabase _database;
-
-		#endregion
-
 		#region Constructors
 
-		public HomeController(IContosoDatabase database)
+		public HomeController(IContosoDatabase database, IAuthenticationService authenticationService) : base(database, authenticationService)
 		{
-			_database = database;
 		}
 
 		#endregion
 
 		#region Methods
 
-		public IActionResult Boom()
+		public ActionResult Account()
 		{
-			throw new Exception("Boom");
+			var user = GetAccount();
+			var service = new ViewService(Database, user);
+			return View(service.GetAccount());
 		}
 
-		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
+		public ActionResult Index()
 		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+			ViewBag.Title = "Home Page";
+			return View();
 		}
 
-		public IActionResult Index()
+		[AllowAnonymous]
+		public ActionResult LogIn(string returnUrl)
 		{
-			var model = new IndexViewModel
+			if (IsAuthenticated)
 			{
-				AddressCount = _database.Addresses.Count(),
-				PeopleCount = _database.People.Count()
-			};
+				return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
+			}
 
-			return View(model);
+			if (MissingAuthenticatedUser)
+			{
+				return RedirectToAction("LogIn", "Home");
+			}
+
+			ViewBag.ReturnUrl = returnUrl;
+
+			return View(new Credentials());
 		}
 
-		protected override void Dispose(bool disposing)
+		[HttpPost]
+		[AllowAnonymous]
+		public ActionResult LogIn(Credentials model, string returnUrl)
 		{
-			_database.Dispose();
-			base.Dispose(disposing);
+			if (!ModelState.IsValid)
+			{
+				ModelState.AddModelError("EmailAddress", Constants.LoginInvalidError);
+				return View(model);
+			}
+
+			if (!AuthenticationService.LogIn(model))
+			{
+				ModelState.AddModelError("EmailAddress", Constants.LoginInvalidError);
+				return View(model);
+			}
+
+			Database.SaveChanges();
+
+			return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
+		}
+
+		public ActionResult LogOut()
+		{
+			AuthenticationService.LogOut();
+			return Redirect("/");
 		}
 
 		#endregion

@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -95,9 +97,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Speedy.Client.Samples\Speedy.Client.Samples.csproj">
+    <ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj">
       <Project>{6490ea68-27ad-4321-be2d-a1854de2d992}</Project>
-      <Name>Speedy.Client.Samples</Name>
+      <Name>Speedy.Client.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Speedy.Data\Speedy.Data.csproj">
+      <Project>{1a4e38c5-0794-4cf3-93d5-0c88650bc71e}</Project>
+      <Name>Speedy.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

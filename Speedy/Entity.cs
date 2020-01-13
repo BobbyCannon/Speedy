@@ -103,16 +103,6 @@ namespace Speedy
 			return this.Unwrap<Entity<T>, T1>(update);
 		}
 
-		/// <summary>
-		/// Gets the default exclusions for update. Warning: this is called during constructor, overrides need to be
-		/// sure to only return static values as to not cause issues.
-		/// </summary>
-		/// <returns> The values to exclude during update. </returns>
-		protected override HashSet<string> GetDefaultExclusionsForSyncUpdate()
-		{
-			return new HashSet<string> { nameof(Id) };
-		}
-
 		#endregion
 	}
 
@@ -129,34 +119,14 @@ namespace Speedy
 		protected static readonly Type SyncEntityInterfaceType;
 
 		/// <summary>
-		/// Properties to ignore when tracking changes.
+		/// Cache of combination of exclusions.
 		/// </summary>
-		private readonly HashSet<string> _excludedPropertiesForChangeTracking;
-
-		/// <summary>
-		/// Properties to ignore when updating.
-		/// </summary>
-		private readonly HashSet<string> _excludedPropertiesForSyncUpdate;
+		internal static readonly ConcurrentDictionary<ExclusionKey, HashSet<string>> ExcludedProperties;
 
 		/// <summary>
 		/// All hash sets for types, this is for optimization
 		/// </summary>
 		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionCacheForChangeTracking;
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionCacheForIncomingSync;
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionCacheForOutgoingSync;
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionCacheForSyncUpdate;
 
 		/// <summary>
 		/// Represents if the entity has had changes or not.
@@ -177,9 +147,7 @@ namespace Speedy
 		/// </summary>
 		protected Entity()
 		{
-			var type = GetType();
-			_excludedPropertiesForChangeTracking = _exclusionCacheForChangeTracking.GetOrAdd(type, x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
-			_excludedPropertiesForSyncUpdate = _exclusionCacheForSyncUpdate.GetOrAdd(type, x => new HashSet<string>(GetDefaultExclusionsForSyncUpdate()));
+			_exclusionCacheForChangeTracking.GetOrAdd(RealType, x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
 		}
 
 		/// <summary>
@@ -188,12 +156,36 @@ namespace Speedy
 		static Entity()
 		{
 			_exclusionCacheForChangeTracking = new ConcurrentDictionary<Type, HashSet<string>>();
-			_exclusionCacheForIncomingSync = new ConcurrentDictionary<Type, HashSet<string>>();
-			_exclusionCacheForOutgoingSync = new ConcurrentDictionary<Type, HashSet<string>>();
-			_exclusionCacheForSyncUpdate = new ConcurrentDictionary<Type, HashSet<string>>();
-
+			ExclusionCacheForIncomingSync = new ConcurrentDictionary<Type, HashSet<string>>();
+			ExclusionCacheForOutgoingSync = new ConcurrentDictionary<Type, HashSet<string>>();
+			ExclusionCacheForSyncUpdate = new ConcurrentDictionary<Type, HashSet<string>>();
+			ExcludedProperties = new ConcurrentDictionary<ExclusionKey, HashSet<string>>();
 			SyncEntityInterfaceType = typeof(ISyncEntity);
 		}
+
+		#endregion
+
+		#region Properties
+
+		/// <summary>
+		/// Cached version of the "real" type, meaning not EF proxy but rather root type
+		/// </summary>
+		internal Type RealType => _realType ??= this.GetRealType();
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
+		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForSyncUpdate { get; }
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
+		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForIncomingSync { get; }
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
+		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForOutgoingSync { get; }
 
 		#endregion
 
@@ -221,49 +213,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Exclude properties from changing tracking.
-		/// </summary>
-		/// <param name="propertyNames"> The member names to exclude </param>
-		public void ExcludePropertiesForChangeTracking(params string[] propertyNames)
-		{
-			foreach (var propertyName in propertyNames)
-			{
-				if (_excludedPropertiesForChangeTracking.Contains(propertyName))
-				{
-					continue;
-				}
-
-				_excludedPropertiesForChangeTracking.Add(propertyName);
-			}
-		}
-
-		/// <inheritdoc />
-		public void ExcludePropertiesForSyncUpdate(params string[] propertyNames)
-		{
-			foreach (var propertyName in propertyNames)
-			{
-				if (_excludedPropertiesForSyncUpdate.Contains(propertyName))
-				{
-					continue;
-				}
-
-				_excludedPropertiesForSyncUpdate.Add(propertyName);
-			}
-		}
-
-		/// <inheritdoc />
-		public HashSet<string> GetExcludedPropertiesForChangeTracking()
-		{
-			return new HashSet<string>(_excludedPropertiesForChangeTracking);
-		}
-
-		/// <inheritdoc />
-		public HashSet<string> GetExcludedPropertiesForSyncUpdate()
-		{
-			return new HashSet<string>(_excludedPropertiesForSyncUpdate);
-		}
-
-		/// <summary>
 		/// Determines if the object has changes.
 		/// </summary>
 		public virtual bool HasChanges()
@@ -277,13 +226,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public bool IsPropertyExcludedForChangeTracking(string propertyName)
 		{
-			return _excludedPropertiesForChangeTracking.Contains(propertyName);
-		}
-
-		/// <inheritdoc />
-		public bool IsPropertyExcludedForSyncUpdate(string propertyName)
-		{
-			return _excludedPropertiesForSyncUpdate.Contains(propertyName);
+			return _exclusionCacheForChangeTracking[RealType].Contains(propertyName);
 		}
 
 		/// <summary>
@@ -292,7 +235,7 @@ namespace Speedy
 		/// <param name="propertyName"> The name of the property that changed. </param>
 		public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
 		{
-			if (!_excludedPropertiesForChangeTracking.Contains(propertyName))
+			if (!_exclusionCacheForChangeTracking[RealType].Contains(propertyName))
 			{
 				_hasChanges = true;
 			}
@@ -309,28 +252,6 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public void ResetExcludedPropertiesForSyncUpdate(bool setToDefault = true)
-		{
-			_excludedPropertiesForSyncUpdate.Clear();
-
-			if (setToDefault)
-			{
-				_excludedPropertiesForSyncUpdate.AddRange(GetDefaultExclusionsForSyncUpdate());
-			}
-		}
-
-		/// <inheritdoc />
-		public void ResetPropertyChangeTrackingExclusions(bool setToDefault = true)
-		{
-			_excludedPropertiesForChangeTracking.Clear();
-
-			if (setToDefault)
-			{
-				_excludedPropertiesForChangeTracking.AddRange(GetDefaultExclusionsForChangeTracking());
-			}
-		}
-
-		/// <inheritdoc />
 		public abstract bool TrySetId(string id);
 
 		/// <summary>
@@ -341,32 +262,7 @@ namespace Speedy
 		/// </returns>
 		public virtual object Unwrap()
 		{
-			var type = _realType ??= this.GetRealType();
-			return this.Unwrap(type);
-		}
-
-		/// <summary>
-		/// Used by the ISyncEntity class to set the exclusion. Do not use this method directly,
-		/// you should be implementing the SyncEntity.GetDefaultExclusionsForIncomingSync method instead.
-		/// </summary>
-		/// <param name="type"> The type of the sync entity. </param>
-		/// <param name="values"> The values to be excluded. </param>
-		/// <returns> The excluded values. </returns>
-		protected HashSet<string> AddExclusionsForIncomingSync(Type type, Func<Type, HashSet<string>> values)
-		{
-			return _exclusionCacheForIncomingSync.GetOrAdd(type, values);
-		}
-
-		/// <summary>
-		/// Used by the ISyncEntity class to set the exclusion. Do not use this method directly,
-		/// you should be implementing the SyncEntity.GetDefaultExclusionsForOutgoingSync method instead.
-		/// </summary>
-		/// <param name="type"> The type of the sync entity. </param>
-		/// <param name="values"> The values to be excluded. </param>
-		/// <returns> The excluded values. </returns>
-		protected HashSet<string> AddExclusionsForOutgoingSync(Type type, Func<Type, HashSet<string>> values)
-		{
-			return _exclusionCacheForOutgoingSync.GetOrAdd(type, values);
+			return this.Unwrap(RealType);
 		}
 
 		/// <summary>
@@ -378,13 +274,6 @@ namespace Speedy
 		{
 			return new HashSet<string>();
 		}
-
-		/// <summary>
-		/// Gets the default exclusions for update. Warning: this is called during constructor, overrides need to be
-		/// sure to only return static values as to not cause issues.
-		/// </summary>
-		/// <returns> The values to exclude during update. </returns>
-		protected abstract HashSet<string> GetDefaultExclusionsForSyncUpdate();
 
 		#endregion
 
@@ -424,30 +313,6 @@ namespace Speedy
 		void EntityModified();
 
 		/// <summary>
-		/// Add a property to exclude from change tracking.
-		/// </summary>
-		/// <param name="propertyNames"> The names of the property to exclude. </param>
-		void ExcludePropertiesForChangeTracking(params string[] propertyNames);
-
-		/// <summary>
-		/// Add a property to exclude during update.
-		/// </summary>
-		/// <param name="propertyNames"> The names of the property to exclude. </param>
-		void ExcludePropertiesForSyncUpdate(params string[] propertyNames);
-
-		/// <summary>
-		/// Get the properties excluded from change tracking.
-		/// </summary>
-		/// <returns> The names of the property to exclude. </returns>
-		HashSet<string> GetExcludedPropertiesForChangeTracking();
-
-		/// <summary>
-		/// Get the properties excluded during update.
-		/// </summary>
-		/// <returns> The names of the property to exclude. </returns>
-		HashSet<string> GetExcludedPropertiesForSyncUpdate();
-
-		/// <summary>
 		/// Determine if the ID is set on the entity.
 		/// </summary>
 		/// <returns> True if the ID is set or false if otherwise. </returns>
@@ -459,25 +324,6 @@ namespace Speedy
 		/// <param name="propertyName"> The property name to be tested. </param>
 		/// <returns> True if the property is excluded or false if otherwise. </returns>
 		bool IsPropertyExcludedForChangeTracking(string propertyName);
-
-		/// <summary>
-		/// Checks a property has been excluded from updating.
-		/// </summary>
-		/// <param name="propertyName"> The property name to be tested. </param>
-		/// <returns> True if the property can be written during an update or false if otherwise. </returns>
-		bool IsPropertyExcludedForSyncUpdate(string propertyName);
-
-		/// <summary>
-		/// Resets exclusion back to default values or just clears if setToDefault is false.
-		/// </summary>
-		/// <param name="setToDefault"> Set to default excluded values. Defaults to true. </param>
-		void ResetExcludedPropertiesForSyncUpdate(bool setToDefault = true);
-
-		/// <summary>
-		/// Resets exclusion back to default values or just clears if setToDefault is false.
-		/// </summary>
-		/// <param name="setToDefault"> Set to default excluded values. Defaults to true. </param>
-		void ResetPropertyChangeTrackingExclusions(bool setToDefault = true);
 
 		/// <summary>
 		/// Try to set the ID from a serialized version.

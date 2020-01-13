@@ -2,32 +2,33 @@
 
 using System;
 using System.Collections.Concurrent;
-using Microsoft.AspNetCore.Mvc;
-using Speedy.Samples;
 using Speedy.Sync;
+using Speedy.Website.Samples;
+using Speedy.Website.Services;
 
 #endregion
 
 namespace Speedy.Website.WebApi
 {
-	public abstract class BaseSyncController : ControllerBase
+	public abstract class BaseSyncController : BaseController
 	{
 		#region Fields
 
-		private static readonly ConcurrentDictionary<Guid, SyncClient> _sessions;
+		private static readonly ConcurrentDictionary<SessionKey, SyncClient> _sessions;
 
 		#endregion
 
 		#region Constructors
 
-		protected BaseSyncController(IDatabaseProvider<IContosoDatabase> provider)
+		protected BaseSyncController(IDatabaseProvider<IContosoDatabase> provider, IAuthenticationService authenticationService)
+			: base(provider.GetDatabase(), authenticationService)
 		{
-			DatabaseProvider = new SyncDatabaseProvider(provider.GetDatabase);
+			DatabaseProvider = new SyncDatabaseProvider(provider.GetDatabase, provider.Options);
 		}
 
 		static BaseSyncController()
 		{
-			_sessions = new ConcurrentDictionary<Guid, SyncClient>();
+			_sessions = new ConcurrentDictionary<SessionKey, SyncClient>();
 		}
 
 		#endregion
@@ -48,25 +49,31 @@ namespace Speedy.Website.WebApi
 				options.ItemsPerSyncRequest = 300;
 			}
 
-			// Do not allow clients to permanently delete entities.
+			// Do not allow clients to permanently delete entities
 			options.PermanentDeletions = false;
 
 			// The server should always maintain dates as they are the "Master" dataset
-			var client = _sessions.GetOrAdd(sessionId, key => new SyncClient("Web Client", DatabaseProvider) { Options = { MaintainModifiedOn = true } });
+			var client = _sessions.GetOrAdd(GetSessionKey(sessionId), key => new SyncClient("Web Client", DatabaseProvider) { Options = { MaintainModifiedOn = true } });
 			var session = client.BeginSync(sessionId, options);
-			
+
 			return (client, session);
 		}
 
-		protected ISyncClient EndSyncSession(Guid sessionId)
+		protected SyncClient EndSyncSession(Guid sessionId)
 		{
-			_sessions.TryRemove(sessionId, out var client);
+			_sessions.TryRemove(GetSessionKey(sessionId), out var client);
 			return client;
 		}
 
-		protected ISyncClient GetSyncClient(Guid sessionId)
+		protected SyncClient GetSyncClient(Guid sessionId)
 		{
-			return _sessions.TryGetValue(sessionId, out var client) ? client : throw new Exception("Could not find the sync session.");
+			return _sessions.TryGetValue(GetSessionKey(sessionId), out var client) ? client : throw new Exception("Could not find the sync session.");
+		}
+
+		private SessionKey GetSessionKey(Guid sessionId)
+		{
+			var account = GetCurrentAccount();
+			return new SessionKey(account.Id, sessionId);
 		}
 
 		#endregion

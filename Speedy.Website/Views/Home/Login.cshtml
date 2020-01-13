@@ -1,0 +1,46 @@
+﻿@model Credentials
+
+@{
+	ViewBag.Title = "LogIn";
+}
+
+<div class="text-center">
+	@using (Html.BeginForm(new { ViewBag.ReturnUrl }))
+	{
+		<div class="panel inline padding-20 margin-20">
+			<table>
+				<tr>
+					<td colspan="2">
+						@Html.TextBoxFor(m => m.EmailAddress, new Dictionary<string, object> { { "class", "text-center" }, { "placeholder", "email address" } })
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						@Html.PasswordFor(m => m.Password, new Dictionary<string, object> { { "class", "text-center" }, { "placeholder", "password" } })
+					</td>
+				</tr>
+				<tr>
+					<td class="text-left">
+						@Html.CheckBoxFor(m => m.RememberMe)
+						@Html.LabelFor(m => m.RememberMe)
+					</td>
+					<td class="text-right">
+						<button id="Submit" type="submit">Log In</button>
+						@Html.AntiForgeryToken()
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" class="text-center" style="max-width: 250px">
+						@if (Request.QueryString["error"] != null)
+						{
+							<div class="burgundy-bg white padding-4">
+								@Request.QueryString["error"]
+							</div>
+						}
+						@Html.ValidationSummary()
+					</td>
+				</tr>
+			</table>
+		</div>
+	}
+</div>

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Speedy.Exceptions;
 
 #endregion
 
@@ -225,7 +226,7 @@ namespace Speedy.Storage.KeyValue
 			var response = Read(new HashSet<string> { key }).FirstOrDefault();
 			if (response.Key == null)
 			{
-				throw new KeyNotFoundException(Constants.KeyNotFound);
+				throw new KeyNotFoundException(SpeedyException.KeyNotFound);
 			}
 
 			return response.Value;

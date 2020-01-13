@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Speedy.Data\Speedy.Data.csproj" />
+    <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
+    <ProjectReference Include="..\Speedy\Speedy.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,40 +1,28 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<title>@ViewData["Title"] - Speedy.Website</title>
-
+		<title>Speedy - @ViewData["Title"]</title>
 		<link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" asp-append-version="true" />
-
-		<environment include="Development">
-			<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-		</environment>
-		<environment exclude="Development">
-			<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-		</environment>
+		@Styles.Render("~/Styles/css")
 	</head>
 	<body>
-		<div id="root" class="container">
-			@RenderBody()
-			<hr />
-			<footer>
-				<p>&copy; @(TimeService.Now.Year) - Speedy.Website</p>
+		<div id="vueapp" v-cloak>
+			<div class="margin-bottom-20 text-center">
+				<img src="/Content/Speedy.png" width="42" height="42" class="margin-right-12 margin-top-4 inline" />
+				<h1 class="inline margin-0"> Speedy</h1>
+			</div>
+			<div class="margin-bottom-20">
+				@RenderBody()
+			</div>
+			<footer class="text-center">
+				<p>&copy; @(TimeService.Now.Year) - Speedy</p>
 			</footer>
 		</div>
 
-		<environment include="Development">
-			<script src="~/lib/jquery/jquery.js" asp-append-version="true"></script>
-			<script src="~/lib/vue/vue.js" asp-append-version="true"></script>
-			<script src="~/js/site.js" asp-append-version="true"></script>
-		</environment>
-		<environment exclude="Development">
-			<script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
-			<script src="~/lib/vue/vue.min.js" asp-append-version="true"></script>
-			<script src="~/js/site.min.js" asp-append-version="true"></script>
-		</environment>
-
-		@RenderSection("Scripts", false)
+		@Scripts.Render("~/Scripts/js")
+		@RenderSection("scripts", false)
 	</body>
 </html>

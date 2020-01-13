@@ -12,6 +12,20 @@ namespace Speedy.Exceptions
 	/// </summary>
 	public class SpeedyException : Exception
 	{
+		#region Constants
+
+		/// <summary>
+		/// Represents message for key not found.
+		/// </summary>
+		public const string KeyNotFound = "Could not find the entry with the key.";
+
+		/// <summary>
+		/// Represents message for repository not found.
+		/// </summary>
+		public const string RepositoryNotFound = "The repository was not found.";
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>

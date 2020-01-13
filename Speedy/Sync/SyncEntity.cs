@@ -13,25 +13,6 @@ namespace Speedy.Sync
 	/// </summary>
 	public abstract class SyncEntity<T> : Entity<T>, ISyncEntity
 	{
-		#region Fields
-
-		/// <summary>
-		/// Properties to ignore for incoming sync data
-		/// </summary>
-		private readonly HashSet<string> _excludedPropertiesForIncomingSync;
-
-		/// <summary>
-		/// Properties to ignore for outgoing sync data
-		/// </summary>
-		private readonly HashSet<string> _excludedPropertiesForOutgoingSync;
-
-		/// <summary>
-		/// Cached version of the "real" type, meaning not EF proxy but rather root type
-		/// </summary>
-		private Type _realType;
-
-		#endregion
-
 		#region Constructors
 
 		/// <summary>
@@ -39,9 +20,9 @@ namespace Speedy.Sync
 		/// </summary>
 		protected SyncEntity()
 		{
-			var type = GetType();
-			_excludedPropertiesForIncomingSync = AddExclusionsForIncomingSync(type, x => new HashSet<string>(GetDefaultExclusionsForIncomingSync()));
-			_excludedPropertiesForOutgoingSync = AddExclusionsForOutgoingSync(type, x => new HashSet<string>(GetDefaultExclusionsForOutgoingSync()));
+			ExclusionCacheForIncomingSync.GetOrAdd(RealType, x => GetDefaultExclusionsForIncomingSync());
+			ExclusionCacheForOutgoingSync.GetOrAdd(RealType, x => GetDefaultExclusionsForOutgoingSync());
+			ExclusionCacheForSyncUpdate.GetOrAdd(RealType, x => GetDefaultExclusionsForSyncUpdate());
 		}
 
 		#endregion
@@ -65,90 +46,27 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <inheritdoc />
-		public void ExcludePropertiesForIncomingSync(params string[] propertyNames)
-		{
-			foreach (var propertyName in propertyNames)
-			{
-				if (_excludedPropertiesForIncomingSync.Contains(propertyName))
-				{
-					continue;
-				}
-
-				_excludedPropertiesForIncomingSync.Add(propertyName);
-			}
-		}
-
-		/// <inheritdoc />
-		public void ExcludePropertiesForOutgoingSync(params string[] propertyNames)
-		{
-			foreach (var propertyName in propertyNames)
-			{
-				if (_excludedPropertiesForOutgoingSync.Contains(propertyName))
-				{
-					continue;
-				}
-
-				_excludedPropertiesForOutgoingSync.Add(propertyName);
-			}
-		}
-
-		/// <inheritdoc />
-		public HashSet<string> GetExcludedPropertiesForIncomingSync()
-		{
-			return new HashSet<string>(_excludedPropertiesForIncomingSync);
-		}
-
-		/// <inheritdoc />
-		public HashSet<string> GetExcludedPropertiesForOutgoingSync()
-		{
-			return new HashSet<string>(_excludedPropertiesForOutgoingSync);
-		}
-
-		/// <inheritdoc />
 		public bool IsPropertyExcludedForIncomingSync(string propertyName)
 		{
-			return _excludedPropertiesForIncomingSync.Contains(propertyName);
+			return ExclusionCacheForIncomingSync[RealType].Contains(propertyName);
 		}
 
 		/// <inheritdoc />
 		public bool IsPropertyExcludedForOutgoingSync(string propertyName)
 		{
-			return _excludedPropertiesForOutgoingSync.Contains(propertyName);
+			return ExclusionCacheForOutgoingSync[RealType].Contains(propertyName);
 		}
 
 		/// <inheritdoc />
-		public void ResetExcludedPropertiesForIncomingSync(bool setToDefault = true)
+		public bool IsPropertyExcludedForSyncUpdate(string propertyName)
 		{
-			_excludedPropertiesForIncomingSync.Clear();
-
-			if (setToDefault)
-			{
-				_excludedPropertiesForIncomingSync.AddRange(GetDefaultExclusionsForIncomingSync());
-			}
-		}
-
-		/// <inheritdoc />
-		public void ResetExcludedPropertiesForOutgoingSync(bool setToDefault = true)
-		{
-			_excludedPropertiesForOutgoingSync.Clear();
-
-			if (setToDefault)
-			{
-				_excludedPropertiesForOutgoingSync.AddRange(GetDefaultExclusionsForOutgoingSync());
-			}
-		}
-
-		/// <inheritdoc />
-		public void ResetId()
-		{
-			Id = default;
+			return ExclusionCacheForSyncUpdate[RealType].Contains(propertyName);
 		}
 
 		/// <inheritdoc />
 		public SyncObject ToSyncObject()
 		{
-			var type = this.GetRealType();
-			var settings = SyncObject.GetOrAddCachedSettings(type);
+			var settings = SyncObject.GetOrAddCachedSettings(RealType);
 			var json = this.ToJson(settings);
 
 			return new SyncObject
@@ -156,7 +74,7 @@ namespace Speedy.Sync
 				Data = json,
 				ModifiedOn = ModifiedOn,
 				SyncId = SyncId,
-				TypeName = type.ToAssemblyName(),
+				TypeName = RealType.ToAssemblyName(),
 				Status = CreatedOn == ModifiedOn ? SyncObjectStatus.Added : SyncObjectStatus.Modified
 			};
 		}
@@ -176,8 +94,7 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public virtual void UpdateLocalSyncIds()
 		{
-			var type = _realType ??= this.GetRealType();
-			var properties = type.GetCachedProperties().ToList();
+			var properties = RealType.GetCachedProperties().ToList();
 
 			var entityRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
@@ -203,36 +120,78 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public void UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForUpdate)
+		public void UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 		{
-			var destinationType = _realType ??= this.GetRealType();
-			var exclusions = new HashSet<string>();
-
-			// Need to cache this? would this save on GC?
-			exclusions.AddRange(destinationType.GetVirtualPropertyNames());
-
-			if (excludePropertiesForIncomingSync)
-			{
-				exclusions.AddRange(GetExcludedPropertiesForIncomingSync());
-			}
-
-			if (excludePropertiesForOutgoingSync)
-			{
-				exclusions.AddRange(GetExcludedPropertiesForOutgoingSync());
-			}
-
-			if (excludePropertiesForUpdate)
-			{
-				exclusions.AddRange(GetExcludedPropertiesForSyncUpdate());
-			}
-
-			UpdateWith(update, exclusions.ToArray());
+			UpdateWith(update, GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate));
 		}
 
 		/// <inheritdoc />
 		public virtual void UpdateWith(ISyncEntity update, params string[] exclusions)
 		{
-			var destinationType = _realType ??= this.GetRealType();
+			UpdateWith(update, exclusions.ToList());
+		}
+
+		/// <summary>
+		/// Gets the default exclusions for incoming sync data. Warning: this is called during constructor,
+		/// overrides need to be sure to only return static values as to not cause issues.
+		/// </summary>
+		/// <returns> The values to exclude during sync. </returns>
+		protected virtual HashSet<string> GetDefaultExclusionsForIncomingSync()
+		{
+			return new HashSet<string> { nameof(Id) };
+		}
+
+		/// <summary>
+		/// Gets the default exclusions for outgoing sync data. Warning: this is called during constructor,
+		/// overrides need to be sure to only return static values as to not cause issues.
+		/// </summary>
+		/// <returns> The values to exclude during sync. </returns>
+		protected virtual HashSet<string> GetDefaultExclusionsForOutgoingSync()
+		{
+			return new HashSet<string> { nameof(Id) };
+		}
+
+		/// <summary>
+		/// Gets the default exclusions for update. Warning: this is called during constructor, overrides need to be
+		/// sure to only return static values as to not cause issues.
+		/// </summary>
+		/// <returns> The values to exclude during update. </returns>
+		protected virtual HashSet<string> GetDefaultExclusionsForSyncUpdate()
+		{
+			return new HashSet<string> { nameof(Id), nameof(IsDeleted), nameof(SyncId) };
+		}
+
+		private static HashSet<string> GetExclusions(Type realType, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		{
+			var key = new ExclusionKey(realType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+
+			return ExcludedProperties.GetOrAdd(key, x =>
+			{
+				var exclusions = new HashSet<string>();
+				exclusions.AddRange(realType.GetVirtualPropertyNames());
+
+				if (excludePropertiesForIncomingSync)
+				{
+					exclusions.AddRange(ExclusionCacheForIncomingSync[realType]);
+				}
+
+				if (excludePropertiesForOutgoingSync)
+				{
+					exclusions.AddRange(ExclusionCacheForOutgoingSync[realType]);
+				}
+
+				if (excludePropertiesForSyncUpdate)
+				{
+					exclusions.AddRange(ExclusionCacheForSyncUpdate[realType]);
+				}
+
+				return exclusions;
+			});
+		}
+
+		private void UpdateWith(ISyncEntity update, ICollection<string> exclusions)
+		{
+			var destinationType = RealType;
 			var sourceType = update.GetRealType();
 			var destinationProperties = destinationType.GetCachedProperties();
 			var sourceProperties = sourceType.GetCachedProperties();
@@ -269,32 +228,6 @@ namespace Speedy.Sync
 					thisProperty.SetValue(this, updateValue);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Gets the default exclusions for incoming sync data. Warning: this is called during constructor,
-		/// overrides need to be sure to only return static values as to not cause issues.
-		/// </summary>
-		/// <returns> The values to exclude during sync. </returns>
-		protected virtual HashSet<string> GetDefaultExclusionsForIncomingSync()
-		{
-			return new HashSet<string> { nameof(Id) };
-		}
-
-		/// <summary>
-		/// Gets the default exclusions for outgoing sync data. Warning: this is called during constructor,
-		/// overrides need to be sure to only return static values as to not cause issues.
-		/// </summary>
-		/// <returns> The values to exclude during sync. </returns>
-		protected virtual HashSet<string> GetDefaultExclusionsForOutgoingSync()
-		{
-			return new HashSet<string> { nameof(Id) };
-		}
-
-		/// <inheritdoc />
-		protected override HashSet<string> GetDefaultExclusionsForSyncUpdate()
-		{
-			return new HashSet<string> { nameof(Id), nameof(SyncId) };
 		}
 
 		#endregion

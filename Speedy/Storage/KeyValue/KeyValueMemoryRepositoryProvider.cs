@@ -100,7 +100,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			if (!_repositories.ContainsKey(name))
 			{
-				throw new SpeedyException(Constants.RepositoryNotFound);
+				throw new SpeedyException(SpeedyException.RepositoryNotFound);
 			}
 
 			if (_archived.ContainsKey(name))
@@ -189,12 +189,12 @@ namespace Speedy.Storage.KeyValue
 		{
 			if (_repositories.ContainsKey(name))
 			{
-				throw new SpeedyException(Constants.RepositoryNotFound);
+				throw new SpeedyException(SpeedyException.RepositoryNotFound);
 			}
 
 			if (!_archived.ContainsKey(name))
 			{
-				throw new SpeedyException(Constants.RepositoryNotFound);
+				throw new SpeedyException(SpeedyException.RepositoryNotFound);
 			}
 
 			_repositories.Add(name, _archived[name]);
