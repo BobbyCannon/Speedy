@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Speedy.Exceptions;
 using Speedy.Sync;
 
 #endregion
@@ -101,7 +102,7 @@ namespace Speedy.Storage
 		{
 			if (!(syncEntity is T entity))
 			{
-				throw new Exception("The sync entity is not the correct type.");
+				throw new SpeedyException(SpeedyException.SyncEntityIncorrectType);
 			}
 
 			if (filter is SyncRepositoryFilter<T> srf && srf.LookupFilter != null)

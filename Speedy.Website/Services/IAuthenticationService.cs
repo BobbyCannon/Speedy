@@ -22,7 +22,6 @@ namespace Speedy.Website.Services
 		#region Methods
 
 		bool LogIn(Credentials credentials);
-		void LogIn(AccountEntity account);
 		void LogOut();
 		void UpdateLogin(AccountEntity account);
 

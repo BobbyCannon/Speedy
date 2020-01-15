@@ -144,10 +144,10 @@ namespace Speedy.Website.WebApi
 			{
 				case SyncType.Account:
 				{
-					if (options.Values.ContainsKey(SyncManager.AccountValueKey))
+					if (options.Values.ContainsKey(ClientSyncManager.AccountValueKey))
 					{
 						// We want to sync a single account
-						Guid.TryParse(options.Values[SyncManager.AccountValueKey], out var accountSyncId);
+						Guid.TryParse(options.Values[ClientSyncManager.AccountValueKey], out var accountSyncId);
 						sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>(x => x.SyncId == accountSyncId));
 					}
 					else

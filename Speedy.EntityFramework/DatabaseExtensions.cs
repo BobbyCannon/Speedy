@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Speedy.Configuration;
+using Speedy.Exceptions;
 
 #endregion
 
@@ -30,10 +31,10 @@ namespace Speedy.EntityFramework
 		{
 			var methods = database.GetCachedMethods(BindingFlags.Instance | BindingFlags.Public);
 			var databasePropertyMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.Property) && x.ReturnType.Name == "PropertyConfiguration`2")
-				?? throw new Exception($"Failed to find the '{nameof(Database.Property)}' method on the '{nameof(Database)}' class.");
+				?? throw new SpeedyException($"Failed to find the '{nameof(Database.Property)}' method on the '{nameof(Database)}' class.");
 
 			var databaseHasRequiredMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.HasRequired))
-				?? throw new Exception($"Failed to find the '{nameof(Database.HasRequired)}' method on the '{nameof(Database)}' class.");
+				?? throw new SpeedyException($"Failed to find the '{nameof(Database.HasRequired)}' method on the '{nameof(Database)}' class.");
 
 			var assembly = database.GetMappingAssembly();
 			var types = assembly.GetTypes();
@@ -47,7 +48,7 @@ namespace Speedy.EntityFramework
 
 				if (primaryKey == null)
 				{
-					throw new Exception($"Failed to find the 'Primary Key' type for the '{entityBuilder.Metadata.ClrType.FullName}' entity.");
+					throw new SpeedyException($"Failed to find the 'Primary Key' type for the '{entityBuilder.Metadata.ClrType.FullName}' entity.");
 				}
 
 				var entityProperties = entityBuilder.Metadata.GetProperties();

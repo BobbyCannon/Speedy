@@ -33,7 +33,7 @@ namespace Speedy.Website.Samples
 		protected ContosoDatabase(DbContextOptions contextOptions, DatabaseOptions options)
 			: base(contextOptions, options)
 		{
-			SetDefaultOptions(options);
+			SetRequiredOptions(options);
 		}
 
 		#endregion
@@ -75,11 +75,11 @@ namespace Speedy.Website.Samples
 		public static DatabaseOptions GetDefaultOptions()
 		{
 			var response = new DatabaseOptions();
-			SetDefaultOptions(response);
+			SetRequiredOptions(response);
 			return response;
 		}
 
-		public static void SetDefaultOptions(DatabaseOptions options)
+		public static void SetRequiredOptions(DatabaseOptions options)
 		{
 			options.SyncOrder = new[] { typeof(AddressEntity).ToAssemblyName(), typeof(AccountEntity).ToAssemblyName() };
 		}

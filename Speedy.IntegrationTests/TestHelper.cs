@@ -6,11 +6,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Speedy.Client.Data;
+using Speedy.Data;
 using Speedy.Data.WebApi;
 using Speedy.EntityFramework;
 using Speedy.IntegrationTests.Properties;
@@ -29,6 +33,15 @@ namespace Speedy.IntegrationTests
 {
 	public static class TestHelper
 	{
+		#region Constants
+
+		public const string AdministratorEmailAddress = "admin@speedy.local";
+
+		public const int AdministratorId = 1;
+		public const string AdministratorPassword = "Password";
+
+		#endregion
+
 		#region Fields
 
 		public static readonly DirectoryInfo Directory;
@@ -199,11 +212,42 @@ namespace Speedy.IntegrationTests
 			Assert.Fail("The expected exception was not thrown.");
 		}
 
+		public static IAuthenticationService GetAuthenticationService()
+		{
+			var service = new Mock<IAuthenticationService>();
+			service.Setup(x => x.LogIn(It.IsAny<Credentials>())).Returns<Credentials>(x => true);
+			return service.Object;
+		}
+
+		public static ISyncableDatabaseProvider<ContosoClientDatabase> GetClientProvider()
+		{
+			var database = new ContosoClientDatabase();
+			return new SyncDatabaseProvider<ContosoClientDatabase>(x =>
+			{
+				database.Options.UpdateWith(x);
+				return database;
+			}, ContosoClientDatabase.GetDefaultOptions());
+		}
+
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, bool initialized = true)
 		{
 			yield return GetSqlProvider(options, initialized);
 			yield return GetSqliteProvider(options, initialized);
 			yield return GetMemoryProvider(options, initialized);
+		}
+
+		public static IDispatcher GetDispatcher()
+		{
+			var dispatcher = new Mock<IDispatcher>();
+			dispatcher.Setup(x => x.HasThreadAccess).Returns(true);
+			return dispatcher.Object;
+		}
+
+		public static IPrincipal GetIdentity(int id, string name)
+		{
+			var response = new Mock<IPrincipal>();
+			response.SetupGet(x => x.Identity).Returns(() => new GenericIdentity($"{id};{name}"));
+			return response.Object;
 		}
 
 		public static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(DatabaseOptions options = null, bool initialized = true)
@@ -215,7 +259,11 @@ namespace Speedy.IntegrationTests
 				InitializeDatabase(database);
 			}
 
-			return new DatabaseProvider<IContosoDatabase>(x => database);
+			return new DatabaseProvider<IContosoDatabase>(x =>
+			{
+				database.Options.UpdateWith(x);
+				return database;
+			}, ContosoDatabase.GetDefaultOptions());
 		}
 
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
@@ -429,8 +477,8 @@ namespace Speedy.IntegrationTests
 			{
 				Address = address,
 				Name = "Administrator",
-				EmailAddress = "admin@speedy.local",
-				PasswordHash = AccountService.Hash("Password", "1"),
+				EmailAddress = AdministratorEmailAddress,
+				PasswordHash = AccountService.Hash(AdministratorPassword, AdministratorId.ToString()),
 				Roles = BaseService.CombineRoles(AccountRole.Administrator),
 				SyncId = Guid.Parse("56CF7B5C-4C5A-462C-939D-A1F387A7483C")
 			});

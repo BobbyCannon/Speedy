@@ -47,7 +47,7 @@ namespace Speedy.Website.Services
 				return base.SendAsync(request, cancellationToken);
 			}
 
-			var username = account.Id + ";" + account.Name;
+			var username = $"{account.Id};{account.Name}";
 			var usernameClaim = new Claim(ClaimTypes.Name, username);
 			var identity = new ClaimsIdentity(new[] { usernameClaim }, "Basic");
 			var roles = Roles.GetRolesForUser(username);

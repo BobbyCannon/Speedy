@@ -19,10 +19,10 @@ namespace Speedy.Client.Data
 
 		public ContosoClientDatabase(DatabaseOptions options) : base(options)
 		{
+			Accounts = GetSyncableRepository<ClientAccount, int>();
 			Addresses = GetSyncableRepository<ClientAddress, long>();
-			People = GetSyncableRepository<ClientAccount, int>();
 
-			Options.SyncOrder = new[] { typeof(ClientAddress).ToAssemblyName(), typeof(ClientAccount).ToAssemblyName() };
+			SetRequiredOptions(Options);
 
 			// This is our only mapping
 			HasRequired<ClientAccount, int, ClientAddress, long>(true, x => x.Address, x => x.AddressId, x => x.Accounts);
@@ -32,9 +32,25 @@ namespace Speedy.Client.Data
 
 		#region Properties
 
+		public IRepository<ClientAccount, int> Accounts { get; }
+
 		public IRepository<ClientAddress, long> Addresses { get; }
 
-		public IRepository<ClientAccount, int> People { get; }
+		#endregion
+
+		#region Methods
+
+		public static DatabaseOptions GetDefaultOptions()
+		{
+			var response = new DatabaseOptions();
+			SetRequiredOptions(response);
+			return response;
+		}
+
+		public static void SetRequiredOptions(DatabaseOptions options)
+		{
+			options.SyncOrder = new[] { typeof(ClientAddress).ToAssemblyName(), typeof(ClientAccount).ToAssemblyName() };
+		}
 
 		#endregion
 	}

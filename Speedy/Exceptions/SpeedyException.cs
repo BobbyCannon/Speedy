@@ -24,6 +24,11 @@ namespace Speedy.Exceptions
 		/// </summary>
 		public const string RepositoryNotFound = "The repository was not found.";
 
+		/// <summary>
+		/// Represents message for invalid sync entity type.
+		/// </summary>
+		public const string SyncEntityIncorrectType = "The sync entity is not the correct type.";
+
 		#endregion
 
 		#region Constructors

@@ -24,7 +24,7 @@ namespace Speedy.Website.Samples
 			PetTypes = GetRepository<PetTypeEntity, string>();
 			Settings = GetSyncableRepository<SettingEntity, long>();
 
-			ContosoDatabase.SetDefaultOptions(Options);
+			ContosoDatabase.SetRequiredOptions(Options);
 
 			this.ConfigureModelViaMapping();
 		}

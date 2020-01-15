@@ -50,9 +50,31 @@ namespace Speedy.Website.Samples.Entities
 
 		#region Methods
 
+		/// <summary>
+		/// Combine the roles into a custom format for server side storage.
+		/// This format is different than the client format just to show that
+		/// client and server formats can be different.
+		/// </summary>
+		/// <param name="roles"> The roles for the account. </param>
+		/// <returns> The roles in the server storage format. </returns>
+		public static string CombineRoles(IEnumerable<string> roles)
+		{
+			return $",{string.Join(",", roles)},";
+		}
+
 		public string GetCookieValue()
 		{
 			return $"{Id};{Name}";
+		}
+
+		/// <summary>
+		/// Splits the roles from the custom format into an array.
+		/// </summary>
+		/// <param name="roles"> The roles for the account. </param>
+		/// <returns> The array of roles. </returns>
+		public static IEnumerable<string> SplitRoles(string roles)
+		{
+			return roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		public override object Unwrap()

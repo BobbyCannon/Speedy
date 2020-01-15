@@ -34,15 +34,15 @@ namespace Speedy.IntegrationTests
 				var sortMethod = methods.First(x => x.Name == "Sort");
 				sortMethod.Invoke(database.Addresses, new object[0]);
 
-				methods = database.People.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
+				methods = database.Accounts.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
 				sortMethod = methods.First(x => x.Name == "Sort");
-				sortMethod.Invoke(database.People, new object[0]);
+				sortMethod.Invoke(database.Accounts, new object[0]);
 
 				var address = database.Addresses.First();
 				address.Accounts.Add(GetPerson());
-				Assert.AreEqual(0, database.People.Count());
+				Assert.AreEqual(0, database.Accounts.Count());
 				database.SaveChanges();
-				Assert.AreEqual(1, database.People.Count());
+				Assert.AreEqual(1, database.Accounts.Count());
 			}
 		}
 

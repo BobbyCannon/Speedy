@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using Speedy.Exceptions;
 using Speedy.Sync;
 using Speedy.Website.Samples;
 using Speedy.Website.Services;
@@ -67,7 +68,7 @@ namespace Speedy.Website.WebApi
 
 		protected SyncClient GetSyncClient(Guid sessionId)
 		{
-			return _sessions.TryGetValue(GetSessionKey(sessionId), out var client) ? client : throw new Exception("Could not find the sync session.");
+			return _sessions.TryGetValue(GetSessionKey(sessionId), out var client) ? client : throw new SpeedyException("Could not find the sync session.");
 		}
 
 		private SessionKey GetSessionKey(Guid sessionId)

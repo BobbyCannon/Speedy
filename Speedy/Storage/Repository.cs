@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Speedy.Exceptions;
 using Speedy.Sync;
 
 #endregion
@@ -598,7 +599,7 @@ namespace Speedy.Storage
 			var constructorInfo = _type.GetConstructor(new Type[0]);
 			if (constructorInfo == null)
 			{
-				throw new Exception("Failed to create new instance...");
+				throw new SpeedyException("Failed to create new instance...");
 			}
 
 			var response = (T) constructorInfo.Invoke(null);
