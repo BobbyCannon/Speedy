@@ -287,6 +287,18 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the fields for. </param>
+		/// <param name="name"> The type field name to locate. </param>
+		/// <param name="flags"> The flags used to query with. </param>
+		/// <returns> The list of field infos for the type. </returns>
+		public static FieldInfo GetCachedField(this Type type, string name, BindingFlags? flags)
+		{
+			return type.GetCachedFields(flags).FirstOrDefault(x => x.Name == name);
+		}
+
+		/// <summary>
 		/// Gets a list of fields for the provided item. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="item"> The item to get the fields for. </param>

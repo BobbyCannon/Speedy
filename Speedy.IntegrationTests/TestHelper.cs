@@ -167,7 +167,7 @@ namespace Speedy.IntegrationTests
 
 		public static T ClearDatabase<T>(this T database) where T : EntityFrameworkDatabase
 		{
-			database.Database.ExecuteSqlCommand(Resources.ClearDatabase);
+			database.Database.ExecuteSqlRaw(Resources.ClearDatabase);
 			return database;
 		}
 

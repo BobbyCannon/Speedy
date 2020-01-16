@@ -42,11 +42,11 @@ namespace Speedy.EntityFramework.Sql
 			var entityType = context.Model.FindEntityType(type);
 			var allProperties = entityType.GetProperties().ToList();
 			var timestampDbTypeName = nameof(TimestampAttribute).Replace("Attribute", "").ToLower();
-			var timeStampProperties = allProperties.Where(a => a.IsConcurrencyToken && a.ValueGenerated == ValueGenerated.OnAddOrUpdate || a.Relational().ColumnType == timestampDbTypeName).ToList();
+			var timeStampProperties = allProperties.Where(a => a.IsConcurrencyToken && a.ValueGenerated == ValueGenerated.OnAddOrUpdate || a.GetColumnType() == timestampDbTypeName).ToList();
 			var allPropertiesExceptTimeStamp = allProperties.Except(timeStampProperties).ToList();
-			var properties = allPropertiesExceptTimeStamp.Where(a => a.Relational().ComputedColumnSql == null).ToList();
+			var properties = allPropertiesExceptTimeStamp.Where(a => a.GetComputedColumnSql() == null).ToList();
 
-			PropertyColumnNames = properties.ToDictionary(a => a.Name, b => b.Relational().ColumnName.Replace("]", "]]"));
+			PropertyColumnNames = properties.ToDictionary(a => a.Name, b => b.GetColumnName().Replace("]", "]]"));
 		}
 
 		#endregion

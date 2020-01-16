@@ -66,7 +66,7 @@ namespace Speedy.Data.Client
 		/// <returns> The roles in client storage format. </returns>
 		public static string CombineRoles(IEnumerable<string> roles)
 		{
-			return $";{string.Join(";", roles)};";
+			return roles != null ? $";{string.Join(";", roles)};" : ";;";
 		}
 
 		/// <summary>
@@ -76,7 +76,7 @@ namespace Speedy.Data.Client
 		/// <returns> The array of roles. </returns>
 		public static IEnumerable<string> SplitRoles(string roles)
 		{
-			return roles.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+			return roles != null ? roles.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
 		}
 
 		/// <inheritdoc />

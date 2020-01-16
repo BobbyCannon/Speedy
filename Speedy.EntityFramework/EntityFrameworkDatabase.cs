@@ -333,16 +333,16 @@ namespace Speedy.EntityFramework
 					{
 						case Type _ when p.ClrType == typeof(DateTime):
 						case Type _ when p.ClrType == typeof(DateTime?):
-							p.Relational().ColumnType = "datetime2";
+							p.SetColumnType("datetime2");
 							break;
 
 						case Type _ when p.ClrType == typeof(Guid):
 						case Type _ when p.ClrType == typeof(Guid?):
-							p.Relational().ColumnType = "uniqueidentifier";
+							p.SetColumnType("uniqueidentifier");
 							break;
 
 						case Type _ when p.ClrType == typeof(string):
-							p.IsUnicode(false);
+							p.SetIsUnicode(false);
 							break;
 					}
 				}

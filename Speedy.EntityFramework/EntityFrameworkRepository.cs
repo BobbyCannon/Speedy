@@ -112,14 +112,14 @@ namespace Speedy.EntityFramework
 		public int BulkRemove(Expression<Func<T, bool>> filter)
 		{
 			var (sql, parameters) = SqlBuilder.GetSqlDelete(Database, this.Where(filter));
-			return Database.Database.ExecuteSqlCommand(sql, parameters);
+			return Database.Database.ExecuteSqlRaw(sql, parameters);
 		}
 		
 		/// <inheritdoc />
 		public int BulkUpdate(Expression<Func<T, bool>> filter, Expression<Func<T, T>> update)
 		{
 			var (sql, parameters) = SqlBuilder.GetSqlUpdate(Database, this.Where(filter), update);
-			return Database.Database.ExecuteSqlCommand(sql, parameters);
+			return Database.Database.ExecuteSqlRaw(sql, parameters);
 		}
 
 		/// <summary>

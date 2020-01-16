@@ -7,6 +7,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Speedy.Data;
 using Speedy.Data.WebApi;
 using Speedy.Website.Samples;
@@ -52,7 +53,7 @@ namespace Speedy.Website.Services
 					PasswordHash = x.PasswordHash,
 					Roles = x.Roles
 				})
-				.FirstOrDefault(x => x.EmailAddress.Equals(model.EmailAddress, StringComparison.OrdinalIgnoreCase));
+				.FirstOrDefault(x => x.EmailAddress == model.EmailAddress);
 
 			if (user == null)
 			{
