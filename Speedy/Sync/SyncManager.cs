@@ -68,12 +68,24 @@ namespace Speedy.Sync
 		/// </summary>
 		public bool IsSyncSuccessful { get; set; }
 
+		/// <summary>
+		/// The timeout to be used when synchronously syncing.
+		/// </summary>
 		public TimeSpan ProcessTimeout { get; }
 
+		/// <summary>
+		/// Gets a flag to indicate progress should be shown. Will only be true if sync takes longer than one second.
+		/// </summary>
 		public bool ShowProgress => _watch.IsRunning && _watch.Elapsed.TotalMilliseconds > 1000;
 
+		/// <summary>
+		/// Gets the list of issues that occurred during the last sync.
+		/// </summary>
 		public IList<SyncIssue> SyncIssues { get; }
 
+		/// <summary>
+		/// Gets the current sync state.
+		/// </summary>
 		public SyncEngineState SyncState { get; protected set; }
 
 		/// <summary>
@@ -279,6 +291,14 @@ namespace Speedy.Sync
 			}, _cancellationToken.Token);
 		}
 
+		/// <summary>
+		/// Wait on a task to be completed.
+		/// </summary>
+		/// <param name="task"> The task to wait for. </param>
+		/// <param name="timeout">
+		/// A TimeSpan that represents the number of milliseconds to wait, or
+		/// a TimeSpan that represents -1 milliseconds to wait indefinitely.
+		/// </param>
 		protected void WaitOnTask(Task task, TimeSpan? timeout)
 		{
 			Task.WaitAll(new[] { task }, timeout ?? ProcessTimeout);

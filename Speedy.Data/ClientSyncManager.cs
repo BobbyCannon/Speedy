@@ -1,9 +1,7 @@
 ﻿#region References
 
 using System;
-using System.Diagnostics;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Speedy.Data.Client;
 using Speedy.Data.WebApi;
@@ -19,13 +17,14 @@ namespace Speedy.Data
 		#region Constants
 
 		public const string AccountValueKey = "Account";
+		public const string AddressValueKey = "Address";
 		public const string DefaultWebsiteUri = "https://speedy.local";
 
 		#endregion
 
 		#region Fields
 
-		private readonly SyncOptions _accountSyncOptions, _accountsSyncOptions, _syncOptions;
+		private readonly SyncOptions _accountsSyncOptions, _addressesSyncOptions, _syncOptions;
 		private readonly Func<NetworkCredential> _credentialProvider;
 		private readonly ISyncableDatabaseProvider _databaseProvider;
 		private readonly SyncClientProvider _serverProvider;
@@ -47,12 +46,9 @@ namespace Speedy.Data
 			_databaseProvider = databaseProvider;
 			_serverProvider = serverProvider;
 
-			// These options are just the default, other required parameters will be setup before sync
-			// NOTE: do not forget to update Reset().
-			_accountSyncOptions = GetDefaultSyncOptions(SyncType.Account);
-
 			// These options are for syncing full collections
 			_accountsSyncOptions = GetDefaultSyncOptions(SyncType.Accounts, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>()));
+			_addressesSyncOptions = GetDefaultSyncOptions(SyncType.Addresses, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>()));
 
 			_syncOptions = GetDefaultSyncOptions(SyncType.All, options =>
 			{
@@ -124,6 +120,44 @@ namespace Speedy.Data
 			_syncOptions.LastSyncedOnServer = DateTime.MinValue;
 		}
 
+		public void SyncAccounts(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		{
+			WaitOnTask(SyncAccountsAsync(waitFor, postAction, force), timeout);
+		}
+
+		public Task SyncAccountsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		{
+			OnLogEvent("Starting to sync accounts...");
+
+			return ProcessAsync(() =>
+				{
+					OnLogEvent("Sync accounts started");
+					return _accountsSyncOptions;
+				},
+				waitFor,
+				postAction,
+				force);
+		}
+		
+		public void SyncAddresses(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		{
+			WaitOnTask(SyncAddressesAsync(waitFor, postAction, force), timeout);
+		}
+
+		public Task SyncAddressesAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		{
+			OnLogEvent("Starting to sync addresses...");
+
+			return ProcessAsync(() =>
+				{
+					OnLogEvent("Sync addresses started");
+					return _addressesSyncOptions;
+				},
+				waitFor,
+				postAction,
+				force);
+		}
+
 		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, bool force = false)
 		{
 			WaitOnTask(SyncAsync(waitFor, force), timeout);
@@ -135,28 +169,6 @@ namespace Speedy.Data
 			_syncOptions.LastSyncedOnServer = LastSyncedOnServer;
 
 			return ProcessAsync(() => _syncOptions, waitFor, null, force);
-		}
-
-		public bool WaitForSyncToComplete(TimeSpan timeout)
-		{
-			if (!IsRunning)
-			{
-				return true;
-			}
-
-			var watch = Stopwatch.StartNew();
-
-			while (IsRunning)
-			{
-				if (watch.Elapsed >= timeout)
-				{
-					return false;
-				}
-
-				Thread.Sleep(25);
-			}
-
-			return true;
 		}
 
 		/// <inheritdoc />

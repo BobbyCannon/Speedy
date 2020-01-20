@@ -10,7 +10,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Speedy.Configuration;
-using Speedy.Exceptions;
 using Speedy.Storage;
 using Speedy.Sync;
 
@@ -497,8 +496,8 @@ namespace Speedy
 					continue;
 				}
 
-				var message = "The DELETE statement conflicted with the REFERENCE constraint.";
-				throw new UpdateException(message, new InvalidOperationException());
+				var message = $"The association between entity types '{entity.RealType.Name}' and '{configuration.TypeName}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.";
+				throw new InvalidOperationException(message);
 			}
 		}
 

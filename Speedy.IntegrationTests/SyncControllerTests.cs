@@ -67,6 +67,47 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
+		[TestMethod]
+		public void ShouldSyncOnlyAddresses()
+		{
+			var dispatcher = TestHelper.GetDispatcher();
+			var clientProvider = TestHelper.GetClientProvider();
+			var entityProvider = TestHelper.GetMemoryProvider();
+
+			using (var database = clientProvider.GetDatabase())
+			{
+				PopulateAllClientData(database);
+			}
+
+			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var server = new SyncController(entityProvider, TestHelper.GetAuthenticationService()) { User = TestHelper.GetIdentity(TestHelper.AdministratorId, "Administrator") };
+			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
+			using var logger = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+			syncManager.Initialize();
+			syncManager.SyncAddresses();
+
+			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));
+			Assert.AreNotEqual(0, logger.Events.Count);
+
+			using (var clientDatabase = clientProvider.GetDatabase())
+			using (var entityDatabase = entityProvider.GetDatabase())
+			{
+				var clientAccounts = clientDatabase.Accounts.ToList();
+				var clientAddresses = clientDatabase.Addresses.ToList();
+				var serverAccounts = entityDatabase.Accounts.ToList();
+				var serverAddresses = entityDatabase.Addresses.ToList();
+
+				Assert.AreEqual(1, clientAccounts.Count);
+				Assert.AreEqual(2, clientAddresses.Count);
+				Assert.AreEqual(1, serverAccounts.Count);
+				Assert.AreEqual(2, serverAddresses.Count);
+
+				Compare(clientAddresses[0], serverAddresses[1]);
+				Compare(clientAddresses[1], serverAddresses[0]);
+			}
+		}
+
 		private void Compare(ClientAccount client, AccountEntity entity)
 		{
 			Assert.AreEqual(client.AddressSyncId, entity.AddressSyncId);

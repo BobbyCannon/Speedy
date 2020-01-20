@@ -50,8 +50,8 @@ namespace Speedy.IntegrationTests
 					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
 				}
 
-				//issues = CompleteTestSync(client, server, options);
-				//Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+				issues = CompleteTestSync(client, server, options);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 			});
 		}
 
@@ -156,7 +156,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 				Assert.IsFalse(client.Statistics.IsReset);
 				Assert.IsFalse(client.Statistics.IsReset);
-				
+
 				issues = SyncEngine.Run(client, server, options);
 
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
@@ -555,7 +555,7 @@ namespace Speedy.IntegrationTests
 				{
 					Assert.AreEqual(2, clientDatabase.Addresses.Count(x => !x.IsDeleted));
 					Assert.AreEqual(0, clientDatabase.Addresses.Count(x => x.IsDeleted));
-					
+
 					Assert.AreEqual(1, serverDatabase.Addresses.Count(x => !x.IsDeleted));
 					Assert.AreEqual(1, serverDatabase.Addresses.Count(x => x.IsDeleted));
 				}
@@ -610,7 +610,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(settingName1, actual.Name);
 				Assert.AreEqual("hello", actual.Value);
 				Assert.AreNotEqual(serverSetting1.SyncId, actual.SyncId);
-				
+
 				actual = database.Settings.First(x => x.Name == settingName2);
 				Assert.AreEqual(settingName2, actual.Name);
 				Assert.AreEqual("world", actual.Value);
@@ -626,7 +626,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(settingName1, actual.Name);
 				Assert.AreEqual("hello", actual.Value);
 				Assert.AreNotEqual(clientSetting2.SyncId, actual.SyncId);
-				
+
 				actual = database.Settings.First(x => x.Name == settingName2);
 				Assert.AreEqual(settingName2, actual.Name);
 				Assert.AreEqual("world", actual.Value);

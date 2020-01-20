@@ -372,6 +372,7 @@ namespace Speedy.Storage
 		public void Remove(T entity)
 		{
 			Remove(entity.Id);
+			ValidateEntities();
 		}
 
 		/// <inheritdoc />

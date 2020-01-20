@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Exceptions;
 using Speedy.Storage;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Samples.Entities;
@@ -1220,13 +1219,10 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(1, database.Addresses.First().Accounts.Count);
 					Assert.AreEqual(1, database.Accounts.Count());
 
-					database.Addresses.Remove(address);
-
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<UpdateException>(() => database.SaveChanges(),
-						"SQLite Error 19: 'FOREIGN KEY constraint failed'.",
-						"The DELETE statement conflicted with the REFERENCE constraint \"FK_Accounts_Addresses_AddressId\". The conflict occurred in database \"Speedy\", table \"dbo.Accounts\", column 'AddressId'.",
-						"The DELETE statement conflicted with the REFERENCE constraint.");
+					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address),
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable."
+					);
 				});
 		}
 

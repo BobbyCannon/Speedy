@@ -1,15 +1,10 @@
 ﻿#region References
 
-using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Client.Data;
 using Speedy.Data.Client;
-using Speedy.Net;
-using Speedy.Sync;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
 
 #endregion
 

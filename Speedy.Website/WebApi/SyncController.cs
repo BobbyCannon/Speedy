@@ -28,7 +28,7 @@ namespace Speedy.Website.WebApi
 	{
 		#region Constants
 
-		private const string _syncAccountChangedKey = "SyncAccountChanged";
+		private const string SyncAccountChangedKey = "SyncAccountChanged";
 
 		#endregion
 
@@ -94,7 +94,7 @@ namespace Speedy.Website.WebApi
 			// Must define the incoming filter for each sync because we need the current authenticated user for processing
 			var client = GetSyncClient(id);
 			client.IncomingConverter = GetIncomingFilter(GetCurrentAccount);
-			client.SyncOptions.Values.AddOrUpdate(_syncAccountChangedKey, changes.Collection.Any(x => x.TypeName == _accountAssemblyName).ToString());
+			client.SyncOptions.Values.AddOrUpdate(SyncAccountChangedKey, changes.Collection.Any(x => x.TypeName == _accountAssemblyName).ToString());
 			return client.ApplyChanges(id, changes);
 		}
 
@@ -106,7 +106,7 @@ namespace Speedy.Website.WebApi
 			// Must define the incoming filter for each sync because we need the current authenticated user for processing
 			var client = GetSyncClient(id);
 			client.IncomingConverter = GetIncomingFilter(GetCurrentAccount);
-			client.SyncOptions.Values.AddOrUpdate(_syncAccountChangedKey, corrections.Collection.Any(x => x.TypeName == _accountAssemblyName).ToString());
+			client.SyncOptions.Values.AddOrUpdate(SyncAccountChangedKey, corrections.Collection.Any(x => x.TypeName == _accountAssemblyName).ToString());
 			return client.ApplyCorrections(id, corrections);
 		}
 
@@ -158,7 +158,26 @@ namespace Speedy.Website.WebApi
 				}
 				case SyncType.Accounts:
 				{
-					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>());
+					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
+					break;
+				}
+				case SyncType.Address:
+				{
+					if (options.Values.ContainsKey(ClientSyncManager.AddressValueKey))
+					{
+						// We want to sync a single address
+						Guid.TryParse(options.Values[ClientSyncManager.AddressValueKey], out var addressSyncId);
+						sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>(x => x.SyncId == addressSyncId));
+					}
+					else
+					{
+						throw new InvalidOperationException(Constants.InvalidSyncOptions);
+					}
+					break;
+				}
+				case SyncType.Addresses:
+				{
+					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 					break;
 				}
 				case SyncType.All:
