@@ -102,7 +102,7 @@ namespace Speedy.EntityFramework
 			var query = Set
 				.AsNoTracking()
 				.Where(x => (x.CreatedOn >= since && x.CreatedOn < until)
-				|| (x.ModifiedOn >= since && x.ModifiedOn < until));
+					|| (x.ModifiedOn >= since && x.ModifiedOn < until));
 
 			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
 			{
