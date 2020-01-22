@@ -89,6 +89,16 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
+		/// Test a sync object name to see if this converter can convert this object.
+		/// </summary>
+		/// <param name="name"> The sync object name to test. </param>
+		/// <returns> True if the sync object can be converted or false if otherwise. </returns>
+		public bool CanConvert(string name)
+		{
+			return _converters.Any(x => x.CanConvert(name));
+		}
+
+		/// <summary>
 		/// Process the provided request through the converters.
 		/// </summary>
 		/// <param name="collection"> The collection to process. </param>

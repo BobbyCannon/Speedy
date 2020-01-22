@@ -186,13 +186,23 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
+		/// Test a sync object name to see if this converter can convert this object.
+		/// </summary>
+		/// <param name="name"> The sync object name to test. </param>
+		/// <returns> True if the sync object can be converted or false if otherwise. </returns>
+		public bool CanConvert(string name)
+		{
+			return SourceName == name;
+		}
+		
+		/// <summary>
 		/// Test a sync object to see if this converter can convert this object.
 		/// </summary>
 		/// <param name="syncObject"> The sync object to test. </param>
 		/// <returns> True if the sync object can be converted or false if otherwise. </returns>
 		public bool CanConvert(SyncObject syncObject)
 		{
-			return SourceName == syncObject.TypeName;
+			return CanConvert(syncObject.TypeName);
 		}
 
 		/// <summary>
@@ -202,7 +212,7 @@ namespace Speedy.Sync
 		/// <returns> True if the sync issue can be converted or false if otherwise. </returns>
 		public bool CanConvert(SyncIssue syncIssue)
 		{
-			return SourceName == syncIssue.TypeName;
+			return CanConvert(syncIssue.TypeName);
 		}
 
 		/// <summary>

@@ -125,7 +125,9 @@ namespace Speedy.Sync
 			{
 				foreach (var repository in database.GetSyncableRepositories(SyncOptions))
 				{
-					if (SyncOptions.ShouldFilterRepository(repository.TypeName))
+					// Skip this type if it's being filters or if the outgoing converter cannot convert
+					if (SyncOptions.ShouldFilterRepository(repository.TypeName) 
+						|| (OutgoingConverter != null && !OutgoingConverter.CanConvert(repository.TypeName)))
 					{
 						// Do not process this repository because we have filters and the repository is not in the filters.
 						continue;
@@ -254,7 +256,7 @@ namespace Speedy.Sync
 		private ServiceResult<SyncIssue> ApplyChanges(ServiceRequest<SyncObject> changes, bool corrections)
 		{
 			// The collection is incoming types
-			// todo: performance, could we increase performance by going straight to entity, currently we convert to entity then back to syncobject
+			// todo: performance, could we increase performance by going straight to entity, currently we convert to entity then back to sync object
 			// The only issue is processing entities individually. If an entity is added to a context then
 			// something goes wrong we'll need to disconnect before processing them individually
 			var objects = (IncomingConverter?.Convert(changes.Collection) ?? changes.Collection).ToList();
@@ -294,7 +296,9 @@ namespace Speedy.Sync
 			{
 				_changeCount = database.GetSyncableRepositories(SyncOptions).Sum(repository =>
 				{
-					if (SyncOptions.ShouldFilterRepository(repository.TypeName))
+					// Skip this type if it's being filters or if the outgoing converter cannot convert
+					if (SyncOptions.ShouldFilterRepository(repository.TypeName) 
+						|| (OutgoingConverter != null && !OutgoingConverter.CanConvert(repository.TypeName)))
 					{
 						// Do not count this repository because we have filters and the repository is not in the filters.
 						return 0;
