@@ -42,7 +42,7 @@ try
 
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 2 -Build $BuildNumber
+	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 3 -Build $BuildNumber
 	$nugetVersion = ([Version] $newVersion).ToString(3)
 	
 	if ($VersionSuffix.Length -gt 0)
