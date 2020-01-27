@@ -4,108 +4,24 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Speedy.EntityFramework;
 using Speedy.Sync;
-using Speedy.Website.Data.Sql;
-using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Benchmark
+namespace Speedy.Benchmark.Benchmarks
 {
-	public static class DatabaseBenchmark
+	public class DatabaseBenchmark : BaseBenchmark
 	{
-		#region Constructors
-
-		static DatabaseBenchmark()
-		{
-			DefaultConnection = "server=localhost;database=Speedy;integrated security=true;";
-			DefaultConnection2 = "server=localhost;database=Speedy2;integrated security=true;";
-			DefaultSqliteConnection = "Data Source=Speedy.db";
-			DefaultSqliteConnection2 = "Data Source=Speedy2.db";
-		}
-
-		#endregion
-
-		#region Properties
-
-		public static string DefaultConnection { get; }
-
-		public static string DefaultConnection2 { get; }
-
-		public static string DefaultSqliteConnection { get; }
-
-		public static string DefaultSqliteConnection2 { get; }
-
-		#endregion
-
 		#region Methods
 
-		public static T ClearDatabase<T>(this T database) where T : EntityFrameworkDatabase
+		public override void Run()
 		{
-			database.Database.EnsureDeleted();
-			database.Database.Migrate();
-			//var command = "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'SET QUOTED_IDENTIFIER ON; IF ''?'' NOT LIKE ''%MigrationHistory%'' AND ''?'' NOT LIKE ''%MigrationsHistory%'' DELETE FROM ?'\r\nEXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'IF OBJECTPROPERTY(object_id(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'";
-			//database.Database.ExecuteSqlCommand(command);
-			return database;
+			throw new NotImplementedException();
 		}
 
-		public static void Dump<T>(this T item, string prefix = "")
-		{
-			Console.Write(prefix);
-			Console.WriteLine(item);
-		}
-
-		public static ISyncableDatabaseProvider GetEntityFrameworkSqliteProvider()
-		{
-			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection))
-			{
-				database.Database.EnsureDeleted();
-				database.Database.Migrate();
-				return new SyncDatabaseProvider(x => new ContosoSqliteDatabase(database.DbContextOptions, x));
-			}
-		}
-
-		public static ISyncableDatabaseProvider GetEntityFrameworkSqliteProvider2()
-		{
-			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2))
-			{
-				database.Database.EnsureDeleted();
-				database.Database.Migrate();
-				return new SyncDatabaseProvider(x => new ContosoSqliteDatabase(database.DbContextOptions, x));
-			}
-		}
-
-		internal static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider()
-		{
-			using (var database = ContosoSqlDatabase.UseSql(DefaultConnection))
-			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoSqlDatabase(database.DbContextOptions, x));
-			}
-		}
-
-		internal static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2()
-		{
-			using (var database = ContosoSqlDatabase.UseSql(DefaultConnection2))
-			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-				return new SyncDatabaseProvider(x => new ContosoSqlDatabase(database.DbContextOptions, x));
-			}
-		}
-
-		internal static ISyncableDatabaseProvider GetSyncableMemoryProvider(DatabaseOptions options = null)
-		{
-			var database = new ContosoMemoryDatabase(options);
-			return new SyncDatabaseProvider(x => database, options);
-		}
-
-		private static IEnumerable<AddressEntity> GenerateData()
+		private IEnumerable<AddressEntity> GenerateData()
 		{
 			var list = new List<AddressEntity>(10000);
 
@@ -128,7 +44,7 @@ namespace Speedy.Benchmark
 			return list;
 		}
 
-		private static void ProcessAllDatabases()
+		private void ProcessAllDatabases()
 		{
 			IEnumerable<(SyncClient server, SyncClient client)> GetScenarios()
 			{
@@ -150,7 +66,7 @@ namespace Speedy.Benchmark
 			}
 		}
 
-		private static void ProcessScenario((SyncClient server, SyncClient client) scenario)
+		private void ProcessScenario((SyncClient server, SyncClient client) scenario)
 		{
 			var server = scenario.server;
 			var client = scenario.client;
@@ -203,7 +119,7 @@ namespace Speedy.Benchmark
 			}
 		}
 
-		private static void WriteManyValuesToDatabase()
+		private void WriteManyValuesToDatabase()
 		{
 			var memProvider = GetSyncableMemoryProvider();
 			var liteProvider = GetEntityFrameworkSqliteProvider();

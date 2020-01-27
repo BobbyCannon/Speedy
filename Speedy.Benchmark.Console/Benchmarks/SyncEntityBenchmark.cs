@@ -8,13 +8,13 @@ using Speedy.Website.Samples.Entities;
 
 #endregion
 
-namespace Speedy.Benchmark
+namespace Speedy.Benchmark.Benchmarks
 {
-	public static class SyncEntityBenchmark
+	public class SyncEntityBenchmark : BaseBenchmark
 	{
 		#region Methods
 
-		public static void Run()
+		public override void Run()
 		{
 			//
 			// Test Updating
@@ -32,27 +32,27 @@ namespace Speedy.Benchmark
 			}
 		}
 
-		private static AddressEntity GetAddressEntity()
+		private AddressEntity GetAddressEntity()
 		{
 			return new AddressEntity();
 		}
 
-		private static ClientAddress GetClientAddress()
+		private ClientAddress GetClientAddress()
 		{
 			return new ClientAddress();
 		}
 
-		private static ClientAccount GetClientPerson()
+		private ClientAccount GetClientPerson()
 		{
 			return new ClientAccount();
 		}
 
-		private static AccountEntity GetPersonEntity()
+		private AccountEntity GetPersonEntity()
 		{
 			return new AccountEntity();
 		}
 
-		private static void UpdateWith(string message, int items, Func<ISyncEntity> getEntity)
+		private void UpdateWith(string message, int items, Func<ISyncEntity> getEntity)
 		{
 			Console.WriteLine(message);
 

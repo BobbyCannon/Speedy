@@ -1,0 +1,51 @@
+﻿<Window x:Class="Speedy.Benchmark.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:local="clr-namespace:Speedy.Benchmark"
+		mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
+		Title="Speedy Benchmark" Height="450" Width="800"
+		WindowStartupLocation="CenterScreen" Icon="Speedy.ico">
+	<Window.Resources>
+		<local:VisibilityConverter x:Key="VisibilityConverter" />
+	</Window.Resources>
+	<DockPanel LastChildFill="True">
+		<Border DockPanel.Dock="Top" BorderThickness="0,1" BorderBrush="DarkGray">
+			<StackPanel Orientation="Horizontal">
+				<StackPanel.Resources>
+					<Style TargetType="Button">
+						<Setter Property="Margin" Value="10,8" />
+						<Setter Property="Padding" Value="10,2" />
+						<Setter Property="HorizontalAlignment" Value="Left" />
+					</Style>
+				</StackPanel.Resources>
+				<Button Content="Start" Command="{Binding StartWorkCommand, Mode=OneWay}" />
+			</StackPanel>
+		</Border>
+		<ProgressBar DockPanel.Dock="Bottom" Height="4" Minimum="0" Maximum="100" Value="{Binding TotalPercentage, Mode=OneWay}" Visibility="{Binding TotalPercentage, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<ItemsControl Grid.Row="0" ItemsSource="{Binding BenchmarkResults, Mode=OneWay}" HorizontalContentAlignment="Stretch" Padding="10,10,10,0">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate DataType="local:BenchmarkResult">
+						<Grid Margin="0,0,0,10">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="{Binding Name, Mode=OneWay}" Width="240" />
+							<ProgressBar Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Percent, Mode=OneWay}" />
+							<TextBlock Grid.Column="2" Text="{Binding Elapsed, Mode=OneWay}" Width="110" TextAlignment="Right" />
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+			<TextBox Grid.Row="1" x:Name="Log" Text="{Binding Log, Mode=OneWay}" IsReadOnly="True" />
+		</Grid>
+	</DockPanel>
+</Window>

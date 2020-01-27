@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using Speedy.Benchmark.Benchmarks;
 
 #endregion
 
@@ -12,8 +13,11 @@ namespace Speedy.Benchmark
 
 		private static void Main(string[] args)
 		{
+			var benchmark = new SyncEngineBenchmark();
 			//SyncEntityBenchmark.Run();
-			SyncClientBenchmark.Run();
+			//SyncClientBenchmark.Run();
+			
+			benchmark.Run();
 
 			Console.WriteLine("press any key");
 			Console.ReadKey(true);
