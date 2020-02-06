@@ -11,7 +11,7 @@ namespace Speedy
 	/// <summary>
 	/// Provides a set of methods and properties that you can use to accurately measure elapsed time.
 	/// </summary>
-	public class Timer
+	public class Stopwatch
 	{
 		#region Constants
 
@@ -39,15 +39,23 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates an instance of a stopwatch.
 		/// </summary>
-		public Timer()
+		public Stopwatch()
 		{
-			Reset();
+			Reset(0, IsHighResolutionAvailable);
+		}
+
+		/// <summary>
+		/// Instantiates an instance of a stopwatch.
+		/// </summary>
+		public Stopwatch(DateTime startTime)
+		{
+			Reset(startTime.Ticks, false);
 		}
 
 		/// <summary>
 		/// Static constructor for stopwatch.
 		/// </summary>
-		static Timer()
+		static Stopwatch()
 		{
 			if (QueryPerformanceFrequency(out var frequency))
 			{
@@ -104,41 +112,11 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
-		/// Initializes a new instance of a timer from a specific time.
-		/// </summary>
-		/// <returns> The started timer from provided DateTime. </returns>
-		public static Timer CreateNew(DateTime start)
-		{
-			var response = StartNew(start);
-			response.Stop();
-			return response;
-		}
-
-		/// <summary>
-		/// Gets the current counter. For High Resolution timers this will be the performance
-		/// counter otherwise it will be the ticks for the UTC DateTime.
-		/// </summary>
-		/// <returns> Returns the current counter. </returns>
-		public static long GetCurrentCounter(bool highResolution)
-		{
-			if (!IsHighResolutionAvailable || !highResolution)
-			{
-				return TimeService.UtcNow.Ticks;
-			}
-
-			QueryPerformanceCounter(out var timestamp);
-			return timestamp;
-		}
-
-		/// <summary>
 		/// Stops the timer and resets the elapsed time.
 		/// </summary>
 		public void Reset()
 		{
-			_elapsed = 0;
-			_start = 0;
-			IsRunning = false;
-			IsHighResolution = true;
+			Reset(0, IsHighResolutionAvailable);
 		}
 
 		/// <summary>
@@ -147,9 +125,21 @@ namespace Speedy
 		public void Restart()
 		{
 			_elapsed = 0;
-			_start = GetCurrentCounter(true);
+			IsHighResolution = IsHighResolutionAvailable;
+			_start = GetCurrentCounter(IsHighResolution);
 			IsRunning = true;
-			IsHighResolution = true;
+		}
+
+		/// <summary>
+		/// Stops the timer, resets the elapsed time, then restarts timer.
+		/// </summary>
+		/// <param name="start"> The time the timer should start from. </param>
+		public void Restart(DateTime start)
+		{
+			_elapsed = 0;
+			_start = start.Ticks;
+			IsHighResolution = false;
+			IsRunning = true;
 		}
 
 		/// <summary>
@@ -162,7 +152,7 @@ namespace Speedy
 				return;
 			}
 
-			IsHighResolution = true;
+			IsHighResolution = IsHighResolutionAvailable;
 			_start = GetCurrentCounter(IsHighResolution);
 			IsRunning = true;
 		}
@@ -171,9 +161,9 @@ namespace Speedy
 		/// Initializes a new instance of a timer and starts it.
 		/// </summary>
 		/// <returns> The started timer. </returns>
-		public static Timer StartNew()
+		public static Stopwatch StartNew()
 		{
-			var response = new Timer();
+			var response = new Stopwatch();
 			response.Start();
 			return response;
 		}
@@ -181,16 +171,12 @@ namespace Speedy
 		/// <summary>
 		/// Initializes a new instance of a timer from a specific time.
 		/// </summary>
+		/// <param name="startTime"> The time the timer should start from. </param>
 		/// <returns> The started timer from provided DateTime. </returns>
-		public static Timer StartNew(DateTime start)
+		public static Stopwatch StartNew(DateTime startTime)
 		{
-			var response = new Timer
-			{
-				_start = start.Ticks,
-				IsHighResolution = false,
-				IsRunning = true
-			};
-
+			var response = new Stopwatch(startTime);
+			response.Start();
 			return response;
 		}
 
@@ -208,13 +194,31 @@ namespace Speedy
 			var elapsedThisPeriod = endTimeStamp - _start;
 
 			_elapsed += elapsedThisPeriod;
-			IsRunning = false;
 
 			if (_elapsed < 0)
 			{
 				// Never allows negative elapsed, can happen on some hardware.
 				_elapsed = 0;
 			}
+
+			IsHighResolution = IsHighResolutionAvailable;
+			IsRunning = false;
+		}
+
+		/// <summary>
+		/// Gets the current counter. For High Resolution timers this will be the performance
+		/// counter otherwise it will be the ticks for the UTC DateTime.
+		/// </summary>
+		/// <returns> Returns the current counter. </returns>
+		private static long GetCurrentCounter(bool highResolution)
+		{
+			if (!IsHighResolutionAvailable || !highResolution)
+			{
+				return TimeService.UtcNow.Ticks;
+			}
+
+			QueryPerformanceCounter(out var timestamp);
+			return timestamp;
 		}
 
 		private static long GetElapsedCounter(long elapsed, long start, bool highResolution, bool isRunning)
@@ -256,6 +260,26 @@ namespace Speedy
 		[DllImport("kernel32.dll")]
 		[ResourceExposure(ResourceScope.None)]
 		private static extern bool QueryPerformanceFrequency(out long value);
+
+		/// <summary>
+		/// Stops the timer and resets the elapsed time.
+		/// </summary>
+		private void Reset(long startTime, bool highResolution)
+		{
+			_elapsed = 0;
+			_start = startTime;
+			IsHighResolution = IsHighResolutionAvailable & highResolution;
+
+			if (_start > 0)
+			{
+				IsRunning = true;
+				Stop();
+			}
+			else
+			{
+				IsRunning = false;
+			}
+		}
 
 		#endregion
 	}
