@@ -15,7 +15,7 @@ namespace Speedy.Website.Samples
 		IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }
 		IRepository<GroupMemberEntity, int> GroupMembers { get; }
 		IRepository<GroupEntity, int> Groups { get; }
-		IRepository<LogEventEntity, string> LogEvents { get; }
+		IRepository<LogEventEntity, long> LogEvents { get; }
 		IRepository<AccountEntity, int> Accounts { get; }
 		IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		IRepository<PetTypeEntity, string> PetTypes { get; }

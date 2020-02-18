@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Text;
 using Microsoft.Data.Sqlite;
 using Microsoft.Data.SqlClient;
+using Speedy.Extensions;
 
 #endregion
 

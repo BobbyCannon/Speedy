@@ -6,6 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Data.WebApi;
+using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Samples.Entities;
@@ -203,9 +205,9 @@ namespace Speedy.IntegrationTests
 					using var database = provider.GetDatabase();
 					Console.WriteLine(database.GetType().Name);
 
-					database.LogEvents.Add(EntityFactory.GetLogEvent(x => x.Message = "foo"));
-					database.LogEvents.Add(EntityFactory.GetLogEvent(x => x.Message = "bar"));
-					database.LogEvents.Add(EntityFactory.GetLogEvent(x => x.Message = "foo"));
+					database.LogEvents.Add(EntityFactory.GetLogEvent("foo"));
+					database.LogEvents.Add(EntityFactory.GetLogEvent("bar"));
+					database.LogEvents.Add(EntityFactory.GetLogEvent("foo"));
 				});
 		}
 
@@ -330,9 +332,9 @@ namespace Speedy.IntegrationTests
 					using var database = provider.GetDatabase();
 					Console.WriteLine(database.GetType().Name);
 
-					var expected = new LogEventEntity { Message = "The new log message that is really important.", Id = "Message" };
-
+					var expected = EntityFactory.GetLogEvent("The new log message that is really important.");
 					database.LogEvents.Add(expected);
+
 					var actual = database.LogEvents.FirstOrDefault();
 					Assert.IsNull(actual);
 
@@ -652,7 +654,7 @@ namespace Speedy.IntegrationTests
 			TestHelper.GetDataContexts(initialized: false)
 				.ForEach(provider =>
 				{
-					var expected = new LogEventEntity { Message = "This is a test.", Id = "Test" };
+					var expected = EntityFactory.GetLogEvent("This is a test.");
 
 					using (var database = provider.GetDatabase())
 					{
@@ -1327,7 +1329,7 @@ namespace Speedy.IntegrationTests
 					{
 						Console.WriteLine(database.GetType().Name);
 
-						var logEvent = new LogEventEntity { Id = "Log1", Message = "Hello World" };
+						var logEvent = EntityFactory.GetLogEvent("Hello World", LogLevel.Critical);
 						database.LogEvents.Add(logEvent);
 						database.SaveChanges();
 					}

@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using Speedy.Extensions;
 
 #endregion
 
@@ -20,7 +21,7 @@ namespace Speedy.Sync
 		#region Fields
 
 		private readonly Action<T1, T3> _convert;
-		private readonly Func<T3, T3, SyncObjectStatus, bool> _update;
+		private readonly Func<T3, T3, Action, SyncObjectStatus, bool> _update;
 
 		#endregion
 
@@ -31,7 +32,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
 		/// <param name="update"> An optional update method to do some additional updating. </param>
-		public SyncObjectIncomingConverter(Action<T1, T3> convert = null, Func<T3, T3, SyncObjectStatus, bool> update = null)
+		public SyncObjectIncomingConverter(Action<T1, T3> convert = null, Func<T3, T3, Action, SyncObjectStatus, bool> update = null)
 			: base(typeof(T1).GetRealType().ToAssemblyName(), typeof(T3).GetRealType().ToAssemblyName())
 		{
 			_convert = convert;
@@ -194,7 +195,7 @@ namespace Speedy.Sync
 		{
 			return SourceName == name;
 		}
-		
+
 		/// <summary>
 		/// Test a sync object to see if this converter can convert this object.
 		/// </summary>
@@ -292,11 +293,11 @@ namespace Speedy.Sync
 		/// <typeparam name="T2"> The primary key of the sync entity. </typeparam>
 		/// <param name="source"> The entity with the updates. </param>
 		/// <param name="destination"> The destination sync entity to be updated. </param>
-		/// <param name="action"> The function to do the updating. </param>
+		/// <param name="update"> The function to do the updating. </param>
 		/// <param name="status"> The status of the update. </param>
 		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
 		/// <returns> Return true if the entity was updated and should be saved. </returns>
-		protected static bool Update<T1, T2>(T1 source, T1 destination, Func<T1, T1, SyncObjectStatus, bool> action, SyncObjectStatus status, bool excludePropertiesForSyncUpdate)
+		protected static bool Update<T1, T2>(T1 source, T1 destination, Func<T1, T1, Action, SyncObjectStatus, bool> update, SyncObjectStatus status, bool excludePropertiesForSyncUpdate)
 			where T1 : SyncEntity<T2>
 		{
 			if (destination == null)
@@ -304,14 +305,21 @@ namespace Speedy.Sync
 				destination = Activator.CreateInstance<T1>();
 			}
 
-			// Handle all one to one properties (same name & type) and all sync entity base properties.
-			destination.UpdateWith(source, false, false, excludePropertiesForSyncUpdate);
-
 			// Update will not set the sync ID
 			destination.SyncId = source.SyncId;
 
-			// Optional convert to do additional conversions
-			return action?.Invoke(source, destination, status) ?? true;
+			// Handle all one to one properties (same name & type) and all sync entity base properties
+			Action convert = () => destination.UpdateWith(source, false, false, excludePropertiesForSyncUpdate);
+
+			// See if we have custom conversion
+			if (update != null)
+			{
+				// Update the destination with the source using provided action
+				return update.Invoke(source, destination, convert, status);
+			}
+
+			convert();
+			return true;
 		}
 
 		#endregion

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Speedy.EntityFramework;
+using Speedy.Extensions;
 using Speedy.Website.Samples.Entities;
 
 #endregion
@@ -41,13 +42,12 @@ namespace Speedy.Website.Samples
 		#region Properties
 
 		public IRepository<AccountEntity, int> Accounts => GetSyncableRepository<AccountEntity, int>();
-
 		public IRepository<AddressEntity, long> Addresses => GetSyncableRepository<AddressEntity, long>();
 		public IRepository<FoodEntity, int> Food => GetRepository<FoodEntity, int>();
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships => GetRepository<FoodRelationshipEntity, int>();
 		public IRepository<GroupMemberEntity, int> GroupMembers => GetRepository<GroupMemberEntity, int>();
 		public IRepository<GroupEntity, int> Groups => GetRepository<GroupEntity, int>();
-		public IRepository<LogEventEntity, string> LogEvents => GetRepository<LogEventEntity, string>();
+		public IRepository<LogEventEntity, long> LogEvents => GetSyncableRepository<LogEventEntity, long>();
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets => GetRepository<PetEntity, (string Name, int OwnerId)>();
 		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
 		public IRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
@@ -62,6 +62,18 @@ namespace Speedy.Website.Samples
 			if (connection != null && !string.IsNullOrWhiteSpace(connection.ConnectionString))
 			{
 				return connection.ConnectionString;
+			}
+
+			if (connection == null)
+			{
+				// NOTE: EF 3.1 design tools no longer initializes ConfigurationManager so we have to load it manually for migrations
+				// https://github.com/dotnet/efcore/issues/19760
+				connection = GetFromAppConfig();
+
+				if (connection != null)
+				{
+					return connection.ConnectionString;
+				}
 			}
 
 			var configuration = new ConfigurationBuilder()
@@ -81,7 +93,7 @@ namespace Speedy.Website.Samples
 
 		public static void SetRequiredOptions(DatabaseOptions options)
 		{
-			options.SyncOrder = new[] { typeof(AddressEntity).ToAssemblyName(), typeof(AccountEntity).ToAssemblyName() };
+			options.SyncOrder = new[] { typeof(AddressEntity).ToAssemblyName(), typeof(AccountEntity).ToAssemblyName(), typeof(LogEventEntity).ToAssemblyName() };
 		}
 
 		/// <summary>
@@ -120,7 +132,35 @@ namespace Speedy.Website.Samples
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			ConfigureDatabaseOptions(optionsBuilder);
+			
 			base.OnConfiguring(optionsBuilder);
+		}
+
+		private static ConnectionStringSettings GetFromAppConfig()
+		{
+			var directory = Environment.CurrentDirectory;
+			var configFileNames = new[] { "web.config", "app.config" };
+
+			foreach (var configFileName in configFileNames)
+			{
+				var filePath = Path.Combine(directory, configFileName);
+
+				if (!File.Exists(filePath))
+				{
+					continue;
+				}
+
+				var map = new ExeConfigurationFileMap { ExeConfigFilename = filePath };
+				var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+				var connection = config.ConnectionStrings.ConnectionStrings["DefaultConnection"];
+
+				if (connection != null)
+				{
+					return connection;
+				}
+			}
+
+			return null;
 		}
 
 		#endregion

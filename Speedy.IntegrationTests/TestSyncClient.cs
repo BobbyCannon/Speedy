@@ -31,15 +31,15 @@ namespace Speedy.IntegrationTests
 
 		#region Properties
 
-		public List<ServiceRequest<SyncObject>> AppliedChanges { get; set; }
+		public List<ServiceRequest<SyncObject>> AppliedChanges { get; }
 
-		public List<ServiceRequest<SyncObject>> AppliedCorrections { get; set; }
+		public List<ServiceRequest<SyncObject>> AppliedCorrections { get; }
 
-		public List<ServiceResult<SyncObject>> Changes { get; set; }
+		public List<ServiceResult<SyncObject>> Changes { get; }
 
 		public int ChangesOffset { get; private set; }
 
-		public List<ServiceResult<SyncObject>> Corrections { get; set; }
+		public List<ServiceResult<SyncObject>> Corrections { get; }
 
 		public int CorrectionsOffset { get; private set; }
 
@@ -47,11 +47,11 @@ namespace Speedy.IntegrationTests
 
 		public string Name { get; }
 
-		public SyncClientOptions Options { get; set; }
+		public SyncClientOptions Options { get; }
 
 		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
-		public SyncStatistics Statistics { get; set; }
+		public SyncStatistics Statistics { get; }
 
 		public SyncOptions SyncOptions { get; }
 
@@ -97,7 +97,6 @@ namespace Speedy.IntegrationTests
 
 		public void UpdateOptions(Guid sessionId, SyncClientOptions options)
 		{
-			throw new NotImplementedException();
 		}
 
 		T ISyncClient.GetDatabase<T>()

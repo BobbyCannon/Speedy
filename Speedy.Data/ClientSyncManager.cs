@@ -12,7 +12,7 @@ using Speedy.Sync;
 
 namespace Speedy.Data
 {
-	public class ClientSyncManager : SyncManager
+	public class ClientSyncManager : SyncManager<SyncType>
 	{
 		#region Constants
 
@@ -24,7 +24,6 @@ namespace Speedy.Data
 
 		#region Fields
 
-		private readonly SyncOptions _accountsSyncOptions, _addressesSyncOptions, _syncOptions;
 		private readonly Func<NetworkCredential> _credentialProvider;
 		private readonly ISyncableDatabaseProvider _databaseProvider;
 		private readonly SyncClientProvider _serverProvider;
@@ -47,36 +46,35 @@ namespace Speedy.Data
 			_serverProvider = serverProvider;
 
 			// These options are for syncing full collections
-			_accountsSyncOptions = GetDefaultSyncOptions(SyncType.Accounts, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>()));
-			_addressesSyncOptions = GetDefaultSyncOptions(SyncType.Addresses, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>()));
-
-			_syncOptions = GetDefaultSyncOptions(SyncType.All, options =>
+			AddSyncOptions(SyncType.Accounts, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>()));
+			AddSyncOptions(SyncType.Addresses, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>()));
+			AddSyncOptions(SyncType.LogEvents, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientLogEvent>()));
+			AddSyncOptions(SyncType.All, options =>
 			{
 				options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>());
 				options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>());
+				options.AddSyncableFilter(new SyncRepositoryFilter<ClientLogEvent>());
 			});
+
+			IncomingConverter = new SyncClientIncomingConverter(
+				new SyncObjectIncomingConverter<Account, int, ClientAccount, int>((account, clientAccount) => clientAccount.Roles = ClientAccount.CombineRoles(account.Roles)),
+				new SyncObjectIncomingConverter<Address, long, ClientAddress, long>(),
+				new SyncObjectIncomingConverter<LogEvent, long, ClientLogEvent, long>()
+			);
+
+			OutgoingConverter = new SyncClientOutgoingConverter(
+				new SyncObjectOutgoingConverter<ClientAccount, int, Account, int>((clientAccount, account) => account.Roles = ClientAccount.SplitRoles(clientAccount.Roles)),
+				new SyncObjectOutgoingConverter<ClientAddress, long, Address, long>(),
+				new SyncObjectOutgoingConverter<ClientLogEvent, long, LogEvent, long>()
+			);
 		}
 
 		#endregion
 
 		#region Properties
 
-		public DateTime LastSyncedOnClient { get; set; }
-
-		public DateTime LastSyncedOnServer { get; set; }
-
 		/// <inheritdoc />
 		public override Version SyncSystemVersion => new Version(1, 0, 0, 0);
-
-		/// <summary>
-		/// Gets an optional incoming converter to convert incoming sync data. The converter is applied to the local sync client.
-		/// </summary>
-		private SyncClientIncomingConverter IncomingConverter { get; set; }
-
-		/// <summary>
-		/// Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
-		/// </summary>
-		private SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		#endregion
 
@@ -89,35 +87,9 @@ namespace Speedy.Data
 			return syncClientProvider;
 		}
 
-		public override void Initialize()
+		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
 		{
-			_syncOptions.LastSyncedOnClient = LastSyncedOnClient;
-			_syncOptions.LastSyncedOnServer = LastSyncedOnServer;
-
-			IncomingConverter = new SyncClientIncomingConverter(
-				new SyncObjectIncomingConverter<Account, int, ClientAccount, int>((account, clientAccount) => clientAccount.Roles = ClientAccount.CombineRoles(account.Roles)),
-				new SyncObjectIncomingConverter<Address, long, ClientAddress, long>()
-			);
-
-			OutgoingConverter = new SyncClientOutgoingConverter(
-				new SyncObjectOutgoingConverter<ClientAccount, int, Account, int>((clientAccount, account) => account.Roles = ClientAccount.SplitRoles(clientAccount.Roles)),
-				new SyncObjectOutgoingConverter<ClientAddress, long, Address, long>()
-			);
-		}
-
-		public virtual void Reset()
-		{
-			LastSyncedOnClient = DateTime.MinValue;
-			LastSyncedOnServer = DateTime.MinValue;
-
-			_accountsSyncOptions.LastSyncedOnClient = LastSyncedOnClient;
-			_accountsSyncOptions.LastSyncedOnServer = LastSyncedOnServer;
-		}
-
-		public void ResetSyncDates()
-		{
-			_syncOptions.LastSyncedOnClient = DateTime.MinValue;
-			_syncOptions.LastSyncedOnServer = DateTime.MinValue;
+			WaitOnTask(SyncAsync(waitFor, postAction, force), timeout);
 		}
 
 		public void SyncAccounts(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
@@ -132,13 +104,13 @@ namespace Speedy.Data
 			return ProcessAsync(() =>
 				{
 					OnLogEvent("Sync accounts started");
-					return _accountsSyncOptions;
+					return GetSyncOptions(SyncType.Accounts);
 				},
 				waitFor,
 				postAction,
 				force);
 		}
-		
+
 		public void SyncAddresses(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
 		{
 			WaitOnTask(SyncAddressesAsync(waitFor, postAction, force), timeout);
@@ -151,24 +123,44 @@ namespace Speedy.Data
 			return ProcessAsync(() =>
 				{
 					OnLogEvent("Sync addresses started");
-					return _addressesSyncOptions;
+					return GetSyncOptions(SyncType.Addresses);
 				},
 				waitFor,
 				postAction,
 				force);
 		}
 
-		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, bool force = false)
+		public Task SyncAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
 		{
-			WaitOnTask(SyncAsync(waitFor, force), timeout);
+			OnLogEvent("Starting to sync all...");
+
+			return ProcessAsync(() =>
+				{
+					OnLogEvent("Sync all started");
+					return GetSyncOptions(SyncType.All);
+				},
+				waitFor,
+				postAction,
+				force);
 		}
 
-		public Task SyncAsync(TimeSpan? waitFor = null, bool force = false)
+		public void SyncLogEvents(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
 		{
-			_syncOptions.LastSyncedOnClient = LastSyncedOnClient;
-			_syncOptions.LastSyncedOnServer = LastSyncedOnServer;
+			WaitOnTask(SyncLogEventsAsync(waitFor, postAction, force), timeout);
+		}
 
-			return ProcessAsync(() => _syncOptions, waitFor, null, force);
+		public Task SyncLogEventsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		{
+			OnLogEvent("Starting to sync log events...");
+
+			return ProcessAsync(() =>
+				{
+					OnLogEvent("Sync logs events started");
+					return GetSyncOptions(SyncType.LogEvents);
+				},
+				waitFor,
+				postAction,
+				force);
 		}
 
 		/// <inheritdoc />

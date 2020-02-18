@@ -6,6 +6,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Speedy.Extensions;
 using EFDatabase = Microsoft.EntityFrameworkCore.Storage.Database;
 using IEFDatabase = Microsoft.EntityFrameworkCore.Storage.IDatabase;
 

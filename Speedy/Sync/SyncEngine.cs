@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
+using Speedy.Serialization;
 
 #endregion
 
@@ -174,7 +176,7 @@ namespace Speedy.Sync
 		/// </summary>
 		public async void RunAsync()
 		{
-			await Extensions.Wrap(Run);
+			await ReflectionExtensions.RunAsync(Run);
 		}
 
 		/// <summary>

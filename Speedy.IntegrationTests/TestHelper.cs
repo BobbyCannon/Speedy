@@ -17,6 +17,7 @@ using Speedy.Client.Data;
 using Speedy.Data;
 using Speedy.Data.WebApi;
 using Speedy.EntityFramework;
+using Speedy.Extensions;
 using Speedy.IntegrationTests.Properties;
 using Speedy.Net;
 using Speedy.Sync;

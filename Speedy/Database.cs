@@ -10,6 +10,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Speedy.Configuration;
+using Speedy.Extensions;
+using Speedy.Serialization;
 using Speedy.Storage;
 using Speedy.Sync;
 

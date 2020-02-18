@@ -2,12 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 
 #endregion
 
@@ -16,25 +16,12 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents a sync manager for syncing two clients.
 	/// </summary>
-	public abstract class SyncManager : Bindable
+	public abstract class SyncManager<T> : SyncManager where T : Enum
 	{
-		#region Constants
-
-		/// <summary>
-		/// The sync key value. This will be included in the default sync options values.
-		/// </summary>
-		public const string SyncKey = "SyncKey";
-
-		/// <summary>
-		/// The sync version key value. This will be included in the default sync options values.
-		/// </summary>
-		public const string SyncVersionKey = "SyncVersionKey";
-
-		#endregion
-
 		#region Fields
 
 		private CancellationTokenSource _cancellationToken;
+		private readonly Dictionary<T, SyncOptions> _syncOptions;
 		private readonly Stopwatch _watch;
 
 		#endregion
@@ -48,8 +35,10 @@ namespace Speedy.Sync
 		protected SyncManager(IDispatcher dispatcher) : base(dispatcher)
 		{
 			_watch = new Stopwatch();
+			_syncOptions = new Dictionary<T, SyncOptions>();
 
 			ProcessTimeout = TimeSpan.FromMilliseconds(60000);
+			ShowProgressThreshold = TimeSpan.FromMilliseconds(1000);
 			SyncIssues = new List<SyncIssue>();
 			SyncState = new SyncEngineState();
 		}
@@ -59,6 +48,11 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <summary>
+		/// Gets an optional incoming converter to convert incoming sync data. The converter is applied to the local sync client.
+		/// </summary>
+		public SyncClientIncomingConverter IncomingConverter { get; protected set; }
+
+		/// <summary>
 		/// Gets a value indicating the running status of the sync manager.
 		/// </summary>
 		public bool IsRunning => _watch.IsRunning;
@@ -66,22 +60,38 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a value indicating if the last sync was successful.
 		/// </summary>
-		public bool IsSyncSuccessful { get; set; }
+		public bool IsSyncSuccessful { get; protected set; }
+
+		/// <summary>
+		/// Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
+		/// </summary>
+		public SyncClientOutgoingConverter OutgoingConverter { get; protected set; }
 
 		/// <summary>
 		/// The timeout to be used when synchronously syncing.
 		/// </summary>
-		public TimeSpan ProcessTimeout { get; }
+		public TimeSpan ProcessTimeout { get; set; }
 
 		/// <summary>
-		/// Gets a flag to indicate progress should be shown. Will only be true if sync takes longer than one second.
+		/// Gets a flag to indicate progress should be shown. Will only be true if sync takes longer than the <seealso cref="ShowProgressThreshold" />.
 		/// </summary>
-		public bool ShowProgress => _watch.IsRunning && _watch.Elapsed.TotalMilliseconds > 1000;
+		public bool ShowProgress => _watch.IsRunning && _watch.Elapsed >= ShowProgressThreshold;
+
+		/// <summary>
+		/// Gets the value to determine when to trigger <seealso cref="ShowProgress" />. Defaults to one second.
+		/// </summary>
+		public TimeSpan ShowProgressThreshold { get; set; }
 
 		/// <summary>
 		/// Gets the list of issues that occurred during the last sync.
 		/// </summary>
 		public IList<SyncIssue> SyncIssues { get; }
+
+		/// <summary>
+		/// The configure sync options for the sync manager.
+		/// </summary>
+		/// <seealso cref="AddSyncOptions" />
+		public IReadOnlyCollection<SyncOptions> SyncOptions => _syncOptions.Values;
 
 		/// <summary>
 		/// Gets the current sync state.
@@ -98,21 +108,35 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
-		/// Initialize the sync manager.
+		/// Reset the sync dates on all sync options
 		/// </summary>
-		public abstract void Initialize();
+		/// <param name="lastSyncedOnClient"> The last time when synced on the client. </param>
+		/// <param name="lastSyncedOnServer"> The last time when synced on the server. </param>
+		public void ResetSyncDates(DateTime lastSyncedOnClient, DateTime lastSyncedOnServer)
+		{
+			foreach (var collectionOptions in SyncOptions)
+			{
+				collectionOptions.LastSyncedOnClient = lastSyncedOnClient;
+				collectionOptions.LastSyncedOnServer = lastSyncedOnServer;
+			}
+		}
 
 		/// <summary>
 		/// Gets the default sync options for a sync manager.
 		/// </summary>
-		/// <param name="type"> The type of sync these options are for. </param>
+		/// <param name="syncType"> The type of sync these options are for. </param>
 		/// <param name="update"> Optional update action to change provided defaults. </param>
 		/// <returns> The default set of options. </returns>
-		protected SyncOptions GetDefaultSyncOptions<T>(T type, Action<SyncOptions> update = null) where T : Enum
+		protected SyncOptions AddSyncOptions(T syncType, Action<SyncOptions> update = null)
 		{
+			if (_syncOptions.ContainsKey(syncType))
+			{
+				return _syncOptions[syncType];
+			}
+
 			var options = new SyncOptions
 			{
-				Id = type.ToString(),
+				Id = syncType.ToString(),
 				LastSyncedOnClient = DateTime.MinValue,
 				LastSyncedOnServer = DateTime.MinValue,
 				// note: everything below is a request, the sync clients (web sync controller)
@@ -120,14 +144,16 @@ namespace Speedy.Sync
 				// client may reduce it to only 100 items.
 				PermanentDeletions = false,
 				ItemsPerSyncRequest = 300,
-				IncludeIssueDetails = true
+				IncludeIssueDetails = false
 			};
 
-			options.Values.Add(SyncKey, ((int) (object) type).ToString());
-			options.Values.Add(SyncVersionKey, SyncSystemVersion.ToString(4));
+			options.Values.AddOrUpdate(SyncKey, ((int) (object) syncType).ToString());
+			options.Values.AddOrUpdate(SyncVersionKey, SyncSystemVersion.ToString(4));
 
 			// optional update to modify sync options
 			update?.Invoke(options);
+
+			_syncOptions.Add(syncType, options);
 
 			return options;
 		}
@@ -143,6 +169,16 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <returns> The sync client. </returns>
 		protected abstract ISyncClient GetSyncClientForServer();
+
+		/// <summary>
+		/// Gets the sync options by the provide sync type.
+		/// </summary>
+		/// <param name="syncType"> The sync type to get options for. </param>
+		/// <returns> The sync options for the type </returns>
+		protected SyncOptions GetSyncOptions(T syncType)
+		{
+			return _syncOptions.ContainsKey(syncType) ? _syncOptions[syncType] : null;
+		}
 
 		/// <summary>
 		/// Indicate that there is an event to being logged by the sync manager.
@@ -172,13 +208,13 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Processes a sync request
+		/// Processes a sync request.
 		/// </summary>
 		/// <param name="getOptions"> The action to retrieve the options when the task starts. </param>
 		/// <param name="waitFor"> Optional timeout to wait for the active sync to complete. </param>
 		/// <param name="postAction"> An optional action to run after sync is completed but before notification goes out. </param>
 		/// <param name="force"> An optional flag to ignore IsShuttingDown state. Defaults to false. </param>
-		/// <returns> </returns>
+		/// <returns> The task for the process. </returns>
 		protected Task ProcessAsync(Func<SyncOptions> getOptions, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
 		{
 			if (IsRunning)
@@ -340,6 +376,38 @@ namespace Speedy.Sync
 		/// Indicates the sync is being updated.
 		/// </summary>
 		public event EventHandler<SyncEngineState> SyncUpdated;
+
+		#endregion
+	}
+
+	/// <summary>
+	/// Represents a sync manager for syncing two clients.
+	/// </summary>
+	public abstract class SyncManager : Bindable
+	{
+		#region Constants
+
+		/// <summary>
+		/// The sync key value. This will be included in the default sync options values.
+		/// </summary>
+		public const string SyncKey = "SyncKey";
+
+		/// <summary>
+		/// The sync version key value. This will be included in the default sync options values.
+		/// </summary>
+		public const string SyncVersionKey = "SyncVersionKey";
+
+		#endregion
+
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates a sync manager for syncing two clients.
+		/// </summary>
+		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		internal SyncManager(IDispatcher dispatcher) : base(dispatcher)
+		{
+		}
 
 		#endregion
 	}

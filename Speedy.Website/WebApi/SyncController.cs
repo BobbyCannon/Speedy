@@ -5,6 +5,8 @@ using System.Linq;
 using System.Web.Http;
 using Speedy.Data;
 using Speedy.Data.WebApi;
+using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Sync;
 using Speedy.Website.Samples;
@@ -46,6 +48,8 @@ namespace Speedy.Website.WebApi
 		{
 			Name = "Sync Controller";
 			Options = new SyncClientOptions();
+			MinimumSyncSystemSupported = new Version(0, 0, 0, 0);
+			MaximumSyncSystemSupported = new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
 			Statistics = new SyncStatistics();
 			SyncOptions = new SyncOptions();
 		}
@@ -55,7 +59,8 @@ namespace Speedy.Website.WebApi
 			_accountAssemblyName = typeof(Account).ToAssemblyName();
 			_outgoingConverter = new SyncClientOutgoingConverter(
 				new SyncObjectOutgoingConverter<AccountEntity, int, Account, int>(),
-				new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>()
+				new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>(),
+				new SyncObjectOutgoingConverter<LogEventEntity, long, LogEvent, long>()
 			);
 		}
 
@@ -67,6 +72,16 @@ namespace Speedy.Website.WebApi
 		/// This is not used but part of the interface. We must have the current authorized user for processing.
 		/// </summary>
 		public SyncClientIncomingConverter IncomingConverter { get; set; }
+
+		/// <summary>
+		/// Maximum sync system supported.
+		/// </summary>
+		public Version MaximumSyncSystemSupported { get; set; }
+
+		/// <summary>
+		/// Minimum sync system supported.
+		/// </summary>
+		public Version MinimumSyncSystemSupported { get; set; }
 
 		public string Name { get; }
 
@@ -116,17 +131,15 @@ namespace Speedy.Website.WebApi
 		public SyncSession BeginSync(Guid id, [FromBody] SyncOptions options)
 		{
 			var account = GetCurrentAccount();
+			var validSyncVersion = options.Values.TryGetValue(SyncManager.SyncVersionKey, out var versionString)
+				| Version.TryParse(versionString ?? string.Empty, out var version)
+				| (version >= MinimumSyncSystemSupported)
+				| (version <= MaximumSyncSystemSupported);
 
-			// note: coming soon
-			//var validSyncVersion = options.Values.TryGetValue(SyncManager.SyncSystemVersionKey, out var versionString)
-			//	| Version.TryParse(versionString, out var version)
-			//	| (version >= SystemSettingsService.MinimumSyncSystemSupported)
-			//	| (version <= SystemSettingsService.MaximumSyncSystemSupported);
-
-			//if (!validSyncVersion)
-			//{
-			//	throw new InvalidRequestException(Constants.SyncVersionInvalid);
-			//}
+			if (!validSyncVersion)
+			{
+				throw new SpeedyException(Constants.SyncClientInvalid);
+			}
 
 			// note: never trust the sync options. These are just suggestions from the client, you MUST ensure these suggestions are valid.
 			var sessionOptions = new SyncOptions
@@ -180,12 +193,18 @@ namespace Speedy.Website.WebApi
 					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 					break;
 				}
+				case SyncType.LogEvents:
+				{
+					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<LogEventEntity>());
+					break;
+				}
 				case SyncType.All:
 				default:
 				{
 					// Default to sync all items (addresses, accounts)
 					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>());
+					sessionOptions.AddSyncableFilter(new SyncRepositoryFilter<LogEventEntity>());
 					break;
 				}
 			}
@@ -256,40 +275,68 @@ namespace Speedy.Website.WebApi
 		{
 			return new SyncClientIncomingConverter(
 				new SyncObjectIncomingConverter<Account, int, AccountEntity, int>(null,
-					(update, entity, type) =>
+					(update, entity, processUpdate, type) =>
 					{
 						switch (type)
 						{
 							case SyncObjectStatus.Added:
 							{
+								processUpdate();
 								entity.SyncId = update.SyncId == Guid.Empty ? Guid.NewGuid() : update.SyncId;
 								return true;
 							}
 							case SyncObjectStatus.Deleted:
 							{
-								// Do not allow deletes
-								return false;
+								// Do not allow deletes unless you are administrator
+								var account = getAccount();
+								return account.InRole(AccountRole.Administrator);
 							}
+							default:
+							{
+								processUpdate();
+								return true;
+							}
+						}
+					}),
+				new SyncObjectIncomingConverter<Address, long, AddressEntity, long>(null,
+					(update, entity, processUpdate, type) =>
+					{
+						switch (type)
+						{
+							case SyncObjectStatus.Added:
+							{
+								processUpdate();
+								entity.SyncId = update.SyncId == Guid.Empty ? Guid.NewGuid() : update.SyncId;
+								return true;
+							}
+							case SyncObjectStatus.Modified:
+							{
+								processUpdate();
+								return true;
+							}
+							case SyncObjectStatus.Deleted:
 							default:
 							{
 								return true;
 							}
 						}
 					}),
-				new SyncObjectIncomingConverter<Address, long, AddressEntity, long>(null,
-					(update, entity, type) =>
+				new SyncObjectIncomingConverter<LogEvent, long, LogEventEntity, long>(null,
+					(update, entity, processUpdate, type) =>
 					{
 						switch (type)
 						{
 							case SyncObjectStatus.Added:
 							{
+								processUpdate();
 								entity.SyncId = update.SyncId == Guid.Empty ? Guid.NewGuid() : update.SyncId;
 								return true;
 							}
+							case SyncObjectStatus.Modified:
 							case SyncObjectStatus.Deleted:
 							default:
 							{
-								return true;
+								return false;
 							}
 						}
 					})

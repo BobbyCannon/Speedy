@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Sync;
 
 #endregion

@@ -2,8 +2,8 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Speedy.Data.Client;
+using Speedy.Data.WebApi;
 
 #endregion
 
@@ -21,7 +21,7 @@ namespace Speedy.UnitTests.Factories
 				Address = address,
 				EmailAddress = name + "@speedy.local",
 				Name = name,
-				SyncId = Guid.NewGuid(),
+				SyncId = Guid.NewGuid()
 			};
 
 			update?.Invoke(result);
@@ -39,7 +39,21 @@ namespace Speedy.UnitTests.Factories
 				Line2 = Guid.NewGuid().ToString(),
 				Postal = postal ?? Guid.NewGuid().ToString(),
 				State = state ?? Guid.NewGuid().ToString(),
-				SyncId = Guid.NewGuid(),
+				SyncId = Guid.NewGuid()
+			};
+
+			update?.Invoke(result);
+
+			return result;
+		}
+
+		public static ClientLogEvent GetLogEvent(string message, LogLevel level, Action<ClientLogEvent> update = null)
+		{
+			var result = new ClientLogEvent
+			{
+				Level = level,
+				Message = message,
+				SyncId = Guid.NewGuid()
 			};
 
 			update?.Invoke(result);

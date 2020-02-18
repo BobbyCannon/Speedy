@@ -8,6 +8,7 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Speedy.Data.Client;
+using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
 using Speedy.Sync;
@@ -35,8 +36,9 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
 				var options = new SyncOptions();
-				var issues = SyncEngine.Run(client, server, options);
+				options.Values.AddOrUpdate(SyncManager.SyncVersionKey, "1.2.3.4");
 
+				var issues = SyncEngine.Run(client, server, options);
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -1196,6 +1198,8 @@ namespace Speedy.IntegrationTests
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
+
+				Assert.IsFalse(engine.SyncIssues.Count > 0, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())

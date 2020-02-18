@@ -79,11 +79,14 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    Id = table.Column<string>(unicode: false, maxLength: 250, nullable: false),
+                    Id = table.Column<long>(maxLength: 250, nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Level = table.Column<int>(nullable: false),
-                    Message = table.Column<string>(unicode: false, nullable: true),
-                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Message = table.Column<string>(unicode: false, nullable: true)
                 },
                 constraints: table =>
                 {

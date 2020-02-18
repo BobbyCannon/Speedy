@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Speedy.Extensions;
 using Speedy.Sync;
 
 #endregion

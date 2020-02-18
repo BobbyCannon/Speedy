@@ -19,7 +19,7 @@ namespace Speedy.Website.Samples
 			FoodRelationships = GetRepository<FoodRelationshipEntity, int>();
 			Groups = GetRepository<GroupEntity, int>();
 			GroupMembers = GetRepository<GroupMemberEntity, int>();
-			LogEvents = GetRepository<LogEventEntity, string>();
+			LogEvents = GetSyncableRepository<LogEventEntity, long>();
 			Pets = GetRepository<PetEntity, (string Name, int OwnerId)>();
 			PetTypes = GetRepository<PetTypeEntity, string>();
 			Settings = GetSyncableRepository<SettingEntity, long>();
@@ -39,7 +39,7 @@ namespace Speedy.Website.Samples
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }
 		public IRepository<GroupMemberEntity, int> GroupMembers { get; }
 		public IRepository<GroupEntity, int> Groups { get; }
-		public IRepository<LogEventEntity, string> LogEvents { get; }
+		public IRepository<LogEventEntity, long> LogEvents { get; }
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		public IRepository<PetTypeEntity, string> PetTypes { get; }
 		public IRepository<SettingEntity, long> Settings { get; }

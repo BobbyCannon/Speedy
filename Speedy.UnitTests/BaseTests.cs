@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
@@ -14,6 +15,12 @@ namespace Speedy.UnitTests
 		public virtual void TestInitialize()
 		{
 			TestHelper.Initialize();
+		}
+
+		protected string GetMessageAndCopy(string actual)
+		{
+			Clipboard.SetText(actual);
+			return actual;
 		}
 
 		#endregion

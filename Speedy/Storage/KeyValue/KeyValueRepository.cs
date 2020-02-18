@@ -5,8 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using Newtonsoft.Json;
+using Speedy.Extensions;
+using Speedy.Serialization;
 using Speedy.Streams;
 
 #endregion
@@ -59,7 +59,7 @@ namespace Speedy.Storage.KeyValue
 		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _cache;
 		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _changes;
 		private readonly KeyValueRepositoryOptions _options;
-		private readonly JsonSerializerSettings _settings;
+		private readonly SerializerSettings _settings;
 		private ulong _writeIndex;
 
 		#endregion
@@ -103,7 +103,7 @@ namespace Speedy.Storage.KeyValue
 			_options = options;
 			_cache = new Dictionary<string, Tuple<string, DateTime, ulong>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
 			_changes = new Dictionary<string, Tuple<string, DateTime, ulong>>();
-			_settings = Extensions.GetSerializerSettings(false, false, true, false);
+			_settings = new SerializerSettings(false, false, false, true, false, false);
 			_writeIndex = 0;
 
 			DirectoryInfo = directoryInfo;
@@ -625,7 +625,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			var fileAccess = reading ? FileAccess.Read : FileAccess.ReadWrite;
 			var fileShare = reading ? FileShare.Read : FileShare.None;
-			return Extensions.Retry(() => info.Open(FileMode.OpenOrCreate, fileAccess, fileShare), (int) _options.Timeout.TotalMilliseconds, 50);
+			return UtilityExtensions.Retry(() => info.Open(FileMode.OpenOrCreate, fileAccess, fileShare), (int) _options.Timeout.TotalMilliseconds, 50);
 		}
 
 		private void ProcessCache(NoCloseStreamReader reader, NoCloseStreamWriter writer)
@@ -756,7 +756,7 @@ namespace Speedy.Storage.KeyValue
 
 			using (var fileStream = OpenFile(FileInfo, false))
 			{
-				var tempStream = TempFileInfo.Exists ? TempFileInfo.OpenRead() : fileStream.CopyToAndOpen(TempFileInfo, (int) _options.Timeout.TotalMilliseconds);
+				var tempStream = TempFileInfo.Exists ? TempFileInfo.OpenRead() : fileStream.OpenAndCopyTo(TempFileInfo, (int) _options.Timeout.TotalMilliseconds);
 
 				using (tempStream)
 				{

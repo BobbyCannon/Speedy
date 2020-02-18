@@ -2,8 +2,10 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.Client;
+using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Sync;
 using Speedy.UnitTests.Factories;
@@ -47,12 +49,14 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(2, database.Addresses.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(2, changes.Collection.Count);
 
 			options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>(x => x.State == "SC"));
 
+			Thread.Sleep(1);
 			request.Reset();
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);
@@ -92,6 +96,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(3, database.Addresses.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 
 			// Simple filter to filter out a small subset
@@ -143,6 +148,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(3, database.Addresses.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 
 			// Simple filter to filter out a small subset
@@ -200,6 +206,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, database.Accounts.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 
 			// Would be 3 without filter, but with filter there is only one change
@@ -245,6 +252,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, database.Accounts.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 
 			// Would be 2 without filter, but with filter there is only one change
@@ -316,6 +324,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, database.Addresses.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);
@@ -362,6 +371,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, database.Addresses.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);
@@ -408,6 +418,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, database.Addresses.Count());
 			}
 
+			Thread.Sleep(1);
 			request.Reset();
 			changes = client.GetChanges(sessionId, request);
 			Assert.AreEqual(1, changes.Collection.Count);

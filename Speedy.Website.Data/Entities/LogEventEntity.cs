@@ -1,29 +1,24 @@
 #region References
 
-using System;
-using Speedy.Website.Samples.Enumerations;
+using Speedy.Data.WebApi;
+using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Website.Samples.Entities
 {
-	public class LogEventEntity : Entity<string>, ILogEvent, IModifiableEntity
+	public class LogEventEntity : SyncEntity<long>, ILogEvent
 	{
 		#region Properties
 
 		/// <inheritdoc />
-		public DateTime CreatedOn { get; set; }
+		public override long Id { get; set; }
 
 		/// <inheritdoc />
-		public override string Id { get; set; }
-
 		public LogLevel Level { get; set; }
 
 		/// <inheritdoc />
 		public string Message { get; set; }
-
-		/// <inheritdoc />
-		public DateTime ModifiedOn { get; set; }
 
 		#endregion
 

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Speedy.Extensions;
 
 #endregion
 
@@ -66,17 +67,7 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public SyncObject ToSyncObject()
 		{
-			var settings = SyncObject.GetOrAddCachedSettings(RealType);
-			var json = this.ToJson(settings);
-
-			return new SyncObject
-			{
-				Data = json,
-				ModifiedOn = ModifiedOn,
-				SyncId = SyncId,
-				TypeName = RealType.ToAssemblyName(),
-				Status = CreatedOn == ModifiedOn ? SyncObjectStatus.Added : SyncObjectStatus.Modified
-			};
+			return SyncObject.ToSyncObject(this);
 		}
 
 		/// <inheritdoc />

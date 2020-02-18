@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Sync;
 
 #endregion

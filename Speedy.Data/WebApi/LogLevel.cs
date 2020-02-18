@@ -1,4 +1,4 @@
-﻿namespace Speedy.Website.Samples.Enumerations
+﻿namespace Speedy.Data.WebApi
 {
 	public enum LogLevel
 	{

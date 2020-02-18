@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Speedy.Extensions;
 
 #endregion
 
@@ -32,7 +33,10 @@ namespace Speedy.Sync
 			LastSyncedOnClient = DateTime.MinValue;
 			LastSyncedOnServer = DateTime.MinValue;
 			ItemsPerSyncRequest = 300;
-			Values = new Dictionary<string, string>();
+			Values = new Dictionary<string, string>
+			{
+				{ SyncManager.SyncVersionKey, "0.0.0.0" }
+			};
 
 			_filterLookup = new Dictionary<string, SyncRepositoryFilter>();
 		}

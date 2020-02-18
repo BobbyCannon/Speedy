@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Client.Data;
 using Speedy.Data.Client;
+using Speedy.Extensions;
 
 #endregion
 

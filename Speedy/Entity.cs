@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Speedy.Extensions;
+using Speedy.Serialization;
 using Speedy.Sync;
 
 #endregion

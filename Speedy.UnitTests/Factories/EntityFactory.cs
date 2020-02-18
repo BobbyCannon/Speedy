@@ -2,8 +2,8 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Speedy.Data.WebApi;
 using Speedy.Website.Samples.Entities;
-using Speedy.Website.Samples.Enumerations;
 
 #endregion
 
@@ -124,14 +124,14 @@ namespace Speedy.UnitTests.Factories
 			return result;
 		}
 
-		public static LogEventEntity GetLogEvent(Action<LogEventEntity> update = null)
+		public static LogEventEntity GetLogEvent(string message, LogLevel? level = null, Action<LogEventEntity> update = null)
 		{
 			var time = TimeService.UtcNow;
 			var result = new LogEventEntity
 			{
-				Id = Guid.NewGuid().ToString(),
-				Message = null,
-				Level = LogLevel.Information,
+				Message = message,
+				Level = level ?? LogLevel.Information,
+				SyncId = Guid.NewGuid(),
 				CreatedOn = time,
 				ModifiedOn = time
 			};

@@ -6,6 +6,7 @@
 		Account = 1,
 		Accounts = 2,
 		Address = 3,
-		Addresses = 4
+		Addresses = 4,
+		LogEvents = 5
 	}
 }

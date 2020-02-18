@@ -10,6 +10,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.Sync;
 using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
@@ -280,7 +281,6 @@ namespace Speedy.EntityFramework
 		/// <param name="modelBuilder"> The builder that defines the model for the context being created. </param>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-
 			var assembly = GetMappingAssembly();
 			var types = assembly.GetTypes();
 			var mappingTypes = types.Where(x => !x.IsAbstract && x.GetInterfaces().Any(y => y == typeof(IEntityMappingConfiguration)));

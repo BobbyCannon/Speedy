@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Speedy.Extensions;
 using Speedy.Sync;
 
 #endregion

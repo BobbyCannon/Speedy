@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Speedy.Data.Client;
+using Speedy.Extensions;
 
 #endregion
 
@@ -21,6 +22,7 @@ namespace Speedy.Client.Data
 		{
 			Accounts = GetSyncableRepository<ClientAccount, int>();
 			Addresses = GetSyncableRepository<ClientAddress, long>();
+			LogEvents = GetSyncableRepository<ClientLogEvent, long>();
 
 			SetRequiredOptions(Options);
 
@@ -36,6 +38,8 @@ namespace Speedy.Client.Data
 
 		public IRepository<ClientAddress, long> Addresses { get; }
 
+		public IRepository<ClientLogEvent, long> LogEvents { get; }
+
 		#endregion
 
 		#region Methods
@@ -49,7 +53,7 @@ namespace Speedy.Client.Data
 
 		public static void SetRequiredOptions(DatabaseOptions options)
 		{
-			options.SyncOrder = new[] { typeof(ClientAddress).ToAssemblyName(), typeof(ClientAccount).ToAssemblyName() };
+			options.SyncOrder = new[] { typeof(ClientAddress).ToAssemblyName(), typeof(ClientAccount).ToAssemblyName(), typeof(ClientLogEvent).ToAssemblyName() };
 		}
 
 		#endregion

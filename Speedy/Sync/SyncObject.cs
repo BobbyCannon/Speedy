@@ -1,9 +1,9 @@
 ﻿#region References
 
 using System;
-using System.Collections.Concurrent;
 using System.IO;
-using Newtonsoft.Json;
+using Speedy.Extensions;
+using Speedy.Serialization;
 
 #endregion
 
@@ -16,7 +16,7 @@ namespace Speedy.Sync
 	{
 		#region Fields
 
-		private static readonly ConcurrentDictionary<string, JsonSerializerSettings> _cachedSettings;
+		private static readonly SerializerSettings _cachedSettings;
 
 		#endregion
 
@@ -24,7 +24,7 @@ namespace Speedy.Sync
 
 		static SyncObject()
 		{
-			_cachedSettings = new ConcurrentDictionary<string, JsonSerializerSettings>();
+			_cachedSettings = new SerializerSettings(false, false, false, true, true, false);
 		}
 
 		#endregion
@@ -82,29 +82,21 @@ namespace Speedy.Sync
 				throw new InvalidDataException("The sync object has an invalid type name.");
 			}
 
-			var settings = GetCachedSettings(TypeName);
+			return Data.FromJson(type, _cachedSettings) as ISyncEntity;
+		}
 
-			if (settings == null)
+		internal static SyncObject ToSyncObject<T>(SyncEntity<T> syncEntity)
+		{
+			var json = syncEntity.ToJson(_cachedSettings);
+
+			return new SyncObject
 			{
-				if (!typeof(ISyncEntity).IsAssignableFrom(type))
-				{
-					throw new InvalidDataException("The sync object is not a sync entity.");
-				}
-
-				settings = GetOrAddCachedSettings(type);
-			}
-
-			return Data.FromJson(type, settings) as ISyncEntity;
-		}
-
-		internal static JsonSerializerSettings GetOrAddCachedSettings(Type value)
-		{
-			return _cachedSettings.GetOrAdd(value.ToAssemblyName(), x => value.ToJsonSettings(ignoreReadOnly: true, ignoreVirtuals: true));
-		}
-
-		private static JsonSerializerSettings GetCachedSettings(string name)
-		{
-			return _cachedSettings.TryGetValue(name, out var value) ? value : null;
+				Data = json,
+				ModifiedOn = syncEntity.ModifiedOn,
+				SyncId = syncEntity.SyncId,
+				TypeName = syncEntity.RealType.ToAssemblyName(),
+				Status = syncEntity.CreatedOn == syncEntity.ModifiedOn ? SyncObjectStatus.Added : SyncObjectStatus.Modified
+			};
 		}
 
 		#endregion

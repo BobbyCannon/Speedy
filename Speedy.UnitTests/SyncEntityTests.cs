@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.Client;
+using Speedy.Extensions;
 using Speedy.Sync;
 using Speedy.Website.Samples.Entities;
 

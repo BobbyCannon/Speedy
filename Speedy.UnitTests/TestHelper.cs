@@ -83,6 +83,14 @@ namespace Speedy.UnitTests
 			Console.WriteLine(item);
 		}
 
+		public static void Dump(this IEnumerable<object> items)
+		{
+			foreach (var item in items)
+			{
+				Console.WriteLine(item);
+			}
+		}
+
 		public static void Dump(this byte[] item)
 		{
 			foreach (var i in item)

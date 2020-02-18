@@ -9,6 +9,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.EntityFramework.Sql;
+using Speedy.Extensions;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Samples.Entities;

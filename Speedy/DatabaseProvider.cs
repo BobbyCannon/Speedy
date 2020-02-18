@@ -1,6 +1,8 @@
 ﻿#region References
 
 using System;
+using Speedy.Extensions;
+using Speedy.Serialization;
 
 #endregion
 

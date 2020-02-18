@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Speedy.Configuration;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
 

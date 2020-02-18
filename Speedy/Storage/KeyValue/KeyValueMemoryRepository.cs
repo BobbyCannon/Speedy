@@ -4,8 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 using Speedy.Exceptions;
+using Speedy.Extensions;
+using Speedy.Serialization;
 
 #endregion
 
@@ -55,7 +56,7 @@ namespace Speedy.Storage.KeyValue
 		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _cache;
 		private readonly Dictionary<string, Tuple<string, DateTime, ulong>> _changes;
 		private readonly KeyValueRepositoryOptions _options;
-		private readonly JsonSerializerSettings _settings;
+		private readonly SerializerSettings _settings;
 		private ulong _writeIndex;
 
 		#endregion
@@ -86,7 +87,7 @@ namespace Speedy.Storage.KeyValue
 			_options = options;
 			_cache = new Dictionary<string, Tuple<string, DateTime, ulong>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
 			_changes = new Dictionary<string, Tuple<string, DateTime, ulong>>();
-			_settings = Extensions.GetSerializerSettings(false, false, true, false);
+			_settings = new SerializerSettings(false, false, false, true, false, false);
 			_writeIndex = 0;
 
 			Name = name;
@@ -426,7 +427,7 @@ namespace Speedy.Storage.KeyValue
 		/// Will be called on archive request.
 		/// </summary>
 		public event EventHandler Archived;
-		
+
 		/// <summary>
 		/// Will be called on deletion request.
 		/// </summary>
