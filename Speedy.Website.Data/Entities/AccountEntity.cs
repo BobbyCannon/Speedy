@@ -44,6 +44,8 @@ namespace Speedy.Website.Samples.Entities
 
 		public string Name { get; set; }
 
+		public string Nickname { get; set; }
+
 		public string PasswordHash { get; set; }
 
 		public virtual ICollection<PetEntity> Pets { get; set; }

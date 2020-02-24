@@ -60,6 +60,12 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
+                    b.Property<string>("Nickname")
+                        .HasColumnName("Nickname")
+                        .HasColumnType("varchar(256)")
+                        .HasMaxLength(256)
+                        .IsUnicode(false);
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("varchar(max)")
                         .IsUnicode(false);
@@ -80,6 +86,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasName("IX_Accounts_Name");
+
+                    b.HasIndex("Nickname")
+                        .IsUnique()
+                        .HasName("IX_Accounts_Nickname")
+                        .HasFilter("Nickname IS NOT NULL");
 
                     b.HasIndex("SyncId")
                         .IsUnique()

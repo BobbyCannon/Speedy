@@ -25,6 +25,7 @@ namespace Speedy.UnitTests.Factories
 				AddressSyncId = personAddress.SyncId,
 				Id = default,
 				Name = name ?? Guid.NewGuid().ToString(),
+				Nickname = null,
 				SyncId = Guid.NewGuid(),
 				CreatedOn = time,
 				ModifiedOn = time

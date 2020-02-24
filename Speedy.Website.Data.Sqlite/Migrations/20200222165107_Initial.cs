@@ -143,6 +143,7 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     EmailAddress = table.Column<string>(unicode: false, nullable: true),
                     LastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+                    Nickname = table.Column<string>(unicode: false, maxLength: 256, nullable: true),
                     PasswordHash = table.Column<string>(unicode: false, nullable: true),
                     Roles = table.Column<string>(unicode: false, nullable: true)
                 },
@@ -265,6 +266,14 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                 table: "Accounts",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Accounts_Nickname",
+                schema: "dbo",
+                table: "Accounts",
+                column: "Nickname",
+                unique: true,
+                filter: "Nickname IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_SyncId",

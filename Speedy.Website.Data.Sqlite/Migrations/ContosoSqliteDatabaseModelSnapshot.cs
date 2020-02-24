@@ -56,6 +56,12 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
+                    b.Property<string>("Nickname")
+                        .HasColumnName("Nickname")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256)
+                        .IsUnicode(false);
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT")
                         .IsUnicode(false);
@@ -76,6 +82,11 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasName("IX_Accounts_Name");
+
+                    b.HasIndex("Nickname")
+                        .IsUnique()
+                        .HasName("IX_Accounts_Nickname")
+                        .HasFilter("Nickname IS NOT NULL");
 
                     b.HasIndex("SyncId")
                         .IsUnique()

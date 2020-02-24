@@ -37,6 +37,15 @@ namespace Speedy.Configuration
 
 		#endregion
 
+		#region Properties
+
+		/// <summary>
+		/// The index allows null. This would allow unique indexes to ignore null values.
+		/// </summary>
+		public bool AllowNull { get; set; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
@@ -82,17 +91,27 @@ namespace Speedy.Configuration
 
 			// Convert repository into local type so we can check new items
 			var repository = (Repository<T, T2>) entityRepository;
-			bool predicate(T x) => !ReferenceEquals(x, entity) && _properties.All(p => p.Matches(x, entity));
-			var propertyName = string.Join("", _properties.Select(x => x.MemberName));
 
-			if (propertyName == "SyncId" && Equals(_properties[0].GetValue(typedEntity), Guid.Empty))
+			bool predicate(T x)
+			{
+				return !ReferenceEquals(x, entity) && _properties.All(p => p.Matches(x, entity));
+			}
+
+			var propertyName = string.Join("", _properties.Select(x => x.MemberName));
+			var propertyValue = _properties[0].GetValue(typedEntity);
+
+			if (propertyName == "SyncId" && Equals(propertyValue, Guid.Empty))
+			{
+				return;
+			}
+
+			if (AllowNull && propertyValue == null)
 			{
 				return;
 			}
 
 			if (_isUnique && (repository.Any(predicate) || repository.AnyNew(entity, predicate)))
 			{
-			
 				throw new ValidationException($"{_name}: Cannot insert duplicate row. The duplicate key value is ({string.Join(",", _properties.Select(x => x.GetValue(typedEntity)))}).");
 			}
 		}

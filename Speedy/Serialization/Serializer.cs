@@ -16,7 +16,6 @@ namespace Speedy.Serialization
 		#region Fields
 
 		private static readonly SerializerSettings _settingsForDeepClone1, _settingsForDeepClone2;
-
 		private static readonly SerializerSettings _settingsForDeserialization;
 
 		#endregion

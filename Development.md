@@ -6,3 +6,6 @@ Run these two migration to create the "initial" migration
 
 Add-Migration Initial -Project Speedy.Website.Data.Sql -StartupProject Speedy.Website
 Add-Migration Initial -Project Speedy.Website.Data.Sqlite -StartupProject Speedy.Benchmark
+
+Remove-Migration -Project Speedy.Website.Data.Sql -StartupProject Speedy.Website
+Remove-Migration -Project Speedy.Website.Data.Sqlite -StartupProject Speedy.Benchmark

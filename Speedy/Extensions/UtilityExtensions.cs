@@ -16,6 +16,21 @@ namespace Speedy.Extensions
 		#region Methods
 
 		/// <summary>
+		/// Runs action if the test is true.
+		/// </summary>
+		/// <param name="item"> The item to process. (does nothing) </param>
+		/// <param name="test"> The test to validate. </param>
+		/// <param name="action"> The action to run if test is true. </param>
+		/// <typeparam name="T"> The type the function returns </typeparam>
+		public static void IfThen<T>(this T item, Func<T, bool> test, Action<T> action)
+		{
+			if (test(item))
+			{
+				action(item);
+			}
+		}
+
+		/// <summary>
 		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the
 		/// provided delay time.
 		/// </summary>
@@ -74,24 +89,6 @@ namespace Speedy.Extensions
 
 				Retry(action, remaining, delay);
 			}
-		}
-
-		/// <summary>
-		/// Runs action if the test is true.
-		/// </summary>
-		/// <param name="item"> The item to process. (does nothing) </param>
-		/// <param name="test"> The test to validate. </param>
-		/// <param name="action"> The action to run if test is true. </param>
-		/// <typeparam name="T"> The type the function returns </typeparam>
-		/// <returns> The result of the action or default(T). </returns>
-		public static T UpdateIf<T>(this T item, Func<T, bool> test, Action<T> action)
-		{
-			if (test(item))
-			{
-				action(item);
-			}
-
-			return item;
 		}
 
 		/// <summary>

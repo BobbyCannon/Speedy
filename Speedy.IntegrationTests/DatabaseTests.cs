@@ -1318,6 +1318,43 @@ namespace Speedy.IntegrationTests
 						"IX_Accounts_Name: Cannot insert duplicate row. The duplicate key value is (Foo).");
 				});
 		}
+		
+		[TestMethod]
+		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUnique()
+		{
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					// Both being null should be fine
+					var expected1 = new AccountEntity { Name = "Foo1", Nickname = null, Address = NewAddress("Main") };
+					database.Accounts.Add(expected1);
+					database.SaveChanges();
+
+					var expected2 = new AccountEntity { Name = "Foo2", Nickname = null, Address = NewAddress("Main") };
+					database.Accounts.Add(expected2);
+					database.SaveChanges();
+
+					// Both being unique should be fine
+					expected1.Nickname = "Bar1";
+					database.SaveChanges();
+					expected2.Nickname = "Bar2";
+					database.SaveChanges();
+					
+					// Now if both are the same it should exception
+					expected1.Nickname = "Bar";
+					database.SaveChanges();
+					expected2.Nickname = "Bar";
+
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.Nickname'.",
+						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
+						"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
+				});
+		}
 
 		[TestMethod]
 		public void UnmodifiableEntityShouldNotAllowSave()

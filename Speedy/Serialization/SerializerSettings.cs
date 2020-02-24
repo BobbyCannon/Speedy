@@ -117,7 +117,7 @@ namespace Speedy.Serialization
 		/// <summary>
 		/// The JSON setting for Newtonsoft.
 		/// </summary>
-		internal JsonSerializerSettings JsonSettings { get; private set; }
+		public JsonSerializerSettings JsonSettings { get; private set; }
 
 		#endregion
 
@@ -187,12 +187,12 @@ namespace Speedy.Serialization
 				return;
 			}
 
-			this.UpdateIf(x => !exclusions.Contains(nameof(CamelCase)), x => x.CamelCase = value.CamelCase);
-			this.UpdateIf(x => !exclusions.Contains(nameof(ConvertEnumsToString)), x => x.ConvertEnumsToString = value.ConvertEnumsToString);
-			this.UpdateIf(x => !exclusions.Contains(nameof(IgnoreNullValues)), x => x.IgnoreNullValues = value.IgnoreNullValues);
-			this.UpdateIf(x => !exclusions.Contains(nameof(IgnoreReadOnly)), x => x.IgnoreReadOnly = value.IgnoreReadOnly);
-			this.UpdateIf(x => !exclusions.Contains(nameof(IgnoreVirtuals)), x => x.IgnoreVirtuals = value.IgnoreVirtuals);
-			this.UpdateIf(x => !exclusions.Contains(nameof(Indented)), x => x.Indented = value.Indented);
+			this.IfThen(x => !exclusions.Contains(nameof(CamelCase)), x => x.CamelCase = value.CamelCase);
+			this.IfThen(x => !exclusions.Contains(nameof(ConvertEnumsToString)), x => x.ConvertEnumsToString = value.ConvertEnumsToString);
+			this.IfThen(x => !exclusions.Contains(nameof(IgnoreNullValues)), x => x.IgnoreNullValues = value.IgnoreNullValues);
+			this.IfThen(x => !exclusions.Contains(nameof(IgnoreReadOnly)), x => x.IgnoreReadOnly = value.IgnoreReadOnly);
+			this.IfThen(x => !exclusions.Contains(nameof(IgnoreVirtuals)), x => x.IgnoreVirtuals = value.IgnoreVirtuals);
+			this.IfThen(x => !exclusions.Contains(nameof(Indented)), x => x.Indented = value.Indented);
 
 			JsonSettings = new JsonSerializerSettings();
 			UpdateJsonSerializerSettings(JsonSettings);

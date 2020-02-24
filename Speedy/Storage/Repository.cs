@@ -417,7 +417,7 @@ namespace Speedy.Storage
 					}
 				}
 
-				Cache.Remove(item);
+				RemoveFromCache(item);
 
 				item.Entity.EntityDeleted();
 			}
@@ -453,7 +453,8 @@ namespace Speedy.Storage
 						if (!entity.CanBeModified())
 						{
 							UpdateEntity(entry.Entity, entry.OldEntity);
-							entry.State = EntityStateType.Unmodified;
+							entry.ResetChangeTracking();
+							
 							changeCount--;
 							continue;
 						}
@@ -737,17 +738,23 @@ namespace Speedy.Storage
 			}
 		}
 
+		private void RemoveFromCache(EntityState<T, T2> entityState)
+		{
+			entityState.ResetEvents();
+			Cache.Remove(entityState);
+		}
+
 		private void ResetCache()
 		{
 			Cache.Where(x => x.State == EntityStateType.Added)
 				.ToList()
-				.ForEach(x => Cache.Remove(x));
+				.ForEach(RemoveFromCache);
 
 			Cache.ToList()
 				.ForEach(x =>
 				{
 					UpdateEntity(x.Entity, x.OldEntity);
-					x.State = EntityStateType.Unmodified;
+					x.ResetChangeTracking();
 				});
 		}
 

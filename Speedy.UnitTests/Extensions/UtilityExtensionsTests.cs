@@ -106,7 +106,7 @@ namespace Speedy.UnitTests.Extensions
 			var account = new AccountEntity();
 			Assert.AreEqual(null, account.Name);
 
-			account.UpdateIf(x => x.Name == null, x => x.Name = "John");
+			account.IfThen(x => x.Name == null, x => x.Name = "John");
 			Assert.AreEqual("John", account.Name);
 		}
 
