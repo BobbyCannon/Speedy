@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Diagnostics;
 
 #endregion
 
