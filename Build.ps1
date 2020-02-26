@@ -5,7 +5,7 @@
 	[Parameter()]
 	[string] $BuildNumber,
 	[Parameter()]
-	[string] $VersionSuffix
+	[string] $VersionSuffix = "RC"
 )
 
 $ErrorActionPreference = "Stop"

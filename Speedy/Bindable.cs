@@ -17,6 +17,18 @@ namespace Speedy
 	/// </summary>
 	public abstract class Bindable<T> : Bindable, IUpdatable<T>
 	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates a bindable object.
+		/// </summary>
+		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		protected Bindable(IDispatcher dispatcher = null) : base(dispatcher)
+		{
+		}
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>
