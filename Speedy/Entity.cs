@@ -4,9 +4,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Speedy.Extensions;
 using Speedy.Serialization;
+using Speedy.Storage;
 using Speedy.Sync;
 
 #endregion
@@ -17,7 +19,7 @@ namespace Speedy
 	/// Represents a Speedy entity.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class Entity<T> : Entity
+	public abstract class Entity<T> : Entity, IUpdatable<T>
 	{
 		#region Properties
 
@@ -105,13 +107,86 @@ namespace Speedy
 			return this.Unwrap<Entity<T>, T1>(update);
 		}
 
+		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <param name="update"> The source of the updates. </param>
+		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+		public virtual void UpdateWith(T update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		{
+			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+			UpdateWith(update, exclusions.ToArray());
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		{
+			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+			UpdateWith(update, exclusions.ToArray());
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, bool excludeVirtuals = true, params string[] exclusions)
+		{
+			var totalExclusions = new HashSet<string>(exclusions);
+			if (excludeVirtuals)
+			{
+				totalExclusions.AddRange(update.GetType().GetVirtualPropertyNames());
+			}
+
+			UpdateWith(update, totalExclusions.ToArray());
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			UpdatableExtensions.UpdateWith(this, update, exclusions);
+		}
+
+		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <param name="update"> The source of the updates. </param>
+		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
+		/// <param name="exclusions"> An optional list of members to exclude. </param>
+		public virtual void UpdateWith(T update, bool excludeVirtuals, params string[] exclusions)
+		{
+			var totalExclusions = new HashSet<string>(exclusions);
+			if (excludeVirtuals)
+			{
+				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
+			}
+
+			UpdateWith(update, totalExclusions.ToArray());
+		}
+
+		/// <inheritdoc />
+		public virtual void UpdateWith(T update, params string[] exclusions)
+		{
+			UpdatableExtensions.UpdateWith(this, update, exclusions);
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWithOnly(object update, params string[] inclusions)
+		{
+			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
+		}
+
+		/// <inheritdoc />
+		public virtual void UpdateWithOnly(T update, params string[] inclusions)
+		{
+			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
+		}
+
 		#endregion
 	}
 
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	public abstract class Entity : IEntity
+	public abstract class Entity : IEntity, IUpdatable
 	{
 		#region Fields
 
@@ -170,16 +245,6 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
-		/// Cached version of the "real" type, meaning not EF proxy but rather root type
-		/// </summary>
-		internal Type RealType => _realType ??= this.GetRealType();
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForSyncUpdate { get; }
-
-		/// <summary>
 		/// All hash sets for types, this is for optimization
 		/// </summary>
 		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForIncomingSync { get; }
@@ -188,6 +253,16 @@ namespace Speedy
 		/// All hash sets for types, this is for optimization
 		/// </summary>
 		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForOutgoingSync { get; }
+
+		/// <summary>
+		/// All hash sets for types, this is for optimization
+		/// </summary>
+		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForSyncUpdate { get; }
+
+		/// <summary>
+		/// Cached version of the "real" type, meaning not EF proxy but rather root type
+		/// </summary>
+		internal Type RealType => _realType ??= this.GetRealType();
 
 		#endregion
 
@@ -268,6 +343,29 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <param name="update"> The source of the updates. </param>
+		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+		public abstract void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate);
+
+		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <param name="update"> The source of the updates. </param>
+		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
+		/// <param name="exclusions"> An optional list of members to exclude. </param>
+		public abstract void UpdateWith(object update, bool excludeVirtuals = true, params string[] exclusions);
+
+		/// <inheritdoc />
+		public abstract void UpdateWith(object update, params string[] exclusions);
+
+		/// <inheritdoc />
+		public abstract void UpdateWithOnly(object update, params string[] inclusions);
+
+		/// <summary>
 		/// Gets the default exclusions for change tracking. Warning: this is called during constructor, overrides need to be
 		/// sure to only return static values as to not cause issues.
 		/// </summary>
@@ -275,6 +373,42 @@ namespace Speedy
 		protected virtual HashSet<string> GetDefaultExclusionsForChangeTracking()
 		{
 			return new HashSet<string>();
+		}
+
+		/// <summary>
+		/// Get exclusions for the provided type.
+		/// </summary>
+		/// <param name="type"> The type to get exclusions for. </param>
+		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+		/// <returns> The list of members to be excluded. </returns>
+		protected static HashSet<string> GetExclusions(Type type, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		{
+			var key = new ExclusionKey(type, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+
+			return ExcludedProperties.GetOrAdd(key, x =>
+			{
+				var exclusions = new HashSet<string>();
+				exclusions.AddRange(type.GetVirtualPropertyNames());
+
+				if (excludePropertiesForIncomingSync)
+				{
+					exclusions.AddRange(ExclusionCacheForIncomingSync[type]);
+				}
+
+				if (excludePropertiesForOutgoingSync)
+				{
+					exclusions.AddRange(ExclusionCacheForOutgoingSync[type]);
+				}
+
+				if (excludePropertiesForSyncUpdate)
+				{
+					exclusions.AddRange(ExclusionCacheForSyncUpdate[type]);
+				}
+
+				return exclusions;
+			});
 		}
 
 		#endregion

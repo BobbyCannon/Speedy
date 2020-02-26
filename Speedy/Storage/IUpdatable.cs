@@ -8,12 +8,18 @@
 		#region Methods
 
 		/// <summary>
-		/// Update the entity with the provided value.
+		/// Allows updating of one type to another based on member Name and Type.
 		/// </summary>
-		/// <param name="value"> The value to update this object with. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		void UpdateWith(T value, bool excludeVirtuals = true, params string[] exclusions);
+		/// <param name="update"> The source of the update. </param>
+		/// <param name="exclusions"> The properties will not be set during update. </param>
+		void UpdateWith(T update, params string[] exclusions);
+
+		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <param name="update"> The source of the update. </param>
+		/// <param name="inclusions"> The properties will be set during update. </param>
+		void UpdateWithOnly(T update, params string[] inclusions);
 
 		#endregion
 	}
@@ -26,12 +32,18 @@
 		#region Methods
 
 		/// <summary>
-		/// Update the entity with the provided value.
+		/// Allows updating of one type to another based on member Name and Type.
 		/// </summary>
-		/// <param name="value"> The value to update this object with. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions);
+		/// <param name="update"> The source of the update. </param>
+		/// <param name="exclusions"> The properties will not be set during update. </param>
+		void UpdateWith(object update, params string[] exclusions);
+
+		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <param name="update"> The source of the update. </param>
+		/// <param name="inclusions"> The properties will be set during update. </param>
+		void UpdateWithOnly(object update, params string[] inclusions);
 
 		#endregion
 	}

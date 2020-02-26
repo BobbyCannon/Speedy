@@ -217,6 +217,7 @@
     <Compile Include="BaseTests.cs" />
     <Compile Include="Extensions\CollectionExtensionsTests.cs" />
     <Compile Include="Extensions\ReflectionExtensionsTests.cs" />
+    <Compile Include="Extensions\UpdatableExtensionsTests.cs" />
     <Compile Include="Extensions\UtilityExtensionsTests.cs" />
     <Compile Include="Factories\EntityFactory.cs" />
     <Compile Include="ExclusionKeyTests.cs" />

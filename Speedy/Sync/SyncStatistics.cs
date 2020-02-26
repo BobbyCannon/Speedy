@@ -1,28 +1,22 @@
-﻿#region References
-
-using Speedy.Storage;
-
-#endregion
-
-namespace Speedy.Sync
+﻿namespace Speedy.Sync
 {
 	/// <summary>
 	/// Represents the communication statistics for a sync client.
 	/// </summary>
-	public class SyncStatistics : IUpdatable<SyncStatistics>
+	public class SyncStatistics : Bindable<SyncStatistics>
 	{
 		#region Properties
 
 		/// <summary>
-		/// Represents changes written (incoming) to this client. 
+		/// Represents changes written (incoming) to this client.
 		/// </summary>
 		public int AppliedChanges { get; set; }
-		
+
 		/// <summary>
-		/// Represents corrections written (incoming) to this client. 
+		/// Represents corrections written (incoming) to this client.
 		/// </summary>
 		public int AppliedCorrections { get; set; }
-		
+
 		/// <summary>
 		/// Represents changes sent (outgoing) from this client.
 		/// </summary>
@@ -53,24 +47,18 @@ namespace Speedy.Sync
 			Corrections = 0;
 		}
 
-		/// <inheritdocs />
-		public void UpdateWith(SyncStatistics value, bool excludeVirtuals = true, params string[] exclusions)
+		/// <inheritdoc />
+		public override void UpdateWith(SyncStatistics update, params string[] exclusions)
 		{
-			if (value == null)
+			if (update == null)
 			{
 				return;
 			}
 
-			AppliedChanges = value.AppliedChanges;
-			AppliedCorrections = value.AppliedCorrections;
-			Changes = value.Changes;
-			Corrections = value.Corrections;
-		}
-
-		/// <inheritdocs />
-		public void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions)
-		{
-			UpdateWith(value as SyncStatistics, excludeVirtuals, exclusions);
+			AppliedChanges = update.AppliedChanges;
+			AppliedCorrections = update.AppliedCorrections;
+			Changes = update.Changes;
+			Corrections = update.Corrections;
 		}
 
 		#endregion

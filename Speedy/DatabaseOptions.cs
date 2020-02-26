@@ -1,7 +1,6 @@
 #region References
 
 using System;
-using Speedy.Storage;
 
 #endregion
 
@@ -10,7 +9,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents options for a Speedy database.
 	/// </summary>
-	public class DatabaseOptions : IUpdatable<DatabaseOptions>
+	public class DatabaseOptions : Bindable<DatabaseOptions>
 	{
 		#region Constructors
 
@@ -85,7 +84,7 @@ namespace Speedy
 		#region Methods
 
 		/// <inheritdoc />
-		public void UpdateWith(DatabaseOptions value, bool excludeVirtuals = true, params string[] exclusions)
+		public override void UpdateWith(DatabaseOptions value, params string[] exclusions)
 		{
 			if (value == null)
 			{
@@ -104,9 +103,9 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions)
+		public override void UpdateWith(object value, params string[] exclusions)
 		{
-			UpdateWith(value as DatabaseOptions, excludeVirtuals, exclusions);
+			UpdateWith(value as DatabaseOptions, exclusions);
 		}
 
 		#endregion

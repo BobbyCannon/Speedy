@@ -113,13 +113,32 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public void UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 		{
-			UpdateWith(update, GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate));
+			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+			UpdateWith(update, exclusions.ToArray());
 		}
 
 		/// <inheritdoc />
-		public virtual void UpdateWith(ISyncEntity update, params string[] exclusions)
+		public void UpdateWith(ISyncEntity update, bool excludeVirtuals, params string[] exclusions)
 		{
-			UpdateWith(update, exclusions.ToList());
+			var totalExclusions = new HashSet<string>(exclusions);
+			if (excludeVirtuals)
+			{
+				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
+			}
+
+			UpdateWith(update, totalExclusions.ToArray());
+		}
+
+		/// <inheritdoc />
+		public void UpdateWith(ISyncEntity update, params string[] exclusions)
+		{
+			UpdatableExtensions.UpdateWith(this, update, exclusions);
+		}
+
+		/// <inheritdoc />
+		public void UpdateWithOnly(ISyncEntity update, params string[] inclusions)
+		{
+			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
 		}
 
 		/// <summary>
@@ -150,75 +169,6 @@ namespace Speedy.Sync
 		protected virtual HashSet<string> GetDefaultExclusionsForSyncUpdate()
 		{
 			return new HashSet<string> { nameof(Id) };
-		}
-
-		private static HashSet<string> GetExclusions(Type realType, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
-		{
-			var key = new ExclusionKey(realType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
-
-			return ExcludedProperties.GetOrAdd(key, x =>
-			{
-				var exclusions = new HashSet<string>();
-				exclusions.AddRange(realType.GetVirtualPropertyNames());
-
-				if (excludePropertiesForIncomingSync)
-				{
-					exclusions.AddRange(ExclusionCacheForIncomingSync[realType]);
-				}
-
-				if (excludePropertiesForOutgoingSync)
-				{
-					exclusions.AddRange(ExclusionCacheForOutgoingSync[realType]);
-				}
-
-				if (excludePropertiesForSyncUpdate)
-				{
-					exclusions.AddRange(ExclusionCacheForSyncUpdate[realType]);
-				}
-
-				return exclusions;
-			});
-		}
-
-		private void UpdateWith(ISyncEntity update, ICollection<string> exclusions)
-		{
-			var destinationType = RealType;
-			var sourceType = update.GetRealType();
-			var destinationProperties = destinationType.GetCachedProperties();
-			var sourceProperties = sourceType.GetCachedProperties();
-
-			foreach (var thisProperty in destinationProperties)
-			{
-				// Ensure the destination can write this property
-				var canWrite = thisProperty.CanWrite && thisProperty.SetMethod.IsPublic;
-				if (!canWrite)
-				{
-					continue;
-				}
-
-				// See if the property is excluded
-				var isPropertyExcluded = exclusions.Contains(thisProperty.Name);
-				if (isPropertyExcluded)
-				{
-					continue;
-				}
-
-				// Check to see if the update source entity has the property
-				var updateProperty = sourceProperties.FirstOrDefault(x => x.Name == thisProperty.Name && x.PropertyType == thisProperty.PropertyType);
-				if (updateProperty == null)
-				{
-					// Skip this because target type does not have correct property.
-					continue;
-				}
-
-				var updateValue = updateProperty.GetValue(update);
-				var thisValue = thisProperty.GetValue(this);
-
-				if (!Equals(updateValue, thisValue))
-				{
-					thisProperty.SetValue(this, updateValue);
-				}
-			}
 		}
 
 		#endregion

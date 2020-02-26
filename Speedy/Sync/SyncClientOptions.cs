@@ -1,7 +1,5 @@
 ﻿#region References
 
-using Speedy.Storage;
-
 #endregion
 
 namespace Speedy.Sync
@@ -9,7 +7,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents the options for a sync client
 	/// </summary>
-	public class SyncClientOptions : IUpdatable<SyncClientOptions>
+	public class SyncClientOptions : Bindable<SyncClientOptions>
 	{
 		#region Properties
 
@@ -24,7 +22,7 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <inheritdoc />
-		public void UpdateWith(SyncClientOptions value, bool excludeVirtuals = true, params string[] exclusions)
+		public override void UpdateWith(SyncClientOptions value, params string[] exclusions)
 		{
 			if (value is null)
 			{
@@ -35,9 +33,9 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions)
+		public override void UpdateWith(object value, params string[] exclusions)
 		{
-			UpdateWith(value as SyncClientOptions, excludeVirtuals, exclusions);
+			UpdateWith(value as SyncClientOptions, exclusions);
 		}
 
 		#endregion

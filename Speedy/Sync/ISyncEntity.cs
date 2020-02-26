@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
+using Speedy.Storage;
 
 #endregion
 
@@ -10,7 +10,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represent an entity that can be synced.
 	/// </summary>
-	public interface ISyncEntity : IModifiableEntity
+	public interface ISyncEntity : IModifiableEntity, IUpdatable<ISyncEntity>
 	{
 		#region Properties
 
@@ -37,7 +37,7 @@ namespace Speedy.Sync
 		/// <param name="propertyName"> The property name to be tested. </param>
 		/// <returns> True if the property can be update during sync or false if otherwise. </returns>
 		bool IsPropertyExcludedForIncomingSync(string propertyName);
-		
+
 		/// <summary>
 		/// Checks a property to see if it can be synced in outgoing data.
 		/// </summary>
@@ -64,7 +64,7 @@ namespace Speedy.Sync
 		void UpdateLocalSyncIds();
 
 		/// <summary>
-		/// Updates the entity with the provided entity.
+		/// Updates the entity with the provided entity. Virtual properties will be ignored.
 		/// </summary>
 		/// <param name="update"> The source of the update. </param>
 		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
@@ -76,8 +76,9 @@ namespace Speedy.Sync
 		/// Updates the entity with the provided entity.
 		/// </summary>
 		/// <param name="update"> The source of the update. </param>
-		/// <param name="exclusions"> Excluded properties will not be set during update. </param>
-		void UpdateWith(ISyncEntity update, params string[] exclusions);
+		/// <param name="excludeVirtuals"> Exclude virtuals members. </param>
+		/// <param name="exclusions"> The properties will not be set during update. </param>
+		void UpdateWith(ISyncEntity update, bool excludeVirtuals, params string[] exclusions);
 
 		#endregion
 	}

@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
@@ -16,7 +15,7 @@ namespace Speedy.Serialization
 	/// <summary>
 	/// Represents serialization settings
 	/// </summary>
-	public class SerializerSettings : Bindable, IUpdatable<SerializerSettings>
+	public class SerializerSettings : Bindable<SerializerSettings>
 	{
 		#region Fields
 
@@ -180,7 +179,7 @@ namespace Speedy.Serialization
 		}
 
 		/// <inheritdoc />
-		public void UpdateWith(SerializerSettings value, bool excludeVirtuals = true, params string[] exclusions)
+		public override void UpdateWith(SerializerSettings value, params string[] exclusions)
 		{
 			if (value == null)
 			{
@@ -201,9 +200,9 @@ namespace Speedy.Serialization
 		}
 
 		/// <inheritdoc />
-		public void UpdateWith(object value, bool excludeVirtuals = true, params string[] exclusions)
+		public override void UpdateWith(object value, params string[] exclusions)
 		{
-			UpdateWith(value as SerializerSettings, excludeVirtuals, exclusions);
+			UpdateWith(value as SerializerSettings, exclusions);
 		}
 
 		private bool IgnoreMember(string member)
@@ -258,7 +257,7 @@ namespace Speedy.Serialization
 			settings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			settings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 			settings.NullValueHandling = IgnoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
-			settings.ContractResolver = new JsonContractResolver(CamelCase, InitializeType, IgnoreMember);;
+			settings.ContractResolver = new JsonContractResolver(CamelCase, InitializeType, IgnoreMember);
 		}
 
 		#endregion

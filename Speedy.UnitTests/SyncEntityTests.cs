@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Data.Client;
 using Speedy.Extensions;
 using Speedy.Sync;
 using Speedy.Website.Samples.Entities;
@@ -23,32 +22,8 @@ namespace Speedy.UnitTests
 		{
 			var date = DateTime.Parse("7/1/2019 05:18:30 PM");
 			var date2 = DateTime.Parse("7/1/2019 05:18:31 PM");
-
-			var entity = new AddressEntity
-			{
-				City = "City",
-				CreatedOn = date,
-				Id = 99,
-				Line1 = "Line1",
-				Line2 = "Line2",
-				ModifiedOn = date,
-				Postal = "Postal",
-				State = "State",
-				SyncId = Guid.Parse("3584456b-cf36-4049-9491-7d83d0fd8255")
-			};
-
-			var model = new ClientAddress
-			{
-				City = "City2",
-				CreatedOn = date2,
-				Id = 100,
-				Line1 = "Line 1",
-				Line2 = "Line 2",
-				ModifiedOn = date2,
-				Postal = "Postal 2",
-				State = "State 2",
-				SyncId = Guid.Parse("511EB735-7CE7-4362-B36F-066CD697303A")
-			};
+			var entity = GetTestEntity(date);
+			var model = GetTestModel(date2);
 
 			entity.UpdateWith(model, false, false, true);
 
@@ -81,6 +56,118 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void UpdateWith()
+		{
+			var date = DateTime.Parse("7/1/2019 05:18:30 PM");
+			var date2 = DateTime.Parse("7/1/2019 05:18:31 PM");
+			var entity = GetTestEntity(date);
+			var model = GetTestModel(date2);
+
+			entity.UpdateWith(model);
+
+			var expected = new AddressEntity
+			{
+				City = "City2",
+				CreatedOn = date2,
+				Id = 100,
+				Line1 = "Line 1",
+				Line2 = "Line 2",
+				ModifiedOn = date2,
+				Postal = "Postal 2",
+				State = "State 2",
+				SyncId = Guid.Parse("511EB735-7CE7-4362-B36F-066CD697303A")
+			};
+
+			// We expecting all members to change except virtual members
+			TestHelper.AreEqual(expected, entity);
+		}
+
+		[TestMethod]
+		public void UpdateWithAllowVirtual()
+		{
+			var date = DateTime.Parse("7/1/2019 05:18:30 PM");
+			var date2 = DateTime.Parse("7/1/2019 05:18:31 PM");
+			var entity = GetTestEntity(date);
+			var model = GetTestModel(date2);
+
+			model.Accounts = null;
+			entity.UpdateWith(model, false);
+
+			var expected = new AddressEntity
+			{
+				Accounts = null,
+				City = "City2",
+				CreatedOn = date2,
+				Id = 100,
+				Line1 = "Line 1",
+				Line2 = "Line 2",
+				ModifiedOn = date2,
+				Postal = "Postal 2",
+				State = "State 2",
+				SyncId = Guid.Parse("511EB735-7CE7-4362-B36F-066CD697303A")
+			};
+
+			// We expecting all members, *including* virtual members!
+			TestHelper.AreEqual(expected, entity);
+		}
+
+		[TestMethod]
+		public void UpdateWithOnly()
+		{
+			var date = DateTime.Parse("7/1/2019 05:18:30 PM");
+			var date2 = DateTime.Parse("7/1/2019 05:18:31 PM");
+			var entity = GetTestEntity(date);
+			var model = GetTestModel(date2);
+
+			entity.UpdateWithOnly(model, nameof(AddressEntity.Line1), nameof(AddressEntity.Postal));
+
+			var expected = new AddressEntity
+			{
+				City = "City",
+				CreatedOn = date,
+				Id = 99,
+				Line1 = "Line 1",
+				Line2 = "Line2",
+				ModifiedOn = date,
+				Postal = "Postal 2",
+				State = "State",
+				SyncId = Guid.Parse("3584456b-cf36-4049-9491-7d83d0fd8255")
+			};
+
+			// We expecting all members to change except virtual members
+			TestHelper.AreEqual(expected, entity);
+		}
+
+		[TestMethod]
+		public void UpdateWithSpecificMembers()
+		{
+			var date = DateTime.Parse("7/1/2019 05:18:30 PM");
+			var date2 = DateTime.Parse("7/1/2019 05:18:31 PM");
+			var entity = GetTestEntity(date);
+			var model = GetTestModel(date2);
+
+			model.Accounts = null;
+			entity.UpdateWith(model, false, nameof(AddressEntity.City), nameof(AddressEntity.Postal));
+
+			var expected = new AddressEntity
+			{
+				Accounts = null,
+				City = "City",
+				CreatedOn = date2,
+				Id = 100,
+				Line1 = "Line 1",
+				Line2 = "Line 2",
+				ModifiedOn = date2,
+				Postal = "Postal",
+				State = "State 2",
+				SyncId = Guid.Parse("511EB735-7CE7-4362-B36F-066CD697303A")
+			};
+
+			// We expecting all members, *including* virtual members!
+			TestHelper.AreEqual(expected, entity);
+		}
+
+		[TestMethod]
 		public void UpdateWithWithExclusions()
 		{
 			var expectedGuid = Guid.Parse("D3773475-D395-40E1-A230-266A845CB21D");
@@ -103,7 +190,7 @@ namespace Speedy.UnitTests
 			TestHelper.AreEqual(expected, actual);
 			Assert.AreEqual(1, actual.Id);
 			Assert.AreEqual(Guid.Empty, actual.SyncId);
-			
+
 			// Remove SyncId exclusions
 			properties = properties.Except(new[] { nameof(AddressEntity.SyncId) }).ToList();
 			expected.SyncId = address.SyncId;
@@ -163,6 +250,39 @@ namespace Speedy.UnitTests
 			actual.Data.FormatDump();
 
 			Assert.AreEqual(expect, actual.Data);
+		}
+
+		private static AddressEntity GetTestEntity(DateTime date)
+		{
+			return new AddressEntity
+			{
+				City = "City",
+				CreatedOn = date,
+				Id = 99,
+				Line1 = "Line1",
+				Line2 = "Line2",
+				ModifiedOn = date,
+				Postal = "Postal",
+				State = "State",
+				SyncId = Guid.Parse("3584456b-cf36-4049-9491-7d83d0fd8255")
+			};
+		}
+
+		private static AddressEntity GetTestModel(DateTime date2)
+		{
+			return new AddressEntity
+			{
+				Accounts = new List<AccountEntity>(),
+				City = "City2",
+				CreatedOn = date2,
+				Id = 100,
+				Line1 = "Line 1",
+				Line2 = "Line 2",
+				ModifiedOn = date2,
+				Postal = "Postal 2",
+				State = "State 2",
+				SyncId = Guid.Parse("511EB735-7CE7-4362-B36F-066CD697303A")
+			};
 		}
 
 		#endregion
