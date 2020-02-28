@@ -131,7 +131,7 @@ namespace Speedy.Website.WebApi
 		public SyncSession BeginSync(Guid id, [FromBody] SyncOptions options)
 		{
 			var account = GetCurrentAccount();
-			var validSyncVersion = options.Values.TryGetValue(SyncManager.SyncVersionKey, out var versionString)
+			var validSyncVersion = options.Values.TryGetValue(SyncOptions.SyncVersionKey, out var versionString)
 				| Version.TryParse(versionString ?? string.Empty, out var version)
 				| (version >= MinimumSyncSystemSupported)
 				| (version <= MaximumSyncSystemSupported);
@@ -151,7 +151,7 @@ namespace Speedy.Website.WebApi
 				LastSyncedOnServer = options.LastSyncedOnServer
 			};
 
-			var syncKey = options.Values.TryGetValue(SyncManager.SyncKey, out var value) ? Enum.TryParse<SyncType>(value, true, out var sync) ? sync : SyncType.All : SyncType.All;
+			var syncKey = options.Values.TryGetValue(SyncOptions.SyncKey, out var value) ? Enum.TryParse<SyncType>(value, true, out var sync) ? sync : SyncType.All : SyncType.All;
 
 			switch (syncKey)
 			{

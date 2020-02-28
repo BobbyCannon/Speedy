@@ -13,8 +13,22 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents options to be used during a sync.
 	/// </summary>
-	public class SyncOptions
+	public class SyncOptions : Bindable<SyncOptions>
 	{
+		#region Constants
+
+		/// <summary>
+		/// The sync key value. This will be included in the default sync options values.
+		/// </summary>
+		public const string SyncKey = "SyncKey";
+
+		/// <summary>
+		/// The sync version key value. This will be included in the default sync options values.
+		/// </summary>
+		public const string SyncVersionKey = "SyncVersionKey";
+
+		#endregion
+
 		#region Fields
 
 		private readonly Dictionary<string, SyncRepositoryFilter> _filterLookup;
@@ -27,7 +41,8 @@ namespace Speedy.Sync
 		/// Instantiates an instance of the class.
 		/// </summary>
 		/// <param name="id"> An optional ID to identify the options. </param>
-		public SyncOptions(string id = null)
+		/// <param name="dispatcher"> An optional dispatcher. </param>
+		public SyncOptions(string id = null, IDispatcher dispatcher = null) : base(dispatcher)
 		{
 			Id = id ?? Guid.NewGuid().ToString();
 			LastSyncedOnClient = DateTime.MinValue;
@@ -35,7 +50,7 @@ namespace Speedy.Sync
 			ItemsPerSyncRequest = 300;
 			Values = new Dictionary<string, string>
 			{
-				{ SyncManager.SyncVersionKey, "0.0.0.0" }
+				{ SyncVersionKey, "0.0.0.0" }
 			};
 
 			_filterLookup = new Dictionary<string, SyncRepositoryFilter>();

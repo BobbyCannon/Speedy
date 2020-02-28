@@ -46,10 +46,10 @@ namespace Speedy.Data
 			_serverProvider = serverProvider;
 
 			// These options are for syncing full collections
-			AddSyncOptions(SyncType.Accounts, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>()));
-			AddSyncOptions(SyncType.Addresses, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>()));
-			AddSyncOptions(SyncType.LogEvents, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientLogEvent>()));
-			AddSyncOptions(SyncType.All, options =>
+			GetOrAddSyncOptions(SyncType.Accounts, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>()));
+			GetOrAddSyncOptions(SyncType.Addresses, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>()));
+			GetOrAddSyncOptions(SyncType.LogEvents, options => options.AddSyncableFilter(new SyncRepositoryFilter<ClientLogEvent>()));
+			GetOrAddSyncOptions(SyncType.All, options =>
 			{
 				options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>());
 				options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>());

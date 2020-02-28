@@ -1,6 +1,8 @@
 #region References
 
 using System;
+using System.Linq;
+using Speedy.Extensions;
 
 #endregion
 
@@ -84,28 +86,28 @@ namespace Speedy
 		#region Methods
 
 		/// <inheritdoc />
-		public override void UpdateWith(DatabaseOptions value, params string[] exclusions)
+		public override void UpdateWith(DatabaseOptions update, params string[] exclusions)
 		{
-			if (value == null)
+			if (update == null)
 			{
 				return;
 			}
 
-			DetectSyncableRepositories = value.DetectSyncableRepositories;
-			DisableEntityValidations = value.DisableEntityValidations;
-			MaintainCreatedOn = value.MaintainCreatedOn;
-			MaintainModifiedOn = value.MaintainModifiedOn;
-			MaintainSyncId = value.MaintainSyncId;
-			PermanentSyncEntityDeletions = value.PermanentSyncEntityDeletions;
-			SyncOrder = (string[]) value.SyncOrder.Clone();
-			Timeout = value.Timeout;
-			UnmaintainEntities = (Type[]) value.UnmaintainEntities.Clone();
+			this.IfThen(x => !exclusions.Contains(nameof(DetectSyncableRepositories)), x => x.DetectSyncableRepositories = update.DetectSyncableRepositories);
+			this.IfThen(x => !exclusions.Contains(nameof(DisableEntityValidations)), x => x.DisableEntityValidations = update.DisableEntityValidations);
+			this.IfThen(x => !exclusions.Contains(nameof(MaintainCreatedOn)), x => x.MaintainCreatedOn = update.MaintainCreatedOn);
+			this.IfThen(x => !exclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);
+			this.IfThen(x => !exclusions.Contains(nameof(MaintainSyncId)), x => x.MaintainSyncId = update.MaintainSyncId);
+			this.IfThen(x => !exclusions.Contains(nameof(PermanentSyncEntityDeletions)), x => x.PermanentSyncEntityDeletions = update.PermanentSyncEntityDeletions);
+			this.IfThen(x => !exclusions.Contains(nameof(SyncOrder)), x => x.SyncOrder = (string[]) update.SyncOrder.Clone());
+			this.IfThen(x => !exclusions.Contains(nameof(Timeout)), x => x.Timeout = update.Timeout);
+			this.IfThen(x => !exclusions.Contains(nameof(UnmaintainEntities)), x => x.UnmaintainEntities = (Type[]) update.UnmaintainEntities.Clone());
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object value, params string[] exclusions)
+		public override void UpdateWith(object update, params string[] exclusions)
 		{
-			UpdateWith(value as DatabaseOptions, exclusions);
+			UpdateWith(update as DatabaseOptions, exclusions);
 		}
 
 		#endregion

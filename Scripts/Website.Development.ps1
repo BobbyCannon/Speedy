@@ -1,7 +1,7 @@
 Import-Module WebAdministration
-Restart-WebAppPool -Name "Speedy"
 iisreset
 
+Restart-WebAppPool -Name "Speedy"
 Get-Process vbcs* | Stop-Process
 
 Get-EnvironmentVariable -Target Machine -Variable "ASPNETCORE_ENVIRONMENT"
