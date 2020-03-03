@@ -59,6 +59,18 @@ namespace Speedy.Serialization
 		/// <summary>
 		/// Convert the string into an object.
 		/// </summary>
+		/// <typeparam name="T"> The type to convert into. </typeparam>
+		/// <param name="item"> The JSON data to deserialize. </param>
+		/// <param name="settings"> The settings to be used. </param>
+		/// <returns> The deserialized object. </returns>
+		public static T FromJson<T>(this string item, SerializerSettings settings)
+		{
+			return JsonConvert.DeserializeObject<T>(item, settings.JsonSettings);
+		}
+
+		/// <summary>
+		/// Convert the string into an object.
+		/// </summary>
 		/// <param name="item"> The JSON data to deserialize. </param>
 		/// <param name="type"> The type to convert into. </param>
 		/// <returns> The deserialized object. </returns>

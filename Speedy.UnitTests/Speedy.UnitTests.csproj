@@ -229,6 +229,7 @@
     <Compile Include="LoggingTests.cs" />
     <Compile Include="Factories\ClientFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\Converters\VersionStringConverterTests.cs" />
     <Compile Include="Serialization\SerializerTests.cs" />
     <Compile Include="Serialization\SerializerSettingsTests.cs" />
     <Compile Include="SyncDatabaseProviderTests.cs" />
