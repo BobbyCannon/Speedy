@@ -296,7 +296,7 @@ namespace Speedy.Sync
 				}
 			}
 
-			_cancellationToken = new CancellationTokenSource();
+			_cancellationToken = new CancellationTokenSource(ProcessTimeout);
 
 			return Task.Run(() =>
 			{
@@ -362,7 +362,15 @@ namespace Speedy.Sync
 				}
 				finally
 				{
-					OnSyncCompleted(options);
+					try
+					{
+						OnSyncCompleted(options);
+					}
+					catch (Exception ex)
+					{
+						OnLogEvent(ex.Message);
+					}
+
 					StopSync();
 				}
 			}, _cancellationToken.Token);
