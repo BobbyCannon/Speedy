@@ -220,14 +220,14 @@ namespace Speedy.IntegrationTests
 			return service.Object;
 		}
 
-		public static ISyncableDatabaseProvider<ContosoClientDatabase> GetClientProvider()
+		public static ISyncableDatabaseProvider<ContosoClientMemoryDatabase> GetClientProvider()
 		{
-			var database = new ContosoClientDatabase();
-			return new SyncDatabaseProvider<ContosoClientDatabase>(x =>
+			var database = new ContosoClientMemoryDatabase();
+			return new SyncDatabaseProvider<ContosoClientMemoryDatabase>(x =>
 			{
 				database.Options.UpdateWith(x);
 				return database;
-			}, ContosoClientDatabase.GetDefaultOptions());
+			}, ContosoClientMemoryDatabase.GetDefaultOptions());
 		}
 
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, bool initialized = true)

@@ -19,7 +19,7 @@ namespace Speedy
 	/// Represents a Speedy entity.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class Entity<T> : Entity, IUpdatable<T>
+	public abstract class Entity<T> : Entity, IUpdatable<Entity<T>>
 	{
 		#region Properties
 
@@ -114,7 +114,7 @@ namespace Speedy
 		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
 		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
 		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-		public virtual void UpdateWith(T update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		public virtual void UpdateWith(Entity<T> update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 		{
 			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
 			UpdateWith(update, exclusions.ToArray());
@@ -151,7 +151,7 @@ namespace Speedy
 		/// <param name="update"> The source of the updates. </param>
 		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
 		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public virtual void UpdateWith(T update, bool excludeVirtuals, params string[] exclusions)
+		public virtual void UpdateWith(Entity<T> update, bool excludeVirtuals, params string[] exclusions)
 		{
 			var totalExclusions = new HashSet<string>(exclusions);
 			if (excludeVirtuals)
@@ -163,7 +163,7 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public virtual void UpdateWith(T update, params string[] exclusions)
+		public virtual void UpdateWith(Entity<T> update, params string[] exclusions)
 		{
 			UpdatableExtensions.UpdateWith(this, update, exclusions);
 		}
@@ -175,7 +175,7 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public virtual void UpdateWithOnly(T update, params string[] inclusions)
+		public virtual void UpdateWithOnly(Entity<T> update, params string[] inclusions)
 		{
 			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
 		}

@@ -29,6 +29,26 @@ namespace Speedy.Extensions
 				action(item);
 			}
 		}
+		
+		/// <summary>
+		/// Runs action1 if the test is true or action2 if false.
+		/// </summary>
+		/// <param name="item"> The item to process. (does nothing) </param>
+		/// <param name="test"> The test to validate. </param>
+		/// <param name="action1"> The action to run if test is true. </param>
+		/// <param name="action2"> The action to run if test is false. </param>
+		/// <typeparam name="T"> The type the function returns </typeparam>
+		public static void IfThenElse<T>(this T item, Func<T, bool> test, Action<T> action1, Action<T> action2)
+		{
+			if (test(item))
+			{
+				action1(item);
+			}
+			else
+			{
+				action2(item);
+			}
+		}
 
 		/// <summary>
 		/// Continues to run the action until we hit the timeout. If an exception occurs then delay for the

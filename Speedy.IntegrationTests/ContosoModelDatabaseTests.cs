@@ -50,9 +50,9 @@ namespace Speedy.IntegrationTests
 			};
 		}
 
-		private static ContosoClientDatabase GetDatabase(DatabaseOptions options = null)
+		private static ContosoClientMemoryDatabase GetDatabase(DatabaseOptions options = null)
 		{
-			return new ContosoClientDatabase(options);
+			return new ContosoClientMemoryDatabase(options);
 		}
 
 		private ClientAccount GetPerson()

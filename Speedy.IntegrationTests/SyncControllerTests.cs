@@ -227,11 +227,11 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(client.Message, entity.Message);
 		}
 
-		private void PopulateAllClientData(ContosoClientDatabase database)
+		private void PopulateAllClientData(ContosoClientMemoryDatabase memoryDatabase)
 		{
 			var address = ClientFactory.GetClientAddress();
 			var account = ClientFactory.GetClientAccount("John", address);
-			database.Accounts.Add(account);
+			memoryDatabase.Accounts.Add(account);
 
 			var logEvent1 = ClientFactory.GetLogEvent("Critical", LogLevel.Critical);
 			var logEvent2 = ClientFactory.GetLogEvent("Error", LogLevel.Error);
@@ -239,17 +239,17 @@ namespace Speedy.IntegrationTests
 			var logEvent4 = ClientFactory.GetLogEvent("Information", LogLevel.Information);
 			var logEvent5 = ClientFactory.GetLogEvent("Debug", LogLevel.Debug);
 			var logEvent6 = ClientFactory.GetLogEvent("Verbose", LogLevel.Verbose);
-			database.LogEvents.AddOrUpdate(logEvent1);
-			database.LogEvents.AddOrUpdate(logEvent2);
-			database.LogEvents.AddOrUpdate(logEvent3);
-			database.LogEvents.AddOrUpdate(logEvent4);
-			database.LogEvents.AddOrUpdate(logEvent5);
-			database.LogEvents.AddOrUpdate(logEvent6);
+			memoryDatabase.LogEvents.AddOrUpdate(logEvent1);
+			memoryDatabase.LogEvents.AddOrUpdate(logEvent2);
+			memoryDatabase.LogEvents.AddOrUpdate(logEvent3);
+			memoryDatabase.LogEvents.AddOrUpdate(logEvent4);
+			memoryDatabase.LogEvents.AddOrUpdate(logEvent5);
+			memoryDatabase.LogEvents.AddOrUpdate(logEvent6);
 
-			database.SaveChanges();
+			memoryDatabase.SaveChanges();
 
-			Assert.AreNotEqual(0, database.Accounts.Count());
-			Assert.AreNotEqual(0, database.Addresses.Count());
+			Assert.AreNotEqual(0, memoryDatabase.Accounts.Count());
+			Assert.AreNotEqual(0, memoryDatabase.Addresses.Count());
 		}
 
 		#endregion
