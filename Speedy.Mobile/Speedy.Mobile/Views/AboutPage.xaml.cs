@@ -1,7 +1,9 @@
-﻿using System;
+﻿#region References
+
 using System.ComponentModel;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+
+#endregion
 
 namespace Speedy.Mobile.Views
 {
@@ -10,9 +12,13 @@ namespace Speedy.Mobile.Views
 	[DesignTimeVisible(false)]
 	public partial class AboutPage : ContentPage
 	{
+		#region Constructors
+
 		public AboutPage()
 		{
 			InitializeComponent();
 		}
+
+		#endregion
 	}
 }

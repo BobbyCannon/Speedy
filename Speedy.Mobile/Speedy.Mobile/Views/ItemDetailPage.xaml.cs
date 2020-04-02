@@ -1,11 +1,11 @@
-﻿using System;
+﻿#region References
+
 using System.ComponentModel;
 using Speedy.Data.Client;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
-using Speedy.Mobile.Models;
 using Speedy.Mobile.ViewModels;
+using Xamarin.Forms;
+
+#endregion
 
 namespace Speedy.Mobile.Views
 {
@@ -14,7 +14,13 @@ namespace Speedy.Mobile.Views
 	[DesignTimeVisible(false)]
 	public partial class ItemDetailPage : ContentPage
 	{
-		ItemDetailViewModel viewModel;
+		#region Fields
+
+		private readonly ItemDetailViewModel viewModel;
+
+		#endregion
+
+		#region Constructors
 
 		public ItemDetailPage(ItemDetailViewModel viewModel)
 		{
@@ -29,11 +35,13 @@ namespace Speedy.Mobile.Views
 
 			var item = new ClientLogEvent
 			{
-				Message = "Item 1",
+				Message = "Item 1"
 			};
 
 			viewModel = new ItemDetailViewModel(item);
 			BindingContext = viewModel;
 		}
+
+		#endregion
 	}
 }

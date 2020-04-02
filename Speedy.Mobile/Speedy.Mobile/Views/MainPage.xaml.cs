@@ -1,11 +1,12 @@
-﻿using System;
+﻿#region References
+
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
 using Speedy.Mobile.Models;
+using Xamarin.Forms;
+
+#endregion
 
 namespace Speedy.Mobile.Views
 {
@@ -14,15 +15,26 @@ namespace Speedy.Mobile.Views
 	[DesignTimeVisible(false)]
 	public partial class MainPage : MasterDetailPage
 	{
-		Dictionary<int, NavigationPage> MenuPages = new Dictionary<int, NavigationPage>();
+		#region Fields
+
+		private readonly Dictionary<int, NavigationPage> MenuPages = new Dictionary<int, NavigationPage>();
+
+		#endregion
+
+		#region Constructors
+
 		public MainPage()
 		{
 			InitializeComponent();
 
 			MasterBehavior = MasterBehavior.Popover;
 
-			MenuPages.Add((int)MenuItemType.Browse, (NavigationPage)Detail);
+			MenuPages.Add((int) MenuItemType.Browse, (NavigationPage) Detail);
 		}
+
+		#endregion
+
+		#region Methods
 
 		public async Task NavigateFromMenu(int id)
 		{
@@ -30,10 +42,10 @@ namespace Speedy.Mobile.Views
 			{
 				switch (id)
 				{
-					case (int)MenuItemType.Browse:
+					case (int) MenuItemType.Browse:
 						MenuPages.Add(id, new NavigationPage(new ItemsPage()));
 						break;
-					case (int)MenuItemType.About:
+					case (int) MenuItemType.About:
 						MenuPages.Add(id, new NavigationPage(new AboutPage()));
 						break;
 				}
@@ -46,10 +58,14 @@ namespace Speedy.Mobile.Views
 				Detail = newPage;
 
 				if (Device.RuntimePlatform == Device.Android)
+				{
 					await Task.Delay(100);
+				}
 
 				IsPresented = false;
 			}
 		}
+
+		#endregion
 	}
 }

@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Speedy.Data.Client;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
@@ -19,6 +20,11 @@ namespace Speedy.Client.Data
 		public ContosoClientDatabase()
 		{
 			// Default constructor needed for Add-Migration
+		}
+
+		public ContosoClientDatabase(DbContextOptions contextOptions)
+			: base(contextOptions, null)
+		{
 		}
 
 		public ContosoClientDatabase(DbContextOptions<ContosoClientDatabase> options)
@@ -44,6 +50,36 @@ namespace Speedy.Client.Data
 		#endregion
 
 		#region Methods
+
+		public static string GetConnectionString()
+		{
+			var configuration = new ConfigurationBuilder()
+				.SetBasePath(Directory.GetCurrentDirectory())
+				.AddJsonFile("AppSettings.json", true)
+				.Build();
+
+			var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+			if (connectionString == null)
+			{
+				// Mobile Database Location ApplicationSettings.json
+				var path = GetPersonalDataPath();
+				configuration = new ConfigurationBuilder()
+					.SetBasePath(path)
+					.AddJsonFile("AppSettings.json", true)
+					.Build();
+
+				var dbPath = Path.Combine(path, "Speedy.db");
+				connectionString = configuration.GetConnectionString("DefaultConnection") ?? $"Data Source={dbPath}";
+			}
+
+			if (connectionString == null)
+			{
+				throw new Exception("Failed to locate the connection string.");
+			}
+
+			return connectionString;
+		}
 
 		public static DatabaseOptions GetDefaultOptions()
 		{
@@ -73,13 +109,21 @@ namespace Speedy.Client.Data
 		{
 			if (connectionString == null)
 			{
-				var path = GetPersonalDataPath();
-				var dbPath = Path.Combine(path, "Speedy.db");
-				connectionString = $"Data Source={dbPath}";
+				connectionString = GetConnectionString();
 			}
 
 			var builder = new DbContextOptionsBuilder<ContosoClientDatabase>();
 			return new ContosoClientDatabase(builder.UseSqlite(connectionString, UpdateOptions).Options, options);
+		}
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			if (!optionsBuilder.IsConfigured)
+			{
+				optionsBuilder.UseSqlite(GetConnectionString(), UpdateOptions);
+			}
+
+			base.OnConfiguring(optionsBuilder);
 		}
 
 		private static void UpdateOptions(SqliteDbContextOptionsBuilder obj)

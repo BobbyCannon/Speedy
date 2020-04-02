@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Speedy.Client.Data;
 using Speedy.Data.Client;
 using Speedy.Data.WebApi;
@@ -25,7 +24,7 @@ namespace Speedy.Mobile.Services
 		public MockDataStore()
 		{
 			_database = ContosoClientDatabase.UseSqlite();
-			_database.Database.Migrate();
+			_database.Database.EnsureCreated();
 
 			if (!_database.LogEvents.Any())
 			{
@@ -46,12 +45,14 @@ namespace Speedy.Mobile.Services
 			return await Task.FromResult(true);
 		}
 
-		public async Task<bool> DeleteItemAsync(int id)
+		public async Task<bool> DeleteItemAsync(long id)
 		{
+			_database.LogEvents.Remove(id);
+			_database.SaveChanges();
 			return await Task.FromResult(true);
 		}
 
-		public async Task<ClientLogEvent> GetItemAsync(int id)
+		public async Task<ClientLogEvent> GetItemAsync(long id)
 		{
 			var log = _database.LogEvents.FirstOrDefault(x => x.Id == id);
 			return await Task.FromResult((ClientLogEvent) log?.Unwrap());

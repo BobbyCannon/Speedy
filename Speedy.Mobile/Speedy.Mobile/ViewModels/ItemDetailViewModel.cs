@@ -1,16 +1,27 @@
-﻿using System;
+﻿#region References
+
 using Speedy.Data.Client;
-using Speedy.Mobile.Models;
+
+#endregion
 
 namespace Speedy.Mobile.ViewModels
 {
 	public class ItemDetailViewModel : BaseViewModel
 	{
-		public ClientLogEvent Item { get; set; }
+		#region Constructors
+
 		public ItemDetailViewModel(ClientLogEvent item = null)
 		{
 			Title = item?.Message;
 			Item = item;
 		}
+
+		#endregion
+
+		#region Properties
+
+		public ClientLogEvent Item { get; set; }
+
+		#endregion
 	}
 }

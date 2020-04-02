@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region References
+
+using System;
 using System.ComponentModel;
 using Speedy.Data.Client;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
-using Speedy.Mobile.Models;
+#endregion
 
 namespace Speedy.Mobile.Views
 {
@@ -14,7 +14,7 @@ namespace Speedy.Mobile.Views
 	[DesignTimeVisible(false)]
 	public partial class NewItemPage : ContentPage
 	{
-		public ClientLogEvent Item { get; set; }
+		#region Constructors
 
 		public NewItemPage()
 		{
@@ -22,21 +22,33 @@ namespace Speedy.Mobile.Views
 
 			Item = new ClientLogEvent
 			{
-				Message = "Item name",
+				Message = "Item name"
 			};
 
 			BindingContext = this;
 		}
 
-		async void Save_Clicked(object sender, EventArgs e)
+		#endregion
+
+		#region Properties
+
+		public ClientLogEvent Item { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		private async void Cancel_Clicked(object sender, EventArgs e)
+		{
+			await Navigation.PopModalAsync();
+		}
+
+		private async void Save_Clicked(object sender, EventArgs e)
 		{
 			MessagingCenter.Send(this, "AddItem", Item);
 			await Navigation.PopModalAsync();
 		}
 
-		async void Cancel_Clicked(object sender, EventArgs e)
-		{
-			await Navigation.PopModalAsync();
-		}
+		#endregion
 	}
 }

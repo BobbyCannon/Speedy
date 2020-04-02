@@ -1,19 +1,20 @@
-﻿using System;
+﻿#region References
+
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Speedy.Data.Client;
+using Speedy.Mobile.Views;
 using Xamarin.Forms;
 
-using Speedy.Mobile.Models;
-using Speedy.Mobile.Views;
+#endregion
 
 namespace Speedy.Mobile.ViewModels
 {
 	public class ItemsViewModel : BaseViewModel
 	{
-		public ObservableCollection<ClientLogEvent> Items { get; set; }
-		public Command LoadItemsCommand { get; set; }
+		#region Constructors
 
 		public ItemsViewModel()
 		{
@@ -23,20 +24,34 @@ namespace Speedy.Mobile.ViewModels
 
 			MessagingCenter.Subscribe<NewItemPage, ClientLogEvent>(this, "AddItem", async (obj, item) =>
 			{
-				var newItem = item as ClientLogEvent;
+				var newItem = item;
 				Items.Add(newItem);
 				await DataStore.AddItemAsync(newItem);
 			});
 		}
 
-		async Task ExecuteLoadItemsCommand()
+		#endregion
+
+		#region Properties
+
+		public ObservableCollection<ClientLogEvent> Items { get; set; }
+
+		public Command LoadItemsCommand { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		private async Task ExecuteLoadItemsCommand()
 		{
 			IsBusy = true;
 
 			try
 			{
 				Items.Clear();
+
 				var items = await DataStore.GetItemsAsync(true);
+
 				foreach (var item in items)
 				{
 					Items.Add(item);
@@ -51,5 +66,7 @@ namespace Speedy.Mobile.ViewModels
 				IsBusy = false;
 			}
 		}
+
+		#endregion
 	}
 }

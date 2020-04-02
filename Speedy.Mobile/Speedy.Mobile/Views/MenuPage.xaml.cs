@@ -1,9 +1,11 @@
-﻿using Speedy.Mobile.Models;
-using System;
+﻿#region References
+
 using System.Collections.Generic;
 using System.ComponentModel;
+using Speedy.Mobile.Models;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+
+#endregion
 
 namespace Speedy.Mobile.Views
 {
@@ -12,16 +14,22 @@ namespace Speedy.Mobile.Views
 	[DesignTimeVisible(false)]
 	public partial class MenuPage : ContentPage
 	{
-		MainPage RootPage { get => Application.Current.MainPage as MainPage; }
-		List<HomeMenuItem> menuItems;
+		#region Fields
+
+		private readonly List<HomeMenuItem> menuItems;
+
+		#endregion
+
+		#region Constructors
+
 		public MenuPage()
 		{
 			InitializeComponent();
 
 			menuItems = new List<HomeMenuItem>
 			{
-				new HomeMenuItem {Id = MenuItemType.Browse, Title="Browse" },
-				new HomeMenuItem {Id = MenuItemType.About, Title="About" }
+				new HomeMenuItem { Id = MenuItemType.Browse, Title = "Browse" },
+				new HomeMenuItem { Id = MenuItemType.About, Title = "About" }
 			};
 
 			ListViewMenu.ItemsSource = menuItems;
@@ -30,11 +38,21 @@ namespace Speedy.Mobile.Views
 			ListViewMenu.ItemSelected += async (sender, e) =>
 			{
 				if (e.SelectedItem == null)
+				{
 					return;
+				}
 
-				var id = (int)((HomeMenuItem)e.SelectedItem).Id;
+				var id = (int) ((HomeMenuItem) e.SelectedItem).Id;
 				await RootPage.NavigateFromMenu(id);
 			};
 		}
+
+		#endregion
+
+		#region Properties
+
+		private MainPage RootPage => Application.Current.MainPage as MainPage;
+
+		#endregion
 	}
 }

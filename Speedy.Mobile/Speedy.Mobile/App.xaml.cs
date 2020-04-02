@@ -1,13 +1,16 @@
-﻿using System;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿#region References
+
 using Speedy.Mobile.Services;
 using Speedy.Mobile.Views;
+using Xamarin.Forms;
+
+#endregion
 
 namespace Speedy.Mobile
 {
 	public partial class App : Application
 	{
+		#region Constructors
 
 		public App()
 		{
@@ -17,7 +20,11 @@ namespace Speedy.Mobile
 			MainPage = new MainPage();
 		}
 
-		protected override void OnStart()
+		#endregion
+
+		#region Methods
+
+		protected override void OnResume()
 		{
 		}
 
@@ -25,8 +32,10 @@ namespace Speedy.Mobile
 		{
 		}
 
-		protected override void OnResume()
+		protected override void OnStart()
 		{
 		}
+
+		#endregion
 	}
 }
