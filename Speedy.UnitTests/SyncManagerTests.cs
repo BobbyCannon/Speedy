@@ -111,6 +111,7 @@ namespace Speedy.UnitTests
 			actual.ForEach(x => Console.WriteLine($"\"{x}\","));
 
 			TestHelper.AreEqual(expected, actual);
+			Assert.IsTrue(manager.IsSyncSuccessful, "Sync should have been successful");
 			Assert.AreEqual(18000, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
 		}
 		

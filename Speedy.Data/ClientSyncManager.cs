@@ -84,7 +84,7 @@ namespace Speedy.Data
 		public static SyncClientProvider GetWebSyncProvider()
 		{
 			var nullDatabaseProvider = new SyncDatabaseProvider(x => null);
-			var syncClientProvider = new SyncClientProvider((name, credential) => new WebSyncClient(name, nullDatabaseProvider, DefaultWebsiteUri, "api/Sync", credential, 60000));
+			var syncClientProvider = new SyncClientProvider((name, credential) => new WebSyncClient(name, nullDatabaseProvider, DefaultWebsiteUri, "api/Sync", credential, null, 60000));
 			return syncClientProvider;
 		}
 

@@ -28,13 +28,15 @@ namespace Speedy.Net
 		/// <param name="baseUri"> The base URI. </param>
 		/// <param name="timeout"> The timeout in milliseconds. </param>
 		/// <param name="credential"> The optional credential to authenticate with. </param>
-		public WebClient(string baseUri, int timeout, NetworkCredential credential = null)
+		/// <param name="proxy"> The optional proxy to use. </param>
+		public WebClient(string baseUri, int timeout, NetworkCredential credential = null, WebProxy proxy = null)
 		{
 			BaseUri = baseUri;
 			Cookies = new CookieCollection();
 			Credential = credential;
 			Headers = new Dictionary<string, string>();
 			Timeout = TimeSpan.FromMilliseconds(timeout);
+			Proxy = proxy;
 		}
 
 		#endregion
@@ -84,6 +86,11 @@ namespace Speedy.Net
 		/// Gets or sets the number of milliseconds to wait before the request times out. The default value is 100 seconds.
 		/// </summary>
 		public TimeSpan Timeout { get; set; }
+
+		/// <summary>
+		/// Gets or sets an optional proxy for the connection.
+		/// </summary>
+		public WebProxy Proxy { get;  set; }
 
 		#endregion
 
@@ -256,6 +263,11 @@ namespace Speedy.Net
 			foreach (Cookie ck in Cookies)
 			{
 				handler.CookieContainer.Add(ck);
+			}
+
+			if (Proxy != null)
+			{
+				handler.Proxy = Proxy;
 			}
 
 			var client = new HttpClient(handler)

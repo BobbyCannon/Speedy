@@ -31,8 +31,9 @@ namespace Speedy.Net
 		/// <param name="serverUri"> The server to send data to. </param>
 		/// <param name="syncUri"> The sync URI. Defaults to "api/Sync". </param>
 		/// <param name="credential"> The optional credential for the sync client. </param>
+		/// <param name="proxy"> The optional proxy to use. </param>
 		/// <param name="timeout"> The timeout in milliseconds for each transaction. </param>
-		public WebSyncClient(string name, ISyncableDatabaseProvider provider, string serverUri, string syncUri = "api/Sync", NetworkCredential credential = null, int timeout = 10000)
+		public WebSyncClient(string name, ISyncableDatabaseProvider provider, string serverUri, string syncUri = "api/Sync", NetworkCredential credential = null, WebProxy proxy = null, int timeout = 10000)
 		{
 			_provider = provider;
 			_syncUri = syncUri;
@@ -40,7 +41,7 @@ namespace Speedy.Net
 			Name = name;
 			Options = new SyncClientOptions();
 			Statistics = new SyncStatistics();
-			WebClient = new WebClient(serverUri, timeout, credential);
+			WebClient = new WebClient(serverUri, timeout, credential, proxy);
 		}
 
 		#endregion
