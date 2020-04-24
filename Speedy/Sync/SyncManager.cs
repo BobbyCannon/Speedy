@@ -4,12 +4,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Speedy.Exceptions;
 using Speedy.Extensions;
+using Speedy.Logging;
 
 #endregion
 
@@ -23,6 +25,8 @@ namespace Speedy.Sync
 		#region Fields
 
 		private CancellationTokenSource _cancellationToken;
+		private AverageTimer _syncTimer;
+		private T _syncType;
 		private readonly Stopwatch _watch;
 
 		#endregion
@@ -35,13 +39,16 @@ namespace Speedy.Sync
 		/// <param name="dispatcher"> The dispatcher to update with. </param>
 		protected SyncManager(IDispatcher dispatcher) : base(dispatcher)
 		{
+			_syncType = default;
 			_watch = new Stopwatch();
 
 			ProcessTimeout = TimeSpan.FromMilliseconds(60000);
+			SessionId = Guid.NewGuid();
 			ShowProgressThreshold = TimeSpan.FromMilliseconds(1000);
 			SyncIssues = new List<SyncIssue>();
 			SyncState = new SyncEngineState(Dispatcher);
 			SyncOptions = new ConcurrentDictionary<T, SyncOptions>();
+			SyncTimers = new ConcurrentDictionary<T, AverageTimer>();
 		}
 
 		#endregion
@@ -54,9 +61,14 @@ namespace Speedy.Sync
 		public SyncClientIncomingConverter IncomingConverter { get; protected set; }
 
 		/// <summary>
+		/// Gets a value indicating the running sync is requesting to be cancelled.
+		/// </summary>
+		public bool IsCancellationPending => _cancellationToken?.Token.IsCancellationRequested ?? false;
+
+		/// <summary>
 		/// Gets a value indicating the running status of the sync manager.
 		/// </summary>
-		public bool IsRunning => _watch.IsRunning;
+		public bool IsRunning => _cancellationToken != null || Monitor.IsEntered(_watch) || _watch.IsRunning;
 
 		/// <summary>
 		/// Gets a value indicating if the last sync was successful.
@@ -72,6 +84,11 @@ namespace Speedy.Sync
 		/// The timeout to be used when synchronously syncing.
 		/// </summary>
 		public TimeSpan ProcessTimeout { get; set; }
+
+		/// <summary>
+		/// The session ID of the sync manager.
+		/// </summary>
+		public Guid SessionId { get; set;}
 
 		/// <summary>
 		/// Gets a flag to indicate progress should be shown. Will only be true if sync takes longer than the <seealso cref="ShowProgressThreshold" />.
@@ -92,7 +109,12 @@ namespace Speedy.Sync
 		/// The configure sync options for the sync manager.
 		/// </summary>
 		/// <seealso cref="GetOrAddSyncOptions" />
-		public ConcurrentDictionary<T, SyncOptions> SyncOptions { get; }
+		protected ConcurrentDictionary<T, SyncOptions> SyncOptions { get; }
+
+		/// <summary>
+		/// The configure sync timers for the sync manager.
+		/// </summary>
+		protected ConcurrentDictionary<T, AverageTimer> SyncTimers { get; }
 
 		/// <summary>
 		/// Gets the current sync state.
@@ -107,6 +129,34 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Cancels the current running sync.
+		/// </summary>
+		/// <param name="timeout"> The timeout to wait for the sync to cancel. </param>
+		public void CancelSync(TimeSpan? timeout = null)
+		{
+			OnLogEvent($"Cancelling running sync {_syncType}...", EventLevel.Verbose);
+
+			_cancellationToken?.Cancel();
+			
+			OnPropertyChanged(nameof(IsCancellationPending));
+
+			var watch = Stopwatch.StartNew();
+
+			while (IsRunning)
+			{
+				if (timeout != null && watch.Elapsed.TotalMilliseconds >= timeout.Value.TotalMilliseconds)
+				{
+					OnLogEvent($"Timed out waiting for the sync {_syncType} to complete after being cancelled.", EventLevel.Verbose);
+					return;
+				}
+
+				Thread.Sleep(25);
+			}
+
+			OnLogEvent($"Running sync {_syncType} cancelled", EventLevel.Verbose);
+		}
 
 		/// <summary>
 		/// Reset the sync dates on all sync options
@@ -125,9 +175,9 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Wait for the sync to complete.
 		/// </summary>
-		/// <param name="timeout"> The max amount of time to wait. </param>
+		/// <param name="timeout"> An optional max amount of time to wait. ProcessTimeout will be used it no timeout provided. </param>
 		/// <returns> True if the sync completed otherwise false if timed out waiting. </returns>
-		public bool WaitForSyncToComplete(TimeSpan timeout)
+		public bool WaitForSyncToComplete(TimeSpan? timeout = null)
 		{
 			if (!IsRunning)
 			{
@@ -135,8 +185,37 @@ namespace Speedy.Sync
 			}
 
 			var watch = Stopwatch.StartNew();
+			timeout ??= ProcessTimeout;
 
 			while (IsRunning)
+			{
+				if (watch.Elapsed >= timeout)
+				{
+					return false;
+				}
+
+				Thread.Sleep(10);
+			}
+
+			return true;
+		}
+		
+		/// <summary>
+		/// Wait for the sync to start.
+		/// </summary>
+		/// <param name="timeout"> An optional max amount of time to wait. ProcessTimeout will be used it no timeout provided. </param>
+		/// <returns> True if the sync was started otherwise false if timed out waiting. </returns>
+		public bool WaitForSyncToStart(TimeSpan? timeout = null)
+		{
+			if (IsRunning)
+			{
+				return true;
+			}
+
+			var watch = Stopwatch.StartNew();
+			timeout ??= ProcessTimeout;
+
+			while (!IsRunning)
 			{
 				if (watch.Elapsed >= timeout)
 				{
@@ -176,6 +255,9 @@ namespace Speedy.Sync
 		/// <param name="syncType"> The type of sync these options are for. </param>
 		/// <param name="update"> Optional update action to change provided defaults. </param>
 		/// <returns> The default set of options. </returns>
+		/// <remarks>
+		/// This should only be use in the sync manager constructor.
+		/// </remarks>
 		protected SyncOptions GetOrAddSyncOptions(T syncType, Action<SyncOptions> update = null)
 		{
 			return SyncOptions.GetOrAdd(syncType, key =>
@@ -222,12 +304,13 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Indicate that there is an event to being logged by the sync manager.
+		/// Write a message to the log.
 		/// </summary>
-		/// <param name="message"> The message to be logged. </param>
-		protected virtual void OnLogEvent(string message)
+		/// <param name="message"> The message to be written. </param>
+		/// <param name="level"> The level of this message. </param>
+		protected virtual void OnLogEvent(string message, EventLevel level)
 		{
-			LogEvent?.Invoke(this, message);
+			Logger.Instance.Write(SessionId, message, level);
 		}
 
 		/// <summary>
@@ -251,129 +334,85 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Processes a sync request.
 		/// </summary>
-		/// <param name="getOptions"> The action to retrieve the options when the task starts. </param>
+		/// <param name="syncType"> The type of the sync to process. </param>
+		/// <param name="updateOptions"> The action to possibly update options when the sync starts. </param>
 		/// <param name="waitFor"> Optional timeout to wait for the active sync to complete. </param>
-		/// <param name="postAction"> An optional action to run after sync is completed but before notification goes out. </param>
-		/// <param name="force"> An optional flag to ignore IsShuttingDown state. Defaults to false. </param>
+		/// <param name="postAction"> 
+		/// An optional action to run after sync is completed but before notification goes out. If the sync cannot
+		/// start then the options will be null as they were never read or set.
+		/// </param>
 		/// <returns> The task for the process. </returns>
-		protected Task ProcessAsync(Func<SyncOptions> getOptions, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		protected Task ProcessAsync(T syncType, Action<SyncOptions> updateOptions, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
 			if (IsRunning)
 			{
 				if (waitFor == null)
 				{
+					OnLogEvent($"Sync {_syncType} is already running so sync not started.", EventLevel.Verbose);
+					postAction?.Invoke(null);
 					return Task.CompletedTask;
 				}
 
-				OnLogEvent("Waiting for active sync to complete...");
-
-				var wait = Stopwatch.StartNew();
-
-				while (IsRunning && wait.Elapsed < waitFor.Value)
-				{
-					Thread.Sleep(25);
-				}
-
-				// See if we are still running and if we just timed out waiting for the active sync to complete
-				if (IsRunning)
-				{
-					if (!force)
-					{
-						OnLogEvent("Failed to sync because active sync never completed.");
-						return Task.CompletedTask;
-					}
-
-					OnLogEvent("Cancelling active sync...");
-
-					_cancellationToken.Cancel();
-
-					while (IsRunning)
-					{
-						Thread.Sleep(25);
-					}
-
-					OnLogEvent("Active sync cancelled");
-				}
+				// See if we are going to force current sync to stop
+				OnLogEvent($"Waiting for sync {_syncType} to complete...", EventLevel.Verbose);
 			}
 
-			_cancellationToken = new CancellationTokenSource(ProcessTimeout);
-
-			return Task.Run(() =>
+			// Lock the sync before we start, wait until 
+			var enteredLock = WaitForLock(waitFor ?? TimeSpan.Zero);
+			if (!enteredLock)
 			{
-				SyncOptions options = null;
+				OnLogEvent($"Failed to sync because current sync {_syncType} never completed while waiting.", EventLevel.Verbose);
+				postAction?.Invoke(null);
+				return Task.CompletedTask;
+			}
 
-				// Start with sync failed so only successful sync will work
-				IsSyncSuccessful = false;
+			try
+			{
+				// Start the sync before we start the task
+				StartSync(syncType);
 
-				try
+				// Start the sync in a background thread.
+				return Task.Run(() => RunSync(syncType, updateOptions, postAction), _cancellationToken.Token);
+			}
+			finally
+			{
+				if (Monitor.IsEntered(_watch))
 				{
-					// Will ensure the Hub is connected
-					StartSync();
-
-					options = getOptions();
-
-					var client = GetSyncClientForClient();
-					var server = GetSyncClientForServer();
-					var engine = new SyncEngine(client, server, options, _cancellationToken);
-
-					engine.SyncStateChanged += async (sender, state) =>
-					{
-						SyncState.UpdateWith(state);
-						OnSyncUpdated(state);
-
-						if (Dispatcher != null)
-						{
-							await Dispatcher.RunAsync(() =>
-							{
-								OnPropertyChanged(nameof(IsRunning));
-								OnPropertyChanged(nameof(ShowProgress));
-							});
-						}
-					};
-
-					engine.Run();
-
-					SyncIssues.AddRange(engine.SyncIssues);
-					IsSyncSuccessful = !SyncIssues.Any();
-
-					postAction?.Invoke(options);
+					// Release the monitor
+					Monitor.Exit(_watch);
 				}
-				catch (WebClientException ex)
-				{
-					switch (ex.Code)
-					{
-						case HttpStatusCode.Unauthorized:
-							SyncState.Message = "Unauthorized: please update your credentials in settings or contact support.";
-							break;
+			}
+		}
 
-						default:
-							SyncState.Message = ex.Message;
-							break;
-					}
+		private bool WaitForLock(TimeSpan timeout)
+		{ 
+			var watch = Stopwatch.StartNew();
 
-					IsSyncSuccessful = false;
-					OnSyncUpdated(SyncState);
-				}
-				catch (Exception ex)
-				{
-					IsSyncSuccessful = false;
-					SyncState.Message = ex.Message;
-					OnSyncUpdated(SyncState);
-				}
-				finally
-				{
-					try
-					{
-						OnSyncCompleted(options);
-					}
-					catch (Exception ex)
-					{
-						OnLogEvent(ex.Message);
-					}
+			// Wait for an existing sync
+			while (IsRunning && _watch.Elapsed < timeout)
+			{
+				Thread.Sleep(10);
+			}
 
-					StopSync();
-				}
-			}, _cancellationToken.Token);
+			// See if we have timed out, if so just return false
+			if (IsRunning)
+			{
+				// The sync is still running so return false
+				return false;
+			}
+
+			// Calculate new timeout due to previous processing time
+			timeout = timeout - watch.Elapsed;
+			
+			// Ensure timeout does not go negative
+			if (timeout.Ticks < 0)
+			{
+				timeout = TimeSpan.Zero;
+			}
+
+			var enteredLock = false;
+			Monitor.TryEnter(_watch, timeout, ref enteredLock);
+			return enteredLock;
 		}
 
 		/// <summary>
@@ -389,20 +428,141 @@ namespace Speedy.Sync
 			Task.WaitAll(new[] { task }, timeout ?? ProcessTimeout);
 		}
 
-		private void StartSync()
+		/// <summary>
+		/// Run the sync. This should only be called by ProcessAsync.
+		/// </summary>
+		/// <param name="syncType"> The type of the sync to process. </param>
+		/// <param name="updateOptions"> The action to possibly update options when the sync starts. </param>
+		/// <param name="postAction"> 
+		/// An optional action to run after sync is completed but before notification goes out. If the sync cannot
+		/// start then the options will be null as they were never read or set.
+		/// </param>
+		private void RunSync(T syncType, Action<SyncOptions> updateOptions, Action<SyncOptions> postAction = null)
 		{
+			SyncOptions options = null;
+
+			try
+			{
+				options = GetSyncOptions(syncType);
+				updateOptions?.Invoke(options);
+
+				OnLogEvent($"Syncing {syncType} for {options.LastSyncedOnClient}, {options.LastSyncedOnServer}", EventLevel.Verbose);
+
+				var client = GetSyncClientForClient();
+				var server = GetSyncClientForServer();
+				var engine = new SyncEngine(client, server, options, _cancellationToken);
+
+				engine.SyncStateChanged += async (sender, state) =>
+				{
+					SyncState.UpdateWith(state);
+					OnSyncUpdated(state);
+
+					if (Dispatcher != null)
+					{
+						await Dispatcher.RunAsync(() =>
+						{
+							OnPropertyChanged(nameof(IsCancellationPending));
+							OnPropertyChanged(nameof(IsRunning));
+							OnPropertyChanged(nameof(ShowProgress));
+						});
+					}
+				};
+
+				engine.Run();
+
+				SyncIssues.AddRange(engine.SyncIssues);
+				IsSyncSuccessful = !_cancellationToken.IsCancellationRequested && !SyncIssues.Any();
+			}
+			catch (WebClientException ex)
+			{
+				switch (ex.Code)
+				{
+					case HttpStatusCode.Unauthorized:
+						SyncState.Message = "Unauthorized: please update your credentials in settings or contact support.";
+						break;
+
+					default:
+						SyncState.Message = ex.Message;
+						break;
+				}
+
+				IsSyncSuccessful = false;
+				OnSyncUpdated(SyncState);
+			}
+			catch (Exception ex)
+			{
+				IsSyncSuccessful = false;
+				SyncState.Message = ex.Message;
+				OnSyncUpdated(SyncState);
+			}
+			finally
+			{
+				try
+				{
+					postAction?.Invoke(options);
+				}
+				catch (Exception ex)
+				{
+					OnLogEvent(ex.Message, EventLevel.Error);
+				}
+
+				try
+				{
+					OnSyncCompleted(options);
+				}
+				catch (Exception ex)
+				{
+					OnLogEvent(ex.Message, EventLevel.Error);
+				}
+
+				StopSync(syncType);
+			}
+		}
+
+
+		private void StartSync(T syncType)
+		{
+			// See if we have a timer for this sync type
+			if (SyncTimers.TryGetValue(syncType, out _syncTimer))
+			{
+				_syncTimer.Start();
+			}
+
+			// Start with sync failed so only successful sync will work
+			IsSyncSuccessful = false;
 			SyncIssues.Clear();
 
+			OnLogEvent($"Sync {syncType} started", EventLevel.Verbose);
+
+			_syncType = syncType;
+			_cancellationToken = new CancellationTokenSource();
 			_watch.Restart();
 
+			OnPropertyChanged(nameof(IsCancellationPending));
 			OnPropertyChanged(nameof(IsRunning));
 			OnPropertyChanged(nameof(ShowProgress));
 		}
 
-		private void StopSync()
+		private void StopSync(T syncType)
 		{
-			_watch.Stop();
+			if (_syncTimer != null)
+			{
+				_syncTimer?.Stop();
+				
+				OnLogEvent($"Sync {syncType} stopped. {_syncTimer.Average:mm\\:ss\\.fff}", EventLevel.Verbose);
 
+				_syncTimer = null;
+			}
+			else
+			{
+				OnLogEvent($"Sync {syncType} stopped", EventLevel.Verbose);
+			}
+
+			_watch.Stop();
+			_cancellationToken?.Dispose();
+			_cancellationToken = null;
+
+			OnPropertyChanged(nameof(IsCancellationPending));
 			OnPropertyChanged(nameof(IsRunning));
 			OnPropertyChanged(nameof(ShowProgress));
 		}
@@ -410,11 +570,6 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Events
-
-		/// <summary>
-		/// Indicates that there is an event to be logged by the sync manager.
-		/// </summary>
-		public event EventHandler<string> LogEvent;
 
 		/// <summary>
 		/// Indicates the sync is completed.

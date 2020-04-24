@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Diagnostics.Tracing;
 using System.Net;
 using System.Threading.Tasks;
 using Speedy.Data.Client;
@@ -87,80 +88,72 @@ namespace Speedy.Data
 			return syncClientProvider;
 		}
 
-		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			WaitOnTask(SyncAsync(waitFor, postAction, force), timeout);
+			WaitOnTask(SyncAsync(waitFor, postAction), timeout);
 		}
 
-		public void SyncAccounts(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public void SyncAccounts(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			WaitOnTask(SyncAccountsAsync(waitFor, postAction, force), timeout);
+			WaitOnTask(SyncAccountsAsync(waitFor, postAction), timeout);
 		}
 
-		public Task SyncAccountsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public Task SyncAccountsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			OnLogEvent("Starting to sync accounts...");
+			OnLogEvent("Starting to sync accounts...", EventLevel.Verbose);
 
-			return ProcessAsync(() =>
+			return ProcessAsync(SyncType.Accounts, options =>
 				{
-					OnLogEvent("Sync accounts started");
-					return GetSyncOptions(SyncType.Accounts);
+					OnLogEvent("Sync accounts started", EventLevel.Verbose);
 				},
 				waitFor,
-				postAction,
-				force);
+				postAction);
 		}
 
-		public void SyncAddresses(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public void SyncAddresses(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			WaitOnTask(SyncAddressesAsync(waitFor, postAction, force), timeout);
+			WaitOnTask(SyncAddressesAsync(waitFor, postAction), timeout);
 		}
 
-		public Task SyncAddressesAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public Task SyncAddressesAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			OnLogEvent("Starting to sync addresses...");
+			OnLogEvent("Starting to sync addresses...", EventLevel.Verbose);
 
-			return ProcessAsync(() =>
+			return ProcessAsync(SyncType.Addresses, options =>
 				{
-					OnLogEvent("Sync addresses started");
-					return GetSyncOptions(SyncType.Addresses);
+					OnLogEvent("Sync addresses started", EventLevel.Verbose);
 				},
 				waitFor,
-				postAction,
-				force);
+				postAction);
 		}
 
-		public Task SyncAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public Task SyncAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			OnLogEvent("Starting to sync all...");
+			OnLogEvent("Starting to sync all...", EventLevel.Verbose);
 
-			return ProcessAsync(() =>
+			return ProcessAsync(SyncType.All, options =>
 				{
-					OnLogEvent("Sync all started");
-					return GetSyncOptions(SyncType.All);
+					OnLogEvent("Sync all started", EventLevel.Verbose);
 				},
 				waitFor,
-				postAction,
-				force);
+				postAction);
 		}
 
-		public void SyncLogEvents(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public void SyncLogEvents(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			WaitOnTask(SyncLogEventsAsync(waitFor, postAction, force), timeout);
+			WaitOnTask(SyncLogEventsAsync(waitFor, postAction), timeout);
 		}
 
-		public Task SyncLogEventsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null, bool force = false)
+		public Task SyncLogEventsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
-			OnLogEvent("Starting to sync log events...");
+			OnLogEvent("Starting to sync log events...", EventLevel.Verbose);
 
-			return ProcessAsync(() =>
+			return ProcessAsync(SyncType.LogEvents, options =>
 				{
-					OnLogEvent("Sync logs events started");
-					return GetSyncOptions(SyncType.LogEvents);
+					OnLogEvent("Sync logs events started", EventLevel.Verbose);
 				},
 				waitFor,
-				postAction,
-				force);
+				postAction);
 		}
 
 		/// <inheritdoc />

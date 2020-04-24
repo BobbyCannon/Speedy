@@ -226,8 +226,10 @@
     <Compile Include="KeyValueMemoryRepositoryTests.cs" />
     <Compile Include="KeyValueRepositoryProviderTests.cs" />
     <Compile Include="KeyValueRepositoryTests.cs" />
-    <Compile Include="LoggingTests.cs" />
+    <Compile Include="Logging\LoggingTests.cs" />
     <Compile Include="Factories\ClientFactory.cs" />
+    <Compile Include="Logging\TimerTests.cs" />
+    <Compile Include="Logging\AverageTimerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\Converters\VersionStringConverterTests.cs" />
     <Compile Include="Serialization\SerializerTests.cs" />
@@ -236,6 +238,7 @@
     <Compile Include="SyncEntityTests.cs" />
     <Compile Include="SyncObjectTests.cs" />
     <Compile Include="TestHelper.cs" />
+    <Compile Include="SyncManagerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -104,7 +104,7 @@ namespace Speedy.Logging
 
 			if (OutputToConsole)
 			{
-				Console.WriteLine($"{args.Payload[0]}: {args.ToPayloadString()}");
+				Console.WriteLine(args.GetDetailedMessage());
 			}
 		}
 

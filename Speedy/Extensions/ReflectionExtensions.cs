@@ -406,16 +406,6 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
-		/// Convert the event written event argument to its payload string
-		/// </summary>
-		/// <param name="args"> The item to process. </param>
-		/// <returns> The formatted message. </returns>
-		public static string ToPayloadString(this EventWrittenEventArgs args)
-		{
-			return string.Format(args.Message, args.Payload.ToArray());
-		}
-
-		/// <summary>
 		/// Retrieves the default value for a given Type
 		/// </summary>
 		/// <param name="type"> The Type for which to get the default value </param>

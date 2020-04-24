@@ -23,7 +23,7 @@ namespace Speedy.Logging
 		/// <summary>
 		/// The Name for the logger.
 		/// </summary>
-		public const string LoggerName = "Speedy Logger";
+		public const string LoggerName = "Speedy.Logger";
 
 		#endregion
 
@@ -63,55 +63,55 @@ namespace Speedy.Logging
 			switch (level)
 			{
 				case EventLevel.Critical:
-					Critical(sessionId, message);
+					Critical(sessionId, message, TimeService.UtcNow);
 					return;
 
 				case EventLevel.Error:
-					Error(sessionId, message);
+					Error(sessionId, message, TimeService.UtcNow);
 					return;
 
 				case EventLevel.Informational:
-					Information(sessionId, message);
+					Information(sessionId, message, TimeService.UtcNow);
 					return;
 
 				case EventLevel.Verbose:
-					Verbose(sessionId, message);
+					Verbose(sessionId, message, TimeService.UtcNow);
 					return;
 
 				case EventLevel.Warning:
-					Warning(sessionId, message);
+					Warning(sessionId, message, TimeService.UtcNow);
 					return;
 			}
 		}
 
 		[Event((int) EventLevel.Critical, Message = "{1}", Level = EventLevel.Critical)]
-		private void Critical(Guid sessionId, string message)
+		private void Critical(Guid sessionId, string message, DateTime time)
 		{
-			WriteEvent((int) EventLevel.Critical, sessionId, message);
+			WriteEvent((int) EventLevel.Critical, sessionId, message, time);
 		}
 
 		[Event((int) EventLevel.Error, Message = "{1}", Level = EventLevel.Error)]
-		private void Error(Guid sessionId, string message)
+		private void Error(Guid sessionId, string message, DateTime time)
 		{
-			WriteEvent((int) EventLevel.Error, sessionId, message);
+			WriteEvent((int) EventLevel.Error, sessionId, message, time);
 		}
 
 		[Event((int) EventLevel.Informational, Message = "{1}", Level = EventLevel.Informational)]
-		private void Information(Guid sessionId, string message)
+		private void Information(Guid sessionId, string message, DateTime time)
 		{
-			WriteEvent((int) EventLevel.Informational, sessionId, message);
+			WriteEvent((int) EventLevel.Informational, sessionId, message, time);
 		}
 
 		[Event((int) EventLevel.Verbose, Message = "{1}", Level = EventLevel.Verbose)]
-		private void Verbose(Guid sessionId, string message)
+		private void Verbose(Guid sessionId, string message, DateTime time)
 		{
-			WriteEvent((int) EventLevel.Verbose, sessionId, message);
+			WriteEvent((int) EventLevel.Verbose, sessionId, message, time);
 		}
 
 		[Event((int) EventLevel.Warning, Message = "{1}", Level = EventLevel.Warning)]
-		private void Warning(Guid sessionId, string message)
+		private void Warning(Guid sessionId, string message, DateTime time)
 		{
-			WriteEvent((int) EventLevel.Warning, sessionId, message);
+			WriteEvent((int) EventLevel.Warning, sessionId, message, time);
 		}
 
 		#endregion
