@@ -12,6 +12,28 @@ namespace Speedy.UnitTests.Logging
 	public class AverageTimerTests : BaseTests
 	{
 		[TestMethod]
+		public void CancelShouldResetTimer()
+		{
+			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			var timer = new AverageTimer(4);
+			
+			TimeService.UtcNowProvider = () => currentTime;
+
+			timer.Start();
+			currentTime = currentTime.AddMilliseconds(123);
+
+			Assert.IsTrue(timer.IsRunning);
+			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(0, timer.Average.Ticks);
+
+			timer.Cancel();
+
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(0, timer.Average.Ticks);
+		}
+		
+		[TestMethod]
 		public void ShouldAverageWithLimit()
 		{
 			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);

@@ -136,7 +136,7 @@ namespace Speedy.Sync
 		/// <param name="timeout"> The timeout to wait for the sync to cancel. </param>
 		public void CancelSync(TimeSpan? timeout = null)
 		{
-			OnLogEvent($"Cancelling running sync {_syncType}...", EventLevel.Verbose);
+			OnLogEvent($"Cancelling running Sync {_syncType}...", EventLevel.Verbose);
 
 			_cancellationToken?.Cancel();
 			
@@ -148,14 +148,14 @@ namespace Speedy.Sync
 			{
 				if (timeout != null && watch.Elapsed.TotalMilliseconds >= timeout.Value.TotalMilliseconds)
 				{
-					OnLogEvent($"Timed out waiting for the sync {_syncType} to complete after being cancelled.", EventLevel.Verbose);
+					OnLogEvent($"Timed out waiting for the Sync {_syncType} to complete after being cancelled.", EventLevel.Verbose);
 					return;
 				}
 
 				Thread.Sleep(25);
 			}
 
-			OnLogEvent($"Running sync {_syncType} cancelled", EventLevel.Verbose);
+			OnLogEvent($"The Sync {_syncType} has been cancelled", EventLevel.Verbose);
 		}
 
 		/// <summary>
@@ -348,20 +348,20 @@ namespace Speedy.Sync
 			{
 				if (waitFor == null)
 				{
-					OnLogEvent($"Sync {_syncType} is already running so sync not started.", EventLevel.Verbose);
+					OnLogEvent($"Sync {_syncType} is already running so Sync {syncType} not started.", EventLevel.Verbose);
 					postAction?.Invoke(null);
 					return Task.CompletedTask;
 				}
 
 				// See if we are going to force current sync to stop
-				OnLogEvent($"Waiting for sync {_syncType} to complete...", EventLevel.Verbose);
+				OnLogEvent($"Waiting for Sync {_syncType} to complete...", EventLevel.Verbose);
 			}
 
 			// Lock the sync before we start, wait until 
 			var enteredLock = WaitForLock(waitFor ?? TimeSpan.Zero);
 			if (!enteredLock)
 			{
-				OnLogEvent($"Failed to sync because current sync {_syncType} never completed while waiting.", EventLevel.Verbose);
+				OnLogEvent($"Failed to Sync {syncType} because current Sync {_syncType} never completed while waiting.", EventLevel.Verbose);
 				postAction?.Invoke(null);
 				return Task.CompletedTask;
 			}
@@ -402,7 +402,7 @@ namespace Speedy.Sync
 			}
 
 			// Calculate new timeout due to previous processing time
-			timeout = timeout - watch.Elapsed;
+			timeout -= watch.Elapsed;
 			
 			// Ensure timeout does not go negative
 			if (timeout.Ticks < 0)

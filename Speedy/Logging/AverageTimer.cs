@@ -69,10 +69,18 @@ namespace Speedy.Logging
 		/// Number of samples currently being averaged.
 		/// </summary>
 		public int Samples { get; private set; }
-		
+
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Cancel the timer.
+		/// </summary>
+		public void Cancel()
+		{ 
+			_timer.Reset();
+		}
 
 		/// <summary>
 		/// Start the timer.
@@ -83,7 +91,7 @@ namespace Speedy.Logging
 		}
 
 		/// <summary>
-		/// Stop a timed interval then update the average.
+		/// Stop the timer then update the average.
 		/// </summary>
 		public void Stop()
 		{
