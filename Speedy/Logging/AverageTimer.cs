@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 
@@ -12,12 +13,13 @@ namespace Speedy.Logging
 	/// <summary>
 	/// Average timer for tracking the average processing time of work.
 	/// </summary>
-	public class AverageTimer : Timer
+	public class AverageTimer : Bindable
 	{
 		#region Fields
 
 		private readonly Collection<long> _collection;
 		private readonly int _limit;
+		private readonly Timer _timer;
 
 		#endregion
 
@@ -40,6 +42,8 @@ namespace Speedy.Logging
 		{
 			_collection = new Collection<long>();
 			_limit = limit;
+			_timer = new Timer();
+			_timer.PropertyChanged += TimerOnPropertyChanged;
 		}
 
 		#endregion
@@ -47,23 +51,41 @@ namespace Speedy.Logging
 		#region Properties
 
 		/// <summary>
-		/// Number of samples currently being averaged.
-		/// </summary>
-		public int Samples { get; private set; }
-
-		/// <summary>
 		/// Returns the Average value as TimeSpan. This expects the Average values to be "Ticks".
 		/// </summary>
 		public TimeSpan Average { get; private set; }
 
+		/// <summary>
+		/// The amount of time that has elapsed.
+		/// </summary>
+		public TimeSpan Elapsed => _timer.Elapsed;
+
+		/// <summary>
+		/// Indicates if the timer is running;
+		/// </summary>
+		public bool IsRunning => _timer.IsRunning;
+
+		/// <summary>
+		/// Number of samples currently being averaged.
+		/// </summary>
+		public int Samples { get; private set; }
+		
 		#endregion
 
 		#region Methods
 
 		/// <summary>
+		/// Start the timer.
+		/// </summary>
+		public void Start()
+		{
+			_timer.Restart();
+		}
+
+		/// <summary>
 		/// Stop a timed interval then update the average.
 		/// </summary>
-		public override void Stop()
+		public void Stop()
 		{
 			if (!IsRunning)
 			{
@@ -71,8 +93,7 @@ namespace Speedy.Logging
 				return;
 			}
 
-			base.Stop();
-
+			_timer.Stop();
 			_collection.Add(Elapsed.Ticks);
 
 			while (_collection.Count > _limit)
@@ -82,6 +103,20 @@ namespace Speedy.Logging
 
 			Samples = _collection.Count;
 			Average = new TimeSpan((long) _collection.Average());
+		}
+
+		private void TimerOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case nameof(Timer.Elapsed):
+					OnPropertyChanged(nameof(Elapsed));
+					break;
+					
+				case nameof(Timer.IsRunning):
+					OnPropertyChanged(nameof(IsRunning));
+					break;
+			}
 		}
 
 		#endregion

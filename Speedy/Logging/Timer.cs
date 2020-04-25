@@ -13,7 +13,6 @@ namespace Speedy.Logging
 	{
 		#region Fields
 
-		private DateTime _start;
 		private TimeSpan _elapsed;
 
 		#endregion
@@ -23,16 +22,21 @@ namespace Speedy.Logging
 		/// <summary>
 		/// Instantiates an instance of the timer.
 		/// </summary>
-		public Timer() : base(new DefaultDispatcher())
+		public Timer() : this(new DefaultDispatcher())
 		{
 		}
-		
+
 		/// <summary>
 		/// Instantiates an instance of the timer.
 		/// </summary>
-		/// <param name="dispatcher"> The dispatcher for the timer. </param>
+		/// <param name="dispatcher"> The dispatcher for handling property changes. </param>
 		public Timer(IDispatcher dispatcher) : base(dispatcher)
 		{
+			// Assign the current incident that is active.
+			_elapsed = TimeSpan.Zero;
+
+			// Reset the started on
+			StartedOn = DateTime.MinValue;
 		}
 
 		#endregion
@@ -40,25 +44,100 @@ namespace Speedy.Logging
 		#region Properties
 
 		/// <summary>
-		/// Incidates if the timer is running.
+		/// The time elapsed for the timer.
 		/// </summary>
-		public bool IsRunning => _start != DateTime.MinValue;
+		public TimeSpan Elapsed => IsRunning ? _elapsed + RunningElapsed() : _elapsed;
 
 		/// <summary>
-		/// The elapsed time the timer has been running.
+		/// Incidates the timer is running or not.
 		/// </summary>
-		public TimeSpan Elapsed => IsRunning ? TimeService.UtcNow - _start : _elapsed;
+		public bool IsRunning => StartedOn > DateTime.MinValue;
+
+		/// <summary>
+		/// The last time the timer was started on.
+		/// </summary>
+		public DateTime StartedOn { get; private set; }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Starts the timer.
+		/// Gets the current time for the timer.
 		/// </summary>
-		public void Start()
+		/// <returns> The current time. </returns>
+		protected virtual DateTime GetCurrentTime()
 		{
-			_start = TimeService.UtcNow;
+			return TimeService.UtcNow;
+		}
+
+		/// <summary>
+		/// Reset the timer.
+		/// </summary>
+		public virtual void Reset()
+		{
+			Reset(TimeSpan.Zero);
+		}
+		
+		/// <summary>
+		/// Reset the time while provided an elapsed timer.
+		/// </summary>
+		/// <param name="elapsed"> The value to set elapsed to. </param>
+		public virtual void Reset(TimeSpan elapsed)
+		{
+			_elapsed = elapsed;
+
+			StartedOn = DateTime.MinValue;
+		}
+
+		/// <summary>
+		/// Restarts the timer.
+		/// </summary>
+		public virtual void Restart()
+		{
+			Restart(GetCurrentTime());
+		}
+
+		/// <summary>
+		/// Restarts the timer with a specific time. The elapsed time will be reset.
+		/// </summary>
+		/// <param name="dateTime"> The time the timer was started. </param>
+		public virtual void Restart(DateTime dateTime)
+		{
+			_elapsed = TimeSpan.Zero;
+
+			StartedOn = dateTime;
+		}
+
+		/// <summary>
+		/// The current running elapsed time.
+		/// </summary>
+		/// <returns> The running elapsed time. </returns>
+		private TimeSpan RunningElapsed()
+		{
+			return GetCurrentTime() - StartedOn;
+		}
+
+		/// <summary>
+		/// Start the timer.
+		/// </summary>
+		public virtual void Start()
+		{
+			Start(GetCurrentTime());
+		}
+
+		/// <summary>
+		/// Starts the timer with a specific time.
+		/// </summary>
+		/// <param name="dateTime"> The time the timer was started. </param>
+		public virtual void Start(DateTime dateTime)
+		{
+			if (IsRunning)
+			{
+				return;
+			}
+
+			StartedOn = dateTime;
 		}
 
 		/// <summary>
@@ -66,8 +145,27 @@ namespace Speedy.Logging
 		/// </summary>
 		public virtual void Stop()
 		{
-			_elapsed = TimeService.UtcNow - _start;
-			_start = DateTime.MinValue;
+			Stop(GetCurrentTime());
+		}
+
+		/// <summary>
+		/// Stops the timer at a specific time.
+		/// </summary>
+		/// <param name="dateTime"> The time the timer was stopped. </param>
+		public virtual void Stop(DateTime dateTime)
+		{
+			if (!IsRunning)
+			{
+				return;
+			}
+
+			var elapsed = dateTime - StartedOn;
+			if (elapsed.Ticks > 0)
+			{
+				_elapsed += elapsed;
+			}
+
+			StartedOn = DateTime.MinValue;
 		}
 
 		#endregion

@@ -12,7 +12,35 @@ namespace Speedy.UnitTests.Logging
 	public class AverageTimerTests : BaseTests
 	{
 		[TestMethod]
-		public void TestMethod1()
+		public void ShouldAverageWithLimit()
+		{
+			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			var timer = new AverageTimer(4);
+			var values = new [] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			
+			TimeService.UtcNowProvider = () => currentTime;
+
+			for (int i = 0; i < values.Length; i++)
+			{
+				int value = values[i];
+
+				timer.Start();
+				currentTime = currentTime.AddTicks(value);
+				timer.Stop();
+
+				// Just bump up to ensure average is not borked by time moving
+				currentTime = currentTime.AddTicks(50 + i);
+			}
+
+			// 6 + 7 + 8 + 9 = 30 / 4 = 7
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(9, timer.Elapsed.Ticks);
+			Assert.AreEqual(7, timer.Average.Ticks);
+			Assert.AreEqual(4, timer.Samples);
+		}
+		
+		[TestMethod]
+		public void ShouldAverageOverTime()
 		{
 			var dateTime = new DateTime(2020, 04, 23, 07, 56, 12);
 			var timer = new AverageTimer(10);
