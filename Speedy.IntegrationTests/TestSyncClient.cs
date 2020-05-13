@@ -55,6 +55,8 @@ namespace Speedy.IntegrationTests
 
 		public SyncOptions SyncOptions { get; }
 
+		public SyncSession SyncSession { get; }
+
 		#endregion
 
 		#region Methods
@@ -76,8 +78,9 @@ namespace Speedy.IntegrationTests
 			return new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
 		}
 
-		public void EndSync(SyncSession session)
+		public SyncStatistics EndSync(Guid sessionId)
 		{
+			return Statistics;
 		}
 
 		public ServiceResult<SyncObject> GetChanges(Guid sessionId, SyncRequest request)
@@ -93,10 +96,6 @@ namespace Speedy.IntegrationTests
 		public ISyncableDatabase GetDatabase()
 		{
 			return null;
-		}
-
-		public void UpdateOptions(Guid sessionId, SyncClientOptions options)
-		{
 		}
 
 		T ISyncClient.GetDatabase<T>()

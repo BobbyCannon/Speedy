@@ -25,7 +25,6 @@ namespace Speedy.Sync
 
 		private int _changeCount;
 		private readonly ISyncableDatabaseProvider _provider;
-		private SyncSession _session;
 
 		#endregion
 
@@ -55,52 +54,64 @@ namespace Speedy.Sync
 		public string Name { get; }
 
 		/// <inheritdoc />
-		public SyncClientOptions Options { get; set; }
+		public SyncClientOptions Options { get; protected set; }
 
 		/// <inheritdoc />
 		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <inheritdoc />
-		public SyncStatistics Statistics { get; set; }
+		public SyncStatistics Statistics { get; private set; }
 
 		/// <inheritdoc />
-		public SyncOptions SyncOptions { get; set; }
+		public SyncOptions SyncOptions { get; protected set; }
+
+		/// <inheritdoc />
+		public SyncSession SyncSession { get; protected set; }
 
 		#endregion
 
 		#region Methods
 
 		/// <inheritdoc />
-		public ServiceResult<SyncIssue> ApplyChanges(Guid sessionId, ServiceRequest<SyncObject> changes)
+		public virtual ServiceResult<SyncIssue> ApplyChanges(Guid sessionId, ServiceRequest<SyncObject> changes)
 		{
 			return ApplyChanges(changes, false);
 		}
 
 		/// <inheritdoc />
-		public ServiceResult<SyncIssue> ApplyCorrections(Guid sessionId, ServiceRequest<SyncObject> corrections)
+		public virtual ServiceResult<SyncIssue> ApplyCorrections(Guid sessionId, ServiceRequest<SyncObject> corrections)
 		{
 			return ApplyChanges(corrections, true);
 		}
 
 		/// <inheritdoc />
-		public SyncSession BeginSync(Guid sessionId, SyncOptions options)
+		public virtual SyncSession BeginSync(Guid sessionId, SyncOptions options)
 		{
-			_session = new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
+			if (SyncSession != null)
+			{
+				throw new InvalidOperationException("An existing sync session is in progress.");
+			}
 
+			SyncSession = new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
 			SyncOptions = options;
 			Statistics.Reset();
 
-			return _session;
+			return SyncSession;
 		}
 
 		/// <inheritdoc />
-		public void EndSync(SyncSession session)
+		public virtual SyncStatistics EndSync(Guid sessionId)
 		{
+			ValidateSession(sessionId);
+			SyncSession = null;
+			return Statistics;
 		}
 
 		/// <inheritdoc />
-		public ServiceResult<SyncObject> GetChanges(Guid sessionId, SyncRequest request)
+		public virtual ServiceResult<SyncObject> GetChanges(Guid sessionId, SyncRequest request)
 		{
+			ValidateSession(sessionId);
+
 			var response = new ServiceResult<SyncObject>
 			{
 				Skipped = request.Skip,
@@ -167,8 +178,10 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public ServiceResult<SyncObject> GetCorrections(Guid sessionId, ServiceRequest<SyncIssue> issues)
+		public virtual ServiceResult<SyncObject> GetCorrections(Guid sessionId, ServiceRequest<SyncIssue> issues)
 		{
+			ValidateSession(sessionId);
+
 			var response = new ServiceResult<SyncObject>();
 
 			if (issues == null)
@@ -246,12 +259,6 @@ namespace Speedy.Sync
 		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
 			return (T) _provider.GetSyncableDatabase();
-		}
-
-		/// <inheritdoc />
-		public void UpdateOptions(Guid id, SyncClientOptions options)
-		{
-			Options.UpdateWith(options);
 		}
 
 		private ServiceResult<SyncIssue> ApplyChanges(ServiceRequest<SyncObject> changes, bool corrections)
@@ -347,7 +354,7 @@ namespace Speedy.Sync
 
 		private void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction)
 		{
-			Logger.Instance.Write(_session.Id, correction
+			Logger.Instance.Write(SyncSession.Id, correction
 					? $"Processing sync object correction {syncObject.SyncId}."
 					: $"Processing sync object {syncObject.SyncId}.",
 				EventLevel.Verbose);
@@ -361,13 +368,13 @@ namespace Speedy.Sync
 
 			if (SyncOptions.ShouldFilterRepository(syncObject.TypeName))
 			{
-				Logger.Instance.Write(_session.Id, "Ignoring this type because this repository is being filtered.", EventLevel.Verbose);
+				Logger.Instance.Write(SyncSession.Id, "Ignoring this type because this repository is being filtered.", EventLevel.Verbose);
 				return;
 			}
 
 			if (SyncOptions.ShouldFilterEntity(syncObject.TypeName, syncEntity))
 			{
-				Logger.Instance.Write(_session.Id, "Ignoring this type because this entity is being filtered.", EventLevel.Verbose);
+				Logger.Instance.Write(SyncSession.Id, "Ignoring this type because this entity is being filtered.", EventLevel.Verbose);
 				return;
 			}
 
@@ -452,9 +459,9 @@ namespace Speedy.Sync
 
 		private void ProcessSyncObjects(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
 		{
-			var sourceSyncObjects = syncObjects.ToList();
+			var objects = syncObjects.ToList();
 
-			if (!sourceSyncObjects.Any())
+			if (!objects.Any())
 			{
 				return;
 			}
@@ -465,19 +472,21 @@ namespace Speedy.Sync
 				{
 					database.Options.MaintainCreatedOn = false;
 					database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
-					sourceSyncObjects.ForEach(x => ProcessSyncObject(x, database, corrections));
+					objects.ForEach(x => ProcessSyncObject(x, database, corrections));
 					database.SaveChanges();
 				}
 			}
 			catch
 			{
-				Logger.Instance.Write(_session.Id, "Failed to process sync objects in the batch.");
-				ProcessSyncObjectsIndividually(provider, sourceSyncObjects, issues, corrections);
+				Logger.Instance.Write(SyncSession.Id, "Failed to process sync objects in the batch.");
+				ProcessSyncObjectsIndividually(provider, objects, issues, corrections);
 			}
 		}
 
 		private void ProcessSyncObjectsIndividually(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
 		{
+			var objects = syncObjects.ToList();
+			
 			foreach (var syncObject in syncObjects)
 			{
 				try
@@ -609,6 +618,7 @@ namespace Speedy.Sync
 
 				var repository = database.GetSyncableRepository(relationship.Type);
 				var foundEntity = repository?.Read(relationship.SyncId.Value);
+
 				if (foundEntity != null)
 				{
 					var id = relationship.TypeIdPropertyInfo.GetValue(foundEntity);
@@ -637,6 +647,18 @@ namespace Speedy.Sync
 			if (response.Any(x => x != null))
 			{
 				throw new SyncIssueException("This entity has relationship issues.", response.Where(x => x != null));
+			}
+		}
+
+		/// <summary>
+		/// Validates the sync session. The SyncSession will be set on BeginSync and cleared on EndSync.
+		/// </summary>
+		/// <param name="sessionId"></param>
+		protected virtual void ValidateSession(Guid sessionId)
+		{
+			if (sessionId != SyncSession?.Id)
+			{
+				throw new InvalidOperationException("The sync session ID is invalid.");
 			}
 		}
 

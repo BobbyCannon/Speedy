@@ -42,6 +42,7 @@ namespace Speedy.Sync
 			_syncType = default;
 			_watch = new Stopwatch();
 
+			IsEnabled = true;
 			ProcessTimeout = TimeSpan.FromMilliseconds(60000);
 			SessionId = Guid.NewGuid();
 			ShowProgressThreshold = TimeSpan.FromMilliseconds(1000);
@@ -66,6 +67,11 @@ namespace Speedy.Sync
 		public bool IsCancellationPending => _cancellationToken?.Token.IsCancellationRequested ?? false;
 
 		/// <summary>
+		/// Gets a value indicating the sync manager is enabled.
+		/// </summary>
+		public bool IsEnabled { get; set; }
+
+		/// <summary>
 		/// Gets a value indicating the running status of the sync manager.
 		/// </summary>
 		public bool IsRunning => _cancellationToken != null || Monitor.IsEntered(_watch) || _watch.IsRunning;
@@ -88,7 +94,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// The session ID of the sync manager.
 		/// </summary>
-		public Guid SessionId { get; set;}
+		public Guid SessionId { get; set; }
 
 		/// <summary>
 		/// Gets a flag to indicate progress should be shown. Will only be true if sync takes longer than the <seealso cref="ShowProgressThreshold" />.
@@ -106,6 +112,16 @@ namespace Speedy.Sync
 		public IList<SyncIssue> SyncIssues { get; }
 
 		/// <summary>
+		/// Gets the current sync state.
+		/// </summary>
+		public SyncEngineState SyncState { get; }
+
+		/// <summary>
+		/// The version of the sync system. Update this version any time the sync system changed dramatically
+		/// </summary>
+		public abstract Version SyncSystemVersion { get; }
+
+		/// <summary>
 		/// The configure sync options for the sync manager.
 		/// </summary>
 		/// <seealso cref="GetOrAddSyncOptions" />
@@ -115,16 +131,6 @@ namespace Speedy.Sync
 		/// The configure sync timers for the sync manager.
 		/// </summary>
 		protected ConcurrentDictionary<T, AverageTimer> SyncTimers { get; }
-
-		/// <summary>
-		/// Gets the current sync state.
-		/// </summary>
-		public SyncEngineState SyncState { get; }
-
-		/// <summary>
-		/// The version of the sync system. Update this version any time the sync system changed dramatically
-		/// </summary>
-		public abstract Version SyncSystemVersion { get; }
 
 		#endregion
 
@@ -139,7 +145,7 @@ namespace Speedy.Sync
 			OnLogEvent($"Cancelling running Sync {_syncType}...", EventLevel.Verbose);
 
 			_cancellationToken?.Cancel();
-			
+
 			OnPropertyChanged(nameof(IsCancellationPending));
 
 			var watch = Stopwatch.StartNew();
@@ -199,7 +205,7 @@ namespace Speedy.Sync
 
 			return true;
 		}
-		
+
 		/// <summary>
 		/// Wait for the sync to start.
 		/// </summary>
@@ -229,27 +235,6 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Create the sync option for the provided sync type.
-		/// </summary>
-		/// <param name="syncType"> The type to create sync options for. </param>
-		/// <returns> The sync options for the type. </returns>
-		protected virtual SyncOptions CreateSyncOptions(T syncType)
-		{
-			return new SyncOptions
-			{
-				Id = syncType.ToString(),
-				LastSyncedOnClient = DateTime.MinValue,
-				LastSyncedOnServer = DateTime.MinValue,
-				// note: everything below is a request, the sync clients (web sync controller)
-				// has the options to override. Ex: you may request 300 items then the sync
-				// client may reduce it to only 100 items.
-				PermanentDeletions = false,
-				ItemsPerSyncRequest = 300,
-				IncludeIssueDetails = false
-			};
-		}
-
-		/// <summary>
 		/// Gets the default sync options for a sync manager.
 		/// </summary>
 		/// <param name="syncType"> The type of sync these options are for. </param>
@@ -267,7 +252,17 @@ namespace Speedy.Sync
 					return SyncOptions[syncType];
 				}
 
-				var options = CreateSyncOptions(key);
+				var options = new SyncOptions
+				{
+					LastSyncedOnClient = DateTime.MinValue,
+					LastSyncedOnServer = DateTime.MinValue,
+					// note: everything below is a request, the sync clients (web sync controller)
+					// has the options to override. Ex: you may request 300 items then the sync
+					// client may reduce it to only 100 items.
+					PermanentDeletions = false,
+					ItemsPerSyncRequest = 300,
+					IncludeIssueDetails = false
+				};
 
 				options.Values.AddOrUpdate(Sync.SyncOptions.SyncKey, ((int) (object) syncType).ToString());
 				options.Values.AddOrUpdate(Sync.SyncOptions.SyncVersionKey, SyncSystemVersion.ToString(4));
@@ -337,13 +332,20 @@ namespace Speedy.Sync
 		/// <param name="syncType"> The type of the sync to process. </param>
 		/// <param name="updateOptions"> The action to possibly update options when the sync starts. </param>
 		/// <param name="waitFor"> Optional timeout to wait for the active sync to complete. </param>
-		/// <param name="postAction"> 
+		/// <param name="postAction">
 		/// An optional action to run after sync is completed but before notification goes out. If the sync cannot
 		/// start then the options will be null as they were never read or set.
 		/// </param>
 		/// <returns> The task for the process. </returns>
 		protected Task ProcessAsync(T syncType, Action<SyncOptions> updateOptions, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
+			if (!IsEnabled)
+			{
+				OnLogEvent($"Sync Manager is not enabled so Sync {syncType} not started.", EventLevel.Verbose);
+				postAction?.Invoke(null);
+				return Task.CompletedTask;
+			}
+
 			if (IsRunning)
 			{
 				if (waitFor == null)
@@ -384,37 +386,6 @@ namespace Speedy.Sync
 			}
 		}
 
-		private bool WaitForLock(TimeSpan timeout)
-		{ 
-			var watch = Stopwatch.StartNew();
-
-			// Wait for an existing sync
-			while (IsRunning && _watch.Elapsed < timeout)
-			{
-				Thread.Sleep(10);
-			}
-
-			// See if we have timed out, if so just return false
-			if (IsRunning)
-			{
-				// The sync is still running so return false
-				return false;
-			}
-
-			// Calculate new timeout due to previous processing time
-			timeout -= watch.Elapsed;
-			
-			// Ensure timeout does not go negative
-			if (timeout.Ticks < 0)
-			{
-				timeout = TimeSpan.Zero;
-			}
-
-			var enteredLock = false;
-			Monitor.TryEnter(_watch, timeout, ref enteredLock);
-			return enteredLock;
-		}
-
 		/// <summary>
 		/// Wait on a task to be completed.
 		/// </summary>
@@ -433,7 +404,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="syncType"> The type of the sync to process. </param>
 		/// <param name="updateOptions"> The action to possibly update options when the sync starts. </param>
-		/// <param name="postAction"> 
+		/// <param name="postAction">
 		/// An optional action to run after sync is completed but before notification goes out. If the sync cannot
 		/// start then the options will be null as they were never read or set.
 		/// </param>
@@ -519,7 +490,6 @@ namespace Speedy.Sync
 			}
 		}
 
-
 		private void StartSync(T syncType)
 		{
 			// See if we have a timer for this sync type
@@ -548,7 +518,7 @@ namespace Speedy.Sync
 			if (_syncTimer != null)
 			{
 				_syncTimer?.Stop();
-				
+
 				OnLogEvent($"Sync {syncType} stopped. {_syncTimer.Average:mm\\:ss\\.fff}", EventLevel.Verbose);
 
 				_syncTimer = null;
@@ -565,6 +535,37 @@ namespace Speedy.Sync
 			OnPropertyChanged(nameof(IsCancellationPending));
 			OnPropertyChanged(nameof(IsRunning));
 			OnPropertyChanged(nameof(ShowProgress));
+		}
+
+		private bool WaitForLock(TimeSpan timeout)
+		{
+			var watch = Stopwatch.StartNew();
+
+			// Wait for an existing sync
+			while (IsRunning && _watch.Elapsed < timeout)
+			{
+				Thread.Sleep(10);
+			}
+
+			// See if we have timed out, if so just return false
+			if (IsRunning)
+			{
+				// The sync is still running so return false
+				return false;
+			}
+
+			// Calculate new timeout due to previous processing time
+			timeout -= watch.Elapsed;
+
+			// Ensure timeout does not go negative
+			if (timeout.Ticks < 0)
+			{
+				timeout = TimeSpan.Zero;
+			}
+
+			var enteredLock = false;
+			Monitor.TryEnter(_watch, timeout, ref enteredLock);
+			return enteredLock;
 		}
 
 		#endregion

@@ -26,11 +26,63 @@ namespace Speedy.UnitTests.Logging
 			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(0, timer.Average.Ticks);
 
+			// Cancel should reset state to empty
 			timer.Cancel();
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(0, timer.Average.Ticks);
+			
+			// Calling stop later should not change state
+			timer.Stop();
+
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(0, timer.Average.Ticks);
+		}
+		
+		[TestMethod]
+		public void CancelShouldResetTimerWithoutChangingHistory()
+		{
+			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			var timer = new AverageTimer(4);
+			
+			TimeService.UtcNowProvider = () => currentTime;
+
+			timer.Start();
+			currentTime = currentTime.AddMilliseconds(123);
+			Assert.IsTrue(timer.IsRunning);
+			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(0, timer.Average.Ticks);
+			
+			timer.Stop();
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(1230000, timer.Average.Ticks);
+			Assert.AreEqual(1, timer.Samples);
+
+			// Restart timer
+			currentTime = currentTime.AddMilliseconds(12);
+			timer.Start();
+			currentTime = currentTime.AddMilliseconds(13);
+			Assert.IsTrue(timer.IsRunning);
+			Assert.AreEqual(13, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(1230000, timer.Average.Ticks);
+			Assert.AreEqual(1, timer.Samples);
+
+			// Cancel should reset state to empty
+			timer.Cancel();
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(1230000, timer.Average.Ticks);
+			Assert.AreEqual(1, timer.Samples);
+			
+			// Calling stop later should not change state
+			timer.Stop();
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(1230000, timer.Average.Ticks);
+			Assert.AreEqual(1, timer.Samples);
 		}
 		
 		[TestMethod]

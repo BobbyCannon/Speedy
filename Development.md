@@ -4,10 +4,14 @@ Whenever changes are made to entities we just reset migrations. Meaning we simpl
 
 Run these two migration to create the "initial" migration
 
+# Client
 Add-Migration Initial -Project Speedy.Client.Data -StartupProject Speedy.IntegrationTests
+Remove-Migration -Project Speedy.Client.Data -StartupProject Speedy.IntegrationTests
 
+# Website Sql
 Add-Migration Initial -Project Speedy.Website.Data.Sql -StartupProject Speedy.Website
 Remove-Migration -Project Speedy.Website.Data.Sql -StartupProject Speedy.Website
 
+# Website Sqlite
 Add-Migration Initial -Project Speedy.Website.Data.Sqlite -StartupProject Speedy.Benchmark
 Remove-Migration -Project Speedy.Website.Data.Sqlite -StartupProject Speedy.Benchmark

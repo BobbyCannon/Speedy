@@ -14,6 +14,7 @@ using Speedy.Net;
 using Speedy.Sync;
 using Speedy.UnitTests;
 using Speedy.UnitTests.Factories;
+using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
 using Speedy.Website.WebApi;
 
@@ -41,7 +42,7 @@ namespace Speedy.IntegrationTests
 
 			var controller = new SyncController(entityProvider, TestHelper.GetAuthenticationService()) { User = TestHelper.GetIdentity(TestHelper.AdministratorId, "Administrator") };
 			var syncId = Guid.NewGuid();
-			var syncOption = new SyncOptions(syncId.ToString());
+			var syncOption = new SyncOptions();
 			var session = controller.BeginSync(syncId, syncOption);
 
 			// Change the log entry to see if we can sync it.
@@ -51,7 +52,7 @@ namespace Speedy.IntegrationTests
 			update.Level = LogLevel.Critical;
 
 			var issues = controller.ApplyChanges(session.Id, new ServiceRequest<SyncObject>(update.ToSyncObject()));
-			controller.EndSync(session);
+			controller.EndSync(session.Id);
 
 			Assert.AreEqual(0, issues.TotalCount);
 
@@ -77,7 +78,7 @@ namespace Speedy.IntegrationTests
 			}
 
 			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
-			var server = new SyncController(entityProvider, TestHelper.GetAuthenticationService()) { User = TestHelper.GetIdentity(TestHelper.AdministratorId, "Administrator") };
+			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase, ContosoDatabase.GetDefaultOptions()));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
@@ -128,7 +129,7 @@ namespace Speedy.IntegrationTests
 			}
 
 			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
-			var server = new SyncController(entityProvider, TestHelper.GetAuthenticationService()) { User = TestHelper.GetIdentity(TestHelper.AdministratorId, "Administrator") };
+			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
@@ -172,7 +173,7 @@ namespace Speedy.IntegrationTests
 			}
 
 			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
-			var server = new SyncController(entityProvider, TestHelper.GetAuthenticationService()) { User = TestHelper.GetIdentity(TestHelper.AdministratorId, "Administrator") };
+			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };

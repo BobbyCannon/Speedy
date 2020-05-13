@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Speedy.Data.WebApi;
 using Speedy.Extensions;
 using Speedy.Sync;
 
@@ -25,8 +26,14 @@ namespace Speedy.Website.Samples.Entities
 
 		#region Properties
 
+		/// <summary>
+		/// The people associated with this address.
+		/// </summary>
 		public virtual ICollection<AccountEntity> Accounts { get; set; }
 
+		/// <summary>
+		/// The city for the address.
+		/// </summary>
 		public string City { get; set; }
 
 		/// <summary>
@@ -34,10 +41,17 @@ namespace Speedy.Website.Samples.Entities
 		/// </summary>
 		public string FullAddress => $"{Line1}{Environment.NewLine}{City}, {State}  {Postal}";
 
+		/// <inheritdoc />
 		public override long Id { get; set; }
 
+		/// <summary>
+		/// The line 1 for the address.
+		/// </summary>
 		public string Line1 { get; set; }
 
+		/// <summary>
+		/// The line 2 for the address.
+		/// </summary>
 		public string Line2 { get; set; }
 
 		public virtual AddressEntity LinkedAddress { get; set; }
@@ -48,8 +62,14 @@ namespace Speedy.Website.Samples.Entities
 
 		public Guid? LinkedAddressSyncId { get; set; }
 
+		/// <summary>
+		/// The postal for the address.
+		/// </summary>
 		public string Postal { get; set; }
 
+		/// <summary>
+		/// The state for the address.
+		/// </summary>
 		public string State { get; set; }
 
 		#endregion

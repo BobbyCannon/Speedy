@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Authentication;
 using System.Web.Http;
+using Speedy.Data;
 using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
 using Speedy.Website.Services;

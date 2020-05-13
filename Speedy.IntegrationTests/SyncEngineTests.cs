@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -133,37 +134,41 @@ namespace Speedy.IntegrationTests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
-
-				var options = new SyncOptions();
-				var issues = SyncEngine.Run(client, server, options);
-
-				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-
-				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				using (var listener = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true })
 				{
-					var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-					var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+					Logger.Instance.Write(client.Name + " -> " + server.Name);
+					server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
-					Assert.AreEqual(2, addresses1.Count);
-					Assert.AreEqual(2, addresses2.Count);
+					var options = new SyncOptions();
+					var issues = SyncEngine.Run(client, server, options);
 
-					TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
-					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), "Id", nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
+					Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+					using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+					using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+					{
+						var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+						var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+
+						Assert.AreEqual(2, addresses1.Count);
+						Assert.AreEqual(2, addresses2.Count);
+
+						TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
+						TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), "Id", nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
+					}
+				
+					issues = SyncEngine.Run(client, server, options);
+
+					Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+					Assert.IsFalse(client.Statistics.IsReset);
+					Assert.IsFalse(client.Statistics.IsReset);
+
+					issues = SyncEngine.Run(client, server, options);
+
+					Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+					Assert.IsTrue(client.Statistics.IsReset);
+					Assert.IsTrue(client.Statistics.IsReset);
 				}
-
-				issues = SyncEngine.Run(client, server, options);
-
-				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-				Assert.IsFalse(client.Statistics.IsReset);
-				Assert.IsFalse(client.Statistics.IsReset);
-
-				issues = SyncEngine.Run(client, server, options);
-
-				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-				Assert.IsTrue(client.Statistics.IsReset);
-				Assert.IsTrue(client.Statistics.IsReset);
 			});
 		}
 
@@ -454,8 +459,8 @@ namespace Speedy.IntegrationTests
 
 			// Reset time back to client time, and end the sync
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 54);
-			client.EndSync(clientSession);
-			server.EndSync(serverSession);
+			client.EndSync(clientSession.Id);
+			server.EndSync(serverSession.Id);
 
 			// Now do a full normal sync and ensure the client address gets synced, we will set the time to server time
 			// Full Sync : Go ahead and sync the data to all locations
@@ -887,19 +892,21 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void ThreeWaySyncShouldWork()
 		{
+			using var listener = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+			var serverMemoryProvider = TestHelper.GetSyncableMemoryProvider();
 			var client1 = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
 			var client2 = new SyncClient("Client 2", TestHelper.GetSyncableMemoryProvider());
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider());
-			server.Options.MaintainModifiedOn = true;
+			var server1 = new SyncClient("Server", serverMemoryProvider) { Options = { MaintainModifiedOn = true } };
+			var server2 = new SyncClient("Server2", serverMemoryProvider) { Options = { MaintainModifiedOn = true } };
 
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
 			var address = NewAddress("123 Elm Street");
-			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+			server1.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
 
 			// Make sure all data is only on the server
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
 				Assert.AreEqual(2, serverDatabase.Addresses.Count());
 				Assert.AreEqual("123 Elm Street", serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First().Line1);
@@ -912,9 +919,9 @@ namespace Speedy.IntegrationTests
 
 			// Sync Set 1: Go ahead and sync the data to all locations
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 01);
-			SyncEngine.Run(client1, server, client1Options);
+			SyncEngine.Run(client1, server1, client1Options);
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 02);
-			SyncEngine.Run(client2, server, client2Options);
+			SyncEngine.Run(client2, server2, client2Options);
 
 			// Prepare a new address for client 2
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 03);
@@ -923,7 +930,7 @@ namespace Speedy.IntegrationTests
 			// Make sure all data is there
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
 				Assert.AreEqual(2, serverDatabase.Addresses.Count());
 				Assert.AreEqual(2, client1Database.Addresses.Count());
@@ -946,14 +953,14 @@ namespace Speedy.IntegrationTests
 
 			// Manual Sync
 
-			// Do first part of syncing client 1 (client1 <- server)
+			// Do first part of syncing client 1 (client1 <- server1)
 			// The should not have any updates as the server has not changed
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 00);
 			var client1Start = TimeService.UtcNow;
-			var serverSession = server.BeginSync(client1Id, client1Options);
+			var serverSession1 = server1.BeginSync(client1Id, client1Options);
 			client1.BeginSync(client1Id, client1Options);
 			var client1Request = new SyncRequest { Since = client1Options.LastSyncedOnServer, Until = client1Start, Skip = 0 };
-			var client1Results = server.GetChanges(client1Id, client1Request);
+			var client1Results = server1.GetChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Results.TotalCount);
 			Assert.AreEqual(0, client1Results.Collection.Count);
 			client1Request.Collection = client1Results.Collection;
@@ -965,7 +972,7 @@ namespace Speedy.IntegrationTests
 			// Data still should not have changed yet
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
 				Assert.AreEqual(2, serverDatabase.Addresses.Count());
 				Assert.AreEqual(2, client1Database.Addresses.Count());
@@ -978,15 +985,15 @@ namespace Speedy.IntegrationTests
 				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
 			}
 
-			// Do first part of syncing client 2 (client2 <- server)
+			// Do first part of syncing client 2 (client2 <- server 2)
 			// This should not have any updates as the server has not changed
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 00);
 			var serverStart = TimeService.UtcNow;
 			var client2Start = serverStart;
-			serverSession = server.BeginSync(client2Id, client2Options);
+			var serverSession2 = server2.BeginSync(client2Id, client2Options);
 			client2.BeginSync(client2Id, client2Options);
 			var client2Request = new SyncRequest { Since = client2Options.LastSyncedOnServer, Until = serverStart, Skip = 0 };
-			var client2Results = server.GetChanges(client2Id, client2Request);
+			var client2Results = server2.GetChanges(client2Id, client2Request);
 			Assert.AreEqual(0, client2Results.TotalCount);
 			Assert.AreEqual(0, client2Results.Collection.Count);
 			client2Request.Collection = client2Results.Collection;
@@ -998,7 +1005,7 @@ namespace Speedy.IntegrationTests
 			// Data should not have changed yet
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
 				Assert.AreEqual(2, serverDatabase.Addresses.Count());
 				Assert.AreEqual(2, client1Database.Addresses.Count());
@@ -1011,7 +1018,7 @@ namespace Speedy.IntegrationTests
 				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
 			}
 
-			// Do second part of client 2 (client2 -> server)
+			// Do second part of client 2 (client2 -> server2)
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 02, 00);
 			client2Request = new SyncRequest { Since = client2Options.LastSyncedOnClient, Until = client2Start, Skip = 0 };
 			client2Results = client2.GetChanges(client2Id, client2Request);
@@ -1020,16 +1027,16 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(address2.SyncId, client2Results.Collection[0].SyncId);
 			client2Request.Collection = client2Results.Collection;
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 02, 01);
-			client2Issues = server.ApplyChanges(client2Id, client2Request);
+			client2Issues = server2.ApplyChanges(client2Id, client2Request);
 			Assert.AreEqual(0, client2Issues.TotalCount);
 			Assert.AreEqual(0, client2Issues.Collection.Count);
-			client2.EndSync(serverSession);
-			server.EndSync(serverSession);
+			client2.EndSync(serverSession2.Id);
+			server2.EndSync(serverSession2.Id);
 
 			// Data still should now have synced to the server
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			using (var serverDatabase = server2.GetDatabase<IContosoDatabase>())
 			{
 				Assert.AreEqual(3, serverDatabase.Addresses.Count());
 				Assert.AreEqual(2, client1Database.Addresses.Count());
@@ -1042,7 +1049,7 @@ namespace Speedy.IntegrationTests
 				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
 			}
 
-			// Do second part of client 1 (client1 -> server)
+			// Do second part of client 1 (client1 -> server1)
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 03, 00);
 			client1Request = new SyncRequest { Since = client1Options.LastSyncedOnClient, Until = client1Start, Skip = 0 };
 			client1Results = client1.GetChanges(client1Id, client1Request);
@@ -1050,16 +1057,16 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(0, client1Results.Collection.Count);
 			client1Request.Collection = client1Results.Collection;
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 03, 01);
-			client1Issues = server.ApplyChanges(client1Id, client1Request);
+			client1Issues = server1.ApplyChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Issues.TotalCount);
 			Assert.AreEqual(0, client1Issues.Collection.Count);
-			client1.EndSync(serverSession);
-			server.EndSync(serverSession);
+			client1.EndSync(serverSession1.Id);
+			server1.EndSync(serverSession1.Id);
 
 			// Data still should not have changed yet
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
 				Assert.AreEqual(3, serverDatabase.Addresses.Count());
 				Assert.AreEqual(2, client1Database.Addresses.Count());
@@ -1076,20 +1083,20 @@ namespace Speedy.IntegrationTests
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 04, 00);
 			client1Options.LastSyncedOnServer = serverStart;
 			client1Options.LastSyncedOnClient = client1Start;
-			SyncEngine.Run(client1, server, client1Options);
+			SyncEngine.Run(client1, server1, client1Options);
 			Assert.IsFalse(client1.Statistics.IsReset);
-			Assert.IsFalse(server.Statistics.IsReset);
+			Assert.IsFalse(server1.Statistics.IsReset);
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 04, 01);
 			client2Options.LastSyncedOnServer = serverStart;
 			client2Options.LastSyncedOnClient = client2Start;
-			SyncEngine.Run(client2, server, client2Options);
+			SyncEngine.Run(client2, server2, client2Options);
 			Assert.IsFalse(client2.Statistics.IsReset);
-			Assert.IsFalse(server.Statistics.IsReset);
+			Assert.IsFalse(server2.Statistics.IsReset);
 
 			// Data still should not have changed yet
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
-			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
 				Assert.AreEqual(3, serverDatabase.Addresses.Count());
 				Assert.AreEqual(3, client1Database.Addresses.Count());
@@ -1112,15 +1119,15 @@ namespace Speedy.IntegrationTests
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 05, 00);
 			client1Options.LastSyncedOnServer = client1Options.LastSyncedOnServer;
 			client1Options.LastSyncedOnClient = client1Options.LastSyncedOnClient;
-			SyncEngine.Run(client1, server, client1Options);
+			SyncEngine.Run(client1, server1, client1Options);
 			Assert.IsTrue(client1.Statistics.IsReset);
-			Assert.IsTrue(server.Statistics.IsReset);
+			Assert.IsTrue(server1.Statistics.IsReset);
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 05, 01);
 			client2Options.LastSyncedOnServer = client2Options.LastSyncedOnServer;
 			client2Options.LastSyncedOnClient = client2Options.LastSyncedOnClient;
-			SyncEngine.Run(client2, server, client2Options);
+			SyncEngine.Run(client2, server2, client2Options);
 			Assert.IsTrue(client2.Statistics.IsReset);
-			Assert.IsTrue(server.Statistics.IsReset);
+			Assert.IsTrue(server2.Statistics.IsReset);
 		}
 
 		[TestMethod]

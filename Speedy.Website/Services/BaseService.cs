@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Humanizer;
+using Speedy.Data;
 using Speedy.Data.WebApi;
 using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;

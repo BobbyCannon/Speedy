@@ -12,8 +12,8 @@
 		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
 		<Copyright>© Copyright 2014 - 2020</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-		<AssemblyVersion>6.4.3.0</AssemblyVersion>
-		<FileVersion>6.4.3.0</FileVersion>
+		<AssemblyVersion>6.4.4.0</AssemblyVersion>
+		<FileVersion>6.4.4.0</FileVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<DebugSymbols>true</DebugSymbols>
@@ -55,7 +55,7 @@
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
-		<Version>6.4.3-RC</Version>
+		<Version>6.4.4-RC</Version>
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
@@ -68,10 +68,10 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.2" />
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.3" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.4" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="PropertyChanged.Fody" Version="3.2.8">
 			<PrivateAssets>all</PrivateAssets>

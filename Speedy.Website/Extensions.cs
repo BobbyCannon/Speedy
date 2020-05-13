@@ -39,16 +39,6 @@ namespace Speedy.Website
 			return Encoding.UTF8.GetString(bytes);
 		}
 
-		public static IEnumerable<string> GetRoles(this AccountEntity account)
-		{
-			return account?.Roles?.GetRoles();
-		}
-
-		public static IEnumerable<string> GetRoles(this string roles)
-		{
-			return string.IsNullOrEmpty(roles) ? new string[0] : roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
-		}
-
 		/// <summary>
 		/// Get the user ID.
 		/// </summary>
@@ -82,16 +72,6 @@ namespace Speedy.Website
 			}
 
 			return !identity.Name.Contains(';') ? "Unknown" : identity.Name.Split(';').Last();
-		}
-
-		public static bool InRole(this AccountEntity account, params AccountRole[] roles)
-		{
-			return roles.Any(x => account?.InRole(x.ToString()) ?? false);
-		}
-
-		public static bool InRole(this AccountEntity account, string roleName)
-		{
-			return account?.GetRoles().Any(x => x.Equals(roleName, StringComparison.OrdinalIgnoreCase)) ?? false;
 		}
 
 		#endregion

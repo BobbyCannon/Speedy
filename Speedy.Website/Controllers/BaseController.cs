@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Threading;
 using System.Web.Mvc;
+using Speedy.Data;
 using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
 using Speedy.Website.Services;

@@ -71,6 +71,9 @@ namespace Speedy.Net
 		/// <inheritdoc />
 		public SyncOptions SyncOptions { get; private set; }
 
+		/// <inheritdoc />
+		public SyncSession SyncSession { get;}
+
 		#endregion
 
 		#region Methods
@@ -95,10 +98,11 @@ namespace Speedy.Net
 		}
 
 		/// <inheritdoc />
-		public void EndSync(SyncSession session)
+		public SyncStatistics EndSync(Guid sessionId)
 		{
-			var statistics = WebClient.Post<string, SyncStatistics>($"{_syncUri}/{nameof(EndSync)}/{session.Id}", string.Empty);
+			var statistics = WebClient.Post<string, SyncStatistics>($"{_syncUri}/{nameof(EndSync)}/{sessionId}", string.Empty);
 			Statistics.UpdateWith(statistics);
+			return Statistics;
 		}
 
 		/// <inheritdoc />
@@ -123,18 +127,6 @@ namespace Speedy.Net
 		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
 			return (T) _provider.GetSyncableDatabase();
-		}
-
-		/// <inheritdoc />
-		public void UpdateOptions(Guid sessionId, SyncClientOptions options)
-		{
-			using (var result = WebClient.Post($"{_syncUri}/{nameof(UpdateOptions)}/{sessionId}", options))
-			{
-				if (!result.IsSuccessStatusCode)
-				{
-					throw new WebClientException(result);
-				}
-			}
 		}
 
 		#endregion

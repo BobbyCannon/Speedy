@@ -339,46 +339,58 @@ namespace Speedy.IntegrationTests
 			}, database.Options);
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqliteProvider()
+		public static ISyncableDatabaseProvider GetSyncableSqliteProvider(bool initialize = true)
 		{
 			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection))
 			{
 				database.Database.EnsureDeleted();
 				database.Database.Migrate();
-				InitializeDatabase(database);
+				if (initialize)
+				{
+					InitializeDatabase(database);
+				}
 				return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqliteProvider2()
+		public static ISyncableDatabaseProvider GetSyncableSqliteProvider2(bool initialize = true)
 		{
 			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2))
 			{
 				database.Database.EnsureDeleted();
 				database.Database.Migrate();
-				InitializeDatabase(database);
+				if (initialize)
+				{
+					InitializeDatabase(database);
+				}
 				return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqlProvider()
+		public static ISyncableDatabaseProvider GetSyncableSqlProvider(bool initialize = true)
 		{
 			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection))
 			{
 				database.Database.Migrate();
 				database.ClearDatabase();
-				InitializeDatabase(database);
+				if (initialize)
+				{
+					InitializeDatabase(database);
+				}
 				return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqlProvider2()
+		public static ISyncableDatabaseProvider GetSyncableSqlProvider2(bool initialize = true)
 		{
 			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2))
 			{
 				database.Database.Migrate();
 				database.ClearDatabase();
-				InitializeDatabase(database);
+				if (initialize)
+				{
+					InitializeDatabase(database);
+				}
 				return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
 			}
 		}
@@ -400,9 +412,9 @@ namespace Speedy.IntegrationTests
 			});
 		}
 
-		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action, bool includeWeb = true)
+		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action, bool includeWeb = true, bool initializeDatabase = true)
 		{
-			GetServerClientScenarios(includeWeb).ForEach(x =>
+			GetServerClientScenarios(includeWeb, initializeDatabase).ForEach(x =>
 			{
 				Console.WriteLine(x.server.Name + " -> " + x.client.Name);
 				action(x.server, x.client);
@@ -419,7 +431,7 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static IEnumerable<(ISyncClient server, ISyncClient client)> GetServerClientScenarios(bool includeWeb)
+		private static IEnumerable<(ISyncClient server, ISyncClient client)> GetServerClientScenarios(bool includeWeb, bool initializeDatabase)
 		{
 			(ISyncClient server, ISyncClient client) process(ISyncClient server, ISyncClient client)
 			{
@@ -427,15 +439,15 @@ namespace Speedy.IntegrationTests
 				return (server, client);
 			}
 
-			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
-			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
-			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()));
-			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider()), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()));
-			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (Sqlite2)", GetSyncableSqliteProvider2()));
-			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (MEM)", GetSyncableMemoryProvider()));
-			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider()), new SyncClient("Client (SQL)", GetSyncableSqlProvider()));
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)), new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)));
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)), new SyncClient("Client (SQL)", GetSyncableSqlProvider(initializeDatabase)));
+			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider(initializeDatabase)), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2(initializeDatabase)));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider(initializeDatabase)), new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)));
+			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider(initializeDatabase)), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)), new SyncClient("Client (Sqlite2)", GetSyncableSqliteProvider2(initializeDatabase)));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)), new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)));
+			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)), new SyncClient("Client (SQL)", GetSyncableSqlProvider(initializeDatabase)));
 
 			if (includeWeb)
 			{
@@ -451,14 +463,14 @@ namespace Speedy.IntegrationTests
 
 				var credential = new NetworkCredential("admin@speedy.local", "Password");
 				yield return process(
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(), "https://speedy.local", credential: credential, timeout: 60000),
-					new SyncClient("Client (MEM)", GetSyncableMemoryProvider()) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initializeDatabase), "https://speedy.local", credential: credential, timeout: 60000),
+					new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return process(
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(), "https://speedy.local", credential: credential, timeout: 60000),
-					new SyncClient("Client (SQL2)", GetSyncableSqlProvider2()) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initializeDatabase), "https://speedy.local", credential: credential, timeout: 60000),
+					new SyncClient("Client (SQL2)", GetSyncableSqlProvider2(initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return process(
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(), "https://speedy.local", credential: credential, timeout: 60000),
-					new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider()) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initializeDatabase), "https://speedy.local", credential: credential, timeout: 60000),
+					new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 			}
 		}
 

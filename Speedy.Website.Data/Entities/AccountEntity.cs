@@ -3,8 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Speedy.Extensions;
 using Speedy.Sync;
+using Speedy.Website.Samples.Enumerations;
 
 #endregion
 
@@ -116,6 +118,21 @@ namespace Speedy.Website.Samples.Entities
 			return base.GetDefaultExclusionsForSyncUpdate()
 				.Append(GetDefaultExclusionsForIncomingSync())
 				.Append(nameof(IsDeleted), nameof(LastLoginDate));
+		}
+
+		public IEnumerable<string> GetRoles()
+		{
+			return string.IsNullOrEmpty(Roles) ? new string[0] : Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+		}
+
+		public bool InRole(params AccountRole[] roles)
+		{
+			return roles.Any(x => InRole(x.ToString()));
+		}
+
+		public bool InRole(string roleName)
+		{
+			return GetRoles().Any(x => x.Equals(roleName, StringComparison.OrdinalIgnoreCase));
 		}
 
 		#endregion

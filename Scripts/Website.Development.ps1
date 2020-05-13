@@ -3,6 +3,7 @@ iisreset
 
 Restart-WebAppPool -Name "Speedy"
 Get-Process vbcs* | Stop-Process
+iisreset.exe
 
 Get-EnvironmentVariable -Target Machine -Variable "ASPNETCORE_ENVIRONMENT"
 Set-EnvironmentVariable -Target Machine -Variable "ASPNETCORE_ENVIRONMENT" -Value "Development"

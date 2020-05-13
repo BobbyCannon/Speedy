@@ -40,11 +40,9 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates an instance of the class.
 		/// </summary>
-		/// <param name="id"> An optional ID to identify the options. </param>
 		/// <param name="dispatcher"> An optional dispatcher. </param>
-		public SyncOptions(string id = null, IDispatcher dispatcher = null) : base(dispatcher)
+		public SyncOptions(IDispatcher dispatcher = null) : base(dispatcher)
 		{
-			Id = id ?? Guid.NewGuid().ToString();
 			LastSyncedOnClient = DateTime.MinValue;
 			LastSyncedOnServer = DateTime.MinValue;
 			ItemsPerSyncRequest = 300;
@@ -59,11 +57,6 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// Gets the optional name for differentiating many sync options.
-		/// </summary>
-		public string Id { get; set; }
 
 		/// <summary>
 		/// Include the detail of the exception in the SyncIssue(s) returned.
@@ -113,6 +106,27 @@ namespace Speedy.Sync
 			{
 				_filterLookup.Add(filter.RepositoryType, filter);
 			}
+		}
+
+
+		/// <summary>
+		/// Gets the type of sync thes options are for
+		/// </summary>
+		/// <typeparam name="T"> The sync type enumeration type. </typeparam>
+		/// <param name="defaultValue"> The default value to return if the Sync Type value is missing or could not be parsed. </param>
+		/// <returns></returns>
+		public T GetSyncType<T>(T defaultValue) where T : struct
+		{
+			if (!typeof(T).IsEnum) 
+			{
+				throw new ArgumentException("T must be an enumerated type");
+			}
+
+			return Values.TryGetValue(SyncKey, out var value)
+					// Found it now try to parse the sync type
+					? (Enum.TryParse<T>(value, true, out var sync) ? sync : defaultValue) 
+					// Failed to find the sync key so just assume all
+					: defaultValue;
 		}
 
 		/// <summary>

@@ -81,13 +81,6 @@ namespace Speedy.Data
 
 		#region Methods
 
-		public static SyncClientProvider GetWebSyncProvider()
-		{
-			var nullDatabaseProvider = new SyncDatabaseProvider(x => null);
-			var syncClientProvider = new SyncClientProvider((name, credential) => new WebSyncClient(name, nullDatabaseProvider, DefaultWebsiteUri, "api/Sync", credential, null, 60000));
-			return syncClientProvider;
-		}
-
 		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
 			WaitOnTask(SyncAsync(waitFor, postAction), timeout);
@@ -165,7 +158,7 @@ namespace Speedy.Data
 		/// <inheritdoc />
 		protected override ISyncClient GetSyncClientForServer()
 		{
-			return _serverProvider.GetClient("Server (web)", _credentialProvider());
+			return _serverProvider.GetClient("Server (remote)", _credentialProvider());
 		}
 
 		#endregion

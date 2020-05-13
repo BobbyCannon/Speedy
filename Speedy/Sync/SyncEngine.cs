@@ -131,8 +131,8 @@ namespace Speedy.Sync
 				Process(Client, Server, Options.LastSyncedOnClient, clientSession.StartedOn, incoming);
 			}
 
-			Client.EndSync(clientSession);
-			Server.EndSync(serverSession);
+			Client.EndSync(SessionId);
+			Server.EndSync(SessionId);
 
 			SortLocalDatabases();
 
