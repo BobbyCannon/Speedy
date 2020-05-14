@@ -668,6 +668,108 @@ namespace Speedy.IntegrationTests
 					}
 				});
 		}
+		
+		[TestMethod]
+		public void DateTimeMaxShouldUseUtc()
+		{
+			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
+			var actual = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+			Assert.AreEqual(dateTime.Hour, actual.Hour);
+
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					var testCases = new List<DateTime>
+					{
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Local),
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Unspecified),
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Utc)
+					};
+
+					foreach (var testCase in testCases)
+					{
+						var expected = new LogEventEntity { AcknowledgedOn = testCase, LoggedOn = testCase, Message = "Hello World" };
+
+						using (var database = provider.GetDatabase())
+						{
+							if (!(database is EntityFrameworkDatabase))
+							{
+								// Test is only for entity framework databases
+								return;
+							}
+
+							Console.WriteLine(database.GetType().Name + " : " + testCase.ToString());
+							database.LogEvents.Add(expected);
+							database.SaveChanges();
+						}
+
+						using (var database = provider.GetDatabase())
+						{
+							var actual = database.LogEvents.FirstOrDefault(x => x.Id == expected.Id);
+							Assert.IsNotNull(actual);
+							
+							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn.Value.Kind);
+							Assert.AreEqual(DateTimeExtensions.MaxDateTimeTicks, actual.AcknowledgedOn.Value.Ticks);
+							Assert.AreEqual(DateTime.MaxValue, actual.AcknowledgedOn.Value);
+
+							Assert.AreEqual(DateTimeKind.Utc, actual.LoggedOn.Kind);
+							Assert.AreEqual(DateTimeExtensions.MaxDateTimeTicks, actual.LoggedOn.Ticks);
+							Assert.AreEqual(DateTime.MaxValue, actual.LoggedOn);
+						}
+					}
+				});
+		}
+
+		[TestMethod]
+		public void DateTimeMinShouldUseUtc()
+		{
+			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
+			var actual = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+			Assert.AreEqual(dateTime.Hour, actual.Hour);
+
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					var testCases = new List<DateTime>
+					{
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Local),
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Unspecified),
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Utc)
+					};
+
+					foreach (var testCase in testCases)
+					{
+						var expected = new LogEventEntity { AcknowledgedOn = testCase, LoggedOn = testCase, Message = "Hello World" };
+
+						using (var database = provider.GetDatabase())
+						{
+							if (!(database is EntityFrameworkDatabase))
+							{
+								// Test is only for entity framework databases
+								return;
+							}
+
+							Console.WriteLine(database.GetType().Name + " : " + testCase.ToString());
+							database.LogEvents.Add(expected);
+							database.SaveChanges();
+						}
+
+						using (var database = provider.GetDatabase())
+						{
+							var actual = database.LogEvents.FirstOrDefault(x => x.Id == expected.Id);
+							Assert.IsNotNull(actual);
+							
+							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn.Value.Kind);
+							Assert.AreEqual(DateTimeExtensions.MinDateTimeTicks, actual.AcknowledgedOn.Value.Ticks);
+							Assert.AreEqual(DateTime.MinValue, actual.AcknowledgedOn.Value);
+
+							Assert.AreEqual(DateTimeKind.Utc, actual.LoggedOn.Kind);
+							Assert.AreEqual(DateTimeExtensions.MinDateTimeTicks, actual.LoggedOn.Ticks);
+							Assert.AreEqual(DateTime.MinValue, actual.LoggedOn);
+						}
+					}
+				});
+		}
 
 		[TestMethod]
 		public void DiscardChanges()

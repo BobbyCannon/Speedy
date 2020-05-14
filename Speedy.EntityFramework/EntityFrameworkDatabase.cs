@@ -325,12 +325,18 @@ namespace Speedy.EntityFramework
 		protected virtual void ProcessModelTypes(ModelBuilder modelBuilder)
 		{
 			var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
-				x => x.ToUniversalTime(),
+				x => x.Ticks == DateTimeExtensions.MinDateTimeTicks || x.Ticks == DateTimeExtensions.MaxDateTimeTicks
+					? DateTime.SpecifyKind(x, DateTimeKind.Utc)
+					: x.ToUniversalTime(),
 				x => DateTime.SpecifyKind(x, DateTimeKind.Utc)
 			);
 
 			var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
-				x => x.HasValue ? x.Value.ToUniversalTime() : x,
+				x => x.HasValue 
+					? x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks || x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks
+						? DateTime.SpecifyKind(x.Value, DateTimeKind.Utc)
+						: x.Value.ToUniversalTime()
+					: x.Value.ToUniversalTime(),
 				x => x.HasValue ? DateTime.SpecifyKind(x.Value, DateTimeKind.Utc) : x
 			);
 
