@@ -20,9 +20,13 @@ namespace Speedy.Website.Samples.Mappings
 			b.ToTable("LogEvents", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
-			b.Property(x => x.Id).HasColumnName("Id").HasMaxLength(250).IsRequired();
-			b.Property(x => x.Message).HasColumnName("Message").IsRequired(false);
+			b.Property(x => x.AcknowledgedOn).IsRequired(false);
+			b.Property(x => x.CreatedOn).IsRequired();
+			b.Property(x => x.Id).HasMaxLength(250).IsRequired();
+			b.Property(x => x.Level).IsRequired();
+			b.Property(x => x.LoggedOn).IsRequired();
+			b.Property(x => x.Message).IsRequired(false);
+			b.Property(x => x.ModifiedOn).IsRequired();
 		}
 
 		#endregion

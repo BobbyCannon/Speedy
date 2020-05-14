@@ -14,7 +14,7 @@ namespace Speedy.Website.Data.Sqlite.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.1");
+                .HasAnnotation("ProductVersion", "3.1.4");
 
             modelBuilder.Entity("Speedy.Website.Samples.Entities.AccountEntity", b =>
                 {
@@ -327,12 +327,13 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
                         .HasColumnType("INTEGER")
                         .HasMaxLength(250);
 
+                    b.Property<DateTime?>("AcknowledgedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -341,8 +342,10 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("LoggedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Message")
-                        .HasColumnName("Message")
                         .HasColumnType("TEXT")
                         .IsUnicode(false);
 

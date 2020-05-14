@@ -130,6 +130,8 @@ namespace Speedy.UnitTests.Factories
 			var time = TimeService.UtcNow;
 			var result = new LogEventEntity
 			{
+				AcknowledgedOn = null,
+				LoggedOn = TimeService.UtcNow,
 				Message = message,
 				Level = level ?? LogLevel.Information,
 				SyncId = Guid.NewGuid(),

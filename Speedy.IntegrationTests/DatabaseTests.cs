@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.WebApi;
+using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.UnitTests.Factories;
@@ -619,6 +620,53 @@ namespace Speedy.IntegrationTests
 						Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
 					}
 				);
+		}
+
+		[TestMethod]
+		public void DateTimeShouldUseUtc()
+		{
+			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
+			var actual = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+			Assert.AreEqual(dateTime.Hour, actual.Hour);
+
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					var testCases = new List<DateTime>
+					{
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
+						new DateTime(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
+					};
+
+					foreach (var testCase in testCases)
+					{
+						var expected = new LogEventEntity { AcknowledgedOn = testCase, LoggedOn = testCase, Message = "Hello World" };
+
+						using (var database = provider.GetDatabase())
+						{
+							if (!(database is EntityFrameworkDatabase))
+							{
+								// Test is only for entity framework databases
+								return;
+							}
+
+							Console.WriteLine(database.GetType().Name + " : " + testCase.ToString());
+							database.LogEvents.Add(expected);
+							database.SaveChanges();
+						}
+
+						using (var database = provider.GetDatabase())
+						{
+							var actual = database.LogEvents.FirstOrDefault(x => x.Id == expected.Id);
+							Assert.IsNotNull(actual);
+							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn.Value.Kind);
+							Assert.AreEqual(12, actual.AcknowledgedOn.Value.Hour);
+							Assert.AreEqual(DateTimeKind.Utc, actual.LoggedOn.Kind);
+							Assert.AreEqual(12, actual.LoggedOn.Hour);
+						}
+					}
+				});
 		}
 
 		[TestMethod]

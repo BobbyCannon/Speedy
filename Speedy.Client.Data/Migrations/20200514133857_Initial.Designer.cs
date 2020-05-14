@@ -9,14 +9,14 @@ using Speedy.Client.Data;
 namespace Speedy.Client.Data.Migrations
 {
     [DbContext(typeof(ContosoClientDatabase))]
-    [Migration("20200402182022_Initial")]
+    [Migration("20200514133857_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.3");
+                .HasAnnotation("ProductVersion", "3.1.4");
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAccount", b =>
                 {

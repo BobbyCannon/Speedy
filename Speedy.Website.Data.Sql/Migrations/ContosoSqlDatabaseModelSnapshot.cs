@@ -15,7 +15,7 @@ namespace Speedy.Website.Data.Sql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.1")
+                .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -336,13 +336,14 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
                         .HasColumnType("bigint")
                         .HasMaxLength(250)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime?>("AcknowledgedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
@@ -351,8 +352,10 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("LoggedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Message")
-                        .HasColumnName("Message")
                         .HasColumnType("varchar(max)")
                         .IsUnicode(false);
 

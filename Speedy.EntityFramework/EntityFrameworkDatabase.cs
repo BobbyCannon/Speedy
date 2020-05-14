@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Storage;
@@ -316,13 +317,23 @@ namespace Speedy.EntityFramework
 		/// Processes the model builder for the Speedy default types.
 		/// </summary>
 		/// <remarks>
-		/// DateTime values will default to "datetime2".
+		/// DateTime values will default to "datetime2" and UTC.
 		/// Guid values default to "uniqueidentifier" type.
 		/// Strings default to non-unicode.
 		/// </remarks>
-		/// <param name="modelBuilder"> </param>
+		/// <param name="modelBuilder"> The model builder. </param>
 		protected virtual void ProcessModelTypes(ModelBuilder modelBuilder)
 		{
+			var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+				x => x.ToUniversalTime(),
+				x => DateTime.SpecifyKind(x, DateTimeKind.Utc)
+			);
+
+			var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+				x => x.HasValue ? x.Value.ToUniversalTime() : x,
+				x => x.HasValue ? DateTime.SpecifyKind(x.Value, DateTimeKind.Utc) : x
+			);
+
 			foreach (var entity in modelBuilder.Model.GetEntityTypes())
 			{
 				var properties = entity.GetProperties();
@@ -334,6 +345,7 @@ namespace Speedy.EntityFramework
 						case Type _ when p.ClrType == typeof(DateTime):
 						case Type _ when p.ClrType == typeof(DateTime?):
 							p.SetColumnType("datetime2");
+							p.SetValueConverter(dateTimeConverter);
 							break;
 
 						case Type _ when p.ClrType == typeof(Guid):
