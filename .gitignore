@@ -8,3 +8,4 @@ obj
 TestResults
 /Binaries/
 _ReSharper.Caches/
+**/AppPackages/

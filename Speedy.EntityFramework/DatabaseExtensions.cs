@@ -88,7 +88,7 @@ namespace Speedy.EntityFramework
 						var filter = index.Builder.Metadata.FindAnnotation("Relational:Filter")?.Value.ToString().ToLower() ?? string.Empty;
 						var indexConfiguration = database.HasIndex(name);
 						indexConfiguration.IsUnique();
-						indexConfiguration.AllowNull = filter.Contains("is not null");
+						indexConfiguration.AllowNull = filter.Contains("is not null") || (propertyConfiguration.IsNullable ?? false);
 						indexConfiguration.AddProperty(propertyConfiguration);
 					}
 				}

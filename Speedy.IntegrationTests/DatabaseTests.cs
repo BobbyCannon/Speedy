@@ -1479,11 +1479,10 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 
 					// Both being null should be fine
-					var expected1 = new AccountEntity { Name = "Foo1", Nickname = null, Address = NewAddress("Main") };
-					database.Accounts.Add(expected1);
-					database.SaveChanges();
+					var expected1 = new AccountEntity { Name = "Foo1", Address = NewAddress("Main") };
+					var expected2 = new AccountEntity { Name = "Foo2", Address = NewAddress("Main") };
 
-					var expected2 = new AccountEntity { Name = "Foo2", Nickname = null, Address = NewAddress("Main") };
+					database.Accounts.Add(expected1);
 					database.Accounts.Add(expected2);
 					database.SaveChanges();
 
@@ -1503,6 +1502,43 @@ namespace Speedy.IntegrationTests
 						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.Nickname'.",
 						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
 						"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
+				});
+		}
+		
+		[TestMethod]
+		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUniqueViaRelationship()
+		{
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					// Both being null should be fine
+					var expected1 = new AccountEntity { Name = "Foo1", Address = NewAddress("Main") };
+					var expected2 = new AccountEntity { Name = "Foo2", Address = NewAddress("Main") };
+
+					var pet1 = new PetEntity { Name = "Spot", Owner = expected1 };
+					var pet2 = new PetEntity { Name = "Fred", Owner = expected2 };
+
+					database.Pets.Add(pet1);
+					database.Pets.Add(pet2);
+					database.SaveChanges();
+
+					//// Both being unique should be fine
+					//expected1.Nickname = "Bar1";
+					//expected2.Nickname = "Bar2";
+					//database.SaveChanges();
+					
+					//// Now if both are the same it should exception
+					//expected1.Nickname = "Bar";
+					//expected2.Nickname = "Bar";
+
+					//// ReSharper disable once AccessToDisposedClosure
+					//TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					//	"SQLite Error 19: 'UNIQUE constraint failed: Accounts.Nickname'.",
+					//	"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
+					//	"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
 				});
 		}
 

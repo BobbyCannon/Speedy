@@ -31,7 +31,7 @@ namespace Speedy.Website.Samples.Mappings
 
 			b.HasIndex(x => x.AddressId).HasName("IX_Accounts_AddressId");
 			b.HasIndex(x => x.Name).HasName("IX_Accounts_Name").IsUnique();
-			b.HasIndex(x => x.Nickname).HasName("IX_Accounts_Nickname").IsUnique().HasFilter("Nickname IS NOT NULL");
+			b.HasIndex(x => x.Nickname).HasName("IX_Accounts_Nickname").IsUnique();
 			b.HasIndex(x => x.SyncId).HasName("IX_Accounts_SyncId").IsUnique();
 
 			b.HasOne(x => x.Address).WithMany(x => x.Accounts).HasForeignKey(x => x.AddressId).OnDelete(DeleteBehavior.Restrict);
