@@ -19,5 +19,6 @@ Get-ChildItem *.db -Path "$tempPath\Speedy\" -Recurse | Remove-Item
 Get-ChildItem *.db -Path "$tempPath\SpeedyTests\" -Recurse | Remove-Item
 Get-ChildItem *.db -Path "C:\Workspaces\GitHub\Speedy" -Recurse | Remove-Item
 
+Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Client.Data\Migrations -Force -Recurse
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Website.Data.Sql\Migrations -Force -Recurse
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Website.Data.Sqlite\Migrations -Force -Recurse

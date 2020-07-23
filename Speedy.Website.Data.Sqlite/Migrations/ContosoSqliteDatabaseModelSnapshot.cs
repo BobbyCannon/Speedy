@@ -14,7 +14,7 @@ namespace Speedy.Website.Data.Sqlite.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4");
+                .HasAnnotation("ProductVersion", "3.1.6");
 
             modelBuilder.Entity("Speedy.Website.Samples.Entities.AccountEntity", b =>
                 {
@@ -36,6 +36,12 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
+                        .HasColumnName("EmailAddress")
+                        .HasColumnType("TEXT")
+                        .IsUnicode(false);
+
+                    b.Property<string>("ExternalId")
+                        .HasColumnName("ExternalId")
                         .HasColumnType("TEXT")
                         .IsUnicode(false);
 
@@ -85,12 +91,15 @@ namespace Speedy.Website.Data.Sqlite.Migrations
 
                     b.HasIndex("Nickname")
                         .IsUnique()
-                        .HasName("IX_Accounts_Nickname")
-                        .HasFilter("Nickname IS NOT NULL");
+                        .HasName("IX_Accounts_Nickname");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
                         .HasName("IX_Accounts_SyncId");
+
+                    b.HasIndex("AddressId", "ExternalId")
+                        .IsUnique()
+                        .HasName("IX_Accounts_AddressId_ExternalId");
 
                     b.ToTable("Accounts","dbo");
                 });

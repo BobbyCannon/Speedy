@@ -38,6 +38,8 @@ namespace Speedy.Website.Samples.Entities
 
 		public string EmailAddress { get; set; }
 
+		public string ExternalId { get; set; }
+
 		public virtual ICollection<GroupMemberEntity> Groups { get; set; }
 
 		public override int Id { get; set; }

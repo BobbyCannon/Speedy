@@ -15,7 +15,7 @@ namespace Speedy.Website.Data.Sql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -40,7 +40,13 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
+                        .HasColumnName("EmailAddress")
                         .HasColumnType("varchar(max)")
+                        .IsUnicode(false);
+
+                    b.Property<string>("ExternalId")
+                        .HasColumnName("ExternalId")
+                        .HasColumnType("varchar(900)")
                         .IsUnicode(false);
 
                     b.Property<bool>("IsDeleted")
@@ -90,11 +96,16 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.HasIndex("Nickname")
                         .IsUnique()
                         .HasName("IX_Accounts_Nickname")
-                        .HasFilter("Nickname IS NOT NULL");
+                        .HasFilter("[Nickname] IS NOT NULL");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
                         .HasName("IX_Accounts_SyncId");
+
+                    b.HasIndex("AddressId", "ExternalId")
+                        .IsUnique()
+                        .HasName("IX_Accounts_AddressId_ExternalId")
+                        .HasFilter("[ExternalId] IS NOT NULL");
 
                     b.ToTable("Accounts","dbo");
                 });

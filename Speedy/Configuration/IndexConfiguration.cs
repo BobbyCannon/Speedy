@@ -94,6 +94,11 @@ namespace Speedy.Configuration
 
 			bool predicate(T x)
 			{
+				if (_properties.Any(p => p.IsNullable == true && p.GetValue(typedEntity) == null))
+				{
+					return false;
+				}
+
 				return !ReferenceEquals(x, entity) && _properties.All(p => p.Matches(x, entity));
 			}
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Speedy.Website.Data.Sql.Migrations
+namespace Speedy.Website.Data.Sqlite.Migrations
 {
     public partial class Initial : Migration
     {
@@ -16,7 +16,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -47,7 +47,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false)
@@ -63,7 +63,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(unicode: false, maxLength: 4000, nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -80,7 +80,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(maxLength: 250, nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -116,7 +116,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -135,7 +135,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -143,6 +143,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     AddressId = table.Column<long>(nullable: false),
                     AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     EmailAddress = table.Column<string>(unicode: false, nullable: true),
+                    ExternalId = table.Column<string>(unicode: false, nullable: true),
                     LastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
                     Nickname = table.Column<string>(unicode: false, maxLength: 256, nullable: true),
@@ -167,7 +168,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     ChildId = table.Column<int>(nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -199,7 +200,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GroupId = table.Column<int>(nullable: false),
                     MemberId = table.Column<int>(nullable: false),
@@ -274,14 +275,20 @@ namespace Speedy.Website.Data.Sql.Migrations
                 schema: "dbo",
                 table: "Accounts",
                 column: "Nickname",
-                unique: true,
-                filter: "Nickname IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_SyncId",
                 schema: "dbo",
                 table: "Accounts",
                 column: "SyncId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Accounts_AddressId_ExternalId",
+                schema: "dbo",
+                table: "Accounts",
+                columns: new[] { "AddressId", "ExternalId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

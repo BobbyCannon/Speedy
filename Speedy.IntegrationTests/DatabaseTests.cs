@@ -1504,6 +1504,43 @@ namespace Speedy.IntegrationTests
 						"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
 				});
 		}
+
+		[TestMethod]
+		public void UniqueConstraintsForCompositeKeyWithStringThatAllowNullButShouldStillEnforceUnique()
+		{
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					// Both being null should be fine
+					var address = NewAddress("Main");
+					var expected1 = new AccountEntity { Name = "Foo1" };
+					var expected2 = new AccountEntity { Name = "Foo2" };
+					address.Accounts.Add(expected1);
+					address.Accounts.Add(expected2);
+
+					database.Addresses.Add(address);
+					database.SaveChanges();
+
+					// Both being unique should be fine
+					expected1.ExternalId = "EID-1";
+					expected2.ExternalId = "EID-2";
+					database.SaveChanges();
+					
+					// Now if both are the same it should exception
+					expected1.ExternalId = "EID";
+					database.SaveChanges();
+					expected2.ExternalId = "EID";
+
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AddressId, Accounts.ExternalId'.",
+						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_AddressId_ExternalId'. The duplicate key value is (1, EID).",
+						"IX_Accounts_AddressId_ExternalId: Cannot insert duplicate row. The duplicate key value is (1,EID).");
+				});
+		}
 		
 		[TestMethod]
 		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUniqueViaRelationship()

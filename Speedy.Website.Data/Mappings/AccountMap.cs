@@ -23,6 +23,8 @@ namespace Speedy.Website.Samples.Mappings
 			b.Property(x => x.AddressId).HasColumnName("AddressId").IsRequired();
 			b.Property(x => x.AddressSyncId).HasColumnName("AddressSyncId").IsRequired();
 			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
+			b.Property(x => x.EmailAddress).HasColumnName("EmailAddress").IsRequired(false);
+			b.Property(x => x.ExternalId).HasColumnName("ExternalId").IsRequired(false);
 			b.Property(x => x.Id).HasColumnName("Id").IsRequired();
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
@@ -30,6 +32,7 @@ namespace Speedy.Website.Samples.Mappings
 			b.Property(x => x.SyncId).HasColumnName("SyncId").IsRequired();
 
 			b.HasIndex(x => x.AddressId).HasName("IX_Accounts_AddressId");
+			b.HasIndex(x => new { x.AddressId, x.ExternalId }).HasName("IX_Accounts_AddressId_ExternalId").IsUnique();
 			b.HasIndex(x => x.Name).HasName("IX_Accounts_Name").IsUnique();
 			b.HasIndex(x => x.Nickname).HasName("IX_Accounts_Nickname").IsUnique();
 			b.HasIndex(x => x.SyncId).HasName("IX_Accounts_SyncId").IsUnique();
