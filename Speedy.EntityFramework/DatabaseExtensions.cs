@@ -131,6 +131,26 @@ namespace Speedy.EntityFramework
 			}
 		}
 
+		/// <summary>
+		/// Determines the database provider type for the database.
+		/// </summary>
+		/// <param name="database"> The database to be tested. </param>
+		/// <returns> The provider type for the database. </returns>
+		public static DatabaseProviderType GetProviderType(this EntityFrameworkDatabase database)
+		{
+			if (database.Database.ProviderName.EndsWith(nameof(DatabaseProviderType.Sqlite)))
+			{
+				return DatabaseProviderType.Sqlite;
+			}
+			
+			if (database.Database.ProviderName.EndsWith(nameof(DatabaseProviderType.SqlServer)))
+			{
+				return DatabaseProviderType.SqlServer;
+			}
+
+			return DatabaseProviderType.Unknown;
+		}
+
 		private static Type GetPrimaryKeyType(this Type type)
 		{
 			while (true)

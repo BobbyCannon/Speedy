@@ -2,7 +2,6 @@
 
 using System;
 using System.Net;
-using Speedy.Exceptions;
 using Speedy.Sync;
 
 #endregion
@@ -41,6 +40,7 @@ namespace Speedy.Net
 			Name = name;
 			Options = new SyncClientOptions();
 			Statistics = new SyncStatistics();
+			SyncSession = new SyncSession();
 			WebClient = new WebClient(serverUri, timeout, credential, proxy);
 		}
 

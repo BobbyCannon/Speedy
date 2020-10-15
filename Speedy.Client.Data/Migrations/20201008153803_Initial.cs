@@ -15,22 +15,22 @@ namespace Speedy.Client.Data.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    Id = table.Column<long>(nullable: false)
+                    AddressId = table.Column<long>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    City = table.Column<string>(unicode: false, nullable: true),
-                    LastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Line1 = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
-                    Line2 = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
-                    Postal = table.Column<string>(unicode: false, maxLength: 25, nullable: false),
-                    State = table.Column<string>(unicode: false, maxLength: 25, nullable: false)
+                    AddressCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AddressIsDeleted = table.Column<bool>(nullable: false),
+                    AddressModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AddressCity = table.Column<string>(unicode: false, nullable: false),
+                    AddressLastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AddressLineOne = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+                    AddressLineTwo = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+                    AddressPostal = table.Column<string>(unicode: false, maxLength: 25, nullable: false),
+                    AddressState = table.Column<string>(unicode: false, maxLength: 25, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Addresses", x => x.Id);
+                    table.PrimaryKey("PK_Addresses", x => x.AddressId);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,60 +58,60 @@ namespace Speedy.Client.Data.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    AccountId = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AddressId = table.Column<long>(nullable: false),
-                    AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EmailAddress = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
-                    LastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(unicode: false, nullable: false),
-                    Roles = table.Column<string>(unicode: false, nullable: false)
+                    AccountCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountIsDeleted = table.Column<bool>(nullable: false),
+                    AccountModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountAddressId = table.Column<long>(nullable: false),
+                    AccountAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountEmailAddress = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+                    AccountLastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountName = table.Column<string>(unicode: false, nullable: false),
+                    AccountRoles = table.Column<string>(unicode: false, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Accounts", x => x.Id);
+                    table.PrimaryKey("PK_Accounts", x => x.AccountId);
                     table.ForeignKey(
-                        name: "FK_Accounts_Addresses_AddressId",
-                        column: x => x.AddressId,
+                        name: "FK_Accounts_Addresses_AccountAddressId",
+                        column: x => x.AccountAddressId,
                         principalSchema: "dbo",
                         principalTable: "Addresses",
-                        principalColumn: "Id");
+                        principalColumn: "AddressId");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_AddressId",
+                name: "IX_Accounts_AccountAddressId",
                 schema: "dbo",
                 table: "Accounts",
-                column: "AddressId");
+                column: "AccountAddressId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_LastClientUpdate",
                 schema: "dbo",
                 table: "Accounts",
-                column: "LastClientUpdate");
+                column: "AccountLastClientUpdate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_SyncId",
                 schema: "dbo",
                 table: "Accounts",
-                column: "SyncId",
+                column: "AccountSyncId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_LastClientUpdate",
                 schema: "dbo",
                 table: "Addresses",
-                column: "LastClientUpdate");
+                column: "AddressLastClientUpdate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_SyncId",
                 schema: "dbo",
                 table: "Addresses",
-                column: "SyncId",
+                column: "AddressSyncId",
                 unique: true);
 
             migrationBuilder.CreateIndex(

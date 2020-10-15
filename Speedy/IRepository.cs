@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -29,6 +30,30 @@ namespace Speedy
 		/// </summary>
 		/// <param name="entity"> The entity to be added. </param>
 		void AddOrUpdate(T entity);
+
+		/// <summary>
+		/// Bulk add to do more performant additions.
+		/// </summary>
+		/// <param name="entities"> The items to be inserted. </param>
+		public int BulkAdd(params T[] entities);
+		
+		/// <summary>
+		/// Bulk add to do more performant additions.
+		/// </summary>
+		/// <param name="entities"> The items to be inserted. </param>
+		public int BulkAdd(IEnumerable<T> entities);
+		
+		/// <summary>
+		/// Bulk command to do more performant additions and / or updates.
+		/// </summary>
+		/// <param name="entities"> The items to be inserted. </param>
+		public int BulkAddOrUpdate(params T[] entities);
+		
+		/// <summary>
+		/// Bulk command to do more performant additions and / or updates.
+		/// </summary>
+		/// <param name="entities"> The items to be inserted. </param>
+		public int BulkAddOrUpdate(IEnumerable<T> entities);
 
 		/// <summary>
 		/// Bulk remove based on provided filter. Only simple expressions are supported.
@@ -62,6 +87,13 @@ namespace Speedy
 		/// <param name="includes"> The related entities to include. </param>
 		/// <returns> The results of the query including the related entities. </returns>
 		IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes);
+
+		/// <summary>
+		/// Configures the query to include multiple related entities in the results.
+		/// </summary>
+		/// <param name="includes"> The related entities to include. </param>
+		/// <returns> The results of the query including the related entities. </returns>
+		IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes);
 
 		/// <summary>
 		/// Removes an entity from the repository.

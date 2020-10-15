@@ -14,70 +14,74 @@ namespace Speedy.Website.Data.Sqlite.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6");
+                .HasAnnotation("ProductVersion", "3.1.8");
 
             modelBuilder.Entity("Speedy.Website.Samples.Entities.AccountEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
+                        .HasColumnName("AccountId")
                         .HasColumnType("INTEGER");
 
                     b.Property<long>("AddressId")
-                        .HasColumnName("AddressId")
+                        .HasColumnName("AccountAddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("AddressSyncId")
-                        .HasColumnName("AddressSyncId")
+                        .HasColumnName("AccountAddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("CreatedOn")
+                        .HasColumnName("AccountCreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
-                        .HasColumnName("EmailAddress")
+                        .HasColumnName("AccountEmailAddress")
                         .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<string>("ExternalId")
-                        .HasColumnName("ExternalId")
+                        .HasColumnName("AccountExternalId")
                         .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnName("AccountIsDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastLoginDate")
+                        .HasColumnName("AccountLastLoginDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnName("ModifiedOn")
+                        .HasColumnName("AccountModifiedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("Name")
+                        .HasColumnName("AccountName")
                         .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("Nickname")
-                        .HasColumnName("Nickname")
+                        .HasColumnName("AccountNickname")
                         .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("PasswordHash")
+                        .HasColumnName("AccountPasswordHash")
                         .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<string>("Roles")
+                        .HasColumnName("AccountRoles")
                         .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnName("SyncId")
+                        .HasColumnName("AccountSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -108,65 +112,66 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
+                        .HasColumnName("AddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnName("City")
+                        .HasColumnName("AddressCity")
                         .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("CreatedOn")
+                        .HasColumnName("AddressCreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnName("AddressIsDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Line1")
                         .IsRequired()
-                        .HasColumnName("Line1")
+                        .HasColumnName("AddressLineOne")
                         .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("Line2")
                         .IsRequired()
-                        .HasColumnName("Line2")
+                        .HasColumnName("AddressLineTwo")
                         .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<long?>("LinkedAddressId")
-                        .HasColumnName("LinkedAddressId")
+                        .HasColumnName("AddressLinkedAddressId")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("LinkedAddressSyncId")
-                        .HasColumnName("LinkedAddressSyncId")
+                        .HasColumnName("AddressLinkedAddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnName("ModifiedOn")
+                        .HasColumnName("AddressModifiedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Postal")
                         .IsRequired()
-                        .HasColumnName("Postal")
+                        .HasColumnName("AddressPostal")
                         .HasColumnType("TEXT")
                         .HasMaxLength(128)
                         .IsUnicode(false);
 
                     b.Property<string>("State")
                         .IsRequired()
-                        .HasColumnName("State")
+                        .HasColumnName("AddressState")
                         .HasColumnType("TEXT")
                         .HasMaxLength(128)
                         .IsUnicode(false);
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnName("SyncId")
+                        .HasColumnName("AddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");

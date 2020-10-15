@@ -84,7 +84,7 @@ namespace Speedy.Sync
 		public bool PermanentDeletions { get; set; }
 
 		/// <summary>
-		/// Additional values for synchronizing
+		/// Additional values for synchronizing.
 		/// </summary>
 		public Dictionary<string, string> Values { get; set; }
 
@@ -108,25 +108,24 @@ namespace Speedy.Sync
 			}
 		}
 
-
 		/// <summary>
-		/// Gets the type of sync thes options are for
+		/// Gets the type of sync these options are for
 		/// </summary>
 		/// <typeparam name="T"> The sync type enumeration type. </typeparam>
 		/// <param name="defaultValue"> The default value to return if the Sync Type value is missing or could not be parsed. </param>
-		/// <returns></returns>
+		/// <returns> </returns>
 		public T GetSyncType<T>(T defaultValue) where T : struct
 		{
-			if (!typeof(T).IsEnum) 
+			if (!typeof(T).IsEnum)
 			{
 				throw new ArgumentException("T must be an enumerated type");
 			}
 
 			return Values.TryGetValue(SyncKey, out var value)
-					// Found it now try to parse the sync type
-					? (Enum.TryParse<T>(value, true, out var sync) ? sync : defaultValue) 
-					// Failed to find the sync key so just assume all
-					: defaultValue;
+				// Found it now try to parse the sync type
+				? Enum.TryParse<T>(value, true, out var sync) ? sync : defaultValue
+				// Failed to find the sync key so just assume all
+				: defaultValue;
 		}
 
 		/// <summary>

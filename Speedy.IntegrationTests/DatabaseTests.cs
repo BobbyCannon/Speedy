@@ -191,8 +191,8 @@ namespace Speedy.IntegrationTests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-						"SQLite Error 19: 'NOT NULL constraint failed: Addresses.Line1'.",
-						"Cannot insert the value NULL into column 'Line1', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
+						"SQLite Error 19: 'NOT NULL constraint failed: Addresses.AddressLineOne'.",
+						"Cannot insert the value NULL into column 'AddressLineOne', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
 						"AddressEntity: The Line1 field is required.");
 				});
 		}
@@ -386,8 +386,8 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 					database.Addresses.Add(new AddressEntity { Line1 = null, Line2 = string.Empty, City = "Easley", State = "SC", Postal = "29640" });
 					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-						"SQLite Error 19: 'NOT NULL constraint failed: Addresses.Line1'.",
-						"Cannot insert the value NULL into column 'Line1', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
+						"SQLite Error 19: 'NOT NULL constraint failed: Addresses.AddressLineOne'.",
+						"Cannot insert the value NULL into column 'AddressLineOne', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
 						"AddressEntity: The Line1 field is required.");
 				});
 		}
@@ -1463,7 +1463,7 @@ namespace Speedy.IntegrationTests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.Name'.",
+						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountName'.",
 						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Name'. The duplicate key value is (Foo).",
 						"IX_Accounts_Name: Cannot insert duplicate row. The duplicate key value is (Foo).");
 				});
@@ -1499,7 +1499,7 @@ namespace Speedy.IntegrationTests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.Nickname'.",
+						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountNickname'.",
 						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
 						"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
 				});
@@ -1536,7 +1536,7 @@ namespace Speedy.IntegrationTests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AddressId, Accounts.ExternalId'.",
+						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountAddressId, Accounts.AccountExternalId'.",
 						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_AddressId_ExternalId'. The duplicate key value is (1, EID).",
 						"IX_Accounts_AddressId_ExternalId: Cannot insert duplicate row. The duplicate key value is (1,EID).");
 				});

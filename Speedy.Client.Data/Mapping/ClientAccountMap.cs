@@ -20,14 +20,17 @@ namespace Speedy.Client.Data.Mapping
 			b.ToTable("Accounts", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CreatedOn).IsRequired();
-			b.Property(x => x.EmailAddress).HasMaxLength(128).IsRequired();
-			b.Property(x => x.Id).IsRequired();
-			b.Property(x => x.LastClientUpdate).IsRequired();
-			b.Property(x => x.ModifiedOn).IsRequired();
-			b.Property(x => x.Name).IsRequired();
-			b.Property(x => x.Roles).IsRequired();
-			b.Property(x => x.SyncId).IsRequired();
+			b.Property(x => x.AddressId).HasColumnName("AccountAddressId").IsRequired();
+			b.Property(x => x.AddressSyncId).HasColumnName("AccountAddressSyncId").IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("AccountCreatedOn").IsRequired();
+			b.Property(x => x.EmailAddress).HasColumnName("AccountEmailAddress").HasMaxLength(128).IsRequired();
+			b.Property(x => x.Id).HasColumnName("AccountId").IsRequired();
+			b.Property(x => x.IsDeleted).HasColumnName("AccountIsDeleted").IsRequired();
+			b.Property(x => x.LastClientUpdate).HasColumnName("AccountLastClientUpdate").IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("AccountModifiedOn").IsRequired();
+			b.Property(x => x.Name).HasColumnName("AccountName").IsRequired();
+			b.Property(x => x.Roles).HasColumnName("AccountRoles").IsRequired();
+			b.Property(x => x.SyncId).HasColumnName("AccountSyncId").IsRequired();
 
 			b.HasIndex(x => x.LastClientUpdate).HasName("IX_Accounts_LastClientUpdate").IsUnique(false);
 			b.HasIndex(x => x.SyncId).HasName("IX_Accounts_SyncId").IsUnique();

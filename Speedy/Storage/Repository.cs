@@ -175,6 +175,34 @@ namespace Speedy.Storage
 		}
 
 		/// <inheritdoc />
+		public int BulkAdd(params T[] entities)
+		{
+			entities.ForEach(Add);
+			Database.SaveChanges();
+			return entities.Length;
+		}
+
+		/// <inheritdoc />
+		public int BulkAdd(IEnumerable<T> entities)
+		{
+			return BulkAdd(entities.ToArray());
+		}
+
+		/// <inheritdoc />
+		public int BulkAddOrUpdate(params T[] entities)
+		{
+			entities.ForEach(x => AddOrUpdate(x));
+			Database.SaveChanges();
+			return entities.Length;
+		}
+
+		/// <inheritdoc />
+		public int BulkAddOrUpdate(IEnumerable<T> entities)
+		{
+			return BulkAddOrUpdate(entities.ToArray());
+		}
+
+		/// <inheritdoc />
 		public int BulkRemove(Expression<Func<T, bool>> filter)
 		{
 			var count = 0;
@@ -188,8 +216,7 @@ namespace Speedy.Storage
 			// Temporarily mark the permanently delete flag
 			var value = Database.Options.PermanentSyncEntityDeletions;
 			Database.Options.PermanentSyncEntityDeletions = true;
-
-			SaveChanges();
+			Database.SaveChanges();
 
 			// Restore the previous permanently delete flag
 			Database.Options.PermanentSyncEntityDeletions = value;
@@ -231,6 +258,8 @@ namespace Speedy.Storage
 					count++;
 				}
 			}
+
+			Database.SaveChanges();
 
 			return count;
 		}
@@ -454,7 +483,7 @@ namespace Speedy.Storage
 						{
 							UpdateEntity(entry.Entity, entry.OldEntity);
 							entry.ResetChangeTracking();
-							
+
 							changeCount--;
 							continue;
 						}
@@ -784,7 +813,7 @@ namespace Speedy.Storage
 		/// <summary>
 		/// Occurs when an entity is being added.
 		/// </summary>
-		public event Action<T> AddingEntity;
+		internal event Action<T> AddingEntity;
 
 		/// <inheritdoc />
 		public event NotifyCollectionChangedEventHandler CollectionChanged;
@@ -792,17 +821,17 @@ namespace Speedy.Storage
 		/// <summary>
 		/// Occurs when an entity is being deleted.
 		/// </summary>
-		public event Action<T> DeletingEntity;
+		internal event Action<T> DeletingEntity;
 
 		/// <summary>
 		/// Occurs when an entity relationships are updated.
 		/// </summary>
-		public event Action<T> UpdateEntityRelationships;
+		internal event Action<T> UpdateEntityRelationships;
 
 		/// <summary>
 		/// Occurs when an entity is being validated.
 		/// </summary>
-		public event Action<T, IRepository<T, T2>> ValidateEntity;
+		internal event Action<T, IRepository<T, T2>> ValidateEntity;
 
 		#endregion
 	}

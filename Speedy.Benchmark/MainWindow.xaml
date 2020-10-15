@@ -15,12 +15,39 @@
 			<StackPanel Orientation="Horizontal">
 				<StackPanel.Resources>
 					<Style TargetType="Button">
-						<Setter Property="Margin" Value="10,8" />
+						<Setter Property="Margin" Value="10,8,0,8" />
+						<Setter Property="Padding" Value="10,2" />
+						<Setter Property="HorizontalAlignment" Value="Left" />
+					</Style>
+					<Style TargetType="CheckBox">
+						<Setter Property="Margin" Value="10,11,0,0" />
+						<Setter Property="Padding" Value="10,2" />
+						<Setter Property="HorizontalAlignment" Value="Left" />
+					</Style>
+					<Style TargetType="ToggleButton">
+						<Setter Property="Margin" Value="10,8,0,8" />
+						<Setter Property="Padding" Value="10,2" />
+						<Setter Property="HorizontalAlignment" Value="Left" />
+					</Style>
+					<Style TargetType="TextBlock">
+						<Setter Property="Margin" Value="10,8,0,8" />
+						<Setter Property="Padding" Value="10,2" />
+						<Setter Property="HorizontalAlignment" Value="Left" />
+					</Style>
+					<Style TargetType="TextBox">
+						<Setter Property="Margin" Value="10,8,0,8" />
 						<Setter Property="Padding" Value="10,2" />
 						<Setter Property="HorizontalAlignment" Value="Left" />
 					</Style>
 				</StackPanel.Resources>
 				<Button Content="Start" Command="{Binding StartWorkCommand, Mode=OneWay}" />
+				<CheckBox Content="Bulk Processing" IsChecked="{Binding UseBulkProcessing, Mode=TwoWay}" />
+				<CheckBox Content="Data" IsChecked="{Binding CreateData, Mode=TwoWay}" />
+				<CheckBox Content="Sync" IsChecked="{Binding SyncData, Mode=TwoWay}" />
+				<TextBlock Text="Addresses:" />
+				<TextBox Text="{Binding AddressCount, Mode=TwoWay}" />
+				<TextBlock Text="Accounts:" />
+				<TextBox Text="{Binding AccountCount, Mode=TwoWay}" />
 			</StackPanel>
 		</Border>
 		<ProgressBar DockPanel.Dock="Bottom" Height="4" Minimum="0" Maximum="100" Value="{Binding TotalPercentage, Mode=OneWay}" Visibility="{Binding TotalPercentage, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />

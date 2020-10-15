@@ -3,12 +3,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Speedy.EntityFramework.Sql;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 
 #endregion
 
@@ -109,45 +114,170 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <inheritdoc />
+		public int BulkAdd(params T[] entities)
+		{
+			entities.ForEach(UpdateRelationships);
+
+			switch (Database.GetProviderType())
+			{
+				case DatabaseProviderType.Sqlite:
+				{
+					Database.Database.OpenConnection();
+					var connection = (SqliteConnection) Database.Database.GetDbConnection();
+
+					try
+					{
+						var transaction = (SqliteTransaction) (Database.Database.CurrentTransaction?.GetDbTransaction()
+							?? connection.BeginTransaction(IsolationLevel.ReadCommitted));
+						var statement = SqlBuilder.GetSqlInsert<T>(Database);
+						var command = new SqliteCommand(statement.Query.ToString(), connection, transaction);
+
+						foreach (var entity in entities)
+						{
+							SqlBuilder.UpdateCommand(statement, command, entity);
+							command.ExecuteNonQuery();
+						}
+
+						transaction.Commit();
+
+						return entities.Length;
+					}
+					finally
+					{
+						Database.Database.CloseConnection();
+					}
+				}
+				case DatabaseProviderType.SqlServer:
+				{
+					Database.Database.OpenConnection();
+					var connection = Database.Database.GetDbConnection();
+
+					try
+					{
+						var transaction = Database.Database.CurrentTransaction;
+						var options = SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.KeepNulls;
+						using var sqlBulkCopy = GetSqlBulkCopy((SqlConnection) connection, transaction, options);
+						var dataTable = GetDataTable(entities, sqlBulkCopy);
+						sqlBulkCopy.WriteToServer(dataTable);
+						return dataTable.Rows.Count;
+					}
+					finally
+					{
+						Database.Database.CloseConnection();
+					}
+				}
+				case DatabaseProviderType.Unknown:
+				default:
+					throw new NotSupportedException();
+			}
+		}
+
+		/// <inheritdoc />
+		public int BulkAdd(IEnumerable<T> entities)
+		{
+			return BulkAdd(entities.ToArray());
+		}
+
+		/// <inheritdoc />
+		public int BulkAddOrUpdate(params T[] entities)
+		{
+			switch (Database.GetProviderType())
+			{
+				case DatabaseProviderType.Sqlite:
+				{
+					Database.Database.OpenConnection();
+					var connection = (SqliteConnection) Database.Database.GetDbConnection();
+
+					try
+					{
+						var transaction = (SqliteTransaction) (Database.Database.CurrentTransaction?.GetDbTransaction()
+							?? connection.BeginTransaction(IsolationLevel.ReadCommitted));
+						var statement = SqlBuilder.GetSqlInsertOrUpdate<T>(Database);
+						var command = new SqliteCommand(statement.Query.ToString(), connection, transaction);
+
+						foreach (var entity in entities)
+						{
+							UpdateRelationships(entity);
+							SqlBuilder.UpdateCommand(statement, command, entity);
+							command.ExecuteNonQuery();
+						}
+
+						transaction.Commit();
+
+						return entities.Length;
+					}
+					finally
+					{
+						Database.Database.CloseConnection();
+					}
+				}
+				case DatabaseProviderType.SqlServer:
+				{
+					Database.Database.OpenConnection();
+					var connection = (SqlConnection) Database.Database.GetDbConnection();
+
+					try
+					{
+						var transaction = (SqlTransaction) (Database.Database.CurrentTransaction?.GetDbTransaction()
+							?? connection.BeginTransaction(IsolationLevel.ReadCommitted));
+						var statement = SqlBuilder.GetSqlInsertOrUpdate<T>(Database);
+						var command = new SqlCommand(statement.Query.ToString(), connection, transaction);
+
+						foreach (var entity in entities)
+						{
+							UpdateRelationships(entity);
+							SqlBuilder.UpdateCommand(statement, command, entity);
+							command.ExecuteNonQuery();
+						}
+
+						transaction.Commit();
+
+						return entities.Length;
+					}
+					finally
+					{
+						Database.Database.CloseConnection();
+					}
+				}
+				case DatabaseProviderType.Unknown:
+				default:
+					throw new NotSupportedException();
+			}
+		}
+
+		/// <inheritdoc />
+		public int BulkAddOrUpdate(IEnumerable<T> entities)
+		{
+			return BulkAddOrUpdate(entities.ToArray());
+		}
+
+		/// <inheritdoc />
 		public int BulkRemove(Expression<Func<T, bool>> filter)
 		{
-			var (sql, parameters) = SqlBuilder.GetSqlDelete(Database, this.Where(filter));
-			return Database.Database.ExecuteSqlRaw(sql, parameters);
+			var statement = SqlBuilder.GetSqlDelete(Database, this.Where(filter));
+			return Database.Database.ExecuteSqlRaw(statement.Query.ToString(), statement.Parameters);
 		}
-		
+
 		/// <inheritdoc />
 		public int BulkUpdate(Expression<Func<T, bool>> filter, Expression<Func<T, T>> update)
 		{
-			var (sql, parameters) = SqlBuilder.GetSqlUpdate(Database, this.Where(filter), update);
-			return Database.Database.ExecuteSqlRaw(sql, parameters);
+			var statement = SqlBuilder.GetSqlUpdate(Database, this.Where(filter), update);
+			return Database.Database.ExecuteSqlRaw(statement.Query.ToString(), statement.Parameters);
 		}
 
-		/// <summary>
-		/// Returns an enumerator that iterates through the collection.
-		/// </summary>
-		/// <returns>
-		/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-		/// </returns>
+		/// <inheritdoc />
 		public IEnumerator<T> GetEnumerator()
 		{
 			return ((IQueryable<T>) Set).GetEnumerator();
 		}
 
-		/// <summary>
-		/// Configures the query to include related entities in the results.
-		/// </summary>
-		/// <param name="include"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
+		/// <inheritdoc />
 		public IIncludableQueryable<T, T3> Include<T3>(Expression<Func<T, T3>> include)
 		{
 			return Including(include);
 		}
 
-		/// <summary>
-		/// Configures the query to include multiple related entities in the results.
-		/// </summary>
-		/// <param name="includes"> The related entities to include. </param>
-		/// <returns> The results of the query including the related entities. </returns>
+		/// <inheritdoc />
 		public IIncludableQueryable<T, object> Including(params Expression<Func<T, object>>[] includes)
 		{
 			return Including<object>(includes);
@@ -183,10 +313,7 @@ namespace Speedy.EntityFramework
 			return new EntityIncludableQueryable<T, T3>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3>) instance);
 		}
 
-		/// <summary>
-		/// Removes an entity from the repository.
-		/// </summary>
-		/// <param name="id"> The ID of the entity to remove. </param>
+		/// <inheritdoc />
 		public void Remove(T2 id)
 		{
 			var entity = Set.Local.FirstOrDefault(x => Equals(x.Id, id));
@@ -200,33 +327,124 @@ namespace Speedy.EntityFramework
 			Set.Remove(entity);
 		}
 
-		/// <summary>
-		/// Removes an entity from the repository.
-		/// </summary>
-		/// <param name="entity"> The entity to remove. </param>
+		/// <inheritdoc />
 		public void Remove(T entity)
 		{
 			Set.Remove(entity);
 		}
 
-		/// <summary>
-		/// Removes a set of entities from the repository.
-		/// </summary>
-		/// <param name="filter"> The filter of the entities to remove. </param>
+		/// <inheritdoc />
 		public void Remove(Expression<Func<T, bool>> filter)
 		{
 			Set.RemoveRange(Set.Where(filter));
 		}
 
-		/// <summary>
-		/// Returns an enumerator that iterates through a collection.
-		/// </summary>
-		/// <returns>
-		/// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
-		/// </returns>
+		private DataTable GetDataTable(IEnumerable<T> entities, SqlBulkCopy sqlBulkCopy)
+		{
+			var dataTable = new DataTable();
+			var columnValues = new Dictionary<string, object>();
+			var type = typeof(T).GetRealType();
+			var entityType = Database.Model.FindEntityType(type);
+			var entityProperties = entityType.GetProperties().ToDictionary(a => a.Name, a => a);
+			var properties = type.GetCachedProperties().Where(x => entityProperties.ContainsKey(x.Name)).ToList();
+
+			foreach (var property in properties)
+			{
+				var entityPropertyType = entityProperties[property.Name];
+				var propertyType = property.PropertyType;
+				var columnName = entityPropertyType.GetColumnName();
+				var underlyingType = Nullable.GetUnderlyingType(propertyType);
+				dataTable.Columns.Add(columnName, underlyingType ?? propertyType);
+				columnValues.Add(property.Name, null);
+			}
+
+			foreach (var entity in entities)
+			{
+				foreach (var property in properties)
+				{
+					var propertyValue = property.GetMethod.Invoke(entity, null);
+					columnValues[property.Name] = propertyValue;
+				}
+
+				var record = columnValues.Values.ToArray();
+				dataTable.Rows.Add(record);
+			}
+
+			sqlBulkCopy.DestinationTableName = entityType.GetTableName();
+			sqlBulkCopy.BatchSize = 2000;
+			//sqlBulkCopy.BulkCopyTimeout = ?
+			sqlBulkCopy.EnableStreaming = true;
+
+			foreach (DataColumn item in dataTable.Columns)
+			{
+				sqlBulkCopy.ColumnMappings.Add(item.ColumnName, item.ColumnName);
+			}
+
+			return dataTable;
+		}
+
+		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
+		}
+
+		private SqlBulkCopy GetSqlBulkCopy(SqlConnection sqlConnection, IDbContextTransaction transaction, SqlBulkCopyOptions options)
+		{
+			if (transaction == null)
+			{
+				return new SqlBulkCopy(sqlConnection, options, null);
+			}
+
+			var sqlTransaction = (SqlTransaction) transaction.GetDbTransaction();
+			return new SqlBulkCopy(sqlConnection, options, sqlTransaction);
+		}
+
+		private void UpdateRelationships(T entity)
+		{
+			var baseType = typeof(IEntity);
+			var entityType = entity.GetRealType();
+			var entityProperties = entityType.GetCachedProperties();
+			var entityRelationships = entityType.GetCachedVirtualProperties().Where(x => baseType.IsAssignableFrom(x.PropertyType)).ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				if (!(entityRelationship.GetValue(entity, null) is IEntity otherEntity))
+				{
+					continue;
+				}
+
+				var otherEntityProperties = otherEntity.GetRealType().GetCachedProperties();
+				var otherEntityIdProperty = otherEntityProperties.FirstOrDefault(x => x.Name == "Id");
+				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
+				
+				if (otherEntityIdProperty != null && entityRelationshipIdProperty != null)
+				{
+					var entityId = entityRelationshipIdProperty.GetValue(entity, null);
+					var otherId = otherEntityIdProperty.GetValue(otherEntity);
+
+					if (!Equals(entityId, otherId))
+					{
+						// resets entityId to entity.Id if it does not match
+						entityRelationshipIdProperty.SetValue(entity, otherId, null);
+					}
+				}
+
+				var otherEntitySyncIdProperty = otherEntityProperties.FirstOrDefault(x => x.Name == "SyncId");
+				var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
+				
+				if (otherEntitySyncIdProperty != null && entityRelationshipSyncIdProperty != null)
+				{
+					var entitySyncId = entityRelationshipSyncIdProperty.GetValue(entity, null);
+					var otherSyncId = otherEntitySyncIdProperty?.GetValue(otherEntity);
+
+					if (!Equals(entitySyncId, otherSyncId))
+					{
+						// resets entityId to entity.SyncId if it does not match
+						entityRelationshipSyncIdProperty.SetValue(entity, otherSyncId, null);
+					}
+				}
+			}
 		}
 
 		#endregion

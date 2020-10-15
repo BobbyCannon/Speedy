@@ -12,16 +12,16 @@ namespace Speedy.Configuration
 		#region Properties
 
 		/// <summary>
+		/// The property information for the entity ID.
+		/// </summary>
+		public PropertyInfo EntityIdPropertyInfo { get; set; }
+
+		/// <summary>
 		/// The property information for the entity.
 		/// </summary>
 		public PropertyInfo EntityPropertyInfo { get; set; }
 
-		/// <summary>
-		/// The property information for the entity ID.
-		/// </summary>
-		public PropertyInfo IdPropertyInfo { get; set; }
-
-		public Guid? SyncId { get; set; }
+		public Guid? EntitySyncId { get; set; }
 
 		public Type Type { get; set; }
 

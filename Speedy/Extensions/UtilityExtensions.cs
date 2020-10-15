@@ -133,6 +133,7 @@ namespace Speedy.Extensions
 				}
 
 				result = action();
+
 				if (!result)
 				{
 					Thread.Sleep(delay);

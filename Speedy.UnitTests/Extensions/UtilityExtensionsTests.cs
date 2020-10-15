@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
-using Speedy.UnitTests.Factories;
 using Speedy.Website.Samples.Entities;
 
 #endregion
@@ -134,7 +133,7 @@ namespace Speedy.UnitTests.Extensions
 			Assert.IsTrue(result);
 			Assert.AreEqual(4, count);
 			Assert.IsTrue(watch.Elapsed.TotalMilliseconds > 30, watch.Elapsed.TotalMilliseconds.ToString());
-			Assert.IsTrue(watch.Elapsed.TotalMilliseconds < 40, watch.Elapsed.TotalMilliseconds.ToString());
+			Assert.IsTrue(watch.Elapsed.TotalMilliseconds < 50, watch.Elapsed.TotalMilliseconds.ToString());
 		}
 
 		[TestMethod]
@@ -145,9 +144,9 @@ namespace Speedy.UnitTests.Extensions
 			var result = UtilityExtensions.Wait(() => ++count > 100, 1000, 50);
 			watch.Stop();
 			Assert.IsFalse(result);
-			Assert.AreEqual(20, count);
+			Assert.IsTrue(count <= 20);
 			Assert.IsTrue(watch.Elapsed.TotalMilliseconds > 1000, watch.Elapsed.TotalMilliseconds.ToString());
-			Assert.IsTrue(watch.Elapsed.TotalMilliseconds < 1050, watch.Elapsed.TotalMilliseconds.ToString());
+			Assert.IsTrue(watch.Elapsed.TotalMilliseconds < 1100, watch.Elapsed.TotalMilliseconds.ToString());
 		}
 
 		[TestMethod]
@@ -160,7 +159,7 @@ namespace Speedy.UnitTests.Extensions
 			Assert.IsFalse(result);
 			Assert.AreEqual(5, count);
 			Assert.IsTrue(watch.Elapsed.TotalMilliseconds > 500, watch.Elapsed.TotalMilliseconds.ToString());
-			Assert.IsTrue(watch.Elapsed.TotalMilliseconds < 510, watch.Elapsed.TotalMilliseconds.ToString());
+			Assert.IsTrue(watch.Elapsed.TotalMilliseconds < 600, watch.Elapsed.TotalMilliseconds.ToString());
 		}
 
 		#endregion

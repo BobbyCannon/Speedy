@@ -8,6 +8,6 @@
 		mc:Ignorable="d"
 		Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 	<Grid>
-		
+		<TextBlock Name="Status" />
 	</Grid>
 </Page>

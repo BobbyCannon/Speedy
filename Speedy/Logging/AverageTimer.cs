@@ -3,7 +3,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 
 #endregion
@@ -32,7 +31,7 @@ namespace Speedy.Logging
 		public AverageTimer(int limit) : this(limit, new DefaultDispatcher())
 		{
 		}
-		
+
 		/// <summary>
 		/// Instantiate the average service.
 		/// </summary>
@@ -54,6 +53,11 @@ namespace Speedy.Logging
 		/// Returns the Average value as TimeSpan. This expects the Average values to be "Ticks".
 		/// </summary>
 		public TimeSpan Average { get; private set; }
+
+		/// <summary>
+		/// Number of times this timer has been called.
+		/// </summary>
+		public int Count { get; private set; }
 
 		/// <summary>
 		/// The amount of time that has elapsed.
@@ -78,8 +82,20 @@ namespace Speedy.Logging
 		/// Cancel the timer.
 		/// </summary>
 		public void Cancel()
-		{ 
+		{
 			_timer.Reset();
+		}
+
+		/// <summary>
+		/// Reset the average timer.
+		/// </summary>
+		public void Reset()
+		{
+			_collection.Clear();
+
+			Average = TimeSpan.Zero;
+			Samples = 0;
+			Count = 0;
 		}
 
 		/// <summary>
@@ -111,6 +127,7 @@ namespace Speedy.Logging
 
 			Samples = _collection.Count;
 			Average = new TimeSpan((long) _collection.Average());
+			Count++;
 		}
 
 		private void TimerOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -120,7 +137,7 @@ namespace Speedy.Logging
 				case nameof(Timer.Elapsed):
 					OnPropertyChanged(nameof(Elapsed));
 					break;
-					
+
 				case nameof(Timer.IsRunning):
 					OnPropertyChanged(nameof(IsRunning));
 					break;

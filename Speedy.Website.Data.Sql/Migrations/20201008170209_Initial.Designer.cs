@@ -10,14 +10,14 @@ using Speedy.Website.Data.Sql;
 namespace Speedy.Website.Data.Sql.Migrations
 {
     [DbContext(typeof(ContosoSqlDatabase))]
-    [Migration("20200723171000_Initial")]
+    [Migration("20201008170209_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -25,65 +25,69 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
+                        .HasColumnName("AccountId")
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<long>("AddressId")
-                        .HasColumnName("AddressId")
+                        .HasColumnName("AccountAddressId")
                         .HasColumnType("bigint");
 
                     b.Property<Guid>("AddressSyncId")
-                        .HasColumnName("AddressSyncId")
+                        .HasColumnName("AccountAddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("CreatedOn")
+                        .HasColumnName("AccountCreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
-                        .HasColumnName("EmailAddress")
+                        .HasColumnName("AccountEmailAddress")
                         .HasColumnType("varchar(max)")
                         .IsUnicode(false);
 
                     b.Property<string>("ExternalId")
-                        .HasColumnName("ExternalId")
+                        .HasColumnName("AccountExternalId")
                         .HasColumnType("varchar(900)")
                         .IsUnicode(false);
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnName("AccountIsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("LastLoginDate")
+                        .HasColumnName("AccountLastLoginDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnName("ModifiedOn")
+                        .HasColumnName("AccountModifiedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("Name")
+                        .HasColumnName("AccountName")
                         .HasColumnType("varchar(256)")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("Nickname")
-                        .HasColumnName("Nickname")
+                        .HasColumnName("AccountNickname")
                         .HasColumnType("varchar(256)")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("PasswordHash")
+                        .HasColumnName("AccountPasswordHash")
                         .HasColumnType("varchar(max)")
                         .IsUnicode(false);
 
                     b.Property<string>("Roles")
+                        .HasColumnName("AccountRoles")
                         .HasColumnType("varchar(max)")
                         .IsUnicode(false);
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnName("SyncId")
+                        .HasColumnName("AccountSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -98,7 +102,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.HasIndex("Nickname")
                         .IsUnique()
                         .HasName("IX_Accounts_Nickname")
-                        .HasFilter("[Nickname] IS NOT NULL");
+                        .HasFilter("[AccountNickname] IS NOT NULL");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
@@ -107,7 +111,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.HasIndex("AddressId", "ExternalId")
                         .IsUnique()
                         .HasName("IX_Accounts_AddressId_ExternalId")
-                        .HasFilter("[ExternalId] IS NOT NULL");
+                        .HasFilter("[AccountExternalId] IS NOT NULL");
 
                     b.ToTable("Accounts","dbo");
                 });
@@ -116,66 +120,67 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("Id")
+                        .HasColumnName("AddressId")
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnName("City")
+                        .HasColumnName("AddressCity")
                         .HasColumnType("varchar(256)")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("CreatedOn")
+                        .HasColumnName("AddressCreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnName("AddressIsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Line1")
                         .IsRequired()
-                        .HasColumnName("Line1")
+                        .HasColumnName("AddressLineOne")
                         .HasColumnType("varchar(256)")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("Line2")
                         .IsRequired()
-                        .HasColumnName("Line2")
+                        .HasColumnName("AddressLineTwo")
                         .HasColumnType("varchar(256)")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<long?>("LinkedAddressId")
-                        .HasColumnName("LinkedAddressId")
+                        .HasColumnName("AddressLinkedAddressId")
                         .HasColumnType("bigint");
 
                     b.Property<Guid?>("LinkedAddressSyncId")
-                        .HasColumnName("LinkedAddressSyncId")
+                        .HasColumnName("AddressLinkedAddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnName("ModifiedOn")
+                        .HasColumnName("AddressModifiedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Postal")
                         .IsRequired()
-                        .HasColumnName("Postal")
+                        .HasColumnName("AddressPostal")
                         .HasColumnType("varchar(128)")
                         .HasMaxLength(128)
                         .IsUnicode(false);
 
                     b.Property<string>("State")
                         .IsRequired()
-                        .HasColumnName("State")
+                        .HasColumnName("AddressState")
                         .HasColumnType("varchar(128)")
                         .HasMaxLength(128)
                         .IsUnicode(false);
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnName("SyncId")
+                        .HasColumnName("AddressSyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");

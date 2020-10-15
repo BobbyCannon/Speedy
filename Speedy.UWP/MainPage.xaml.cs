@@ -1,6 +1,9 @@
 ﻿#region References
 
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Microsoft.EntityFrameworkCore;
+using Speedy.Client.Data;
 
 #endregion
 
@@ -18,6 +21,31 @@ namespace Speedy.UWP
 		public MainPage()
 		{
 			InitializeComponent();
+
+			DefaultSqliteConnection = "Data Source=Speedy.db";
+
+			Loaded += OnLoaded;
+		}
+
+		#endregion
+
+		#region Properties
+
+		public string DefaultSqliteConnection { get; }
+
+		#endregion
+
+		#region Methods
+
+		private void OnLoaded(object sender, RoutedEventArgs e)
+		{
+			using (var database = ContosoClientDatabase.UseSqlite(DefaultSqliteConnection))
+			{
+				database.Database.EnsureDeleted();
+				database.Database.Migrate();
+
+				Status.Text = "Database Migrated";
+			}
 		}
 
 		#endregion

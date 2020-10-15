@@ -93,7 +93,12 @@ namespace Speedy.Website.Samples
 
 		public static void SetRequiredOptions(DatabaseOptions options)
 		{
-			options.SyncOrder = new[] { typeof(AddressEntity).ToAssemblyName(), typeof(AccountEntity).ToAssemblyName(), typeof(LogEventEntity).ToAssemblyName() };
+			options.SyncOrder = new[]
+			{
+				typeof(AddressEntity).ToAssemblyName(),
+				typeof(AccountEntity).ToAssemblyName(),
+				typeof(LogEventEntity).ToAssemblyName()
+			};
 		}
 
 		/// <summary>

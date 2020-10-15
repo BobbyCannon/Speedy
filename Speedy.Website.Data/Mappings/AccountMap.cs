@@ -20,16 +20,26 @@ namespace Speedy.Website.Samples.Mappings
 			b.ToTable("Accounts", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.AddressId).HasColumnName("AddressId").IsRequired();
-			b.Property(x => x.AddressSyncId).HasColumnName("AddressSyncId").IsRequired();
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
-			b.Property(x => x.EmailAddress).HasColumnName("EmailAddress").IsRequired(false);
-			b.Property(x => x.ExternalId).HasColumnName("ExternalId").IsRequired(false);
-			b.Property(x => x.Id).HasColumnName("Id").IsRequired();
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
-			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
-			b.Property(x => x.Nickname).HasColumnName("Nickname").HasMaxLength(256).IsRequired(false);
-			b.Property(x => x.SyncId).HasColumnName("SyncId").IsRequired();
+			//
+			// All database names are going to be renamed to ensure all
+			//  - BULK commands work
+			//  - Custom SQL works
+			//
+
+			b.Property(x => x.AddressId).HasColumnName("AccountAddressId").IsRequired();
+			b.Property(x => x.AddressSyncId).HasColumnName("AccountAddressSyncId").IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("AccountCreatedOn").IsRequired();
+			b.Property(x => x.EmailAddress).HasColumnName("AccountEmailAddress").IsRequired(false);
+			b.Property(x => x.ExternalId).HasColumnName("AccountExternalId").IsRequired(false);
+			b.Property(x => x.Id).HasColumnName("AccountId").IsRequired();
+			b.Property(x => x.IsDeleted).HasColumnName("AccountIsDeleted").IsRequired();
+			b.Property(x => x.LastLoginDate).HasColumnName("AccountLastLoginDate").IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("AccountModifiedOn").IsRequired();
+			b.Property(x => x.Name).HasColumnName("AccountName").HasMaxLength(256).IsRequired();
+			b.Property(x => x.Nickname).HasColumnName("AccountNickname").HasMaxLength(256).IsRequired(false);
+			b.Property(x => x.PasswordHash).HasColumnName("AccountPasswordHash").IsRequired(false);
+			b.Property(x => x.Roles).HasColumnName("AccountRoles").IsRequired(false);
+			b.Property(x => x.SyncId).HasColumnName("AccountSyncId").IsRequired();
 
 			b.HasIndex(x => x.AddressId).HasName("IX_Accounts_AddressId");
 			b.HasIndex(x => new { x.AddressId, x.ExternalId }).HasName("IX_Accounts_AddressId_ExternalId").IsUnique();

@@ -90,9 +90,9 @@ namespace Speedy.Website.WebApi
 			return session;
 		}
 
+		/// <inheritdoc />
 		[HttpPost]
 		[Route("EndSync/{sessionId}")]
-		/// <inheritdoc />
 		public SyncStatistics EndSync(Guid sessionId)
 		{
 			// The server should always maintain dates as they are the "Master" dataset

@@ -293,34 +293,30 @@ namespace Speedy.IntegrationTests
 
 		public static IDatabaseProvider<IContosoDatabase> GetSqliteProvider(DatabaseOptions options = null, bool initialized = true)
 		{
-			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, options))
+			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, options);
+			database.Database.EnsureDeleted();
+			database.Database.Migrate();
+
+			if (initialized)
 			{
-				database.Database.EnsureDeleted();
-				database.Database.Migrate();
-
-				if (initialized)
-				{
-					InitializeDatabase(database);
-				}
-
-				return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), options);
+				InitializeDatabase(database);
 			}
+
+			return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), options);
 		}
 
 		public static IDatabaseProvider<IContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialized = true)
 		{
-			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options))
+			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options);
+			database.Database.Migrate();
+			database.ClearDatabase();
+
+			if (initialized)
 			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-
-				if (initialized)
-				{
-					InitializeDatabase(database);
-				}
-
-				return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), options);
+				InitializeDatabase(database);
 			}
+
+			return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), options);
 		}
 
 		public static ISyncableDatabaseProvider GetSyncableMemoryProvider(DatabaseOptions options = null, bool initialize = true)
@@ -341,58 +337,50 @@ namespace Speedy.IntegrationTests
 
 		public static ISyncableDatabaseProvider GetSyncableSqliteProvider(bool initialize = true)
 		{
-			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection))
+			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection);
+			database.Database.EnsureDeleted();
+			database.Database.Migrate();
+			if (initialize)
 			{
-				database.Database.EnsureDeleted();
-				database.Database.Migrate();
-				if (initialize)
-				{
-					InitializeDatabase(database);
-				}
-				return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+				InitializeDatabase(database);
 			}
+			return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
 		}
 
 		public static ISyncableDatabaseProvider GetSyncableSqliteProvider2(bool initialize = true)
 		{
-			using (var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2))
+			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2);
+			database.Database.EnsureDeleted();
+			database.Database.Migrate();
+			if (initialize)
 			{
-				database.Database.EnsureDeleted();
-				database.Database.Migrate();
-				if (initialize)
-				{
-					InitializeDatabase(database);
-				}
-				return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+				InitializeDatabase(database);
 			}
+			return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
 		}
 
 		public static ISyncableDatabaseProvider GetSyncableSqlProvider(bool initialize = true)
 		{
-			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection))
+			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection);
+			database.Database.Migrate();
+			database.ClearDatabase();
+			if (initialize)
 			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-				if (initialize)
-				{
-					InitializeDatabase(database);
-				}
-				return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+				InitializeDatabase(database);
 			}
+			return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
 		}
 
 		public static ISyncableDatabaseProvider GetSyncableSqlProvider2(bool initialize = true)
 		{
-			using (var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2))
+			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2);
+			database.Database.Migrate();
+			database.ClearDatabase();
+			if (initialize)
 			{
-				database.Database.Migrate();
-				database.ClearDatabase();
-				if (initialize)
-				{
-					InitializeDatabase(database);
-				}
-				return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+				InitializeDatabase(database);
 			}
+			return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
 		}
 
 		public static void Initialize()

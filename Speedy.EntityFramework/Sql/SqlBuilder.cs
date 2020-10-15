@@ -1,14 +1,13 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using Microsoft.Data.Sqlite;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Speedy.Extensions;
 
 #endregion
@@ -20,66 +19,166 @@ namespace Speedy.EntityFramework.Sql
 	/// </summary>
 	public static class SqlBuilder
 	{
-		#region Fields
-
-		private static readonly Dictionary<Type, SqlDbType> _typeToSqlDbTypeDictionary;
-
-		#endregion
-
-		#region Constructors
-
-		static SqlBuilder()
-		{
-			_typeToSqlDbTypeDictionary = new Dictionary<Type, SqlDbType>
-			{
-				{ typeof(long), SqlDbType.BigInt },
-				{ typeof(long?), SqlDbType.BigInt },
-				{ typeof(int), SqlDbType.Int },
-				{ typeof(int?), SqlDbType.Int },
-				{ typeof(byte), SqlDbType.TinyInt },
-				{ typeof(byte?), SqlDbType.TinyInt },
-				{ typeof(DateTime), SqlDbType.DateTime },
-				{ typeof(DateTime?), SqlDbType.DateTime },
-				{ typeof(bool), SqlDbType.Bit },
-				{ typeof(bool?), SqlDbType.Bit },
-				{ typeof(decimal), SqlDbType.Decimal },
-				{ typeof(decimal?), SqlDbType.Decimal },
-				{ typeof(double), SqlDbType.Float },
-				{ typeof(double?), SqlDbType.Float },
-				{ typeof(Guid), SqlDbType.UniqueIdentifier },
-				{ typeof(Guid?), SqlDbType.UniqueIdentifier },
-				{ typeof(string), SqlDbType.NVarChar }
-			};
-		}
-
-		#endregion
-
 		#region Methods
 
 		/// <summary>
-		/// Get SQL update script from query.
+		/// Get SQL delete script from query.
 		/// </summary>
 		/// <typeparam name="T"> The type for the query. </typeparam>
 		/// <param name="database"> </param>
 		/// <param name="query"> </param>
-		/// <returns> </returns>
-		public static (string, List<object>) GetSqlDelete<T>(EntityFrameworkDatabase database, IQueryable<T> query) where T : class
+		/// <returns> The SQL script and values to be deleted. </returns>
+		public static SqlStatement GetSqlDelete<T>(EntityFrameworkDatabase database, IQueryable<T> query) where T : class
 		{
-			var (tableAlias, tableName, isLite) = GetBatchSql(query);
-			var sqlWhere = new StringBuilder();
-			var sqlParameters = new List<object>();
-			var columnNames = SqlTableInformation.CreateInstance<T>(database).PropertyColumnNames;
+			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
+			var response = new SqlStatement(tableInformation);
 
-			CreateWhere(columnNames, tableAlias, query.Expression, ref sqlWhere, ref sqlParameters, isLite);
+			CreateWhere(response, query.Expression);
 
-			if (sqlWhere.Length <= 0)
+			if (response.QueryWhere.Length <= 0)
 			{
 				throw new ArgumentException("Must have a filter query.", nameof(query));
 			}
 
-			return (isLite
-				? $"DELETE FROM \"{tableAlias}\"{sqlWhere}"
-				: RemoveAlias($"DELETE {tableName}{sqlWhere}", tableAlias), sqlParameters);
+			response.Query.Append(
+				tableInformation.ProviderType == DatabaseProviderType.Sqlite
+					? $"DELETE FROM \"{tableInformation.TableName}\"{response.QueryWhere}"
+					: $"DELETE FROM [{tableInformation.SchemaName}].[{tableInformation.TableName}]{response.QueryWhere}"
+			);
+
+			return response;
+		}
+
+		/// <summary>
+		/// Get SQL insert script from query.
+		/// </summary>
+		/// <typeparam name="T"> The type for the query. </typeparam>
+		/// <param name="database"> </param>
+		/// <returns> The SQL insert script. </returns>
+		public static SqlStatement GetSqlInsert<T>(EntityFrameworkDatabase database) where T : class
+		{
+			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
+			var statement = new SqlStatement(tableInformation);
+			return GetSqlInsert<T>(statement);
+		}
+
+		/// <summary>
+		/// Get SQL insert script from query.
+		/// </summary>
+		/// <param name="statement"> </param>
+		/// <returns> The SQL insert script. </returns>
+		public static SqlStatement GetSqlInsert<T>(SqlStatement statement, bool excludeTableName = false)
+		{
+			var columns = statement.GetSqlColumnParameterNames();
+			var sqlColumnNames = statement.GetDelimitedColumnNameList(columns.Keys);
+			var parameterNames = columns.Values;
+			var sqlParameterNames = string.Join(", ", parameterNames.Select(x => $"@{x}"));
+			statement.Query.Append(excludeTableName
+				? $"INSERT ({sqlColumnNames}) VALUES ({sqlParameterNames})"
+				: $"INSERT INTO {statement.TableInformation.GetFormattedTableName()} ({sqlColumnNames}) VALUES ({sqlParameterNames})"
+			);
+			return statement;
+		}
+
+		/// <summary>
+		/// Get SQL insert script from query.
+		/// </summary>
+		/// <typeparam name="T"> The type for the query. </typeparam>
+		/// <param name="database"> </param>
+		/// <param name="entity"> </param>
+		/// <returns> The SQL script and values to be inserted. </returns>
+		public static SqlStatement GetSqlInsert<T>(EntityFrameworkDatabase database, T entity) where T : class
+		{
+			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
+			var statement = new SqlStatement(tableInformation);
+			var response = GetSqlInsert<T>(statement);
+			UpdateStatementParameters(statement, entity);
+			return response;
+		}
+
+		/// <summary>
+		/// Get SQL merge script from query.
+		/// </summary>
+		/// <typeparam name="T"> The type for the query. </typeparam>
+		/// <param name="database"> </param>
+		/// <returns> The SQL merge script. </returns>
+		public static SqlStatement GetSqlInsertOrUpdate<T>(EntityFrameworkDatabase database) where T : class
+		{
+			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
+			var response = new SqlStatement(tableInformation);
+			var createdOnColumnName = tableInformation.PropertyToColumnName["CreatedOn"];
+			var syncIdColumnName = tableInformation.PropertyToColumnName["SyncId"];
+
+			switch (tableInformation.ProviderType)
+			{
+				case DatabaseProviderType.SqlServer:
+				{
+					response.Query.AppendLine("SET NOCOUNT, XACT_ABORT ON;");
+					response.Query.AppendLine($"MERGE {response.TableInformation.GetFormattedTableName()} WITH (HOLDLOCK) AS T");
+					response.Query.AppendFormat("USING (SELECT @[[SyncIdParameterName]] as {0}) AS S\r\n\tON T.[{0}] = S.[{0}]\r\nWHEN MATCHED\r\n\tTHEN ", syncIdColumnName);
+					GetSqlUpdate<T>(response, true, true, createdOnColumnName, syncIdColumnName);
+					response.Query.AppendLine();
+					response.Query.Append("WHEN NOT MATCHED\r\n\tTHEN ");
+					GetSqlInsert<T>(response, true);
+					response.Query.Append(";");
+
+					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName];
+					response.Query.Replace("[[SyncIdParameterName]]", syncIdParameterName);
+					break;
+				}
+				case DatabaseProviderType.Sqlite:
+				{
+					GetSqlUpdate<T>(response, excludeWhere: true, excludedColumns: new[] { createdOnColumnName, syncIdColumnName });
+					response.AddParameterValue(syncIdColumnName, SqlDbType.UniqueIdentifier, Guid.Empty);
+					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName];
+					var where = $" WHERE {tableInformation.ProviderPrefix}{syncIdColumnName}{tableInformation.ProviderSuffix} = @{syncIdParameterName}";
+					response.Query.AppendLine($"{where};");
+					GetSqlInsert<T>(response);
+					response.Query.AppendLine();
+					response.Query.Append("WHERE (SELECT Changes() = 0);");
+					response.Query.Replace(") VALUES (", ")\r\nSELECT ").Replace(")\r\nWHERE (SELECT", "\r\nWHERE (SELECT");
+					break;
+				}
+			}
+
+			return response;
+		}
+
+		/// <summary>
+		/// Get SQL insert script from query.
+		/// </summary>
+		/// <typeparam name="T"> The type for the query. </typeparam>
+		/// <param name="database"> </param>
+		/// <returns> The SQL insert script. </returns>
+		public static SqlStatement GetSqlUpdate<T>(EntityFrameworkDatabase database) where T : class
+		{
+			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
+			var response = new SqlStatement(tableInformation);
+			return GetSqlUpdate<T>(response);
+		}
+
+		/// <summary>
+		/// Get SQL insert script from query.
+		/// </summary>
+		/// <typeparam name="T"> The type for the query. </typeparam>
+		/// <param name="statement"> </param>
+		/// <returns> The SQL insert script. </returns>
+		public static SqlStatement GetSqlUpdate<T>(SqlStatement statement, bool excludeTableName = false, bool excludeWhere = false, params string[] excludedColumns) where T : class
+		{
+			var setClause = statement.GetSetColumnList(statement.GetSqlColumnParameterNames(excludedColumns: excludedColumns));
+
+			statement.Query.Append(excludeTableName ? "UPDATE" : $"UPDATE {statement.TableInformation.GetFormattedTableName()}");
+			statement.Query.Append($" SET {setClause}");
+
+			if (!excludeWhere)
+			{
+				var primaryKeys = statement.GetSqlColumnParameterNames(onlyIncludePrimaryKeys: true);
+				var parameterWhere = statement.GetWhereColumnList(primaryKeys);
+				statement.QueryWhere.Append(parameterWhere);
+				statement.Query.Append($" WHERE {statement.QueryWhere}");
+			}
+
+			return statement;
 		}
 
 		/// <summary>
@@ -90,24 +189,79 @@ namespace Speedy.EntityFramework.Sql
 		/// <param name="query"> </param>
 		/// <param name="expression"> </param>
 		/// <returns> </returns>
-		public static (string, List<object>) GetSqlUpdate<T>(EntityFrameworkDatabase database, IQueryable<T> query, Expression<Func<T, T>> expression) where T : class
+		public static SqlStatement GetSqlUpdate<T>(EntityFrameworkDatabase database, IQueryable<T> query, Expression<Func<T, T>> expression) where T : class
 		{
-			var (tableAlias, tableName, isLite) = GetBatchSql(query);
-			var sqlColumns = new StringBuilder();
-			var sqlWhere = new StringBuilder();
-			var sqlParameters = new List<object>();
-			var columnNames = SqlTableInformation.CreateInstance<T>(database).PropertyColumnNames;
+			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
+			var response = new SqlStatement(tableInformation);
+			string memberName = null;
 
-			CreateUpdateBody(columnNames, tableAlias, expression.Body, ref sqlColumns, ref sqlParameters, isLite);
-			CreateWhere(columnNames, tableAlias, query.Expression, ref sqlWhere, ref sqlParameters, isLite);
+			CreateUpdateBody(response, expression.Body, ref memberName);
+			CreateWhere(response, query.Expression);
 
-			return (isLite
-				? $"UPDATE \"{tableAlias}\" SET{sqlColumns}{sqlWhere}"
-				: $"UPDATE [{tableAlias}] SET{sqlColumns} {tableName}{sqlWhere}", sqlParameters);
+			response.Query.Append($"UPDATE {tableInformation.GetFormattedTableName()} SET{response.QueryUpdate}{response.QueryWhere}");
+
+			return response;
 		}
 
-		private static void CreateUpdateBody(IReadOnlyDictionary<string, string> columnNames, string tableAlias, Expression expression, ref StringBuilder sqlColumns, ref List<object> sqlParameters, bool isLite)
+		internal static void UpdateCommand<T>(SqlStatement statement, SqlCommand command, T entity)
 		{
+			if (command.Parameters.Count <= 0)
+			{
+				command.Parameters.AddRange(statement.Parameters.Cast<SqlParameter>().ToArray());
+			}
+
+			foreach (var property in statement.TableInformation.Properties)
+			{
+				var entityProperty = statement.TableInformation.EntityProperties[property.Name];
+				var columnName = property.GetColumnName();
+
+				if (!statement.ParametersByColumnName.TryGetValue(columnName, out var parameter))
+				{
+					// This parameter is not included in the command so just continue
+					continue;
+				}
+
+				var sqlParameter = (SqlParameter) parameter;
+				var value = entityProperty.GetMethod.Invoke(entity, null);
+
+				sqlParameter.SqlDbType = SqlStatement.GetSqlType(value?.GetType() ?? property.PropertyInfo.PropertyType);
+				sqlParameter.Value = value ?? DBNull.Value;
+			}
+		}
+
+		internal static void UpdateCommand<T>(SqlStatement statement, SqliteCommand command, T entity)
+		{
+			foreach (var property in statement.TableInformation.Properties)
+			{
+				var entityProperty = statement.TableInformation.EntityProperties[property.Name];
+				var columnName = property.GetColumnName();
+
+				if (!statement.ParametersByColumnName.TryGetValue(columnName, out var parameter))
+				{
+					// This parameter is not included in the command so just continue
+					continue;
+				}
+
+				var value = entityProperty.GetMethod.Invoke(entity, null) ?? DBNull.Value;
+				var sqlParameter = (SqliteParameter) parameter;
+
+				if (command.Parameters.Contains(sqlParameter))
+				{
+					command.Parameters[sqlParameter.ParameterName].Value = value;
+					continue;
+				}
+
+				sqlParameter.SqliteType = sqlParameter.SqliteType;
+				sqlParameter.Value = value;
+
+				command.Parameters.Add(sqlParameter);
+			}
+		}
+
+		private static void CreateUpdateBody(SqlStatement statement, Expression expression, ref string memberName)
+		{
+			var isLite = statement.TableInformation.ProviderType == DatabaseProviderType.Sqlite;
+
 			switch (expression)
 			{
 				case MemberInitExpression memberInitExpression:
@@ -119,36 +273,33 @@ namespace Speedy.EntityFramework.Sql
 							continue;
 						}
 
-						sqlColumns.Append(columnNames.TryGetValue(assignment.Member.Name, out var value)
-							? isLite ? $" \"{value}\"" : $" [{tableAlias}].[{value}]"
-							: isLite
-								? $" \"{assignment.Member.Name}\""
-								: $" [{tableAlias}].[{assignment.Member.Name}]");
-						sqlColumns.Append(" =");
+						memberName = statement.TableInformation.PropertyToColumnName.TryGetValue(assignment.Member.Name, out var columnName) ? columnName : assignment.Member.Name;
+						statement.QueryUpdate.Append($" {statement.TableInformation.ProviderPrefix}{memberName}{statement.TableInformation.ProviderSuffix}");
+						statement.QueryUpdate.Append(" =");
 
-						CreateUpdateBody(columnNames, tableAlias, assignment.Expression, ref sqlColumns, ref sqlParameters, isLite);
+						CreateUpdateBody(statement, assignment.Expression, ref memberName);
 
 						if (memberInitExpression.Bindings.IndexOf(item) < memberInitExpression.Bindings.Count - 1)
 						{
-							sqlColumns.Append(" ,");
+							statement.QueryUpdate.Append(" ,");
 						}
 					}
 					break;
 				}
 				case MemberExpression memberExpression when memberExpression.Expression is ParameterExpression:
 				{
-					sqlColumns.Append(columnNames.TryGetValue(memberExpression.Member.Name, out var value)
-						? isLite ? $" \"{value}\"" : $" [{tableAlias}].[{value}]"
+					statement.QueryUpdate.Append(statement.TableInformation.PropertyToColumnName.TryGetValue(memberExpression.Member.Name, out var value)
+						? isLite ? $" \"{value}\"" : $" [{value}]"
 						: isLite
 							? $" \"{memberExpression.Member.Name}\""
-							: $" [{tableAlias}].[{memberExpression.Member.Name}]");
+							: $" [{memberExpression.Member.Name}]");
 					break;
 				}
 				case ConstantExpression constantExpression:
 				{
-					var name = $"param_{sqlParameters.Count}";
-					sqlParameters.Add(isLite ? (object) new SqliteParameter(name, constantExpression.Value) : new SqlParameter(name, constantExpression.Value));
-					sqlColumns.Append($" @{name}");
+					var name = statement.AddParameterValue(memberName, constantExpression.Value);
+					statement.QueryUpdate.Append($" @{name}");
+					memberName = null;
 					break;
 				}
 				case UnaryExpression unaryExpression:
@@ -156,12 +307,12 @@ namespace Speedy.EntityFramework.Sql
 					switch (unaryExpression.NodeType)
 					{
 						case ExpressionType.Convert:
-							CreateUpdateBody(columnNames, tableAlias, unaryExpression.Operand, ref sqlColumns, ref sqlParameters, isLite);
+							CreateUpdateBody(statement, unaryExpression.Operand, ref memberName);
 							break;
 
 						case ExpressionType.Not:
-							sqlColumns.Append(" ~");
-							CreateUpdateBody(columnNames, tableAlias, unaryExpression.Operand, ref sqlColumns, ref sqlParameters, isLite);
+							statement.QueryUpdate.Append(" ~");
+							CreateUpdateBody(statement, unaryExpression.Operand, ref memberName);
 							break;
 					}
 					break;
@@ -169,55 +320,55 @@ namespace Speedy.EntityFramework.Sql
 				case BinaryExpression binaryExpression:
 				{
 					var valueIsNull = binaryExpression.Right is ConstantExpression constantExpression && constantExpression.Value == null;
-					CreateUpdateBody(columnNames, tableAlias, binaryExpression.Left, ref sqlColumns, ref sqlParameters, isLite);
-					sqlColumns.Append(GetNodeType(binaryExpression, valueIsNull));
+					CreateUpdateBody(statement, binaryExpression.Left, ref memberName);
+					statement.QueryUpdate.Append(GetNodeType(binaryExpression, valueIsNull));
 					if (!valueIsNull)
 					{
-						CreateUpdateBody(columnNames, tableAlias, binaryExpression.Right, ref sqlColumns, ref sqlParameters, isLite);
+						CreateUpdateBody(statement, binaryExpression.Right, ref memberName);
 					}
 					break;
 				}
 				default:
 				{
 					var value = Expression.Lambda(expression).Compile().DynamicInvoke();
-					var parameterName = $"param_{sqlParameters.Count}";
-					sqlParameters.Add(isLite ? (object) new SqliteParameter(parameterName, value) : new SqlParameter(parameterName, value));
-					sqlColumns.Append($" @{parameterName}");
+					var parameterName = statement.AddParameterValue(memberName, value);
+					statement.QueryUpdate.Append($" @{parameterName}");
 					break;
 				}
 			}
 		}
 
-		private static void CreateWhere(IReadOnlyDictionary<string, string> columnNames, string tableAlias, Expression expression, ref StringBuilder sqlWhere, ref List<object> sqlParameters, bool isLite)
+		private static void CreateWhere(SqlStatement statement, Expression expression)
+		{
+			var memberName = string.Empty;
+			CreateWhere(statement, expression, ref memberName);
+		}
+
+		private static void CreateWhere(SqlStatement statement, Expression expression, ref string memberName)
 		{
 			switch (expression)
 			{
 				case MemberExpression memberExpression:
 				{
-					var result = Process(memberExpression, isLite, sqlWhere, sqlParameters);
+					memberName = statement.TableInformation.PropertyToColumnName.TryGetValue(memberExpression.Member.Name, out var columnName) ? columnName : memberExpression.Member.Name;
+
+					var result = ProcessMemberExpression(memberName, statement, memberExpression);
 					if (!result)
 					{
-						sqlWhere.Append(columnNames.TryGetValue(memberExpression.Member.Name, out var value)
-							? isLite ? $" \"{value}\"" : $" [{tableAlias}].[{value}]"
-							: isLite
-								? $" \"{memberExpression.Member.Name}\""
-								: $" [{tableAlias}].[{memberExpression.Member.Name}]");
+						statement.QueryWhere.Append($" {statement.TableInformation.ProviderPrefix}{memberName}{statement.TableInformation.ProviderSuffix}");
 					}
 					break;
 				}
 				case ConstantExpression constantExpression:
 				{
-					if (sqlWhere.Length <= 0)
+					if (statement.QueryWhere.Length <= 0)
 					{
 						return;
 					}
 
-					var name = $"param_{sqlParameters.Count}";
-					sqlParameters.Add(isLite
-						? (object) new SqliteParameter(name, GetSqlType(constantExpression)) { Value = constantExpression.Value }
-						: new SqlParameter(name, GetSqlType(constantExpression)) { Value = constantExpression.Value }
-					);
-					sqlWhere.Append($" @{name}");
+					var name = statement.AddParameterValue(memberName, constantExpression);
+					statement.QueryWhere.Append($" @{name}");
+					memberName = string.Empty;
 					break;
 				}
 				case UnaryExpression unaryExpression:
@@ -227,12 +378,13 @@ namespace Speedy.EntityFramework.Sql
 						case ExpressionType.Convert:
 						case ExpressionType.Quote:
 							var body = unaryExpression.Operand.GetMemberValue("Body") as Expression;
-							CreateWhere(columnNames, tableAlias, body ?? unaryExpression.Operand, ref sqlWhere, ref sqlParameters, isLite);
+							CreateWhere(statement, body ?? unaryExpression.Operand, ref memberName);
 							break;
 
 						case ExpressionType.Not:
-							CreateWhere(columnNames, tableAlias, unaryExpression.Operand, ref sqlWhere, ref sqlParameters, isLite);
-							sqlWhere.Append(" = 0");
+							CreateWhere(statement, unaryExpression.Operand, ref memberName);
+							statement.QueryWhere.Append(" = 0");
+							memberName = string.Empty;
 							break;
 					}
 					break;
@@ -240,69 +392,32 @@ namespace Speedy.EntityFramework.Sql
 				case BinaryExpression binaryExpression:
 				{
 					var valueIsNull = binaryExpression.Right is ConstantExpression constantExpression && constantExpression.Value == null;
-					CreateWhere(columnNames, tableAlias, binaryExpression.Left, ref sqlWhere, ref sqlParameters, isLite);
-					sqlWhere.Append(GetNodeType(binaryExpression, valueIsNull));
+					CreateWhere(statement, binaryExpression.Left, ref memberName);
+					statement.QueryWhere.Append(GetNodeType(binaryExpression, valueIsNull));
 					if (!valueIsNull)
 					{
-						CreateWhere(columnNames, tableAlias, binaryExpression.Right, ref sqlWhere, ref sqlParameters, isLite);
+						CreateWhere(statement, binaryExpression.Right, ref memberName);
 					}
 					break;
 				}
 				case MethodCallExpression methodExpression:
 				{
-					if (sqlWhere.Length <= 0)
+					if (statement.QueryWhere.Length <= 0)
 					{
-						sqlWhere.Append(" WHERE");
+						statement.QueryWhere.Append(" WHERE");
 					}
 
 					var offset = methodExpression.Arguments.Count == 1 ? 0 : 1;
-					CreateWhere(columnNames, tableAlias, methodExpression.Arguments[offset], ref sqlWhere, ref sqlParameters, isLite);
+					CreateWhere(statement, methodExpression.Arguments[offset], ref memberName);
 					break;
 				}
 				default:
 				{
-					// Need to 
+					// Need to support this?
 					Debug.WriteLine(expression.GetType().FullName);
 					break;
 				}
 			}
-		}
-
-		private static (string tableAlias, string tableName, bool isLite) GetBatchSql<T>(IQueryable<T> query) where T : class
-		{
-			var sqlQuery = query.ToSql();
-			var isLite = false;
-
-			// UPDATE [x]
-			// UPDATE "x"
-			// 0123456789
-			var alias = sqlQuery.IndexOf("]", 8);
-			if (alias == -1)
-			{
-				alias = sqlQuery.IndexOf("\"", 8);
-				isLite = true;
-			}
-
-			var tableAlias = sqlQuery.Substring(8, alias - 8);
-			var index = sqlQuery.IndexOf(Environment.NewLine);
-			var sql = sqlQuery.Substring(index, sqlQuery.Length - index);
-			var tableName = tableAlias;
-
-			if (isLite)
-			{
-				tableAlias = sql.Substring(sql.IndexOf("\""));
-				tableAlias = tableAlias.Substring(1, tableAlias.IndexOf("\"", 1) - 1);
-			}
-			else
-			{
-				sql = sql.Replace("\r\n", " ");
-				var fromIndex = sql.IndexOf("from ", StringComparison.OrdinalIgnoreCase);
-				var whereIndex = sql.IndexOf(" where ", StringComparison.OrdinalIgnoreCase);
-				var length = whereIndex > fromIndex ? whereIndex - fromIndex : sql.Length - fromIndex;
-				tableName = sql.Substring(fromIndex, length);
-			}
-
-			return (tableAlias, tableName, isLite);
 		}
 
 		private static string GetNodeType(BinaryExpression expression, bool valueIsNull)
@@ -378,25 +493,12 @@ namespace Speedy.EntityFramework.Sql
 			}
 		}
 
-		private static SqlDbType GetSqlType(ConstantExpression expression)
-		{
-			if (_typeToSqlDbTypeDictionary.ContainsKey(expression.Type))
-			{
-				return _typeToSqlDbTypeDictionary[expression.Type];
-			}
-			
-			return SqlDbType.BigInt;
-		}
-
-		private static bool Process(MemberExpression memberExpression, bool isLite, StringBuilder sqlWhere, List<object> sqlParameters)
+		private static bool ProcessMemberExpression(string columnName, SqlStatement statement, MemberExpression memberExpression)
 		{
 			if (memberExpression.Expression != null && !(memberExpression.Expression is ConstantExpression))
 			{
 				return false;
 			}
-
-			var name = $"param_{sqlParameters.Count}";
-			object parameter;
 
 			if (memberExpression.Member.DeclaringType == typeof(DateTime))
 			{
@@ -406,24 +508,56 @@ namespace Speedy.EntityFramework.Sql
 					nameof(DateTime.MaxValue) => DateTime.MaxValue,
 					_ => (object) null
 				};
-				parameter = isLite ? (object) new SqliteParameter(name, value) : new SqlParameter(name, SqlDbType.DateTime2) { Value = value };
+
+				var isLite = statement.TableInformation.ProviderType == DatabaseProviderType.Sqlite;
+				if (isLite)
+				{
+					var name = statement.AddParameterValue(columnName, SqlDbType.DateTime2, value);
+					statement.QueryWhere.Append($" @{name}");
+				}
+				else
+				{
+					var name = statement.AddParameterValue(columnName, value);
+					statement.QueryWhere.Append($" @{name}");
+				}
 			}
 			else
 			{
 				var value = Expression.Lambda(memberExpression).Compile().DynamicInvoke();
-				parameter = isLite ? (object) new SqliteParameter(name, value) : new SqlParameter(name, value);
+				var name = statement.AddParameterValue(null, value);
+				statement.QueryWhere.Append($" @{name}");
 			}
-
-			sqlParameters.Add(parameter);
-			sqlWhere.Append($" @{name}");
 
 			return true;
 		}
 
-		private static string RemoveAlias(string query, string alias)
+		private static void UpdateStatementParameters<T>(SqlStatement statement, T entity)
 		{
-			return query.Replace($" AS [{alias}]", string.Empty)
-				.Replace($"[{alias}].", string.Empty);
+			var tableInformation = statement.TableInformation;
+
+			tableInformation
+				.EntityProperties
+				.ForEach(x =>
+				{
+					if (!tableInformation.PropertyToColumnName.TryGetValue(x.Key, out var columnName)
+						|| !statement.ParametersByColumnName.TryGetValue(columnName, out var pObject))
+					{
+						// Could not find the property or the parameter
+						return;
+					}
+
+					// Set the parameter based on type
+					switch (pObject)
+					{
+						case SqlParameter sqlParameter:
+							sqlParameter.Value = x.Value.GetMethod.Invoke(entity, null);
+							break;
+
+						case SqliteParameter sqliteParameter:
+							sqliteParameter.Value = x.Value.GetMethod.Invoke(entity, null);
+							break;
+					}
+				});
 		}
 
 		#endregion

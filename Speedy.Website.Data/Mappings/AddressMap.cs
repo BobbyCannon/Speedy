@@ -20,17 +20,24 @@ namespace Speedy.Website.Samples.Mappings
 			b.ToTable("Addresses", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.City).HasColumnName("City").HasMaxLength(256).IsRequired();
-			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
-			b.Property(x => x.Id).HasColumnName("Id").IsRequired();
-			b.Property(x => x.Line1).HasColumnName("Line1").HasMaxLength(256).IsRequired();
-			b.Property(x => x.Line2).HasColumnName("Line2").HasMaxLength(256).IsRequired();
-			b.Property(x => x.LinkedAddressId).HasColumnName("LinkedAddressId").IsRequired(false);
-			b.Property(x => x.LinkedAddressSyncId).HasColumnName("LinkedAddressSyncId").IsRequired(false);
-			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
-			b.Property(x => x.Postal).HasColumnName("Postal").HasMaxLength(128).IsRequired();
-			b.Property(x => x.State).HasColumnName("State").HasMaxLength(128).IsRequired();
-			b.Property(x => x.SyncId).HasColumnName("SyncId").IsRequired();
+			//
+			// All database names are going to be renamed to ensure all
+			//  - BULK commands work
+			//  - Custom SQL works
+			//
+
+			b.Property(x => x.City).HasColumnName("AddressCity").HasMaxLength(256).IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("AddressCreatedOn").IsRequired();
+			b.Property(x => x.Id).HasColumnName("AddressId").IsRequired();
+			b.Property(x => x.IsDeleted).HasColumnName("AddressIsDeleted").IsRequired();
+			b.Property(x => x.Line1).HasColumnName("AddressLineOne").HasMaxLength(256).IsRequired();
+			b.Property(x => x.Line2).HasColumnName("AddressLineTwo").HasMaxLength(256).IsRequired();
+			b.Property(x => x.LinkedAddressId).HasColumnName("AddressLinkedAddressId").IsRequired(false);
+			b.Property(x => x.LinkedAddressSyncId).HasColumnName("AddressLinkedAddressSyncId").IsRequired(false);
+			b.Property(x => x.ModifiedOn).HasColumnName("AddressModifiedOn").IsRequired();
+			b.Property(x => x.Postal).HasColumnName("AddressPostal").HasMaxLength(128).IsRequired();
+			b.Property(x => x.State).HasColumnName("AddressState").HasMaxLength(128).IsRequired();
+			b.Property(x => x.SyncId).HasColumnName("AddressSyncId").IsRequired();
 
 			b.HasIndex(x => x.LinkedAddressId).HasName("IX_Address_LinkedAddressId");
 			b.HasIndex(x => x.SyncId).HasName("IX_Address_SyncId").IsUnique();

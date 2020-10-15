@@ -49,7 +49,7 @@ namespace Speedy.Logging
 		public TimeSpan Elapsed => IsRunning ? _elapsed + RunningElapsed() : _elapsed;
 
 		/// <summary>
-		/// Incidates the timer is running or not.
+		/// Indicates the timer is running or not.
 		/// </summary>
 		public bool IsRunning => StartedOn > DateTime.MinValue;
 

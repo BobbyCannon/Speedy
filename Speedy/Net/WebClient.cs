@@ -103,14 +103,10 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public HttpResponseMessage Delete(string uri)
 		{
-			using (var handler = new HttpClientHandler())
-			{
-				using (var client = CreateHttpClient(handler))
-				{
-					var response = client.DeleteAsync(uri).Result;
-					return ProcessResponse(response, handler);
-				}
-			}
+			using var handler = new HttpClientHandler();
+			using var client = CreateHttpClient(handler);
+			var response = client.DeleteAsync(uri).Result;
+			return ProcessResponse(response, handler);
 		}
 
 		/// <summary>
@@ -119,20 +115,9 @@ namespace Speedy.Net
 		/// <typeparam name="T"> The type to deserialize into. </typeparam>
 		/// <param name="result"> The result to deserialize. </param>
 		/// <returns> The deserialized type. </returns>
-		public T Deserialize<T>(HttpResponseMessage result)
+		public virtual T Deserialize<T>(HttpResponseMessage result)
 		{
 			return result.Content.ReadAsStringAsync().Result.FromJson<T>();
-		}
-
-		/// <summary>
-		/// Gets a response and deserialize it.
-		/// </summary>
-		/// <typeparam name="T"> The type to deserialize into. </typeparam>
-		/// <param name="content"> The content to deserialize. </param>
-		/// <returns> The deserialized type. </returns>
-		public static T Get<T>(HttpContent content)
-		{
-			return content.ReadAsStringAsync().Result.FromJson<T>();
 		}
 
 		/// <summary>
@@ -143,15 +128,14 @@ namespace Speedy.Net
 		/// <returns> The deserialized type. </returns>
 		public virtual T Get<T>(string uri)
 		{
-			using (var result = Get(uri))
-			{
-				if (!result.IsSuccessStatusCode)
-				{
-					throw new WebClientException(result);
-				}
+			using var result = Get(uri);
 
-				return Get<T>(result.Content);
+			if (!result.IsSuccessStatusCode)
+			{
+				throw new WebClientException(result);
 			}
+
+			return Deserialize<T>(result);
 		}
 
 		/// <summary>
@@ -161,14 +145,10 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public virtual HttpResponseMessage Get(string uri)
 		{
-			using (var handler = new HttpClientHandler())
-			{
-				using (var client = CreateHttpClient(handler))
-				{
-					var response = client.GetAsync(uri).Result;
-					return ProcessResponse(response, handler);
-				}
-			}
+			using var handler = new HttpClientHandler();
+			using var client = CreateHttpClient(handler);
+			var response = client.GetAsync(uri).Result;
+			return ProcessResponse(response, handler);
 		}
 
 		/// <summary>

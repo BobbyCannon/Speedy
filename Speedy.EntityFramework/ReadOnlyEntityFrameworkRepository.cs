@@ -75,21 +75,38 @@ namespace Speedy.EntityFramework
 
 		#region Methods
 
-		/// <summary>
-		/// Add an entity to the repository. The ID of the entity must be the default value.
-		/// </summary>
-		/// <param name="entity"> The entity to be added. </param>
+		/// <inheritdoc />
 		public void Add(T entity)
 		{
 			throw new NotSupportedException();
 		}
 
-		/// <summary>
-		/// Adds or updates an entity in the repository. The ID of the entity must be the default value to add and a value to
-		/// update.
-		/// </summary>
-		/// <param name="entity"> The entity to be added. </param>
+		/// <inheritdoc />
 		public void AddOrUpdate(T entity)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <inheritdoc />
+		public int BulkAdd(params T[] entities)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <inheritdoc />
+		public int BulkAdd(IEnumerable<T> entities)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <inheritdoc />
+		public int BulkAddOrUpdate(params T[] entities)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <inheritdoc />
+		public int BulkAddOrUpdate(IEnumerable<T> entities)
 		{
 			throw new NotSupportedException();
 		}
@@ -106,12 +123,7 @@ namespace Speedy.EntityFramework
 			throw new NotSupportedException();
 		}
 
-		/// <summary>
-		/// Returns an enumerator that iterates through the collection.
-		/// </summary>
-		/// <returns>
-		/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-		/// </returns>
+		/// <inheritdoc />
 		public IEnumerator<T> GetEnumerator()
 		{
 			return _query.GetEnumerator();
@@ -129,39 +141,31 @@ namespace Speedy.EntityFramework
 			return new EntityIncludableQueryable<T, object>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, object>) includes.Aggregate(_query, (current, include) => current.Include(include)));
 		}
 
-		/// <summary>
-		/// Removes an entity from the repository.
-		/// </summary>
-		/// <param name="id"> The ID of the entity to remove. </param>
+		/// <inheritdoc />
+		public IIncludableQueryable<T, T3> Including<T3>(params Expression<Func<T, T3>>[] includes)
+		{
+			return new EntityIncludableQueryable<T, T3>((Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T, T3>) includes.Aggregate(_query, (current, include) => current.Include(include)));
+		}
+
+		/// <inheritdoc />
 		public void Remove(T2 id)
 		{
 			throw new NotImplementedException();
 		}
 
-		/// <summary>
-		/// Removes an entity from the repository.
-		/// </summary>
-		/// <param name="entity"> The entity to remove. </param>
+		/// <inheritdoc />
 		public void Remove(T entity)
 		{
 			throw new NotSupportedException();
 		}
 
-		/// <summary>
-		/// Removes a set of entities from the repository.
-		/// </summary>
-		/// <param name="filter"> The filter of the entities to remove. </param>
+		/// <inheritdoc />
 		public void Remove(Expression<Func<T, bool>> filter)
 		{
 			throw new NotImplementedException();
 		}
 
-		/// <summary>
-		/// Returns an enumerator that iterates through a collection.
-		/// </summary>
-		/// <returns>
-		/// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
-		/// </returns>
+		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();

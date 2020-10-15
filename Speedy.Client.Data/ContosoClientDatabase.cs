@@ -87,8 +87,8 @@ namespace Speedy.Client.Data
 			{
 				SyncOrder = new[]
 				{
-					typeof(ClientAccount).ToAssemblyName(),
 					typeof(ClientAddress).ToAssemblyName(),
+					typeof(ClientAccount).ToAssemblyName(),
 					typeof(ClientLogEvent).ToAssemblyName()
 				}
 			};
