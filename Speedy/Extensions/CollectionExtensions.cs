@@ -36,6 +36,26 @@ namespace Speedy.Extensions
 
 			dictionary.Add(key, value);
 		}
+		
+		/// <summary>
+		/// Add or update a dictionary entry.
+		/// </summary>
+		/// <typeparam name="T1"> The type of the key. </typeparam>
+		/// <typeparam name="T2"> The type of the value. </typeparam>
+		/// <param name="dictionary"> The dictionary to update. </param>
+		/// <param name="key"> The value of the key. </param>
+		/// <param name="get"> The function to get the value. </param>
+		/// <param name="update"> The function to update the value. </param>
+		public static void AddOrUpdate<T1, T2>(this IDictionary<T1, T2> dictionary, T1 key, Func<T2> get, Func<T2,T2> update)
+		{
+			if (dictionary.ContainsKey(key))
+			{
+				dictionary[key] = update(dictionary[key]);
+				return;
+			}
+
+			dictionary.Add(key, get());
+		}
 
 		/// <summary>
 		/// Add multiple items to a collection

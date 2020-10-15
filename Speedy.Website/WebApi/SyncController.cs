@@ -8,6 +8,7 @@ using Speedy.Net;
 using Speedy.Sync;
 using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
+using Speedy.Website.Samples.Sync;
 using Speedy.Website.Services;
 
 #endregion

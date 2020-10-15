@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Caching;
+using System.Linq;
+using Speedy.Extensions;
+using Speedy.Storage;
 
 #endregion
 
@@ -16,7 +18,7 @@ namespace Speedy
 		#region Fields
 
 		private static readonly Dictionary<Type, MemoryCache> _cachedEntityId;
-		private static readonly CacheItemPolicy _defaultCachePolicy;
+		private static readonly TimeSpan _defaultTimeout;
 
 		#endregion
 
@@ -25,7 +27,7 @@ namespace Speedy
 		static CacheManager()
 		{
 			_cachedEntityId = new Dictionary<Type, MemoryCache>();
-			_defaultCachePolicy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMinutes(15) };
+			_defaultTimeout = TimeSpan.FromMinutes(15);
 		}
 
 		#endregion
@@ -47,12 +49,39 @@ namespace Speedy
 
 			if (!_cachedEntityId.ContainsKey(type))
 			{
-				_cachedEntityId.Add(type, new MemoryCache(type.FullName ?? type.Name));
+				_cachedEntityId.Add(type, new MemoryCache(_defaultTimeout));
 			}
 
 			var cache = _cachedEntityId[type];
+			cache.Set(syncId.ToString(), id);
+		}
 
-			cache.Set(syncId.ToString(), id, _defaultCachePolicy);
+		/// <summary>
+		/// Cleanup the cache by removing old entries and empty collections.
+		/// </summary>
+		public static void Cleanup()
+		{
+			foreach (var entry in _cachedEntityId)
+			{
+				entry.Value
+					.Where(x => x.HasExpired)
+					.ToList()
+					.ForEach(x => entry.Value.Remove(x));
+			}
+
+			_cachedEntityId
+				.Where(x => x.Value.IsEmpty)
+				.ToList()
+				.ForEach(x => _cachedEntityId.Remove(x.Key));
+		}
+
+		/// <summary>
+		/// Clear all caches from the manager
+		/// </summary>
+		public static void Clear()
+		{
+			_cachedEntityId.ForEach(x => x.Value.Clear());
+			_cachedEntityId.Clear();
 		}
 
 		/// <summary>
@@ -65,11 +94,11 @@ namespace Speedy
 		{
 			if (!_cachedEntityId.ContainsKey(type))
 			{
-				_cachedEntityId.Add(type, new MemoryCache(type.FullName ?? type.Name));
+				_cachedEntityId.Add(type, new MemoryCache(_defaultTimeout));
 			}
 
 			var cache = _cachedEntityId[type];
-			return cache.Get(syncId.ToString());
+			return cache.TryGet(syncId.ToString(), out var cachedItem) ? cachedItem.Value : null;
 		}
 
 		#endregion

@@ -73,7 +73,6 @@
 		<PackageReference Include="PropertyChanged.Fody" Version="3.2.9">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />

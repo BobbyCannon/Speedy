@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
@@ -174,11 +175,11 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Start to sync process.
 		/// </summary>
-		public async void RunAsync()
+		public async Task RunAsync()
 		{
-			await ReflectionExtensions.RunAsync(Run);
+			await Task.Factory.StartNew(Run, CancellationSource.Token);
 		}
-
+		
 		/// <summary>
 		/// Stops the sync process.
 		/// </summary>
@@ -188,7 +189,9 @@ namespace Speedy.Sync
 
 			var timeOut = TimeService.UtcNow.AddSeconds(30);
 
-			while (State.Status != SyncEngineStatus.Stopped && TimeService.UtcNow <= timeOut)
+			while (TimeService.UtcNow <= timeOut
+				&& State.Status != SyncEngineStatus.Stopped
+				&& State.Status != SyncEngineStatus.Cancelled)
 			{
 				Thread.Sleep(10);
 			}

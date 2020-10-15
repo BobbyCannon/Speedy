@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Speedy.EntityFramework;
+using Speedy.Extensions;
 using Speedy.Sync;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Data.Sql;
@@ -61,7 +62,9 @@ namespace Speedy.Benchmark
 			var arguments = (object[]) e.Argument;
 			var mainViewModel = arguments[1] as MainViewModel;
 
-			BenchmarkSyncEngine(mainViewModel);
+			CacheManager.Clear();
+
+			BenchmarkSyncEngine(_worker, mainViewModel);
 			//Test(dispatcher, worker);
 
 			_worker.ReportProgress(100);
@@ -195,7 +198,7 @@ namespace Speedy.Benchmark
 			_worker.ReportProgress((int) MainViewWorkerStatus.StopResult);
 		}
 
-		private static void BenchmarkSyncEngine(MainViewModel view)
+		private static void BenchmarkSyncEngine(BackgroundWorker worker, MainViewModel view)
 		{
 			foreach (var (server, client) in GetScenarios())
 			{
@@ -214,7 +217,12 @@ namespace Speedy.Benchmark
 
 				if (view.SyncData)
 				{
-					SyncAddresses(client, server);
+					client.Options.EnablePrimaryKeyCache = view.CachePrimaryKeys;
+					client.Options.PrimaryKeyCacheTimeout = TimeSpan.FromMinutes(1);
+					server.Options.EnablePrimaryKeyCache = view.CachePrimaryKeys;
+					server.Options.PrimaryKeyCacheTimeout = TimeSpan.FromMinutes(1);
+
+					SyncAddresses(worker, client, server);
 				}
 			}
 		}
@@ -256,8 +264,8 @@ DELETE FROM [Addresses];
 			//yield return (new SyncClient("Server (Sqlite)", DatabaseBenchmark.GetEntityFrameworkSqliteProvider()), new SyncClient("Client (mem)", DatabaseBenchmark.GetSyncableMemoryProvider()));
 			//yield return (new SyncClient("Server (Sqlite)", GetEntityFrameworkSqliteProvider()), new SyncClient("Client (Sqlite2)", GetEntityFrameworkSqliteProvider2()));
 
-			//yield return (new SyncClient("Server (SQL)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (Sqlite)", GetEntityFrameworkSqliteProvider()));
-			yield return (new SyncClient("Server (Sqlite)", GetEntityFrameworkSqliteProvider()), new SyncClient("Client (SQL)", GetSyncableEntityFrameworkProvider()));
+			yield return (new SyncClient("Server (SQL)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (Sqlite)", GetEntityFrameworkSqliteProvider()));
+			//yield return (new SyncClient("Server (Sqlite)", GetEntityFrameworkSqliteProvider()), new SyncClient("Client (SQL)", GetSyncableEntityFrameworkProvider()));
 
 			//yield return (new SyncClient("Server (SQL)", GetSyncableEntityFrameworkProvider()), new SyncClient("Client (SQL2)", GetSyncableEntityFrameworkProvider2()));
 		}
@@ -293,7 +301,7 @@ DELETE FROM [Addresses];
 			return result;
 		}
 
-		private static void SyncAddresses(ISyncClient client, ISyncClient server)
+		private static void SyncAddresses(BackgroundWorker worker, ISyncClient client, ISyncClient server)
 		{
 			StartResult($"{client.Name} <> {server.Name}");
 
@@ -308,8 +316,18 @@ DELETE FROM [Addresses];
 				watch.Restart();
 			};
 
-			engine.Run();
-			
+			var task = engine.RunAsync();
+
+			while (!worker.CancellationPending && !task.IsCompleted())
+			{
+				// Wait for sync engine...
+			}
+
+			if (!task.IsCompleted())
+			{
+				engine.Stop();
+			}
+
 			_worker.ReportProgress((int) MainViewWorkerStatus.StopResult);
 
 			var builder = new StringBuilder();

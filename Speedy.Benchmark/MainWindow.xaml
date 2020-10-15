@@ -44,6 +44,7 @@
 				<CheckBox Content="Bulk Processing" IsChecked="{Binding UseBulkProcessing, Mode=TwoWay}" />
 				<CheckBox Content="Data" IsChecked="{Binding CreateData, Mode=TwoWay}" />
 				<CheckBox Content="Sync" IsChecked="{Binding SyncData, Mode=TwoWay}" />
+				<CheckBox Content="Primary Key Caching" IsChecked="{Binding CachePrimaryKeys, Mode=TwoWay}" />
 				<TextBlock Text="Addresses:" />
 				<TextBox Text="{Binding AddressCount, Mode=TwoWay}" />
 				<TextBlock Text="Accounts:" />
@@ -72,7 +73,7 @@
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
-			<TextBox Grid.Row="1" x:Name="Log" Text="{Binding Log, Mode=OneWay}" IsReadOnly="True" />
+			<TextBox Grid.Row="1" x:Name="Log" Text="{Binding Log, Mode=OneWay}" IsReadOnly="True" VerticalScrollBarVisibility="Visible" />
 		</Grid>
 	</DockPanel>
 </Window>

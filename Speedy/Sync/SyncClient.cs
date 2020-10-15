@@ -617,6 +617,7 @@ namespace Speedy.Sync
 		private void UpdateLocalRelationships(ISyncEntity entity, ISyncableDatabase database)
 		{
 			var response = new List<SyncIssue>();
+			var isMemoryDatabase = database is Database;
 
 			foreach (var relationship in GetRelationshipConfigurations(entity))
 			{
@@ -625,9 +626,10 @@ namespace Speedy.Sync
 					continue;
 				}
 
-				// Only optimize non-memory databases, memory database should always run code below
-				if (!(database is Database))
+				// Check to see if this is a memory database, these should not be "optimized"
+				if (Options.EnablePrimaryKeyCache && !isMemoryDatabase)
 				{
+					// Only optimize non-memory databases, memory database should always run code below
 					var entityId = CacheManager.GetEntityId(relationship.Type, relationship.EntitySyncId.Value);
 					if (entityId != null)
 					{
@@ -645,14 +647,17 @@ namespace Speedy.Sync
 					relationship.EntityIdPropertyInfo.SetValue(entity, id);
 
 					// if we are a speedy database
-					if (database is Database)
+					if (isMemoryDatabase)
 					{
 						// Then we also need to update the actual relationship so the database
 						// doesn't reset the relationship IDs thinking the entity has changed
 						relationship.EntityPropertyInfo.SetValue(entity, foundEntity);
 					}
 
-					CacheManager.CacheEntityId(relationship.Type, relationship.EntitySyncId.Value, id);
+					if (Options.EnablePrimaryKeyCache)
+					{
+						CacheManager.CacheEntityId(relationship.Type, relationship.EntitySyncId.Value, id);
+					}
 					continue;
 				}
 

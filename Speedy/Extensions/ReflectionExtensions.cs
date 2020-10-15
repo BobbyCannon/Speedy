@@ -452,11 +452,6 @@ namespace Speedy.Extensions
 				"> is not a publicly-visible type, so the default value cannot be retrieved");
 		}
 
-		internal static Task RunAsync(Action action)
-		{
-			return Task.Factory.StartNew(action);
-		}
-
 		/// <summary>
 		/// Gets a detailed string of the exception. Includes messages of all exceptions.
 		/// </summary>

@@ -9,13 +9,12 @@ using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Sync;
-using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
 using Speedy.Website.Samples.Enumerations;
 
 #endregion
 
-namespace Speedy.Website.WebApi
+namespace Speedy.Website.Samples.Sync
 {
 	public class ServerSyncClient : SyncClient
 	{
@@ -41,8 +40,12 @@ namespace Speedy.Website.WebApi
 			_account = account;
 
 			// Ensure the server is maintaining the modified on, without this data could not sync properly
-			// Clients should never modify the "ModifiedOn" during syng but the Server must always set it
+			// Clients should never modify the "ModifiedOn" during sync but the Server must always set it
 			Options.MaintainModifiedOn = true;
+
+			// Allows allow primary key caching on the server.
+			Options.EnablePrimaryKeyCache = true;
+			Options.PrimaryKeyCacheTimeout = TimeSpan.FromMinutes(1);
 
 			IncomingConverter = GetIncomingFilter();
 			OutgoingConverter = _outgoingConverter;

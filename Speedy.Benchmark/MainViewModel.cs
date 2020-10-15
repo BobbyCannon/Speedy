@@ -31,8 +31,9 @@ namespace Speedy.Benchmark
 			CreateData = true;
 			SyncData = true;
 			UseBulkProcessing = true;
+			CachePrimaryKeys = false;
 			AddressCount = 1;
-			AccountCount = 1000;
+			AccountCount = 5000;
 
 			// Setup commands
 			StartWorkCommand = new RelayCommand(x => StartWork());
@@ -47,6 +48,8 @@ namespace Speedy.Benchmark
 		public int AddressCount { get; set; }
 
 		public ObservableCollection<BenchmarkResult> BenchmarkResults { get; }
+
+		public bool CachePrimaryKeys { get; set; }
 
 		public bool CreateData { get; set; }
 

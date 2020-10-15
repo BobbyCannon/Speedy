@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Linq;
 using Speedy.Extensions;
 
@@ -12,13 +13,35 @@ namespace Speedy.Sync
 	/// </summary>
 	public class SyncClientOptions : Bindable<SyncClientOptions>
 	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates an instance of the sync client options.
+		/// </summary>
+		public SyncClientOptions()
+		{
+			PrimaryKeyCacheTimeout = TimeSpan.FromMinutes(15);
+		}
+
+		#endregion
+
 		#region Properties
+
+		/// <summary>
+		/// Determines if the sync client should cache primary keys for relationships.
+		/// </summary>
+		public bool EnablePrimaryKeyCache { get; set; }
 
 		/// <summary>
 		/// Indicates this client should maintain dates, meaning as you save data the ModifiedOn will be updated to the current time.
 		/// This should really only be set for the "Master" sync client that represents the master dataset.
 		/// </summary>
 		public bool MaintainModifiedOn { get; set; }
+
+		/// <summary>
+		/// The amount of time to cache primary keys.
+		/// </summary>
+		public TimeSpan PrimaryKeyCacheTimeout { get; set; }
 
 		#endregion
 

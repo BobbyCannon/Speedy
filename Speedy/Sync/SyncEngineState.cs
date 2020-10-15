@@ -51,6 +51,14 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
+		/// Indicates if the sync engine is running.
+		/// </summary>
+		public bool IsRunning =>
+			Status != SyncEngineStatus.Cancelled
+			&& Status != SyncEngineStatus.Completed
+			&& Status != SyncEngineStatus.Stopped;
+
+		/// <summary>
 		/// Gets or sets the current status of the sync.
 		/// </summary>
 		public SyncEngineStatus Status { get; set; }
