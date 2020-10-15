@@ -25,8 +25,8 @@ namespace Speedy.EntityFramework.Sql
 		/// Get SQL delete script from query.
 		/// </summary>
 		/// <typeparam name="T"> The type for the query. </typeparam>
-		/// <param name="database"> </param>
-		/// <param name="query"> </param>
+		/// <param name="database"> The database to process. </param>
+		/// <param name="query"> The query to process. </param>
 		/// <returns> The SQL script and values to be deleted. </returns>
 		public static SqlStatement GetSqlDelete<T>(EntityFrameworkDatabase database, IQueryable<T> query) where T : class
 		{
@@ -53,45 +53,27 @@ namespace Speedy.EntityFramework.Sql
 		/// Get SQL insert script from query.
 		/// </summary>
 		/// <typeparam name="T"> The type for the query. </typeparam>
-		/// <param name="database"> </param>
+		/// <param name="database"> The database to process. </param>
 		/// <returns> The SQL insert script. </returns>
 		public static SqlStatement GetSqlInsert<T>(EntityFrameworkDatabase database) where T : class
 		{
 			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
 			var statement = new SqlStatement(tableInformation);
-			return GetSqlInsert<T>(statement);
-		}
-
-		/// <summary>
-		/// Get SQL insert script from query.
-		/// </summary>
-		/// <param name="statement"> </param>
-		/// <returns> The SQL insert script. </returns>
-		public static SqlStatement GetSqlInsert<T>(SqlStatement statement, bool excludeTableName = false)
-		{
-			var columns = statement.GetSqlColumnParameterNames();
-			var sqlColumnNames = statement.GetDelimitedColumnNameList(columns.Keys);
-			var parameterNames = columns.Values;
-			var sqlParameterNames = string.Join(", ", parameterNames.Select(x => $"@{x}"));
-			statement.Query.Append(excludeTableName
-				? $"INSERT ({sqlColumnNames}) VALUES ({sqlParameterNames})"
-				: $"INSERT INTO {statement.TableInformation.GetFormattedTableName()} ({sqlColumnNames}) VALUES ({sqlParameterNames})"
-			);
-			return statement;
+			return GetSqlInsert(statement);
 		}
 
 		/// <summary>
 		/// Get SQL insert script from query.
 		/// </summary>
 		/// <typeparam name="T"> The type for the query. </typeparam>
-		/// <param name="database"> </param>
-		/// <param name="entity"> </param>
+		/// <param name="database"> The database to process. </param>
+		/// <param name="entity"> The entity to process. </param>
 		/// <returns> The SQL script and values to be inserted. </returns>
 		public static SqlStatement GetSqlInsert<T>(EntityFrameworkDatabase database, T entity) where T : class
 		{
 			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
 			var statement = new SqlStatement(tableInformation);
-			var response = GetSqlInsert<T>(statement);
+			var response = GetSqlInsert(statement);
 			UpdateStatementParameters(statement, entity);
 			return response;
 		}
@@ -100,7 +82,7 @@ namespace Speedy.EntityFramework.Sql
 		/// Get SQL merge script from query.
 		/// </summary>
 		/// <typeparam name="T"> The type for the query. </typeparam>
-		/// <param name="database"> </param>
+		/// <param name="database"> The database to process. </param>
 		/// <returns> The SQL merge script. </returns>
 		public static SqlStatement GetSqlInsertOrUpdate<T>(EntityFrameworkDatabase database) where T : class
 		{
@@ -116,10 +98,10 @@ namespace Speedy.EntityFramework.Sql
 					response.Query.AppendLine("SET NOCOUNT, XACT_ABORT ON;");
 					response.Query.AppendLine($"MERGE {response.TableInformation.GetFormattedTableName()} WITH (HOLDLOCK) AS T");
 					response.Query.AppendFormat("USING (SELECT @[[SyncIdParameterName]] as {0}) AS S\r\n\tON T.[{0}] = S.[{0}]\r\nWHEN MATCHED\r\n\tTHEN ", syncIdColumnName);
-					GetSqlUpdate<T>(response, true, true, createdOnColumnName, syncIdColumnName);
+					GetSqlUpdate(response, true, true, createdOnColumnName, syncIdColumnName);
 					response.Query.AppendLine();
 					response.Query.Append("WHEN NOT MATCHED\r\n\tTHEN ");
-					GetSqlInsert<T>(response, true);
+					GetSqlInsert(response, true);
 					response.Query.Append(";");
 
 					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName];
@@ -128,12 +110,12 @@ namespace Speedy.EntityFramework.Sql
 				}
 				case DatabaseProviderType.Sqlite:
 				{
-					GetSqlUpdate<T>(response, excludeWhere: true, excludedColumns: new[] { createdOnColumnName, syncIdColumnName });
+					GetSqlUpdate(response, excludeWhere: true, excludedColumns: new[] { createdOnColumnName, syncIdColumnName });
 					response.AddParameterValue(syncIdColumnName, SqlDbType.UniqueIdentifier, Guid.Empty);
 					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName];
 					var where = $" WHERE {tableInformation.ProviderPrefix}{syncIdColumnName}{tableInformation.ProviderSuffix} = @{syncIdParameterName}";
 					response.Query.AppendLine($"{where};");
-					GetSqlInsert<T>(response);
+					GetSqlInsert(response);
 					response.Query.AppendLine();
 					response.Query.Append("WHERE (SELECT Changes() = 0);");
 					response.Query.Replace(") VALUES (", ")\r\nSELECT ").Replace(")\r\nWHERE (SELECT", "\r\nWHERE (SELECT");
@@ -148,47 +130,23 @@ namespace Speedy.EntityFramework.Sql
 		/// Get SQL insert script from query.
 		/// </summary>
 		/// <typeparam name="T"> The type for the query. </typeparam>
-		/// <param name="database"> </param>
-		/// <returns> The SQL insert script. </returns>
+		/// <param name="database"> The database to process. </param>
+		/// <returns> The SQL update statement. </returns>
 		public static SqlStatement GetSqlUpdate<T>(EntityFrameworkDatabase database) where T : class
 		{
 			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
 			var response = new SqlStatement(tableInformation);
-			return GetSqlUpdate<T>(response);
-		}
-
-		/// <summary>
-		/// Get SQL insert script from query.
-		/// </summary>
-		/// <typeparam name="T"> The type for the query. </typeparam>
-		/// <param name="statement"> </param>
-		/// <returns> The SQL insert script. </returns>
-		public static SqlStatement GetSqlUpdate<T>(SqlStatement statement, bool excludeTableName = false, bool excludeWhere = false, params string[] excludedColumns) where T : class
-		{
-			var setClause = statement.GetSetColumnList(statement.GetSqlColumnParameterNames(excludedColumns: excludedColumns));
-
-			statement.Query.Append(excludeTableName ? "UPDATE" : $"UPDATE {statement.TableInformation.GetFormattedTableName()}");
-			statement.Query.Append($" SET {setClause}");
-
-			if (!excludeWhere)
-			{
-				var primaryKeys = statement.GetSqlColumnParameterNames(onlyIncludePrimaryKeys: true);
-				var parameterWhere = statement.GetWhereColumnList(primaryKeys);
-				statement.QueryWhere.Append(parameterWhere);
-				statement.Query.Append($" WHERE {statement.QueryWhere}");
-			}
-
-			return statement;
+			return GetSqlUpdate(response);
 		}
 
 		/// <summary>
 		/// Get SQL update script from query.
 		/// </summary>
 		/// <typeparam name="T"> The type for the query. </typeparam>
-		/// <param name="database"> </param>
-		/// <param name="query"> </param>
-		/// <param name="expression"> </param>
-		/// <returns> </returns>
+		/// <param name="database"> The database to process. </param>
+		/// <param name="query"> The query to process. </param>
+		/// <param name="expression"> The expression to process. </param>
+		/// <returns> The SQL update statement. </returns>
 		public static SqlStatement GetSqlUpdate<T>(EntityFrameworkDatabase database, IQueryable<T> query, Expression<Func<T, T>> expression) where T : class
 		{
 			var tableInformation = SqlTableInformation.CreateInstance<T>(database);
@@ -491,6 +449,51 @@ namespace Speedy.EntityFramework.Sql
 				default:
 					throw new NotSupportedException(expression.NodeType.ToString());
 			}
+		}
+
+		/// <summary>
+		/// Get SQL insert script from query.
+		/// </summary>
+		/// <param name="statement"> The statement to process. </param>
+		/// <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement start </param>
+		/// <returns> The SQL insert script. </returns>
+		private static SqlStatement GetSqlInsert(SqlStatement statement, bool excludeTableName = false)
+		{
+			var columns = statement.GetSqlColumnParameterNames();
+			var sqlColumnNames = statement.GetDelimitedColumnNameList(columns.Keys);
+			var parameterNames = columns.Values;
+			var sqlParameterNames = string.Join(", ", parameterNames.Select(x => $"@{x}"));
+			statement.Query.Append(excludeTableName
+				? $"INSERT ({sqlColumnNames}) VALUES ({sqlParameterNames})"
+				: $"INSERT INTO {statement.TableInformation.GetFormattedTableName()} ({sqlColumnNames}) VALUES ({sqlParameterNames})"
+			);
+			return statement;
+		}
+
+		/// <summary>
+		/// Get SQL insert script from query.
+		/// </summary>
+		/// <param name="statement"> The statement to process. </param>
+		/// <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement. </param>
+		/// <param name="excludeWhere"> Exclude the WHERE clause from the statement. </param>
+		/// <param name="excludedColumns"> Optional set of columns to be excluded. </param>
+		/// <returns> The SQL insert script. </returns>
+		private static SqlStatement GetSqlUpdate(SqlStatement statement, bool excludeTableName = false, bool excludeWhere = false, params string[] excludedColumns)
+		{
+			var setClause = statement.GetSetColumnList(statement.GetSqlColumnParameterNames(excludedColumns: excludedColumns));
+
+			statement.Query.Append(excludeTableName ? "UPDATE" : $"UPDATE {statement.TableInformation.GetFormattedTableName()}");
+			statement.Query.Append($" SET {setClause}");
+
+			if (!excludeWhere)
+			{
+				var primaryKeys = statement.GetSqlColumnParameterNames(onlyIncludePrimaryKeys: true);
+				var parameterWhere = statement.GetWhereColumnList(primaryKeys);
+				statement.QueryWhere.Append(parameterWhere);
+				statement.Query.Append($" WHERE {statement.QueryWhere}");
+			}
+
+			return statement;
 		}
 
 		private static bool ProcessMemberExpression(string columnName, SqlStatement statement, MemberExpression memberExpression)
