@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 #endregion
 
@@ -32,8 +31,8 @@ namespace Speedy.Extensions
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _propertyGetAccessors;
 		private static readonly ConcurrentDictionary<Type, string> _typeAssemblyNames;
 		private static readonly ConcurrentDictionary<string, FieldInfo[]> _typeFieldInfos;
-		private static readonly ConcurrentDictionary<string, MethodInfo> _typeGetMethodInfos;
-		private static readonly ConcurrentDictionary<string, MethodInfo[]> _typeMethodInfos;
+		private static readonly ConcurrentDictionary<string, MethodInfo> _typeMethodInfos;
+		private static readonly ConcurrentDictionary<string, MethodInfo[]> _typeMethodsInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _typePropertyInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _typeVirtualPropertyInfos;
 
@@ -49,8 +48,8 @@ namespace Speedy.Extensions
 			_propertyGetAccessors = new ConcurrentDictionary<string, MethodInfo[]>();
 			_typeAssemblyNames = new ConcurrentDictionary<Type, string>();
 			_typeFieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
-			_typeGetMethodInfos = new ConcurrentDictionary<string, MethodInfo>();
-			_typeMethodInfos = new ConcurrentDictionary<string, MethodInfo[]>();
+			_typeMethodInfos = new ConcurrentDictionary<string, MethodInfo>();
+			_typeMethodsInfos = new ConcurrentDictionary<string, MethodInfo[]>();
 			_typePropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_typeVirtualPropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 		}
@@ -58,17 +57,6 @@ namespace Speedy.Extensions
 		#endregion
 
 		#region Methods
-
-		/// <summary> Searches for the specified public method whose parameters match the specified argument types. The results are cached so the next query is much faster. </summary>
-		/// <param name="type"> The type to get the method for. </param>
-		/// <param name="name"> The string containing the name of the public method to get. </param>
-		/// <param name="types"> An array of type objects representing the number, order, and type of the parameters for the method to get.-or- An empty array of type objects (as provided by the EmptyTypes field) to get a method that takes no parameters. </param>
-		/// <returns> An object representing the public method whose parameters match the specified argument types, if found; otherwise null. </returns>
-		public static MethodInfo CachedGetMethod(this Type type, string name, params Type[] types)
-		{
-			var key = type.FullName + "." + name;
-			return _typeGetMethodInfos.GetOrAdd(key, x => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
-		}
 
 		/// <summary>
 		/// Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
@@ -159,6 +147,37 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Searches for the specified public method whose parameters match the specified argument types.
+		/// The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the method for. </param>
+		/// <param name="name"> The string containing the name of the public method to get. </param>
+		/// <param name="types"> An array of type objects representing the number, order, and type of the parameters for the method to get.-or- An empty array of type objects (as provided by the EmptyTypes field) to get a method that takes no parameters. </param>
+		/// <returns> An object representing the public method whose parameters match the specified argument types, if found; otherwise null. </returns>
+		public static MethodInfo GetCachedMethod(this Type type, string name, params Type[] types)
+		{
+			var typeKey = GetCacheKey(type, DefaultFlags);
+			var methodKey = typeKey + name;
+			return _typeMethodInfos.GetOrAdd(methodKey, x => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
+		}
+
+		/// <summary>
+		/// Gets the method info from the provided type by the name provided.
+		/// The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="value"> The value to get the methods for. </param>
+		/// <param name="name"> The name of the method to be queried. </param>
+		/// <param name="flags"> The flags used to query with. </param>
+		/// <returns> The list of method infos for the type. </returns>
+		public static MethodInfo GetCachedMethod(this object value, string name, BindingFlags? flags = null)
+		{
+			var typeFlags = flags ?? DefaultFlags;
+			var typeKey = GetCacheKey(value?.GetType() ?? throw new InvalidOperationException(), typeFlags);
+			var methodKey = typeKey + name;
+			return _typeMethodInfos.GetOrAdd(methodKey, GetCachedMethods(typeKey, flags).FirstOrDefault(x => x.Name == name));
+		}
+
+		/// <summary>
 		/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="value"> The value to get the methods for. </param>
@@ -179,7 +198,7 @@ namespace Speedy.Extensions
 		{
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-			return _typeMethodInfos.GetOrAdd(key, type.GetMethods(typeFlags));
+			return _typeMethodsInfos.GetOrAdd(key, type.GetMethods(typeFlags));
 		}
 
 		/// <summary>

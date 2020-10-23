@@ -715,21 +715,21 @@ namespace Speedy
 					{
 						if (otherEntity.GetType() == entityType)
 						{
-							repositoryType.CachedGetMethod("InsertBefore").Invoke(repository, new object[] { otherEntity, entity });
+							repositoryType.GetCachedMethod("InsertBefore").Invoke(repository, new object[] { otherEntity, entity });
 						}
 						else
 						{
 							// Still adding 400ms per 10000 items, why?
-							repositoryType.CachedGetMethod("Add", otherEntity.GetType()).Invoke(repository, new object[] { otherEntity });
+							repositoryType.GetCachedMethod("Add", otherEntity.GetType()).Invoke(repository, new object[] { otherEntity });
 						}
 					}
 					else
 					{
 						// Check to see if the entity already exists.
-						var exists = (bool) repositoryType.CachedGetMethod("Contains").Invoke(repository, new object[] { otherEntity });
+						var exists = (bool) repositoryType.GetCachedMethod("Contains").Invoke(repository, new object[] { otherEntity });
 						if (!exists)
 						{
-							repositoryType.CachedGetMethod("Add", otherEntity.GetType()).Invoke(repository, new object[] { otherEntity });
+							repositoryType.GetCachedMethod("Add", otherEntity.GetType()).Invoke(repository, new object[] { otherEntity });
 						}
 					}
 

@@ -21,7 +21,10 @@ namespace Speedy
 
 		#region Constructors
 
-		/// <inheritdoc />
+		/// <summary>
+		/// Instantiate an instance of the IncludableQueryable
+		/// </summary>
+		/// <param name="query"></param>
 		public IncludableQueryable(IQueryable<T> query)
 		{
 			_query = query;

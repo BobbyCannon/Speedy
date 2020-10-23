@@ -74,7 +74,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a value indicating the running status of the sync manager.
 		/// </summary>
-		public bool IsRunning => _cancellationToken != null || Monitor.IsEntered(_watch) || _watch.IsRunning;
+		public bool IsRunning => _cancellationToken != null && !_cancellationToken.IsCancellationRequested || Monitor.IsEntered(_watch) || _watch.IsRunning;
 
 		/// <summary>
 		/// Gets a value indicating if the last sync was successful.

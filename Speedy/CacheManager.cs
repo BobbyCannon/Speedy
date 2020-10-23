@@ -32,6 +32,20 @@ namespace Speedy
 
 		#endregion
 
+		#region Properties
+
+		/// <summary>
+		/// The total types tracked.
+		/// </summary>
+		public static int Count => _cachedEntityId.Count;
+
+		/// <summary>
+		/// The total count for all items tracked.
+		/// </summary>
+		public static int TotalCachedItems => _cachedEntityId.Sum(x => x.Value.Count());
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>

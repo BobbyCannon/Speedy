@@ -50,6 +50,16 @@ namespace Speedy.UnitTests.Extensions
 			TestHelper.AreEqual(expected, properties);
 		}
 
+		[TestMethod]
+		public void MethodTests()
+		{
+			// Get Method Info by Name
+			var type = typeof(ReflectionClassTest);
+			var methodInfo = type.GetCachedMethod("MethodOne");
+			Assert.AreNotEqual(null, methodInfo);
+			Assert.AreEqual("MethodOne", methodInfo.Name);
+		}
+
 		#endregion
 
 		#region Classes
@@ -69,6 +79,14 @@ namespace Speedy.UnitTests.Extensions
 			public double PublicProperty { get; set; }
 
 			private double PrivateProperty { get; set; }
+
+			#endregion
+
+			#region Methods
+
+			public void MethodOne()
+			{
+			}
 
 			#endregion
 		}

@@ -478,7 +478,10 @@ namespace Speedy.Sync
 				using var database = provider.GetSyncableDatabase();
 				database.Options.MaintainCreatedOn = false;
 				database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
-				objects.ForEach(x => ProcessSyncObject(profileSession, x, database, corrections));
+				for (var i = 0; i < objects.Count; i++)
+				{
+					ProcessSyncObject(profileSession, objects[i], database, corrections);
+				}
 				database.SaveChanges();
 			}
 			catch
