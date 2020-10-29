@@ -66,7 +66,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class Bindable : IUpdatable, INotifyPropertyChanged
+	public abstract class Bindable : IUpdatable, INotifyPropertyChanged, IBindable
 	{
 		#region Fields
 

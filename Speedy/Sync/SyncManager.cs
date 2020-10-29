@@ -421,6 +421,15 @@ namespace Speedy.Sync
 
 				var client = GetSyncClientForClient();
 				var server = GetSyncClientForServer();
+
+				if (client == null || server == null)
+				{
+					IsSyncSuccessful = false;
+					SyncState.Message = "Sync client for client or server is null.";
+					OnSyncUpdated(SyncState);
+					return;
+				}
+
 				var engine = new SyncEngine(client, server, options, _cancellationToken);
 
 				engine.SyncStateChanged += async (sender, state) =>
@@ -441,6 +450,7 @@ namespace Speedy.Sync
 
 				engine.Run();
 
+				SyncIssues.Clear();
 				SyncIssues.AddRange(engine.SyncIssues);
 				IsSyncSuccessful = !_cancellationToken.IsCancellationRequested && !SyncIssues.Any();
 			}
