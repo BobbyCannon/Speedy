@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\PropertyChanged.Fody.3.2.10\build\PropertyChanged.Fody.props" Condition="Exists('..\packages\PropertyChanged.Fody.3.2.10\build\PropertyChanged.Fody.props')" />
   <Import Project="..\packages\Microsoft.EntityFrameworkCore.Design.3.1.9\build\net461\Microsoft.EntityFrameworkCore.Design.props" Condition="Exists('..\packages\Microsoft.EntityFrameworkCore.Design.3.1.9\build\net461\Microsoft.EntityFrameworkCore.Design.props')" />
-  <Import Project="..\packages\PropertyChanged.Fody.3.2.9\build\PropertyChanged.Fody.props" Condition="Exists('..\packages\PropertyChanged.Fody.3.2.9\build\PropertyChanged.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -131,8 +131,8 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.9.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.9\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Identity.Client, Version=4.20.1.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Identity.Client.4.20.1\lib\net461\Microsoft.Identity.Client.dll</HintPath>
+    <Reference Include="Microsoft.Identity.Client, Version=4.22.0.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Identity.Client.4.22.0\lib\net461\Microsoft.Identity.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IdentityModel.JsonWebTokens.6.8.0\lib\net461\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
@@ -152,8 +152,8 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="PropertyChanged, Version=3.2.9.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
-      <HintPath>..\packages\PropertyChanged.Fody.3.2.9\lib\net40\PropertyChanged.dll</HintPath>
+    <Reference Include="PropertyChanged, Version=3.2.10.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
+      <HintPath>..\packages\PropertyChanged.Fody.3.2.10\lib\net40\PropertyChanged.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.0.4.976, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.bundle_e_sqlite3.2.0.4\lib\net461\SQLitePCLRaw.batteries_v2.dll</HintPath>
@@ -341,17 +341,17 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets'))" />
-    <Error Condition="!Exists('..\packages\PropertyChanged.Fody.3.2.9\build\PropertyChanged.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PropertyChanged.Fody.3.2.9\build\PropertyChanged.Fody.props'))" />
     <Error Condition="!Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets'))" />
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.EntityFrameworkCore.Design.3.1.9\build\net461\Microsoft.EntityFrameworkCore.Design.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.EntityFrameworkCore.Design.3.1.9\build\net461\Microsoft.EntityFrameworkCore.Design.props'))" />
     <Error Condition="!Exists('..\packages\Fody.6.3.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.3.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets'))" />
+    <Error Condition="!Exists('..\packages\PropertyChanged.Fody.3.2.10\build\PropertyChanged.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PropertyChanged.Fody.3.2.10\build\PropertyChanged.Fody.props'))" />
   </Target>
-  <Import Project="..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets')" />
   <Import Project="..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets" Condition="Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.2.0.4\build\net461\SQLitePCLRaw.lib.e_sqlite3.targets')" />
   <Import Project="..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
   <Import Project="..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets')" />
   <Import Project="..\packages\Fody.6.3.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.3.0\build\Fody.targets')" />
+  <Import Project="..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets')" />
 </Project>

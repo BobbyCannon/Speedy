@@ -142,8 +142,8 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.9.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.9\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Identity.Client, Version=4.20.1.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Identity.Client.4.20.1\lib\net461\Microsoft.Identity.Client.dll</HintPath>
+    <Reference Include="Microsoft.Identity.Client, Version=4.22.0.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Identity.Client.4.22.0\lib\net461\Microsoft.Identity.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IdentityModel.JsonWebTokens.6.8.0\lib\net461\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
@@ -180,8 +180,8 @@
     <Reference Include="Remotion.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="Sproto, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sproto.1.2.1\lib\netstandard2.0\Sproto.dll</HintPath>
+    <Reference Include="Sproto, Version=1.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sproto.1.2.2\lib\netstandard2.0\Sproto.dll</HintPath>
     </Reference>
     <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.0.4.976, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
       <HintPath>..\packages\SQLitePCLRaw.bundle_green.2.0.4\lib\net461\SQLitePCLRaw.batteries_v2.dll</HintPath>
@@ -452,12 +452,10 @@
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Data.SqlClient.SNI.2.1.0\build\net46\Microsoft.Data.SqlClient.SNI.targets'))" />
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.props'))" />
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets'))" />
     <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
@@ -468,6 +466,7 @@
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.EntityFrameworkCore.Design.3.1.9\build\net461\Microsoft.EntityFrameworkCore.Design.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.EntityFrameworkCore.Design.3.1.9\build\net461\Microsoft.EntityFrameworkCore.Design.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets'))" />
   </Target>
   <Import Project="..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.2\build\net45\MSTest.TestAdapter.targets')" />
   <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
@@ -477,4 +476,5 @@
   <Import Project="..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.14\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets" Condition="Exists('..\packages\SQLitePCLRaw.lib.e_sqlite3.v110_xp.1.1.14\build\net35\SQLitePCLRaw.lib.e_sqlite3.v110_xp.targets')" />
   <Import Project="..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
   <Import Project="..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.UI.Xaml.4.7.0\build\net461\System.Runtime.WindowsRuntime.UI.Xaml.targets')" />
+  <Import Project="..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('..\packages\Microsoft.Data.SqlClient.SNI.2.1.1\build\net46\Microsoft.Data.SqlClient.SNI.targets')" />
 </Project>

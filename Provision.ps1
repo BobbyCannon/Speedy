@@ -3,20 +3,36 @@
 $siteName = "Speedy"
 $dnsname = "speedy.local"
 
-$cert = Get-ChildItem cert:\LocalMachine\My -Recurse  | Where {	$_.FriendlyName -eq $dnsname }
-$rootcert = Get-ChildItem cert:\LocalMachine\Root -Recurse  | Where { $_.FriendlyName -eq $dnsname }
+$cert = Get-ChildItem cert:\LocalMachine\WebHosting -Recurse | Where { $_.FriendlyName -eq $dnsname }
 
-if (($cert -eq $null) -and ($rootcert -eq $null))
+if ($cert -eq $null)
 {
 	Write-Host "Creating new self signed certificate"
 	$cert = New-SelfSignedCertificate -FriendlyName $dnsname -KeyFriendlyName $dnsname -Subject $dnsname -DnsName $dnsname
 }
 
-if ($rootcert -eq $null)
+# See if the cert is expired
+if ($cert -ne $null)
 {
-	Write-Host "Adding new self signed certificate to trusted root certificates"
+	$expiration = $rootcert.GetExpirationDateString()
+	$expirationDate = [DateTime]::Parse($expiration)
+	
+	if ($expiration -le [DateTime]::Now)
+	{
+		# Remove Expired Certificate
+		$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "WebHosting", "LocalMachine"
+		$store.Open("ReadWrite")
+		$store.Remove($rootcert)
+		$store.Close()
+		$rootcert = $null
+	}
+}
 
-	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "Root", "LocalMachine"
+if ($cert -eq $null)
+{
+	Write-Host "Adding new self signed certificate to web hosting"
+
+	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "WebHosting", "LocalMachine"
 	$store.Open("ReadWrite")
 	$store.Add($cert)
 	$store.Close()
@@ -27,6 +43,18 @@ if ($rootcert -eq $null)
 
 	$cert | Remove-Item
 	$cert.GetCertHashString()
+}
+
+$rootcert = Get-ChildItem cert:\LocalMachine\root -Recurse | Where { $_.FriendlyName -eq $dnsname }
+
+if (($rootcert -eq $null) -and ($cert -ne $null))
+{
+	Write-Host "Adding new self signed certificate to trusted root certificates"
+
+	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "Root", "LocalMachine"
+	$store.Open("ReadWrite")
+	$store.Add($cert)
+	$store.Close()
 }
 
 #
@@ -52,10 +80,10 @@ if ($site -eq $null)
 		
 	Set-ItemProperty -Path $webPath -Name Bindings -Value $bindings
 
-	$certificate = (Get-ChildItem Cert:\LocalMachine\Root -Recurse | Where { $_.Subject.Contains($dnsname) })
+	$certificate = (Get-ChildItem Cert:\LocalMachine\WebHosting -Recurse | Where { $_.Subject.Contains($dnsname) })
 	
 	$binding = Get-WebBinding -Name $siteName -Protocol "https"
-	$binding.AddSslCertificate($certificate.GetCertHashString(), "Root")
+	$binding.AddSslCertificate($certificate.GetCertHashString(), "WebHosting")
 	$pool = Get-Item "IIS:\AppPools\$siteName" -ErrorAction Ignore
 	
 	if ($pool -eq $null)
