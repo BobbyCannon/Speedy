@@ -11,7 +11,7 @@ namespace Speedy.Sync
 	/// Represents a sync model, usually used in a web API model.
 	/// </summary>
 	/// <typeparam name="T"> The type for the key. </typeparam>
-	public abstract class SyncModel<T> : SyncEntity<T>
+	public abstract class SyncModel<T> : SyncEntity<T>, IBindable
 	{
 		#region Constructors
 
