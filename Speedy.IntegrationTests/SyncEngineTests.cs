@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Speedy.Data.Client;
@@ -133,41 +132,39 @@ namespace Speedy.IntegrationTests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				using (var listener = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true })
+				using var listener = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+				Logger.Instance.Write(client.Name + " -> " + server.Name);
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
+
+				var options = new SyncOptions();
+				var issues = SyncEngine.Run(client, server, options);
+
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 				{
-					Logger.Instance.Write(client.Name + " -> " + server.Name);
-					server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
+					var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+					var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
 
-					var options = new SyncOptions();
-					var issues = SyncEngine.Run(client, server, options);
+					Assert.AreEqual(2, addresses1.Count);
+					Assert.AreEqual(2, addresses2.Count);
 
-					Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-
-					using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-					using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-					{
-						var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-						var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
-
-						Assert.AreEqual(2, addresses1.Count);
-						Assert.AreEqual(2, addresses2.Count);
-
-						TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
-						TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), "Id", nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
-					}
-				
-					issues = SyncEngine.Run(client, server, options);
-
-					Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-					Assert.IsFalse(client.Statistics.IsReset);
-					Assert.IsFalse(client.Statistics.IsReset);
-
-					issues = SyncEngine.Run(client, server, options);
-
-					Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-					Assert.IsTrue(client.Statistics.IsReset);
-					Assert.IsTrue(client.Statistics.IsReset);
+					TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
+					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), "Id", nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
 				}
+				
+				issues = SyncEngine.Run(client, server, options);
+
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+				Assert.IsFalse(client.Statistics.IsReset);
+				Assert.IsFalse(client.Statistics.IsReset);
+
+				issues = SyncEngine.Run(client, server, options);
+
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+				Assert.IsTrue(client.Statistics.IsReset);
+				Assert.IsTrue(client.Statistics.IsReset);
 			});
 		}
 
@@ -577,6 +574,8 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void LookupFilterExpressionShouldOverrideSyncId()
 		{
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
+
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
 			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
 			var settingName1 = "Setting1";
@@ -593,6 +592,8 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 01);
+
 			using (var database = server.GetDatabase<IContosoDatabase>())
 			{
 				database.Settings.Add(serverSetting1);
@@ -600,7 +601,7 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
-			Thread.Sleep(1);
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 02);
 
 			var options = new SyncOptions();
 			var engine = new SyncEngine(client, server, options);
@@ -848,11 +849,15 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void ServerShouldNotPushNonModifiedEntities()
 		{
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
+
 			var server = new TestSyncClient("Server (Test)");
 			var client = new SyncClient("Client (MEM)", TestHelper.GetSyncableMemoryProvider());
 
 			var address = NewAddress("123 Elm Street");
 			server.Changes.Add(new ServiceResult<SyncObject>(address.ToSyncObject()));
+
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 01);
 
 			var engine = new SyncEngine(client, server, new SyncOptions());
 			engine.Run();

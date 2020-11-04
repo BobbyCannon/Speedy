@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Speedy.Extensions;
 
@@ -79,7 +78,6 @@ namespace Speedy.Storage
 		/// <param name="key"> The name of the key. </param>
 		public void Remove(string key)
 		{
-			//_dictionary.TryRemove(key, out _);
 			_dictionary.Remove(key);
 		}
 
@@ -89,7 +87,6 @@ namespace Speedy.Storage
 		/// <param name="memoryCacheItem"> The item to remove from the cache. </param>
 		public void Remove(MemoryCacheItem memoryCacheItem)
 		{
-			//_dictionary.TryRemove(memoryCacheItem.Key, out _);
 			_dictionary.Remove(memoryCacheItem.Key);
 		}
 
@@ -111,15 +108,6 @@ namespace Speedy.Storage
 		/// <param name="timeout"> The custom timeout of the entry. </param>
 		public void Set(string key, object value, TimeSpan timeout)
 		{
-			//_dictionary.AddOrUpdate(key, x => new MemoryCacheItem(key, value, timeout), (x, v) =>
-			//	{
-			//		v.Key = key;
-			//		v.Value = value;
-			//		v.LastAccessed = TimeService.UtcNow;
-			//		return v;
-			//	}
-			//);
-
 			_dictionary.AddOrUpdate(key, () => new MemoryCacheItem(key, value, timeout), x =>
 			{
 				x.Key = key;
@@ -146,7 +134,7 @@ namespace Speedy.Storage
 			if (cachedItem.ExpirationDate <= TimeService.UtcNow)
 			{
 				value = null;
-				Remove(value);
+				Remove(cachedItem);
 				return false;
 			}
 

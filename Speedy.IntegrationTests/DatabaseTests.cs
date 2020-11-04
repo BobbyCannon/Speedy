@@ -623,58 +623,10 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestMethod]
-		public void DateTimeShouldUseUtc()
-		{
-			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
-			var actual = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-			Assert.AreEqual(dateTime.Hour, actual.Hour);
-
-			TestHelper.GetDataContexts(initialized: false)
-				.ForEach(provider =>
-				{
-					var testCases = new List<DateTime>
-					{
-						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
-						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
-						new DateTime(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
-					};
-
-					foreach (var testCase in testCases)
-					{
-						var expected = new LogEventEntity { AcknowledgedOn = testCase, LoggedOn = testCase, Message = "Hello World" };
-
-						using (var database = provider.GetDatabase())
-						{
-							if (!(database is EntityFrameworkDatabase))
-							{
-								// Test is only for entity framework databases
-								return;
-							}
-
-							Console.WriteLine(database.GetType().Name + " : " + testCase.ToString());
-							database.LogEvents.Add(expected);
-							database.SaveChanges();
-						}
-
-						using (var database = provider.GetDatabase())
-						{
-							var actual = database.LogEvents.FirstOrDefault(x => x.Id == expected.Id);
-							Assert.IsNotNull(actual);
-							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn.Value.Kind);
-							Assert.AreEqual(12, actual.AcknowledgedOn.Value.Hour);
-							Assert.AreEqual(DateTimeKind.Utc, actual.LoggedOn.Kind);
-							Assert.AreEqual(12, actual.LoggedOn.Hour);
-						}
-					}
-				});
-		}
-		
-		[TestMethod]
 		public void DateTimeMaxShouldUseUtc()
 		{
 			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
-			var actual = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-			Assert.AreEqual(dateTime.Hour, actual.Hour);
+			Assert.AreEqual(dateTime.Hour, DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).Hour);
 
 			TestHelper.GetDataContexts(initialized: false)
 				.ForEach(provider =>
@@ -698,7 +650,7 @@ namespace Speedy.IntegrationTests
 								return;
 							}
 
-							Console.WriteLine(database.GetType().Name + " : " + testCase.ToString());
+							Console.WriteLine(database.GetType().Name + " : " + testCase);
 							database.LogEvents.Add(expected);
 							database.SaveChanges();
 						}
@@ -707,10 +659,10 @@ namespace Speedy.IntegrationTests
 						{
 							var actual = database.LogEvents.FirstOrDefault(x => x.Id == expected.Id);
 							Assert.IsNotNull(actual);
-							
-							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn.Value.Kind);
-							Assert.AreEqual(DateTimeExtensions.MaxDateTimeTicks, actual.AcknowledgedOn.Value.Ticks);
-							Assert.AreEqual(DateTime.MaxValue, actual.AcknowledgedOn.Value);
+
+							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn?.Kind);
+							Assert.AreEqual(DateTimeExtensions.MaxDateTimeTicks, actual.AcknowledgedOn?.Ticks);
+							Assert.AreEqual(DateTime.MaxValue, actual.AcknowledgedOn);
 
 							Assert.AreEqual(DateTimeKind.Utc, actual.LoggedOn.Kind);
 							Assert.AreEqual(DateTimeExtensions.MaxDateTimeTicks, actual.LoggedOn.Ticks);
@@ -724,8 +676,7 @@ namespace Speedy.IntegrationTests
 		public void DateTimeMinShouldUseUtc()
 		{
 			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
-			var actual = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-			Assert.AreEqual(dateTime.Hour, actual.Hour);
+			Assert.AreEqual(dateTime.Hour, DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).Hour);
 
 			TestHelper.GetDataContexts(initialized: false)
 				.ForEach(provider =>
@@ -749,7 +700,7 @@ namespace Speedy.IntegrationTests
 								return;
 							}
 
-							Console.WriteLine(database.GetType().Name + " : " + testCase.ToString());
+							Console.WriteLine(database.GetType().Name + " : " + testCase);
 							database.LogEvents.Add(expected);
 							database.SaveChanges();
 						}
@@ -758,14 +709,60 @@ namespace Speedy.IntegrationTests
 						{
 							var actual = database.LogEvents.FirstOrDefault(x => x.Id == expected.Id);
 							Assert.IsNotNull(actual);
-							
-							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn.Value.Kind);
-							Assert.AreEqual(DateTimeExtensions.MinDateTimeTicks, actual.AcknowledgedOn.Value.Ticks);
-							Assert.AreEqual(DateTime.MinValue, actual.AcknowledgedOn.Value);
+
+							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn?.Kind);
+							Assert.AreEqual(DateTimeExtensions.MinDateTimeTicks, actual.AcknowledgedOn?.Ticks);
+							Assert.AreEqual(DateTime.MinValue, actual.AcknowledgedOn);
 
 							Assert.AreEqual(DateTimeKind.Utc, actual.LoggedOn.Kind);
 							Assert.AreEqual(DateTimeExtensions.MinDateTimeTicks, actual.LoggedOn.Ticks);
 							Assert.AreEqual(DateTime.MinValue, actual.LoggedOn);
+						}
+					}
+				});
+		}
+
+		[TestMethod]
+		public void DateTimeShouldUseUtc()
+		{
+			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
+			Assert.AreEqual(dateTime.Hour, DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).Hour);
+
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					var testCases = new List<DateTime>
+					{
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
+						new DateTime(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
+					};
+
+					foreach (var testCase in testCases)
+					{
+						var expected = new LogEventEntity { AcknowledgedOn = testCase, LoggedOn = testCase, Message = "Hello World" };
+
+						using (var database = provider.GetDatabase())
+						{
+							if (!(database is EntityFrameworkDatabase))
+							{
+								// Test is only for entity framework databases
+								return;
+							}
+
+							Console.WriteLine(database.GetType().Name + " : " + testCase);
+							database.LogEvents.Add(expected);
+							database.SaveChanges();
+						}
+
+						using (var database = provider.GetDatabase())
+						{
+							var actual = database.LogEvents.FirstOrDefault(x => x.Id == expected.Id);
+							Assert.IsNotNull(actual);
+							Assert.AreEqual(DateTimeKind.Utc, actual.AcknowledgedOn?.Kind);
+							Assert.AreEqual(12, actual.AcknowledgedOn?.Hour);
+							Assert.AreEqual(DateTimeKind.Utc, actual.LoggedOn.Kind);
+							Assert.AreEqual(12, actual.LoggedOn.Hour);
 						}
 					}
 				});
@@ -1446,66 +1443,6 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestMethod]
-		public void UniqueConstraintsForString()
-		{
-			TestHelper.GetDataContexts(initialized: false)
-				.ForEach(provider =>
-				{
-					using var database = provider.GetDatabase();
-					Console.WriteLine(database.GetType().Name);
-
-					var expected = new AccountEntity { Name = "Foo", Address = NewAddress("Bar") };
-					database.Accounts.Add(expected);
-					database.SaveChanges();
-
-					expected = new AccountEntity { Name = "Foo", Address = NewAddress("Bar") };
-					database.Accounts.Add(expected);
-
-					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountName'.",
-						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Name'. The duplicate key value is (Foo).",
-						"IX_Accounts_Name: Cannot insert duplicate row. The duplicate key value is (Foo).");
-				});
-		}
-		
-		[TestMethod]
-		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUnique()
-		{
-			TestHelper.GetDataContexts(initialized: false)
-				.ForEach(provider =>
-				{
-					using var database = provider.GetDatabase();
-					Console.WriteLine(database.GetType().Name);
-
-					// Both being null should be fine
-					var expected1 = new AccountEntity { Name = "Foo1", Address = NewAddress("Main") };
-					var expected2 = new AccountEntity { Name = "Foo2", Address = NewAddress("Main") };
-
-					database.Accounts.Add(expected1);
-					database.Accounts.Add(expected2);
-					database.SaveChanges();
-
-					// Both being unique should be fine
-					expected1.Nickname = "Bar1";
-					database.SaveChanges();
-					expected2.Nickname = "Bar2";
-					database.SaveChanges();
-					
-					// Now if both are the same it should exception
-					expected1.Nickname = "Bar";
-					database.SaveChanges();
-					expected2.Nickname = "Bar";
-
-					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
-						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountNickname'.",
-						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
-						"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
-				});
-		}
-
-		[TestMethod]
 		public void UniqueConstraintsForCompositeKeyWithStringThatAllowNullButShouldStillEnforceUnique()
 		{
 			TestHelper.GetDataContexts(initialized: false)
@@ -1528,7 +1465,7 @@ namespace Speedy.IntegrationTests
 					expected1.ExternalId = "EID-1";
 					expected2.ExternalId = "EID-2";
 					database.SaveChanges();
-					
+
 					// Now if both are the same it should exception
 					expected1.ExternalId = "EID";
 					database.SaveChanges();
@@ -1541,7 +1478,67 @@ namespace Speedy.IntegrationTests
 						"IX_Accounts_AddressId_ExternalId: Cannot insert duplicate row. The duplicate key value is (1,EID).");
 				});
 		}
-		
+
+		[TestMethod]
+		public void UniqueConstraintsForString()
+		{
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					var expected = new AccountEntity { Name = "Foo", Address = NewAddress("Bar") };
+					database.Accounts.Add(expected);
+					database.SaveChanges();
+
+					expected = new AccountEntity { Name = "Foo", Address = NewAddress("Bar") };
+					database.Accounts.Add(expected);
+
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountName'.",
+						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Name'. The duplicate key value is (Foo).",
+						"IX_Accounts_Name: Cannot insert duplicate row. The duplicate key value is (Foo).");
+				});
+		}
+
+		[TestMethod]
+		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUnique()
+		{
+			TestHelper.GetDataContexts(initialized: false)
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					// Both being null should be fine
+					var expected1 = new AccountEntity { Name = "Foo1", Address = NewAddress("Main") };
+					var expected2 = new AccountEntity { Name = "Foo2", Address = NewAddress("Main") };
+
+					database.Accounts.Add(expected1);
+					database.Accounts.Add(expected2);
+					database.SaveChanges();
+
+					// Both being unique should be fine
+					expected1.Nickname = "Bar1";
+					database.SaveChanges();
+					expected2.Nickname = "Bar2";
+					database.SaveChanges();
+
+					// Now if both are the same it should exception
+					expected1.Nickname = "Bar";
+					database.SaveChanges();
+					expected2.Nickname = "Bar";
+
+					// ReSharper disable once AccessToDisposedClosure
+					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountNickname'.",
+						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
+						"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
+				});
+		}
+
 		[TestMethod]
 		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUniqueViaRelationship()
 		{
@@ -1566,7 +1563,7 @@ namespace Speedy.IntegrationTests
 					//expected1.Nickname = "Bar1";
 					//expected2.Nickname = "Bar2";
 					//database.SaveChanges();
-					
+
 					//// Now if both are the same it should exception
 					//expected1.Nickname = "Bar";
 					//expected2.Nickname = "Bar";

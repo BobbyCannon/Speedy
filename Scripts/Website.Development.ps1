@@ -5,6 +5,8 @@ Restart-WebAppPool -Name "Speedy"
 Get-Process vbcs* | Stop-Process
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug"
 
+Remove-Item "C:\inetpub\Speedy" -Recurse -Force
+
 Get-EnvironmentVariable -Target Machine -Variable "ASPNETCORE_ENVIRONMENT"
 Set-EnvironmentVariable -Target Machine -Variable "ASPNETCORE_ENVIRONMENT" -Value "Development"
 Set-EnvironmentVariable -Target Machine -Variable "ASPNETCORE_ENVIRONMENT" -Value "Release"

@@ -140,11 +140,12 @@ namespace Speedy.Sync
 		/// Cancels the current running sync.
 		/// </summary>
 		/// <param name="timeout"> The timeout to wait for the sync to cancel. </param>
-		public void CancelSync(TimeSpan? timeout = null)
+		/// <param name="throwOnFirstException"> True if exceptions should immediately propagate otherwise false. </param>
+		public void CancelSync(TimeSpan? timeout = null, bool throwOnFirstException = true)
 		{
 			OnLogEvent($"Cancelling running Sync {_syncType}...", EventLevel.Verbose);
 
-			_cancellationToken?.Cancel();
+			_cancellationToken?.Cancel(throwOnFirstException);
 
 			OnPropertyChanged(nameof(IsCancellationPending));
 

@@ -96,6 +96,7 @@ namespace Speedy.Website.Samples
 			options.SyncOrder = new[]
 			{
 				typeof(AddressEntity).ToAssemblyName(),
+				typeof(SettingEntity).ToAssemblyName(),
 				typeof(AccountEntity).ToAssemblyName(),
 				typeof(LogEventEntity).ToAssemblyName()
 			};

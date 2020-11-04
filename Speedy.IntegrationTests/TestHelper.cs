@@ -291,7 +291,7 @@ namespace Speedy.IntegrationTests
 			return list[index];
 		}
 
-		public static IDatabaseProvider<IContosoDatabase> GetSqliteProvider(DatabaseOptions options = null, bool initialized = true)
+		public static IDatabaseProvider<ContosoDatabase> GetSqliteProvider(DatabaseOptions options = null, bool initialized = true)
 		{
 			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, options);
 			database.Database.EnsureDeleted();
@@ -302,10 +302,10 @@ namespace Speedy.IntegrationTests
 				InitializeDatabase(database);
 			}
 
-			return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), options);
+			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), options);
 		}
 
-		public static IDatabaseProvider<IContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialized = true)
+		public static IDatabaseProvider<ContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialized = true)
 		{
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options);
 			database.Database.Migrate();
@@ -316,7 +316,7 @@ namespace Speedy.IntegrationTests
 				InitializeDatabase(database);
 			}
 
-			return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), options);
+			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), options);
 		}
 
 		public static ISyncableDatabaseProvider GetSyncableMemoryProvider(DatabaseOptions options = null, bool initialize = true)

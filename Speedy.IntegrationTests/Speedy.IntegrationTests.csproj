@@ -391,6 +391,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContosoEntityDatabaseTests.cs" />
     <Compile Include="ContosoModelDatabaseTests.cs" />
     <Compile Include="DatabaseTests.cs" />
     <Compile Include="EntityTests.cs" />
