@@ -183,11 +183,11 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Stops the sync process.
 		/// </summary>
-		public void Stop()
+		public void Stop(TimeSpan? timeout = null)
 		{
-			CancellationSource.Cancel();
+			CancellationSource.Cancel(true);
 
-			var timeOut = TimeService.UtcNow.AddSeconds(30);
+			var timeOut = timeout != null ? TimeService.UtcNow.Add(timeout.Value) : TimeService.UtcNow.AddSeconds(30);
 
 			while (TimeService.UtcNow <= timeOut
 				&& State.Status != SyncEngineStatus.Stopped

@@ -31,7 +31,7 @@ namespace Speedy.Benchmark
 			CreateData = true;
 			SyncData = true;
 			UseBulkProcessing = true;
-			CachePrimaryKeys = false;
+			CachePrimaryKeys = true;
 			AddressCount = 1;
 			AccountCount = 5000;
 

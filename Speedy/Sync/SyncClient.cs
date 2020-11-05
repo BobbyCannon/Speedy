@@ -413,7 +413,7 @@ namespace Speedy.Sync
 					// Instantiate a new instance of the sync entity to update, also use the provided sync ID
 					// this is because it's possibly the sync entity is blocking updating of the sync ID so it 
 					// will need to be set manually being that it will be filtered on update.
-					foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
+					foundEntity = (ISyncEntity)Activator.CreateInstance(syncEntity.GetType());
 					foundEntity.SyncId = syncObject.SyncId;
 					if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
 					{

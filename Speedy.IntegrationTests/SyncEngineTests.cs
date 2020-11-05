@@ -178,18 +178,16 @@ namespace Speedy.IntegrationTests
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-				{
-					var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-					var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+				using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+				var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+				var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
 
-					Assert.AreEqual(2, addresses1.Count);
-					Assert.AreEqual(2, addresses2.Count);
+				Assert.AreEqual(2, addresses1.Count);
+				Assert.AreEqual(2, addresses2.Count);
 
-					TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
-					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
-				}
+				TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
+				TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
 			});
 		}
 
@@ -206,41 +204,39 @@ namespace Speedy.IntegrationTests
 
 				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
-				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-				{
-					var clientAddresses = clientDatabase.Addresses.ToList();
-					var clientPeople = clientDatabase.Accounts.ToList();
-					var serverAddresses = serverDatabase.Addresses.ToList();
-					var serverPeople = serverDatabase.Accounts.ToList();
+				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+				using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+				var clientAddresses = clientDatabase.Addresses.ToList();
+				var clientPeople = clientDatabase.Accounts.ToList();
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var serverPeople = serverDatabase.Accounts.ToList();
 
-					Assert.AreEqual(3, clientAddresses.Count);
-					Assert.AreEqual(3, clientPeople.Count);
-					Assert.AreEqual(3, serverAddresses.Count);
-					Assert.AreEqual(3, serverPeople.Count);
+				Assert.AreEqual(3, clientAddresses.Count);
+				Assert.AreEqual(3, clientPeople.Count);
+				Assert.AreEqual(3, serverAddresses.Count);
+				Assert.AreEqual(3, serverPeople.Count);
 
-					TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-					TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-					TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-					TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
 
-					Assert.AreEqual("Foo", clientAddresses[1].Line1);
-					Assert.AreEqual("Foo", clientPeople[1].Name);
-					Assert.AreEqual("Foo", clientPeople[1].Address.Line1);
-					Assert.AreEqual(2, clientPeople[1].AddressId);
-					Assert.AreEqual("Foo", serverAddresses[2].Line1);
-					Assert.AreEqual("Foo", serverPeople[2].Name);
-					Assert.AreEqual("Foo", serverPeople[2].Address.Line1);
-					Assert.AreEqual(3, serverPeople[2].AddressId);
-					Assert.AreEqual("Bar", clientAddresses[2].Line1);
-					Assert.AreEqual("Bar", clientPeople[2].Name);
-					Assert.AreEqual("Bar", clientPeople[2].Address.Line1);
-					Assert.AreEqual(3, clientPeople[2].AddressId);
-					Assert.AreEqual("Bar", serverAddresses[1].Line1);
-					Assert.AreEqual("Bar", serverPeople[1].Name);
-					Assert.AreEqual("Bar", serverPeople[1].Address.Line1);
-					Assert.AreEqual(2, serverPeople[1].AddressId);
-				}
+				Assert.AreEqual("Foo", clientAddresses[1].Line1);
+				Assert.AreEqual("Foo", clientPeople[1].Name);
+				Assert.AreEqual("Foo", clientPeople[1].Address.Line1);
+				Assert.AreEqual(2, clientPeople[1].AddressId);
+				Assert.AreEqual("Foo", serverAddresses[2].Line1);
+				Assert.AreEqual("Foo", serverPeople[2].Name);
+				Assert.AreEqual("Foo", serverPeople[2].Address.Line1);
+				Assert.AreEqual(3, serverPeople[2].AddressId);
+				Assert.AreEqual("Bar", clientAddresses[2].Line1);
+				Assert.AreEqual("Bar", clientPeople[2].Name);
+				Assert.AreEqual("Bar", clientPeople[2].Address.Line1);
+				Assert.AreEqual(3, clientPeople[2].AddressId);
+				Assert.AreEqual("Bar", serverAddresses[1].Line1);
+				Assert.AreEqual("Bar", serverPeople[1].Name);
+				Assert.AreEqual("Bar", serverPeople[1].Address.Line1);
+				Assert.AreEqual(2, serverPeople[1].AddressId);
 			});
 		}
 
@@ -253,48 +249,44 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
-				using (var listener = new LogListener(engine.SessionId))
-				{
-					engine.Run();
+				using var listener = new LogListener(engine.SessionId);
+				engine.Run();
 
-					Assert.AreEqual(8, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
+				Assert.AreEqual(8, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
 
-					using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-					using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-					{
-						var clientAddresses = clientDatabase.Addresses.ToList();
-						var clientPeople = clientDatabase.Accounts.ToList();
-						var serverAddresses = serverDatabase.Addresses.ToList();
-						var serverPeople = serverDatabase.Accounts.ToList();
+				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+				using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+				var clientAddresses = clientDatabase.Addresses.ToList();
+				var clientPeople = clientDatabase.Accounts.ToList();
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var serverPeople = serverDatabase.Accounts.ToList();
 
-						Assert.AreEqual(3, clientAddresses.Count);
-						Assert.AreEqual(3, clientPeople.Count);
-						Assert.AreEqual(3, serverAddresses.Count);
-						Assert.AreEqual(3, serverPeople.Count);
+				Assert.AreEqual(3, clientAddresses.Count);
+				Assert.AreEqual(3, clientPeople.Count);
+				Assert.AreEqual(3, serverAddresses.Count);
+				Assert.AreEqual(3, serverPeople.Count);
 
-						TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-						TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-						TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-						TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
 
-						Assert.AreEqual("Foo", clientAddresses[1].Line1);
-						Assert.AreEqual("Foo", clientPeople[1].Name);
-						Assert.AreEqual("Foo", clientPeople[1].Address.Line1);
-						Assert.AreEqual(2, clientPeople[1].AddressId);
-						Assert.AreEqual("Foo", serverAddresses[2].Line1);
-						Assert.AreEqual("Foo", serverPeople[2].Name);
-						Assert.AreEqual("Foo", serverPeople[2].Address.Line1);
-						Assert.AreEqual(3, serverPeople[2].AddressId);
-						Assert.AreEqual("Bar", clientAddresses[2].Line1);
-						Assert.AreEqual("Bar", clientPeople[2].Name);
-						Assert.AreEqual("Bar", clientPeople[2].Address.Line1);
-						Assert.AreEqual(3, clientPeople[2].AddressId);
-						Assert.AreEqual("Bar", serverAddresses[1].Line1);
-						Assert.AreEqual("Bar", serverPeople[1].Name);
-						Assert.AreEqual("Bar", serverPeople[1].Address.Line1);
-						Assert.AreEqual(2, serverPeople[1].AddressId);
-					}
-				}
+				Assert.AreEqual("Foo", clientAddresses[1].Line1);
+				Assert.AreEqual("Foo", clientPeople[1].Name);
+				Assert.AreEqual("Foo", clientPeople[1].Address.Line1);
+				Assert.AreEqual(2, clientPeople[1].AddressId);
+				Assert.AreEqual("Foo", serverAddresses[2].Line1);
+				Assert.AreEqual("Foo", serverPeople[2].Name);
+				Assert.AreEqual("Foo", serverPeople[2].Address.Line1);
+				Assert.AreEqual(3, serverPeople[2].AddressId);
+				Assert.AreEqual("Bar", clientAddresses[2].Line1);
+				Assert.AreEqual("Bar", clientPeople[2].Name);
+				Assert.AreEqual("Bar", clientPeople[2].Address.Line1);
+				Assert.AreEqual(3, clientPeople[2].AddressId);
+				Assert.AreEqual("Bar", serverAddresses[1].Line1);
+				Assert.AreEqual("Bar", serverPeople[1].Name);
+				Assert.AreEqual("Bar", serverPeople[1].Address.Line1);
+				Assert.AreEqual(2, serverPeople[1].AddressId);
 			});
 		}
 
@@ -307,49 +299,45 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
-				using (var listener = new LogListener(engine.SessionId, EventLevel.Verbose))
-				{
-					engine.Run();
+				using var listener = new LogListener(engine.SessionId, EventLevel.Verbose);
+				engine.Run();
 
-					var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;
-					Assert.AreEqual(expected, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
+				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;
+				Assert.AreEqual(expected, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
 
-					using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-					using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-					{
-						var clientAddresses = clientDatabase.Addresses.ToList();
-						var clientPeople = clientDatabase.Accounts.ToList();
-						var serverAddresses = serverDatabase.Addresses.ToList();
-						var serverPeople = serverDatabase.Accounts.ToList();
+				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+				using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+				var clientAddresses = clientDatabase.Addresses.ToList();
+				var clientPeople = clientDatabase.Accounts.ToList();
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var serverPeople = serverDatabase.Accounts.ToList();
 
-						Assert.AreEqual(3, clientAddresses.Count);
-						Assert.AreEqual(3, clientPeople.Count);
-						Assert.AreEqual(3, serverAddresses.Count);
-						Assert.AreEqual(3, serverPeople.Count);
+				Assert.AreEqual(3, clientAddresses.Count);
+				Assert.AreEqual(3, clientPeople.Count);
+				Assert.AreEqual(3, serverAddresses.Count);
+				Assert.AreEqual(3, serverPeople.Count);
 
-						TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-						TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-						TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-						TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), "Id", nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), "Id", nameof(AccountEntity.AddressId), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
 
-						Assert.AreEqual("Foo", clientAddresses[1].Line1);
-						Assert.AreEqual("Foo", clientPeople[1].Name);
-						Assert.AreEqual("Foo", clientPeople[1].Address.Line1);
-						Assert.AreEqual(2, clientPeople[1].AddressId);
-						Assert.AreEqual("Foo", serverAddresses[2].Line1);
-						Assert.AreEqual("Foo", serverPeople[2].Name);
-						Assert.AreEqual("Foo", serverPeople[2].Address.Line1);
-						Assert.AreEqual(3, serverPeople[2].AddressId);
-						Assert.AreEqual("Bar", clientAddresses[2].Line1);
-						Assert.AreEqual("Bar", clientPeople[2].Name);
-						Assert.AreEqual("Bar", clientPeople[2].Address.Line1);
-						Assert.AreEqual(3, clientPeople[2].AddressId);
-						Assert.AreEqual("Bar", serverAddresses[1].Line1);
-						Assert.AreEqual("Bar", serverPeople[1].Name);
-						Assert.AreEqual("Bar", serverPeople[1].Address.Line1);
-						Assert.AreEqual(2, serverPeople[1].AddressId);
-					}
-				}
+				Assert.AreEqual("Foo", clientAddresses[1].Line1);
+				Assert.AreEqual("Foo", clientPeople[1].Name);
+				Assert.AreEqual("Foo", clientPeople[1].Address.Line1);
+				Assert.AreEqual(2, clientPeople[1].AddressId);
+				Assert.AreEqual("Foo", serverAddresses[2].Line1);
+				Assert.AreEqual("Foo", serverPeople[2].Name);
+				Assert.AreEqual("Foo", serverPeople[2].Address.Line1);
+				Assert.AreEqual(3, serverPeople[2].AddressId);
+				Assert.AreEqual("Bar", clientAddresses[2].Line1);
+				Assert.AreEqual("Bar", clientPeople[2].Name);
+				Assert.AreEqual("Bar", clientPeople[2].Address.Line1);
+				Assert.AreEqual(3, clientPeople[2].AddressId);
+				Assert.AreEqual("Bar", serverAddresses[1].Line1);
+				Assert.AreEqual("Bar", serverPeople[1].Name);
+				Assert.AreEqual("Bar", serverPeople[1].Address.Line1);
+				Assert.AreEqual(2, serverPeople[1].AddressId);
 			});
 		}
 
@@ -368,24 +356,22 @@ namespace Speedy.IntegrationTests
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
-				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-				{
-					var clientAddresses = clientDatabase.Addresses.ToList();
-					var clientPeople = clientDatabase.Accounts.ToList();
-					var serverAddresses = serverDatabase.Addresses.ToList();
-					var serverPeople = serverDatabase.Accounts.ToList();
+				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+				using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+				var clientAddresses = clientDatabase.Addresses.ToList();
+				var clientPeople = clientDatabase.Accounts.ToList();
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var serverPeople = serverDatabase.Accounts.ToList();
 
-					Assert.AreEqual(2, clientAddresses.Count);
-					Assert.AreEqual(2, clientPeople.Count);
-					Assert.AreEqual(2, serverAddresses.Count);
-					Assert.AreEqual(2, serverPeople.Count);
+				Assert.AreEqual(2, clientAddresses.Count);
+				Assert.AreEqual(2, clientPeople.Count);
+				Assert.AreEqual(2, serverAddresses.Count);
+				Assert.AreEqual(2, serverPeople.Count);
 
-					TestHelper.AreEqual(clientAddresses[0].Unwrap(), serverAddresses[0].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-					TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[1].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-					TestHelper.AreEqual(clientPeople[0].Unwrap(), serverPeople[0].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-					TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[1].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
-				}
+				TestHelper.AreEqual(clientAddresses[0].Unwrap(), serverAddresses[0].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[1].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[0].Unwrap(), serverPeople[0].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
+				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[1].Unwrap(), nameof(IModifiableEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn));
 			});
 		}
 
