@@ -45,11 +45,6 @@ namespace Speedy.EntityFramework
 
 			_collectionChangeTracker = new CollectionChangeTracker();
 			_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
-
-			if (Options.DetectSyncableRepositories)
-			{
-				DetectSyncableRepositories();
-			}
 		}
 
 		/// <summary>
@@ -65,11 +60,6 @@ namespace Speedy.EntityFramework
 
 			_collectionChangeTracker = new CollectionChangeTracker();
 			_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
-
-			if (Options.DetectSyncableRepositories)
-			{
-				DetectSyncableRepositories();
-			}
 		}
 
 		#endregion
@@ -144,23 +134,25 @@ namespace Speedy.EntityFramework
 		/// <inheritdoc />
 		public IEnumerable<ISyncableRepository> GetSyncableRepositories(SyncOptions options)
 		{
+			//
+			// NOTE: If you change this then update Speedy.Database
+			//
+
 			if (_syncableRepositories.Count <= 0)
 			{
 				// Refresh the syncable repositories
-				DetectSyncableRepositories();
+				DetectSyncableRepositories(options);
 			}
 
 			if (Options.SyncOrder.Length <= 0)
 			{
 				return _syncableRepositories
 					.Values
-					.Where(x => !options.ShouldFilterRepository(x.TypeName))
 					.ToList();
 			}
 
 			var order = Options.SyncOrder.Reverse().ToList();
 			var ordered = _syncableRepositories
-				.Where(x => !options.ShouldFilterRepository(x.Key))
 				.OrderBy(x => x.Key == order[0]);
 
 			var response = order
@@ -184,6 +176,13 @@ namespace Speedy.EntityFramework
 		/// <returns> The repository of entities requested. </returns>
 		public ISyncableRepository GetSyncableRepository(Type type)
 		{
+			var assemblyName = type.ToAssemblyName();
+
+			if (Options.SyncOrder.Length > 0 && !Options.SyncOrder.Contains(assemblyName))
+			{
+				return null;
+			}
+
 			if (_syncableRepositories.TryGetValue(type.ToAssemblyName(), out var repository))
 			{
 				return repository;
@@ -370,18 +369,25 @@ namespace Speedy.EntityFramework
 		/// <summary>
 		/// Reads all repositories and puts all the syncable ones in an internal list.
 		/// </summary>
-		private void DetectSyncableRepositories()
+		private void DetectSyncableRepositories(SyncOptions options)
 		{
 			var type = GetType();
-			var test = type.GetCachedProperties();
-			var properties = test.Where(x => x.PropertyType.Name == typeof(IRepository<,>).Name || x.PropertyType.Name == typeof(ISyncableRepository<,>).Name).ToList();
+			var syncEntityType = typeof(ISyncEntity);
+			var cachedProperties = type.GetCachedProperties();
+			var properties = cachedProperties.Where(x => x.PropertyType.Name == typeof(IRepository<,>).Name || x.PropertyType.Name == typeof(ISyncableRepository<,>).Name).ToList();
 
 			_syncableRepositories.Clear();
-			var syncEntityType = typeof(ISyncEntity);
 
-			foreach (var property in properties)
+			for (var i = 0; i < properties.Count; i++)
 			{
-				var genericType = property.PropertyType.GetGenericArguments().First();
+				var property = properties[i];
+				var genericType = property.PropertyType.GetCachedGenericArguments().First();
+				var assemblyName = genericType.ToAssemblyName();
+
+				if (options.ShouldFilterRepository(assemblyName))
+				{
+					continue;
+				}
 
 				if (!syncEntityType.IsAssignableFrom(genericType))
 				{

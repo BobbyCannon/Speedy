@@ -19,6 +19,46 @@ namespace Speedy.IntegrationTests
 		#region Methods
 
 		[TestMethod]
+		public void DetectSyncableRepositories()
+		{
+			var provider = GetDatabaseProvider();
+			using (var database = provider.GetDatabase())
+			{
+				var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
+				Assert.AreEqual(4, repositories.Count);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.AddressEntity,Speedy.Website.Samples", repositories[0].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.SettingEntity,Speedy.Website.Samples", repositories[1].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.AccountEntity,Speedy.Website.Samples", repositories[2].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.LogEventEntity,Speedy.Website.Samples", repositories[3].TypeName);
+			}
+
+			provider = GetDatabaseProvider();
+			using (var database = provider.GetDatabase())
+			{
+				var order = database.Options.SyncOrder.ToList();
+				order.RemoveAt(2);
+				database.Options.SyncOrder = order.ToArray();
+				var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
+				Assert.AreEqual(3, repositories.Count);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.AddressEntity,Speedy.Website.Samples", repositories[0].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.SettingEntity,Speedy.Website.Samples", repositories[1].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.LogEventEntity,Speedy.Website.Samples", repositories[2].TypeName);
+			}
+			
+			provider = GetDatabaseProvider();
+			using (var database = provider.GetDatabase())
+			{
+				database.Options.SyncOrder = new string[0];
+				var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
+				Assert.AreEqual(4, repositories.Count);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.LogEventEntity,Speedy.Website.Samples", repositories[0].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.SettingEntity,Speedy.Website.Samples", repositories[1].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.AddressEntity,Speedy.Website.Samples", repositories[2].TypeName);
+				Assert.AreEqual("Speedy.Website.Samples.Entities.AccountEntity,Speedy.Website.Samples", repositories[3].TypeName);
+			}
+		}
+
+		[TestMethod]
 		public void DetectSyncableRepository()
 		{
 			var provider = GetDatabaseProvider();

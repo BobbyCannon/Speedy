@@ -20,7 +20,6 @@ namespace Speedy
 		/// </summary>
 		public DatabaseOptions()
 		{
-			DetectSyncableRepositories = true;
 			DisableEntityValidations = false;
 			MaintainCreatedOn = true;
 			MaintainModifiedOn = true;
@@ -34,11 +33,6 @@ namespace Speedy
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// Gets or sets the flag to automatically detect syncable repositories.
-		/// </summary>
-		public bool DetectSyncableRepositories { get; set; }
 
 		/// <summary>
 		/// Gets or sets the flag to disable entity validations.
@@ -93,7 +87,6 @@ namespace Speedy
 				return;
 			}
 
-			this.IfThen(x => !exclusions.Contains(nameof(DetectSyncableRepositories)), x => x.DetectSyncableRepositories = update.DetectSyncableRepositories);
 			this.IfThen(x => !exclusions.Contains(nameof(DisableEntityValidations)), x => x.DisableEntityValidations = update.DisableEntityValidations);
 			this.IfThen(x => !exclusions.Contains(nameof(MaintainCreatedOn)), x => x.MaintainCreatedOn = update.MaintainCreatedOn);
 			this.IfThen(x => !exclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);

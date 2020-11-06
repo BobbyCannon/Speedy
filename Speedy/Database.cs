@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
@@ -29,6 +30,7 @@ namespace Speedy
 
 		private readonly CollectionChangeTracker _collectionChangeTracker;
 		private int _saveChangeCount;
+		private readonly ConcurrentDictionary<string, ISyncableRepository> _syncableRepositories;
 
 		#endregion
 
@@ -47,6 +49,7 @@ namespace Speedy
 			Repositories = new Dictionary<string, IDatabaseRepository>();
 
 			_collectionChangeTracker = new CollectionChangeTracker();
+			_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
 		}
 
 		#endregion
@@ -137,23 +140,31 @@ namespace Speedy
 		/// <inheritdoc />
 		public IEnumerable<ISyncableRepository> GetSyncableRepositories(SyncOptions options)
 		{
-			var syncableRepositories = Repositories.Where(x => x.Value is ISyncableRepository).ToList();
+			//
+			// NOTE: If you change this then update Speedy.EntityFramework.EntityFrameworkDatabase
+			//
+
+			if (_syncableRepositories.Count <= 0)
+			{
+				// Refresh the syncable repositories
+				DetectSyncableRepositories(options);
+			}
 
 			if (Options.SyncOrder.Length <= 0)
 			{
-				return syncableRepositories
-					.Select(x => x.Value)
-					.Cast<ISyncableRepository>()
-					.Where(x => !options.ShouldFilterRepository(x.TypeName))
+				return _syncableRepositories
+					.Values
 					.ToList();
 			}
 
-			var order = Options.SyncOrder.ToList();
-			
-			var response = syncableRepositories
-				.OrderBy(x => order.IndexOf(x.Key))
-				.Select(x => x.Value as ISyncableRepository)
-				.Where(x => x != null)
+			var order = Options.SyncOrder.Reverse().ToList();
+			var ordered = _syncableRepositories
+				.OrderBy(x => x.Key == order[0]);
+
+			var response = order
+				.Skip(1)
+				.Aggregate(ordered, (current, key) => current.ThenBy(x => x.Key == key))
+				.Select(x => x.Value)
 				.ToList();
 
 			return response;
@@ -500,6 +511,34 @@ namespace Speedy
 
 				var message = $"The association between entity types '{entity.RealType.Name}' and '{configuration.TypeName}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.";
 				throw new InvalidOperationException(message);
+			}
+		}
+
+		private void DetectSyncableRepositories(SyncOptions options)
+		{
+			var order = Options.SyncOrder.ToList();
+			var syncableRepositories = Repositories
+				.Where(x => x.Value is ISyncableRepository)
+				.ToList();
+
+			_syncableRepositories.Clear();
+
+			var repositories = Options.SyncOrder.Length <= 0
+				? syncableRepositories
+					.Select(x => x.Value)
+					.Cast<ISyncableRepository>()
+					.Where(x => !options.ShouldFilterRepository(x.TypeName))
+					.ToList()
+				: syncableRepositories
+					.Where(x => order.Contains(x.Key))
+					.OrderBy(x => order.IndexOf(x.Key))
+					.Select(x => x.Value as ISyncableRepository)
+					.Where(x => x != null)
+					.ToList();
+
+			foreach (var i in repositories)
+			{
+				_syncableRepositories.TryAdd(i.TypeName, i);
 			}
 		}
 

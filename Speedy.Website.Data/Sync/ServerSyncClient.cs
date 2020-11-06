@@ -115,7 +115,7 @@ namespace Speedy.Website.Samples.Sync
 			var syncOptions = new SyncOptions
 			{
 				IncludeIssueDetails = _account.InRole(AccountRole.Administrator),
-				ItemsPerSyncRequest = options.ItemsPerSyncRequest > 6000 ? 6000 : options.ItemsPerSyncRequest,
+				ItemsPerSyncRequest = options.ItemsPerSyncRequest > 300 ? 300 : options.ItemsPerSyncRequest,
 				PermanentDeletions = false,
 				LastSyncedOnClient = options.LastSyncedOnClient,
 				LastSyncedOnServer = options.LastSyncedOnServer
