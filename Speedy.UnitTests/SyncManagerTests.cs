@@ -53,8 +53,9 @@ namespace Speedy.UnitTests
 			Assert.IsTrue(manager.IsRunning, "The sync manager should still be running");
 
 			manager.CancelSync();
+			Assert.IsTrue(manager.IsCancellationPending, "The sync should be pending cancellation");
 
-			Assert.IsFalse(manager.IsCancellationPending, "The sync should be pending cancellation");
+			manager.WaitForSyncToComplete();
 			Assert.IsFalse(manager.IsRunning, "The sync manager should not be running because it was cancelled");
 
 			Assert.IsNotNull(firstSyncOptions, "First sync options should not be null");
@@ -66,8 +67,7 @@ namespace Speedy.UnitTests
 				"Sync All is already running so Sync Accounts not started.",
 				"Cancelling running Sync All...",
 				"Syncing All for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"Sync All stopped. 00:12.000",
-				"The Sync All has been cancelled"
+				"Sync All stopped. 00:12.000"
 			};
 
 			var actual = logListener.Events.Select(x => x.GetMessage()).ToArray();

@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 

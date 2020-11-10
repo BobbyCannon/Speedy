@@ -1,11 +1,4 @@
-﻿#region References
-
-using System;
-using Speedy.Net;
-
-#endregion
-
-namespace Speedy.Sync
+﻿namespace Speedy.Sync
 {
 	/// <summary>
 	/// Represents a sync client.
