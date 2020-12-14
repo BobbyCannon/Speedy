@@ -120,6 +120,9 @@ namespace Speedy.Sync
 		/// </summary>
 		public abstract Version SyncSystemVersion { get; }
 
+		/// <summary>
+		/// The type of the sync.
+		/// </summary>
 		public T SyncType { get; private set; }
 
 		/// <summary>

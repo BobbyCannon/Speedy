@@ -70,6 +70,7 @@ namespace Speedy
 	{
 		#region Fields
 
+		private bool _pausePropertyChanged;
 		private Type _realType;
 
 		#endregion
@@ -113,11 +114,26 @@ namespace Speedy
 		#region Methods
 
 		/// <summary>
+		/// Return true if the change notifications are paused or otherwise false.
+		/// </summary>
+		public virtual bool IsChangeNotificationsPaused()
+		{
+			return _pausePropertyChanged;
+		}
+
+		/// <summary>
 		/// Indicates the property has changed on the bindable object.
 		/// </summary>
 		/// <param name="propertyName"> The name of the property has changed. </param>
 		public virtual void OnPropertyChanged(string propertyName = null)
 		{
+			// Ensure we have not paused property notifications
+			if (_pausePropertyChanged)
+			{
+				// Property change notifications have been paused so bounce
+				return;
+			}
+
 			// todo: move this to another virtual method that would then be called by this on property changed
 			// I had to move this dispatcher code up. Also would be nice to only dispatch specific properties, right?
 
@@ -133,6 +149,14 @@ namespace Speedy
 			}
 
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		/// <summary>
+		/// Pause / Un-pause the property change notifications
+		/// </summary>
+		public virtual void PausePropertyChangeNotifications(bool pause = true)
+		{
+			_pausePropertyChanged = pause;
 		}
 
 		/// <summary>
