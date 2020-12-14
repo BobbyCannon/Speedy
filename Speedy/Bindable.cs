@@ -159,10 +159,13 @@ namespace Speedy
 			_pausePropertyChanged = pause;
 		}
 
-		/// <summary>
-		/// Updates the entity for this entity.
-		/// </summary>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <inheritdoc />
+		public IDispatcher GetDispatcher()
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <inheritdoc />
 		public virtual void UpdateDispatcher(IDispatcher dispatcher)
 		{
 			Dispatcher = dispatcher;

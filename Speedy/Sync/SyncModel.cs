@@ -54,10 +54,13 @@ namespace Speedy.Sync
 			base.OnPropertyChanged(propertyName);
 		}
 
-		/// <summary>
-		/// Updates the entity for this entity.
-		/// </summary>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <inheritdoc />
+		public IDispatcher GetDispatcher()
+		{
+			return Dispatcher;
+		}
+
+		/// <inheritdoc />
 		public virtual void UpdateDispatcher(IDispatcher dispatcher)
 		{
 			Dispatcher = dispatcher;
