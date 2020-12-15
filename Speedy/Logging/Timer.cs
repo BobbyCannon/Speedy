@@ -63,22 +63,13 @@ namespace Speedy.Logging
 		#region Methods
 
 		/// <summary>
-		/// Gets the current time for the timer.
-		/// </summary>
-		/// <returns> The current time. </returns>
-		protected virtual DateTime GetCurrentTime()
-		{
-			return TimeService.UtcNow;
-		}
-
-		/// <summary>
 		/// Reset the timer.
 		/// </summary>
 		public virtual void Reset()
 		{
 			Reset(TimeSpan.Zero);
 		}
-		
+
 		/// <summary>
 		/// Reset the time while provided an elapsed timer.
 		/// </summary>
@@ -107,15 +98,6 @@ namespace Speedy.Logging
 			_elapsed = TimeSpan.Zero;
 
 			StartedOn = dateTime;
-		}
-
-		/// <summary>
-		/// The current running elapsed time.
-		/// </summary>
-		/// <returns> The running elapsed time. </returns>
-		private TimeSpan RunningElapsed()
-		{
-			return GetCurrentTime() - StartedOn;
 		}
 
 		/// <summary>
@@ -166,6 +148,24 @@ namespace Speedy.Logging
 			}
 
 			StartedOn = DateTime.MinValue;
+		}
+
+		/// <summary>
+		/// Gets the current time for the timer.
+		/// </summary>
+		/// <returns> The current time. </returns>
+		protected virtual DateTime GetCurrentTime()
+		{
+			return TimeService.UtcNow;
+		}
+
+		/// <summary>
+		/// The current running elapsed time.
+		/// </summary>
+		/// <returns> The running elapsed time. </returns>
+		private TimeSpan RunningElapsed()
+		{
+			return GetCurrentTime() - StartedOn;
 		}
 
 		#endregion

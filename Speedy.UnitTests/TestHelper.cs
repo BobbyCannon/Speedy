@@ -106,7 +106,7 @@ namespace Speedy.UnitTests
 			Console.WriteLine(action(item));
 		}
 
-		public static void ExpectedException<T>(Action work, params string[] errorMessage) where T : Exception
+		public static void ExpectedException<T>(Action work, params string[] messages) where T : Exception
 		{
 			try
 			{
@@ -114,10 +114,12 @@ namespace Speedy.UnitTests
 			}
 			catch (T ex)
 			{
-				var details = ex.ToDetailedString();
-				if (!errorMessage.Any(x => details.Contains(x)))
+				var detailedException = ex.ToDetailedString();
+				var allErrors = "\"" + string.Join("\", \"", messages) + "\"";
+				
+				if (!messages.Any(x => detailedException.Contains(x)))
 				{
-					Assert.Fail("Exception message did not contain expected error.");
+					Assert.Fail("Actual <" + detailedException + "> does not contain expected <" + allErrors + ">.");
 				}
 				return;
 			}

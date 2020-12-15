@@ -36,7 +36,7 @@ namespace Speedy.Extensions
 
 			dictionary.Add(key, value);
 		}
-		
+
 		/// <summary>
 		/// Add or update a dictionary entry.
 		/// </summary>
@@ -46,7 +46,7 @@ namespace Speedy.Extensions
 		/// <param name="key"> The value of the key. </param>
 		/// <param name="get"> The function to get the value. </param>
 		/// <param name="update"> The function to update the value. </param>
-		public static void AddOrUpdate<T1, T2>(this IDictionary<T1, T2> dictionary, T1 key, Func<T2> get, Func<T2,T2> update)
+		public static void AddOrUpdate<T1, T2>(this IDictionary<T1, T2> dictionary, T1 key, Func<T2> get, Func<T2, T2> update)
 		{
 			if (dictionary.ContainsKey(key))
 			{

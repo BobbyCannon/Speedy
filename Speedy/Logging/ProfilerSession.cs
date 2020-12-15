@@ -58,7 +58,7 @@ namespace Speedy.Logging
 		/// </summary>
 		public virtual void Stop()
 		{
-			StoppedOn = DateTime.UtcNow;
+			StoppedOn = TimeService.UtcNow;
 		}
 
 		/// <inheritdoc />

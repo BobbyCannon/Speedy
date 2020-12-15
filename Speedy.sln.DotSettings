@@ -614,6 +614,7 @@ public static void ClassInitialize(TestContext context)&#xD;
 	&lt;TextBlock Text="$Name$" /&gt;&#xD;
 &lt;/StackPanel&gt;</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=bindable/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Bitness/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=CHECKIDENT/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Contoso/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=dataset/@EntryIndexedValue">True</s:Boolean>
