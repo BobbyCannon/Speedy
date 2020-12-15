@@ -1,12 +1,12 @@
 ﻿#region References
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Logging;
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Profiling;
 
 #endregion
 
-namespace Speedy.UnitTests.Logging
+namespace Speedy.UnitTests.Profiling
 {
 	[TestClass]
 	public class TimerTests : BaseTests

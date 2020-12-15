@@ -11,6 +11,7 @@ using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
+using Speedy.Profiling;
 
 #endregion
 

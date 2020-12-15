@@ -4,26 +4,26 @@ using System;
 
 #endregion
 
-namespace Speedy.Logging
+namespace Speedy.Profiling
 {
 	/// <summary>
-	/// Represents a value for an event.
+	/// Represents a value for a tracker path.
 	/// </summary>
-	public class EventValue
+	public class TrackerPathValue
 	{
 		#region Constructors
 
 		/// <summary>
 		/// Instantiates a new instance of the class.
 		/// </summary>
-		public EventValue()
+		public TrackerPathValue()
 		{
 		}
 
 		/// <summary>
 		/// Instantiates a new instance of the class.
 		/// </summary>
-		public EventValue(string name, object value)
+		public TrackerPathValue(string name, object value)
 		{
 			if (name == null)
 			{

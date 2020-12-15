@@ -7,7 +7,7 @@ using System.Linq;
 
 #endregion
 
-namespace Speedy.Logging
+namespace Speedy.Profiling
 {
 	/// <summary>
 	/// Average timer for tracking the average processing time of work.

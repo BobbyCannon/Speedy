@@ -58,6 +58,12 @@ namespace Speedy.EntityFramework
 
 				foreach (var property in entityProperties)
 				{
+					// Ignore shadow properties
+					if (property.GetShadowIndex() >= 0)
+					{
+						continue;
+					}
+					
 					// Builds the 'Property' method
 					// ex. database.Property<AddressEntity, long>(x => x.City).IsRequired().HasMaximumLength(256);
 					var propertyAnnotations = property.GetAnnotations();
@@ -78,8 +84,7 @@ namespace Speedy.EntityFramework
 
 					foreach (var mutableIndex in indexes.Where(x => x.IsUnique && x.Properties.Any(p => p.Name == property.Name)))
 					{
-						var index = mutableIndex as Index;
-						if (index == null)
+						if (mutableIndex is not Index index)
 						{
 							continue;
 						}
@@ -125,6 +130,13 @@ namespace Speedy.EntityFramework
 						
 						case DeleteBehavior.Cascade:
 							configuration.OnDelete(RelationshipDeleteBehavior.Cascade);
+							break;
+						
+						case DeleteBehavior.ClientCascade:
+						case DeleteBehavior.ClientNoAction:
+						case DeleteBehavior.NoAction:
+						default:
+							// Do nothing right now.
 							break;
 					}
 				}

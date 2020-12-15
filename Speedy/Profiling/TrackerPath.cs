@@ -7,27 +7,27 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.Logging
+namespace Speedy.Profiling
 {
 	/// <summary>
-	/// Represents an event.
+	/// Represents an tracker path.
 	/// </summary>
-	public class Event : IDisposable
+	public class TrackerPath : IDisposable
 	{
 		#region Constructors
 
 		/// <summary>
 		/// Instantiates a new instance of the class.
 		/// </summary>
-		public Event()
+		public TrackerPath()
 		{
 			var currentTime = TimeService.UtcNow;
-			Children = new List<Event>();
+			Children = new List<TrackerPath>();
 			CompletedOn = currentTime;
 			Id = Guid.NewGuid();
 			Name = string.Empty;
 			StartedOn = currentTime;
-			Values = new List<EventValue>();
+			Values = new List<TrackerPathValue>();
 		}
 
 		#endregion
@@ -35,12 +35,12 @@ namespace Speedy.Logging
 		#region Properties
 
 		/// <summary>
-		/// Gets or set the child events.
+		/// Gets or set the child paths.
 		/// </summary>
-		public ICollection<Event> Children { get; set; }
+		public ICollection<TrackerPath> Children { get; set; }
 
 		/// <summary>
-		/// Gets or set the date and time the event was completed.
+		/// Gets or set the date and time the path was completed.
 		/// </summary>
 		public DateTime CompletedOn { get; set; }
 
@@ -60,7 +60,7 @@ namespace Speedy.Logging
 		public Guid Id { get; set; }
 
 		/// <summary>
-		/// Returns true if the event has been completed.
+		/// Returns true if the path has been completed.
 		/// </summary>
 		public bool IsCompleted { get; set; }
 
@@ -75,58 +75,58 @@ namespace Speedy.Logging
 		public Guid ParentId { get; set; }
 
 		/// <summary>
-		/// Gets or set the date and time the event was started.
+		/// Gets or set the date and time the path was started.
 		/// </summary>
 		public DateTime StartedOn { get; set; }
 
 		/// <summary>
-		/// Gets or sets the event type.
+		/// Gets or sets the path type.
 		/// </summary>
 		public string Type { get; set; }
 
 		/// <summary>
 		/// Gets or sets the values.
 		/// </summary>
-		public ICollection<EventValue> Values { get; set; }
+		public ICollection<TrackerPathValue> Values { get; set; }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Adds a child event to this event.
+		/// Adds a child path to this path.
 		/// </summary>
-		/// <param name="name"> The name of the event. </param>
-		/// <param name="values"> Optional values for this event. </param>
-		public void AddEvent(string name, params EventValue[] values)
+		/// <param name="name"> The name of the path. </param>
+		/// <param name="values"> Optional values for this path. </param>
+		public void AddEvent(string name, params TrackerPathValue[] values)
 		{
-			Children.Add(new Event { ParentId = Id, Name = name, Values = values.ToList() });
+			Children.Add(new TrackerPath { ParentId = Id, Name = name, Values = values.ToList() });
 		}
 
 		/// <summary>
-		/// Adds an exception to this event.
+		/// Adds an exception to this path.
 		/// </summary>
-		/// <param name="exception"> The exception to be added to the event. </param>
+		/// <param name="exception"> The exception to be added to the path. </param>
 		/// <param name="values"> Optional values for this exception. </param>
-		public void AddException(Exception exception, params EventValue[] values)
+		public void AddException(Exception exception, params TrackerPathValue[] values)
 		{
 			Children.Add(FromException(Id, exception, values));
 		}
 
 		/// <summary>
-		/// Adds a value to this event.
+		/// Adds a value to this path.
 		/// </summary>
 		/// <param name="name"> The name of this value. </param>
 		/// <param name="value"> The value of this value. </param>
 		public void AddValue(string name, string value)
 		{
-			Values.Add(new EventValue { Name = name, Value = value });
+			Values.Add(new TrackerPathValue { Name = name, Value = value });
 		}
 
 		/// <summary>
-		/// Completes the event and adds it to the event or tracker.
+		/// Completes the path and adds it to the path or tracker.
 		/// </summary>
-		public Event Complete()
+		public TrackerPath Complete()
 		{
 			IsCompleted = true;
 			CompletedOn = TimeService.UtcNow;
@@ -145,27 +145,27 @@ namespace Speedy.Logging
 		}
 
 		/// <summary>
-		/// Starts a new event. The event will need to be completed or disposed before it will be added to the tracker.
+		/// Starts a new path. The path will need to be completed or disposed before it will be added to the tracker.
 		/// </summary>
-		/// <param name="parentId"> The ID of the parent for this event. </param>
-		/// <param name="ex"> The exception to be turned into an event. </param>
-		/// <param name="values"> Optional values for this event. </param>
-		/// <returns> The event for tracking an event. </returns>
-		public static Event FromException(Guid parentId, Exception ex, params EventValue[] values)
+		/// <param name="parentId"> The ID of the parent for this path. </param>
+		/// <param name="ex"> The exception to be turned into an path. </param>
+		/// <param name="values"> Optional values for this path. </param>
+		/// <returns> The path for tracking an path. </returns>
+		public static TrackerPath FromException(Guid parentId, Exception ex, params TrackerPathValue[] values)
 		{
 			if (ex == null)
 			{
 				throw new ArgumentNullException(nameof(ex), "The exception cannot be null.");
 			}
 
-			var eventValues = new List<EventValue>(values);
-			eventValues.AddOrUpdate(new EventValue("Message", ex.Message), new EventValue("Stack Trace", ex.StackTrace ?? string.Empty));
+			var pathValues = new List<TrackerPathValue>(values);
+			pathValues.AddOrUpdate(new TrackerPathValue("Message", ex.Message), new TrackerPathValue("Stack Trace", ex.StackTrace ?? string.Empty));
 
-			var response = new Event
+			var response = new TrackerPath
 			{
 				ParentId = parentId,
 				Name = ex.GetType().Name,
-				Values = eventValues.ToList(),
+				Values = pathValues.ToList(),
 				Type = "Exception"
 			};
 
@@ -180,11 +180,11 @@ namespace Speedy.Logging
 		}
 
 		/// <summary>
-		/// Process an action and then add the event.
+		/// Process an action and then add the path.
 		/// </summary>
-		/// <param name="key"> The key for the event. </param>
+		/// <param name="key"> The key for the path. </param>
 		/// <param name="action"> The action to process. </param>
-		public void Process(Func<string> key, Action<Event> action)
+		public void Process(Func<string> key, Action<TrackerPath> action)
 		{
 			if (IsCompleted)
 			{
@@ -192,40 +192,40 @@ namespace Speedy.Logging
 				return;
 			}
 
-			using var result = new Event { Name = key(), StartedOn = TimeService.UtcNow };
+			using var result = new TrackerPath { Name = key(), StartedOn = TimeService.UtcNow };
 			action(result);
 			Children.Add(result);
 		}
 
 		/// <summary>
-		/// Process an action and then add the event.
+		/// Process an action and then add the path.
 		/// </summary>
 		/// <typeparam name="T"> The type of the response for the action. </typeparam>
-		/// <param name="key"> The key for the event. </param>
+		/// <param name="key"> The key for the path. </param>
 		/// <param name="action"> The action to process. </param>
 		/// <returns> The result of the action. </returns>
-		public T Process<T>(Func<string> key, Func<Event, T> action)
+		public T Process<T>(Func<string> key, Func<TrackerPath, T> action)
 		{
 			if (IsCompleted)
 			{
 				return action(this);
 			}
 
-			using var result = new Event { Name = key(), StartedOn = TimeService.UtcNow };
+			using var result = new TrackerPath { Name = key(), StartedOn = TimeService.UtcNow };
 			var response = action(result);
 			Children.Add(result);
 			return response;
 		}
 
 		/// <summary>
-		/// Starts a new event. Once the event is done be sure to call <seealso cref="Complete" />.
+		/// Starts a new path. Once the path is done be sure to call <seealso cref="Complete" />.
 		/// </summary>
-		/// <param name="name"> The name of the event. </param>
-		/// <param name="values"> Optional values for this event. </param>
-		/// <returns> The event for tracking an event. </returns>
-		public Event StartEvent(Func<string> name, params EventValue[] values)
+		/// <param name="name"> The name of the path. </param>
+		/// <param name="values"> Optional values for this path. </param>
+		/// <returns> The path for tracking an path. </returns>
+		public TrackerPath StartNewPath(Func<string> name, params TrackerPathValue[] values)
 		{
-			var response = new Event { ParentId = Id, Name = name(), Values = values.ToList() };
+			var response = new TrackerPath { ParentId = Id, Name = name(), Values = values.ToList() };
 			response.Completed += x => { Children.Add(x); };
 			return response;
 		}
@@ -249,9 +249,9 @@ namespace Speedy.Logging
 		#region Events
 
 		/// <summary>
-		/// Occurs when the event is completed.
+		/// Occurs when the path is completed.
 		/// </summary>
-		internal event Action<Event> Completed;
+		internal event Action<TrackerPath> Completed;
 
 		#endregion
 	}

@@ -51,6 +51,8 @@ namespace Speedy.Website.Samples
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets => GetRepository<PetEntity, (string Name, int OwnerId)>();
 		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
 		public IRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
+		public IRepository<TrackerPathEntity, long> TrackerPaths => GetRepository<TrackerPathEntity, long>();
+		public IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations => GetRepository<TrackerPathConfigurationEntity, int>();
 
 		#endregion
 
@@ -138,7 +140,7 @@ namespace Speedy.Website.Samples
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			ConfigureDatabaseOptions(optionsBuilder);
-			
+
 			base.OnConfiguring(optionsBuilder);
 		}
 

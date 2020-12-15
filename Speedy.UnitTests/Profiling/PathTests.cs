@@ -2,14 +2,14 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Logging;
+using Speedy.Profiling;
 
 #endregion
 
-namespace Speedy.UnitTests.Logging
+namespace Speedy.UnitTests.Profiling
 {
 	[TestClass]
-	public class EventTests
+	public class PathTests
 	{
 		#region Methods
 
@@ -21,15 +21,15 @@ namespace Speedy.UnitTests.Logging
 			// ReSharper disable once AccessToModifiedClosure
 			TimeService.UtcNowProvider = () => currentTime;
 
-			var e = new Event();
-			Assert.AreEqual(false, e.IsCompleted);
-			Assert.AreEqual(0, e.ElapsedTime.Ticks);
+			var path = new TrackerPath();
+			Assert.AreEqual(false, path.IsCompleted);
+			Assert.AreEqual(0, path.ElapsedTime.Ticks);
 
 			currentTime = currentTime.AddMilliseconds(1);
 
-			e.Complete();
-			Assert.AreEqual(true, e.IsCompleted);
-			Assert.AreEqual(1, e.ElapsedTime.TotalMilliseconds);
+			path.Complete();
+			Assert.AreEqual(true, path.IsCompleted);
+			Assert.AreEqual(1, path.ElapsedTime.TotalMilliseconds);
 		}
 
 		#endregion

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Logging;
+using Speedy.Profiling;
 
 #endregion
 

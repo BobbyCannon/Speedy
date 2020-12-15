@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Speedy.Logging
+namespace Speedy.Profiling
 {
 	/// <summary>
 	/// Read only results for the profiler.

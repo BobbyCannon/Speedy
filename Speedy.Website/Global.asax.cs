@@ -10,6 +10,8 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Speedy.Profiling;
+using Speedy.Storage.KeyValue;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Samples;
 using Speedy.Website.Services;
@@ -24,6 +26,8 @@ namespace Speedy.Website
 		#region Properties
 
 		public static string ConnectionString => ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+
+		public static Tracker Tracker { get; private set; }
 
 		#endregion
 
@@ -53,6 +57,12 @@ namespace Speedy.Website
 			}
 
 			RoleService.Timeout = TimeSpan.FromSeconds(int.TryParse(ConfigurationManager.AppSettings["RoleCacheTimeout"], out var timeout) ? timeout : 60);
+			
+			var appDataPath = HttpContext.Current.Server.MapPath("~/App_Data/Analytics");
+			var client = new TrackerService(new DatabaseProvider<IContosoDatabase>(GetDatabase));
+			var provider = new KeyValueRepositoryProvider<TrackerPath>(appDataPath);
+
+			Tracker = Tracker.Start(client, provider);
 		}
 
 		#endregion

@@ -354,6 +354,7 @@
     <Compile Include="Services\FormsAuthenticationService.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
     <Compile Include="Services\RoleService.cs" />
+    <Compile Include="Services\TrackerService.cs" />
     <Compile Include="Services\ViewService.cs" />
     <Compile Include="ViewModels\AccountView.cs" />
     <Compile Include="WebApi\BaseController.cs" />

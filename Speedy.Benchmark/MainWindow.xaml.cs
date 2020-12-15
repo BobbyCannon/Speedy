@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.Windows.Controls;
+using Speedy.Profiling;
 
 #endregion
 
@@ -17,7 +18,7 @@ namespace Speedy.Benchmark
 		{
 			InitializeComponent();
 
-			Logging.Profiler.Enabled = true;
+			Profiler.Enabled = true;
 
 			var dispatcher = new InterfaceDispatcher(Dispatcher);
 			ViewModel = new MainViewModel(dispatcher);

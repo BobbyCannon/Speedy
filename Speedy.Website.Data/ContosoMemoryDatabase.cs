@@ -23,6 +23,8 @@ namespace Speedy.Website.Samples
 			Pets = GetRepository<PetEntity, (string Name, int OwnerId)>();
 			PetTypes = GetRepository<PetTypeEntity, string>();
 			Settings = GetSyncableRepository<SettingEntity, long>();
+			TrackerPaths = GetRepository<TrackerPathEntity, long>();
+			TrackerPathConfigurations = GetRepository<TrackerPathConfigurationEntity, int>();
 
 			ContosoDatabase.SetRequiredOptions(Options);
 
@@ -43,6 +45,8 @@ namespace Speedy.Website.Samples
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		public IRepository<PetTypeEntity, string> PetTypes { get; }
 		public IRepository<SettingEntity, long> Settings { get; }
+		public IRepository<TrackerPathEntity, long> TrackerPaths { get; }
+		public IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations { get; }
 
 		#endregion
 	}
