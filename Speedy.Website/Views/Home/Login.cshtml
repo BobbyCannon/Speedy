@@ -31,10 +31,10 @@
 				</tr>
 				<tr>
 					<td colspan="2" class="text-center" style="max-width: 250px">
-						@if (Request.QueryString["error"] != null)
+						@if (Context.Request.Query.ContainsKey("error"))
 						{
 							<div class="burgundy-bg white padding-4">
-								@Request.QueryString["error"]
+								@Context.Request.Query["error"]
 							</div>
 						}
 						@Html.ValidationSummary()

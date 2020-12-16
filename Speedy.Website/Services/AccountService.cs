@@ -1,18 +1,13 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Speedy.Data;
-using Speedy.Data.WebApi;
 using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
-using Speedy.Website.Samples.Enumerations;
 
 #endregion
 
@@ -20,15 +15,9 @@ namespace Speedy.Website.Services
 {
 	public class AccountService : BaseService
 	{
-		#region Constants
-
-		public const string EmptyRoles = ",,";
-
-		#endregion
-
 		#region Constructors
 
-		public AccountService(IContosoDatabase database, AccountEntity account) : base(database, account)
+		public AccountService(IContosoDatabase database, AccountEntity account = null) : base(database, account)
 		{
 		}
 
@@ -74,28 +63,6 @@ namespace Speedy.Website.Services
 			Database.Options.MaintainModifiedOn = previousValue;
 
 			return user;
-		}
-
-		public static string CreateSalt()
-		{
-			var saltBytes = new byte[24];
-			using var rng = new RNGCryptoServiceProvider();
-			rng.GetBytes(saltBytes);
-			return Convert.ToBase64String(saltBytes);
-		}
-
-		
-		public Account GetAccount(int id)
-		{
-			ValidateAccountAsAdministrator();
-
-			var user = Database.Accounts.FirstOrDefault(x => x.Id == id);
-			if (user == null)
-			{
-				throw new InvalidOperationException(Constants.IdIsInvalid);
-			}
-
-			return ToModel(user);
 		}
 
 		public static string Hash(string password, string salt)

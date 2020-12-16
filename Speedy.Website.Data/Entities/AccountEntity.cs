@@ -77,6 +77,21 @@ namespace Speedy.Website.Samples.Entities
 			return $"{Id};{Name}";
 		}
 
+		public IEnumerable<string> GetRoles()
+		{
+			return string.IsNullOrEmpty(Roles) ? new string[0] : Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+		}
+
+		public bool InRole(params AccountRole[] roles)
+		{
+			return roles.Any(x => InRole(x.ToString()));
+		}
+
+		public bool InRole(string roleName)
+		{
+			return GetRoles().Any(x => x.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+		}
+
 		/// <summary>
 		/// Splits the roles from the custom format into an array.
 		/// </summary>
@@ -120,21 +135,6 @@ namespace Speedy.Website.Samples.Entities
 			return base.GetDefaultExclusionsForSyncUpdate()
 				.Append(GetDefaultExclusionsForIncomingSync())
 				.Append(nameof(IsDeleted), nameof(LastLoginDate));
-		}
-
-		public IEnumerable<string> GetRoles()
-		{
-			return string.IsNullOrEmpty(Roles) ? new string[0] : Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
-		}
-
-		public bool InRole(params AccountRole[] roles)
-		{
-			return roles.Any(x => InRole(x.ToString()));
-		}
-
-		public bool InRole(string roleName)
-		{
-			return GetRoles().Any(x => x.Equals(roleName, StringComparison.OrdinalIgnoreCase));
 		}
 
 		#endregion

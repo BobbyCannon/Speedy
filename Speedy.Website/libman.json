@@ -1,0 +1,35 @@
+﻿{
+	"version": "1.0",
+	"defaultProvider": "cdnjs",
+	"libraries": [
+		{
+			"library": "jquery@3.4.1",
+			"destination": "wwwroot/lib/jquery"
+		},
+		{
+			"library": "toastr.js@2.1.4",
+			"destination": "wwwroot/lib/toastr"
+		},
+		{
+			"library": "moment.js@2.24.0",
+			"destination": "wwwroot/lib/moment",
+			"files": ["moment.js"]
+		},
+		{
+			"library": "aspnet-signalr@1.1.4",
+			"destination": "wwwroot/lib/signalr"
+		},
+		{
+			"library": "vue@2.6.11",
+			"destination": "wwwroot/lib/vue"
+		},
+		{
+			"library": "vue-resource@1.5.1",
+			"destination": "wwwroot/lib/vue-resource"
+		},
+		{
+			"library": "underscore.js@1.9.1",
+			"destination": "wwwroot/lib/underscore"
+		}
+	]
+}

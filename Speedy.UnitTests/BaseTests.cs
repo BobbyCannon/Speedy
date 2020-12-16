@@ -1,6 +1,7 @@
 ﻿#region References
 
-using System.Windows.Forms;
+using System.Threading;
+using System.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
@@ -17,9 +18,17 @@ namespace Speedy.UnitTests
 			TestHelper.Initialize();
 		}
 
+		protected void ClipboardSetText(string value)
+		{
+			var thread = new Thread(() => Clipboard.SetText(value));
+			thread.SetApartmentState(ApartmentState.STA);
+			thread.Start();
+			thread.Join();
+		}
+
 		protected string GetMessageAndCopy(string actual)
 		{
-			Clipboard.SetText(actual);
+			ClipboardSetText(actual);
 			return actual;
 		}
 

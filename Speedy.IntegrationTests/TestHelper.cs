@@ -6,10 +6,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,7 +22,6 @@ using Speedy.Data;
 using Speedy.Data.WebApi;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
-using Speedy.IntegrationTests.Properties;
 using Speedy.Net;
 using Speedy.Sync;
 using Speedy.Website.Data.Sql;
@@ -78,6 +81,8 @@ namespace Speedy.IntegrationTests
 		#endregion
 
 		#region Properties
+
+		public static string ClearDatabaseScript => "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'SET QUOTED_IDENTIFIER ON; IF ''?'' NOT LIKE ''%MigrationHistory%'' AND ''?'' NOT LIKE ''%MigrationsHistory%'' DELETE FROM ?'\r\nEXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'IF OBJECTPROPERTY(object_id(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'";
 
 		public static string DefaultSqlConnection { get; }
 
@@ -168,7 +173,7 @@ namespace Speedy.IntegrationTests
 
 		public static T ClearDatabase<T>(this T database) where T : EntityFrameworkDatabase
 		{
-			database.Database.ExecuteSqlRaw(Resources.ClearDatabase);
+			database.Database.ExecuteSqlRaw(ClearDatabaseScript);
 			return database;
 		}
 
@@ -243,12 +248,14 @@ namespace Speedy.IntegrationTests
 			dispatcher.Setup(x => x.HasThreadAccess).Returns(true);
 			return dispatcher.Object;
 		}
-
-		public static IPrincipal GetIdentity(int id, string name)
+		
+		public static ControllerContext GetControllerContext(AccountEntity account)
 		{
-			var response = new Mock<IPrincipal>();
-			response.SetupGet(x => x.Identity).Returns(() => new GenericIdentity($"{id};{name}"));
-			return response.Object;
+			var ticket = AuthenticationService.CreateTicket(account, true, CookieAuthenticationDefaults.AuthenticationScheme);
+			return new ControllerContext
+			{
+				HttpContext = new DefaultHttpContext { User = ticket.Principal }
+			};
 		}
 
 		public static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(DatabaseOptions options = null, bool initialized = true)
@@ -480,7 +487,7 @@ namespace Speedy.IntegrationTests
 				Name = "Administrator",
 				EmailAddress = AdministratorEmailAddress,
 				PasswordHash = AccountService.Hash(AdministratorPassword, AdministratorId.ToString()),
-				Roles = BaseService.CombineRoles(AccountRole.Administrator),
+				Roles = BaseService.CombineTags(AccountRole.Administrator),
 				SyncId = Guid.Parse("56CF7B5C-4C5A-462C-939D-A1F387A7483C")
 			});
 

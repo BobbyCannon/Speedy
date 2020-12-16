@@ -1,6 +1,6 @@
 ﻿#region References
 
-using System.Security.Principal;
+using System.Security.Claims;
 using Speedy.Data;
 using Speedy.Website.Samples.Entities;
 
@@ -12,8 +12,8 @@ namespace Speedy.Website.Services
 	{
 		#region Properties
 
-		IIdentity Identity { get; }
 		bool IsAuthenticated { get; }
+		ClaimsPrincipal User { get; }
 		int UserId { get; }
 		string UserName { get; }
 
@@ -22,8 +22,8 @@ namespace Speedy.Website.Services
 		#region Methods
 
 		bool LogIn(Credentials credentials);
+		void LogIn(AccountEntity account);
 		void LogOut();
-		void UpdateLogin(AccountEntity account);
 
 		#endregion
 	}

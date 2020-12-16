@@ -148,6 +148,7 @@ namespace Speedy.EntityFramework
 			{
 				return _syncableRepositories
 					.Values
+					.OrderBy(x => x.TypeName)
 					.ToList();
 			}
 

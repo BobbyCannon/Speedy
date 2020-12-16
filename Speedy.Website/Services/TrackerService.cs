@@ -170,11 +170,12 @@ namespace Speedy.Website.Services
 
 		private void WriteEventsIndividually(IEnumerable<TrackerPath> events)
 		{
+			using var database = _provider.GetDatabase();
+
 			foreach (var x in events)
 			{
 				try
 				{
-					using var database = _provider.GetDatabase();
 					AddOrUpdateEvent(database, x, null);
 					database.SaveChanges();
 				}

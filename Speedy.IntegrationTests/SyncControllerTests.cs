@@ -32,6 +32,8 @@ namespace Speedy.IntegrationTests
 		public void LogEventsShouldNotBeUpdatable()
 		{
 			var entityProvider = TestHelper.GetMemoryProvider();
+			
+			AccountEntity account;
 			LogEventEntity logEntity;
 
 			using (var database = entityProvider.GetDatabase())
@@ -39,9 +41,11 @@ namespace Speedy.IntegrationTests
 				logEntity = EntityFactory.GetLogEvent("Hello World", LogLevel.Debug);
 				database.LogEvents.AddOrUpdate(logEntity);
 				database.SaveChanges();
+
+				account = database.Accounts.FirstOrDefault(x => x.Id == TestHelper.AdministratorId);
 			}
 
-			var controller = new SyncController(entityProvider, TestHelper.GetAuthenticationService()) { User = TestHelper.GetIdentity(TestHelper.AdministratorId, "Administrator") };
+			var controller = new SyncController(entityProvider) { ControllerContext = TestHelper.GetControllerContext(account)};
 			var syncId = Guid.NewGuid();
 			var syncOption = new SyncOptions();
 			var session = controller.BeginSync(syncId, syncOption);

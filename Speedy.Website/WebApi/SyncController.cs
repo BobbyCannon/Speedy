@@ -2,14 +2,13 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
 using Speedy.Data;
 using Speedy.Net;
 using Speedy.Sync;
 using Speedy.Website.Samples;
 using Speedy.Website.Samples.Entities;
 using Speedy.Website.Samples.Sync;
-using Speedy.Website.Services;
 
 #endregion
 
@@ -22,7 +21,7 @@ namespace Speedy.Website.WebApi
 	/// An example: When a user is authenticated we update the LastLoginDate on the UserEntity. Previously this would also update the ModifiedOn because the entity
 	/// was technically modified. The problem is that then that UserEntity would never sync as a Personnel model.
 	/// </summary>
-	[RoutePrefix("api/Sync")]
+	[Route("api/Sync")]
 	public class SyncController : BaseController, ISyncServerProxy
 	{
 		#region Fields
@@ -30,11 +29,11 @@ namespace Speedy.Website.WebApi
 		private static readonly ConcurrentDictionary<Guid, ServerSyncClient> _sessions;
 
 		#endregion
-		
+
 		#region Constructors
 
-		public SyncController(IDatabaseProvider<IContosoDatabase> provider, IAuthenticationService authenticationService)
-			: base(provider.GetDatabase(), authenticationService)
+		public SyncController(IDatabaseProvider<IContosoDatabase> provider)
+			: base(provider.GetDatabase())
 		{
 			DatabaseProvider = new SyncDatabaseProvider<IContosoDatabase>(provider.GetDatabase, provider.Options);
 		}
@@ -80,7 +79,7 @@ namespace Speedy.Website.WebApi
 		public SyncSession BeginSync(Guid sessionId, [FromBody] SyncOptions options)
 		{
 			var syncClient = new ServerSyncClient(GetSyncingAccount(), DatabaseProvider);
-			
+
 			// The server should always maintain dates as they are the "Master" dataset
 			if (!_sessions.TryAdd(sessionId, syncClient))
 			{
@@ -101,7 +100,7 @@ namespace Speedy.Website.WebApi
 			{
 				throw new InvalidOperationException(Constants.SyncSessionAlreadyActive);
 			}
-			
+
 			var statistics = syncClient.EndSync(sessionId);
 			return statistics;
 		}
@@ -128,12 +127,12 @@ namespace Speedy.Website.WebApi
 
 		public AccountEntity GetSyncingAccount()
 		{
-			return GetCurrentAccount(x => new AccountEntity { Id = x.Id, Roles = x.Roles, SyncId = x.SyncId });
+			return GetAuthenticatedAccount(x => new AccountEntity { Id = x.Id, Roles = x.Roles, SyncId = x.SyncId }, false);
 		}
 
 		protected ServerSyncClient GetSyncClient(Guid sessionId, AccountEntity account)
 		{
-			if (!_sessions.TryGetValue(sessionId, out var syncClient))  
+			if (!_sessions.TryGetValue(sessionId, out var syncClient))
 			{
 				throw new Exception("Could not find the sync session.");
 			}
@@ -141,7 +140,7 @@ namespace Speedy.Website.WebApi
 			syncClient.ValidateAccount(account);
 			return syncClient;
 		}
-		
+
 		#endregion
 	}
 }

@@ -7,12 +7,32 @@ param
 	[Parameter(Mandatory = $false)]
 	[string] $Minor,
 	[Parameter(Mandatory = $false)]
-	[string] $Build,
+	[string] $Build = "*",
 	[Parameter(Mandatory = $false)]
-	[string] $Revision
+	[string] $Revision = "*"
 )
 
 $assemblyPattern = "[0-9]+(\.([0-9]+|\*)){1,3}"
+
+if ($DateSince -eq $null)
+{
+	$Year = [DateTime]::Now.Year
+	$DateSince = [DateTime]::Parse("01/01/$Year").Date
+}
+
+# See if the build should be generated.
+
+if ($Build -eq "*")
+{
+	$Build = [Math]::Floor([DateTime]::Now.Subtract($DateSince).TotalDays)
+}
+
+# See if the revision should be generated.
+
+if ($Revision -eq "*")
+{
+	$Revision = [Math]::Floor([DateTime]::Now.TimeOfDay.TotalSeconds / 2)
+}
 
 function Get-VersionArray
 {
@@ -52,7 +72,7 @@ function Convert-VersionArray
 		[object[]] $VersionArray
 	)
 
-	return "{0}.{1}.{2}.{3}" -f $VersionArray[ 0], $VersionArray[ 1], $VersionArray[ 2], $VersionArray[ 3]
+	return "{0}.{1}.{2}.{3}" -f $VersionArray[0], $VersionArray[1], $VersionArray[2], $VersionArray[3]
 }
 
 function Set-BuildNumbers
@@ -68,12 +88,13 @@ function Set-BuildNumbers
 	foreach ($file in $files)
 	{
 		$fileXml = [xml](Get-Content $file.FullName -Raw)
+		$propertyGroup = $fileXml.Project.PropertyGroup
 
-		if ($fileXml.Project.PropertyGroup[ 0].AssemblyVersion -ne $null)
+		if ($propertyGroup.AssemblyVersion -ne $null)
 		{
 			Write-Verbose $file.FullName
-			$fileXml.Project.PropertyGroup[ 0].AssemblyVersion = $versionNumber
-			$fileXml.Project.PropertyGroup[ 0].FileVersion = $versionNumber
+			$propertyGroup.AssemblyVersion = $versionNumber
+			$propertyGroup.FileVersion = $versionNumber
 
 			foreach ($group in $fileXml.Project.PropertyGroup)
 			{
@@ -96,41 +117,41 @@ try
 
 	$file = ([System.IO.FileInfo] "$scriptPath\Speedy\Speedy.csproj")
 	$fileXml = [xml](Get-Content $file.FullName -Raw)
-	$versionArray = Get-VersionArray -VersionLine $fileXml.Project.PropertyGroup.AssemblyVersion[ 0].ToString()
+	$versionArray = Get-VersionArray -VersionLine $fileXml.Project.PropertyGroup.AssemblyVersion.ToString()
 
 	if ($Major -eq "+")
 	{
-		$versionArray[ 0] = ([int] $versionArray[ 0]) + 1
+		$versionArray[0] = ([int] $versionArray[0]) + 1
 	}
 
 	elseif($Major.Length -gt 0)
 	{
-		$versionArray[ 0] = $Major
+		$versionArray[0] = $Major
 	}
 
 	if ($Minor -eq "+")
 	{
-		$versionArray[ 1] = ([int] $versionArray[ 1]) + 1
+		$versionArray[1] = ([int] $versionArray[1]) + 1
 	}
 
 	elseif($Minor.Length -gt 0)
 	{
-		$versionArray[ 1] = $Minor
+		$versionArray[1] = $Minor
 	}
 	elseif($Major.Length -gt 0)
 	{
 		$Minor = "0"
-		$versionArray[ 1] = $Minor
+		$versionArray[1] = $Minor
 	}
 
 	if ($Build -eq "+")
 	{
-		$versionArray[ 2] = ([int] $versionArray[ 2]) + 1
+		$versionArray[2] = ([int] $versionArray[2]) + 1
 	}
 
 	elseif($Build.Length -gt 0)
 	{
-		$versionArray[ 2] = $Build
+		$versionArray[2] = $Build
 	}
 	elseif($Minor.Length -gt 0)
 	{
@@ -140,7 +161,7 @@ try
 
 	if ($Revision -eq "+")
 	{
-		$versionArray[ 3] = ([int] $versionArray[ 3]) + 1
+		$versionArray[3] = ([int] $versionArray[3]) + 1
 	}
 
 	elseif($Revision.Length -gt 0)
@@ -150,7 +171,7 @@ try
 	elseif($Build.Length -gt 0)
 	{
 		$Revision = "0"
-		$versionArray[ 3] = $Revision
+		$versionArray[3] = $Revision
 	}
 
 	if (($Major.Length -le 0) -and ($Minor.Length -le 0) -and ($Build.Length -le 0) -and ($Revision.Length -le 0))

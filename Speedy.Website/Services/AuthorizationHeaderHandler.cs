@@ -1,61 +1,78 @@
 ﻿#region References
 
-using System.Linq;
-using System.Net.Http;
-using System.Security.Authentication;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading;
+using System;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Security;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Speedy.Data;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
 
 #endregion
 
 namespace Speedy.Website.Services
 {
-	public class AuthorizationHeaderHandler : DelegatingHandler
+	public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
+		#region Constants
+
+		public const string AuthenticationScheme = "BasicAuthentication";
+
+		#endregion
+
+		#region Fields
+
+		private readonly AccountService _accountService;
+
+		#endregion
+
+		#region Constructors
+
+		public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, AccountService accountService)
+			: base(options, logger, encoder, clock)
+		{
+			_accountService = accountService;
+		}
+
+		#endregion
+
 		#region Methods
 
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		protected override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
-			if (!request.Headers.TryGetValues("Authorization", out var credentials))
+			if (Request.HttpContext.User.Identity?.IsAuthenticated == true || !Request.Headers.ContainsKey("Authorization"))
 			{
-				return base.SendAsync(request, cancellationToken);
+				return Task.FromResult(AuthenticateResult.NoResult());
 			}
-
-			var credentialValues = credentials.First().Replace("Basic ", "").FromBase64().Split(':');
-			if (credentialValues.Length != 2)
-			{
-				return base.SendAsync(request, cancellationToken);
-			}
-
-			var database = request.GetDependencyScope().GetService(typeof(IContosoDatabase)) as IContosoDatabase;
-			var service = new AccountService(database, null);
-			AccountEntity account;
 
 			try
 			{
-				account = service.AuthenticateAccount(new Credentials { EmailAddress = credentialValues[0], Password = credentialValues[1] });
+				var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+				if (authHeader.Parameter == null)
+				{
+					return Task.FromResult(AuthenticateResult.NoResult());
+				}
+
+				var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
+				var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
+				var username = credentials[0];
+				var password = credentials[1];
+
+				var user = _accountService.AuthenticateAccount(new Credentials { EmailAddress = username, Password = password, RememberMe = false });
+				if (user == null)
+				{
+					return Task.FromResult(AuthenticateResult.NoResult());
+				}
+
+				var ticket = AuthenticationService.CreateTicket(user, false, AuthenticationScheme);
+				return Task.FromResult(AuthenticateResult.Success(ticket));
 			}
-			catch (AuthenticationException)
+			catch
 			{
-				return base.SendAsync(request, cancellationToken);
+				return Task.FromResult(AuthenticateResult.NoResult());
 			}
-
-			var username = $"{account.Id};{account.Name}";
-			var usernameClaim = new Claim(ClaimTypes.Name, username);
-			var identity = new ClaimsIdentity(new[] { usernameClaim }, "Basic");
-			var roles = Roles.GetRolesForUser(username);
-			var principal = new GenericPrincipal(identity, roles);
-
-			HttpContext.Current.User = principal;
-
-			return base.SendAsync(request, cancellationToken);
 		}
 
 		#endregion

@@ -1,0 +1,1 @@
+﻿// Empty JS for WebOptimizer

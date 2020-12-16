@@ -3,6 +3,7 @@ iisreset
 
 Restart-WebAppPool -Name "Speedy"
 Get-Process vbcs* | Stop-Process
+
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug"
 
 Remove-Item "C:\inetpub\Speedy" -Recurse -Force

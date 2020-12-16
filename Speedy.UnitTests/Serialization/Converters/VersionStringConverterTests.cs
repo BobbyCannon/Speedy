@@ -18,7 +18,7 @@ namespace Speedy.UnitTests.Serialization.Converters
 		public void SerializationNotUsingConverter()
 		{
 			var version = new Version(1, 2, 3, 4);
-			var expected = "{\"$id\":\"1\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}";
+			var expected = "\"1.2.3.4\"";
 			var actual = version.ToJson();
 			actual.Dump();
 			Assert.AreEqual(expected, actual);
@@ -33,7 +33,7 @@ namespace Speedy.UnitTests.Serialization.Converters
 			var settings = new SerializerSettings();
 			settings.JsonSettings.Converters.Add(new VersionStringConverter());
 			var version = new Version(1, 2, 3, 4);
-			var expected = "\"1.2.3.4\"";
+			var expected = "{\"Major\":1,\"Minor\":2,\"Build\":3,\"Revision\":4}";
 			var actual = version.ToJson(settings);
 			Assert.AreEqual(expected, actual);
 

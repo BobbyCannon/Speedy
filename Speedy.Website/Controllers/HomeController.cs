@@ -1,82 +1,55 @@
 ﻿#region References
 
-using System.Web.Mvc;
-using Speedy.Data;
-using Speedy.Website.Samples;
-using Speedy.Website.Services;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Speedy.Website.Models;
 
 #endregion
 
 namespace Speedy.Website.Controllers
 {
-	public class HomeController : BaseController
+	public class HomeController : Controller
 	{
+		#region Fields
+
+		private readonly ILogger<HomeController> _logger;
+
+		#endregion
+
 		#region Constructors
 
-		public HomeController(IContosoDatabase database, IAuthenticationService authenticationService) : base(database, authenticationService)
+		public HomeController(ILogger<HomeController> logger)
 		{
+			_logger = logger;
 		}
 
 		#endregion
 
 		#region Methods
 
-		public ActionResult Account()
+		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+		public IActionResult Error()
 		{
-			var user = GetAccount();
-			var service = new ViewService(Database, user);
-			return View(service.GetAccount());
+			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
 
-		public ActionResult Index()
+		public IActionResult Index()
 		{
-			ViewBag.Title = "Home Page";
+			return View();
+		}
+		
+		[AllowAnonymous]
+		public IActionResult Login()
+		{
 			return View();
 		}
 
 		[AllowAnonymous]
-		public ActionResult LogIn(string returnUrl)
+		public IActionResult Privacy()
 		{
-			if (IsAuthenticated)
-			{
-				return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
-			}
-
-			if (MissingAuthenticatedUser)
-			{
-				return RedirectToAction("LogIn", "Home");
-			}
-
-			ViewBag.ReturnUrl = returnUrl;
-
-			return View(new Credentials());
-		}
-
-		[HttpPost]
-		[AllowAnonymous]
-		public ActionResult LogIn(Credentials model, string returnUrl)
-		{
-			if (!ModelState.IsValid)
-			{
-				ModelState.AddModelError("EmailAddress", Constants.LoginInvalidError);
-				return View(model);
-			}
-
-			if (!AuthenticationService.LogIn(model))
-			{
-				ModelState.AddModelError("EmailAddress", Constants.LoginInvalidError);
-				return View(model);
-			}
-
-			Database.SaveChanges();
-
-			return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
-		}
-
-		public ActionResult LogOut()
-		{
-			AuthenticationService.LogOut();
-			return Redirect("/");
+			return View();
 		}
 
 		#endregion
