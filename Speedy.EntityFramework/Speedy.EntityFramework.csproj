@@ -14,41 +14,11 @@
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<AssemblyVersion>6.5.2.0</AssemblyVersion>
 		<FileVersion>6.5.2.0</FileVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<OutputPath>bin\Debug\</OutputPath>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-		<DocumentationFile>bin\Debug\Speedy.EntityFrameworkCore.XML</DocumentationFile>
-		<Prefer32Bit>false</Prefer32Bit>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<OutputPath>bin\Release\</OutputPath>
-		<DefineConstants>TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-		<Prefer32Bit>false</Prefer32Bit>
-	</PropertyGroup>
-	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-		<ProjectGuid>{E50E2118-8A6F-4FA1-A446-7571F542B844}</ProjectGuid>
-		<OutputType>Library</OutputType>
-		<AppDesignerFolder>Properties</AppDesignerFolder>
-		<RootNamespace>Speedy.EntityFramework</RootNamespace>
-		<AssemblyName>Speedy.EntityFramework</AssemblyName>
-		<FileAlignment>512</FileAlignment>
-		<TargetFrameworkProfile />
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
 		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>Speedy.png</PackageIcon>
 		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
@@ -60,9 +30,6 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
-	<PropertyGroup>
-		<PackageIcon>Speedy.png</PackageIcon>
-	</PropertyGroup>
 	<ItemGroup>
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 	</ItemGroup>
@@ -73,19 +40,12 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.10" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="PropertyChanged.Fody" Version="3.3.1">
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
+		<PackageReference Include="PropertyChanged.Fody" Version="3.3.1" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Include="Xamarin.Android.Support.v7.RecyclerView">
-			<HintPath>..\..\..\..\Microsoft\Xamarin\NuGet\xamarin.android.support.v7.recyclerview\28.0.0.3\lib\monoandroid90\Xamarin.Android.Support.v7.RecyclerView.dll</HintPath>
-		</Reference>
 	</ItemGroup>
 </Project>

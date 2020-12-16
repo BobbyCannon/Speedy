@@ -16,6 +16,7 @@
 		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>Speedy.png</PackageIcon>
 		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
@@ -25,9 +26,6 @@
 		<LangVersion>latest</LangVersion>
 		<AssemblyVersion>6.5.2.0</AssemblyVersion>
 		<FileVersion>6.5.2.0</FileVersion>
-	</PropertyGroup>
-	<PropertyGroup>
-		<PackageIcon>Speedy.png</PackageIcon>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

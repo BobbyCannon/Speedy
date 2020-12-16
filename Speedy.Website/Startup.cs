@@ -52,7 +52,7 @@ namespace Speedy.Website
 			// Azure: d:\home\site\wwwroot\wwwroot
 			// Local: c:\inetpub\Speedy\wwwroot
 			var rootSitePath = Path.Combine(Environment.WebRootPath, "..\\..\\");
-			var appDataPath = Path.Combine(rootSitePath, "EpicCodersData");
+			var appDataPath = Path.Combine(rootSitePath, "SpeedyAppData");
 
 			AppDataPath = new DirectoryInfo(appDataPath);
 			SerializerSettings = new SerializerSettings(false, true, false, false, true, false);
