@@ -1,4 +1,4 @@
-﻿namespace Speedy.Website.Samples.Enumerations
+﻿namespace Speedy.Website.Data.Enumerations
 {
 	public enum AccountRole
 	{

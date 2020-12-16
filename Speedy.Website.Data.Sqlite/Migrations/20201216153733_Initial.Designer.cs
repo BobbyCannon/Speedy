@@ -2,36 +2,32 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Speedy.Website.Data.Sql;
+using Speedy.Website.Data.Sqlite;
 
-namespace Speedy.Website.Data.Sql.Migrations
+namespace Speedy.Website.Data.Sqlite.Migrations
 {
-    [DbContext(typeof(ContosoSqlDatabase))]
-    [Migration("20201008170209_Initial")]
+    [DbContext(typeof(ContosoSqliteDatabase))]
+    [Migration("20201216153733_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.8")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "3.1.10");
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.AccountEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.AccountEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("AccountId")
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<long>("AddressId")
                         .HasColumnName("AccountAddressId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("AddressSyncId")
                         .HasColumnName("AccountAddressSyncId")
@@ -43,17 +39,17 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<string>("EmailAddress")
                         .HasColumnName("AccountEmailAddress")
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<string>("ExternalId")
                         .HasColumnName("AccountExternalId")
-                        .HasColumnType("varchar(900)")
+                        .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnName("AccountIsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastLoginDate")
                         .HasColumnName("AccountLastLoginDate")
@@ -66,24 +62,24 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnName("AccountName")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("Nickname")
                         .HasColumnName("AccountNickname")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("PasswordHash")
                         .HasColumnName("AccountPasswordHash")
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<string>("Roles")
                         .HasColumnName("AccountRoles")
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<Guid>("SyncId")
@@ -101,8 +97,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.HasIndex("Nickname")
                         .IsUnique()
-                        .HasName("IX_Accounts_Nickname")
-                        .HasFilter("[AccountNickname] IS NOT NULL");
+                        .HasName("IX_Accounts_Nickname");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
@@ -110,24 +105,22 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.HasIndex("AddressId", "ExternalId")
                         .IsUnique()
-                        .HasName("IX_Accounts_AddressId_ExternalId")
-                        .HasFilter("[AccountExternalId] IS NOT NULL");
+                        .HasName("IX_Accounts_AddressId_ExternalId");
 
                     b.ToTable("Accounts","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.AddressEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.AddressEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("AddressId")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnName("AddressCity")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
@@ -137,25 +130,25 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnName("AddressIsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Line1")
                         .IsRequired()
                         .HasColumnName("AddressLineOne")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<string>("Line2")
                         .IsRequired()
                         .HasColumnName("AddressLineTwo")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
                     b.Property<long?>("LinkedAddressId")
                         .HasColumnName("AddressLinkedAddressId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("LinkedAddressSyncId")
                         .HasColumnName("AddressLinkedAddressSyncId")
@@ -168,14 +161,14 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Postal")
                         .IsRequired()
                         .HasColumnName("AddressPostal")
-                        .HasColumnType("varchar(128)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(128)
                         .IsUnicode(false);
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasColumnName("AddressState")
-                        .HasColumnType("varchar(128)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(128)
                         .IsUnicode(false);
 
@@ -195,13 +188,12 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("Addresses","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.FoodEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.FoodEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("Id")
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -214,7 +206,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnName("Name")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
@@ -227,17 +219,16 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("Foods","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.FoodRelationshipEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.FoodRelationshipEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("Id")
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ChildId")
                         .HasColumnName("ChildId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -249,11 +240,11 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<int>("ParentId")
                         .HasColumnName("ParentId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<double>("Quantity")
                         .HasColumnName("Quantity")
-                        .HasColumnType("float");
+                        .HasColumnType("REAL");
 
                     b.HasKey("Id");
 
@@ -266,13 +257,12 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("FoodRelationships","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.GroupEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.GroupEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("Id")
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -281,7 +271,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnName("Description")
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(4000)
                         .IsUnicode(false);
 
@@ -292,7 +282,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnName("Name")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
@@ -301,13 +291,12 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("Groups","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.GroupMemberEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.GroupMemberEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("Id")
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -315,11 +304,11 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<int>("GroupId")
                         .HasColumnName("GroupId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("MemberId")
                         .HasColumnName("MemberId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("MemberSyncId")
                         .HasColumnName("MemberSyncId")
@@ -332,7 +321,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnName("Role")
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(4000)
                         .IsUnicode(false);
 
@@ -350,13 +339,12 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("GroupMembers","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.LogEventEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.LogEventEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasMaxLength(250)
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER")
+                        .HasMaxLength(250);
 
                     b.Property<DateTime?>("AcknowledgedOn")
                         .HasColumnType("datetime2");
@@ -365,16 +353,16 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Level")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LoggedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Message")
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.Property<DateTime>("ModifiedOn")
@@ -388,17 +376,17 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("LogEvents","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.PetEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.PetEntity", b =>
                 {
                     b.Property<string>("Name")
                         .HasColumnName("Name")
-                        .HasColumnType("varchar(128)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(128)
                         .IsUnicode(false);
 
                     b.Property<int>("OwnerId")
                         .HasColumnName("OwnerId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
@@ -410,7 +398,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<string>("TypeId")
                         .HasColumnName("TypeId")
-                        .HasColumnType("varchar(25)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(25)
                         .IsUnicode(false);
 
@@ -428,11 +416,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("Pets","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.PetTypeEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.PetTypeEntity", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnName("PetTypeId")
-                        .HasColumnType("varchar(25)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(25)
                         .IsUnicode(false);
 
@@ -444,7 +432,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<string>("Type")
                         .HasColumnName("Type")
-                        .HasColumnType("varchar(200)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(200)
                         .IsUnicode(false);
 
@@ -453,20 +441,19 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("PetType","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.SettingEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.SettingEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("Id")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnName("ModifiedOn")
@@ -475,7 +462,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnName("Name")
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
                         .IsUnicode(false);
 
@@ -486,7 +473,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnName("Value")
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .IsUnicode(false);
 
                     b.HasKey("Id");
@@ -502,65 +489,296 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.ToTable("Settings","dbo");
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.AccountEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathConfigurationEntity", b =>
                 {
-                    b.HasOne("Speedy.Website.Samples.Entities.AddressEntity", "Address")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CompletedOnName")
+                        .HasColumnType("TEXT")
+                        .IsUnicode(false);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DataName")
+                        .HasColumnType("TEXT")
+                        .IsUnicode(false);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name01")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name02")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name03")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name04")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name05")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name06")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name07")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name08")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Name09")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("PathName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(896)
+                        .IsUnicode(false);
+
+                    b.Property<string>("PathType")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .IsUnicode(false);
+
+                    b.Property<string>("StartedOnName")
+                        .HasColumnType("TEXT")
+                        .IsUnicode(false);
+
+                    b.Property<Guid>("SyncId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type01")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type02")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type03")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type04")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type05")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type06")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type07")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type08")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type09")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SyncId")
+                        .IsUnique()
+                        .HasName("IX_TrackerPathConfigurations_SyncId");
+
+                    b.ToTable("TrackerPathConfigurations","dbo");
+                });
+
+            modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CompletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ConfigurationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("TEXT")
+                        .IsUnicode(false);
+
+                    b.Property<long>("ElapsedTicks")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SyncId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value01")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value02")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value03")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value04")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value05")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value06")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value07")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value08")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.Property<string>("Value09")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(900)
+                        .IsUnicode(false);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConfigurationId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("SyncId")
+                        .IsUnique()
+                        .HasName("IX_TrackerPaths_SyncId");
+
+                    b.ToTable("TrackerPaths","dbo");
+                });
+
+            modelBuilder.Entity("Speedy.Website.Data.Entities.AccountEntity", b =>
+                {
+                    b.HasOne("Speedy.Website.Data.Entities.AddressEntity", "Address")
                         .WithMany("Accounts")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.AddressEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.AddressEntity", b =>
                 {
-                    b.HasOne("Speedy.Website.Samples.Entities.AddressEntity", "LinkedAddress")
+                    b.HasOne("Speedy.Website.Data.Entities.AddressEntity", "LinkedAddress")
                         .WithMany("LinkedAddresses")
                         .HasForeignKey("LinkedAddressId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.FoodRelationshipEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.FoodRelationshipEntity", b =>
                 {
-                    b.HasOne("Speedy.Website.Samples.Entities.FoodEntity", "Child")
+                    b.HasOne("Speedy.Website.Data.Entities.FoodEntity", "Child")
                         .WithMany("ParentRelationships")
                         .HasForeignKey("ChildId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Speedy.Website.Samples.Entities.FoodEntity", "Parent")
+                    b.HasOne("Speedy.Website.Data.Entities.FoodEntity", "Parent")
                         .WithMany("ChildRelationships")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.GroupMemberEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.GroupMemberEntity", b =>
                 {
-                    b.HasOne("Speedy.Website.Samples.Entities.GroupEntity", "Group")
+                    b.HasOne("Speedy.Website.Data.Entities.GroupEntity", "Group")
                         .WithMany("Members")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Speedy.Website.Samples.Entities.AccountEntity", "Member")
+                    b.HasOne("Speedy.Website.Data.Entities.AccountEntity", "Member")
                         .WithMany("Groups")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Speedy.Website.Samples.Entities.PetEntity", b =>
+            modelBuilder.Entity("Speedy.Website.Data.Entities.PetEntity", b =>
                 {
-                    b.HasOne("Speedy.Website.Samples.Entities.AccountEntity", "Owner")
+                    b.HasOne("Speedy.Website.Data.Entities.AccountEntity", "Owner")
                         .WithMany("Pets")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Speedy.Website.Samples.Entities.PetTypeEntity", "Type")
+                    b.HasOne("Speedy.Website.Data.Entities.PetTypeEntity", "Type")
                         .WithMany("Types")
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathEntity", b =>
+                {
+                    b.HasOne("Speedy.Website.Data.Entities.TrackerPathConfigurationEntity", "Configuration")
+                        .WithMany("Paths")
+                        .HasForeignKey("ConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Speedy.Website.Data.Entities.TrackerPathEntity", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

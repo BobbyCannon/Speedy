@@ -7,8 +7,8 @@ using System.Reflection;
 using Microsoft.Extensions.Caching.Memory;
 using Speedy.Extensions;
 using Speedy.Profiling;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

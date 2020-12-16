@@ -9,12 +9,12 @@ using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Sync;
-using Speedy.Website.Samples.Entities;
-using Speedy.Website.Samples.Enumerations;
+using Speedy.Website.Data.Entities;
+using Speedy.Website.Data.Enumerations;
 
 #endregion
 
-namespace Speedy.Website.Samples.Sync
+namespace Speedy.Website.Data.Sync
 {
 	public class ServerSyncClient : SyncClient
 	{

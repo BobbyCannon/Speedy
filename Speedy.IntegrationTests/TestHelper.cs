@@ -6,8 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
@@ -24,11 +22,11 @@ using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Sync;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
+using Speedy.Website.Data.Enumerations;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
-using Speedy.Website.Samples.Enumerations;
 using Speedy.Website.Services;
 
 #endregion
@@ -235,6 +233,15 @@ namespace Speedy.IntegrationTests
 			}, ContosoClientMemoryDatabase.GetDefaultOptions());
 		}
 
+		public static ControllerContext GetControllerContext(AccountEntity account)
+		{
+			var ticket = AuthenticationService.CreateTicket(account, true, CookieAuthenticationDefaults.AuthenticationScheme);
+			return new ControllerContext
+			{
+				HttpContext = new DefaultHttpContext { User = ticket.Principal }
+			};
+		}
+
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, bool initialized = true)
 		{
 			yield return GetSqlProvider(options, initialized);
@@ -247,15 +254,6 @@ namespace Speedy.IntegrationTests
 			var dispatcher = new Mock<IDispatcher>();
 			dispatcher.Setup(x => x.HasThreadAccess).Returns(true);
 			return dispatcher.Object;
-		}
-		
-		public static ControllerContext GetControllerContext(AccountEntity account)
-		{
-			var ticket = AuthenticationService.CreateTicket(account, true, CookieAuthenticationDefaults.AuthenticationScheme);
-			return new ControllerContext
-			{
-				HttpContext = new DefaultHttpContext { User = ticket.Principal }
-			};
 		}
 
 		public static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(DatabaseOptions options = null, bool initialized = true)

@@ -2,9 +2,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.WebApi;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
 using System.Linq;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

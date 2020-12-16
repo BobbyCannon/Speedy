@@ -13,7 +13,6 @@ using Speedy.Profiling;
 using Speedy.Storage.KeyValue;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Models;
-using Speedy.Website.Samples;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -35,6 +34,7 @@ using Microsoft.EntityFrameworkCore;
 using NUglify;
 using NUglify.Css;
 using NUglify.JavaScript;
+using Speedy.Website.Data;
 
 #endregion
 
@@ -183,7 +183,7 @@ namespace Speedy.Website
 				.AddNewtonsoftJson(options => UpdateSettings(options.SerializerSettings));
 
 			var isDevelopment = Environment.IsDevelopment();
-			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o));
+			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o), ContosoDatabase.GetDefaultOptions());
 
 			services.AddWebOptimizer(pipeline =>
 			{

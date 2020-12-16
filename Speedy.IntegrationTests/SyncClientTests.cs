@@ -9,8 +9,8 @@ using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Sync;
 using Speedy.UnitTests.Factories;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

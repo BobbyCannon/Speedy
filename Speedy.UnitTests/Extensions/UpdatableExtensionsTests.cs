@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
 using Speedy.UnitTests.Factories;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

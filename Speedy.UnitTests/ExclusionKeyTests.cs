@@ -1,7 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

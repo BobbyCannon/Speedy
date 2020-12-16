@@ -6,12 +6,12 @@ Run these two migration to create the "initial" migration
 
 # Client
 Add-Migration Initial -Project Speedy.Client.Data -StartupProject Speedy.IntegrationTests
-Remove-Migration -Project Speedy.Client.Data -StartupProject Speedy.IntegrationTests
+Remove-Migration -Project Speedy.Client.Data -StartupProject Speedy.IntegrationTests -Force
 
 # Website Sql
 Add-Migration Initial -Project Speedy.Website.Data.Sql -StartupProject Speedy.Website
-Remove-Migration -Project Speedy.Website.Data.Sql -StartupProject Speedy.Website
+Remove-Migration -Project Speedy.Website.Data.Sql -StartupProject Speedy.Website -Force
 
 # Website Sqlite
 Add-Migration Initial -Project Speedy.Website.Data.Sqlite -StartupProject Speedy.Benchmark
-Remove-Migration -Project Speedy.Website.Data.Sqlite -StartupProject Speedy.Benchmark
+Remove-Migration -Project Speedy.Website.Data.Sqlite -StartupProject Speedy.Benchmark -Force

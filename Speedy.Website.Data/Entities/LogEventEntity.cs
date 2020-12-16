@@ -1,12 +1,12 @@
 #region References
 
+using System;
 using Speedy.Data.WebApi;
 using Speedy.Sync;
-using System;
 
 #endregion
 
-namespace Speedy.Website.Samples.Entities
+namespace Speedy.Website.Data.Entities
 {
 	public class LogEventEntity : SyncEntity<long>, ILogEvent
 	{

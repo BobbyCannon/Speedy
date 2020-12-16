@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 
 #endregion
 
-namespace Speedy.Website.Samples.Entities
+namespace Speedy.Website.Data.Entities
 {
 	public class FoodEntity : Entity<int>, IModifiableEntity
 	{

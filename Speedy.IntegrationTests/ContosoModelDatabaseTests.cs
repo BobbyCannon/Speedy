@@ -7,7 +7,7 @@ using Speedy.Client.Data;
 using Speedy.Data.Client;
 using Speedy.Extensions;
 using Speedy.Sync;
-using Speedy.Website.Samples;
+using Speedy.Website.Data;
 
 #endregion
 
@@ -26,10 +26,10 @@ namespace Speedy.IntegrationTests
 			{
 				var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
 				Assert.AreEqual(4, repositories.Count);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.AddressEntity,Speedy.Website.Samples", repositories[0].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.SettingEntity,Speedy.Website.Samples", repositories[1].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.AccountEntity,Speedy.Website.Samples", repositories[2].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.LogEventEntity,Speedy.Website.Samples", repositories[3].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.AddressEntity,Speedy.Website.Data", repositories[0].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.SettingEntity,Speedy.Website.Data", repositories[1].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.AccountEntity,Speedy.Website.Data", repositories[2].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.LogEventEntity,Speedy.Website.Data", repositories[3].TypeName);
 			}
 
 			provider = GetDatabaseProvider();
@@ -40,11 +40,11 @@ namespace Speedy.IntegrationTests
 				database.Options.SyncOrder = order.ToArray();
 				var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
 				Assert.AreEqual(3, repositories.Count);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.AddressEntity,Speedy.Website.Samples", repositories[0].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.SettingEntity,Speedy.Website.Samples", repositories[1].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.LogEventEntity,Speedy.Website.Samples", repositories[2].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.AddressEntity,Speedy.Website.Data", repositories[0].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.SettingEntity,Speedy.Website.Data", repositories[1].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.LogEventEntity,Speedy.Website.Data", repositories[2].TypeName);
 			}
-			
+
 			provider = GetDatabaseProvider();
 			using (var database = provider.GetDatabase())
 			{
@@ -52,10 +52,10 @@ namespace Speedy.IntegrationTests
 				var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
 				repositories.ForEach(x => x.TypeName.Dump());
 				Assert.AreEqual(4, repositories.Count);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.AccountEntity,Speedy.Website.Samples", repositories[0].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.AddressEntity,Speedy.Website.Samples", repositories[1].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.LogEventEntity,Speedy.Website.Samples", repositories[2].TypeName);
-				Assert.AreEqual("Speedy.Website.Samples.Entities.SettingEntity,Speedy.Website.Samples", repositories[3].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.AccountEntity,Speedy.Website.Data", repositories[0].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.AddressEntity,Speedy.Website.Data", repositories[1].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.LogEventEntity,Speedy.Website.Data", repositories[2].TypeName);
+				Assert.AreEqual("Speedy.Website.Data.Entities.SettingEntity,Speedy.Website.Data", repositories[3].TypeName);
 			}
 		}
 
@@ -66,10 +66,10 @@ namespace Speedy.IntegrationTests
 			using var database = provider.GetDatabase();
 			var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
 			Assert.AreEqual(4, repositories.Count);
-			Assert.AreEqual("Speedy.Website.Samples.Entities.AddressEntity,Speedy.Website.Samples", repositories[0].TypeName);
-			Assert.AreEqual("Speedy.Website.Samples.Entities.SettingEntity,Speedy.Website.Samples", repositories[1].TypeName);
-			Assert.AreEqual("Speedy.Website.Samples.Entities.AccountEntity,Speedy.Website.Samples", repositories[2].TypeName);
-			Assert.AreEqual("Speedy.Website.Samples.Entities.LogEventEntity,Speedy.Website.Samples", repositories[3].TypeName);
+			Assert.AreEqual("Speedy.Website.Data.Entities.AddressEntity,Speedy.Website.Data", repositories[0].TypeName);
+			Assert.AreEqual("Speedy.Website.Data.Entities.SettingEntity,Speedy.Website.Data", repositories[1].TypeName);
+			Assert.AreEqual("Speedy.Website.Data.Entities.AccountEntity,Speedy.Website.Data", repositories[2].TypeName);
+			Assert.AreEqual("Speedy.Website.Data.Entities.LogEventEntity,Speedy.Website.Data", repositories[3].TypeName);
 		}
 
 		[TestMethod]
@@ -98,7 +98,7 @@ namespace Speedy.IntegrationTests
 
 		private ClientAddress GetAddress()
 		{
-			return new ClientAddress
+			return new()
 			{
 				City = "City"
 			};
@@ -106,7 +106,7 @@ namespace Speedy.IntegrationTests
 
 		private static ContosoClientMemoryDatabase GetDatabase(DatabaseOptions options = null)
 		{
-			return new ContosoClientMemoryDatabase(options);
+			return new(options);
 		}
 
 		private static IDatabaseProvider<IContosoDatabase> GetDatabaseProvider(DatabaseOptions options = null)
@@ -116,7 +116,7 @@ namespace Speedy.IntegrationTests
 
 		private ClientAccount GetPerson()
 		{
-			return new ClientAccount
+			return new()
 			{
 				Name = "John"
 			};

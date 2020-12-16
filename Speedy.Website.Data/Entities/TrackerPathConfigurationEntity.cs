@@ -3,11 +3,11 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Sync;
-using Speedy.Website.Samples.Enumerations;
+using Speedy.Website.Data.Enumerations;
 
 #endregion
 
-namespace Speedy.Website.Samples.Entities
+namespace Speedy.Website.Data.Entities
 {
 	public class TrackerPathConfigurationEntity : SyncEntity<int>
 	{

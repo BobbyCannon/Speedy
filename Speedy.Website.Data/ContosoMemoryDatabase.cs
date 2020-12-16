@@ -1,11 +1,11 @@
 #region References
 
 using Speedy.EntityFramework;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.Website.Samples
+namespace Speedy.Website.Data
 {
 	public class ContosoMemoryDatabase : Database, IContosoDatabase
 	{

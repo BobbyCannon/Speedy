@@ -6,8 +6,8 @@ using System.Linq.Expressions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Speedy.Data;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

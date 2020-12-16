@@ -6,8 +6,8 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using Speedy.Data;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

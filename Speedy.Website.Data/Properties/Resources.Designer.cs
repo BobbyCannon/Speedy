@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Speedy.Website.Samples.Properties {
+namespace Speedy.Website.Data.Properties {
 	/// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>

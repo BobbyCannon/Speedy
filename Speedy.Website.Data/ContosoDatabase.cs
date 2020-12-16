@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.Website.Samples
+namespace Speedy.Website.Data
 {
 	[ExcludeFromCodeCoverage]
 	public abstract class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase

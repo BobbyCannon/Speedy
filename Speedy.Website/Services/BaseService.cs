@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

@@ -1,10 +1,10 @@
 #region References
 
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.Website.Samples
+namespace Speedy.Website.Data
 {
 	public interface IContosoDatabase : ISyncableDatabase
 	{

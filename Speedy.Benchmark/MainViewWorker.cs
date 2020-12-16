@@ -12,10 +12,10 @@ using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Sync;
 using Speedy.UnitTests.Factories;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
 
 #endregion
 

@@ -3,7 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Data.WebApi;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

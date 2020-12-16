@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Speedy.Data;
 using Speedy.Net;
 using Speedy.Sync;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
-using Speedy.Website.Samples.Sync;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
+using Speedy.Website.Data.Sync;
 
 #endregion
 

@@ -75,7 +75,7 @@ namespace Speedy.IntegrationTests
 
 		public SyncSession BeginSync(Guid sessionId, SyncOptions options)
 		{
-			return new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
+			return new() { Id = sessionId, StartedOn = TimeService.UtcNow };
 		}
 
 		public SyncStatistics EndSync(Guid sessionId)

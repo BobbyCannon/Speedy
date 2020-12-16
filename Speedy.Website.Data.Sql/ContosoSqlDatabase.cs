@@ -1,7 +1,6 @@
 #region References
 
 using Microsoft.EntityFrameworkCore;
-using Speedy.Website.Samples;
 
 #endregion
 
@@ -32,10 +31,7 @@ namespace Speedy.Website.Data.Sql
 
 		public static ContosoSqlDatabase UseSql(string connectionString = null, DatabaseOptions options = null)
 		{
-			if (connectionString == null)
-			{
-				connectionString = GetConnectionString();
-			}
+			connectionString ??= GetConnectionString();
 
 			var builder = new DbContextOptionsBuilder<ContosoSqlDatabase>();
 			return new ContosoSqlDatabase(builder.UseSqlServer(connectionString, UpdateOptions).Options, options ?? GetDefaultOptions());

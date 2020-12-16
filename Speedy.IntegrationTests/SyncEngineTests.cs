@@ -12,8 +12,8 @@ using Speedy.Logging;
 using Speedy.Net;
 using Speedy.Sync;
 using Speedy.UnitTests;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
@@ -153,7 +153,7 @@ namespace Speedy.IntegrationTests
 					TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
 					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), "Id", nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
 				}
-				
+
 				issues = SyncEngine.Run(client, server, options);
 
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));

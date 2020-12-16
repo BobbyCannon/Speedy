@@ -4,11 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Speedy.EntityFramework;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.Website.Samples.Mappings
+namespace Speedy.Website.Data.Mappings
 {
 	[ExcludeFromCodeCoverage]
 	public class TrackerPathConfigurationMap : EntityMappingConfiguration<TrackerPathConfigurationEntity>

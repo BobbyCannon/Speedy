@@ -11,7 +11,7 @@ using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.UnitTests.Factories;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
@@ -633,9 +633,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Local),
-						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Unspecified),
-						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Utc)
+						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Local),
+						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Unspecified),
+						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -683,9 +683,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Local),
-						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Unspecified),
-						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Utc)
+						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Local),
+						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Unspecified),
+						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -733,9 +733,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
-						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
-						new DateTime(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
+						new(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
+						new(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
+						new(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -1759,7 +1759,7 @@ namespace Speedy.IntegrationTests
 
 		private static AddressEntity NewAddress(string line1, string line2 = "")
 		{
-			return new AddressEntity { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
+			return new() { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
 		}
 
 		#endregion

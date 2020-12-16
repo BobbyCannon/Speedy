@@ -6,11 +6,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Speedy.Extensions;
 using Speedy.Sync;
-using Speedy.Website.Samples.Enumerations;
+using Speedy.Website.Data.Enumerations;
 
 #endregion
 
-namespace Speedy.Website.Samples.Entities
+namespace Speedy.Website.Data.Entities
 {
 	/// <summary>
 	/// Represents the account entity.

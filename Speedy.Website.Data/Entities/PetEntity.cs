@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Speedy.Website.Samples.Entities
+namespace Speedy.Website.Data.Entities
 {
 	public class PetEntity : Entity<(string Name, int OwnerId)>, IModifiableEntity
 	{

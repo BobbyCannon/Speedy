@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Speedy.Website.Samples.Entities
+namespace Speedy.Website.Data.Entities
 {
 	public class GroupMemberEntity : Entity<int>, IModifiableEntity
 	{

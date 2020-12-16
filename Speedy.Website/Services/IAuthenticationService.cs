@@ -2,7 +2,7 @@
 
 using System.Security.Claims;
 using Speedy.Data;
-using Speedy.Website.Samples.Entities;
+using Speedy.Website.Data.Entities;
 
 #endregion
 

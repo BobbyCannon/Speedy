@@ -11,9 +11,9 @@ using Microsoft.Data.Sqlite;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.EntityFramework.Sql;
 using Speedy.Extensions;
+using Speedy.Website.Data.Entities;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
-using Speedy.Website.Samples.Entities;
 
 #endregion
 
@@ -45,7 +45,7 @@ namespace Speedy.IntegrationTests
 				TestHelper.AreEqual(filter.Value.p, actual.Parameters.Cast<SqlParameter>().ToArray());
 				Assert.AreEqual(filter.Value.parameters, string.Join(", ", actual.ParametersByColumnName.Select(x => x.Key + ":" + ((SqlParameter) x.Value).ParameterName)));
 			});
-			
+
 			// Address
 			var addressFilters = new Dictionary<Expression<Func<AddressEntity, bool>>, (string query, SqlParameter[] p)>
 			{

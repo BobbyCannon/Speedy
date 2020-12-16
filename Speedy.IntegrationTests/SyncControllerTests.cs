@@ -14,9 +14,9 @@ using Speedy.Net;
 using Speedy.Sync;
 using Speedy.UnitTests;
 using Speedy.UnitTests.Factories;
-using Speedy.Website.Samples;
-using Speedy.Website.Samples.Entities;
-using Speedy.Website.Samples.Sync;
+using Speedy.Website.Data;
+using Speedy.Website.Data.Entities;
+using Speedy.Website.Data.Sync;
 using Speedy.Website.WebApi;
 
 #endregion
@@ -32,7 +32,7 @@ namespace Speedy.IntegrationTests
 		public void LogEventsShouldNotBeUpdatable()
 		{
 			var entityProvider = TestHelper.GetMemoryProvider();
-			
+
 			AccountEntity account;
 			LogEventEntity logEntity;
 
@@ -45,7 +45,7 @@ namespace Speedy.IntegrationTests
 				account = database.Accounts.FirstOrDefault(x => x.Id == TestHelper.AdministratorId);
 			}
 
-			var controller = new SyncController(entityProvider) { ControllerContext = TestHelper.GetControllerContext(account)};
+			var controller = new SyncController(entityProvider) { ControllerContext = TestHelper.GetControllerContext(account) };
 			var syncId = Guid.NewGuid();
 			var syncOption = new SyncOptions();
 			var session = controller.BeginSync(syncId, syncOption);

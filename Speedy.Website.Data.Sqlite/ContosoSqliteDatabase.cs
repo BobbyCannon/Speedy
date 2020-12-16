@@ -2,7 +2,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore;
-using Speedy.Website.Samples;
 
 #endregion
 

@@ -8,7 +8,7 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.Website.Samples.Entities
+namespace Speedy.Website.Data.Entities
 {
 	public class AddressEntity : SyncEntity<long>
 	{
