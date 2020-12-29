@@ -162,7 +162,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public IDispatcher GetDispatcher()
 		{
-			throw new NotImplementedException();
+			return Dispatcher;
 		}
 
 		/// <inheritdoc />

@@ -87,7 +87,7 @@ namespace Speedy.Profiling
 		/// <summary>
 		/// Gets or sets the values.
 		/// </summary>
-		public ICollection<TrackerPathValue> Values { get; set; }
+		public IList<TrackerPathValue> Values { get; set; }
 
 		#endregion
 

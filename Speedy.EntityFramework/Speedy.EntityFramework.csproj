@@ -30,6 +30,9 @@
 		<FileVersion>6.5.2.0</FileVersion>
 		<Version>6.5.2.0</Version>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+	  <DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\Speedy.EntityFramework.xml</DocumentationFile>
+	</PropertyGroup>
 	<ItemGroup>
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 	</ItemGroup>

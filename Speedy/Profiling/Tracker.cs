@@ -244,12 +244,18 @@ namespace Speedy.Profiling
 					UtilityExtensions.Wait(() => !PathProcessorRunning, 5000, 10);
 				}
 
+				ProcessSession();
+
 				if (_currentCacheRepository != null)
 				{
 					_currentCacheRepository.Flush();
 					_currentCacheRepository.Delete();
 					_currentCacheRepository.Dispose();
 				}
+			}
+			catch
+			{
+				// Ignore any issues
 			}
 			finally
 			{
@@ -284,7 +290,7 @@ namespace Speedy.Profiling
 			response.Values.AddOrUpdate(new TrackerPathValue(".NET Version", Environment.Version),
 				new TrackerPathValue("Application Bitness", Environment.Is64BitProcess ? "64" : "32"),
 				new TrackerPathValue("Application Name", application.Name),
-				new TrackerPathValue("Application Version", application.Version.ToString())
+				new TrackerPathValue("Application Version", application.Version?.ToString() ?? "0.0.0.0")
 			);
 
 			return response;

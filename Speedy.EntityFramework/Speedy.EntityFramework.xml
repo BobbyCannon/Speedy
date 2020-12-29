@@ -1,0 +1,596 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Speedy.EntityFramework</name>
+    </assembly>
+    <members>
+        <member name="T:Speedy.EntityFramework.DatabaseExtensions">
+            <summary>
+            Extensions for the Database class.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.DatabaseExtensions.ConfigureModelViaMapping(Speedy.Database)">
+            <summary>
+            Try to configure the entity models using the EntityMappingConfiguration configurations
+            </summary>
+            <param name="database"> </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.DatabaseExtensions.GetProviderType(Speedy.EntityFramework.EntityFrameworkDatabase)">
+            <summary>
+            Determines the database provider type for the database.
+            </summary>
+            <param name="database"> The database to be tested. </param>
+            <returns> The provider type for the database. </returns>
+        </member>
+        <member name="T:Speedy.EntityFramework.DatabaseProviderType">
+            <summary>
+            The database provider type
+            </summary>
+        </member>
+        <member name="F:Speedy.EntityFramework.DatabaseProviderType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:Speedy.EntityFramework.DatabaseProviderType.Sqlite">
+            <summary>
+            Sqlite
+            </summary>
+        </member>
+        <member name="F:Speedy.EntityFramework.DatabaseProviderType.SqlServer">
+            <summary>
+            SQL Server
+            </summary>
+        </member>
+        <member name="T:Speedy.EntityFramework.EntityFrameworkDatabase">
+            <summary>
+            Represents an Entity Framework Speedy database.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.#ctor">
+            <summary>
+            Instantiates an instance of the database.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions,Speedy.DatabaseOptions)">
+            <summary>
+            Instantiates an instance of the database.
+            </summary>
+            <param name="startup"> The startup options for this database. </param>
+            <param name="options"> The options for this database. </param>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkDatabase.DbContextOptions">
+            <summary>
+            Gets the database context options for this database.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkDatabase.Options">
+            <summary>
+            Gets the options for this database.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.Add``2(``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.DiscardChanges">
+            <summary>
+            Discard all changes made in this context to the underlying database.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetReadOnlyRepository``2">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetRepository``2">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetSyncableRepositories(Speedy.Sync.SyncOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetSyncableRepository``2">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetSyncableRepository(System.Type)">
+            <summary>
+            Gets a syncable repository of the requested entity.
+            </summary>
+            <returns> The repository of entities requested. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.SaveChanges">
+            <summary>
+            Saves all changes made in this context to the underlying database.
+            </summary>
+            <returns>
+            The number of objects written to the underlying database.
+            </returns>
+            <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetMappingAssembly">
+            <summary>
+            Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            This method is called when the model for a derived context has been initialized, but before the model has been locked
+            down and used to initialize
+            the context. The default implementation of this method does nothing, but it can be overridden in a derived class such
+            that the model can be
+            further configured before it is locked down.
+            </summary>
+            <remarks>
+            Typically, this method is called only once when the first instance of a derived context is created. The model for that
+            context is then cached and
+            is for all further instances of the context in the app domain. This caching can be disabled by setting the ModelCaching
+            property on the given
+            ModelBuilder, but note that this can seriously degrade performance. More control over caching is provided through use
+            of the DbModelBuilder and
+            DbContextFactory classes directly.
+            </remarks>
+            <param name="modelBuilder"> The builder that defines the model for the context being created. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.ProcessException(System.Exception)">
+            <summary>
+            Allows data context a chance to process the exception that occurred during save changes.
+            </summary>
+            <param name="exception"> The exception that occurred when trying to save changes. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.ProcessModelTypes(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            Processes the model builder for the Speedy default types.
+            </summary>
+            <remarks>
+            DateTime values will default to "datetime2" and UTC.
+            Guid values default to "uniqueidentifier" type.
+            Strings default to non-unicode.
+            </remarks>
+            <param name="modelBuilder"> The model builder. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.DetectSyncableRepositories(Speedy.Sync.SyncOptions)">
+            <summary>
+            Reads all repositories and puts all the syncable ones in an internal list.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.ProcessEntity(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry)">
+            <summary>
+            Manages the created on and modified on members of the base entity.
+            </summary>
+            <param name="entry"> </param>
+        </member>
+        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.CollectionChanged">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.EntityFramework.EntityFrameworkRepository`2">
+            <summary>
+            Represents a collection of entities for a Speedy database.
+            </summary>
+            <typeparam name="T"> The entity type this collection is for. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+        </member>
+        <member name="F:Speedy.EntityFramework.EntityFrameworkRepository`2.Set">
+            <summary>
+            The set of the entities.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.#ctor(Speedy.EntityFramework.EntityFrameworkDatabase,Microsoft.EntityFrameworkCore.DbSet{`0})">
+            <summary>
+            Instantiates a repository.
+            </summary>
+            <param name="database"> The database where this repository resides. </param>
+            <param name="set"> The database set this repository is for. </param>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.Database">
+            <summary>
+            The database where this repository resides.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.ElementType">
+            <summary>
+            Gets the type of the element(s) that are returned when the expression tree associated with this instance of
+            <see cref="T:System.Linq.IQueryable" /> is executed.
+            </summary>
+            <returns>
+            A <see cref="T:System.Type" /> that represents the type of the element(s) that are returned when the expression tree
+            associated with this object is executed.
+            </returns>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.Expression">
+            <summary>
+            Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable" />.
+            </summary>
+            <returns>
+            The <see cref="T:System.Linq.Expressions.Expression" /> that is associated with this instance of
+            <see cref="T:System.Linq.IQueryable" />.
+            </returns>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.Provider">
+            <summary>
+            Gets the query provider that is associated with this data source.
+            </summary>
+            <returns>
+            The <see cref="T:System.Linq.IQueryProvider" /> that is associated with this data source.
+            </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Add(`0)">
+            <summary>
+            Add an entity to the repository. The ID of the entity must be the default value.
+            </summary>
+            <param name="entity"> The entity to be added. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.AddOrUpdate(`0)">
+            <summary>
+            Adds or updates an entity in the repository. The ID of the entity must be the default value to add and a value to
+            update.
+            </summary>
+            <param name="entity"> The entity to be added. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.BulkAdd(`0[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.BulkAdd(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.BulkAddOrUpdate(`0[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.BulkAddOrUpdate(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.BulkRemove(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.BulkUpdate(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{`0,`0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Include``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Including(System.Linq.Expressions.Expression{System.Func{`0,System.Object}}[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Including``1(System.Linq.Expressions.Expression{System.Func{`0,``0}}[])">
+            <summary>
+            Configures the query to include multiple related entities in the results.
+            </summary>
+            <param name="includes"> The related entities to include. </param>
+            <returns> The results of the query including the related entities. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Remove(`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Remove(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Remove(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2">
+            <summary>
+            Represents a syncable repository.
+            </summary>
+            <typeparam name="T"> The entity for the repository. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.#ctor(Speedy.EntityFramework.EntityFrameworkDatabase,Microsoft.EntityFrameworkCore.DbSet{`0})">
+            <summary>
+            Instantiates a repository.
+            </summary>
+            <param name="database"> The database where this repository resides. </param>
+            <param name="set"> The database set this repository is for. </param>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.TypeName">
+            <summary>
+            The type name this repository is for. Will be in assembly name format.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.Add(Speedy.Sync.ISyncEntity)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.GetChangeCount(System.DateTime,System.DateTime,Speedy.Sync.SyncRepositoryFilter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.GetChanges(System.DateTime,System.DateTime,System.Int32,System.Int32,Speedy.Sync.SyncRepositoryFilter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.Read(System.Guid)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.Read(Speedy.Sync.ISyncEntity,Speedy.Sync.SyncRepositoryFilter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.Remove(Speedy.Sync.ISyncEntity)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.EntityFramework.EntityIncludableQueryable`2">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityIncludableQueryable`2.#ctor(Microsoft.EntityFrameworkCore.Query.IIncludableQueryable{`0,`1})">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityIncludableQueryable`2.ElementType">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityIncludableQueryable`2.Expression">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityIncludableQueryable`2.Provider">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityIncludableQueryable`2.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityIncludableQueryable`2.Include``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityIncludableQueryable`2.ThenInclude``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityIncludableQueryable`2.ThenInclude``1(System.Linq.Expressions.Expression{System.Func{`1,``0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityIncludableQueryable`2.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.EntityFramework.EntityMappingConfiguration`1">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityMappingConfiguration`1.Map(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityMappingConfiguration`1.Map(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.EntityFramework.IEntityMappingConfiguration`1">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.IEntityMappingConfiguration`1.Map(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{`0})">
+            <summary>
+            Maps configuration for an entity.
+            </summary>
+            <param name="builder"> The builder to use for the mapping. </param>
+        </member>
+        <member name="T:Speedy.EntityFramework.IEntityMappingConfiguration">
+            <summary>
+            Represents mapping of an entity.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.IEntityMappingConfiguration.Map(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            Maps configuration for an entity.
+            </summary>
+            <param name="builder"> The builder to use for the mapping. </param>
+        </member>
+        <member name="T:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2">
+            <summary>
+            Represents a read only collection of entities for a Speedy database.
+            </summary>
+            <typeparam name="T"> The entity type this collection is for. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.#ctor(Speedy.EntityFramework.EntityFrameworkDatabase,Microsoft.EntityFrameworkCore.DbSet{`0})">
+            <summary>
+            Instantiates a repository.
+            </summary>
+            <param name="database"> The database where this repository resides. </param>
+            <param name="set"> The database set this repository is for. </param>
+        </member>
+        <member name="P:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.ElementType">
+            <summary>
+            Gets the type of the element(s) that are returned when the expression tree associated with this instance of
+            <see cref="T:System.Linq.IQueryable" /> is executed.
+            </summary>
+            <returns>
+            A <see cref="T:System.Type" /> that represents the type of the element(s) that are returned when the expression tree
+            associated with this object is executed.
+            </returns>
+        </member>
+        <member name="P:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Expression">
+            <summary>
+            Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable" />.
+            </summary>
+            <returns>
+            The <see cref="T:System.Linq.Expressions.Expression" /> that is associated with this instance of
+            <see cref="T:System.Linq.IQueryable" />.
+            </returns>
+        </member>
+        <member name="P:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Provider">
+            <summary>
+            Gets the query provider that is associated with this data source.
+            </summary>
+            <returns>
+            The <see cref="T:System.Linq.IQueryProvider" /> that is associated with this data source.
+            </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.AddOrUpdate(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.BulkAdd(`0[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.BulkAdd(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.BulkAddOrUpdate(`0[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.BulkAddOrUpdate(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.BulkRemove(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.BulkUpdate(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{`0,`0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Include``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Including(System.Linq.Expressions.Expression{System.Func{`0,System.Object}}[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Including``1(System.Linq.Expressions.Expression{System.Func{`0,``0}}[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Remove(`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Remove(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Remove(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.EntityFramework.Sql.SqlBuilder">
+            <summary>
+            SQL builder to generate SQL scripts from Entity Framework queries. Supports both MSSQL and Sqlite.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlDelete``1(Speedy.EntityFramework.EntityFrameworkDatabase,System.Linq.IQueryable{``0})">
+            <summary>
+            Get SQL delete script from query.
+            </summary>
+            <typeparam name="T"> The type for the query. </typeparam>
+            <param name="database"> The database to process. </param>
+            <param name="query"> The query to process. </param>
+            <returns> The SQL script and values to be deleted. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlInsert``1(Speedy.EntityFramework.EntityFrameworkDatabase)">
+            <summary>
+            Get SQL insert script from query.
+            </summary>
+            <typeparam name="T"> The type for the query. </typeparam>
+            <param name="database"> The database to process. </param>
+            <returns> The SQL insert script. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlInsert``1(Speedy.EntityFramework.EntityFrameworkDatabase,``0)">
+            <summary>
+            Get SQL insert script from query.
+            </summary>
+            <typeparam name="T"> The type for the query. </typeparam>
+            <param name="database"> The database to process. </param>
+            <param name="entity"> The entity to process. </param>
+            <returns> The SQL script and values to be inserted. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlInsertOrUpdate``1(Speedy.EntityFramework.EntityFrameworkDatabase)">
+            <summary>
+            Get SQL merge script from query.
+            </summary>
+            <typeparam name="T"> The type for the query. </typeparam>
+            <param name="database"> The database to process. </param>
+            <returns> The SQL merge script. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlUpdate``1(Speedy.EntityFramework.EntityFrameworkDatabase)">
+            <summary>
+            Get SQL insert script from query.
+            </summary>
+            <typeparam name="T"> The type for the query. </typeparam>
+            <param name="database"> The database to process. </param>
+            <returns> The SQL update statement. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlUpdate``1(Speedy.EntityFramework.EntityFrameworkDatabase,System.Linq.IQueryable{``0},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Get SQL update script from query.
+            </summary>
+            <typeparam name="T"> The type for the query. </typeparam>
+            <param name="database"> The database to process. </param>
+            <param name="query"> The query to process. </param>
+            <param name="expression"> The expression to process. </param>
+            <returns> The SQL update statement. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlInsert(Speedy.EntityFramework.Sql.SqlStatement,System.Boolean)">
+            <summary>
+            Get SQL insert script from query.
+            </summary>
+            <param name="statement"> The statement to process. </param>
+            <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement start </param>
+            <returns> The SQL insert script. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlUpdate(Speedy.EntityFramework.Sql.SqlStatement,System.Boolean,System.Boolean,System.String[])">
+            <summary>
+            Get SQL insert script from query.
+            </summary>
+            <param name="statement"> The statement to process. </param>
+            <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement. </param>
+            <param name="excludeWhere"> Exclude the WHERE clause from the statement. </param>
+            <param name="excludedColumns"> Optional set of columns to be excluded. </param>
+            <returns> The SQL insert script. </returns>
+        </member>
+        <member name="T:Speedy.EntityFramework.Sql.SqlExtensions">
+            <summary>
+            Extension to support SQL only functionality
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlExtensions.ToSql``1(System.Linq.IQueryable{``0})">
+            <summary>
+            Convert the Queryable to a SQL query.
+            </summary>
+            <typeparam name="TEntity"> The entity type. </typeparam>
+            <param name="query"> The query for the entity. </param>
+            <returns> The SQL query for the queryable. </returns>
+        </member>
+        <member name="T:Speedy.EntityFramework.Sql.SqlStatement">
+            <summary>
+            Represents a SQL statement
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlStatement.#ctor(Speedy.EntityFramework.Sql.SqlTableInformation)">
+            <summary>
+            Instantiates an instance of a SQL statement
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.ParameterNameByColumnName">
+            <summary>
+            Locate a parameter name by the column name. Ex. Parameters may be added as p0, p1 but for p0 == Id, and p1 == Name.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.ParameterPrefix">
+            <summary>
+            The parameter prefixes.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.Parameters">
+            <summary>
+            Parameter values
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.ParametersByColumnName">
+            <summary>
+            Locate a parameter by the column name. Ex. Parameters may be added as p0, p1 but for p0 == Id, and p1 == Name.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.Query">
+            <summary>
+            The query generated by SQL builder.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.QueryUpdate">
+            <summary>
+            The optional update portion of the query.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.QueryWhere">
+            <summary>
+            The optional where portion of the query.
+            </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.Sql.SqlStatement.TableInformation">
+            <summary>
+            The table information.
+            </summary>
+        </member>
+    </members>
+</doc>

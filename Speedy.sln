@@ -19,7 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Client", "Speedy.Cli
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{482440A1-EDF1-4557-BC4F-FE8C8554271D}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
 		Development.md = Development.md
 		LICENSE.md = LICENSE.md
 		README.md = README.md

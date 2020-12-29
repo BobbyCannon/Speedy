@@ -7,14 +7,24 @@ using System.Linq;
 
 namespace Speedy.Collections
 {
+	/// <summary>
+	/// Represents a sorted observable collection. The collection supports notification on clear and ability to be sorted.
+	/// </summary>
+	/// <typeparam name="T"> The type of the item stored in the collection. </typeparam>
 	public class SortedObservableCollection<T> : BaseObservableCollection<T>
 	{
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
 		public SortedObservableCollection(OrderBy<T> orderBy, params OrderBy<T>[] thenBy) : this(null, orderBy, thenBy)
 		{
 		}
 
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
 		public SortedObservableCollection(IDispatcher dispatcher, OrderBy<T> orderBy, params OrderBy<T>[] thenBy) : base(dispatcher)
 		{
 			OrderBy = orderBy;
@@ -25,14 +35,23 @@ namespace Speedy.Collections
 
 		#region Properties
 
+		/// <summary>
+		/// The expression to order this collection by.
+		/// </summary>
 		public OrderBy<T> OrderBy { get; }
 
+		/// <summary>
+		/// An optional set of expressions to further order this collection by.
+		/// </summary>
 		public OrderBy<T>[] ThenBy { get; }
 
 		#endregion
 
 		#region Methods
 
+		/// <summary>
+		/// Sort the collection.
+		/// </summary>
 		public void Sort()
 		{
 			var sorted = OrderBy.Process(this.AsQueryable(), ThenBy).ToList();
@@ -50,6 +69,7 @@ namespace Speedy.Collections
 			}
 		}
 
+		/// <inheritdoc />
 		protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
 		{
 			base.OnCollectionChanged(e);

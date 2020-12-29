@@ -12,28 +12,53 @@ using Newtonsoft.Json;
 
 namespace Speedy.Collections
 {
+	/// <summary>
+	/// Represents an observable collection that supports notification on clear.
+	/// </summary>
+	/// <typeparam name="T"> The type of the item stored in the collection. </typeparam>
 	public class BaseObservableCollection<T> : ObservableCollection<T>
 	{
 		#region Constructors
 
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
 		public BaseObservableCollection()
 		{
 		}
 
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <param name="items"> An optional set of initial items. </param>
 		public BaseObservableCollection(IDispatcher dispatcher, params T[] items) : base(items)
 		{
 			Dispatcher = dispatcher;
 		}
 
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="items"> An optional set of initial items. </param>
 		public BaseObservableCollection(params T[] items) : base(items)
 		{
 		}
 
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <param name="items"> An optional set of initial items. </param>
 		public BaseObservableCollection(IDispatcher dispatcher, IEnumerable<T> items) : base(items)
 		{
 			Dispatcher = dispatcher;
 		}
 
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="items"> An optional set of initial items. </param>
 		public BaseObservableCollection(IEnumerable<T> items) : base(items)
 		{
 		}
@@ -96,6 +121,7 @@ namespace Speedy.Collections
 			}
 		}
 
+		/// <inheritdoc />
 		protected override void ClearItems()
 		{
 			// Do not throw changed on elements with no changes, this will result in exception with some UI components
@@ -119,6 +145,7 @@ namespace Speedy.Collections
 			}
 		}
 
+		/// <inheritdoc />
 		protected override void InsertItem(int index, T item)
 		{
 			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
@@ -136,6 +163,11 @@ namespace Speedy.Collections
 			base.InsertItem(index, item);
 		}
 
+		/// <summary>
+		/// Checks to see if an item exist in the collection.
+		/// </summary>
+		/// <param name="item"> The item to check for. </param>
+		/// <returns> True if the item exists otherwise false. </returns>
 		protected bool ItemExists(T item)
 		{
 			if (DistinctCheck == null)
@@ -147,6 +179,7 @@ namespace Speedy.Collections
 			return exists != null;
 		}
 
+		/// <inheritdoc />
 		protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
 		{
 			if (e.Action != NotifyCollectionChangedAction.Reset)
@@ -155,6 +188,7 @@ namespace Speedy.Collections
 			}
 		}
 
+		/// <inheritdoc />
 		protected sealed override void OnPropertyChanged(PropertyChangedEventArgs e)
 		{
 			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
@@ -163,16 +197,8 @@ namespace Speedy.Collections
 				return;
 			}
 
-			PropertyChanged?.Invoke(this, e.PropertyName);
-
 			base.OnPropertyChanged(e);
 		}
-
-		#endregion
-
-		#region Events
-
-		public new event EventHandler<string> PropertyChanged;
 
 		#endregion
 	}

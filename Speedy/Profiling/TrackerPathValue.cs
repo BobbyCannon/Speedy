@@ -9,7 +9,7 @@ namespace Speedy.Profiling
 	/// <summary>
 	/// Represents a value for a tracker path.
 	/// </summary>
-	public class TrackerPathValue
+	public class TrackerPathValue : Bindable, IEquatable<TrackerPathValue>
 	{
 		#region Constructors
 
@@ -23,7 +23,7 @@ namespace Speedy.Profiling
 		/// <summary>
 		/// Instantiates a new instance of the class.
 		/// </summary>
-		public TrackerPathValue(string name, object value)
+		public TrackerPathValue(string name, object value, IDispatcher dispatcher = null) : base(dispatcher)
 		{
 			if (name == null)
 			{
@@ -52,6 +52,58 @@ namespace Speedy.Profiling
 		/// Gets or sets the value.
 		/// </summary>
 		public string Value { get; set; }
+
+		#endregion
+
+		#region Methods
+
+		/// <inheritdoc />
+		public bool Equals(TrackerPathValue other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+			return Name == other.Name && Value == other.Value;
+		}
+
+		/// <inheritdoc />
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+			if (obj.GetType() != GetType())
+			{
+				return false;
+			}
+			return Equals((TrackerPathValue) obj);
+		}
+
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return ((Name != null ? Name.GetHashCode() : 0) * 397)
+					^ (Value != null ? Value.GetHashCode() : 0);
+			}
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"{Name}:{Value}";
+		}
 
 		#endregion
 	}
