@@ -10,7 +10,7 @@
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy</Product>
 		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
-		<Copyright>© Copyright 2014 - 2020</Copyright>
+		<Copyright>© Copyright 2014-2021</Copyright>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
 		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
@@ -26,6 +26,7 @@
 		<LangVersion>latest</LangVersion>
 		<AssemblyVersion>6.5.2.0</AssemblyVersion>
 		<FileVersion>6.5.2.0</FileVersion>
+		<Version>6.5.2.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

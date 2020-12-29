@@ -1,3 +1,5 @@
+This should not be ran as a file
+
 Import-Module WebAdministration
 iisreset
 

@@ -18,8 +18,6 @@ namespace Speedy.Benchmark
 		{
 			InitializeComponent();
 
-			Profiler.Enabled = true;
-
 			var dispatcher = new InterfaceDispatcher(Dispatcher);
 			ViewModel = new MainViewModel(dispatcher);
 			DataContext = ViewModel;

@@ -18,7 +18,7 @@ namespace Speedy.Profiling
 	/// <summary>
 	/// A tracker to track paths and exceptions. Each tracker instance represents a new sessions.
 	/// </summary>
-	public class Tracker : IDisposable
+	public class Tracker : Bindable, IDisposable
 	{
 		#region Fields
 
@@ -27,7 +27,6 @@ namespace Speedy.Profiling
 		private readonly IKeyValueRepositoryProvider<TrackerPath> _cacheProvider;
 		private IKeyValueRepository<TrackerPath> _currentCacheRepository;
 		private BackgroundWorker _pathProcessor;
-		private readonly ITrackerPathRepository _pathRepository;
 		private TrackerPath _session;
 
 		#endregion
@@ -39,15 +38,25 @@ namespace Speedy.Profiling
 		/// </summary>
 		/// <param name="pathRepository"> The final repository used to store the data. </param>
 		/// <param name="cacheProvider"> The repository used to cache data until it can be stored. </param>
-		protected Tracker(ITrackerPathRepository pathRepository, IKeyValueRepositoryProvider<TrackerPath> cacheProvider)
+		public Tracker(ITrackerPathRepository pathRepository, IKeyValueRepositoryProvider<TrackerPath> cacheProvider) : this(pathRepository, cacheProvider, new DefaultDispatcher())
 		{
-			_pathRepository = pathRepository;
+		}
+
+		/// <summary>
+		/// A tracker to capture, store, and transmit paths to a path repository.
+		/// </summary>
+		/// <param name="pathRepository"> The final repository used to store the data. </param>
+		/// <param name="cacheProvider"> The repository used to cache data until it can be stored. </param>
+		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		public Tracker(ITrackerPathRepository pathRepository, IKeyValueRepositoryProvider<TrackerPath> cacheProvider, IDispatcher dispatcher) : base(dispatcher)
+		{
 			_cacheProvider = cacheProvider;
 			_pathProcessor = new BackgroundWorker { WorkerSupportsCancellation = true };
 			_pathProcessor.DoWork += PathProcessorOnDoWork;
 
 			PathProcessingDelay = 250;
 			PathProcessorRunning = false;
+			PathRepository = pathRepository;
 			ProcessRepositoryChunk = 300;
 		}
 
@@ -71,11 +80,16 @@ namespace Speedy.Profiling
 		public static AssemblyName AssemblyName => _assemblyName ??= Assembly.GetName();
 
 		/// <summary>
+		/// Gets the version of the assembly.
+		/// </summary>
+		public static Version AssemblyVersion => _assemblyVersion ??= Assembly.GetName().Version;
+
+		/// <summary>
 		/// Gets or sets the delay in milliseconds between processing paths. The path processor will
 		/// delay this time between processing of paths. There will be a delay 4x this amount when an
 		/// error occurs during processing.
 		/// </summary>
-		public int PathProcessingDelay { get; }
+		public int PathProcessingDelay { get; set; }
 
 		/// <summary>
 		/// Gets the running status of the path processor.
@@ -83,18 +97,35 @@ namespace Speedy.Profiling
 		public bool PathProcessorRunning { get; private set; }
 
 		/// <summary>
-		/// Gets the chunk size for saving data to the final storage location.
+		/// Gets the repository for paths that are tracked.
 		/// </summary>
-		public int ProcessRepositoryChunk { get; protected set; }
+		public ITrackerPathRepository PathRepository { get; }
 
 		/// <summary>
-		/// Gets the version of the assembly.
+		/// Gets the chunk size for saving data to the final storage location.
 		/// </summary>
-		public static Version Version => _assemblyVersion ??= Assembly.GetName().Version;
+		public int ProcessRepositoryChunk { get; set; }
 
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Adds an exception to the tracking session.
+		/// </summary>
+		/// <param name="exception"> The exception to be added. </param>
+		/// <param name="values"> Optional values for this path. </param>
+		public void AddException(Exception exception, params TrackerPathValue[] values)
+		{
+			ValidateTrackerState();
+
+			_currentCacheRepository.WriteAndSave(TrackerPath.CreatePath(_session.Id, exception, values));
+
+			if (exception.InnerException != null)
+			{
+				AddException(exception.InnerException);
+			}
+		}
 
 		/// <summary>
 		/// Adds an path to the tracking session.
@@ -104,6 +135,7 @@ namespace Speedy.Profiling
 		public void AddPath(string name, params TrackerPathValue[] values)
 		{
 			ValidateTrackerState();
+
 			_currentCacheRepository.WriteAndSave(new TrackerPath { ParentId = _session.Id, Name = name, Values = values.ToList() });
 		}
 
@@ -129,23 +161,6 @@ namespace Speedy.Profiling
 		}
 
 		/// <summary>
-		/// Adds an exception to the tracking session.
-		/// </summary>
-		/// <param name="exception"> The exception to be added. </param>
-		/// <param name="values"> Optional values for this path. </param>
-		public void AddException(Exception exception, params TrackerPathValue[] values)
-		{
-			ValidateTrackerState();
-
-			_currentCacheRepository.WriteAndSave(TrackerPath.FromException(_session.Id, exception, values));
-
-			if (exception.InnerException != null)
-			{
-				AddException(exception.InnerException);
-			}
-		}
-
-		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		public void Dispose()
@@ -155,16 +170,45 @@ namespace Speedy.Profiling
 		}
 
 		/// <summary>
+		/// Initialize the tracker before using it.
+		/// </summary>
+		/// <param name="values"> The values to associate with this session. </param>
+		public void Initialize(params TrackerPathValue[] values)
+		{
+			if (_session != null)
+			{
+				_session.Values.AddRange(values);
+				return;
+			}
+
+			_session = NewSession(AssemblyName, TimeSpan.Zero, values);
+			_currentCacheRepository = _cacheProvider.OpenRepository(_session);
+		}
+
+		/// <summary>
 		/// A tracker to capture, store, and transmit paths to a data channel.
 		/// </summary>
-		/// <param name="channel"> The channel used to store the data remotely. </param>
+		/// <param name="repository"> The channel used to store the data remotely. </param>
 		/// <param name="provider"> The repository used to store the data locally. </param>
 		/// <param name="values"> The values to associate with this session. </param>
-		public static Tracker Start(ITrackerPathRepository channel, IKeyValueRepositoryProvider<TrackerPath> provider, params TrackerPathValue[] values)
+		public static Tracker Start(ITrackerPathRepository repository, IKeyValueRepositoryProvider<TrackerPath> provider, params TrackerPathValue[] values)
 		{
-			var tracker = new Tracker(channel, provider);
-			tracker.Start(AssemblyName, TimeSpan.Zero, values);
+			var tracker = new Tracker(repository, provider);
+			tracker.Start(values);
 			return tracker;
+		}
+
+		/// <summary>
+		/// Start the tracker for the provided application.
+		/// </summary>
+		/// <param name="values"> The initial path values. </param>
+		public void Start(params TrackerPathValue[] values)
+		{
+			Initialize(values);
+
+			_pathProcessor.RunWorkerAsync(this);
+
+			UtilityExtensions.Wait(() => PathProcessorRunning, 5000, 10);
 		}
 
 		/// <summary>
@@ -187,7 +231,7 @@ namespace Speedy.Profiling
 		/// <param name="disposing"> A flag determining if we are currently disposing. </param>
 		protected virtual void Dispose(bool disposing)
 		{
-			if (!disposing || _currentCacheRepository == null)
+			if (!disposing)
 			{
 				return;
 			}
@@ -200,14 +244,12 @@ namespace Speedy.Profiling
 					UtilityExtensions.Wait(() => !PathProcessorRunning, 5000, 10);
 				}
 
-				_currentCacheRepository.Flush();
-
-				if (_currentCacheRepository.Count <= 0)
+				if (_currentCacheRepository != null)
 				{
+					_currentCacheRepository.Flush();
 					_currentCacheRepository.Delete();
+					_currentCacheRepository.Dispose();
 				}
-
-				_currentCacheRepository.Dispose();
 			}
 			finally
 			{
@@ -255,6 +297,7 @@ namespace Speedy.Profiling
 			var delayWatch = new Stopwatch();
 			var shutdownWatch = new Stopwatch();
 			var shutdownDelay = tracker.PathProcessingDelay * 4;
+			var pathProcessingDelay = tracker.PathProcessingDelay;
 
 			tracker.PathProcessorRunning = true;
 			tracker.OnLog("Path processor started.", EventLevel.Verbose);
@@ -280,14 +323,14 @@ namespace Speedy.Profiling
 					{
 						continue;
 					}
-					
+
 					// No data to process for our current session so try and send old session data 
 					// that may not been able to transmit earlier.
 					if (tracker.ProcessOldSessions() > 0)
 					{
 						continue;
 					}
-					
+
 					if (shutdownWatch.IsRunning)
 					{
 						break;
@@ -295,7 +338,7 @@ namespace Speedy.Profiling
 
 					delayWatch.Restart();
 
-					while (delayWatch.Elapsed.TotalMilliseconds < tracker.PathProcessingDelay && !worker.CancellationPending)
+					while (delayWatch.Elapsed.TotalMilliseconds < pathProcessingDelay && !worker.CancellationPending)
 					{
 						Thread.Sleep(50);
 					}
@@ -330,7 +373,7 @@ namespace Speedy.Profiling
 
 			try
 			{
-				var result = ProcessRepository(this, repository, _pathRepository);
+				var result = ProcessRepository(this, repository, PathRepository);
 				if (result > 0)
 				{
 					return result;
@@ -397,21 +440,7 @@ namespace Speedy.Profiling
 		/// <returns> The number of paths processed. </returns>
 		private int ProcessSession()
 		{
-			return ProcessRepository(this, _currentCacheRepository, _pathRepository);
-		}
-
-		/// <summary>
-		/// Start the tracker for the provided application.
-		/// </summary>
-		/// <param name="assembly"> The calling assembly. </param>
-		/// <param name="elapsedTime"> The existing elapsed time. </param>
-		/// <param name="values"> The initial path values. </param>
-		private void Start(AssemblyName assembly, TimeSpan elapsedTime, params TrackerPathValue[] values)
-		{
-			_session = NewSession(assembly, elapsedTime, values);
-			_currentCacheRepository = _cacheProvider.OpenRepository(_session);
-			_pathProcessor.RunWorkerAsync(this);
-			UtilityExtensions.Wait(() => PathProcessorRunning, 5000, 10);
+			return ProcessRepository(this, _currentCacheRepository, PathRepository);
 		}
 
 		/// <summary>

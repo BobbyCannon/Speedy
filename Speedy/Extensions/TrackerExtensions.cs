@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Speedy.Logging;
 using Speedy.Profiling;
 using Speedy.Storage.KeyValue;
 
@@ -11,9 +10,9 @@ using Speedy.Storage.KeyValue;
 namespace Speedy.Extensions
 {
 	/// <summary>
-	/// Extensions for key value repository
+	/// Extensions for tracker profiler
 	/// </summary>
-	public static class EventExtensions
+	public static class TrackerExtensions
 	{
 		#region Methods
 
@@ -76,7 +75,7 @@ namespace Speedy.Extensions
 		/// </summary>
 		/// <param name="repository"> The repository to write to. </param>
 		/// <param name="value"> The event to be written to the repository. </param>
-		internal static void WriteAndSave(this IKeyValueRepository<TrackerPath> repository, TrackerPath value)
+		public static void WriteAndSave(this IKeyValueRepository<TrackerPath> repository, TrackerPath value)
 		{
 			repository.Write(value.Id.ToString(), value);
 			repository.Save();

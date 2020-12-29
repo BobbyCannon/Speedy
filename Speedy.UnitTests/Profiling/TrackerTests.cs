@@ -45,7 +45,7 @@ namespace Speedy.UnitTests.Profiling
 		public void VersionShouldBeCorrect()
 		{
 			var expected = typeof(Tracker).Assembly.GetName().Version;
-			Assert.AreEqual(expected, Tracker.Version);
+			Assert.AreEqual(expected, Tracker.AssemblyVersion);
 		}
 
 		#endregion

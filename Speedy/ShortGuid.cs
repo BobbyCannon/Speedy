@@ -52,12 +52,12 @@ namespace Speedy
 		/// <summary>
 		/// Gets/sets the underlying Guid.
 		/// </summary>
-		public Guid Guid { get; }
+		public Guid Guid { get; set; }
 
 		/// <summary>
 		/// Gets/sets the underlying base64 encoded string.
 		/// </summary>
-		public string Value { get; }
+		public string Value { get; set; }
 
 		#endregion
 

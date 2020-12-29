@@ -770,16 +770,18 @@ namespace Speedy.Storage
 		private void RemoveFromCache(EntityState<T, T2> entityState)
 		{
 			entityState.ResetEvents();
-			Cache.Remove(entityState);
+			Cache?.Remove(entityState);
 		}
 
 		private void ResetCache()
 		{
-			Cache.Where(x => x.State == EntityStateType.Added)
+			Cache?
+				.Where(x => x.State == EntityStateType.Added)
 				.ToList()
 				.ForEach(RemoveFromCache);
 
-			Cache.ToList()
+			Cache?
+				.ToList()
 				.ForEach(x =>
 				{
 					UpdateEntity(x.Entity, x.OldEntity);

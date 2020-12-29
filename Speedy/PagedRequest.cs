@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 #endregion
 
@@ -55,12 +56,7 @@ namespace Speedy
 		/// <summary>
 		/// The value to order the request by.
 		/// </summary>
-		public IList<string> Order { get; set; }
-
-		/// <summary>
-		/// An optional order direction to order by.
-		/// </summary>
-		public IList<bool> OrderDirection { get; set; }
+		public string Order { get; set; }
 
 		/// <summary>
 		/// The page to start the request on.
@@ -124,6 +120,7 @@ namespace Speedy
 			Cleanup(Including, x => x == null, () => Including = new List<string>());
 			Cleanup(Options, x => x == null, () => Options = new List<string>());
 			Cleanup(OptionValues, x => x == null, () => OptionValues = new List<string>());
+			Cleanup(Order, x => x == null, () => Order = string.Empty);
 			Cleanup(Page, x => x <= 0, () => Page = 1);
 			Cleanup(PerPage, x => x <= 0, () => PerPage = perPage);
 		}
@@ -160,6 +157,23 @@ namespace Speedy
 			return Including
 				.Select(x => x.Split('|'))
 				.ToDictionary(x => x[0].ToLower(), x => x.Length > 1 ? x[1] : string.Empty);
+		}
+
+		/// <summary>
+		/// Convert the request to the query string values.
+		/// </summary>
+		/// <returns> The request in a query string format. </returns>
+		public string ToQueryString()
+		{
+			var builder = new StringBuilder();
+
+			builder.Append("Page=");
+			builder.Append(Page);
+
+			builder.Append("&PerPage=");
+			builder.Append(PerPage);
+
+			return builder.ToString();
 		}
 
 		/// <summary>

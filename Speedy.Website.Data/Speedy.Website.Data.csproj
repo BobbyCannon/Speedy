@@ -7,7 +7,7 @@
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.Samples</Product>
 		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
-		<Copyright>© Copyright 2014 - 2018</Copyright>
+		<Copyright>© Copyright 2014-2021</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>

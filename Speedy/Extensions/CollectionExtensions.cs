@@ -80,7 +80,7 @@ namespace Speedy.Extensions
 		/// <returns> A new HashSet containing the new values. </returns>
 		public static HashSet<T> Append<T>(this HashSet<T> set, params T[] values)
 		{
-			return new HashSet<T>(set.Union(values));
+			return new(set.Union(values));
 		}
 
 		/// <summary>
@@ -92,7 +92,7 @@ namespace Speedy.Extensions
 		/// <returns> A new HashSet containing the new values. </returns>
 		public static HashSet<T> Append<T>(this HashSet<T> set, HashSet<T> values)
 		{
-			return new HashSet<T>(set.Union(values));
+			return new(set.Union(values));
 		}
 
 		/// <summary>
@@ -141,6 +141,51 @@ namespace Speedy.Extensions
 		public static IEnumerable<string> NaturalSort(this IEnumerable<string> collection, CultureInfo cultureInfo)
 		{
 			return collection.OrderBy(s => s, new SyncKeyComparer(cultureInfo));
+		}
+
+		/// <summary>
+		/// Safely convert an enumeration to a list without worry about "InvalidOperationException" due to collection being modified.
+		/// </summary>
+		/// <typeparam name="T"> The type in the collection. </typeparam>
+		/// <param name="values"> The enumeration to convert to a list. </param>
+		/// <returns> The values in a list format. </returns>
+		public static IList<T> ToListSafe<T>(this IEnumerable<T> values)
+		{
+			while (true)
+			{
+				try
+				{
+					// ReSharper disable once PossibleMultipleEnumeration
+					return values.ToList();
+				}
+				catch (InvalidOperationException)
+				{
+					// Ignore "Collection was modified"
+				}
+			}
+		}
+
+		/// <summary>
+		/// Safely convert an enumeration to a list without worry about "InvalidOperationException" due to collection being modified.
+		/// </summary>
+		/// <typeparam name="T"> The type of the entity of the collection. </typeparam>
+		/// <typeparam name="T2"> The type of the entity key. </typeparam>
+		/// <param name="values"> The enumeration to convert to a list. </param>
+		/// <returns> The values in a list format. </returns>
+		public static IList<T> ToListSafe<T, T2>(this IRepository<T, T2> values) where T : Entity<T2>
+		{
+			while (true)
+			{
+				try
+				{
+					// ReSharper disable once PossibleMultipleEnumeration
+					return values.ToList();
+				}
+				catch (InvalidOperationException)
+				{
+					// Ignore "Collection was modified"
+				}
+			}
 		}
 
 		#endregion

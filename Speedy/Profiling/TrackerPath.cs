@@ -94,23 +94,23 @@ namespace Speedy.Profiling
 		#region Methods
 
 		/// <summary>
-		/// Adds a child path to this path.
-		/// </summary>
-		/// <param name="name"> The name of the path. </param>
-		/// <param name="values"> Optional values for this path. </param>
-		public void AddEvent(string name, params TrackerPathValue[] values)
-		{
-			Children.Add(new TrackerPath { ParentId = Id, Name = name, Values = values.ToList() });
-		}
-
-		/// <summary>
 		/// Adds an exception to this path.
 		/// </summary>
 		/// <param name="exception"> The exception to be added to the path. </param>
 		/// <param name="values"> Optional values for this exception. </param>
 		public void AddException(Exception exception, params TrackerPathValue[] values)
 		{
-			Children.Add(FromException(Id, exception, values));
+			Children.Add(CreatePath(Id, exception, values));
+		}
+
+		/// <summary>
+		/// Adds a child path to this path.
+		/// </summary>
+		/// <param name="name"> The name of the path. </param>
+		/// <param name="values"> Optional values for this path. </param>
+		public void AddPath(string name, params TrackerPathValue[] values)
+		{
+			Children.Add(new TrackerPath { ParentId = Id, Name = name, Values = values.ToList() });
 		}
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace Speedy.Profiling
 		/// <param name="value"> The value of this value. </param>
 		public void AddValue(string name, string value)
 		{
-			Values.Add(new TrackerPathValue { Name = name, Value = value });
+			Values.AddOrUpdate(new TrackerPathValue { Name = name, Value = value });
 		}
 
 		/// <summary>
@@ -145,13 +145,78 @@ namespace Speedy.Profiling
 		}
 
 		/// <summary>
-		/// Starts a new path. The path will need to be completed or disposed before it will be added to the tracker.
+		/// Starts a new path. Once the path is done be sure to call <seealso cref="Complete" />.
+		/// </summary>
+		/// <param name="name"> The name of the path. </param>
+		/// <param name="values"> Optional values for this path. </param>
+		/// <returns> The path for tracking an path. </returns>
+		public TrackerPath StartNewPath(Func<string> name, params TrackerPathValue[] values)
+		{
+			var response = new TrackerPath { ParentId = Id, Name = name(), Values = values.ToList() };
+			response.Completed += x => { Children.Add(x); };
+			return response;
+		}
+
+		/// <summary>
+		/// Process an action and then add the path.
+		/// </summary>
+		/// <param name="key"> The key for the path. </param>
+		/// <param name="action"> The action to process. </param>
+		public void TrackAction(Func<string> key, Action<TrackerPath> action)
+		{
+			if (IsCompleted)
+			{
+				action(this);
+				return;
+			}
+
+			using var result = new TrackerPath { Name = key(), StartedOn = TimeService.UtcNow };
+			action(result);
+			Children.Add(result);
+		}
+
+		/// <summary>
+		/// Process an action and then add the path.
+		/// </summary>
+		/// <typeparam name="T"> The type of the response for the action. </typeparam>
+		/// <param name="key"> The key for the path. </param>
+		/// <param name="action"> The action to process. </param>
+		/// <returns> The result of the action. </returns>
+		public T TrackAction<T>(Func<string> key, Func<TrackerPath, T> action)
+		{
+			if (IsCompleted)
+			{
+				return action(this);
+			}
+
+			using var result = new TrackerPath { Name = key(), StartedOn = TimeService.UtcNow };
+			var response = action(result);
+			Children.Add(result);
+			return response;
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> True if disposing and false if otherwise. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
+				return;
+			}
+
+			Complete();
+		}
+
+		/// <summary>
+		/// Starts a new path including an exception. The path will need to be completed or disposed before it will be added to the tracker.
 		/// </summary>
 		/// <param name="parentId"> The ID of the parent for this path. </param>
 		/// <param name="ex"> The exception to be turned into an path. </param>
 		/// <param name="values"> Optional values for this path. </param>
 		/// <returns> The path for tracking an path. </returns>
-		public static TrackerPath FromException(Guid parentId, Exception ex, params TrackerPathValue[] values)
+		internal static TrackerPath CreatePath(Guid parentId, Exception ex, params TrackerPathValue[] values)
 		{
 			if (ex == null)
 			{
@@ -174,74 +239,9 @@ namespace Speedy.Profiling
 				return response;
 			}
 
-			var childException = FromException(parentId, ex.InnerException);
+			var childException = CreatePath(parentId, ex.InnerException);
 			response.Children.Add(childException);
 			return response;
-		}
-
-		/// <summary>
-		/// Process an action and then add the path.
-		/// </summary>
-		/// <param name="key"> The key for the path. </param>
-		/// <param name="action"> The action to process. </param>
-		public void Process(Func<string> key, Action<TrackerPath> action)
-		{
-			if (IsCompleted)
-			{
-				action(this);
-				return;
-			}
-
-			using var result = new TrackerPath { Name = key(), StartedOn = TimeService.UtcNow };
-			action(result);
-			Children.Add(result);
-		}
-
-		/// <summary>
-		/// Process an action and then add the path.
-		/// </summary>
-		/// <typeparam name="T"> The type of the response for the action. </typeparam>
-		/// <param name="key"> The key for the path. </param>
-		/// <param name="action"> The action to process. </param>
-		/// <returns> The result of the action. </returns>
-		public T Process<T>(Func<string> key, Func<TrackerPath, T> action)
-		{
-			if (IsCompleted)
-			{
-				return action(this);
-			}
-
-			using var result = new TrackerPath { Name = key(), StartedOn = TimeService.UtcNow };
-			var response = action(result);
-			Children.Add(result);
-			return response;
-		}
-
-		/// <summary>
-		/// Starts a new path. Once the path is done be sure to call <seealso cref="Complete" />.
-		/// </summary>
-		/// <param name="name"> The name of the path. </param>
-		/// <param name="values"> Optional values for this path. </param>
-		/// <returns> The path for tracking an path. </returns>
-		public TrackerPath StartNewPath(Func<string> name, params TrackerPathValue[] values)
-		{
-			var response = new TrackerPath { ParentId = Id, Name = name(), Values = values.ToList() };
-			response.Completed += x => { Children.Add(x); };
-			return response;
-		}
-
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		/// <param name="disposing"> True if disposing and false if otherwise. </param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing)
-			{
-				return;
-			}
-
-			Complete();
 		}
 
 		#endregion

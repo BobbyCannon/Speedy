@@ -361,7 +361,7 @@ namespace Speedy.Sync
 			return response;
 		}
 
-		private void ProcessSyncObject(ProfilerSession session, SyncObject syncObject, ISyncableDatabase database, bool correction)
+		private void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction)
 		{
 			Logger.Instance.Write(SyncSession.Id, correction
 					? $"Processing sync object correction {syncObject.SyncId}."
@@ -465,14 +465,7 @@ namespace Speedy.Sync
 
 		private void ProcessSyncObjects(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
 		{
-			var profileSession = Profiler.Start(() => nameof(ProcessSyncObject));
 			var objects = syncObjects.ToList();
-
-			if (!objects.Any())
-			{
-				profileSession.Stop();
-				return;
-			}
 
 			try
 			{
@@ -481,22 +474,18 @@ namespace Speedy.Sync
 				database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
 				for (var i = 0; i < objects.Count; i++)
 				{
-					ProcessSyncObject(profileSession, objects[i], database, corrections);
+					ProcessSyncObject(objects[i], database, corrections);
 				}
 				database.SaveChanges();
 			}
 			catch
 			{
 				Logger.Instance.Write(SyncSession.Id, "Failed to process sync objects in the batch.");
-				ProcessSyncObjectsIndividually(profileSession, provider, objects, issues, corrections);
-			}
-			finally
-			{
-				profileSession.Stop();
+				ProcessSyncObjectsIndividually(provider, objects, issues, corrections);
 			}
 		}
 
-		private void ProcessSyncObjectsIndividually(ProfilerSession profilerSession, ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
+		private void ProcessSyncObjectsIndividually(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
 		{
 			var objects = syncObjects.ToList();
 
@@ -507,7 +496,7 @@ namespace Speedy.Sync
 					using var database = provider.GetSyncableDatabase();
 					database.Options.MaintainCreatedOn = false;
 					database.Options.MaintainModifiedOn = Options.MaintainModifiedOn;
-					ProcessSyncObject(profilerSession, syncObject, database, corrections);
+					ProcessSyncObject(syncObject, database, corrections);
 					database.SaveChanges();
 				}
 				catch (SyncIssueException ex)
