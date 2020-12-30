@@ -3,18 +3,15 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
-		<SignAssembly>true</SignAssembly>
-		<DelaySign>false</DelaySign>
-		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
 		<AssemblyTitle>Speedy</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy</Product>
 		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
 		<Copyright>© Copyright 2014-2021</Copyright>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
 		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
-		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Speedy.png</PackageIcon>
 		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
@@ -23,13 +20,13 @@
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</PackageTags>
+		<PackageId>Speedy</PackageId>
+		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>6.5.2.0</AssemblyVersion>
-		<FileVersion>6.5.2.0</FileVersion>
-		<Version>6.5.2.0</Version>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-	  <DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy\Speedy.xml</DocumentationFile>
+		<AssemblyVersion>6.5.2.16685</AssemblyVersion>
+		<FileVersion>6.5.2.16685</FileVersion>
+		<Version>6.5.2</Version>
+		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy\Speedy.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

@@ -3,9 +3,6 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
-		<SignAssembly>true</SignAssembly>
-		<DelaySign>false</DelaySign>
-		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
 		<AssemblyTitle>Speedy.EntityFramework</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.EntityFramework</Product>
@@ -26,12 +23,10 @@
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>6.5.2.0</AssemblyVersion>
-		<FileVersion>6.5.2.0</FileVersion>
-		<Version>6.5.2.0</Version>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-	  <DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\Speedy.EntityFramework.xml</DocumentationFile>
+		<AssemblyVersion>6.5.2.16685</AssemblyVersion>
+		<FileVersion>6.5.2.16685</FileVersion>
+		<Version>6.5.2</Version>
+		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\Speedy.EntityFramework.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />

@@ -15,6 +15,26 @@ namespace Speedy.UnitTests
 		#region Methods
 
 		[TestMethod]
+		public void InitializeWithAdditionalValues()
+		{
+			var repository = new MemoryTrackerPathRepository();
+			var tracker = new Tracker(repository, new KeyValueMemoryRepositoryProvider<TrackerPath>());
+			tracker.Initialize(new TrackerPathValue("Foo", "Bar"));
+			tracker.Dispose();
+
+			Assert.AreEqual(1, repository.Paths.Count);
+			Assert.AreEqual(5, repository.Paths[0].Values.Count);
+
+			var application = Tracker.AssemblyName;
+			Assert.IsNotNull(application);
+			Assert.AreEqual(new TrackerPathValue(".NET Version", Environment.Version), repository.Paths[0].Values[0]);
+			Assert.AreEqual(new TrackerPathValue("Application Bitness", Environment.Is64BitProcess ? "64" : "32"), repository.Paths[0].Values[1]);
+			Assert.AreEqual(new TrackerPathValue("Application Name", application.Name), repository.Paths[0].Values[2]);
+			Assert.AreEqual(new TrackerPathValue("Application Version", application.Version?.ToString()), repository.Paths[0].Values[3]);
+			Assert.AreEqual(new TrackerPathValue("Foo", "Bar"), repository.Paths[0].Values[4]);
+		}
+
+		[TestMethod]
 		public void InitialValues()
 		{
 			var repository = new MemoryTrackerPathRepository();

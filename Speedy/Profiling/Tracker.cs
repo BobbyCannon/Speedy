@@ -283,7 +283,7 @@ namespace Speedy.Profiling
 				Name = "Session",
 				Id = Guid.NewGuid(),
 				Type = "Session",
-				Values = values.ToList()
+				Values = new List<TrackerPathValue>()
 			};
 
 			response.StartedOn = response.CompletedOn.Subtract(elapsedTime);
@@ -292,6 +292,8 @@ namespace Speedy.Profiling
 				new TrackerPathValue("Application Name", application.Name),
 				new TrackerPathValue("Application Version", application.Version?.ToString() ?? "0.0.0.0")
 			);
+
+			response.Values.AddRange(values);
 
 			return response;
 		}

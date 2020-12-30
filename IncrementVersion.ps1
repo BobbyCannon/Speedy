@@ -41,7 +41,7 @@ function Get-VersionArray
 		[Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true)]
 		[string] $VersionLine
 	)
-
+	
 	$version = $VersionLine | Select-String $assemblyPattern | % { $_.Matches.Value }
 	$versionParts = $version.Split('.')
 
@@ -60,7 +60,7 @@ function Get-VersionArray
 
 		$versionParts += 0
 	}
-
+	
 	return $versionParts
 }
 
@@ -93,17 +93,15 @@ function Set-BuildNumbers
 		if ($propertyGroup.AssemblyVersion -ne $null)
 		{
 			Write-Verbose $file.FullName
+			
 			$propertyGroup.AssemblyVersion = $versionNumber
 			$propertyGroup.FileVersion = $versionNumber
-
-			foreach ($group in $fileXml.Project.PropertyGroup)
+			
+			if ($propertyGroup.Version -ne $null) 
 			{
-				if ($group.Version)
-				{
-					$group.Version = $versionNumber
-				}
+				$propertyGroup.Version = $versionNumber
 			}
-
+			
 			Set-Content -Path $file.FullName -Value (Format-Xml -Data $fileXml.OuterXml) -Encoding UTF8
 		}
 	}

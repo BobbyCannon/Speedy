@@ -56,7 +56,7 @@ try
 	foreach ($filePath in $projectFiles)
 	{
 		$fileXml = [xml](Get-Content -Path $filePath)
-		$fileXml.Project.PropertyGroup[3].Version = $nugetVersion
+		$fileXml.Project.PropertyGroup.Version = $nugetVersion
 		Set-Content -Path $filePath -Value (Format-Xml $fileXml.OuterXml) -Encoding UTF8
 	}
 
