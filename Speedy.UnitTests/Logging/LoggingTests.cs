@@ -37,11 +37,11 @@ namespace Speedy.UnitTests.Logging
 
 			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);			
 
-			using (var listener = new LogListener(id1))
+			using (var listener = LogListener.CreateSession(id1))
 			{
 				Logger.Instance.Write(id1, "First message from logger 1.");
 
-				using (var listener2 = new LogListener(id2))
+				using (var listener2 = LogListener.CreateSession(id2))
 				{
 					Logger.Instance.Write(id2, "First message from logger 2.");
 					Logger.Instance.Write(id2, "Second message from logger 2 (critical).", EventLevel.Critical);

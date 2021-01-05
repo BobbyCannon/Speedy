@@ -2308,6 +2308,11 @@
             The events that have been captured from the event source (logger).
             </summary>
         </member>
+        <member name="P:Speedy.Logging.LogListener.IsListening">
+            <summary>
+            The log listener is listening.
+            </summary>
+        </member>
         <member name="P:Speedy.Logging.LogListener.Level">
             <summary>
             The level in which to log.
@@ -2331,6 +2336,24 @@
             The ID of the session.
             </summary>
         </member>
+        <member name="M:Speedy.Logging.LogListener.CreateSession(System.Guid,System.Diagnostics.Tracing.EventLevel,System.Action{Speedy.Logging.LogListener})">
+            <summary>
+            Create an instance of the log listener and start listening.
+            </summary>
+            <param name="sessionId"> The session of the log to monitor. </param>
+            <param name="level"> The level in which to log. </param>
+            <param name="initialize"> An optional initialize action. </param>
+        </member>
+        <member name="M:Speedy.Logging.LogListener.Start">
+            <summary>
+            Start listening for log events.
+            </summary>
+        </member>
+        <member name="M:Speedy.Logging.LogListener.Stop">
+            <summary>
+            Start listening for log events.
+            </summary>
+        </member>
         <member name="M:Speedy.Logging.LogListener.Dispose(System.Boolean)">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -2340,10 +2363,19 @@
         <member name="M:Speedy.Logging.LogListener.OnEventWritten(System.Diagnostics.Tracing.EventWrittenEventArgs)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Logging.LogListener.OnPropertyChanged(System.String)">
+            <summary>
+            Notified when a property changed.
+            </summary>
+            <param name="propertyName"> The name of the property that has changed. </param>
+        </member>
         <member name="E:Speedy.Logging.LogListener.EventWritten">
             <summary>
             Occurs when an event is written.
             </summary>
+        </member>
+        <member name="E:Speedy.Logging.LogListener.PropertyChanged">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.ModifiableEntity`1">
             <summary>

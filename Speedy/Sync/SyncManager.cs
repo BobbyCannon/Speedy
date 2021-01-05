@@ -64,7 +64,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a value indicating the running sync is requesting to be cancelled.
 		/// </summary>
-		public bool IsCancellationPending => _cancellationToken?.Token.IsCancellationRequested ?? false;
+		public bool IsCancellationPending => _cancellationToken?.IsCancellationRequested ?? false;
 
 		/// <summary>
 		/// Gets a value indicating the sync manager is enabled.

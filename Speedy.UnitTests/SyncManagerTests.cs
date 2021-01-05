@@ -37,7 +37,7 @@ namespace Speedy.UnitTests
 
 			var manager = new TestSyncManager();
 			var syncPostUpdateCalled = false;
-			var logListener = new LogListener(manager.SessionId, EventLevel.Verbose);
+			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
 			manager.SyncAsync(TimeSpan.FromMilliseconds(30000), null, options => firstSyncOptions = options);
@@ -91,7 +91,7 @@ namespace Speedy.UnitTests
 			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			var logListener = new LogListener(manager.SessionId, EventLevel.Verbose);
+			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
 			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, options => firstSyncOptions = options);
@@ -128,7 +128,7 @@ namespace Speedy.UnitTests
 			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			var logListener = new LogListener(manager.SessionId, EventLevel.Verbose);
+			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			Assert.AreEqual(0, manager.AverageSyncTimeForAll.Elapsed.Ticks);
 			Assert.AreEqual(0, manager.AverageSyncTimeForAll.Samples);
@@ -170,7 +170,7 @@ namespace Speedy.UnitTests
 			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			var logListener = new LogListener(manager.SessionId, EventLevel.Verbose);
+			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
 			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, options => firstSyncOptions = options);

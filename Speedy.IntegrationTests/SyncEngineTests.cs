@@ -132,7 +132,7 @@ namespace Speedy.IntegrationTests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				using var listener = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+				using var listener = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 				Logger.Instance.Write(client.Name + " -> " + server.Name);
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
@@ -249,7 +249,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
-				using var listener = new LogListener(engine.SessionId);
+				using var listener = LogListener.CreateSession(engine.SessionId);
 				engine.Run();
 
 				Assert.AreEqual(8, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
@@ -299,7 +299,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
-				using var listener = new LogListener(engine.SessionId, EventLevel.Verbose);
+				using var listener = LogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
 				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;
@@ -802,7 +802,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(2, clientDatabase.Accounts.Count());
 				}
 
-				using (var listener = new LogListener(Guid.NewGuid()))
+				using (var listener = LogListener.CreateSession(Guid.NewGuid()))
 				{
 					listener.OutputToConsole = true;
 
@@ -882,7 +882,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void ThreeWaySyncShouldWork()
 		{
-			using var listener = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+			using var listener = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			var serverMemoryProvider = TestHelper.GetSyncableMemoryProvider();
 			var client1 = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
 			var client2 = new SyncClient("Client 2", TestHelper.GetSyncableMemoryProvider());

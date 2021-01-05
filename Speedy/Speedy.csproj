@@ -23,9 +23,9 @@
 		<PackageId>Speedy</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>6.5.2.16685</AssemblyVersion>
-		<FileVersion>6.5.2.16685</FileVersion>
-		<Version>6.5.2</Version>
+		<AssemblyVersion>6.5.3.28828</AssemblyVersion>
+		<FileVersion>6.5.3.28828</FileVersion>
+		<Version>6.5.3</Version>
 		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy\Speedy.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

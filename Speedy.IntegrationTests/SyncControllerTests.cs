@@ -86,7 +86,7 @@ namespace Speedy.IntegrationTests
 			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase, ContosoDatabase.GetDefaultOptions()));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
-			using var logger = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			syncManager.Sync();
 
 			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));
@@ -137,7 +137,7 @@ namespace Speedy.IntegrationTests
 			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
-			using var logger = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			syncManager.SyncAddresses();
 
 			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));
@@ -181,7 +181,7 @@ namespace Speedy.IntegrationTests
 			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
-			using var logger = new LogListener(Guid.Empty, EventLevel.Verbose) { OutputToConsole = true };
+			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			syncManager.SyncLogEvents();
 
 			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));

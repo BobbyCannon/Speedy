@@ -62,6 +62,7 @@ namespace Speedy.Logging
 		{
 			switch (level)
 			{
+				case EventLevel.LogAlways:
 				case EventLevel.Critical:
 					Critical(sessionId, message, TimeService.UtcNow);
 					return;

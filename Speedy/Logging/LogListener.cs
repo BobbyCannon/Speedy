@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.Tracing;
+using System.Runtime.CompilerServices;
 using Speedy.Extensions;
 
 #endregion
@@ -16,7 +18,7 @@ namespace Speedy.Logging
 	/// LogListener must be in the same process as the logger. See other ETW examples on how
 	/// to capture logger from outside the process.
 	/// </remarks>
-	public class LogListener : EventListener
+	public class LogListener : EventListener, INotifyPropertyChanged
 	{
 		#region Constructors
 
@@ -25,15 +27,13 @@ namespace Speedy.Logging
 		/// </summary>
 		/// <param name="sessionId"> The session of the log to monitor. </param>
 		/// <param name="level"> The level in which to log. </param>
-		public LogListener(Guid sessionId, EventLevel level = EventLevel.Informational)
+		private LogListener(Guid sessionId, EventLevel level = EventLevel.Informational)
 		{
 			SessionId = sessionId;
 			Level = level;
 
 			Events = new List<EventWrittenEventArgs>();
 			OnlyEventsWithMessages = true;
-
-			EnableEvents(Logger.Instance, Level);
 		}
 
 		#endregion
@@ -44,6 +44,11 @@ namespace Speedy.Logging
 		/// The events that have been captured from the event source (logger).
 		/// </summary>
 		public List<EventWrittenEventArgs> Events { get; }
+
+		/// <summary>
+		/// The log listener is listening.
+		/// </summary>
+		public bool IsListening { get; private set; }
 
 		/// <summary>
 		/// The level in which to log.
@@ -73,6 +78,38 @@ namespace Speedy.Logging
 		#region Methods
 
 		/// <summary>
+		/// Create an instance of the log listener and start listening.
+		/// </summary>
+		/// <param name="sessionId"> The session of the log to monitor. </param>
+		/// <param name="level"> The level in which to log. </param>
+		/// <param name="initialize"> An optional initialize action. </param>
+		public static LogListener CreateSession(Guid sessionId, EventLevel level = EventLevel.Informational, Action<LogListener> initialize = null)
+		{
+			var logListener = new LogListener(sessionId, level);
+			initialize?.Invoke(logListener);
+			logListener.Start();
+			return logListener;
+		}
+
+		/// <summary>
+		/// Start listening for log events.
+		/// </summary>
+		public void Start()
+		{
+			EnableEvents(Logger.Instance, Level);
+			IsListening = true;
+		}
+
+		/// <summary>
+		/// Start listening for log events.
+		/// </summary>
+		public void Stop()
+		{
+			DisableEvents(Logger.Instance);
+			IsListening = false;
+		}
+
+		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		/// <param name="disposing"> True if disposing and false if otherwise. </param>
@@ -83,7 +120,7 @@ namespace Speedy.Logging
 				return;
 			}
 
-			DisableEvents(Logger.Instance);
+			Stop();
 		}
 
 		/// <inheritdoc />
@@ -108,6 +145,28 @@ namespace Speedy.Logging
 			}
 		}
 
+		/// <summary>
+		/// Notified when a property changed.
+		/// </summary>
+		/// <param name="propertyName"> The name of the property that has changed. </param>
+		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		{
+			switch (propertyName)
+			{
+				case nameof(Level):
+				{
+					if (IsListening)
+					{
+						Stop();
+						Start();
+					}
+					break;
+				}
+			}
+
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
 		#endregion
 
 		#region Events
@@ -116,6 +175,9 @@ namespace Speedy.Logging
 		/// Occurs when an event is written.
 		/// </summary>
 		public event EventHandler<EventWrittenEventArgs> EventWritten;
+
+		/// <inheritdoc />
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 	}
