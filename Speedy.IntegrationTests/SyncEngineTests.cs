@@ -249,10 +249,11 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
-				using var listener = LogListener.CreateSession(engine.SessionId);
+				using var listener = LogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
-				Assert.AreEqual(8, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
+				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;
+				Assert.AreEqual(expected, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
 
 				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
 				using var serverDatabase = server.GetDatabase<IContosoDatabase>();
@@ -802,7 +803,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(2, clientDatabase.Accounts.Count());
 				}
 
-				using (var listener = LogListener.CreateSession(Guid.NewGuid()))
+				using (var listener = LogListener.CreateSession(Guid.NewGuid(), EventLevel.Informational))
 				{
 					listener.OutputToConsole = true;
 

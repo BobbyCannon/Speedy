@@ -83,7 +83,7 @@ namespace Speedy.Logging
 		/// <param name="sessionId"> The session of the log to monitor. </param>
 		/// <param name="level"> The level in which to log. </param>
 		/// <param name="initialize"> An optional initialize action. </param>
-		public static LogListener CreateSession(Guid sessionId, EventLevel level = EventLevel.Informational, Action<LogListener> initialize = null)
+		public static LogListener CreateSession(Guid sessionId, EventLevel level, Action<LogListener> initialize = null)
 		{
 			var logListener = new LogListener(sessionId, level);
 			initialize?.Invoke(logListener);

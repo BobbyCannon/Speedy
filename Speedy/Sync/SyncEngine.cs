@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -201,12 +202,12 @@ namespace Speedy.Sync
 		{
 			if (message != null)
 			{
-				Logger.Instance.Write(SessionId, message);
+				Logger.Instance.Write(SessionId, message, EventLevel.Verbose);
 			}
 
 			if (status.HasValue)
 			{
-				Logger.Instance.Write(SessionId, $"Changing status to {status.Value}.");
+				Logger.Instance.Write(SessionId, $"Changing status to {status.Value}.", EventLevel.Verbose);
 				State.Status = status.Value;
 			}
 

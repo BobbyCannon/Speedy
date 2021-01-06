@@ -480,7 +480,7 @@ namespace Speedy.Sync
 			}
 			catch
 			{
-				Logger.Instance.Write(SyncSession.Id, "Failed to process sync objects in the batch.");
+				Logger.Instance.Write(SyncSession.Id, "Failed to process sync objects in the batch.", EventLevel.Warning);
 				ProcessSyncObjectsIndividually(provider, objects, issues, corrections);
 			}
 		}

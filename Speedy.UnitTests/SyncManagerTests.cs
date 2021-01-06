@@ -33,7 +33,7 @@ namespace Speedy.UnitTests
 			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
 			var offset = 0;
 
-			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);
+			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
 			var syncPostUpdateCalled = false;
@@ -44,11 +44,11 @@ namespace Speedy.UnitTests
 			manager.WaitForSyncToStart(TimeSpan.FromMilliseconds(3000));
 			Assert.IsTrue(manager.IsRunning, "The sync manager should be running");
 
-			manager.SyncAccounts(null, null, options => 
-				{
-					syncPostUpdateCalled = true;
-					secondSyncOptions = options;
-				});
+			manager.SyncAccounts(null, null, options =>
+			{
+				syncPostUpdateCalled = true;
+				secondSyncOptions = options;
+			});
 
 			Assert.IsTrue(syncPostUpdateCalled, "The sync postUpdate was not called as expected");
 			Assert.IsTrue(manager.IsRunning, "The sync manager should still be running");
@@ -77,43 +77,26 @@ namespace Speedy.UnitTests
 			TestHelper.AreEqual(expected, actual);
 			Assert.AreEqual(12000, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
 		}
-		
-		[TestMethod]
-		public void SyncsShouldNotWaitForEachOther()
-		{
-			SyncOptions firstSyncOptions = null;
-			SyncOptions secondSyncOptions = null;
-			SyncOptions thirdSyncOptions = null;
 
+		[TestMethod]
+		public void SyncShouldNotLogIfNotVerbose()
+		{
 			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
 			var offset = 0;
 
-			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);
+			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
+			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Informational);
 
-			// Start a sync that will run for a long while
-			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, options => firstSyncOptions = options);
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, options => secondSyncOptions = options);
-			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, options => thirdSyncOptions = options);
+			manager.SyncAccounts();
 			manager.WaitForSyncToComplete();
-			
-			var expected = new[]
-			{
-				"4/23/2020 01:55:24 AM Verbose : Sync All started",
-				"4/23/2020 01:55:25 AM Verbose : Sync All is already running so Sync Accounts not started.",
-				"4/23/2020 01:55:26 AM Verbose : Sync All is already running so Sync Addresses not started.",
-				"4/23/2020 01:55:27 AM Verbose : Syncing All for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"4/23/2020 01:55:42 AM Verbose : Sync All stopped. 00:18.000"
-			};
 
-			var actual = logListener.Events.Select(x => x.GetDetailedMessage()).ToArray();
+			var expected = Array.Empty<string>();
+			var actual = logListener.Events.Select(x => x.GetMessage()).ToArray();
 			actual.ForEach(x => Console.WriteLine($"\"{x}\","));
 
 			TestHelper.AreEqual(expected, actual);
-			Assert.IsTrue(manager.IsSyncSuccessful, "Sync should have been successful");
-			Assert.AreEqual(18000, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
 		}
 
 		[TestMethod]
@@ -125,7 +108,7 @@ namespace Speedy.UnitTests
 			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
 			var offset = 0;
 
-			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);
+			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
@@ -137,7 +120,7 @@ namespace Speedy.UnitTests
 			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, options => secondSyncOptions = options);
 			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, options => firstSyncOptions = options);
 			manager.WaitForSyncToComplete();
-			
+
 			var expected = new[]
 			{
 				"4/23/2020 01:55:23 AM Verbose : Sync Accounts started",
@@ -156,7 +139,45 @@ namespace Speedy.UnitTests
 			Assert.IsTrue(manager.IsSyncSuccessful, "Sync should have been successful");
 			Assert.AreEqual(0, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
 		}
-		
+
+		[TestMethod]
+		public void SyncsShouldNotWaitForEachOther()
+		{
+			SyncOptions firstSyncOptions = null;
+			SyncOptions secondSyncOptions = null;
+			SyncOptions thirdSyncOptions = null;
+
+			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
+			var offset = 0;
+
+			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
+
+			var manager = new TestSyncManager();
+			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
+
+			// Start a sync that will run for a long while
+			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, options => firstSyncOptions = options);
+			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, options => secondSyncOptions = options);
+			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, options => thirdSyncOptions = options);
+			manager.WaitForSyncToComplete();
+
+			var expected = new[]
+			{
+				"4/23/2020 01:55:24 AM Verbose : Sync All started",
+				"4/23/2020 01:55:25 AM Verbose : Sync All is already running so Sync Accounts not started.",
+				"4/23/2020 01:55:26 AM Verbose : Sync All is already running so Sync Addresses not started.",
+				"4/23/2020 01:55:27 AM Verbose : Syncing All for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
+				"4/23/2020 01:55:42 AM Verbose : Sync All stopped. 00:18.000"
+			};
+
+			var actual = logListener.Events.Select(x => x.GetDetailedMessage()).ToArray();
+			actual.ForEach(x => Console.WriteLine($"\"{x}\","));
+
+			TestHelper.AreEqual(expected, actual);
+			Assert.IsTrue(manager.IsSyncSuccessful, "Sync should have been successful");
+			Assert.AreEqual(18000, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
+		}
+
 		[TestMethod]
 		public void SyncsShouldWaitForEachOther()
 		{
@@ -167,7 +188,7 @@ namespace Speedy.UnitTests
 			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
 			var offset = 0;
 
-			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);
+			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
@@ -181,7 +202,7 @@ namespace Speedy.UnitTests
 			{
 				Thread.Sleep(10);
 			}
-			
+
 			var expected = new[]
 			{
 				"4/23/2020 01:55:24 AM Verbose : Sync All started",
@@ -227,9 +248,9 @@ namespace Speedy.UnitTests
 			SyncSystemVersion = new Version(1, 2, 3, 4);
 
 			// Setup our sync options
-			GetOrAddSyncOptions(TestSyncType.All, options => {});
-			GetOrAddSyncOptions(TestSyncType.Accounts, options => {});
-			GetOrAddSyncOptions(TestSyncType.Addresses, options => {});
+			GetOrAddSyncOptions(TestSyncType.All, options => { });
+			GetOrAddSyncOptions(TestSyncType.Accounts, options => { });
+			GetOrAddSyncOptions(TestSyncType.Addresses, options => { });
 
 			// Setup tracking of certain syncs
 			AverageSyncTimeForAll = SyncTimers.GetOrAdd(TestSyncType.All, new AverageTimer(10, Dispatcher));
@@ -252,11 +273,6 @@ namespace Speedy.UnitTests
 			SyncAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
 		}
 
-		public Task SyncAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
-		{
-			return ProcessAsync(TestSyncType.All, options => DoTestDelay(testDelay), waitFor, postAction);
-		}
-		
 		public void SyncAccounts(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
 			SyncAccountsAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
@@ -275,6 +291,11 @@ namespace Speedy.UnitTests
 		public Task SyncAddressesAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
 		{
 			return ProcessAsync(TestSyncType.Addresses, options => DoTestDelay(testDelay), waitFor, postAction);
+		}
+
+		public Task SyncAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		{
+			return ProcessAsync(TestSyncType.All, options => DoTestDelay(testDelay), waitFor, postAction);
 		}
 
 		protected override ISyncClient GetSyncClientForClient()

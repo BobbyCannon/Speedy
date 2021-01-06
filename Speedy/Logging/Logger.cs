@@ -58,7 +58,7 @@ namespace Speedy.Logging
 		/// <param name="message"> The message to be written. </param>
 		/// <param name="level"> The level of this message. </param>
 		[NonEvent]
-		public void Write(Guid sessionId, string message, EventLevel level = EventLevel.Informational)
+		public void Write(Guid sessionId, string message, EventLevel level)
 		{
 			switch (level)
 			{
@@ -72,6 +72,7 @@ namespace Speedy.Logging
 					return;
 
 				case EventLevel.Informational:
+				default:
 					Information(sessionId, message, TimeService.UtcNow);
 					return;
 
