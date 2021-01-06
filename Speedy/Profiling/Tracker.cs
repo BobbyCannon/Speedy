@@ -434,7 +434,7 @@ namespace Speedy.Profiling
 				repository.Remove(keys);
 				repository.Save();
 				count += data.Count;
-				tracker.OnLog($"Wrote {data.Count} from {repository.Name}...", EventLevel.LogAlways);
+				tracker.OnLog($"Wrote {data.Count} from {repository.Name}...", EventLevel.Verbose);
 				data = repository.Read().Take(chunk).ToList();
 			}
 
