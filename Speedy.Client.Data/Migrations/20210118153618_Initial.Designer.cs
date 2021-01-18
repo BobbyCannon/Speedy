@@ -9,7 +9,7 @@ using Speedy.Client.Data;
 namespace Speedy.Client.Data.Migrations
 {
     [DbContext(typeof(ContosoClientDatabase))]
-    [Migration("20201216153633_Initial")]
+    [Migration("20210118153618_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

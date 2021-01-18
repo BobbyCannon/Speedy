@@ -26,6 +26,21 @@ namespace Speedy.Website.Data.Entities
 		#region Properties
 
 		/// <summary>
+		/// Represents the "primary" account for the address.
+		/// </summary>
+		public virtual AccountEntity Account { get; set; }
+
+		/// <summary>
+		/// The ID for the account.
+		/// </summary>
+		public int? AccountId { get; set; }
+
+		/// <summary>
+		/// The sync ID for the account.
+		/// </summary>
+		public Guid? AccountSyncId { get; set; }
+
+		/// <summary>
 		/// The people associated with this address.
 		/// </summary>
 		public virtual ICollection<AccountEntity> Accounts { get; set; }

@@ -11,37 +11,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                 name: "dbo");
 
             migrationBuilder.CreateTable(
-                name: "Addresses",
-                schema: "dbo",
-                columns: table => new
-                {
-                    AddressId = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AddressCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AddressIsDeleted = table.Column<bool>(nullable: false),
-                    AddressModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AddressCity = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AddressLineOne = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AddressLineTwo = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AddressLinkedAddressId = table.Column<long>(nullable: true),
-                    AddressLinkedAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    AddressPostal = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
-                    AddressState = table.Column<string>(unicode: false, maxLength: 128, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Addresses", x => x.AddressId);
-                    table.ForeignKey(
-                        name: "FK_Addresses_Addresses_AddressLinkedAddressId",
-                        column: x => x.AddressLinkedAddressId,
-                        principalSchema: "dbo",
-                        principalTable: "Addresses",
-                        principalColumn: "AddressId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Foods",
                 schema: "dbo",
                 columns: table => new
@@ -170,39 +139,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Accounts",
-                schema: "dbo",
-                columns: table => new
-                {
-                    AccountId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountIsDeleted = table.Column<bool>(nullable: false),
-                    AccountModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountAddressId = table.Column<long>(nullable: false),
-                    AccountAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountEmailAddress = table.Column<string>(unicode: false, nullable: true),
-                    AccountExternalId = table.Column<string>(unicode: false, nullable: true),
-                    AccountLastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountName = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AccountNickname = table.Column<string>(unicode: false, maxLength: 256, nullable: true),
-                    AccountPasswordHash = table.Column<string>(unicode: false, nullable: true),
-                    AccountRoles = table.Column<string>(unicode: false, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Accounts", x => x.AccountId);
-                    table.ForeignKey(
-                        name: "FK_Accounts_Addresses_AccountAddressId",
-                        column: x => x.AccountAddressId,
-                        principalSchema: "dbo",
-                        principalTable: "Addresses",
-                        principalColumn: "AddressId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "FoodRelationships",
                 schema: "dbo",
                 columns: table => new
@@ -277,6 +213,72 @@ namespace Speedy.Website.Data.Sql.Migrations
                         principalSchema: "dbo",
                         principalTable: "TrackerPaths",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Addresses",
+                schema: "dbo",
+                columns: table => new
+                {
+                    AddressId = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AddressCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AddressIsDeleted = table.Column<bool>(nullable: false),
+                    AddressModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountId = table.Column<int>(nullable: true),
+                    AccountSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AddressCity = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+                    AddressLineOne = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+                    AddressLineTwo = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+                    AddressLinkedAddressId = table.Column<long>(nullable: true),
+                    AddressLinkedAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AddressPostal = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+                    AddressState = table.Column<string>(unicode: false, maxLength: 128, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Addresses", x => x.AddressId);
+                    table.ForeignKey(
+                        name: "FK_Addresses_Addresses_AddressLinkedAddressId",
+                        column: x => x.AddressLinkedAddressId,
+                        principalSchema: "dbo",
+                        principalTable: "Addresses",
+                        principalColumn: "AddressId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Accounts",
+                schema: "dbo",
+                columns: table => new
+                {
+                    AccountId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AccountCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountIsDeleted = table.Column<bool>(nullable: false),
+                    AccountModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountAddressId = table.Column<long>(nullable: false),
+                    AccountAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountEmailAddress = table.Column<string>(unicode: false, nullable: true),
+                    AccountExternalId = table.Column<string>(unicode: false, nullable: true),
+                    AccountLastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountName = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+                    AccountNickname = table.Column<string>(unicode: false, maxLength: 256, nullable: true),
+                    AccountPasswordHash = table.Column<string>(unicode: false, nullable: true),
+                    AccountRoles = table.Column<string>(unicode: false, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Accounts", x => x.AccountId);
+                    table.ForeignKey(
+                        name: "FK_Accounts_Addresses_AccountAddressId",
+                        column: x => x.AccountAddressId,
+                        principalSchema: "dbo",
+                        principalTable: "Addresses",
+                        principalColumn: "AddressId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -378,6 +380,12 @@ namespace Speedy.Website.Data.Sql.Migrations
                 columns: new[] { "AccountAddressId", "AccountExternalId" },
                 unique: true,
                 filter: "[AccountExternalId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Addresses_AccountId",
+                schema: "dbo",
+                table: "Addresses",
+                column: "AccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Address_LinkedAddressId",
@@ -487,10 +495,25 @@ namespace Speedy.Website.Data.Sql.Migrations
                 table: "TrackerPaths",
                 column: "SyncId",
                 unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Addresses_Accounts_AccountId",
+                schema: "dbo",
+                table: "Addresses",
+                column: "AccountId",
+                principalSchema: "dbo",
+                principalTable: "Accounts",
+                principalColumn: "AccountId",
+                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Accounts_Addresses_AccountAddressId",
+                schema: "dbo",
+                table: "Accounts");
+
             migrationBuilder.DropTable(
                 name: "FoodRelationships",
                 schema: "dbo");
@@ -524,10 +547,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                 schema: "dbo");
 
             migrationBuilder.DropTable(
-                name: "Accounts",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
                 name: "PetType",
                 schema: "dbo");
 
@@ -537,6 +556,10 @@ namespace Speedy.Website.Data.Sql.Migrations
 
             migrationBuilder.DropTable(
                 name: "Addresses",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "Accounts",
                 schema: "dbo");
         }
     }

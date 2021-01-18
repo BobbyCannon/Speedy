@@ -206,7 +206,7 @@ namespace Speedy.UnitTests
 		{
 			var itemsToTest = new Dictionary<Type, string[]>
 			{
-				{ typeof(AddressEntity), new[] { nameof(AddressEntity.Accounts), nameof(AddressEntity.LinkedAddress), nameof(AddressEntity.LinkedAddresses) } },
+				{ typeof(AddressEntity), new[] { nameof(AddressEntity.Account), nameof(AddressEntity.Accounts), nameof(AddressEntity.LinkedAddress), nameof(AddressEntity.LinkedAddresses) } },
 				{ typeof(AccountEntity), new[] { nameof(AccountEntity.Address), nameof(AccountEntity.Groups), nameof(AccountEntity.Pets) } },
 				{ typeof(GroupEntity), new[] { nameof(GroupEntity.Members) } },
 				{ typeof(SyncRequest), new[] { nameof(SyncRequest.HasChanges) } }
@@ -245,7 +245,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = address.ToSyncObject();
-			var expect = "{\"$id\":\"1\",\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":2,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
+			var expect = "{\"$id\":\"1\",\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":2,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
 
 			actual.Data.FormatDump();
 

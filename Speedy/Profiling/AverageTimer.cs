@@ -75,12 +75,12 @@ namespace Speedy.Profiling
 		/// <summary>
 		/// The amount of time that has elapsed.
 		/// </summary>
-		public TimeSpan Elapsed { get; private set; }
+		public TimeSpan Elapsed => _timer?.Elapsed ?? TimeSpan.Zero;
 
 		/// <summary>
 		/// Indicates if the timer is running;
 		/// </summary>
-		public bool IsRunning { get; private set; }
+		public bool IsRunning => _timer?.IsRunning ?? false;
 
 		/// <summary>
 		/// Number of samples currently being averaged.
@@ -96,8 +96,10 @@ namespace Speedy.Profiling
 		/// </summary>
 		public void Cancel()
 		{
-			_timer.Reset();
-			IsRunning = false;
+			_timer.Stop();
+
+			OnPropertyChanged(nameof(Elapsed));
+			OnPropertyChanged(nameof(IsRunning));
 		}
 
 		/// <summary>
@@ -144,10 +146,11 @@ namespace Speedy.Profiling
 			_timer.Reset();
 
 			Average = TimeSpan.Zero;
-			Elapsed = TimeSpan.Zero;
 			Samples = 0;
 			Count = 0;
-			IsRunning = false;
+
+			OnPropertyChanged(nameof(Elapsed));
+			OnPropertyChanged(nameof(IsRunning));
 		}
 
 		/// <summary>
@@ -155,8 +158,11 @@ namespace Speedy.Profiling
 		/// </summary>
 		public void Start()
 		{
+			_timer.Reset();
 			_timer.Restart();
-			IsRunning = true;
+
+			OnPropertyChanged(nameof(Elapsed));
+			OnPropertyChanged(nameof(IsRunning));
 		}
 
 		/// <summary>
@@ -177,7 +183,6 @@ namespace Speedy.Profiling
 				if (_limit == 0)
 				{
 					Average = Count <= 0 ? _timer.Elapsed : TimeSpan.FromTicks((Average.Ticks + Elapsed.Ticks) / 2);
-					Elapsed = _timer.Elapsed;
 					Count++;
 					return;
 				}
@@ -191,12 +196,12 @@ namespace Speedy.Profiling
 
 				Samples = _collection.Count;
 				Average = new TimeSpan((long) _collection.Average());
-				Elapsed = _timer.Elapsed;
 				Count++;
 			}
 			finally
 			{
-				IsRunning = false;
+				OnPropertyChanged(nameof(Elapsed));
+				OnPropertyChanged(nameof(IsRunning));
 			}
 		}
 

@@ -276,6 +276,7 @@ namespace Speedy
 				}
 
 				Repositories.Values.ForEach(x => x.ValidateEntities());
+				Repositories.Values.ForEach(x => x.UpdateRelationships());
 				Repositories.Values.ForEach(x => x.AssignKeys(new List<IEntity>()));
 				Repositories.Values.ForEach(x => x.UpdateRelationships());
 

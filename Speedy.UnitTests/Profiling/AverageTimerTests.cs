@@ -41,7 +41,7 @@ namespace Speedy.UnitTests.Profiling
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(3, timer.Elapsed.Ticks);
-			Assert.AreEqual(1, timer.Average.Ticks);
+			Assert.AreEqual(2, timer.Average.Ticks);
 			Assert.AreEqual(0, timer.Samples);
 			Assert.AreEqual(3, timer.Count);
 
@@ -49,7 +49,7 @@ namespace Speedy.UnitTests.Profiling
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(4, timer.Elapsed.Ticks);
-			Assert.AreEqual(2, timer.Average.Ticks);
+			Assert.AreEqual(3, timer.Average.Ticks);
 			Assert.AreEqual(0, timer.Samples);
 			Assert.AreEqual(4, timer.Count);
 
@@ -57,7 +57,7 @@ namespace Speedy.UnitTests.Profiling
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(5, timer.Elapsed.Ticks);
-			Assert.AreEqual(3, timer.Average.Ticks);
+			Assert.AreEqual(4, timer.Average.Ticks);
 			Assert.AreEqual(0, timer.Samples);
 			Assert.AreEqual(5, timer.Count);
 		}
@@ -74,21 +74,21 @@ namespace Speedy.UnitTests.Profiling
 			currentTime = currentTime.AddMilliseconds(123);
 
 			Assert.IsTrue(timer.IsRunning);
-			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(0, timer.Average.Ticks);
 
 			// Cancel should reset state to empty
 			timer.Cancel();
 
 			Assert.IsFalse(timer.IsRunning);
-			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(0, timer.Average.Ticks);
 
 			// Calling stop later should not change state
 			timer.Stop();
 
 			Assert.IsFalse(timer.IsRunning);
-			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(0, timer.Average.Ticks);
 		}
 
@@ -103,7 +103,7 @@ namespace Speedy.UnitTests.Profiling
 			timer.Start();
 			currentTime = currentTime.AddMilliseconds(123);
 			Assert.IsTrue(timer.IsRunning);
-			Assert.AreEqual(0, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(0, timer.Average.Ticks);
 
 			timer.Stop();
@@ -117,21 +117,21 @@ namespace Speedy.UnitTests.Profiling
 			timer.Start();
 			currentTime = currentTime.AddMilliseconds(13);
 			Assert.IsTrue(timer.IsRunning);
-			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(13, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(1230000, timer.Average.Ticks);
 			Assert.AreEqual(1, timer.Samples);
 
 			// Cancel should reset state to empty
 			timer.Cancel();
 			Assert.IsFalse(timer.IsRunning);
-			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(13, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(1230000, timer.Average.Ticks);
 			Assert.AreEqual(1, timer.Samples);
 
 			// Calling stop later should not change state
 			timer.Stop();
 			Assert.IsFalse(timer.IsRunning);
-			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
+			Assert.AreEqual(13, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(1230000, timer.Average.Ticks);
 			Assert.AreEqual(1, timer.Samples);
 		}
@@ -242,6 +242,20 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(9, timer.Elapsed.Ticks);
 			Assert.AreEqual(7, timer.Average.Ticks);
 			Assert.AreEqual(4, timer.Samples);
+		}
+
+		[TestMethod]
+		public void TimeShouldHaveAccurateCount()
+		{
+			var timer = new AverageTimer();
+			var count = 0;
+
+			for (var i = 0; i < 10000; i++)
+			{
+				timer.Time(() => count++);
+			}
+
+			Assert.AreEqual(10000, count);
 		}
 
 		#endregion

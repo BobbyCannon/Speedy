@@ -22,7 +22,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void BulkAddAccountEntityWithRelationshipEntity()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					AccountEntity[] expected;
@@ -61,7 +61,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void BulkAddAddressEntity()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					AddressEntity[] expected;
@@ -108,7 +108,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void BulkAddOrUpdateAddressEntity()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					AddressEntity[] expected;

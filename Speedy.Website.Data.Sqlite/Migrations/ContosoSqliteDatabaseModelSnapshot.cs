@@ -115,6 +115,12 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasColumnName("AddressId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("AccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("AccountSyncId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnName("AddressCity")
@@ -175,6 +181,8 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("LinkedAddressId")
                         .HasName("IX_Address_LinkedAddressId");
@@ -715,6 +723,11 @@ namespace Speedy.Website.Data.Sqlite.Migrations
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.AddressEntity", b =>
                 {
+                    b.HasOne("Speedy.Website.Data.Entities.AccountEntity", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Speedy.Website.Data.Entities.AddressEntity", "LinkedAddress")
                         .WithMany("LinkedAddresses")
                         .HasForeignKey("LinkedAddressId")

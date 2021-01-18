@@ -29,7 +29,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntity()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -61,7 +61,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityViaSubRelationships()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					FoodEntity food;
@@ -98,7 +98,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityWithCompositeKey()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using (var database = provider.GetDatabase())
@@ -129,7 +129,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityWithCompositeKeyShouldNotAllowDuplicatesAssignedUsingId()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -154,7 +154,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityWithCompositeKeyShouldNotAllowDuplicatesAssignUsingType()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -179,7 +179,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityWithInvalidProperty()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -200,7 +200,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityWithMultipleDefaultKeys()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -215,7 +215,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityWithoutMaintainDatesDatabaseOption()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -242,7 +242,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddEntityWithUnmaintainEntityDatabaseOption()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -269,7 +269,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddMultipleEntitiesUsingRelationship()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -296,7 +296,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddMultipleEntitiesUsingRelationshipWithSaves()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -327,7 +327,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddNonModifiableEntity()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -352,7 +352,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddSingleEntity()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -379,7 +379,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddSingleEntityMissingRequiredProperty()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -411,7 +411,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddSingleEntityUsingRelationship()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -445,7 +445,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddTwoEntities()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -482,7 +482,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void BulkRemoveShouldDelete()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 					{
 						var filters = new List<Expression<Func<AddressEntity, bool>>>
@@ -535,7 +535,7 @@ namespace Speedy.IntegrationTests
 		{
 			var address1Guid = Guid.Parse("5C5C5A2E-29CB-497D-A5CB-7027A66DD6B8");
 
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 					{
 						var filters = new Dictionary<Expression<Func<AddressEntity, bool>>, int>
@@ -593,7 +593,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void BulkUpdateShouldUpdate()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 					{
 						using var database = provider.GetDatabase();
@@ -628,7 +628,7 @@ namespace Speedy.IntegrationTests
 			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
 			Assert.AreEqual(dateTime.Hour, DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).Hour);
 
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					var testCases = new List<DateTime>
@@ -678,7 +678,7 @@ namespace Speedy.IntegrationTests
 			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
 			Assert.AreEqual(dateTime.Hour, DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).Hour);
 
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					var testCases = new List<DateTime>
@@ -728,7 +728,7 @@ namespace Speedy.IntegrationTests
 			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
 			Assert.AreEqual(dateTime.Hour, DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).Hour);
 
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					var testCases = new List<DateTime>
@@ -771,7 +771,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void DiscardChanges()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -798,7 +798,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void EntitiesWithInterfaceShouldStillSerialize()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					var expected = EntityFactory.GetLogEvent("This is a test.");
@@ -822,7 +822,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void IndexesWithMultipleColumnsAndUniqueShouldNotException()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -841,7 +841,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void IndexesWithUniqueShouldException()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -865,7 +865,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void OptionalDirectRelationship()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -886,7 +886,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void QueryUsingInclude()
 		{
-			var providers = TestHelper.GetDataContexts(initialized: false).ToList();
+			var providers = TestHelper.GetDataContexts(initialize: false).ToList();
 
 			providers.ForEach(provider =>
 			{
@@ -927,7 +927,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void QueryUsingIncluding()
 		{
-			var providers = TestHelper.GetDataContexts(initialized: false).ToList();
+			var providers = TestHelper.GetDataContexts(initialize: false).ToList();
 
 			providers.ForEach(provider =>
 			{
@@ -969,7 +969,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void QueryUsingRecursiveRelationshipsUsingExtensionMethods()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					var length = 20;
@@ -1004,7 +1004,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void QueryUsingThenInclude()
 		{
-			var providers = TestHelper.GetDataContexts(initialized: false).ToList();
+			var providers = TestHelper.GetDataContexts(initialize: false).ToList();
 
 			providers.ForEach(provider =>
 			{
@@ -1049,7 +1049,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RelationshipCollectionsCountShouldBeCorrect()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1088,7 +1088,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RelationshipCollectionsShouldFilter()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1116,7 +1116,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveEntityById()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1141,7 +1141,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveEntityByIdWithDetachedEntity()
 		{
-			var providers = TestHelper.GetDataContexts(initialized: false).ToList();
+			var providers = TestHelper.GetDataContexts(initialize: false).ToList();
 
 			providers.ForEach(provider =>
 			{
@@ -1173,7 +1173,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveEntityDeleteCascade()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					GroupEntity group;
@@ -1219,7 +1219,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveEntityDeleteHard()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1257,7 +1257,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveEntityDeleteSetNull()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					PetEntity pet;
@@ -1308,7 +1308,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveEntityDeleteSoft()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1347,7 +1347,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveSingleEntityDependantRelationship()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1378,7 +1378,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void RemoveSingleEntityRelationship()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1408,9 +1408,47 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestMethod]
+		public void RepositoryCountShouldBeAccurate()
+		{
+			var dateTime = new DateTime(2020, 05, 14, 08, 54, 12, DateTimeKind.Unspecified);
+			Assert.AreEqual(dateTime.Hour, DateTime.SpecifyKind(dateTime, DateTimeKind.Utc).Hour);
+
+			TestHelper.GetDataContexts(initialize: false)
+				.ForEach(provider =>
+				{
+					long addressId;
+
+					using (var database = provider.GetDatabase())
+					{
+						database.GetType().Dump();
+						var account = EntityFactory.GetAccount();
+						database.Accounts.Add(account);
+						database.SaveChanges();
+						addressId = account.AddressId;
+						Assert.AreEqual(1, database.Accounts.Count());
+						Assert.AreEqual(1, database.Addresses.Count());
+						database.SaveChanges();
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						var address = database.Addresses.First(x => x.Id == addressId);
+						address.Account = EntityFactory.GetAccount(address: address);
+						Assert.AreEqual(1, database.Accounts.Count());
+						Assert.AreEqual(1, database.Addresses.Count());
+
+						database.SaveChanges();
+						Assert.AreEqual(2, address.Accounts.Count);
+						Assert.AreEqual(2, database.Accounts.Count());
+						Assert.AreEqual(1, database.Addresses.Count());
+					}
+				});
+		}
+
+		[TestMethod]
 		public void SubRelationships()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1445,7 +1483,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UniqueConstraintsForCompositeKeyWithStringThatAllowNullButShouldStillEnforceUnique()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1482,7 +1520,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UniqueConstraintsForString()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1506,7 +1544,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUnique()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1542,7 +1580,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UniqueConstraintsForStringAllowNullButShouldStillEnforceUniqueViaRelationship()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1579,7 +1617,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UnmodifiableEntityShouldNotAllowSave()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using (var database = provider.GetDatabase())
@@ -1617,7 +1655,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UpdateEntityCreatedOnShouldReset()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using var database = provider.GetDatabase();
@@ -1648,7 +1686,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UpdateEntityWithoutSave()
 		{
-			var providers = TestHelper.GetDataContexts(initialized: false).ToList();
+			var providers = TestHelper.GetDataContexts(initialize: false).ToList();
 
 			providers.ForEach(provider =>
 			{
@@ -1682,7 +1720,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UpdateEntityWithSave()
 		{
-			var providers = TestHelper.GetDataContexts(initialized: false).ToList();
+			var providers = TestHelper.GetDataContexts(initialize: false).ToList();
 
 			providers.ForEach(provider =>
 			{
@@ -1718,7 +1756,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void VirtualPropertyShouldNotSerialize()
 		{
-			TestHelper.GetDataContexts(initialized: false)
+			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
 				{
 					using (var database = provider.GetDatabase())
@@ -1748,7 +1786,7 @@ namespace Speedy.IntegrationTests
 						entity.ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03);
 
 						var actual = entity.ToSyncObject();
-						var expect = "{\"$id\":\"1\",\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":1,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
+						var expect = "{\"$id\":\"1\",\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":1,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
 
 						actual.Data.Dump();
 

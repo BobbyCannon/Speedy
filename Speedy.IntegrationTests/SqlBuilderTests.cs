@@ -101,9 +101,9 @@ namespace Speedy.IntegrationTests
 		{
 			var provider = TestHelper.GetSqlProvider();
 			using var database = (ContosoSqlDatabase) provider.GetDatabase();
-			var expectedQuery = "INSERT INTO [dbo].[Addresses] ([AddressCity], [AddressCreatedOn], [AddressIsDeleted], [AddressLineOne], [AddressLineTwo], [AddressLinkedAddressId], [AddressLinkedAddressSyncId], [AddressModifiedOn], [AddressPostal], [AddressState], [AddressSyncId]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)";
-			var expectedParametersToColumnNames = "AddressCity:p0, AddressCreatedOn:p1, AddressIsDeleted:p2, AddressLineOne:p3, AddressLineTwo:p4, AddressLinkedAddressId:p5, AddressLinkedAddressSyncId:p6, AddressModifiedOn:p7, AddressPostal:p8, AddressState:p9, AddressSyncId:p10";
-			var expectedParametersTypes = "AddressCity:Text, AddressCreatedOn:DateTime2, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressSyncId:UniqueIdentifier";
+			var expectedQuery = "INSERT INTO [dbo].[Addresses] ([AccountId], [AccountSyncId], [AddressCity], [AddressCreatedOn], [AddressIsDeleted], [AddressLineOne], [AddressLineTwo], [AddressLinkedAddressId], [AddressLinkedAddressSyncId], [AddressModifiedOn], [AddressPostal], [AddressState], [AddressSyncId]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12)";
+			var expectedParametersToColumnNames = "AccountId:p0, AccountSyncId:p1, AddressCity:p2, AddressCreatedOn:p3, AddressIsDeleted:p4, AddressLineOne:p5, AddressLineTwo:p6, AddressLinkedAddressId:p7, AddressLinkedAddressSyncId:p8, AddressModifiedOn:p9, AddressPostal:p10, AddressState:p11, AddressSyncId:p12";
+			var expectedParametersTypes = "AccountId:Int, AccountSyncId:UniqueIdentifier, AddressCity:Text, AddressCreatedOn:DateTime2, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressSyncId:UniqueIdentifier";
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlInsert<AddressEntity>(database);
 			timer.Elapsed.Dump();
@@ -123,9 +123,9 @@ namespace Speedy.IntegrationTests
 		{
 			var provider = TestHelper.GetSqlProvider();
 			using var database = (ContosoSqlDatabase) provider.GetDatabase();
-			var expectedQuery = "SET NOCOUNT, XACT_ABORT ON;\r\nMERGE [dbo].[Addresses] WITH (HOLDLOCK) AS T\r\nUSING (SELECT @p10 as AddressSyncId) AS S\r\n\tON T.[AddressSyncId] = S.[AddressSyncId]\r\nWHEN MATCHED\r\n\tTHEN UPDATE SET [AddressCity] = @p0, [AddressIsDeleted] = @p1, [AddressLineOne] = @p2, [AddressLineTwo] = @p3, [AddressLinkedAddressId] = @p4, [AddressLinkedAddressSyncId] = @p5, [AddressModifiedOn] = @p6, [AddressPostal] = @p7, [AddressState] = @p8\r\nWHEN NOT MATCHED\r\n\tTHEN INSERT ([AddressCity], [AddressIsDeleted], [AddressLineOne], [AddressLineTwo], [AddressLinkedAddressId], [AddressLinkedAddressSyncId], [AddressModifiedOn], [AddressPostal], [AddressState], [AddressCreatedOn], [AddressSyncId]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10);";
-			var expectedParametersToColumnNames = "AddressCity:p0, AddressIsDeleted:p1, AddressLineOne:p2, AddressLineTwo:p3, AddressLinkedAddressId:p4, AddressLinkedAddressSyncId:p5, AddressModifiedOn:p6, AddressPostal:p7, AddressState:p8, AddressCreatedOn:p9, AddressSyncId:p10";
-			var expectedParametersTypes = "AddressCity:Text, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressCreatedOn:DateTime2, AddressSyncId:UniqueIdentifier";
+			var expectedQuery = "SET NOCOUNT, XACT_ABORT ON;\r\nMERGE [dbo].[Addresses] WITH (HOLDLOCK) AS T\r\nUSING (SELECT @p12 as AddressSyncId) AS S\r\n\tON T.[AddressSyncId] = S.[AddressSyncId]\r\nWHEN MATCHED\r\n\tTHEN UPDATE SET [AccountId] = @p0, [AccountSyncId] = @p1, [AddressCity] = @p2, [AddressIsDeleted] = @p3, [AddressLineOne] = @p4, [AddressLineTwo] = @p5, [AddressLinkedAddressId] = @p6, [AddressLinkedAddressSyncId] = @p7, [AddressModifiedOn] = @p8, [AddressPostal] = @p9, [AddressState] = @p10\r\nWHEN NOT MATCHED\r\n\tTHEN INSERT ([AccountId], [AccountSyncId], [AddressCity], [AddressIsDeleted], [AddressLineOne], [AddressLineTwo], [AddressLinkedAddressId], [AddressLinkedAddressSyncId], [AddressModifiedOn], [AddressPostal], [AddressState], [AddressCreatedOn], [AddressSyncId]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12);";
+			var expectedParametersToColumnNames = "AccountId:p0, AccountSyncId:p1, AddressCity:p2, AddressIsDeleted:p3, AddressLineOne:p4, AddressLineTwo:p5, AddressLinkedAddressId:p6, AddressLinkedAddressSyncId:p7, AddressModifiedOn:p8, AddressPostal:p9, AddressState:p10, AddressCreatedOn:p11, AddressSyncId:p12";
+			var expectedParametersTypes = "AccountId:Int, AccountSyncId:UniqueIdentifier, AddressCity:Text, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressCreatedOn:DateTime2, AddressSyncId:UniqueIdentifier";
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlInsertOrUpdate<AddressEntity>(database);
 			timer.Elapsed.Dump();
@@ -146,9 +146,9 @@ namespace Speedy.IntegrationTests
 			var provider = TestHelper.GetSqlProvider();
 			using var database = (ContosoSqlDatabase) provider.GetDatabase();
 			var address = new AddressEntity();
-			var expected = "INSERT INTO [dbo].[Addresses] ([AddressCity], [AddressCreatedOn], [AddressIsDeleted], [AddressLineOne], [AddressLineTwo], [AddressLinkedAddressId], [AddressLinkedAddressSyncId], [AddressModifiedOn], [AddressPostal], [AddressState], [AddressSyncId]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)";
-			var expectedParametersToColumnNames = "AddressCity:p0, AddressCreatedOn:p1, AddressIsDeleted:p2, AddressLineOne:p3, AddressLineTwo:p4, AddressLinkedAddressId:p5, AddressLinkedAddressSyncId:p6, AddressModifiedOn:p7, AddressPostal:p8, AddressState:p9, AddressSyncId:p10";
-			var expectedParametersTypes = "AddressCity:Text, AddressCreatedOn:DateTime2, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressSyncId:UniqueIdentifier";
+			var expected = "INSERT INTO [dbo].[Addresses] ([AccountId], [AccountSyncId], [AddressCity], [AddressCreatedOn], [AddressIsDeleted], [AddressLineOne], [AddressLineTwo], [AddressLinkedAddressId], [AddressLinkedAddressSyncId], [AddressModifiedOn], [AddressPostal], [AddressState], [AddressSyncId]) VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12)";
+			var expectedParametersToColumnNames = "AccountId:p0, AccountSyncId:p1, AddressCity:p2, AddressCreatedOn:p3, AddressIsDeleted:p4, AddressLineOne:p5, AddressLineTwo:p6, AddressLinkedAddressId:p7, AddressLinkedAddressSyncId:p8, AddressModifiedOn:p9, AddressPostal:p10, AddressState:p11, AddressSyncId:p12";
+			var expectedParametersTypes = "AccountId:Int, AccountSyncId:UniqueIdentifier, AddressCity:Text, AddressCreatedOn:DateTime2, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressSyncId:UniqueIdentifier";
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlInsert(database, address);
 			timer.Elapsed.Dump();
@@ -220,9 +220,9 @@ namespace Speedy.IntegrationTests
 		{
 			var provider = TestHelper.GetSqliteProvider();
 			using var database = (ContosoSqliteDatabase) provider.GetDatabase();
-			var expected = "UPDATE \"Addresses\" SET \"AddressCity\" = @p0, \"AddressIsDeleted\" = @p1, \"AddressLineOne\" = @p2, \"AddressLineTwo\" = @p3, \"AddressLinkedAddressId\" = @p4, \"AddressLinkedAddressSyncId\" = @p5, \"AddressModifiedOn\" = @p6, \"AddressPostal\" = @p7, \"AddressState\" = @p8 WHERE \"AddressSyncId\" = @p9;\r\nINSERT INTO \"Addresses\" (\"AddressCity\", \"AddressIsDeleted\", \"AddressLineOne\", \"AddressLineTwo\", \"AddressLinkedAddressId\", \"AddressLinkedAddressSyncId\", \"AddressModifiedOn\", \"AddressPostal\", \"AddressState\", \"AddressSyncId\", \"AddressCreatedOn\")\r\nSELECT @p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10\r\nWHERE (SELECT Changes() = 0);";
-			var expectedParametersToColumnNames = "AddressCity:p0, AddressIsDeleted:p1, AddressLineOne:p2, AddressLineTwo:p3, AddressLinkedAddressId:p4, AddressLinkedAddressSyncId:p5, AddressModifiedOn:p6, AddressPostal:p7, AddressState:p8, AddressSyncId:p9, AddressCreatedOn:p10";
-			var expectedParametersTypes = "AddressCity:Text, AddressIsDeleted:Integer, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:Integer, AddressLinkedAddressSyncId:Text, AddressModifiedOn:Text, AddressPostal:Text, AddressState:Text, AddressSyncId:Text, AddressCreatedOn:Text";
+			var expected = "UPDATE \"Addresses\" SET \"AccountId\" = @p0, \"AccountSyncId\" = @p1, \"AddressCity\" = @p2, \"AddressIsDeleted\" = @p3, \"AddressLineOne\" = @p4, \"AddressLineTwo\" = @p5, \"AddressLinkedAddressId\" = @p6, \"AddressLinkedAddressSyncId\" = @p7, \"AddressModifiedOn\" = @p8, \"AddressPostal\" = @p9, \"AddressState\" = @p10 WHERE \"AddressSyncId\" = @p11;\r\nINSERT INTO \"Addresses\" (\"AccountId\", \"AccountSyncId\", \"AddressCity\", \"AddressIsDeleted\", \"AddressLineOne\", \"AddressLineTwo\", \"AddressLinkedAddressId\", \"AddressLinkedAddressSyncId\", \"AddressModifiedOn\", \"AddressPostal\", \"AddressState\", \"AddressSyncId\", \"AddressCreatedOn\")\r\nSELECT @p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12\r\nWHERE (SELECT Changes() = 0);";
+			var expectedParametersToColumnNames = "AccountId:p0, AccountSyncId:p1, AddressCity:p2, AddressIsDeleted:p3, AddressLineOne:p4, AddressLineTwo:p5, AddressLinkedAddressId:p6, AddressLinkedAddressSyncId:p7, AddressModifiedOn:p8, AddressPostal:p9, AddressState:p10, AddressSyncId:p11, AddressCreatedOn:p12";
+			var expectedParametersTypes = "AccountId:Integer, AccountSyncId:Text, AddressCity:Text, AddressIsDeleted:Integer, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:Integer, AddressLinkedAddressSyncId:Text, AddressModifiedOn:Text, AddressPostal:Text, AddressState:Text, AddressSyncId:Text, AddressCreatedOn:Text";
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlInsertOrUpdate<AddressEntity>(database);
 			timer.Elapsed.Dump();
@@ -243,9 +243,9 @@ namespace Speedy.IntegrationTests
 			var provider = TestHelper.GetSqliteProvider();
 			using var database = (ContosoSqliteDatabase) provider.GetDatabase();
 			var address = new AddressEntity();
-			var expected = "INSERT INTO \"Addresses\" (\"AddressCity\", \"AddressCreatedOn\", \"AddressIsDeleted\", \"AddressLineOne\", \"AddressLineTwo\", \"AddressLinkedAddressId\", \"AddressLinkedAddressSyncId\", \"AddressModifiedOn\", \"AddressPostal\", \"AddressState\", \"AddressSyncId\") VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)";
-			var expectedParametersToColumnNames = "AddressCity:p0, AddressCreatedOn:p1, AddressIsDeleted:p2, AddressLineOne:p3, AddressLineTwo:p4, AddressLinkedAddressId:p5, AddressLinkedAddressSyncId:p6, AddressModifiedOn:p7, AddressPostal:p8, AddressState:p9, AddressSyncId:p10";
-			var expectedParametersTypes = "AddressCity:Text, AddressCreatedOn:Text, AddressIsDeleted:Integer, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:Integer, AddressLinkedAddressSyncId:Text, AddressModifiedOn:Text, AddressPostal:Text, AddressState:Text, AddressSyncId:Text";
+			var expected = "INSERT INTO \"Addresses\" (\"AccountId\", \"AccountSyncId\", \"AddressCity\", \"AddressCreatedOn\", \"AddressIsDeleted\", \"AddressLineOne\", \"AddressLineTwo\", \"AddressLinkedAddressId\", \"AddressLinkedAddressSyncId\", \"AddressModifiedOn\", \"AddressPostal\", \"AddressState\", \"AddressSyncId\") VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12)";
+			var expectedParametersToColumnNames = "AccountId:p0, AccountSyncId:p1, AddressCity:p2, AddressCreatedOn:p3, AddressIsDeleted:p4, AddressLineOne:p5, AddressLineTwo:p6, AddressLinkedAddressId:p7, AddressLinkedAddressSyncId:p8, AddressModifiedOn:p9, AddressPostal:p10, AddressState:p11, AddressSyncId:p12";
+			var expectedParametersTypes = "AccountId:Integer, AccountSyncId:Text, AddressCity:Text, AddressCreatedOn:Text, AddressIsDeleted:Integer, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:Integer, AddressLinkedAddressSyncId:Text, AddressModifiedOn:Text, AddressPostal:Text, AddressState:Text, AddressSyncId:Text";
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlInsert(database, address);
 			timer.Elapsed.Dump();
@@ -278,9 +278,9 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(expectedParametersTypes, string.Join(", ", actual.ParametersByColumnName.Select(x => x.Key + ":" + ((SqliteParameter) x.Value).SqliteType)));
 
 			// Check Address
-			expectedQuery = "UPDATE \"Addresses\" SET \"AddressCity\" = @p0, \"AddressCreatedOn\" = @p1, \"AddressIsDeleted\" = @p2, \"AddressLineOne\" = @p3, \"AddressLineTwo\" = @p4, \"AddressLinkedAddressId\" = @p5, \"AddressLinkedAddressSyncId\" = @p6, \"AddressModifiedOn\" = @p7, \"AddressPostal\" = @p8, \"AddressState\" = @p9, \"AddressSyncId\" = @p10 WHERE \"AddressId\" = @p11";
-			expectedParametersToColumnNames = "AddressCity:p0, AddressCreatedOn:p1, AddressIsDeleted:p2, AddressLineOne:p3, AddressLineTwo:p4, AddressLinkedAddressId:p5, AddressLinkedAddressSyncId:p6, AddressModifiedOn:p7, AddressPostal:p8, AddressState:p9, AddressSyncId:p10, AddressId:p11";
-			expectedParametersTypes = "AddressCity:Text, AddressCreatedOn:Text, AddressIsDeleted:Integer, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:Integer, AddressLinkedAddressSyncId:Text, AddressModifiedOn:Text, AddressPostal:Text, AddressState:Text, AddressSyncId:Text, AddressId:Integer";
+			expectedQuery = "UPDATE \"Addresses\" SET \"AccountId\" = @p0, \"AccountSyncId\" = @p1, \"AddressCity\" = @p2, \"AddressCreatedOn\" = @p3, \"AddressIsDeleted\" = @p4, \"AddressLineOne\" = @p5, \"AddressLineTwo\" = @p6, \"AddressLinkedAddressId\" = @p7, \"AddressLinkedAddressSyncId\" = @p8, \"AddressModifiedOn\" = @p9, \"AddressPostal\" = @p10, \"AddressState\" = @p11, \"AddressSyncId\" = @p12 WHERE \"AddressId\" = @p13";
+			expectedParametersToColumnNames = "AccountId:p0, AccountSyncId:p1, AddressCity:p2, AddressCreatedOn:p3, AddressIsDeleted:p4, AddressLineOne:p5, AddressLineTwo:p6, AddressLinkedAddressId:p7, AddressLinkedAddressSyncId:p8, AddressModifiedOn:p9, AddressPostal:p10, AddressState:p11, AddressSyncId:p12, AddressId:p13";
+			expectedParametersTypes = "AccountId:Integer, AccountSyncId:Text, AddressCity:Text, AddressCreatedOn:Text, AddressIsDeleted:Integer, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:Integer, AddressLinkedAddressSyncId:Text, AddressModifiedOn:Text, AddressPostal:Text, AddressState:Text, AddressSyncId:Text, AddressId:Integer";
 			timer.Restart();
 			actual = SqlBuilder.GetSqlUpdate<AddressEntity>(database);
 			timer.Elapsed.Dump();
@@ -294,9 +294,9 @@ namespace Speedy.IntegrationTests
 		{
 			var provider = TestHelper.GetSqlProvider();
 			using var database = (ContosoSqlDatabase) provider.GetDatabase();
-			var expectedQuery = "UPDATE [dbo].[Addresses] SET [AddressCity] = @p0, [AddressCreatedOn] = @p1, [AddressIsDeleted] = @p2, [AddressLineOne] = @p3, [AddressLineTwo] = @p4, [AddressLinkedAddressId] = @p5, [AddressLinkedAddressSyncId] = @p6, [AddressModifiedOn] = @p7, [AddressPostal] = @p8, [AddressState] = @p9, [AddressSyncId] = @p10 WHERE [AddressId] = @p11";
-			var expectedParametersToColumnNames = "AddressCity:p0, AddressCreatedOn:p1, AddressIsDeleted:p2, AddressLineOne:p3, AddressLineTwo:p4, AddressLinkedAddressId:p5, AddressLinkedAddressSyncId:p6, AddressModifiedOn:p7, AddressPostal:p8, AddressState:p9, AddressSyncId:p10, AddressId:p11";
-			var expectedParametersTypes = "AddressCity:Text, AddressCreatedOn:DateTime2, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressSyncId:UniqueIdentifier, AddressId:BigInt";
+			var expectedQuery = "UPDATE [dbo].[Addresses] SET [AccountId] = @p0, [AccountSyncId] = @p1, [AddressCity] = @p2, [AddressCreatedOn] = @p3, [AddressIsDeleted] = @p4, [AddressLineOne] = @p5, [AddressLineTwo] = @p6, [AddressLinkedAddressId] = @p7, [AddressLinkedAddressSyncId] = @p8, [AddressModifiedOn] = @p9, [AddressPostal] = @p10, [AddressState] = @p11, [AddressSyncId] = @p12 WHERE [AddressId] = @p13";
+			var expectedParametersToColumnNames = "AccountId:p0, AccountSyncId:p1, AddressCity:p2, AddressCreatedOn:p3, AddressIsDeleted:p4, AddressLineOne:p5, AddressLineTwo:p6, AddressLinkedAddressId:p7, AddressLinkedAddressSyncId:p8, AddressModifiedOn:p9, AddressPostal:p10, AddressState:p11, AddressSyncId:p12, AddressId:p13";
+			var expectedParametersTypes = "AccountId:Int, AccountSyncId:UniqueIdentifier, AddressCity:Text, AddressCreatedOn:DateTime2, AddressIsDeleted:Bit, AddressLineOne:Text, AddressLineTwo:Text, AddressLinkedAddressId:BigInt, AddressLinkedAddressSyncId:UniqueIdentifier, AddressModifiedOn:DateTime2, AddressPostal:Text, AddressState:Text, AddressSyncId:UniqueIdentifier, AddressId:BigInt";
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlUpdate<AddressEntity>(database);
 			timer.Elapsed.Dump();

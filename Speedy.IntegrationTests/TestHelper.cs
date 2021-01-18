@@ -242,11 +242,11 @@ namespace Speedy.IntegrationTests
 			};
 		}
 
-		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, bool initialized = true)
+		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, bool initialize = true)
 		{
-			yield return GetSqlProvider(options, initialized);
-			yield return GetSqliteProvider(options, initialized);
-			yield return GetMemoryProvider(options, initialized);
+			yield return GetSqlProvider(options, initialize);
+			yield return GetSqliteProvider(options, initialize);
+			yield return GetMemoryProvider(options, initialize);
 		}
 
 		public static IDispatcher GetDispatcher()
@@ -310,13 +310,13 @@ namespace Speedy.IntegrationTests
 			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), options);
 		}
 
-		public static IDatabaseProvider<ContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialized = true)
+		public static IDatabaseProvider<ContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialize = true)
 		{
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options);
 			database.Database.Migrate();
 			database.ClearDatabase();
 
-			if (initialized)
+			if (initialize)
 			{
 				InitializeDatabase(database);
 			}
