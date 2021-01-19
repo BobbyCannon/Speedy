@@ -65,6 +65,11 @@ namespace Speedy.Extensions
 		/// <returns> The repository containing the session event. </returns>
 		public static IKeyValueRepository<TrackerPath> OpenRepository(this IKeyValueRepositoryProvider<TrackerPath> provider, TrackerPath session)
 		{
+			if (provider == null)
+			{
+				return null;
+			}
+
 			var repository = provider.OpenRepository(session.Id.ToString());
 			repository.WriteAndSave(session);
 			return repository;
@@ -77,6 +82,11 @@ namespace Speedy.Extensions
 		/// <param name="value"> The event to be written to the repository. </param>
 		public static void WriteAndSave(this IKeyValueRepository<TrackerPath> repository, TrackerPath value)
 		{
+			if (repository == null)
+			{
+				return;
+			}
+
 			repository.Write(value.Id.ToString(), value);
 			repository.Save();
 		}

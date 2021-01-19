@@ -227,7 +227,7 @@ namespace Speedy
 
 			if (collectionKey != null)
 			{
-				var key = typeof(T3).Name + collectionKey.GetExpressionName();
+				var key = $"{typeof(T3).Name}-{collectionKey.GetExpressionName()}";
 				var repositoryFactory = GetRepository<T1, T2>();
 				OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile(), property });
 			}
@@ -487,7 +487,7 @@ namespace Speedy
 
 		private void DeletingEntity<T2>(Entity<T2> entity)
 		{
-			var key = entity.GetRealType().Name;
+			var key = $"{entity.GetRealType().Name}-";
 
 			foreach (var relationship in OneToManyRelationships.Where(x => x.Key.StartsWith(key)))
 			{
@@ -704,8 +704,8 @@ namespace Speedy
 				}
 
 				// See if the entity has a relationship filter.
-				var key1 = entityType.Name + collectionType.Name;
-				var key2 = entityType.Name + relationship.Name;
+				var key1 = $"{entityType.Name}-{collectionType.Name}";
+				var key2 = $"{entityType.Name}-{relationship.Name}";
 
 				var relationshipFilter = BuildRelationship(entityType, collectionType, entity, currentCollection, key1)
 					?? BuildRelationship(entityType, collectionType, entity, currentCollection, key2);

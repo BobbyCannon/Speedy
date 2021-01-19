@@ -385,24 +385,25 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public void Remove(T2 id)
 		{
-			var entity = Cache.FirstOrDefault(x => Equals(x.Entity.Id, id));
+			var state = Cache.FirstOrDefault(x => Equals(x.Entity.Id, id));
 
-			if (entity == null)
+			if (state == null)
 			{
 				var instance = Activator.CreateInstance<T>();
 				instance.Id = id;
-				entity = new EntityState<T, T2>(instance, CloneEntity(instance), EntityStateType.Removed);
-				Cache.Add(entity);
+				state = new EntityState<T, T2>(instance, CloneEntity(instance), EntityStateType.Removed);
+				Cache.Add(state);
 			}
 
-			entity.State = EntityStateType.Removed;
+			state.State = EntityStateType.Removed;
+
+			OnDeletingEntity(state.Entity);
 		}
 
 		/// <inheritdoc />
 		public void Remove(T entity)
 		{
 			Remove(entity.Id);
-			ValidateEntities();
 		}
 
 		/// <inheritdoc />
