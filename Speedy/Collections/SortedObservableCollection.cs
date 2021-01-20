@@ -13,6 +13,12 @@ namespace Speedy.Collections
 	/// <typeparam name="T"> The type of the item stored in the collection. </typeparam>
 	public class SortedObservableCollection<T> : BaseObservableCollection<T>
 	{
+		#region Fields
+
+		private readonly object _sortLock;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -29,11 +35,18 @@ namespace Speedy.Collections
 		{
 			OrderBy = orderBy;
 			ThenBy = thenBy;
+
+			_sortLock = new object();
 		}
 
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// Allows disable sorting for faster loading.
+		/// </summary>
+		public bool DisableSorting { get; set; }
 
 		/// <summary>
 		/// The expression to order this collection by.
@@ -54,17 +67,34 @@ namespace Speedy.Collections
 		/// </summary>
 		public void Sort()
 		{
-			var sorted = OrderBy.Process(this.AsQueryable(), ThenBy).ToList();
-
-			for (var i = 0; i < sorted.Count; i++)
+			lock (_sortLock)
 			{
-				var index = IndexOf(sorted[i]);
-				if (index != i)
+				// Track if we are currently already disable sorting
+				var wasDisableSorting = DisableSorting;
+
+				try
 				{
-					var item = this[index];
-					RemoveAt(index);
-					Insert(i, item);
-					//Move(index, i);
+					// Disable sorting while we are sorting
+					DisableSorting = true;
+
+					var sorted = OrderBy.Process(this.AsQueryable(), ThenBy).ToList();
+
+					for (var i = 0; i < sorted.Count; i++)
+					{
+						var index = IndexOf(sorted[i]);
+						if (index != i)
+						{
+							var item = this[index];
+							RemoveAt(index);
+							Insert(i, item);
+							//Move(index, i);
+						}
+					}
+				}
+				finally
+				{
+					// Reset sorting back to what it was
+					DisableSorting = wasDisableSorting;
 				}
 			}
 		}
@@ -80,7 +110,11 @@ namespace Speedy.Collections
 				return;
 			}
 
-			Sort();
+			// Some mass inserts may disable sorting to speed up the process
+			if (!DisableSorting)
+			{
+				Sort();
+			}
 		}
 
 		#endregion

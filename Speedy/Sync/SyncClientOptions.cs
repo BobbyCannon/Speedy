@@ -55,7 +55,9 @@ namespace Speedy.Sync
 				return;
 			}
 
+			this.IfThen(x => !exclusions.Contains(nameof(EnablePrimaryKeyCache)), x => x.EnablePrimaryKeyCache = update.EnablePrimaryKeyCache);
 			this.IfThen(x => !exclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);
+			this.IfThen(x => !exclusions.Contains(nameof(PrimaryKeyCacheTimeout)), x => x.PrimaryKeyCacheTimeout = update.PrimaryKeyCacheTimeout);
 		}
 
 		/// <inheritdoc />
@@ -72,7 +74,9 @@ namespace Speedy.Sync
 				return;
 			}
 
+			this.IfThen(x => inclusions.Contains(nameof(EnablePrimaryKeyCache)), x => x.EnablePrimaryKeyCache = update.EnablePrimaryKeyCache);
 			this.IfThen(x => inclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);
+			this.IfThen(x => inclusions.Contains(nameof(PrimaryKeyCacheTimeout)), x => x.PrimaryKeyCacheTimeout = update.PrimaryKeyCacheTimeout);
 		}
 
 		/// <inheritdoc />

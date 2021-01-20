@@ -271,6 +271,11 @@
             Instantiates an instance of the collection.
             </summary>
         </member>
+        <member name="P:Speedy.Collections.SortedObservableCollection`1.DisableSorting">
+            <summary>
+            Allows disable sorting for faster loading.
+            </summary>
+        </member>
         <member name="P:Speedy.Collections.SortedObservableCollection`1.OrderBy">
             <summary>
             The expression to order this collection by.
