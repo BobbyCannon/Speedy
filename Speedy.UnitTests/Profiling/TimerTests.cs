@@ -12,6 +12,75 @@ namespace Speedy.UnitTests.Profiling
 	public class TimerTests : BaseTests
 	{
 		[TestMethod]
+		public void AddAverageTimerShouldWork()
+		{
+			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+
+			TimeService.UtcNowProvider = () => currentTime;
+
+			var timer = new Timer();
+			var count = 0;
+
+			timer.PropertyChanged += (sender, args) =>
+			{
+				if (args.PropertyName == nameof(Timer.Elapsed))
+				{
+					count++;
+				}
+			};
+
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(0, timer.Elapsed.Ticks);
+
+			var averageTimer = new AverageTimer();
+			Assert.AreEqual(0, averageTimer.Elapsed.TotalMilliseconds);
+			averageTimer.Start();
+			Assert.AreEqual(0, averageTimer.Elapsed.TotalMilliseconds);
+			Assert.AreEqual(0, count);
+			currentTime = currentTime.AddMilliseconds(123456);
+			Assert.AreEqual(123456, averageTimer.Elapsed.TotalMilliseconds);
+			Assert.AreEqual(0, count);
+			averageTimer.Stop();
+
+			Assert.AreEqual(123456, averageTimer.Elapsed.TotalMilliseconds);
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(0, count);
+
+			timer.Add(averageTimer);
+			
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(123456, timer.Elapsed.TotalMilliseconds);
+			Assert.AreEqual("00:02:03.4560000", timer.Elapsed.ToString());
+			Assert.AreEqual(1, count);
+		}
+		
+		[TestMethod]
+		public void AddTimeSpanShouldWork()
+		{
+			var timer = new Timer();
+			var count = 0;
+
+			timer.PropertyChanged += (sender, args) =>
+			{
+				if (args.PropertyName == nameof(Timer.Elapsed))
+				{
+					count++;
+				}
+			};
+
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(0, timer.Elapsed.Ticks);
+			Assert.AreEqual(0, count);
+
+			timer.Add(TimeSpan.FromMilliseconds(123456));
+			
+			Assert.IsFalse(timer.IsRunning);
+			Assert.AreEqual(123456, timer.Elapsed.TotalMilliseconds);
+			Assert.AreEqual("00:02:03.4560000", timer.Elapsed.ToString());
+			Assert.AreEqual(1, count);
+		}
+
+		[TestMethod]
 		public void ShouldResetToProvidedElapsed()
 		{
 			var timer = new Timer();

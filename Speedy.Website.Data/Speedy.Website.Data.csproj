@@ -24,12 +24,12 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="3.1.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.10" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="3.1.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.11" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.11" />
 		<PackageReference Include="PropertyChanged.Fody" Version="3.3.1" PrivateAssets="All" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
 	</ItemGroup>

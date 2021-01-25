@@ -3024,6 +3024,18 @@
             The last time the timer was started on.
             </summary>
         </member>
+        <member name="M:Speedy.Profiling.Timer.Add(Speedy.Profiling.AverageTimer)">
+            <summary>
+            Adds the average timer elapsed value to this timer.
+            </summary>
+            <param name="timer"> The timer to be added. </param>
+        </member>
+        <member name="M:Speedy.Profiling.Timer.Add(System.TimeSpan)">
+            <summary>
+            Adds the time value to this timer.
+            </summary>
+            <param name="time"> The time to be added. </param>
+        </member>
         <member name="M:Speedy.Profiling.Timer.Reset">
             <summary>
             Reset the timer.
@@ -3067,6 +3079,19 @@
             Stops the timer at a specific time.
             </summary>
             <param name="dateTime"> The time the timer was stopped. </param>
+        </member>
+        <member name="M:Speedy.Profiling.Timer.Time(System.Action)">
+            <summary>
+            Start the timer, performs the action, then stops the timer.
+            </summary>
+            <param name="action"> The action to be timed. </param>
+        </member>
+        <member name="M:Speedy.Profiling.Timer.Time``1(System.Func{``0})">
+            <summary>
+            Start the timer, performs the function, then stops the timer, then returns the value from the function.
+            </summary>
+            <param name="function"> The action to be timed. </param>
+            <returns> The value return from the function. </returns>
         </member>
         <member name="M:Speedy.Profiling.Timer.GetCurrentTime">
             <summary>

@@ -63,6 +63,26 @@ namespace Speedy.Profiling
 		#region Methods
 
 		/// <summary>
+		/// Adds the average timer elapsed value to this timer.
+		/// </summary>
+		/// <param name="timer"> The timer to be added. </param>
+		public void Add(AverageTimer timer)
+		{
+			Add(timer.Elapsed);
+		}
+
+		/// <summary>
+		/// Adds the time value to this timer.
+		/// </summary>
+		/// <param name="time"> The time to be added. </param>
+		public void Add(TimeSpan time)
+		{
+			_elapsed = _elapsed.Add(time);
+
+			OnPropertyChanged(nameof(Elapsed));
+		}
+
+		/// <summary>
 		/// Reset the timer.
 		/// </summary>
 		public virtual void Reset()
@@ -79,6 +99,8 @@ namespace Speedy.Profiling
 			_elapsed = elapsed;
 
 			StartedOn = DateTime.MinValue;
+
+			OnPropertyChanged(nameof(Elapsed));
 		}
 
 		/// <summary>
@@ -98,6 +120,8 @@ namespace Speedy.Profiling
 			_elapsed = TimeSpan.Zero;
 
 			StartedOn = dateTime;
+
+			OnPropertyChanged(nameof(Elapsed));
 		}
 
 		/// <summary>
@@ -120,6 +144,8 @@ namespace Speedy.Profiling
 			}
 
 			StartedOn = dateTime;
+
+			OnPropertyChanged(nameof(Elapsed));
 		}
 
 		/// <summary>
@@ -148,6 +174,43 @@ namespace Speedy.Profiling
 			}
 
 			StartedOn = DateTime.MinValue;
+
+			OnPropertyChanged(nameof(Elapsed));
+		}
+
+		/// <summary>
+		/// Start the timer, performs the action, then stops the timer.
+		/// </summary>
+		/// <param name="action"> The action to be timed. </param>
+		public void Time(Action action)
+		{
+			try
+			{
+				Start();
+				action();
+			}
+			finally
+			{
+				Stop();
+			}
+		}
+
+		/// <summary>
+		/// Start the timer, performs the function, then stops the timer, then returns the value from the function.
+		/// </summary>
+		/// <param name="function"> The action to be timed. </param>
+		/// <returns> The value return from the function. </returns>
+		public T Time<T>(Func<T> function)
+		{
+			try
+			{
+				Start();
+				return function();
+			}
+			finally
+			{
+				Stop();
+			}
 		}
 
 		/// <summary>
