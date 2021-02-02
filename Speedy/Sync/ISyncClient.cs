@@ -8,24 +8,29 @@
 		#region Properties
 
 		/// <summary>
-		/// Gets or sets the name of the sync client.
+		/// The database provider to use during a sync session.
 		/// </summary>
-		string Name { get; }
+		ISyncableDatabaseProvider DatabaseProvider { get; }
 
 		/// <summary>
 		/// An optional converter to process sync objects from Server to Client
 		/// </summary>
 		SyncClientIncomingConverter IncomingConverter { get; set; }
-		
+
 		/// <summary>
-		/// An optional converter to process sync objects from Client to Server
+		/// Gets or sets the name of the sync client.
 		/// </summary>
-		SyncClientOutgoingConverter OutgoingConverter { get; set; }
+		string Name { get; }
 
 		/// <summary>
 		/// The options for the sync client
 		/// </summary>
 		SyncClientOptions Options { get; }
+
+		/// <summary>
+		/// An optional converter to process sync objects from Client to Server
+		/// </summary>
+		SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <summary>
 		/// The communication statistics for this sync client.
@@ -36,7 +41,7 @@
 		/// The options for the sync
 		/// </summary>
 		SyncOptions SyncOptions { get; }
-		
+
 		/// <summary>
 		/// The active sync session. Will be null when a session is not started.
 		/// </summary>

@@ -14,11 +14,11 @@ namespace Speedy.Client.Data
 	{
 		#region Constructors
 
-		public ContosoClientMemoryDatabase() : this(null)
+		public ContosoClientMemoryDatabase() : this(null, null)
 		{
 		}
 
-		public ContosoClientMemoryDatabase(DatabaseOptions options) : base(options)
+		public ContosoClientMemoryDatabase(DatabaseOptions options, DatabaseKeyCache keyCache) : base(options, keyCache)
 		{
 			Accounts = GetSyncableRepository<ClientAccount, int>();
 			Addresses = GetSyncableRepository<ClientAddress, long>();

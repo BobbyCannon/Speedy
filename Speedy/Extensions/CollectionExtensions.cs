@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Speedy.Serialization;
 using Speedy.Storage;
 
 #endregion
@@ -93,6 +94,56 @@ namespace Speedy.Extensions
 		public static HashSet<T> Append<T>(this HashSet<T> set, HashSet<T> values)
 		{
 			return new(set.Union(values));
+		}
+
+		/// <summary>
+		/// Deep clone a dictionary of items. Will use the ICloneable interface if available.
+		/// </summary>
+		/// <typeparam name="T"> The key type. </typeparam>
+		/// <typeparam name="T2"> The value type. </typeparam>
+		/// <param name="dictionary"> The dictionary to clone. </param>
+		/// <returns> The clone dictionary. </returns>
+		public static IDictionary<T, T2> DeepClone<T, T2>(this IDictionary<T, T2> dictionary) where T2 : new()
+		{
+			var response = new Dictionary<T, T2>();
+			foreach (var item in dictionary)
+			{
+				if (item.Value is ICloneable<T2> cloneable)
+				{
+					response.Add(item.Key, cloneable.DeepClone());
+				}
+				else
+				{
+					// ReSharper disable once InvokeAsExtensionMethod
+					response.Add(item.Key, Serializer.DeepClone(item.Value));
+				}
+			}
+			return response;
+		}
+
+		/// <summary>
+		/// Deep clone a dictionary of items. Will use the ICloneable interface if available.
+		/// </summary>
+		/// <typeparam name="T"> The key type. </typeparam>
+		/// <typeparam name="T2"> The value type. </typeparam>
+		/// <param name="dictionary"> The dictionary to clone. </param>
+		/// <returns> The clone dictionary. </returns>
+		public static Dictionary<T, T2> DeepClone<T, T2>(this Dictionary<T, T2> dictionary)
+		{
+			var response = new Dictionary<T, T2>();
+			foreach (var item in dictionary)
+			{
+				if (item.Value is ICloneable<T2> cloneable)
+				{
+					response.Add(item.Key, cloneable.DeepClone());
+				}
+				else
+				{
+					// ReSharper disable once InvokeAsExtensionMethod
+					response.Add(item.Key, Serializer.DeepClone<T2>(item.Value));
+				}
+			}
+			return response;
 		}
 
 		/// <summary>

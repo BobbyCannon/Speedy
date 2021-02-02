@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Speedy.Configuration;
 using Speedy.Extensions;
-using Speedy.Serialization;
 using Speedy.Storage;
 using Speedy.Sync;
 
@@ -40,11 +39,15 @@ namespace Speedy
 		/// Instantiates an instance of the database class.
 		/// </summary>
 		/// <param name="options"> The options for this database. </param>
-		protected Database(DatabaseOptions options)
+		/// <param name="keyCache"> An optional key manager for caching entity IDs (primary and sync). </param>
+		protected Database(DatabaseOptions options, DatabaseKeyCache keyCache)
 		{
 			IndexConfigurations = new Dictionary<string, IndexConfiguration>();
+			KeyCache = keyCache;
 			OneToManyRelationships = new Dictionary<string, object[]>();
 			Options = options?.DeepClone() ?? new DatabaseOptions();
+			EntityIndexConfigurations = new Dictionary<Type, List<IndexConfiguration>>();
+			EntityPropertyConfigurations = new Dictionary<Type, List<IPropertyConfiguration>>();
 			PropertyConfigurations = new Dictionary<string, IPropertyConfiguration>();
 			Repositories = new Dictionary<string, IDatabaseRepository>();
 
@@ -56,12 +59,19 @@ namespace Speedy
 
 		#region Properties
 
+		/// <inheritdoc />
+		public DatabaseKeyCache KeyCache { get; set; }
+
 		/// <summary>
 		/// Gets the options for this database.
 		/// </summary>
 		public DatabaseOptions Options { get; }
 
 		internal Dictionary<string, IDatabaseRepository> Repositories { get; }
+
+		private Dictionary<Type, List<IndexConfiguration>> EntityIndexConfigurations { get; }
+
+		private IDictionary<Type, List<IPropertyConfiguration>> EntityPropertyConfigurations { get; }
 
 		private IDictionary<string, IndexConfiguration> IndexConfigurations { get; }
 
@@ -138,6 +148,13 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
+		public T Remove<T, T2>(T item) where T : Entity<T2>
+		{
+			GetRepository<T, T2>().Remove(item);
+			return item;
+		}
+
+		/// <inheritdoc />
 		public IEnumerable<ISyncableRepository> GetSyncableRepositories(SyncOptions options)
 		{
 			//
@@ -192,9 +209,10 @@ namespace Speedy
 		/// <summary>
 		/// Create a configuration that represents an Index.
 		/// </summary>
+		/// <param name="entityType"> The type of the entity. </param>
 		/// <param name="name"> The name of the index. </param>
 		/// <returns> The index configuration. </returns>
-		public IndexConfiguration HasIndex(string name)
+		public IndexConfiguration HasIndex(Type entityType, string name)
 		{
 			var indexName = $"{name}";
 
@@ -205,6 +223,21 @@ namespace Speedy
 
 			var response = new IndexConfiguration(indexName);
 			IndexConfigurations.Add(indexName, response);
+
+			List<IndexConfiguration> entityConfigurations;
+
+			if (EntityIndexConfigurations.ContainsKey(entityType))
+			{
+				entityConfigurations = EntityIndexConfigurations[entityType];
+			}
+			else
+			{
+				entityConfigurations = new List<IndexConfiguration>();
+				EntityIndexConfigurations.Add(entityType, entityConfigurations);
+			}
+
+			entityConfigurations.Add(response);
+
 			return response;
 		}
 
@@ -244,7 +277,8 @@ namespace Speedy
 		/// <returns> The configuration for the entity property. </returns>
 		public PropertyConfiguration<T, T2> Property<T, T2>(Expression<Func<T, object>> expression) where T : Entity<T2>
 		{
-			var name = $"{typeof(T).ToAssemblyName()}.{expression.GetExpressionName()}";
+			var typeofT = typeof(T);
+			var name = $"{typeofT.ToAssemblyName()}.{expression.GetExpressionName()}";
 
 			if (PropertyConfigurations.ContainsKey(name))
 			{
@@ -253,6 +287,21 @@ namespace Speedy
 
 			var response = new PropertyConfiguration<T, T2>(expression);
 			PropertyConfigurations.Add(name, response);
+
+			List<IPropertyConfiguration> entityConfigurations;
+
+			if (EntityPropertyConfigurations.ContainsKey(typeofT))
+			{
+				entityConfigurations = EntityPropertyConfigurations[typeofT];
+			}
+			else
+			{
+				entityConfigurations = new List<IPropertyConfiguration>();
+				EntityPropertyConfigurations.Add(typeofT, entityConfigurations);
+			}
+
+			entityConfigurations.Add(response);
+
 			return response;
 		}
 
@@ -275,9 +324,9 @@ namespace Speedy
 					_collectionChangeTracker.Reset();
 				}
 
-				Repositories.Values.ForEach(x => x.ValidateEntities());
 				Repositories.Values.ForEach(x => x.UpdateRelationships());
 				Repositories.Values.ForEach(x => x.AssignKeys(new List<IEntity>()));
+				Repositories.Values.ForEach(x => x.ValidateEntities());
 				Repositories.Values.ForEach(x => x.UpdateRelationships());
 
 				var response = Repositories.Values.Sum(x => x.SaveChanges());
@@ -529,7 +578,7 @@ namespace Speedy
 				? syncableRepositories
 					.Select(x => x.Value)
 					.Cast<ISyncableRepository>()
-					.Where(x => !options.ShouldFilterRepository(x.TypeName))
+					.Where(x => !options.ShouldExcludeRepository(x.TypeName))
 					.ToList()
 				: syncableRepositories
 					.Where(x => order.Contains(x.Key))
@@ -587,7 +636,7 @@ namespace Speedy
 
 		private void RepositoryCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			_collectionChangeTracker.Add(e.NewItems);
+			_collectionChangeTracker.AddAddedEntity(e.NewItems);
 			_collectionChangeTracker.Remove(e.OldItems);
 		}
 
@@ -813,17 +862,25 @@ namespace Speedy
 				return;
 			}
 
-			foreach (var configuration in PropertyConfigurations.Values.Where(x => x.IsMappingFor(entity)))
+			var typeofT = typeof(T);
+
+			if (EntityPropertyConfigurations.ContainsKey(typeofT))
 			{
-				if (configuration is PropertyConfiguration<T, T2> validation)
+				foreach (var configuration in EntityPropertyConfigurations[typeofT])
 				{
-					validation.Validate(entity, repository);
+					if (configuration is PropertyConfiguration<T, T2> validation)
+					{
+						validation.Validate(entity, repository);
+					}
 				}
 			}
 
-			foreach (var configuration in IndexConfigurations.Values.Where(x => x.IsMappingFor(entity)))
+			if (EntityIndexConfigurations.ContainsKey(typeofT))
 			{
-				configuration.Validate(entity, repository);
+				foreach (var configuration in EntityIndexConfigurations[typeofT])
+				{
+					configuration.Validate(entity, repository);
+				}
 			}
 		}
 

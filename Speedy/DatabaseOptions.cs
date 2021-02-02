@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
+using Speedy.Serialization;
 
 #endregion
 
@@ -25,9 +26,9 @@ namespace Speedy
 			MaintainModifiedOn = true;
 			MaintainSyncId = true;
 			PermanentSyncEntityDeletions = false;
-			SyncOrder = new string[0];
+			SyncOrder = Array.Empty<string>();
 			Timeout = TimeSpan.FromSeconds(30);
-			UnmaintainEntities = new Type[0];
+			UnmaintainEntities = Array.Empty<Type>();
 		}
 
 		#endregion
@@ -80,6 +81,22 @@ namespace Speedy
 		#region Methods
 
 		/// <inheritdoc />
+		public override DatabaseOptions DeepClone(int levels = -1)
+		{
+			return new()
+			{
+				DisableEntityValidations = DisableEntityValidations,
+				MaintainCreatedOn = MaintainCreatedOn,
+				MaintainModifiedOn = MaintainModifiedOn,
+				MaintainSyncId = MaintainSyncId,
+				PermanentSyncEntityDeletions = PermanentSyncEntityDeletions,
+				SyncOrder = SyncOrder,
+				Timeout = Timeout,
+				UnmaintainEntities = UnmaintainEntities
+			};
+		}
+
+		/// <inheritdoc />
 		public override void UpdateWith(DatabaseOptions update, params string[] exclusions)
 		{
 			if (update == null)
@@ -95,12 +112,6 @@ namespace Speedy
 			this.IfThen(x => !exclusions.Contains(nameof(SyncOrder)), x => x.SyncOrder = (string[]) update.SyncOrder.Clone());
 			this.IfThen(x => !exclusions.Contains(nameof(Timeout)), x => x.Timeout = update.Timeout);
 			this.IfThen(x => !exclusions.Contains(nameof(UnmaintainEntities)), x => x.UnmaintainEntities = (Type[]) update.UnmaintainEntities.Clone());
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWith(object update, params string[] exclusions)
-		{
-			UpdateWith(update as DatabaseOptions, exclusions);
 		}
 
 		#endregion

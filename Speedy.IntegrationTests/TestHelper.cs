@@ -28,6 +28,7 @@ using Speedy.Website.Data.Enumerations;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Services;
+using Timer = Speedy.Profiling.Timer;
 
 #endregion
 
@@ -97,6 +98,15 @@ namespace Speedy.IntegrationTests
 		public static void AddSaveAndCleanup<T, T2>(this IContosoDatabase database, T item) where T : Entity<T2>
 		{
 			database.Add<T, T2>(item);
+			database.SaveChanges();
+			database.Dispose();
+
+			// Because sync is based on "until" (less than, not equal) then we must delay at least a millisecond to delay the data.
+			Thread.Sleep(1);
+		}
+		public static void RemoveSaveAndCleanup<T, T2>(this IContosoDatabase database, T item) where T : Entity<T2>
+		{
+			database.Remove<T, T2>(item);
 			database.SaveChanges();
 			database.Dispose();
 
@@ -226,11 +236,11 @@ namespace Speedy.IntegrationTests
 		public static ISyncableDatabaseProvider<ContosoClientMemoryDatabase> GetClientProvider()
 		{
 			var database = new ContosoClientMemoryDatabase();
-			return new SyncDatabaseProvider<ContosoClientMemoryDatabase>(x =>
+			return new SyncDatabaseProvider<ContosoClientMemoryDatabase>((x, y) =>
 			{
 				database.Options.UpdateWith(x);
 				return database;
-			}, ContosoClientMemoryDatabase.GetDefaultOptions());
+			}, ContosoClientMemoryDatabase.GetDefaultOptions(), null);
 		}
 
 		public static ControllerContext GetControllerContext(AccountEntity account)
@@ -242,11 +252,11 @@ namespace Speedy.IntegrationTests
 			};
 		}
 
-		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, bool initialize = true)
+		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, DatabaseKeyCache keyCache = null, bool initialize = true)
 		{
 			yield return GetSqlProvider(options, initialize);
 			yield return GetSqliteProvider(options, initialize);
-			yield return GetMemoryProvider(options, initialize);
+			yield return GetMemoryProvider(options, keyCache, initialize);
 		}
 
 		public static IDispatcher GetDispatcher()
@@ -256,13 +266,13 @@ namespace Speedy.IntegrationTests
 			return dispatcher.Object;
 		}
 
-		public static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(DatabaseOptions options = null, bool initialized = true)
+		public static IDatabaseProvider<IContosoDatabase> GetMemoryProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null, bool initialized = true)
 		{
-			var database = new ContosoMemoryDatabase(options);
+			var database = new ContosoMemoryDatabase(options, keyCache);
 
 			if (initialized)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
 
 			return new DatabaseProvider<IContosoDatabase>(x =>
@@ -296,96 +306,130 @@ namespace Speedy.IntegrationTests
 			return list[index];
 		}
 
-		public static IDatabaseProvider<ContosoDatabase> GetSqliteProvider(DatabaseOptions options = null, bool initialized = true)
+		public static IDatabaseProvider<ContosoDatabase> GetSqliteProvider(DatabaseOptions options = null, bool initialized = true, DatabaseKeyCache keyCache = null)
 		{
-			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, options);
+			// Do not use the cache during migration and clearing of the database
+			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, options, null);
 			database.Database.EnsureDeleted();
 			database.Database.Migrate();
 
 			if (initialized)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
 
-			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), options);
+			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x, keyCache), options);
 		}
 
-		public static IDatabaseProvider<ContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialize = true)
+		public static IDatabaseProvider<ContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialize = true, DatabaseKeyCache keyCache = null)
 		{
-			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options);
+			// Do not use the cache during migration and clearing of the database
+			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options, null);
 			database.Database.Migrate();
 			database.ClearDatabase();
 
 			if (initialize)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
 
-			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), options);
+			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x, keyCache), options);
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableMemoryProvider(DatabaseOptions options = null, bool initialize = true)
+		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableMemoryProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null, bool initialize = true)
 		{
-			var database = new ContosoMemoryDatabase(options);
+			var database = new ContosoMemoryDatabase(options, keyCache);
 
 			if (initialize)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
 
-			return new SyncDatabaseProvider(x =>
+			return new SyncDatabaseProvider<IContosoDatabase>((x, y) =>
 			{
 				database.Options.UpdateWith(x);
 				return database;
-			}, database.Options);
+			}, database.Options, keyCache);
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqliteProvider(bool initialize = true)
+		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqliteProvider(DatabaseKeyCache keyCache = null, bool initialize = true)
 		{
-			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection);
+			// Do not use the cache during migration and clearing of the database
+			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, null, null);
 			database.Database.EnsureDeleted();
 			database.Database.Migrate();
 			if (initialize)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+			return new SyncDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqliteProvider2(bool initialize = true)
+		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqliteProvider2(DatabaseKeyCache keyCache = null, bool initialize = true)
 		{
-			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2);
+			// Do not use the cache during migration and clearing of the database
+			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2, null, null);
 			database.Database.EnsureDeleted();
 			database.Database.Migrate();
 			if (initialize)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqliteDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x), database.Options);
+			return new SyncDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqlProvider(bool initialize = true)
+		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqlProvider(DatabaseKeyCache keyCache = null, bool initialize = true)
 		{
-			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection);
+			// Do not use the cache during migration and clearing of the database
+			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, null, null);
 			database.Database.Migrate();
 			database.ClearDatabase();
 			if (initialize)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+			return new SyncDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
-		public static ISyncableDatabaseProvider GetSyncableSqlProvider2(bool initialize = true)
+		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqlProvider2(DatabaseKeyCache keyCache = null, bool initialize = true)
 		{
-			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2);
+			// Do not use the cache during migration and clearing of the database
+			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2, null, null);
 			database.Database.Migrate();
 			database.ClearDatabase();
 			if (initialize)
 			{
-				InitializeDatabase(database);
+				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqlDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x), database.Options);
+			return new SyncDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+		}
+
+		public static ISyncClient GetSyncClient(string name, DatabaseType type, bool initializeDatabase, bool useKeyCache, bool useSecondaryConnection)
+		{
+			switch (type)
+			{
+				case DatabaseType.Memory:
+					return new SyncClient($"{name}: ({type}{(useKeyCache ? ", cached" : "")})",
+						GetSyncableMemoryProvider(null, useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase));
+
+				case DatabaseType.Sql:
+					return new SyncClient($"{name}: ({type}{(useKeyCache ? ", cached" : "")})",
+						useSecondaryConnection
+							? GetSyncableSqlProvider2(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
+							: GetSyncableSqlProvider(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
+					);
+
+				case DatabaseType.Sqlite:
+					return new SyncClient($"{name}: ({type}{(useKeyCache ? ", cached" : "")})",
+						useSecondaryConnection
+							? GetSyncableSqliteProvider2(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
+							: GetSyncableSqliteProvider(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
+					);
+
+				default:
+				case DatabaseType.Unknown:
+					throw new ArgumentOutOfRangeException(nameof(type), type, null);
+			}
 		}
 
 		public static void Initialize()
@@ -409,8 +453,9 @@ namespace Speedy.IntegrationTests
 		{
 			GetServerClientScenarios(includeWeb, initializeDatabase).ForEach(x =>
 			{
-				Console.WriteLine(x.server.Name + " -> " + x.client.Name);
+				Console.Write($"{x.server.Name} -> {x.client.Name}: ");
 				action(x.server, x.client);
+				Console.WriteLine($"{x.timer.Elapsed}");
 			});
 		}
 
@@ -424,23 +469,39 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static IEnumerable<(ISyncClient server, ISyncClient client)> GetServerClientScenarios(bool includeWeb, bool initializeDatabase)
+		private static IEnumerable<(Timer timer, ISyncClient server, ISyncClient client)> GetServerClientScenarios(bool includeWeb, bool initializeDatabase)
 		{
-			(ISyncClient server, ISyncClient client) process(ISyncClient server, ISyncClient client)
+			static (Timer timer, ISyncClient server, ISyncClient client) Process(Timer timer, ISyncClient server, ISyncClient client)
 			{
-				server.Options.MaintainModifiedOn = true;
-				return (server, client);
+				server.Options.IsServerClient = true;
+				return (timer, server, client);
 			}
 
-			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)), new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)));
-			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)), new SyncClient("Client (SQL)", GetSyncableSqlProvider(initializeDatabase)));
-			yield return process(new SyncClient("Server (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)));
-			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider(initializeDatabase)), new SyncClient("Client (SQL2)", GetSyncableSqlProvider2(initializeDatabase)));
-			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider(initializeDatabase)), new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)));
-			yield return process(new SyncClient("Server (SQL)", GetSyncableSqlProvider(initializeDatabase)), new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)));
-			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)), new SyncClient("Client (Sqlite2)", GetSyncableSqliteProvider2(initializeDatabase)));
-			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)), new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)));
-			yield return process(new SyncClient("Server (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)), new SyncClient("Client (SQL)", GetSyncableSqlProvider(initializeDatabase)));
+			static (Timer timer, ISyncClient server, ISyncClient client) Process2((Timer timer, ISyncClient server, ISyncClient client) scenario)
+			{
+				return Process(scenario.timer, scenario.server, scenario.client);
+			}
+
+			var scenarios = new List<(DatabaseType server, DatabaseType client)>
+			{
+				new(DatabaseType.Memory, DatabaseType.Memory),
+				new(DatabaseType.Memory, DatabaseType.Sql),
+				new(DatabaseType.Memory, DatabaseType.Sqlite),
+				new(DatabaseType.Sql, DatabaseType.Memory),
+				new(DatabaseType.Sql, DatabaseType.Sql),
+				new(DatabaseType.Sql, DatabaseType.Sqlite),
+				new(DatabaseType.Sqlite, DatabaseType.Memory),
+				new(DatabaseType.Sqlite, DatabaseType.Sql),
+				new(DatabaseType.Sqlite, DatabaseType.Sqlite)
+			};
+
+			foreach (var (server, client) in scenarios)
+			{
+				yield return Process2(GetSyncClients(server, false, client, false, initializeDatabase));
+				yield return Process2(GetSyncClients(server, true, client, false, initializeDatabase));
+				yield return Process2(GetSyncClients(server, false, client, true, initializeDatabase));
+				yield return Process2(GetSyncClients(server, true, client, true, initializeDatabase));
+			}
 
 			if (includeWeb)
 			{
@@ -455,19 +516,40 @@ namespace Speedy.IntegrationTests
 				);
 
 				var credential = new NetworkCredential("admin@speedy.local", "Password");
-				yield return process(
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initializeDatabase), "https://speedy.local", credential: credential, timeout: 60000),
+				const string serverUri = "https://speedy.local";
+				const int timeout = 60000;
+
+				yield return Process(Timer.StartNew(),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
 					new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
-				yield return process(
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initializeDatabase), "https://speedy.local", credential: credential, timeout: 60000),
-					new SyncClient("Client (SQL2)", GetSyncableSqlProvider2(initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
-				yield return process(
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initializeDatabase), "https://speedy.local", credential: credential, timeout: 60000),
-					new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+				yield return Process(Timer.StartNew(),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new SyncClient("Client (MEM, Cached)", GetSyncableMemoryProvider(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+				yield return Process(Timer.StartNew(),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new SyncClient("Client (SQL2)", GetSyncableSqlProvider2(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+				yield return Process(Timer.StartNew(),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new SyncClient("Client (SQL2, Cached)", GetSyncableSqlProvider2(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+				yield return Process(Timer.StartNew(),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
+				yield return Process(Timer.StartNew(),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new SyncClient("Client (Sqlite, Cached)", GetSyncableSqliteProvider(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 			}
 		}
 
-		private static void InitializeDatabase(IContosoDatabase database)
+		private static (Timer timer, ISyncClient server, ISyncClient client) GetSyncClients(DatabaseType scenarioServer, bool cacheServer, DatabaseType scenarioClient, bool cacheClient, bool initializeDatabase)
+		{
+			var timer = new Timer();
+			timer.Start();
+			var server = GetSyncClient("Server", scenarioServer, initializeDatabase, cacheServer, false);
+			var client = GetSyncClient("Client", scenarioClient, initializeDatabase, cacheClient, scenarioServer == scenarioClient);
+			return (timer, server, client);
+		}
+
+		private static void InitializeDatabase(IContosoDatabase database, DatabaseKeyCache keyCache)
 		{
 			var address = new AddressEntity
 			{
@@ -490,6 +572,8 @@ namespace Speedy.IntegrationTests
 			});
 
 			database.SaveChanges();
+
+			keyCache?.Initialize(database);
 		}
 
 		private static string ToDetailedString(this Exception ex)

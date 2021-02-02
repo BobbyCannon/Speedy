@@ -128,18 +128,6 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object update, bool excludeVirtuals = true, params string[] exclusions)
-		{
-			var totalExclusions = new HashSet<string>(exclusions);
-			if (excludeVirtuals)
-			{
-				totalExclusions.AddRange(update.GetType().GetVirtualPropertyNames());
-			}
-
-			UpdateWith(update, totalExclusions.ToArray());
-		}
-
-		/// <inheritdoc />
 		public override void UpdateWith(object update, params string[] exclusions)
 		{
 			UpdatableExtensions.UpdateWith(this, update, exclusions);
@@ -166,18 +154,6 @@ namespace Speedy
 		public virtual void UpdateWith(Entity<T> update, params string[] exclusions)
 		{
 			UpdatableExtensions.UpdateWith(this, update, exclusions);
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWithOnly(object update, params string[] inclusions)
-		{
-			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
-		}
-
-		/// <inheritdoc />
-		public virtual void UpdateWithOnly(Entity<T> update, params string[] inclusions)
-		{
-			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
 		}
 
 		#endregion
@@ -351,19 +327,8 @@ namespace Speedy
 		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
 		public abstract void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate);
 
-		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
-		/// </summary>
-		/// <param name="update"> The source of the updates. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public abstract void UpdateWith(object update, bool excludeVirtuals = true, params string[] exclusions);
-
 		/// <inheritdoc />
 		public abstract void UpdateWith(object update, params string[] exclusions);
-
-		/// <inheritdoc />
-		public abstract void UpdateWithOnly(object update, params string[] inclusions);
 
 		/// <summary>
 		/// Gets the default exclusions for change tracking. Warning: this is called during constructor, overrides need to be
@@ -372,7 +337,7 @@ namespace Speedy
 		/// <returns> The values to exclude during change tracking. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForChangeTracking()
 		{
-			return new HashSet<string>();
+			return new();
 		}
 
 		/// <summary>

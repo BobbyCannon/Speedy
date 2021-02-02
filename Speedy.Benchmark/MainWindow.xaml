@@ -5,52 +5,82 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:Speedy.Benchmark"
 		mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
-		Title="Speedy Benchmark" Height="450" Width="800"
+		Title="Speedy Benchmark" Height="1024" Width="800"
 		WindowStartupLocation="CenterScreen" Icon="Speedy.ico">
 	<Window.Resources>
+		<local:VisibilityConverter x:Key="InvertedVisibilityConverter" Inverse="true" />
 		<local:VisibilityConverter x:Key="VisibilityConverter" />
 	</Window.Resources>
 	<DockPanel LastChildFill="True">
-		<Border DockPanel.Dock="Top" BorderThickness="0,1" BorderBrush="DarkGray">
-			<StackPanel Orientation="Horizontal">
-				<StackPanel.Resources>
-					<Style TargetType="Button">
-						<Setter Property="Margin" Value="10,8,0,8" />
-						<Setter Property="Padding" Value="10,2" />
-						<Setter Property="HorizontalAlignment" Value="Left" />
-					</Style>
-					<Style TargetType="CheckBox">
-						<Setter Property="Margin" Value="10,11,0,0" />
-						<Setter Property="Padding" Value="10,2" />
-						<Setter Property="HorizontalAlignment" Value="Left" />
-					</Style>
-					<Style TargetType="ToggleButton">
-						<Setter Property="Margin" Value="10,8,0,8" />
-						<Setter Property="Padding" Value="10,2" />
-						<Setter Property="HorizontalAlignment" Value="Left" />
-					</Style>
-					<Style TargetType="TextBlock">
-						<Setter Property="Margin" Value="10,8,0,8" />
-						<Setter Property="Padding" Value="10,2" />
-						<Setter Property="HorizontalAlignment" Value="Left" />
-					</Style>
-					<Style TargetType="TextBox">
-						<Setter Property="Margin" Value="10,8,0,8" />
-						<Setter Property="Padding" Value="10,2" />
-						<Setter Property="HorizontalAlignment" Value="Left" />
-					</Style>
-				</StackPanel.Resources>
-				<Button Content="Start" Command="{Binding StartWorkCommand, Mode=OneWay}" />
-				<CheckBox Content="Bulk Processing" IsChecked="{Binding UseBulkProcessing, Mode=TwoWay}" />
-				<CheckBox Content="Data" IsChecked="{Binding CreateData, Mode=TwoWay}" />
-				<CheckBox Content="Sync" IsChecked="{Binding SyncData, Mode=TwoWay}" />
-				<CheckBox Content="Primary Key Caching" IsChecked="{Binding CachePrimaryKeys, Mode=TwoWay}" />
-				<TextBlock Text="Addresses:" />
-				<TextBox Text="{Binding AddressCount, Mode=TwoWay}" />
-				<TextBlock Text="Accounts:" />
-				<TextBox Text="{Binding AccountCount, Mode=TwoWay}" />
-			</StackPanel>
-		</Border>
+		<StackPanel DockPanel.Dock="Top">
+			<StackPanel.Resources>
+				<Style TargetType="Button">
+					<Setter Property="Margin" Value="0,4,10,6" />
+					<Setter Property="Padding" Value="10,2" />
+					<Setter Property="HorizontalAlignment" Value="Left" />
+				</Style>
+				<Style TargetType="CheckBox">
+					<Setter Property="Margin" Value="0,7,10,3" />
+					<Setter Property="Padding" Value="10,2" />
+					<Setter Property="HorizontalAlignment" Value="Left" />
+				</Style>
+				<Style TargetType="ToggleButton">
+					<Setter Property="Margin" Value="0" />
+					<Setter Property="Padding" Value="10,2" />
+					<Setter Property="HorizontalAlignment" Value="Left" />
+				</Style>
+				<Style TargetType="TextBlock">
+					<Setter Property="Margin" Value="0,5,0,0" />
+					<Setter Property="Padding" Value="10,2" />
+					<Setter Property="HorizontalAlignment" Value="Left" />
+				</Style>
+				<Style TargetType="TextBox">
+					<Setter Property="Margin" Value="0,5,10,5" />
+					<Setter Property="Padding" Value="10,0" />
+					<Setter Property="HorizontalAlignment" Value="Left" />
+					<Setter Property="VerticalContentAlignment" Value="Center" />
+				</Style>
+				<Style TargetType="WrapPanel">
+					<Setter Property="Margin" Value="10" />
+					<Setter Property="HorizontalAlignment" Value="Left" />
+				</Style>
+			</StackPanel.Resources>
+			<!-- Settings -->
+			<Border DockPanel.Dock="Top" BorderThickness="0,1" BorderBrush="DarkGray">
+				<WrapPanel Orientation="Horizontal">
+					<Button Command="{Binding StartWorkCommand, Mode=OneWay}">
+						<Grid Margin="4,0">
+							<TextBlock Text="Start" Margin="0" Padding="0" Visibility="{Binding IsRunning, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}" />
+							<TextBlock Text="Stop" Margin="0" Padding="0" Visibility="{Binding IsRunning, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
+						</Grid>
+					</Button>
+					<CheckBox Content="Bulk Processing" IsChecked="{Binding UseBulkProcessing, Mode=TwoWay}" />
+					<CheckBox Content="Data" IsChecked="{Binding CreateData, Mode=TwoWay}" />
+					<CheckBox Content="Sync" IsChecked="{Binding SyncData, Mode=TwoWay}" />
+					<CheckBox Content="Primary Key Caching" IsChecked="{Binding CachePrimaryKeys, Mode=TwoWay}" />
+					<TextBlock Text="Addresses:" />
+					<TextBox Text="{Binding AddressCount, Mode=TwoWay}" />
+					<TextBlock Text="Accounts:" />
+					<TextBox Text="{Binding AccountCount, Mode=TwoWay}" />
+					<TextBlock Text="Items Per Sync:" />
+					<TextBox Text="{Binding ItemsPerSync, Mode=TwoWay}" />
+					<CheckBox Content="Cache Client Keys" IsChecked="{Binding UseKeyManagerForClient, Mode=TwoWay}" />
+					<CheckBox Content="Cache Server Keys" IsChecked="{Binding UseKeyManagerForServer, Mode=TwoWay}" />
+					<CheckBox Content="Increment Sync ID" IsChecked="{Binding IncrementSyncIds, Mode=TwoWay}" />
+					<CheckBox Content="Verbose Logging" IsChecked="{Binding UseVerboseLogging, Mode=TwoWay}" />
+				</WrapPanel>
+			</Border>
+			<!-- Scenarios -->
+			<Border DockPanel.Dock="Top" BorderThickness="0,1" BorderBrush="DarkGray">
+				<WrapPanel Orientation="Horizontal">
+					<CheckBox Content="SQL to SQL" IsChecked="{Binding Scenarios.SqlToSql, Mode=TwoWay}" />
+					<CheckBox Content="SQL to Mem" IsChecked="{Binding Scenarios.SqlToMem, Mode=TwoWay}" />
+					<CheckBox Content="Sqlite to SQL" IsChecked="{Binding Scenarios.SqliteToSql, Mode=TwoWay}" />
+					<CheckBox Content="Mem to SQL" IsChecked="{Binding Scenarios.MemToSql, Mode=TwoWay}" />
+					<CheckBox Content="Mem to Mem" IsChecked="{Binding Scenarios.MemToMem, Mode=TwoWay}" />
+				</WrapPanel>
+			</Border>
+		</StackPanel>
 		<ProgressBar DockPanel.Dock="Bottom" Height="4" Minimum="0" Maximum="100" Value="{Binding TotalPercentage, Mode=OneWay}" Visibility="{Binding TotalPercentage, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
 		<Grid>
 			<Grid.RowDefinitions>

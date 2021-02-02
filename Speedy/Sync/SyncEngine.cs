@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
-using Speedy.Serialization;
 
 #endregion
 
@@ -152,7 +151,7 @@ namespace Speedy.Sync
 		/// <param name="options"> The options for the sync engine. </param>
 		/// <param name="source"> An optional cancellation token source. </param>
 		/// <returns> A list of issues that occurred during sync. </returns>
-		public static IReadOnlyList<SyncIssue> Run(ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
+		public static SyncEngine Run(ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
 		{
 			return Run(Guid.NewGuid(), client, server, options, source);
 		}
@@ -166,11 +165,11 @@ namespace Speedy.Sync
 		/// <param name="options"> The options for the sync engine. </param>
 		/// <param name="source"> An optional cancellation token source. </param>
 		/// <returns> A list of issues that occurred during sync. </returns>
-		public static IReadOnlyList<SyncIssue> Run(Guid sessionId, ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
+		public static SyncEngine Run(Guid sessionId, ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
 		{
 			var engine = new SyncEngine(sessionId, client, server, options, source);
 			engine.Run();
-			return engine.SyncIssues;
+			return engine;
 		}
 
 		/// <summary>

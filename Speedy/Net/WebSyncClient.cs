@@ -15,7 +15,6 @@ namespace Speedy.Net
 	{
 		#region Fields
 
-		private readonly ISyncableDatabaseProvider _provider;
 		private readonly string _syncUri;
 
 		#endregion
@@ -34,9 +33,9 @@ namespace Speedy.Net
 		/// <param name="timeout"> The timeout in milliseconds for each transaction. </param>
 		public WebSyncClient(string name, ISyncableDatabaseProvider provider, string serverUri, string syncUri = "api/Sync", NetworkCredential credential = null, WebProxy proxy = null, int timeout = 10000)
 		{
-			_provider = provider;
 			_syncUri = syncUri;
 
+			DatabaseProvider = provider;
 			Name = name;
 			Options = new SyncClientOptions();
 			Statistics = new SyncStatistics();
@@ -49,21 +48,19 @@ namespace Speedy.Net
 		#region Properties
 
 		/// <inheritdoc />
-		public string Name { get; }
+		public ISyncableDatabaseProvider DatabaseProvider { get; }
 
 		/// <inheritdoc />
 		public SyncClientIncomingConverter IncomingConverter { get; set; }
 
 		/// <inheritdoc />
-		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
-
-		/// <summary>
-		/// The web client to use to connect to the server.
-		/// </summary>
-		public WebClient WebClient { get; }
+		public string Name { get; }
 
 		/// <inheritdoc />
 		public SyncClientOptions Options { get; set; }
+
+		/// <inheritdoc />
+		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <inheritdoc />
 		public SyncStatistics Statistics { get; }
@@ -72,7 +69,12 @@ namespace Speedy.Net
 		public SyncOptions SyncOptions { get; private set; }
 
 		/// <inheritdoc />
-		public SyncSession SyncSession { get;}
+		public SyncSession SyncSession { get; }
+
+		/// <summary>
+		/// The web client to use to connect to the server.
+		/// </summary>
+		public WebClient WebClient { get; }
 
 		#endregion
 
@@ -120,13 +122,13 @@ namespace Speedy.Net
 		/// <inheritdoc />
 		public ISyncableDatabase GetDatabase()
 		{
-			return _provider.GetSyncableDatabase();
+			return DatabaseProvider.GetSyncableDatabase();
 		}
 
 		/// <inheritdoc />
 		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
-			return (T) _provider.GetSyncableDatabase();
+			return (T) DatabaseProvider.GetSyncableDatabase();
 		}
 
 		#endregion

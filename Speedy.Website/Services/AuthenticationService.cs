@@ -122,7 +122,7 @@ namespace Speedy.Website.Services
 			_contextAccessor.HttpContext?.SignOutAsync();
 		}
 
-		public static void ValidatePrincipal(CookieValidatePrincipalContext context, DatabaseProvider<IContosoDatabase> databaseProvider)
+		public static void ValidatePrincipal(CookieValidatePrincipalContext context, IDatabaseProvider<IContosoDatabase> databaseProvider)
 		{
 			if (!context.Properties.Items.ContainsKey(nameof(AccountEntity.ModifiedOn)))
 			{

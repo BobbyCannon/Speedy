@@ -63,7 +63,7 @@ namespace Speedy.EntityFramework
 					{
 						continue;
 					}
-					
+
 					// Builds the 'Property' method
 					// ex. database.Property<AddressEntity, long>(x => x.City).IsRequired().HasMaximumLength(256);
 					var propertyAnnotations = property.GetAnnotations();
@@ -91,7 +91,7 @@ namespace Speedy.EntityFramework
 
 						var name = index.Builder.Metadata.FindAnnotation("Relational:Name")?.Value.ToString() ?? index.ToString();
 						var filter = index.Builder.Metadata.FindAnnotation("Relational:Filter")?.Value.ToString().ToLower() ?? string.Empty;
-						var indexConfiguration = database.HasIndex(name);
+						var indexConfiguration = database.HasIndex(entityBuilder.Metadata.ClrType, name);
 						indexConfiguration.IsUnique();
 						indexConfiguration.AllowNull = filter.Contains("is not null") || (propertyConfiguration.IsNullable ?? false);
 						indexConfiguration.AddProperty(propertyConfiguration);
@@ -106,13 +106,13 @@ namespace Speedy.EntityFramework
 					var firstParameter = GetPropertyExpression(foreignKey.DeclaringEntityType.ClrType, foreignKey.DependentToPrincipal.Name);
 					var secondParameter = GetPropertyObjectExpression(foreignKey.DeclaringEntityType.ClrType, foreignKey.Properties[0].Name);
 					var thirdParameter = foreignKey.PrincipalToDependent != null ? GetPropertyExpression(foreignKey.PrincipalEntityType.ClrType, foreignKey.PrincipalToDependent.Name) : null;
-					
+
 					// Get the types for the property configurations
 					var firstType = foreignKey.DeclaringEntityType.ClrType;
 					var secondType = foreignKey.DeclaringEntityType.ClrType.GetPrimaryKeyType();
 					var thirdType = foreignKey.PrincipalEntityType.ClrType;
 					var fourthType = foreignKey.PrincipalEntityType.ClrType.GetPrimaryKeyType();
-					
+
 					// Get the configuration for the property
 					var method = databaseHasRequiredMethod.MakeGenericMethod(firstType, secondType, thirdType, fourthType);
 					var configuration = (IPropertyConfiguration) method.Invoke(database, new object[] { foreignKey.IsRequired, firstParameter, secondParameter, thirdParameter });
@@ -127,11 +127,11 @@ namespace Speedy.EntityFramework
 						case DeleteBehavior.Restrict:
 							configuration.OnDelete(RelationshipDeleteBehavior.Restrict);
 							break;
-						
+
 						case DeleteBehavior.Cascade:
 							configuration.OnDelete(RelationshipDeleteBehavior.Cascade);
 							break;
-						
+
 						case DeleteBehavior.ClientCascade:
 						case DeleteBehavior.ClientNoAction:
 						case DeleteBehavior.NoAction:
@@ -154,7 +154,7 @@ namespace Speedy.EntityFramework
 			{
 				return DatabaseProviderType.Sqlite;
 			}
-			
+
 			if (database.Database.ProviderName.EndsWith(nameof(DatabaseProviderType.SqlServer)))
 			{
 				return DatabaseProviderType.SqlServer;
@@ -183,7 +183,7 @@ namespace Speedy.EntityFramework
 				return arg;
 			}
 		}
-		
+
 		private static Expression GetPropertyExpression(this Type type, string name)
 		{
 			var parameter = Expression.Parameter(type, "x");

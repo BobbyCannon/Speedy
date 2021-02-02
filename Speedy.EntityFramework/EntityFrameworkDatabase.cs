@@ -41,6 +41,7 @@ namespace Speedy.EntityFramework
 		protected EntityFrameworkDatabase()
 		{
 			DbContextOptions = null;
+			KeyCache = null;
 			Options = new DatabaseOptions();
 
 			_collectionChangeTracker = new CollectionChangeTracker();
@@ -52,10 +53,12 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <param name="startup"> The startup options for this database. </param>
 		/// <param name="options"> The options for this database. </param>
-		protected EntityFrameworkDatabase(DbContextOptions startup, DatabaseOptions options)
+		/// <param name="keyCache"> An optional key manager for caching entity IDs (primary and sync). </param>
+		protected EntityFrameworkDatabase(DbContextOptions startup, DatabaseOptions options, DatabaseKeyCache keyCache)
 			: base(startup)
 		{
 			DbContextOptions = startup;
+			KeyCache = keyCache;
 			Options = options ?? new DatabaseOptions();
 
 			_collectionChangeTracker = new CollectionChangeTracker();
@@ -70,6 +73,9 @@ namespace Speedy.EntityFramework
 		/// Gets the database context options for this database.
 		/// </summary>
 		public DbContextOptions DbContextOptions { get; }
+
+		/// <inheritdoc />
+		public DatabaseKeyCache KeyCache { get; }
 
 		/// <summary>
 		/// Gets the options for this database.
@@ -202,6 +208,13 @@ namespace Speedy.EntityFramework
 			return repository;
 		}
 
+		/// <inheritdoc />
+		public T Remove<T, T2>(T item) where T : Entity<T2>
+		{
+			GetRepository<T, T2>().Remove(item);
+			return item;
+		}
+
 		/// <summary>
 		/// Saves all changes made in this context to the underlying database.
 		/// </summary>
@@ -224,14 +237,14 @@ namespace Speedy.EntityFramework
 					_collectionChangeTracker.Reset();
 				}
 
-				ChangeTracker.Entries().ToList().ForEach(ProcessEntity);
+				var entries = ChangeTracker.Entries().ToList();
+				entries.ForEach(ProcessEntity);
 
 				// The local relationships may have changed. We need keep our sync IDs in sync with any relationships that may have changed.
-				ChangeTracker.Entries().ToList().ForEach(x => (x.Entity as ISyncEntity)?.UpdateLocalSyncIds());
+				entries.ForEach(x => (x.Entity as ISyncEntity)?.UpdateLocalSyncIds());
 
 				var response = base.SaveChanges();
-				var needsMoreSaving = ChangeTracker.Entries().Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged);
-
+				var needsMoreSaving = entries.Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged);
 				if (needsMoreSaving)
 				{
 					response += SaveChanges();
@@ -239,6 +252,7 @@ namespace Speedy.EntityFramework
 
 				if (first)
 				{
+					UpdateCache();
 					OnCollectionChanged(_collectionChangeTracker.Added, _collectionChangeTracker.Removed);
 				}
 
@@ -252,6 +266,38 @@ namespace Speedy.EntityFramework
 			finally
 			{
 				_saveChangeCount = 0;
+			}
+		}
+
+		private void UpdateCache()
+		{
+			if (KeyCache == null)
+			{
+				return;
+			}
+
+			foreach (var item in _collectionChangeTracker.Added)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					KeyCache.AddEntity(syncEntity);
+				}
+			}
+			
+			foreach (var item in _collectionChangeTracker.Updated)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					KeyCache.AddEntity(syncEntity);
+				}
+			}
+			
+			foreach (var item in _collectionChangeTracker.Removed)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					KeyCache.RemoveEntity(syncEntity);
+				}
 			}
 		}
 
@@ -332,7 +378,7 @@ namespace Speedy.EntityFramework
 			);
 
 			var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
-				x => x.HasValue 
+				x => x.HasValue
 					? x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks || x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks
 						? DateTime.SpecifyKind(x.Value, DateTimeKind.Utc)
 						: x.Value.ToUniversalTime()
@@ -385,7 +431,7 @@ namespace Speedy.EntityFramework
 				var genericType = property.PropertyType.GetCachedGenericArguments().First();
 				var assemblyName = genericType.ToAssemblyName();
 
-				if (options.ShouldFilterRepository(assemblyName))
+				if (options.ShouldExcludeRepository(assemblyName))
 				{
 					continue;
 				}
@@ -459,7 +505,7 @@ namespace Speedy.EntityFramework
 			switch (entry.State)
 			{
 				case EntityState.Added:
-					_collectionChangeTracker.Add(entity);
+					_collectionChangeTracker.AddAddedEntity(entity);
 
 					if (createdEntity != null && maintainCreatedOnDate)
 					{
@@ -479,6 +525,7 @@ namespace Speedy.EntityFramework
 					{
 						modifiableEntity.ModifiedOn = now;
 					}
+
 					entity.EntityAdded();
 					break;
 
@@ -489,6 +536,8 @@ namespace Speedy.EntityFramework
 						entry.State = EntityState.Unchanged;
 						break;
 					}
+
+					_collectionChangeTracker.AddUpdatedEntity(entity);
 
 					if (createdEntity != null && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
 					{
@@ -510,7 +559,7 @@ namespace Speedy.EntityFramework
 						// Update modified to now for new entities.
 						modifiableEntity.ModifiedOn = now;
 					}
-					
+
 					entity.EntityModified();
 					break;
 

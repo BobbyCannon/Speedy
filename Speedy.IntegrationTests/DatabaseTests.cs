@@ -1,10 +1,5 @@
 ﻿#region References
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.WebApi;
 using Speedy.EntityFramework;
@@ -12,6 +7,11 @@ using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Data.Entities;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Linq.Expressions;
 
 #endregion
 

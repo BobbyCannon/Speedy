@@ -22,6 +22,7 @@ namespace Speedy.Storage
 		{
 			Added = new List<object>();
 			Removed = new List<object>();
+			Updated = new List<object>();
 		}
 
 		#endregion
@@ -38,6 +39,11 @@ namespace Speedy.Storage
 		/// </summary>
 		public IList Removed { get; }
 
+		/// <summary>
+		/// The items updated during this collection update.
+		/// </summary>
+		public IList Updated { get; }
+
 		#endregion
 
 		#region Methods
@@ -47,7 +53,7 @@ namespace Speedy.Storage
 		/// </summary>
 		/// <typeparam name="T"> The type of the item. </typeparam>
 		/// <param name="item"> The item that was added. </param>
-		public void Add<T>(T item)
+		public void AddAddedEntity<T>(T item)
 		{
 			if (item == null)
 			{
@@ -61,7 +67,7 @@ namespace Speedy.Storage
 		/// Add a list of items that was added during the collection update.
 		/// </summary>
 		/// <param name="list"> The list of items that was added. </param>
-		public void Add(IList list)
+		public void AddAddedEntity(IList list)
 		{
 			if (list == null)
 			{
@@ -90,6 +96,21 @@ namespace Speedy.Storage
 		}
 
 		/// <summary>
+		/// Add an item that was update during the collection update.
+		/// </summary>
+		/// <typeparam name="T"> The type of the item. </typeparam>
+		/// <param name="item"> The item that was update. </param>
+		public void AddUpdatedEntity<T>(T item)
+		{
+			if (item == null)
+			{
+				return;
+			}
+
+			Updated.Add(item);
+		}
+
+		/// <summary>
 		/// Add a list of items that was removed during the collection update.
 		/// </summary>
 		/// <param name="list"> The list of items that was removed. </param>
@@ -113,6 +134,7 @@ namespace Speedy.Storage
 		{
 			Added.Clear();
 			Removed.Clear();
+			Updated.Clear();
 		}
 
 		/// <summary>
@@ -121,7 +143,7 @@ namespace Speedy.Storage
 		/// <param name="args"> The arguments to update with. </param>
 		public void Update(NotifyCollectionChangedEventArgs args)
 		{
-			Add(args.NewItems);
+			AddAddedEntity(args.NewItems);
 			Remove(args.OldItems);
 		}
 

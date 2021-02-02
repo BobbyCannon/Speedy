@@ -21,6 +21,33 @@ namespace Speedy.IntegrationTests
 	{
 		#region Methods
 
+		[TestMethod]
+		public void CacheShouldBeUpdatedWhenUpdatingDatabase()
+		{
+			ForEachDatabaseType(x =>
+			{
+				// Removing from cache only works if we are actually removing data from the database
+				var client = TestHelper.GetSyncClient("Client", x, false, true, false);
+				client.DatabaseProvider.Options.PermanentSyncEntityDeletions = true;
+
+				// Creating an address like normal, cache should not contain the ID yet
+				var address = DataHelper.NewAddress("Blah");
+				var addressId = client.DatabaseProvider.KeyCache.GetEntityId(typeof(AddressEntity), address.SyncId);
+				Assert.IsNull(addressId);
+
+				// Cache should be updated automatically
+				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+				addressId = client.DatabaseProvider.KeyCache.GetEntityId(typeof(AddressEntity), address.SyncId);
+				Assert.IsNotNull(addressId);
+				Assert.AreEqual(address.Id, (long) addressId);
+				
+				// Cache should be updated automatically
+				client.GetDatabase<IContosoDatabase>().RemoveSaveAndCleanup<AddressEntity, long>(address);
+				addressId = client.DatabaseProvider.KeyCache.GetEntityId(typeof(AddressEntity), address.SyncId);
+				Assert.IsNull(addressId);
+			});
+		}
+
 		/// <summary>
 		/// Ensure that objects are reduced via the optional filter clause.
 		/// </summary>
@@ -435,6 +462,18 @@ namespace Speedy.IntegrationTests
 			{
 				Assert.AreEqual(2, database.Addresses.Count());
 			}
+		}
+
+		private void ForEachDatabaseType(Action<DatabaseType> action)
+		{
+			Enum.GetValues(typeof(DatabaseType))
+				.Cast<DatabaseType>()
+				.Where(x => x != DatabaseType.Unknown)
+				.ForEach(x =>
+				{
+					x.Dump();
+					action(x);
+				});
 		}
 
 		#endregion

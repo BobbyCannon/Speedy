@@ -1,6 +1,5 @@
 ﻿#region References
 
-using System;
 using System.Linq;
 using Speedy.Extensions;
 
@@ -13,18 +12,6 @@ namespace Speedy.Sync
 	/// </summary>
 	public class SyncClientOptions : Bindable<SyncClientOptions>
 	{
-		#region Constructors
-
-		/// <summary>
-		/// Instantiates an instance of the sync client options.
-		/// </summary>
-		public SyncClientOptions()
-		{
-			PrimaryKeyCacheTimeout = TimeSpan.FromMinutes(15);
-		}
-
-		#endregion
-
 		#region Properties
 
 		/// <summary>
@@ -33,19 +20,24 @@ namespace Speedy.Sync
 		public bool EnablePrimaryKeyCache { get; set; }
 
 		/// <summary>
-		/// Indicates this client should maintain dates, meaning as you save data the ModifiedOn will be updated to the current time.
-		/// This should really only be set for the "Master" sync client that represents the master dataset.
+		/// Indicates this client is the server and should maintain dates, meaning as you save data the CreatedOn, ModifiedOn will
+		/// be updated to the current server time. This should only be set for the "Server" sync client that represents the primary database.
 		/// </summary>
-		public bool MaintainModifiedOn { get; set; }
-
-		/// <summary>
-		/// The amount of time to cache primary keys.
-		/// </summary>
-		public TimeSpan PrimaryKeyCacheTimeout { get; set; }
+		public bool IsServerClient { get; set; }
 
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc />
+		public override SyncClientOptions DeepClone(int levels = -1)
+		{
+			return new()
+			{
+				EnablePrimaryKeyCache = EnablePrimaryKeyCache,
+				IsServerClient = IsServerClient
+			};
+		}
 
 		/// <inheritdoc />
 		public override void UpdateWith(SyncClientOptions update, params string[] exclusions)
@@ -56,33 +48,7 @@ namespace Speedy.Sync
 			}
 
 			this.IfThen(x => !exclusions.Contains(nameof(EnablePrimaryKeyCache)), x => x.EnablePrimaryKeyCache = update.EnablePrimaryKeyCache);
-			this.IfThen(x => !exclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);
-			this.IfThen(x => !exclusions.Contains(nameof(PrimaryKeyCacheTimeout)), x => x.PrimaryKeyCacheTimeout = update.PrimaryKeyCacheTimeout);
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWith(object value, params string[] exclusions)
-		{
-			UpdateWith(value as SyncClientOptions, exclusions);
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWithOnly(SyncClientOptions update, params string[] inclusions)
-		{
-			if (update is null)
-			{
-				return;
-			}
-
-			this.IfThen(x => inclusions.Contains(nameof(EnablePrimaryKeyCache)), x => x.EnablePrimaryKeyCache = update.EnablePrimaryKeyCache);
-			this.IfThen(x => inclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);
-			this.IfThen(x => inclusions.Contains(nameof(PrimaryKeyCacheTimeout)), x => x.PrimaryKeyCacheTimeout = update.PrimaryKeyCacheTimeout);
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWithOnly(object update, params string[] inclusions)
-		{
-			UpdateWithOnly(update as SyncClientOptions, inclusions);
+			this.IfThen(x => !exclusions.Contains(nameof(IsServerClient)), x => x.IsServerClient = update.IsServerClient);
 		}
 
 		#endregion

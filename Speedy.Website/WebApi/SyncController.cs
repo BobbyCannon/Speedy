@@ -32,15 +32,17 @@ namespace Speedy.Website.WebApi
 
 		#region Constructors
 
-		public SyncController(IDatabaseProvider<IContosoDatabase> provider)
+		public SyncController(ISyncableDatabaseProvider<IContosoDatabase> provider)
 			: base(provider.GetDatabase())
 		{
-			DatabaseProvider = new SyncDatabaseProvider<IContosoDatabase>(provider.GetDatabase, provider.Options);
+			DatabaseProvider = new SyncDatabaseProvider<IContosoDatabase>(provider.GetSyncableDatabase, provider.Options, KeyCache);
 		}
 
 		static SyncController()
 		{
 			_sessions = new ConcurrentDictionary<Guid, ServerSyncClient>();
+
+			KeyCache = new DatabaseKeyCache(TimeSpan.FromMinutes(15));
 		}
 
 		#endregion
@@ -48,6 +50,8 @@ namespace Speedy.Website.WebApi
 		#region Properties
 
 		public ISyncableDatabaseProvider<IContosoDatabase> DatabaseProvider { get; }
+
+		public static DatabaseKeyCache KeyCache { get; }
 
 		#endregion
 
@@ -130,7 +134,7 @@ namespace Speedy.Website.WebApi
 			return GetAuthenticatedAccount(x => new AccountEntity { Id = x.Id, Roles = x.Roles, SyncId = x.SyncId }, false);
 		}
 
-		protected ServerSyncClient GetSyncClient(Guid sessionId, AccountEntity account)
+		private ServerSyncClient GetSyncClient(Guid sessionId, AccountEntity account)
 		{
 			if (!_sessions.TryGetValue(sessionId, out var syncClient))
 			{

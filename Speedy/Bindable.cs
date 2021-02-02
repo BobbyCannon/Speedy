@@ -1,12 +1,12 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Newtonsoft.Json;
 using Speedy.Extensions;
+using Speedy.Serialization;
 using Speedy.Storage;
+using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -15,8 +15,15 @@ namespace Speedy
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class Bindable<T> : Bindable, IUpdatable<T>
+	public abstract class Bindable<T> : Bindable, IUpdatable<T>, ICloneable<T> where T : new()
 	{
+		#region Fields
+
+		// ReSharper disable once StaticMemberInGenericType
+		private static readonly SerializerSettings _defaultDeepCloneSettings;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -27,25 +34,42 @@ namespace Speedy
 		{
 		}
 
+		static Bindable()
+		{
+			_defaultDeepCloneSettings = new SerializerSettings { IgnoreVirtuals = true, IgnoreReadOnly = true };
+		}
+
 		#endregion
 
 		#region Methods
 
-		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
-		/// </summary>
-		/// <param name="update"> The source of the updates. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public virtual void UpdateWith(T update, bool excludeVirtuals, params string[] exclusions)
+		/// <inheritdoc />
+		public new virtual T DeepClone(int levels = -1)
 		{
-			var totalExclusions = new HashSet<string>(exclusions);
-			if (excludeVirtuals)
-			{
-				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
-			}
+			// Defaults to serializer deep clone. Type would want to override this to make it more efficient.
+			return this.ToJson(_defaultDeepCloneSettings).FromJson<T>();
+		}
 
-			UpdateWith(update, totalExclusions.ToArray());
+		/// <inheritdoc />
+		public new virtual T ShallowClone()
+		{
+			var response = new T();
+			response.UpdateWith(this);
+			return response;
+		}
+
+		/// <inheritdoc />
+		public new virtual T ShallowCloneExcept(params string[] exclusions)
+		{
+			var response = new T();
+			response.UpdateWith(this, exclusions);
+			return response;
+		}
+
+		/// <inheritdoc />
+		public new virtual void UpdateWith(object update, params string[] exclusions)
+		{
+			UpdateWith((T) update, exclusions);
 		}
 
 		/// <inheritdoc />
@@ -54,22 +78,17 @@ namespace Speedy
 			UpdatableExtensions.UpdateWith(this, update, exclusions);
 		}
 
-		/// <inheritdoc />
-		public virtual void UpdateWithOnly(T update, params string[] inclusions)
-		{
-			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
-		}
-
 		#endregion
 	}
 
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class Bindable : IUpdatable, INotifyPropertyChanged, IBindable
+	public abstract class Bindable : IUpdatable, IUnwrappable, INotifyPropertyChanged, IBindable, ICloneable
 	{
 		#region Fields
 
+		private static readonly SerializerSettings _defaultDeepCloneSettings;
 		private bool _pausePropertyChanged;
 		private Type _realType;
 
@@ -84,6 +103,11 @@ namespace Speedy
 		protected Bindable(IDispatcher dispatcher = null)
 		{
 			Dispatcher = dispatcher;
+		}
+
+		static Bindable()
+		{
+			_defaultDeepCloneSettings = new SerializerSettings { IgnoreVirtuals = true, IgnoreReadOnly = true };
 		}
 
 		#endregion
@@ -112,6 +136,18 @@ namespace Speedy
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc />
+		public object DeepClone(int levels = -1)
+		{
+			return this.ToJson(_defaultDeepCloneSettings).FromJson(RealType);
+		}
+
+		/// <inheritdoc />
+		public IDispatcher GetDispatcher()
+		{
+			return Dispatcher;
+		}
 
 		/// <summary>
 		/// Return true if the change notifications are paused or otherwise false.
@@ -160,9 +196,25 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public IDispatcher GetDispatcher()
+		public object ShallowClone()
 		{
-			return Dispatcher;
+			var response = (IUpdatable) Activator.CreateInstance(GetType());
+			response.UpdateWith(this);
+			return response;
+		}
+
+		/// <inheritdoc />
+		public object ShallowCloneExcept(params string[] exclusions)
+		{
+			var response = (IUpdatable) Activator.CreateInstance(GetType());
+			response.UpdateWith(this, exclusions);
+			return response;
+		}
+
+		/// <inheritdoc />
+		public object Unwrap()
+		{
+			return ShallowClone();
 		}
 
 		/// <inheritdoc />
@@ -171,33 +223,10 @@ namespace Speedy
 			Dispatcher = dispatcher;
 		}
 
-		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
-		/// </summary>
-		/// <param name="update"> The source of the updates. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public virtual void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
-		{
-			var totalExclusions = new HashSet<string>(exclusions);
-			if (excludeVirtuals)
-			{
-				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
-			}
-
-			UpdateWith(update, totalExclusions.ToArray());
-		}
-
 		/// <inheritdoc />
 		public virtual void UpdateWith(object update, params string[] exclusions)
 		{
 			UpdatableExtensions.UpdateWith(this, update, exclusions);
-		}
-
-		/// <inheritdoc />
-		public virtual void UpdateWithOnly(object update, params string[] inclusions)
-		{
-			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
 		}
 
 		#endregion

@@ -11,7 +11,7 @@ namespace Speedy.Website.Data
 	{
 		#region Constructors
 
-		public ContosoMemoryDatabase(DatabaseOptions options = null) : base(options)
+		public ContosoMemoryDatabase(DatabaseOptions options = null, DatabaseKeyCache keyCache = null) : base(options, keyCache)
 		{
 			Accounts = GetSyncableRepository<AccountEntity, int>();
 			Addresses = GetSyncableRepository<AddressEntity, long>();

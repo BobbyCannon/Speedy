@@ -163,6 +163,11 @@ namespace Speedy.Storage
 			{
 				syncableEntity.SyncId = Guid.NewGuid();
 			}
+
+			if (syncableEntity.SyncId != Guid.Empty)
+			{
+				Database.KeyCache?.AddEntityId(typeof(T), syncableEntity.SyncId, item.Id);
+			}
 		}
 
 		/// <inheritdoc />
@@ -771,7 +776,23 @@ namespace Speedy.Storage
 		private void RemoveFromCache(EntityState<T, T2> entityState)
 		{
 			entityState.ResetEvents();
+
 			Cache?.Remove(entityState);
+
+			if (Database.KeyCache == null)
+			{
+				return;
+			}
+
+			if (entityState.Entity is ISyncEntity syncEntity)
+			{
+				Database.KeyCache.RemoveEntityId(syncEntity.GetType(), syncEntity.SyncId);
+			}
+			
+			if (entityState.OldEntity is ISyncEntity oldSyncEntity)
+			{
+				Database.KeyCache.RemoveEntityId(oldSyncEntity.GetType(), oldSyncEntity.SyncId);
+			}
 		}
 
 		private void ResetCache()

@@ -29,11 +29,8 @@ namespace Speedy.Serialization
 		/// <summary>
 		/// Instantiates a set of settings for the serializer.
 		/// </summary>
-		/// <param name="settings"> The initial settings. </param>
-		public SerializerSettings(JsonSerializerSettings settings)
-			: this(settings, false, false, false, false, false, false)
+		public SerializerSettings() : this(false, false, false, false, false, false)
 		{
-			UpdateWithJsonSerializerSettings();
 		}
 
 		/// <summary>
@@ -49,6 +46,16 @@ namespace Speedy.Serialization
 			: this(new JsonSerializerSettings(), indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString)
 		{
 			UpdateJsonSerializerSettings();
+		}
+
+		/// <summary>
+		/// Instantiates a set of settings for the serializer.
+		/// </summary>
+		/// <param name="settings"> The initial settings. </param>
+		public SerializerSettings(JsonSerializerSettings settings)
+			: this(settings, false, false, false, false, false, false)
+		{
+			UpdateWithJsonSerializerSettings();
 		}
 
 		/// <summary>

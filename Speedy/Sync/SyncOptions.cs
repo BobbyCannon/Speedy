@@ -40,12 +40,19 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates an instance of the class.
 		/// </summary>
+		public SyncOptions() : this(null)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the class.
+		/// </summary>
 		/// <param name="dispatcher"> An optional dispatcher. </param>
-		public SyncOptions(IDispatcher dispatcher = null) : base(dispatcher)
+		public SyncOptions(IDispatcher dispatcher) : base(dispatcher)
 		{
 			LastSyncedOnClient = DateTime.MinValue;
 			LastSyncedOnServer = DateTime.MinValue;
-			ItemsPerSyncRequest = 300;
+			ItemsPerSyncRequest = 600;
 			Values = new Dictionary<string, string>
 			{
 				{ SyncVersionKey, "0.0.0.0" }
@@ -100,12 +107,34 @@ namespace Speedy.Sync
 		{
 			if (_filterLookup.ContainsKey(filter.RepositoryType))
 			{
+				// Update an existing filter
 				_filterLookup[filter.RepositoryType] = filter;
+				return;
 			}
-			else
+
+			// Add a new filter.
+			_filterLookup.Add(filter.RepositoryType, filter);
+		}
+
+		/// <inheritdoc />
+		public override SyncOptions DeepClone(int levels = -1)
+		{
+			var response = new SyncOptions
 			{
-				_filterLookup.Add(filter.RepositoryType, filter);
+				IncludeIssueDetails = IncludeIssueDetails,
+				ItemsPerSyncRequest = ItemsPerSyncRequest,
+				LastSyncedOnClient = LastSyncedOnClient,
+				LastSyncedOnServer = LastSyncedOnServer,
+				PermanentDeletions = PermanentDeletions,
+				Values = Values.DeepClone()
+			};
+
+			foreach (var lookup in _filterLookup)
+			{
+				response.AddSyncableFilter(lookup.Value);
 			}
+
+			return response;
 		}
 
 		/// <summary>
@@ -137,21 +166,21 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Check to see if a repository has been filtered.
+		/// Check to see if a repository has been excluded from syncing.
 		/// </summary>
 		/// <param name="type"> The type to check for. </param>
 		/// <returns> True if the type is filter or false if otherwise. </returns>
-		public bool ShouldFilterRepository(Type type)
+		public bool ShouldExcludeRepository(Type type)
 		{
-			return ShouldFilterRepository(type?.ToAssemblyName());
+			return ShouldExcludeRepository(type?.ToAssemblyName());
 		}
 
 		/// <summary>
-		/// Check to see if a repository has been filtered.
+		/// Check to see if a repository has been excluded from syncing.
 		/// </summary>
 		/// <param name="typeAssemblyName"> The type name to check for. Should be in assembly name format. </param>
 		/// <returns> True if the type is filter or false if otherwise. </returns>
-		public bool ShouldFilterRepository(string typeAssemblyName)
+		public bool ShouldExcludeRepository(string typeAssemblyName)
 		{
 			return _filterLookup.Count > 0 && !_filterLookup.ContainsKey(typeAssemblyName);
 		}

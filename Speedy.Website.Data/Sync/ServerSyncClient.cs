@@ -41,11 +41,10 @@ namespace Speedy.Website.Data.Sync
 
 			// Ensure the server is maintaining the modified on, without this data could not sync properly
 			// Clients should never modify the "ModifiedOn" during sync but the Server must always set it
-			Options.MaintainModifiedOn = true;
+			Options.IsServerClient = true;
 
 			// Allows allow primary key caching on the server.
 			Options.EnablePrimaryKeyCache = true;
-			Options.PrimaryKeyCacheTimeout = TimeSpan.FromMinutes(1);
 
 			IncomingConverter = GetIncomingFilter();
 			OutgoingConverter = _outgoingConverter;

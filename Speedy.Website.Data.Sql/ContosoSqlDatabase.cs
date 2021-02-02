@@ -16,12 +16,12 @@ namespace Speedy.Website.Data.Sql
 		}
 
 		public ContosoSqlDatabase(DbContextOptions<ContosoSqlDatabase> options)
-			: this(options, null)
+			: this(options, null, null)
 		{
 		}
 
-		public ContosoSqlDatabase(DbContextOptions contextOptions, DatabaseOptions options)
-			: base(contextOptions, options)
+		public ContosoSqlDatabase(DbContextOptions contextOptions, DatabaseOptions options, DatabaseKeyCache keyCache)
+			: base(contextOptions, options, keyCache)
 		{
 		}
 
@@ -29,12 +29,12 @@ namespace Speedy.Website.Data.Sql
 
 		#region Methods
 
-		public static ContosoSqlDatabase UseSql(string connectionString = null, DatabaseOptions options = null)
+		public static ContosoSqlDatabase UseSql(string connectionString, DatabaseOptions options, DatabaseKeyCache keyCache)
 		{
 			connectionString ??= GetConnectionString();
 
 			var builder = new DbContextOptionsBuilder<ContosoSqlDatabase>();
-			return new ContosoSqlDatabase(builder.UseSqlServer(connectionString, UpdateOptions).Options, options ?? GetDefaultOptions());
+			return new ContosoSqlDatabase(builder.UseSqlServer(connectionString, UpdateOptions).Options, options ?? GetDefaultOptions(), keyCache);
 		}
 
 		protected override void ConfigureDatabaseOptions(DbContextOptionsBuilder options)

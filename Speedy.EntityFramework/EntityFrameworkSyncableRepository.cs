@@ -35,9 +35,14 @@ namespace Speedy.EntityFramework
 		#region Properties
 
 		/// <summary>
+		/// The type this repository is for.
+		/// </summary>
+		public Type RealType => typeof(T);
+
+		/// <summary>
 		/// The type name this repository is for. Will be in assembly name format.
 		/// </summary>
-		public string TypeName => typeof(T).ToAssemblyName();
+		public string TypeName => RealType.ToAssemblyName();
 
 		#endregion
 
@@ -75,7 +80,7 @@ namespace Speedy.EntityFramework
 		{
 			return Set.FirstOrDefault(x => x.SyncId == syncId);
 		}
-		
+
 		/// <inheritdoc />
 		public ISyncEntity Read(ISyncEntity syncEntity, SyncRepositoryFilter filter)
 		{
@@ -93,6 +98,13 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <inheritdoc />
+		public IDictionary<Guid, object> ReadAllKeys()
+		{
+			return Set.AsNoTracking()
+				.ToDictionary(x => x.SyncId, x => (object) x.Id);
+		}
+
+		/// <inheritdoc />
 		public void Remove(ISyncEntity entity)
 		{
 			base.Remove((T) entity);
@@ -102,8 +114,8 @@ namespace Speedy.EntityFramework
 		{
 			var query = Set
 				.AsNoTracking()
-				.Where(x => (x.CreatedOn >= since && x.CreatedOn < until)
-				|| (x.ModifiedOn >= since && x.ModifiedOn < until));
+				.Where(x => x.CreatedOn >= since && x.CreatedOn < until
+					|| x.ModifiedOn >= since && x.ModifiedOn < until);
 
 			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
 			{

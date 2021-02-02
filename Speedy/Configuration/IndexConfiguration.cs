@@ -17,6 +17,7 @@ namespace Speedy.Configuration
 	{
 		#region Fields
 
+		private readonly string _combinedPropertyNames;
 		private bool _isUnique;
 		private readonly string _name;
 		private readonly List<IPropertyConfiguration> _properties;
@@ -33,6 +34,7 @@ namespace Speedy.Configuration
 		{
 			_name = name;
 			_properties = new List<IPropertyConfiguration>();
+			_combinedPropertyNames = string.Join("", _properties.Select(x => x.MemberName));
 		}
 
 		#endregion
@@ -92,7 +94,7 @@ namespace Speedy.Configuration
 			// Convert repository into local type so we can check new items
 			var repository = (Repository<T, T2>) entityRepository;
 
-			bool predicate(T x)
+			bool Predicate(T x)
 			{
 				if (_properties.Any(p => p.IsNullable == true && p.GetValue(typedEntity) == null))
 				{
@@ -102,22 +104,21 @@ namespace Speedy.Configuration
 				return !ReferenceEquals(x, entity) && _properties.All(p => p.Matches(x, entity));
 			}
 
-			var propertyName = string.Join("", _properties.Select(x => x.MemberName));
-			var propertyValue = _properties[0].GetValue(typedEntity);
+			var propertyValues = _properties.Select(x => x.GetValue(typedEntity)).ToList();
 
-			if (propertyName == "SyncId" && Equals(propertyValue, Guid.Empty))
+			if (_combinedPropertyNames == "SyncId" && Equals(propertyValues[0], Guid.Empty))
 			{
 				return;
 			}
 
-			if (AllowNull && propertyValue == null)
+			if (AllowNull && propertyValues.All(x => x == null))
 			{
 				return;
 			}
 
-			if (_isUnique && (repository.Any(predicate) || repository.AnyNew(entity, predicate)))
+			if (_isUnique && (repository.Any(Predicate) || repository.AnyNew(entity, Predicate)))
 			{
-				throw new ValidationException($"{_name}: Cannot insert duplicate row. The duplicate key value is ({string.Join(",", _properties.Select(x => x.GetValue(typedEntity)))}).");
+				throw new ValidationException($"{_name}: Cannot insert duplicate row. The duplicate key value is ({string.Join(",", propertyValues)}).");
 			}
 		}
 

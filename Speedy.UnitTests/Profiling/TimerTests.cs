@@ -11,11 +11,14 @@ namespace Speedy.UnitTests.Profiling
 	[TestClass]
 	public class TimerTests : BaseTests
 	{
+		#region Methods
+
 		[TestMethod]
 		public void AddAverageTimerShouldWork()
 		{
 			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
+			// ReSharper disable once AccessToModifiedClosure
 			TimeService.UtcNowProvider = () => currentTime;
 
 			var timer = new Timer();
@@ -47,13 +50,13 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, count);
 
 			timer.Add(averageTimer);
-			
+
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(123456, timer.Elapsed.TotalMilliseconds);
 			Assert.AreEqual("00:02:03.4560000", timer.Elapsed.ToString());
 			Assert.AreEqual(1, count);
 		}
-		
+
 		[TestMethod]
 		public void AddTimeSpanShouldWork()
 		{
@@ -73,7 +76,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, count);
 
 			timer.Add(TimeSpan.FromMilliseconds(123456));
-			
+
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(123456, timer.Elapsed.TotalMilliseconds);
 			Assert.AreEqual("00:02:03.4560000", timer.Elapsed.ToString());
@@ -90,19 +93,20 @@ namespace Speedy.UnitTests.Profiling
 			timer.Reset(TimeSpan.FromMilliseconds(1234));
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(1234, timer.Elapsed.TotalMilliseconds);
-			
+
 			timer.Reset();
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(0, timer.Elapsed.TotalMilliseconds);
 		}
-		
+
 		[TestMethod]
 		public void ShouldRestartWithProvidedStartTime()
 		{
 			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
+			// ReSharper disable once AccessToModifiedClosure
 			TimeService.UtcNowProvider = () => currentTime;
-			
+
 			var timer = new Timer();
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(0, timer.Elapsed.Ticks);
@@ -115,10 +119,10 @@ namespace Speedy.UnitTests.Profiling
 			timer.Restart();
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(0, timer.Elapsed.TotalMilliseconds);
-			
+
 			timer.Restart();
 			currentTime = currentTime.AddMilliseconds(123456);
-			
+
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(123456, timer.Elapsed.TotalMilliseconds);
 		}
@@ -128,15 +132,16 @@ namespace Speedy.UnitTests.Profiling
 		{
 			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 			var timer = new Timer();
-			
+
 			Assert.IsFalse(timer.IsRunning);
+			// ReSharper disable once AccessToModifiedClosure
 			TimeService.UtcNowProvider = () => currentTime;
 
 			timer.Start();
 
 			Assert.IsTrue(timer.IsRunning);
 			currentTime = currentTime.AddTicks(1);
-			
+
 			timer.Stop();
 
 			Assert.IsFalse(timer.IsRunning);
@@ -148,6 +153,7 @@ namespace Speedy.UnitTests.Profiling
 		{
 			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
+			// ReSharper disable once AccessToModifiedClosure
 			TimeService.UtcNowProvider = () => currentTime;
 
 			var timer = new Timer();
@@ -162,12 +168,13 @@ namespace Speedy.UnitTests.Profiling
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(12345, timer.Elapsed.TotalMilliseconds);
 		}
-		
+
 		[TestMethod]
 		public void StopWithDateTimeShouldStopTimerInPast()
 		{
 			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
+			// ReSharper disable once AccessToModifiedClosure
 			TimeService.UtcNowProvider = () => currentTime;
 
 			var timer = new Timer();
@@ -184,5 +191,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(3000, timer.Elapsed.TotalMilliseconds);
 		}
+
+		#endregion
 	}
 }

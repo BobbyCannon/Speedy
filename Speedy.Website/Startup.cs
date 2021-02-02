@@ -34,7 +34,9 @@ using Microsoft.EntityFrameworkCore;
 using NUglify;
 using NUglify.Css;
 using NUglify.JavaScript;
+using Speedy.Sync;
 using Speedy.Website.Data;
+using Speedy.Website.WebApi;
 
 #endregion
 
@@ -89,7 +91,7 @@ namespace Speedy.Website
 		public void Configure(IApplicationBuilder app)
 		{
 			var analyticsPath = Path.Combine(AppDataPath.FullName, "Analytics");
-			var client = new TrackerService(new DatabaseProvider<IContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection)));
+			var client = new TrackerService(new DatabaseProvider<IContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null)));
 			var provider = new KeyValueRepositoryProvider<TrackerPath>(analyticsPath);
 
 			Tracker = Tracker.Start(client, provider);
@@ -183,7 +185,8 @@ namespace Speedy.Website
 				.AddNewtonsoftJson(options => UpdateSettings(options.SerializerSettings));
 
 			var isDevelopment = Environment.IsDevelopment();
-			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o), ContosoDatabase.GetDefaultOptions());
+			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, null), ContosoDatabase.GetDefaultOptions());
+			var syncDatabaseProvider = new SyncDatabaseProvider<IContosoDatabase>((o, c) => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, c), ContosoDatabase.GetDefaultOptions(), SyncController.KeyCache);
 
 			services.AddWebOptimizer(pipeline =>
 			{
@@ -274,10 +277,11 @@ namespace Speedy.Website
 
 			services.AddScoped<AccountService, AccountService>();
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
-			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection));
+			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null));
 			services.AddScoped<IDatabaseProvider<IContosoDatabase>, DatabaseProvider<IContosoDatabase>>(_ => databaseProvider);
+			services.AddScoped<ISyncableDatabaseProvider<IContosoDatabase>, SyncDatabaseProvider<IContosoDatabase>>(_ => syncDatabaseProvider);
 
-			using var database = ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection);
+			using var database = ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null);
 			database.Database.SetCommandTimeout((int) TimeSpan.FromMinutes(15).TotalSeconds);
 			database.Database.Migrate();
 		}

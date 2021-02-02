@@ -47,6 +47,12 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <inheritdoc />
+		public object GetEntityId()
+		{
+			return Id;
+		}
+
+		/// <inheritdoc />
 		public bool IsPropertyExcludedForIncomingSync(string propertyName)
 		{
 			return ExclusionCacheForIncomingSync[RealType].Contains(propertyName);
@@ -86,7 +92,6 @@ namespace Speedy.Sync
 		public virtual void UpdateLocalSyncIds()
 		{
 			var properties = RealType.GetCachedProperties().ToList();
-
 			var entityRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
 				.Where(x => SyncEntityInterfaceType.IsAssignableFrom(x.PropertyType))
@@ -135,12 +140,6 @@ namespace Speedy.Sync
 			UpdatableExtensions.UpdateWith(this, update, exclusions);
 		}
 
-		/// <inheritdoc />
-		public void UpdateWithOnly(ISyncEntity update, params string[] inclusions)
-		{
-			UpdatableExtensions.UpdateWithOnly(this, update, inclusions);
-		}
-
 		/// <summary>
 		/// Gets the default exclusions for incoming sync data. Warning: this is called during constructor,
 		/// overrides need to be sure to only return static values as to not cause issues.
@@ -148,7 +147,7 @@ namespace Speedy.Sync
 		/// <returns> The values to exclude during sync. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
-			return new HashSet<string> { nameof(Id) };
+			return new() { nameof(Id) };
 		}
 
 		/// <summary>
@@ -158,7 +157,7 @@ namespace Speedy.Sync
 		/// <returns> The values to exclude during sync. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForOutgoingSync()
 		{
-			return new HashSet<string> { nameof(Id) };
+			return new() { nameof(Id) };
 		}
 
 		/// <summary>
@@ -168,7 +167,7 @@ namespace Speedy.Sync
 		/// <returns> The values to exclude during update. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForSyncUpdate()
 		{
-			return new HashSet<string> { nameof(Id) };
+			return new() { nameof(Id) };
 		}
 
 		#endregion

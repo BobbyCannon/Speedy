@@ -31,7 +31,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void LogEventsShouldNotBeUpdatable()
 		{
-			var entityProvider = TestHelper.GetMemoryProvider();
+			var entityProvider = TestHelper.GetSyncableMemoryProvider();
 
 			AccountEntity account;
 			LogEventEntity logEntity;
@@ -75,15 +75,16 @@ namespace Speedy.IntegrationTests
 		{
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
-			var entityProvider = TestHelper.GetMemoryProvider();
+			var entityProvider = TestHelper.GetSyncableMemoryProvider();
+			var keyCache = new DatabaseKeyCache();
 
 			using (var database = clientProvider.GetDatabase())
 			{
-				PopulateAllClientData(database);
+				PopulateAllClientData(database, keyCache);
 			}
 
 			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
-			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase, ContosoDatabase.GetDefaultOptions()));
+			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
@@ -126,15 +127,16 @@ namespace Speedy.IntegrationTests
 		{
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
-			var entityProvider = TestHelper.GetMemoryProvider();
+			var entityProvider = TestHelper.GetSyncableMemoryProvider();
+			var keyCache = new DatabaseKeyCache();
 
 			using (var database = clientProvider.GetDatabase())
 			{
-				PopulateAllClientData(database);
+				PopulateAllClientData(database, keyCache);
 			}
 
 			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
-			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase));
+			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
@@ -170,15 +172,16 @@ namespace Speedy.IntegrationTests
 		{
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
-			var entityProvider = TestHelper.GetMemoryProvider();
+			var entityProvider = TestHelper.GetSyncableMemoryProvider();
+			var keyCache = new DatabaseKeyCache();
 
 			using (var database = clientProvider.GetDatabase())
 			{
-				PopulateAllClientData(database);
+				PopulateAllClientData(database, keyCache);
 			}
 
 			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
-			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetDatabase));
+			var server = new ServerSyncClient(new AccountEntity(), new SyncDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
@@ -233,7 +236,7 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(client.Message, entity.Message);
 		}
 
-		private void PopulateAllClientData(ContosoClientMemoryDatabase memoryDatabase)
+		private void PopulateAllClientData(ContosoClientMemoryDatabase memoryDatabase, DatabaseKeyCache keyCache)
 		{
 			var address = ClientFactory.GetClientAddress();
 			var account = ClientFactory.GetClientAccount("John", address);
@@ -253,6 +256,7 @@ namespace Speedy.IntegrationTests
 			memoryDatabase.LogEvents.AddOrUpdate(logEvent6);
 
 			memoryDatabase.SaveChanges();
+			keyCache?.Initialize(memoryDatabase);
 
 			Assert.AreNotEqual(0, memoryDatabase.Accounts.Count());
 			Assert.AreNotEqual(0, memoryDatabase.Addresses.Count());

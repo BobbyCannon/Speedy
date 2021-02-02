@@ -22,18 +22,13 @@ namespace Speedy.Client.Data
 			// Default constructor needed for Add-Migration
 		}
 
-		public ContosoClientDatabase(DbContextOptions contextOptions)
-			: base(contextOptions, null)
-		{
-		}
-
 		public ContosoClientDatabase(DbContextOptions<ContosoClientDatabase> options)
-			: this(options, null)
+			: this(options, null, null)
 		{
 		}
 
-		public ContosoClientDatabase(DbContextOptions contextOptions, DatabaseOptions options)
-			: base(contextOptions, options ?? GetDefaultOptions())
+		public ContosoClientDatabase(DbContextOptions contextOptions, DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
+			: base(contextOptions, options ?? GetDefaultOptions(), keyCache)
 		{
 		}
 

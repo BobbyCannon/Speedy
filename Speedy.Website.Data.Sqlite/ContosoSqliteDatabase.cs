@@ -1,6 +1,5 @@
 #region References
 
-using System;
 using Microsoft.EntityFrameworkCore;
 
 #endregion
@@ -17,12 +16,12 @@ namespace Speedy.Website.Data.Sqlite
 		}
 
 		public ContosoSqliteDatabase(DbContextOptions<ContosoSqliteDatabase> options)
-			: this(options, null)
+			: this(options, null, null)
 		{
 		}
 
-		public ContosoSqliteDatabase(DbContextOptions contextOptions, DatabaseOptions options)
-			: base(contextOptions, options)
+		public ContosoSqliteDatabase(DbContextOptions contextOptions, DatabaseOptions options, DatabaseKeyCache keyCache)
+			: base(contextOptions, options, keyCache)
 		{
 		}
 
@@ -30,15 +29,12 @@ namespace Speedy.Website.Data.Sqlite
 
 		#region Methods
 
-		public static ContosoSqliteDatabase UseSqlite(string connectionString = null, DatabaseOptions options = null)
+		public static ContosoSqliteDatabase UseSqlite(string connectionString, DatabaseOptions options, DatabaseKeyCache keyCache)
 		{
-			if (connectionString == null)
-			{
-				connectionString = GetConnectionString();
-			}
+			connectionString ??= GetConnectionString();
 
 			var builder = new DbContextOptionsBuilder<ContosoSqliteDatabase>();
-			return new ContosoSqliteDatabase(builder.UseSqlite(connectionString, UpdateOptions).Options, options ?? GetDefaultOptions());
+			return new ContosoSqliteDatabase(builder.UseSqlite(connectionString, UpdateOptions).Options, options ?? GetDefaultOptions(), keyCache);
 		}
 
 		protected override void ConfigureDatabaseOptions(DbContextOptionsBuilder options)

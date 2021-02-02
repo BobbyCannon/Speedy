@@ -40,7 +40,7 @@ namespace Speedy.Storage
 		/// <summary>
 		/// The date and time the item will expire.
 		/// </summary>
-		public DateTime ExpirationDate => LastAccessed.Add(Timeout);
+		public DateTime ExpirationDate => Timeout == TimeSpan.MaxValue ? DateTime.MaxValue : LastAccessed.Add(Timeout);
 
 		/// <summary>
 		/// Indicates if the item has expired.

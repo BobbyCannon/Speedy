@@ -13,6 +13,15 @@ namespace Speedy
 	/// </summary>
 	public interface ISyncableDatabase : IDatabase
 	{
+		#region Properties
+
+		/// <summary>
+		/// An optional key manager for caching entity IDs (primary and sync).
+		/// </summary>
+		DatabaseKeyCache KeyCache { get; }
+
+		#endregion
+
 		#region Methods
 
 		/// <summary>

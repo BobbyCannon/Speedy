@@ -28,6 +28,7 @@ namespace Speedy
 		/// </summary>
 		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
+		/// <param name="item"> The item to be added. </param>
 		/// <returns> The entity that was added. </returns>
 		T Add<T, T2>(T item) where T : Entity<T2>;
 
@@ -51,6 +52,15 @@ namespace Speedy
 		/// <typeparam name="T2"> The type of the entity key. </typeparam>
 		/// <returns> The repository of entities requested. </returns>
 		IRepository<T, T2> GetRepository<T, T2>() where T : Entity<T2>;
+
+		/// <summary>
+		/// Removes an entity from the database
+		/// </summary>
+		/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+		/// <typeparam name="T2"> The type of the entity key. </typeparam>
+		/// <param name="item"> The item to be removed. </param>
+		/// <returns> The entity that was removed. </returns>
+		T Remove<T, T2>(T item) where T : Entity<T2>;
 
 		/// <summary>
 		/// Saves all changes made in this context to the underlying database.

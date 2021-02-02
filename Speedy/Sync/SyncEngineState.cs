@@ -18,8 +18,15 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates an instances of the sync engine state.
 		/// </summary>
+		public SyncEngineState() : this(null)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instances of the sync engine state.
+		/// </summary>
 		/// <param name="dispatcher"> An optional dispatcher. </param>
-		public SyncEngineState(IDispatcher dispatcher = null) : base(dispatcher)
+		public SyncEngineState(IDispatcher dispatcher) : base(dispatcher)
 		{
 		}
 
@@ -31,6 +38,14 @@ namespace Speedy.Sync
 		/// Gets or sets the current count of items processed.
 		/// </summary>
 		public long Count { get; set; }
+
+		/// <summary>
+		/// Indicates if the sync engine is running.
+		/// </summary>
+		public bool IsRunning =>
+			Status != SyncEngineStatus.Cancelled
+			&& Status != SyncEngineStatus.Completed
+			&& Status != SyncEngineStatus.Stopped;
 
 		/// <summary>
 		/// Gets or set the message for the state.
@@ -50,14 +65,6 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Indicates if the sync engine is running.
-		/// </summary>
-		public bool IsRunning =>
-			Status != SyncEngineStatus.Cancelled
-			&& Status != SyncEngineStatus.Completed
-			&& Status != SyncEngineStatus.Stopped;
-
-		/// <summary>
 		/// Gets or sets the current status of the sync.
 		/// </summary>
 		public SyncEngineStatus Status { get; set; }
@@ -70,6 +77,18 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc />
+		public override SyncEngineState DeepClone(int levels = -1)
+		{
+			return new()
+			{
+				Count = Count,
+				Message = Message,
+				Status = Status,
+				Total = Total
+			};
+		}
 
 		/// <inheritdoc />
 		public override void OnPropertyChanged(string propertyName = null)
@@ -112,32 +131,6 @@ namespace Speedy.Sync
 			this.IfThen(x => !exclusions.Contains(nameof(Message)), x => x.Message = update.Message);
 			this.IfThen(x => !exclusions.Contains(nameof(Status)), x => x.Status = update.Status);
 			this.IfThen(x => !exclusions.Contains(nameof(Total)), x => x.Total = update.Total);
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWith(object value, params string[] exclusions)
-		{
-			UpdateWith(value as SyncEngineState, exclusions);
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWithOnly(SyncEngineState update, params string[] inclusions)
-		{
-			if (update == null)
-			{
-				return;
-			}
-
-			this.IfThen(x => inclusions.Contains(nameof(Count)), x => x.Count = update.Count);
-			this.IfThen(x => inclusions.Contains(nameof(Message)), x => x.Message = update.Message);
-			this.IfThen(x => inclusions.Contains(nameof(Status)), x => x.Status = update.Status);
-			this.IfThen(x => inclusions.Contains(nameof(Total)), x => x.Total = update.Total);
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWithOnly(object value, params string[] inclusions)
-		{
-			UpdateWithOnly(value as SyncEngineState, inclusions);
 		}
 
 		#endregion

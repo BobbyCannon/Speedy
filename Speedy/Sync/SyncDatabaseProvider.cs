@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using Speedy.Serialization;
 
 #endregion
 
@@ -20,8 +19,9 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="function"> The function to return the syncable database. </param>
 		/// <param name="options"> The options for this database provider. </param>
-		public SyncDatabaseProvider(Func<DatabaseOptions, ISyncableDatabase> function, DatabaseOptions options = null)
-			: base(function, options)
+		/// <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
+		public SyncDatabaseProvider(Func<DatabaseOptions, DatabaseKeyCache, ISyncableDatabase> function, DatabaseOptions options, DatabaseKeyCache keyCache)
+			: base(function, options, keyCache)
 		{
 		}
 
@@ -38,7 +38,7 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		T IDatabaseProvider<T>.GetDatabase(DatabaseOptions options)
 		{
-			return (T) GetSyncableDatabase(options);
+			return (T) GetSyncableDatabase(options, null);
 		}
 
 		#endregion
@@ -51,7 +51,7 @@ namespace Speedy.Sync
 	{
 		#region Fields
 
-		private readonly Func<DatabaseOptions, ISyncableDatabase> _function;
+		private readonly Func<DatabaseOptions, DatabaseKeyCache, ISyncableDatabase> _function;
 
 		#endregion
 
@@ -62,16 +62,21 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="function"> The function to return the syncable database. </param>
 		/// <param name="options"> The options for this database provider. </param>
-		public SyncDatabaseProvider(Func<DatabaseOptions, ISyncableDatabase> function, DatabaseOptions options = null)
+		/// <param name="keyCache"> An optional key manager for managing entity IDs (primary and sync). </param>
+		public SyncDatabaseProvider(Func<DatabaseOptions, DatabaseKeyCache, ISyncableDatabase> function, DatabaseOptions options, DatabaseKeyCache keyCache)
 		{
 			_function = function;
 
 			Options = options?.DeepClone() ?? new DatabaseOptions();
+			KeyCache = keyCache;
 		}
 
 		#endregion
 
 		#region Properties
+
+		/// <inheritdoc />
+		public DatabaseKeyCache KeyCache { get; set; }
 
 		/// <inheritdoc />
 		public DatabaseOptions Options { get; set; }
@@ -89,19 +94,19 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public IDatabase GetDatabase(DatabaseOptions options)
 		{
-			return GetSyncableDatabase(options);
+			return GetSyncableDatabase(options, null);
 		}
 
 		/// <inheritdoc />
 		public ISyncableDatabase GetSyncableDatabase()
 		{
-			return _function(Options.DeepClone());
+			return _function(Options.DeepClone(), KeyCache);
 		}
 
 		/// <inheritdoc />
-		public ISyncableDatabase GetSyncableDatabase(DatabaseOptions options)
+		public ISyncableDatabase GetSyncableDatabase(DatabaseOptions options, DatabaseKeyCache keyCache)
 		{
-			return _function(options);
+			return _function(options, keyCache);
 		}
 
 		#endregion

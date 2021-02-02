@@ -27,12 +27,12 @@ namespace Speedy.Website.Data
 		}
 
 		protected ContosoDatabase(DbContextOptions<ContosoDatabase> options)
-			: this(options, null)
+			: this(options, null, null)
 		{
 		}
 
-		protected ContosoDatabase(DbContextOptions contextOptions, DatabaseOptions options)
-			: base(contextOptions, options)
+		protected ContosoDatabase(DbContextOptions contextOptions, DatabaseOptions options, DatabaseKeyCache keyCache)
+			: base(contextOptions, options, keyCache)
 		{
 			SetRequiredOptions(options);
 		}

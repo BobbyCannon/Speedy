@@ -25,6 +25,11 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
+		/// The type this repository is for.
+		/// </summary>
+		Type RealType { get; }
+
+		/// <summary>
 		/// The type name this repository is for. Will be in assembly name format.
 		/// </summary>
 		string TypeName { get; }
@@ -65,7 +70,7 @@ namespace Speedy
 		/// <param name="syncId"> The ID of the sync entity. </param>
 		/// <returns> The sync entity or null. </returns>
 		ISyncEntity Read(Guid syncId);
-		
+
 		/// <summary>
 		/// Gets the sync entity by the ID.
 		/// </summary>
@@ -73,6 +78,12 @@ namespace Speedy
 		/// <param name="filter"> An optional sync filter to locate the entity. </param>
 		/// <returns> The sync entity or null. </returns>
 		ISyncEntity Read(ISyncEntity entity, SyncRepositoryFilter filter);
+
+		/// <summary>
+		/// Read all keys for the repository.
+		/// </summary>
+		/// <returns> </returns>
+		IDictionary<Guid, object> ReadAllKeys();
 
 		/// <summary>
 		/// Removes a sync entity to the repository.

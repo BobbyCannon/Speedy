@@ -52,17 +52,21 @@
             Instantiates an instance of the database.
             </summary>
         </member>
-        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions,Speedy.DatabaseOptions)">
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions,Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
             <summary>
             Instantiates an instance of the database.
             </summary>
             <param name="startup"> The startup options for this database. </param>
             <param name="options"> The options for this database. </param>
+            <param name="keyCache"> An optional key manager for caching entity IDs (primary and sync). </param>
         </member>
         <member name="P:Speedy.EntityFramework.EntityFrameworkDatabase.DbContextOptions">
             <summary>
             Gets the database context options for this database.
             </summary>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkDatabase.KeyCache">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.EntityFramework.EntityFrameworkDatabase.Options">
             <summary>
@@ -94,6 +98,9 @@
             Gets a syncable repository of the requested entity.
             </summary>
             <returns> The repository of entities requested. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.Remove``2(``0)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.SaveChanges">
             <summary>
@@ -283,6 +290,11 @@
             <param name="database"> The database where this repository resides. </param>
             <param name="set"> The database set this repository is for. </param>
         </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.RealType">
+            <summary>
+            The type this repository is for.
+            </summary>
+        </member>
         <member name="P:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.TypeName">
             <summary>
             The type name this repository is for. Will be in assembly name format.
@@ -301,6 +313,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.Read(Speedy.Sync.ISyncEntity,Speedy.Sync.SyncRepositoryFilter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.ReadAllKeys">
             <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.Remove(Speedy.Sync.ISyncEntity)">

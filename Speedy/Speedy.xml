@@ -15,18 +15,19 @@
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
         </member>
-        <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.Boolean,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the updates. </param>
-            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
-        <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.String[])">
+        <member name="M:Speedy.Bindable`1.DeepClone(System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable`1.UpdateWithOnly(`0,System.String[])">
+        <member name="M:Speedy.Bindable`1.ShallowClone">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable`1.ShallowCloneExcept(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable`1.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Bindable">
@@ -55,6 +56,12 @@
             Cached version of the "real" type, meaning not EF proxy but rather root type
             </summary>
         </member>
+        <member name="M:Speedy.Bindable.DeepClone(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.GetDispatcher">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Bindable.IsChangeNotificationsPaused">
             <summary>
             Return true if the change notifications are paused or otherwise false.
@@ -71,69 +78,23 @@
             Pause / Un-pause the property change notifications
             </summary>
         </member>
-        <member name="M:Speedy.Bindable.GetDispatcher">
+        <member name="M:Speedy.Bindable.ShallowClone">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.ShallowCloneExcept(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.Unwrap">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the updates. </param>
-            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.UpdateWithOnly(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="E:Speedy.Bindable.PropertyChanged">
             <inheritdoc />
-        </member>
-        <member name="T:Speedy.CacheManager">
-            <summary>
-            Manager for managing items that are cached in Speedy.
-            </summary>
-        </member>
-        <member name="P:Speedy.CacheManager.Count">
-            <summary>
-            The total types tracked.
-            </summary>
-        </member>
-        <member name="P:Speedy.CacheManager.TotalCachedItems">
-            <summary>
-            The total count for all items tracked.
-            </summary>
-        </member>
-        <member name="M:Speedy.CacheManager.CacheEntityId(System.Type,System.Guid,System.Object)">
-            <summary>
-            Cache an entity ID for the entity Sync ID.
-            </summary>
-            <param name="type"> The type of the entity. </param>
-            <param name="syncId"> The sync ID of the entity. </param>
-            <param name="id"> The ID of the entity. </param>
-        </member>
-        <member name="M:Speedy.CacheManager.Cleanup">
-            <summary>
-            Cleanup the cache by removing old entries and empty collections.
-            </summary>
-        </member>
-        <member name="M:Speedy.CacheManager.Clear">
-            <summary>
-            Clear all caches from the manager
-            </summary>
-        </member>
-        <member name="M:Speedy.CacheManager.GetEntityId(System.Type,System.Guid)">
-            <summary>
-            Get the entity ID for the sync ID.
-            </summary>
-            <param name="type"> The type of the entity. </param>
-            <param name="syncId"> The sync ID of the entity. </param>
-            <returns> The ID of the entity. </returns>
         </member>
         <member name="T:Speedy.Collections.BaseObservableCollection`1">
             <summary>
@@ -509,11 +470,15 @@
             Represents a Speedy database.
             </summary>
         </member>
-        <member name="M:Speedy.Database.#ctor(Speedy.DatabaseOptions)">
+        <member name="M:Speedy.Database.#ctor(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
             <summary>
             Instantiates an instance of the database class.
             </summary>
             <param name="options"> The options for this database. </param>
+            <param name="keyCache"> An optional key manager for caching entity IDs (primary and sync). </param>
+        </member>
+        <member name="P:Speedy.Database.KeyCache">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Database.Options">
             <summary>
@@ -554,6 +519,9 @@
             <typeparam name="T2"> The type of the entity key. </typeparam>
             <returns> The repository for the type. </returns>
         </member>
+        <member name="M:Speedy.Database.Remove``2(``0)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Database.GetSyncableRepositories(Speedy.Sync.SyncOptions)">
             <inheritdoc />
         </member>
@@ -563,10 +531,11 @@
         <member name="M:Speedy.Database.GetSyncableRepository(System.Type)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Database.HasIndex(System.String)">
+        <member name="M:Speedy.Database.HasIndex(System.Type,System.String)">
             <summary>
             Create a configuration that represents an Index.
             </summary>
+            <param name="entityType"> The type of the entity. </param>
             <param name="name"> The name of the index. </param>
             <returns> The index configuration. </returns>
         </member>
@@ -626,6 +595,95 @@
         <member name="E:Speedy.Database.CollectionChanged">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.DatabaseKeyCache">
+            <summary>
+            Cache for managing database keys. This allows for caching of entities ID and Sync IDs.
+            </summary>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.#ctor">
+            <summary>
+            Instantiate an instance of the database key cache.
+            </summary>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.#ctor(System.TimeSpan)">
+            <summary>
+            Instantiate an instance of the database key cache.
+            </summary>
+            <param name="cacheTimeout"> The timeout for removing an item from the cache. </param>
+        </member>
+        <member name="P:Speedy.DatabaseKeyCache.SyncEntitiesToCache">
+            <summary>
+            Gets or sets the list of entities to cache the keys (ID, Sync ID). If the collection is empty
+            then cache all sync entities.
+            </summary>
+        </member>
+        <member name="P:Speedy.DatabaseKeyCache.Count">
+            <summary>
+            The total types tracked.
+            </summary>
+        </member>
+        <member name="P:Speedy.DatabaseKeyCache.TotalCachedItems">
+            <summary>
+            The total count for all items tracked.
+            </summary>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.AddEntity(Speedy.Sync.ISyncEntity)">
+            <summary>
+            Cache an entity ID for the sync entity.
+            </summary>
+            <param name="entity"> The entity to be cached. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.AddEntityId(System.Type,System.Guid,System.Object)">
+            <summary>
+            Cache an entity ID for the entity Sync ID.
+            </summary>
+            <param name="type"> The type of the entity. </param>
+            <param name="syncId"> The sync ID of the entity. </param>
+            <param name="id"> The ID of the entity. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.Cleanup">
+            <summary>
+            Cleanup the cache by removing old entries and empty collections.
+            </summary>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.Clear">
+            <summary>
+            Clear all caches from the manager
+            </summary>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.GetEntityId(System.Type,System.Guid)">
+            <summary>
+            Get the entity ID for the sync ID.
+            </summary>
+            <param name="type"> The type of the entity. </param>
+            <param name="syncId"> The sync ID of the entity. </param>
+            <returns> The ID of the entity. </returns>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabase)">
+            <summary>
+            Initializes the default key cache.
+            </summary>
+            <param name="database"> The syncable database. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.RemoveEntity(Speedy.Sync.ISyncEntity)">
+            <summary>
+            Remove an entity ID for the entity Sync ID.
+            </summary>
+            <param name="entity"> The entity to be un-cached. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.RemoveEntityId(System.Type,System.Guid)">
+            <summary>
+            Remove an entity ID for the entity Sync ID.
+            </summary>
+            <param name="type"> The type of the entity. </param>
+            <param name="syncId"> The sync ID of the entity. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.ToDetailedString">
+            <summary>
+            Get a detailed string of cached entities
+            </summary>
+            <returns> A detailed string. </returns>
+        </member>
         <member name="T:Speedy.DatabaseOptions">
             <summary>
             Represents options for a Speedy database.
@@ -677,10 +735,10 @@
             Gets or sets the list of entities to ignore during maintenance updates.
             </summary>
         </member>
-        <member name="M:Speedy.DatabaseOptions.UpdateWith(Speedy.DatabaseOptions,System.String[])">
+        <member name="M:Speedy.DatabaseOptions.DeepClone(System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DatabaseOptions.UpdateWith(System.Object,System.String[])">
+        <member name="M:Speedy.DatabaseOptions.UpdateWith(Speedy.DatabaseOptions,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.DatabaseProvider`1">
@@ -721,6 +779,31 @@
             <param name="total"></param>
             <param name="iterationSize"></param>
             <param name="process"></param>
+        </member>
+        <member name="T:Speedy.DatabaseType">
+            <summary>
+            Represents the type of database.
+            </summary>
+        </member>
+        <member name="F:Speedy.DatabaseType.Unknown">
+            <summary>
+            Unknown database type?
+            </summary>
+        </member>
+        <member name="F:Speedy.DatabaseType.Memory">
+            <summary>
+            An in memory database that behaves like EF SQL database.
+            </summary>
+        </member>
+        <member name="F:Speedy.DatabaseType.Sql">
+            <summary>
+            Sql Database
+            </summary>
+        </member>
+        <member name="F:Speedy.DatabaseType.Sqlite">
+            <summary>
+            Sqlite Database
+            </summary>
         </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
@@ -779,9 +862,6 @@
         <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.Boolean,System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
@@ -794,12 +874,6 @@
             <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
         <member name="M:Speedy.Entity`1.UpdateWith(Speedy.Entity{`0},System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity`1.UpdateWithOnly(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity`1.UpdateWithOnly(Speedy.Entity{`0},System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Entity">
@@ -916,18 +990,7 @@
             <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
             <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
         </member>
-        <member name="M:Speedy.Entity.UpdateWith(System.Object,System.Boolean,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the updates. </param>
-            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
         <member name="M:Speedy.Entity.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity.UpdateWithOnly(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.GetDefaultExclusionsForChangeTracking">
@@ -1270,6 +1333,24 @@
             <param name="values"> The values to add. </param>
             <returns> A new HashSet containing the new values. </returns>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.DeepClone``2(System.Collections.Generic.IDictionary{``0,``1})">
+            <summary>
+            Deep clone a dictionary of items. Will use the ICloneable interface if available.
+            </summary>
+            <typeparam name="T"> The key type. </typeparam>
+            <typeparam name="T2"> The value type. </typeparam>
+            <param name="dictionary"> The dictionary to clone. </param>
+            <returns> The clone dictionary. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.DeepClone``2(System.Collections.Generic.Dictionary{``0,``1})">
+            <summary>
+            Deep clone a dictionary of items. Will use the ICloneable interface if available.
+            </summary>
+            <typeparam name="T"> The key type. </typeparam>
+            <typeparam name="T2"> The value type. </typeparam>
+            <param name="dictionary"> The dictionary to clone. </param>
+            <returns> The clone dictionary. </returns>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.ForEach(System.Collections.IEnumerable,System.Action{System.Object})">
             <summary>
             Execute the action on each entity in the collection.
@@ -1408,6 +1489,32 @@
             </summary>
             <param name="info"> The information for the file. </param>
             <returns> The stream for the file. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.GuidExtensions">
+            <summary>
+            Extensions for Guids.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.GuidExtensions.ToGuid(System.Int32)">
+            <summary>
+            Converts an integer to a Guid. Ex. 1 == 00000000-0000-0000-0000-000000000001
+            </summary>
+            <param name="value"> The value to be converted to a Guid. </param>
+            <returns> The guid. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.GuidExtensions.ToGuid(System.Int64)">
+            <summary>
+            Converts a long to a Guid. Ex. 1 == 00000000-0000-0000-0000-000000000001
+            </summary>
+            <param name="value"> The value to be converted to a Guid. </param>
+            <returns> The guid. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.GuidExtensions.ToGuid(System.UInt64)">
+            <summary>
+            Converts a ulong to a Guid. Ex. 1 == 00000000-0000-0000-0000-000000000001
+            </summary>
+            <param name="value"> The value to be converted to a Guid. </param>
+            <returns> The guid. </returns>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -1879,6 +1986,7 @@
             </summary>
             <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
             <typeparam name="T2"> The type of the entity key. </typeparam>
+            <param name="item"> The item to be added. </param>
             <returns> The entity that was added. </returns>
         </member>
         <member name="M:Speedy.IDatabase.DiscardChanges">
@@ -1901,6 +2009,15 @@
             <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
             <typeparam name="T2"> The type of the entity key. </typeparam>
             <returns> The repository of entities requested. </returns>
+        </member>
+        <member name="M:Speedy.IDatabase.Remove``2(``0)">
+            <summary>
+            Removes an entity from the database
+            </summary>
+            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+            <param name="item"> The item to be removed. </param>
+            <returns> The entity that was removed. </returns>
         </member>
         <member name="M:Speedy.IDatabase.SaveChanges">
             <summary>
@@ -2146,6 +2263,11 @@
             The interfaces for a Speedy syncable database.
             </summary>
         </member>
+        <member name="P:Speedy.ISyncableDatabase.KeyCache">
+            <summary>
+            An optional key manager for caching entity IDs (primary and sync).
+            </summary>
+        </member>
         <member name="M:Speedy.ISyncableDatabase.GetSyncableRepositories(Speedy.Sync.SyncOptions)">
             <summary>
             Gets a list of syncable repositories.
@@ -2176,17 +2298,23 @@
             Represents a database provider for syncable databases.
             </summary>
         </member>
+        <member name="P:Speedy.ISyncableDatabaseProvider.KeyCache">
+            <summary>
+            An optional key manager for tracking entity IDs (primary and sync).
+            </summary>
+        </member>
         <member name="M:Speedy.ISyncableDatabaseProvider.GetSyncableDatabase">
             <summary>
             Gets an instance of the database.
             </summary>
             <returns> The database instance. </returns>
         </member>
-        <member name="M:Speedy.ISyncableDatabaseProvider.GetSyncableDatabase(Speedy.DatabaseOptions)">
+        <member name="M:Speedy.ISyncableDatabaseProvider.GetSyncableDatabase(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
             <summary>
             Gets an instance of the database.
             </summary>
-            <param name="options"> The database options to use for the new database instance. </param>
+             <param name="options"> The database options to use for the new database instance. </param>
+            <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
             <returns> The database instance. </returns>
         </member>
         <member name="T:Speedy.ISyncableRepository`2">
@@ -2199,6 +2327,11 @@
         <member name="T:Speedy.ISyncableRepository">
             <summary>
             Represents a syncable repository.
+            </summary>
+        </member>
+        <member name="P:Speedy.ISyncableRepository.RealType">
+            <summary>
+            The type this repository is for.
             </summary>
         </member>
         <member name="P:Speedy.ISyncableRepository.TypeName">
@@ -2246,6 +2379,12 @@
             <param name="entity"> The entity to use with the filter. </param>
             <param name="filter"> An optional sync filter to locate the entity. </param>
             <returns> The sync entity or null. </returns>
+        </member>
+        <member name="M:Speedy.ISyncableRepository.ReadAllKeys">
+            <summary>
+            Read all keys for the repository.
+            </summary>
+            <returns> </returns>
         </member>
         <member name="M:Speedy.ISyncableRepository.Remove(Speedy.Sync.ISyncEntity)">
             <summary>
@@ -2637,21 +2776,19 @@
             <param name="proxy"> The optional proxy to use. </param>
             <param name="timeout"> The timeout in milliseconds for each transaction. </param>
         </member>
-        <member name="P:Speedy.Net.WebSyncClient.Name">
+        <member name="P:Speedy.Net.WebSyncClient.DatabaseProvider">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.IncomingConverter">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Net.WebSyncClient.OutgoingConverter">
+        <member name="P:Speedy.Net.WebSyncClient.Name">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Net.WebSyncClient.WebClient">
-            <summary>
-            The web client to use to connect to the server.
-            </summary>
-        </member>
         <member name="P:Speedy.Net.WebSyncClient.Options">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Net.WebSyncClient.OutgoingConverter">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.Statistics">
@@ -2662,6 +2799,11 @@
         </member>
         <member name="P:Speedy.Net.WebSyncClient.SyncSession">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.Net.WebSyncClient.WebClient">
+            <summary>
+            The web client to use to connect to the server.
+            </summary>
         </member>
         <member name="M:Speedy.Net.WebSyncClient.ApplyChanges(System.Guid,Speedy.Net.ServiceRequest{Speedy.Sync.SyncObject})">
             <inheritdoc />
@@ -3019,11 +3161,6 @@
             Indicates the timer is running or not.
             </summary>
         </member>
-        <member name="P:Speedy.Profiling.Timer.StartedOn">
-            <summary>
-            The last time the timer was started on.
-            </summary>
-        </member>
         <member name="M:Speedy.Profiling.Timer.Add(Speedy.Profiling.AverageTimer)">
             <summary>
             Adds the average timer elapsed value to this timer.
@@ -3035,6 +3172,21 @@
             Adds the time value to this timer.
             </summary>
             <param name="time"> The time to be added. </param>
+        </member>
+        <member name="M:Speedy.Profiling.Timer.Create(System.Action)">
+            <summary>
+            Creates a new timer and processes the provided action.
+            </summary>
+            <param name="action"> The action to be timed. </param>
+            <returns> The new timer. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.Timer.Create``1(System.Func{``0})">
+            <summary>
+            Create a new timer and processes provided function.
+            </summary>
+            <typeparam name="T"> The type of the response from the function. </typeparam>
+            <param name="function"> The action to be timed. </param>
+            <returns> The value return from the function and the new timer. </returns>
         </member>
         <member name="M:Speedy.Profiling.Timer.Reset">
             <summary>
@@ -3069,6 +3221,12 @@
             </summary>
             <param name="dateTime"> The time the timer was started. </param>
         </member>
+        <member name="M:Speedy.Profiling.Timer.StartNew">
+            <summary>
+            Creates a timer and starts it running.
+            </summary>
+            <returns> The new timer that is currently running. </returns>
+        </member>
         <member name="M:Speedy.Profiling.Timer.Stop">
             <summary>
             Stops the timer.
@@ -3092,6 +3250,9 @@
             </summary>
             <param name="function"> The action to be timed. </param>
             <returns> The value return from the function. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.Timer.ToString">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Profiling.Timer.GetCurrentTime">
             <summary>
@@ -3440,6 +3601,57 @@
         <member name="M:Speedy.Serialization.Converters.VersionStringConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Version,Newtonsoft.Json.JsonSerializer)">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Serialization.ICloneable`1">
+            <summary>
+            Represents a cloneable item.
+            </summary>
+            <typeparam name="T"> The type of the item to clone. </typeparam>
+        </member>
+        <member name="M:Speedy.Serialization.ICloneable`1.DeepClone(System.Int32)">
+            <summary>
+            Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
+            </summary>
+            <param name="levels"> The number of levels deep to clone. Default is full hierarchy. </param>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="M:Speedy.Serialization.ICloneable`1.ShallowClone">
+            <summary>
+            Shallow clone the item. No child items are cloned.
+            </summary>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="M:Speedy.Serialization.ICloneable`1.ShallowCloneExcept(System.String[])">
+            <summary>
+            Shallow clone the item. No child items are cloned.
+            </summary>
+            <param name="exclusions"> The properties will not be set during the clone. </param>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="T:Speedy.Serialization.ICloneable">
+            <summary>
+            Represents a cloneable item.
+            </summary>
+        </member>
+        <member name="M:Speedy.Serialization.ICloneable.DeepClone(System.Int32)">
+            <summary>
+            Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
+            </summary>
+            <param name="levels"> The number of levels deep to clone. Default is full hierarchy. </param>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="M:Speedy.Serialization.ICloneable.ShallowClone">
+            <summary>
+            Shallow clone the item. No child items are cloned.
+            </summary>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="M:Speedy.Serialization.ICloneable.ShallowCloneExcept(System.String[])">
+            <summary>
+            Shallow clone the item. No child items are cloned.
+            </summary>
+            <param name="exclusions"> The properties will not be set during the clone. </param>
+            <returns> The cloned objects. </returns>
+        </member>
         <member name="T:Speedy.Serialization.JsonContractResolver">
             <summary>
             The contract resolver used for ToJson and GetSerializerSettings.
@@ -3568,11 +3780,10 @@
             Represents serialization settings
             </summary>
         </member>
-        <member name="M:Speedy.Serialization.SerializerSettings.#ctor(Newtonsoft.Json.JsonSerializerSettings)">
+        <member name="M:Speedy.Serialization.SerializerSettings.#ctor">
             <summary>
             Instantiates a set of settings for the serializer.
             </summary>
-            <param name="settings"> The initial settings. </param>
         </member>
         <member name="M:Speedy.Serialization.SerializerSettings.#ctor(System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
@@ -3584,6 +3795,12 @@
             <param name="ignoreReadOnly"> The flag to determine to ignore members that are readonly else include them. </param>
             <param name="ignoreVirtuals"> The flag to determine to ignore members that are virtual members else include them. </param>
             <param name="convertEnumsToString"> The flag to determine convert enums to string rather than number. </param>
+        </member>
+        <member name="M:Speedy.Serialization.SerializerSettings.#ctor(Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+            Instantiates a set of settings for the serializer.
+            </summary>
+            <param name="settings"> The initial settings. </param>
         </member>
         <member name="M:Speedy.Serialization.SerializerSettings.#cctor">
             <summary>
@@ -3825,14 +4042,19 @@
             The items remove during this collection update.
             </summary>
         </member>
-        <member name="M:Speedy.Storage.CollectionChangeTracker.Add``1(``0)">
+        <member name="P:Speedy.Storage.CollectionChangeTracker.Updated">
+            <summary>
+            The items updated during this collection update.
+            </summary>
+        </member>
+        <member name="M:Speedy.Storage.CollectionChangeTracker.AddAddedEntity``1(``0)">
             <summary>
             Add an item that was added during the collection update.
             </summary>
             <typeparam name="T"> The type of the item. </typeparam>
             <param name="item"> The item that was added. </param>
         </member>
-        <member name="M:Speedy.Storage.CollectionChangeTracker.Add(System.Collections.IList)">
+        <member name="M:Speedy.Storage.CollectionChangeTracker.AddAddedEntity(System.Collections.IList)">
             <summary>
             Add a list of items that was added during the collection update.
             </summary>
@@ -3844,6 +4066,13 @@
             </summary>
             <typeparam name="T"> The type of the item. </typeparam>
             <param name="item"> The item that was removed. </param>
+        </member>
+        <member name="M:Speedy.Storage.CollectionChangeTracker.AddUpdatedEntity``1(``0)">
+            <summary>
+            Add an item that was update during the collection update.
+            </summary>
+            <typeparam name="T"> The type of the item. </typeparam>
+            <param name="item"> The item that was update. </param>
         </member>
         <member name="M:Speedy.Storage.CollectionChangeTracker.Remove(System.Collections.IList)">
             <summary>
@@ -3974,13 +4203,6 @@
             <param name="update"> The source of the update. </param>
             <param name="exclusions"> The properties will not be set during update. </param>
         </member>
-        <member name="M:Speedy.Storage.IUpdatable`1.UpdateWithOnly(`0,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the update. </param>
-            <param name="inclusions"> The properties will be set during update. </param>
-        </member>
         <member name="T:Speedy.Storage.IUpdatable">
             <summary>
             Represents an updatable item
@@ -3992,13 +4214,6 @@
             </summary>
             <param name="update"> The source of the update. </param>
             <param name="exclusions"> The properties will not be set during update. </param>
-        </member>
-        <member name="M:Speedy.Storage.IUpdatable.UpdateWithOnly(System.Object,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the update. </param>
-            <param name="inclusions"> The properties will be set during update. </param>
         </member>
         <member name="T:Speedy.Storage.KeyValue.IKeyValueRepository`1">
             <summary>
@@ -5405,10 +5620,11 @@
             </summary>
             <param name="database"> The database this repository is for. </param>
         </member>
+        <member name="P:Speedy.Storage.SyncableRepository`2.RealType">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Storage.SyncableRepository`2.TypeName">
-            <summary>
-            The type name this repository is for. Will be in assembly name format.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.SyncableRepository`2.Add(Speedy.Sync.ISyncEntity)">
             <inheritdoc />
@@ -5417,6 +5633,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.SyncableRepository`2.GetChanges(System.DateTime,System.DateTime,System.Int32,System.Int32,Speedy.Sync.SyncRepositoryFilter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.SyncableRepository`2.ReadAllKeys">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.SyncableRepository`2.Remove(Speedy.Sync.ISyncEntity)">
@@ -5498,9 +5717,9 @@
             Represents a sync client.
             </summary>
         </member>
-        <member name="P:Speedy.Sync.ISyncClient.Name">
+        <member name="P:Speedy.Sync.ISyncClient.DatabaseProvider">
             <summary>
-            Gets or sets the name of the sync client.
+            The database provider to use during a sync session.
             </summary>
         </member>
         <member name="P:Speedy.Sync.ISyncClient.IncomingConverter">
@@ -5508,14 +5727,19 @@
             An optional converter to process sync objects from Server to Client
             </summary>
         </member>
-        <member name="P:Speedy.Sync.ISyncClient.OutgoingConverter">
+        <member name="P:Speedy.Sync.ISyncClient.Name">
             <summary>
-            An optional converter to process sync objects from Client to Server
+            Gets or sets the name of the sync client.
             </summary>
         </member>
         <member name="P:Speedy.Sync.ISyncClient.Options">
             <summary>
             The options for the sync client
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncClient.OutgoingConverter">
+            <summary>
+            An optional converter to process sync objects from Client to Server
             </summary>
         </member>
         <member name="P:Speedy.Sync.ISyncClient.Statistics">
@@ -5562,6 +5786,12 @@
             <remarks>
             This ID is should be globally unique. Never reuse GUIDs.
             </remarks>
+        </member>
+        <member name="M:Speedy.Sync.ISyncEntity.GetEntityId">
+            <summary>
+            Gets the primary key (ID) of the sync entity.
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:Speedy.Sync.ISyncEntity.IsPropertyExcludedForIncomingSync(System.String)">
             <summary>
@@ -5672,6 +5902,9 @@
             Instantiates a sync client.
             </summary>
         </member>
+        <member name="P:Speedy.Sync.SyncClient.DatabaseProvider">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Sync.SyncClient.IncomingConverter">
             <inheritdoc />
         </member>
@@ -5683,6 +5916,11 @@
         </member>
         <member name="P:Speedy.Sync.SyncClient.OutgoingConverter">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncClient.Profiler">
+            <summary>
+            Profiler for tracking specific points during sync client processing.
+            </summary>
         </member>
         <member name="P:Speedy.Sync.SyncClient.Statistics">
             <inheritdoc />
@@ -5824,38 +6062,95 @@
             Represents the options for a sync client
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncClientOptions.#ctor">
-            <summary>
-            Instantiates an instance of the sync client options.
-            </summary>
-        </member>
         <member name="P:Speedy.Sync.SyncClientOptions.EnablePrimaryKeyCache">
             <summary>
             Determines if the sync client should cache primary keys for relationships.
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncClientOptions.MaintainModifiedOn">
+        <member name="P:Speedy.Sync.SyncClientOptions.IsServerClient">
             <summary>
-            Indicates this client should maintain dates, meaning as you save data the ModifiedOn will be updated to the current time.
-            This should really only be set for the "Master" sync client that represents the master dataset.
+            Indicates this client is the server and should maintain dates, meaning as you save data the CreatedOn, ModifiedOn will
+            be updated to the current server time. This should only be set for the "Server" sync client that represents the primary database.
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncClientOptions.PrimaryKeyCacheTimeout">
-            <summary>
-            The amount of time to cache primary keys.
-            </summary>
+        <member name="M:Speedy.Sync.SyncClientOptions.DeepClone(System.Int32)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncClientOptions.UpdateWith(Speedy.Sync.SyncClientOptions,System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.SyncClientOptions.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
+        <member name="T:Speedy.Sync.SyncClientProfiler">
+            <summary>
+            Profiler for a the sync client
+            </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncClientOptions.UpdateWithOnly(Speedy.Sync.SyncClientOptions,System.String[])">
-            <inheritdoc />
+        <member name="M:Speedy.Sync.SyncClientProfiler.#ctor(System.String)">
+            <summary>
+            Instantiates a sync client profiler.
+            </summary>
+            <param name="name"> The name of the sync client the profiler is for. </param>
         </member>
-        <member name="M:Speedy.Sync.SyncClientOptions.UpdateWithOnly(System.Object,System.String[])">
-            <inheritdoc />
+        <member name="P:Speedy.Sync.SyncClientProfiler.ApplyChanges">
+            <summary>
+            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.ApplyChanges(System.Guid,Speedy.Net.ServiceRequest{Speedy.Sync.SyncObject})" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.GetChangeCount">
+            <summary>
+            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.GetChangeCount(Speedy.Sync.SyncRequest)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.GetChanges">
+            <summary>
+            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.GetChanges(System.Guid,Speedy.Sync.SyncRequest)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObject">
+            <summary>
+            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectAdded">
+            <summary>
+            The "Added" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectModified">
+            <summary>
+            The "Modified" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectReadEntity">
+            <summary>
+            The "ReadEntity" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjects">
+            <summary>
+            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObjects(Speedy.ISyncableDatabaseProvider,System.Collections.Generic.IEnumerable{Speedy.Sync.SyncObject},System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectsGetDatabase">
+            <summary>
+            The "GetDatabase" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObjects(Speedy.ISyncableDatabaseProvider,System.Collections.Generic.IEnumerable{Speedy.Sync.SyncObject},System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectsSaveDatabase">
+            <summary>
+            The "SaveDatabase" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObjects(Speedy.ISyncableDatabaseProvider,System.Collections.Generic.IEnumerable{Speedy.Sync.SyncObject},System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectsSyncObjectsToList">
+            <summary>
+            The "SyncObjectsToList" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObjects(Speedy.ISyncableDatabaseProvider,System.Collections.Generic.IEnumerable{Speedy.Sync.SyncObject},System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean)" />.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncClientProfiler.ToString(Speedy.Profiling.Timer)">
+            <summary>
+            Converts the profile results into a human readable string.
+            </summary>
+            <param name="totalTime"> The overall time to process. This is for generating percent value. </param>
+            <returns> The human readable string for the profiler results. </returns>
         </member>
         <member name="T:Speedy.Sync.SyncClientProvider">
             <summary>
@@ -5880,12 +6175,13 @@
             Represents a sync database provider.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider`1.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.ISyncableDatabase},Speedy.DatabaseOptions)">
+        <member name="M:Speedy.Sync.SyncDatabaseProvider`1.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.ISyncableDatabase},Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
             <summary>
             Instantiates a sync database provider using the provided function.
             </summary>
             <param name="function"> The function to return the syncable database. </param>
             <param name="options"> The options for this database provider. </param>
+            <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
         </member>
         <member name="M:Speedy.Sync.SyncDatabaseProvider`1.Speedy#IDatabaseProvider{T}#GetDatabase">
             <inheritdoc />
@@ -5898,12 +6194,16 @@
             Represents a sync database provider.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.ISyncableDatabase},Speedy.DatabaseOptions)">
+        <member name="M:Speedy.Sync.SyncDatabaseProvider.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.ISyncableDatabase},Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
             <summary>
             Instantiates a sync database provider using the provided function.
             </summary>
             <param name="function"> The function to return the syncable database. </param>
             <param name="options"> The options for this database provider. </param>
+            <param name="keyCache"> An optional key manager for managing entity IDs (primary and sync). </param>
+        </member>
+        <member name="P:Speedy.Sync.SyncDatabaseProvider.KeyCache">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncDatabaseProvider.Options">
             <inheritdoc />
@@ -5917,7 +6217,7 @@
         <member name="M:Speedy.Sync.SyncDatabaseProvider.GetSyncableDatabase">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider.GetSyncableDatabase(Speedy.DatabaseOptions)">
+        <member name="M:Speedy.Sync.SyncDatabaseProvider.GetSyncableDatabase(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncEngine">
@@ -6040,6 +6340,11 @@
             Event arguments for the sync engine status change event.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncEngineState.#ctor">
+            <summary>
+            Instantiates an instances of the sync engine state.
+            </summary>
+        </member>
         <member name="M:Speedy.Sync.SyncEngineState.#ctor(Speedy.IDispatcher)">
             <summary>
             Instantiates an instances of the sync engine state.
@@ -6049,6 +6354,11 @@
         <member name="P:Speedy.Sync.SyncEngineState.Count">
             <summary>
             Gets or sets the current count of items processed.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEngineState.IsRunning">
+            <summary>
+            Indicates if the sync engine is running.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncEngineState.Message">
@@ -6061,11 +6371,6 @@
             Gets the percentage of progress. Ranging from [0.00] to [100.00].
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncEngineState.IsRunning">
-            <summary>
-            Indicates if the sync engine is running.
-            </summary>
-        </member>
         <member name="P:Speedy.Sync.SyncEngineState.Status">
             <summary>
             Gets or sets the current status of the sync.
@@ -6076,6 +6381,9 @@
             Gets or sets the total count of the items to process.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncEngineState.DeepClone(System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncEngineState.OnPropertyChanged(System.String)">
             <inheritdoc />
         </member>
@@ -6083,15 +6391,6 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEngineState.UpdateWith(Speedy.Sync.SyncEngineState,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncEngineState.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncEngineState.UpdateWithOnly(Speedy.Sync.SyncEngineState,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncEngineState.UpdateWithOnly(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncEngineStatus">
@@ -6151,6 +6450,9 @@
         <member name="P:Speedy.Sync.SyncEntity`1.SyncId">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Sync.SyncEntity`1.GetEntityId">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncEntity`1.IsPropertyExcludedForIncomingSync(System.String)">
             <inheritdoc />
         </member>
@@ -6176,9 +6478,6 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.UpdateWith(Speedy.Sync.ISyncEntity,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncEntity`1.UpdateWithOnly(Speedy.Sync.ISyncEntity,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.GetDefaultExclusionsForIncomingSync">
@@ -6745,6 +7044,11 @@
             The sync version key value. This will be included in the default sync options values.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncOptions.#ctor">
+            <summary>
+            Instantiates an instance of the class.
+            </summary>
+        </member>
         <member name="M:Speedy.Sync.SyncOptions.#ctor(Speedy.IDispatcher)">
             <summary>
             Instantiates an instance of the class.
@@ -6787,6 +7091,9 @@
             </summary>
             <param name="filter"> The syncable filter to be added. </param>
         </member>
+        <member name="M:Speedy.Sync.SyncOptions.DeepClone(System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncOptions.GetSyncType``1(``0)">
             <summary>
             Gets the type of sync these options are for
@@ -6800,16 +7107,16 @@
             Resets the syncable filters
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncOptions.ShouldFilterRepository(System.Type)">
+        <member name="M:Speedy.Sync.SyncOptions.ShouldExcludeRepository(System.Type)">
             <summary>
-            Check to see if a repository has been filtered.
+            Check to see if a repository has been excluded from syncing.
             </summary>
             <param name="type"> The type to check for. </param>
             <returns> True if the type is filter or false if otherwise. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncOptions.ShouldFilterRepository(System.String)">
+        <member name="M:Speedy.Sync.SyncOptions.ShouldExcludeRepository(System.String)">
             <summary>
-            Check to see if a repository has been filtered.
+            Check to see if a repository has been excluded from syncing.
             </summary>
             <param name="typeAssemblyName"> The type name to check for. Should be in assembly name format. </param>
             <returns> True if the type is filter or false if otherwise. </returns>
@@ -6981,10 +7288,20 @@
             Represents corrections sent (outgoing) from this client.
             </summary>
         </member>
+        <member name="P:Speedy.Sync.SyncStatistics.IndividualProcessCount">
+            <summary>
+            Represents how many times the sync client had to process applied changes individually.
+            This means at some point one of the synced items had issues saving so we have to process items
+            individually so we can determine which item is having issues.
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.SyncStatistics.IsReset">
             <summary>
             Returns true if the statistics are all zero.
             </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncStatistics.DeepClone(System.Int32)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncStatistics.Reset">
             <summary>

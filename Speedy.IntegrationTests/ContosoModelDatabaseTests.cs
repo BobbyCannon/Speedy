@@ -104,14 +104,14 @@ namespace Speedy.IntegrationTests
 			};
 		}
 
-		private static ContosoClientMemoryDatabase GetDatabase(DatabaseOptions options = null)
+		private static ContosoClientMemoryDatabase GetDatabase(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
 		{
-			return new(options);
+			return new(options, keyCache);
 		}
 
-		private static IDatabaseProvider<IContosoDatabase> GetDatabaseProvider(DatabaseOptions options = null)
+		private static IDatabaseProvider<IContosoDatabase> GetDatabaseProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
 		{
-			return TestHelper.GetMemoryProvider(options);
+			return TestHelper.GetMemoryProvider(options, keyCache);
 		}
 
 		private ClientAccount GetPerson()

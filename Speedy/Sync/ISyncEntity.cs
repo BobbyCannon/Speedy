@@ -32,6 +32,12 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
+		/// Gets the primary key (ID) of the sync entity.
+		/// </summary>
+		/// <returns></returns>
+		object GetEntityId();
+
+		/// <summary>
 		/// Checks a property to see if it can be synced in incoming data.
 		/// </summary>
 		/// <param name="propertyName"> The property name to be tested. </param>

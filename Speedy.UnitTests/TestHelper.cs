@@ -106,6 +106,12 @@ namespace Speedy.UnitTests
 			Console.WriteLine(action(item));
 		}
 
+		public static void Dump<T>(this T item, string prefix)
+		{
+			Console.Write(prefix);
+			Console.WriteLine(item);
+		}
+
 		public static void ExpectedException<T>(Action work, params string[] messages) where T : Exception
 		{
 			try
@@ -116,7 +122,7 @@ namespace Speedy.UnitTests
 			{
 				var detailedException = ex.ToDetailedString();
 				var allErrors = "\"" + string.Join("\", \"", messages) + "\"";
-				
+
 				if (!messages.Any(x => detailedException.Contains(x)))
 				{
 					Assert.Fail("Actual <" + detailedException + "> does not contain expected <" + allErrors + ">.");

@@ -37,7 +37,7 @@ namespace Speedy.IntegrationTests
 				var options = new SyncOptions();
 				options.Values.AddOrUpdate(SyncOptions.SyncVersionKey, "1.2.3.4");
 
-				var issues = SyncEngine.Run(client, server, options);
+				var issues = SyncEngine.Run(client, server, options).SyncIssues;
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -65,9 +65,9 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Bar"));
 
 				var options = new SyncOptions();
-				var issues = SyncEngine.Run(client, server, options);
+				var engine = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -102,7 +102,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Bar"));
 
 				var options = new SyncOptions();
-				var issues = SyncEngine.Run(client, server, options);
+				var issues = SyncEngine.Run(client, server, options).SyncIssues;
 
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
@@ -137,9 +137,9 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
 				var options = new SyncOptions();
-				var issues = SyncEngine.Run(client, server, options);
+				var engine = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -154,15 +154,15 @@ namespace Speedy.IntegrationTests
 					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), "Id", nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
 				}
 
-				issues = SyncEngine.Run(client, server, options);
+				engine = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 				Assert.IsFalse(client.Statistics.IsReset);
 				Assert.IsFalse(client.Statistics.IsReset);
 
-				issues = SyncEngine.Run(client, server, options);
+				engine = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 				Assert.IsTrue(client.Statistics.IsReset);
 				Assert.IsTrue(client.Statistics.IsReset);
 			});
@@ -398,7 +398,7 @@ namespace Speedy.IntegrationTests
 		public void ClientTimeFasterThanServerTimeSyncStartShouldStillSync()
 		{
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { IsServerClient = true } };
 
 			// Server add address, on server time
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 59);
@@ -440,6 +440,15 @@ namespace Speedy.IntegrationTests
 			var clientAddress = NewAddress("123 Main Street");
 			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(clientAddress);
 
+			using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+			{
+				var addresses = clientDatabase.Addresses.ToList();
+				Assert.AreEqual(2, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[1].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[1].ModifiedOn);
+				Assert.AreEqual("123 Main Street", addresses[1].Line1);
+			}
+
 			// Reset time back to client time, and end the sync
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 54);
 			client.EndSync(clientSession.Id);
@@ -454,18 +463,43 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 50), clientOptions.LastSyncedOnClient);
 			Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 00), clientOptions.LastSyncedOnServer);
 
-			// Server should only have 1 address
+			// Server should only have 2 address
 			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(2, serverDatabase.Addresses.Count());
+				var addresses = serverDatabase.Addresses.ToList();
+				Assert.AreEqual(2, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].ModifiedOn);
+				Assert.AreEqual("123 Elm Street", addresses[1].Line1);
 			}
 
 			SyncEngine.Run(client, server, clientOptions);
 
-			// Server should now have 2 addresses
+			// Server should now have 3 addresses
 			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(3, serverDatabase.Addresses.Count());
+				var addresses = serverDatabase.Addresses.ToList();
+				Assert.AreEqual(3, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].ModifiedOn);
+				Assert.AreEqual("123 Elm Street", addresses[1].Line1);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[2].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 05), addresses[2].ModifiedOn);
+				Assert.AreEqual("123 Main Street", addresses[2].Line1);
+			}
+
+			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 06);
+			clientOptions.LastSyncedOnServer = serverSession.StartedOn;
+			clientOptions.LastSyncedOnClient = clientSession.StartedOn;
+			SyncEngine.Run(client, server, clientOptions);
+
+			using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+			{
+				var addresses = clientDatabase.Addresses.ToList();
+				Assert.AreEqual(2, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[1].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 05), addresses[1].ModifiedOn);
+				Assert.AreEqual("123 Main Street", addresses[1].Line1);
 			}
 		}
 
@@ -564,7 +598,7 @@ namespace Speedy.IntegrationTests
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
 
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { IsServerClient = true } };
 			var settingName1 = "Setting1";
 			var settingName2 = "Setting2";
 			var clientSetting1 = NewSetting(settingName1, "foo");
@@ -640,7 +674,7 @@ namespace Speedy.IntegrationTests
 		public void NewlyCreatedItemModifiedAfterSyncStartShouldStillSync()
 		{
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { MaintainModifiedOn = true } };
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { IsServerClient = true } };
 
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
 			var address = NewAddress("123 Elm Street");
@@ -884,31 +918,35 @@ namespace Speedy.IntegrationTests
 		public void ThreeWaySyncShouldWork()
 		{
 			using var listener = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
-			var serverMemoryProvider = TestHelper.GetSyncableMemoryProvider();
-			var client1 = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
-			var client2 = new SyncClient("Client 2", TestHelper.GetSyncableMemoryProvider());
-			var server1 = new SyncClient("Server", serverMemoryProvider) { Options = { MaintainModifiedOn = true } };
-			var server2 = new SyncClient("Server2", serverMemoryProvider) { Options = { MaintainModifiedOn = true } };
+			var serverMemoryProvider = TestHelper.GetSyncableMemoryProvider(initialize: false);
+			var client1 = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+			var client2 = new SyncClient("Client 2", TestHelper.GetSyncableMemoryProvider(initialize: false));
+			var server1 = new SyncClient("Server", serverMemoryProvider) { Options = { IsServerClient = true } };
+			var server2 = new SyncClient("Server2", serverMemoryProvider) { Options = { IsServerClient = true } };
 
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
-			var address = NewAddress("123 Elm Street");
-			server1.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+			var address1 = NewAddress("123 Elm Street", null, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+			server1.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address1);
 
 			// Make sure all data is only on the server
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
 			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(2, serverDatabase.Addresses.Count());
-				Assert.AreEqual("123 Elm Street", serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First().Line1);
-				Assert.AreEqual(1, client1Database.Addresses.Count());
-				Assert.AreEqual(1, client2Database.Addresses.Count());
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				Assert.AreEqual(1, serverAddresses.Count);
+				Assert.AreEqual("123 Elm Street", serverAddresses[0].Line1);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 11, 59, 00), serverAddresses[0].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 11, 59, 00), serverAddresses[0].ModifiedOn);
+				Assert.AreEqual(0, client1Database.Addresses.Count());
+				Assert.AreEqual(0, client2Database.Addresses.Count());
 			}
 
 			var client1Options = new SyncOptions();
 			var client2Options = new SyncOptions();
 
 			// Sync Set 1: Go ahead and sync the data to all locations
+			"\r\nSync Set 1".Dump();
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 01);
 			SyncEngine.Run(client1, server1, client1Options);
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 02);
@@ -916,22 +954,23 @@ namespace Speedy.IntegrationTests
 
 			// Prepare a new address for client 2
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 03);
-			var address2 = NewAddress("123 Main Street");
+			var address2 = NewAddress("123 Main Street", null, Guid.Parse("00000000-0000-0000-0000-000000000002"));
 
 			// Make sure all data is there
 			using (var client1Database = client1.GetDatabase<IContosoDatabase>())
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
 			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(2, serverDatabase.Addresses.Count());
-				Assert.AreEqual(2, client1Database.Addresses.Count());
-				Assert.AreEqual(2, client2Database.Addresses.Count());
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var client1Addresses = client1Database.Addresses.ToList();
+				var client2Addresses = client2Database.Addresses.ToList();
+				
+				Assert.AreEqual(1, serverAddresses.Count);
+				Assert.AreEqual(1, client1Addresses.Count);
+				Assert.AreEqual(1, client2Addresses.Count);
 
-				var serverAddress = serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client1Address = client1Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client2Address = client2Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
-				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
 
 				// Add another address to client 2
 				TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 04);
@@ -947,6 +986,7 @@ namespace Speedy.IntegrationTests
 			// Do first part of syncing client 1 (client1 <- server1)
 			// The should not have any updates as the server has not changed
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 00, 00);
+			"\r\nClient1 Begin".Dump();
 			var client1Start = TimeService.UtcNow;
 			var serverSession1 = server1.BeginSync(client1Id, client1Options);
 			client1.BeginSync(client1Id, client1Options);
@@ -965,20 +1005,22 @@ namespace Speedy.IntegrationTests
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
 			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(2, serverDatabase.Addresses.Count());
-				Assert.AreEqual(2, client1Database.Addresses.Count());
-				Assert.AreEqual(3, client2Database.Addresses.Count());
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var client1Addresses = client1Database.Addresses.ToList();
+				var client2Addresses = client2Database.Addresses.ToList();
+				
+				Assert.AreEqual(1, serverAddresses.Count);
+				Assert.AreEqual(1, client1Addresses.Count);
+				Assert.AreEqual(2, client2Addresses.Count);
 
-				var serverAddress = serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client1Address = client1Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client2Address = client2Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
-				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
 			}
 
 			// Do first part of syncing client 2 (client2 <- server 2)
 			// This should not have any updates as the server has not changed
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 00);
+			"\r\nClient2 Begin".Dump();
 			var serverStart = TimeService.UtcNow;
 			var client2Start = serverStart;
 			var serverSession2 = server2.BeginSync(client2Id, client2Options);
@@ -998,19 +1040,21 @@ namespace Speedy.IntegrationTests
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
 			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(2, serverDatabase.Addresses.Count());
-				Assert.AreEqual(2, client1Database.Addresses.Count());
-				Assert.AreEqual(3, client2Database.Addresses.Count());
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var client1Addresses = client1Database.Addresses.ToList();
+				var client2Addresses = client2Database.Addresses.ToList();
 
-				var serverAddress = serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client1Address = client1Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client2Address = client2Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
-				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
+				Assert.AreEqual(1, serverAddresses.Count);
+				Assert.AreEqual(1, client1Addresses.Count);
+				Assert.AreEqual(2, client2Addresses.Count);
+
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
 			}
 
 			// Do second part of client 2 (client2 -> server2)
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 02, 00);
+			"\r\nClient2 Get Changes -> Server2 Apply".Dump();
 			client2Request = new SyncRequest { Since = client2Options.LastSyncedOnClient, Until = client2Start, Skip = 0 };
 			client2Results = client2.GetChanges(client2Id, client2Request);
 			Assert.AreEqual(1, client2Results.TotalCount);
@@ -1029,19 +1073,22 @@ namespace Speedy.IntegrationTests
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
 			using (var serverDatabase = server2.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(3, serverDatabase.Addresses.Count());
-				Assert.AreEqual(2, client1Database.Addresses.Count());
-				Assert.AreEqual(3, client2Database.Addresses.Count());
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var client1Addresses = client1Database.Addresses.ToList();
+				var client2Addresses = client2Database.Addresses.ToList();
 
-				var serverAddress = serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client1Address = client1Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client2Address = client2Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
-				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
+				Assert.AreEqual(2, serverAddresses.Count);
+				Assert.AreEqual(1, client1Addresses.Count);
+				Assert.AreEqual(2, client2Addresses.Count);
+
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
 			}
 
 			// Do second part of client 1 (client1 -> server1)
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 03, 00);
+			"\r\nClient1 Get Changes -> Server1 Apply".Dump();
 			client1Request = new SyncRequest { Since = client1Options.LastSyncedOnClient, Until = client1Start, Skip = 0 };
 			client1Results = client1.GetChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Results.TotalCount);
@@ -1059,19 +1106,22 @@ namespace Speedy.IntegrationTests
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
 			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(3, serverDatabase.Addresses.Count());
-				Assert.AreEqual(2, client1Database.Addresses.Count());
-				Assert.AreEqual(3, client2Database.Addresses.Count());
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var client1Addresses = client1Database.Addresses.ToList();
+				var client2Addresses = client2Database.Addresses.ToList();
 
-				var serverAddress = serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client1Address = client1Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client2Address = client2Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
-				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
+				Assert.AreEqual(2, serverAddresses.Count);
+				Assert.AreEqual(1, client1Addresses.Count);
+				Assert.AreEqual(2, client2Addresses.Count);
+
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
 			}
 
 			// Sync Set 2: Go ahead and sync the data to all locations
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 04, 00);
+			"\r\nSync Set 2".Dump();
 			client1Options.LastSyncedOnServer = serverStart;
 			client1Options.LastSyncedOnClient = client1Start;
 			SyncEngine.Run(client1, server1, client1Options);
@@ -1089,25 +1139,23 @@ namespace Speedy.IntegrationTests
 			using (var client2Database = client2.GetDatabase<IContosoDatabase>())
 			using (var serverDatabase = server1.GetDatabase<IContosoDatabase>())
 			{
-				Assert.AreEqual(3, serverDatabase.Addresses.Count());
-				Assert.AreEqual(3, client1Database.Addresses.Count());
-				Assert.AreEqual(3, client2Database.Addresses.Count());
+				var serverAddresses = serverDatabase.Addresses.ToList();
+				var client1Addresses = client1Database.Addresses.ToList();
+				var client2Addresses = client2Database.Addresses.ToList();
 
-				var serverAddress = serverDatabase.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client1Address = client1Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				var client2Address = client2Database.Addresses.OrderBy(x => x.Id).Skip(1).First();
-				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
-				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
+				Assert.AreEqual(2, serverAddresses.Count);
+				Assert.AreEqual(2, client1Addresses.Count);
+				Assert.AreEqual(2, client2Addresses.Count);
 
-				serverAddress = serverDatabase.Addresses.Skip(1).First();
-				client1Address = client1Database.Addresses.Skip(1).First();
-				client2Address = client2Database.Addresses.Skip(1).First();
-				TestHelper.AreEqual(serverAddress.Unwrap(), client1Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
-				TestHelper.AreEqual(serverAddress.Unwrap(), client2Address.Unwrap(), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client1Addresses[1].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
+				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), nameof(ClientAddress.CreatedOn), nameof(ClientAddress.ModifiedOn));
 			}
 
 			// Sync Set 3
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 05, 00);
+			"\r\nSync Set 3".Dump();
 			client1Options.LastSyncedOnServer = client1Options.LastSyncedOnServer;
 			client1Options.LastSyncedOnClient = client1Options.LastSyncedOnClient;
 			SyncEngine.Run(client1, server1, client1Options);
@@ -1337,9 +1385,11 @@ namespace Speedy.IntegrationTests
 			if (doublePass)
 			{
 				// Catch up sync
-				issues1 = SyncEngine.Run(client, server, options);
+				issues1 = SyncEngine.Run(client, server, options).SyncIssues;
 				Assert.IsFalse(server.Statistics.IsReset);
 				Assert.IsFalse(client.Statistics.IsReset);
+				Assert.AreEqual(0, server.Statistics.IndividualProcessCount);
+				Assert.AreEqual(0, client.Statistics.IndividualProcessCount);
 			}
 			else
 			{
@@ -1347,14 +1397,14 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Final sync
-			var issues2 = SyncEngine.Run(client, server, options);
+			var issues2 = SyncEngine.Run(client, server, options).SyncIssues;
 			Assert.IsTrue(server.Statistics.IsReset);
 			Assert.IsTrue(client.Statistics.IsReset);
-
+			
 			return issues1.Concat(issues2).ToList();
 		}
 
-		private static AddressEntity NewAddress(string line1, string line2 = null)
+		private static AddressEntity NewAddress(string line1, string line2 = null, Guid? syncId = null)
 		{
 			var time = TimeService.UtcNow;
 			return new AddressEntity
@@ -1364,7 +1414,7 @@ namespace Speedy.IntegrationTests
 				City = Guid.NewGuid().ToString(),
 				Postal = Guid.NewGuid().ToString(),
 				State = Guid.NewGuid().ToString(),
-				SyncId = Guid.NewGuid(),
+				SyncId = syncId ?? Guid.NewGuid(),
 				CreatedOn = time,
 				ModifiedOn = time
 			};

@@ -143,6 +143,14 @@ namespace Speedy.Storage
 			return true;
 		}
 
+		internal void UpdateTimeout(TimeSpan value)
+		{
+			foreach (var item in _dictionary)
+			{
+				item.Value.Timeout = value;
+			}
+		}
+
 		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{

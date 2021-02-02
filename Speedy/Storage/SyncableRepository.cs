@@ -33,10 +33,11 @@ namespace Speedy.Storage
 
 		#region Properties
 
-		/// <summary>
-		/// The type name this repository is for. Will be in assembly name format.
-		/// </summary>
-		public string TypeName => typeof(T).ToAssemblyName();
+		/// <inheritdoc />
+		public Type RealType => typeof(T);
+
+		/// <inheritdoc />
+		public string TypeName => RealType.ToAssemblyName();
 
 		#endregion
 
@@ -70,6 +71,12 @@ namespace Speedy.Storage
 			var entities = query.Take(take).ToList();
 			var objects = entities.Select(x => x.ToSyncObject()).Where(x => x != null).ToList();
 			return objects;
+		}
+
+		/// <inheritdoc />
+		public IDictionary<Guid, object> ReadAllKeys()
+		{
+			return this.ToDictionary(x => x.SyncId, x => (object) x.Id);
 		}
 
 		/// <inheritdoc />

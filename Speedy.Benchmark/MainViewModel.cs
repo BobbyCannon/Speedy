@@ -28,12 +28,18 @@ namespace Speedy.Benchmark
 			Worker.ProgressChanged += WorkerOnProgressChanged;
 
 			// Defaults
-			CreateData = true;
-			SyncData = true;
-			UseBulkProcessing = true;
-			CachePrimaryKeys = true;
 			AddressCount = 1;
-			AccountCount = 5000;
+			AccountCount = 1;
+			CachePrimaryKeys = true;
+			CreateData = true;
+			IncrementSyncIds = true;
+			ItemsPerSync = 600;
+			UseBulkProcessing = true;
+			UseKeyManagerForClient = true;
+			UseKeyManagerForServer = true;
+			UseVerboseLogging = true;
+			Scenarios = new TestScenarios { SqlToSql = true };
+			SyncData = true;
 
 			// Setup commands
 			StartWorkCommand = new RelayCommand(x => StartWork());
@@ -53,7 +59,21 @@ namespace Speedy.Benchmark
 
 		public bool CreateData { get; set; }
 
+		public bool IncrementSyncIds { get; set; }
+
+		public bool IsRunning => Worker.IsBusy;
+
+		public int ItemsPerSync { get; set; }
+
+		public DateTime LastSyncedOnClient { get; set; }
+
+		public DateTime LastSyncedOnServer { get; set; }
+
 		public string Log { get; private set; }
+
+		public TestScenarios Scenarios { get; }
+
+		public MainWindowSettings Settings { get; set; }
 
 		public ICommand StartWorkCommand { get; }
 
@@ -62,6 +82,12 @@ namespace Speedy.Benchmark
 		public int TotalPercentage { get; private set; }
 
 		public bool UseBulkProcessing { get; set; }
+
+		public bool UseKeyManagerForClient { get; set; }
+
+		public bool UseKeyManagerForServer { get; set; }
+
+		public bool UseVerboseLogging { get; set; }
 
 		public BackgroundWorker Worker { get; }
 
@@ -79,6 +105,7 @@ namespace Speedy.Benchmark
 				}
 
 				Worker.CancelAsync();
+				OnPropertyChanged(nameof(IsRunning));
 				return;
 			}
 
@@ -86,6 +113,7 @@ namespace Speedy.Benchmark
 			BenchmarkResults.Clear();
 			Log = string.Empty;
 			Worker.RunWorkerAsync(new object[] { Dispatcher, this });
+			OnPropertyChanged(nameof(IsRunning));
 		}
 
 		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -119,6 +147,7 @@ namespace Speedy.Benchmark
 		private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			TotalPercentage = 0;
+			OnPropertyChanged(nameof(IsRunning));
 		}
 
 		#endregion
