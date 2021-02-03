@@ -22,8 +22,9 @@ namespace Speedy.Sync
 		/// <param name="outgoingFilter"> The filter for the type for outgoing (GetChanges/GetCorrections). </param>
 		/// <param name="incomingFilter"> The filter for the type for incoming (ApplyChanges/ApplyCorrections). </param>
 		/// <param name="lookupFilter"> The filter for the type for looking up the entity (GetChanges/GetCorrections). </param>
-		public SyncRepositoryFilter(Expression<Func<T, bool>> outgoingFilter = null, Expression<Func<T, bool>> incomingFilter = null, Func<T, Expression<Func<T, bool>>> lookupFilter = null)
-			: base(typeof(T).ToAssemblyName(), outgoingFilter, incomingFilter, lookupFilter)
+		/// <param name="skipDeletedItemsOnInitialSync"> The option to skipped SyncEntity.IsDeleted on initial sync. </param>
+		public SyncRepositoryFilter(Expression<Func<T, bool>> outgoingFilter = null, Expression<Func<T, bool>> incomingFilter = null, Func<T, Expression<Func<T, bool>>> lookupFilter = null, bool skipDeletedItemsOnInitialSync = true)
+			: base(typeof(T).ToAssemblyName(), outgoingFilter, incomingFilter, lookupFilter, skipDeletedItemsOnInitialSync)
 		{
 		}
 
@@ -78,12 +79,14 @@ namespace Speedy.Sync
 		/// <param name="outgoingFilter"> The outgoing filter for the type. </param>
 		/// <param name="incomingFilter"> The incoming filter for the type. </param>
 		/// <param name="lookupFilter"> The lookup filter for the type. </param>
-		public SyncRepositoryFilter(string type, object outgoingFilter, object incomingFilter, object lookupFilter)
+		/// <param name="skipDeletedItemsOnInitialSync"> The option to skipped SyncEntity.IsDeleted on initial sync. </param>
+		public SyncRepositoryFilter(string type, object outgoingFilter, object incomingFilter, object lookupFilter, bool skipDeletedItemsOnInitialSync)
 		{
 			RepositoryType = type;
 			OutgoingExpression = outgoingFilter;
 			IncomingExpression = incomingFilter;
 			LookupExpression = lookupFilter;
+			SkipDeletedItemsOnInitialSync = skipDeletedItemsOnInitialSync;
 		}
 
 		#endregion
@@ -109,6 +112,11 @@ namespace Speedy.Sync
 		/// The type contained in the repository.
 		/// </summary>
 		public string RepositoryType { get; }
+
+		/// <summary>
+		/// The option to skipped SyncEntity.IsDeleted on initial sync.
+		/// </summary>
+		public bool SkipDeletedItemsOnInitialSync { get; }
 
 		#endregion
 	}

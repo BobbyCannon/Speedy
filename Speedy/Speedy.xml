@@ -1313,6 +1313,16 @@
             Extensions for collections.
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddIfMissing``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Add a dictionary entry if the key is not found.
+            </summary>
+            <typeparam name="T1"> The type of the key. </typeparam>
+            <typeparam name="T2"> The type of the value. </typeparam>
+            <param name="dictionary"> The dictionary to update. </param>
+            <param name="key"> The value of the key. </param>
+            <param name="value"> The value of the value. </param>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
             <summary>
             Add or update a dictionary entry.
@@ -6852,36 +6862,6 @@
             Indicates the sync is being updated.
             </summary>
         </member>
-        <member name="T:Speedy.Sync.SyncResults`1">
-            <summary>
-            The results of the sync.
-            </summary>
-        </member>
-        <member name="P:Speedy.Sync.SyncResults`1.Client">
-            <summary>
-            The sync client for the client.
-            </summary>
-        </member>
-        <member name="P:Speedy.Sync.SyncResults`1.Elapsed">
-            <summary>
-            The elapsed time for the sync.
-            </summary>
-        </member>
-        <member name="P:Speedy.Sync.SyncResults`1.Options">
-            <summary>
-            The sync options.
-            </summary>
-        </member>
-        <member name="P:Speedy.Sync.SyncResults`1.Server">
-            <summary>
-            The sync client for the server.
-            </summary>
-        </member>
-        <member name="P:Speedy.Sync.SyncResults`1.SyncType">
-            <summary>
-            The Type for the sync.
-            </summary>
-        </member>
         <member name="T:Speedy.Sync.SyncModel`1">
             <summary>
             Represents a sync model, usually used in a web API model.
@@ -7258,13 +7238,14 @@
             </summary>
             <typeparam name="T"> The type for the filter. </typeparam>
         </member>
-        <member name="M:Speedy.Sync.SyncRepositoryFilter`1.#ctor(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Func{`0,System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}}})">
+        <member name="M:Speedy.Sync.SyncRepositoryFilter`1.#ctor(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Func{`0,System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}}},System.Boolean)">
             <summary>
             Instantiates a repository filter.
             </summary>
             <param name="outgoingFilter"> The filter for the type for outgoing (GetChanges/GetCorrections). </param>
             <param name="incomingFilter"> The filter for the type for incoming (ApplyChanges/ApplyCorrections). </param>
             <param name="lookupFilter"> The filter for the type for looking up the entity (GetChanges/GetCorrections). </param>
+            <param name="skipDeletedItemsOnInitialSync"> The option to skipped SyncEntity.IsDeleted on initial sync. </param>
         </member>
         <member name="P:Speedy.Sync.SyncRepositoryFilter`1.IncomingFilter">
             <summary>
@@ -7293,7 +7274,7 @@
             Represents a repository filter
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncRepositoryFilter.#ctor(System.String,System.Object,System.Object,System.Object)">
+        <member name="M:Speedy.Sync.SyncRepositoryFilter.#ctor(System.String,System.Object,System.Object,System.Object,System.Boolean)">
             <summary>
             Instantiates a repository filter.
             </summary>
@@ -7301,6 +7282,7 @@
             <param name="outgoingFilter"> The outgoing filter for the type. </param>
             <param name="incomingFilter"> The incoming filter for the type. </param>
             <param name="lookupFilter"> The lookup filter for the type. </param>
+            <param name="skipDeletedItemsOnInitialSync"> The option to skipped SyncEntity.IsDeleted on initial sync. </param>
         </member>
         <member name="P:Speedy.Sync.SyncRepositoryFilter.IncomingExpression">
             <summary>
@@ -7320,6 +7302,11 @@
         <member name="P:Speedy.Sync.SyncRepositoryFilter.RepositoryType">
             <summary>
             The type contained in the repository.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncRepositoryFilter.SkipDeletedItemsOnInitialSync">
+            <summary>
+            The option to skipped SyncEntity.IsDeleted on initial sync.
             </summary>
         </member>
         <member name="T:Speedy.Sync.SyncRequest">
@@ -7355,6 +7342,36 @@
         <member name="M:Speedy.Sync.SyncRequest.Reset">
             <summary>
             Resets the filter back to defaults.
+            </summary>
+        </member>
+        <member name="T:Speedy.Sync.SyncResults`1">
+            <summary>
+            The results of the sync.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Client">
+            <summary>
+            The sync client for the client.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Elapsed">
+            <summary>
+            The elapsed time for the sync.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Options">
+            <summary>
+            The sync options.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Server">
+            <summary>
+            The sync client for the server.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncType">
+            <summary>
+            The Type for the sync.
             </summary>
         </member>
         <member name="T:Speedy.Sync.SyncSession">

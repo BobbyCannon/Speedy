@@ -20,6 +20,25 @@ namespace Speedy.Extensions
 		#region Methods
 
 		/// <summary>
+		/// Add a dictionary entry if the key is not found.
+		/// </summary>
+		/// <typeparam name="T1"> The type of the key. </typeparam>
+		/// <typeparam name="T2"> The type of the value. </typeparam>
+		/// <param name="dictionary"> The dictionary to update. </param>
+		/// <param name="key"> The value of the key. </param>
+		/// <param name="value"> The value of the value. </param>
+		public static void AddIfMissing<T1, T2>(this IDictionary<T1, T2> dictionary, T1 key, T2 value)
+		{
+			if (dictionary.ContainsKey(key))
+			{
+				dictionary[key] = value;
+				return;
+			}
+
+			dictionary.Add(key, value);
+		}
+
+		/// <summary>
 		/// Add or update a dictionary entry.
 		/// </summary>
 		/// <typeparam name="T1"> The type of the key. </typeparam>
@@ -140,7 +159,7 @@ namespace Speedy.Extensions
 				else
 				{
 					// ReSharper disable once InvokeAsExtensionMethod
-					response.Add(item.Key, Serializer.DeepClone<T2>(item.Value));
+					response.Add(item.Key, Serializer.DeepClone(item.Value));
 				}
 			}
 			return response;

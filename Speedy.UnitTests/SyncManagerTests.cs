@@ -47,7 +47,7 @@ namespace Speedy.UnitTests
 			manager.SyncAccounts(null, null, results =>
 			{
 				syncPostUpdateCalled = true;
-				secondSyncOptions = results.Options;
+				secondSyncOptions = results?.Options;
 			});
 
 			Assert.IsTrue(syncPostUpdateCalled, "The sync postUpdate was not called as expected");
@@ -117,8 +117,8 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, manager.AverageSyncTimeForAll.Samples);
 
 			// Start a sync that will run for a long while
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results.Options);
-			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results.Options);
+			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results?.Options);
+			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results?.Options);
 			manager.WaitForSyncToComplete();
 
 			var expected = new[]
@@ -156,9 +156,9 @@ namespace Speedy.UnitTests
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
-			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, results => firstSyncOptions = results.Options);
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results.Options);
-			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, results => thirdSyncOptions = results.Options);
+			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, results => firstSyncOptions = results?.Options);
+			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results?.Options);
+			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, results => thirdSyncOptions = results?.Options);
 			manager.WaitForSyncToComplete();
 
 			var expected = new[]
@@ -194,9 +194,9 @@ namespace Speedy.UnitTests
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
-			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results.Options);
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => secondSyncOptions = results.Options);
-			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => thirdSyncOptions = results.Options);
+			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results?.Options);
+			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => secondSyncOptions = results?.Options);
+			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => thirdSyncOptions = results?.Options);
 
 			while (thirdSyncOptions == null || manager.IsRunning)
 			{

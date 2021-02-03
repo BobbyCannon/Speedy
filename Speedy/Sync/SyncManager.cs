@@ -279,7 +279,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="syncType"> The sync type to get options for. </param>
 		/// <returns> The sync options for the type </returns>
-		protected SyncOptions GetSyncOptions(T syncType)
+		protected virtual SyncOptions GetSyncOptions(T syncType)
 		{
 			return SyncOptions.ContainsKey(syncType) ? SyncOptions[syncType] : null;
 		}
@@ -552,41 +552,6 @@ namespace Speedy.Sync
 		/// Indicates the sync is being updated.
 		/// </summary>
 		public event EventHandler<SyncEngineState> SyncUpdated;
-
-		#endregion
-	}
-
-	/// <summary>
-	/// The results of the sync.
-	/// </summary>
-	public class SyncResults<T> : Bindable
-	{
-		#region Properties
-
-		/// <summary>
-		/// The sync client for the client.
-		/// </summary>
-		public ISyncClient Client { get; set; }
-
-		/// <summary>
-		/// The elapsed time for the sync.
-		/// </summary>
-		public TimeSpan Elapsed { get; set; }
-
-		/// <summary>
-		/// The sync options.
-		/// </summary>
-		public SyncOptions Options { get; set; }
-
-		/// <summary>
-		/// The sync client for the server.
-		/// </summary>
-		public ISyncClient Server { get; set; }
-
-		/// <summary>
-		/// The Type for the sync.
-		/// </summary>
-		public T SyncType { get; set; }
 
 		#endregion
 	}
