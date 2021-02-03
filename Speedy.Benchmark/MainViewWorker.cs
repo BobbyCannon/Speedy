@@ -76,7 +76,7 @@ namespace Speedy.Benchmark
 			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, null, null);
 			database.Database.EnsureDeleted();
 			database.Database.Migrate();
-			return new SyncDatabaseProvider((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
+			return new SyncableDatabaseProvider((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
 		}
 
 		public static ISyncableDatabaseProvider GetEntityFrameworkSqliteProvider2(DatabaseKeyCache keyCache)
@@ -85,7 +85,7 @@ namespace Speedy.Benchmark
 			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection2, null, null);
 			database.Database.EnsureDeleted();
 			database.Database.Migrate();
-			return new SyncDatabaseProvider((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
+			return new SyncableDatabaseProvider((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
 		}
 
 		private static void AddAccounts(int testCount, SyncClient client, MainViewModel view, AddressEntity address)
@@ -252,8 +252,8 @@ namespace Speedy.Benchmark
 				{
 					var timer = Timer.Create(() => Sync(worker, client, server, view));
 					worker.ReportProgress((int) MainViewWorkerStatus.Log, "");
-					worker.ReportProgress((int) MainViewWorkerStatus.Log, server.Profiler.ToString(timer));
-					worker.ReportProgress((int) MainViewWorkerStatus.Log, client.Profiler.ToString(timer));
+					worker.ReportProgress((int) MainViewWorkerStatus.Log, server.Profiler.ToString(timer.Elapsed));
+					worker.ReportProgress((int) MainViewWorkerStatus.Log, client.Profiler.ToString(timer.Elapsed));
 				}
 
 				if (view.UseVerboseLogging)
@@ -288,8 +288,8 @@ namespace Speedy.Benchmark
 				{
 					var timer = Timer.Create(() => Sync(worker, client, server, view));
 					worker.ReportProgress((int) MainViewWorkerStatus.Log, "");
-					worker.ReportProgress((int) MainViewWorkerStatus.Log, server.Profiler.ToString(timer));
-					worker.ReportProgress((int) MainViewWorkerStatus.Log, client.Profiler.ToString(timer));
+					worker.ReportProgress((int) MainViewWorkerStatus.Log, server.Profiler.ToString(timer.Elapsed));
+					worker.ReportProgress((int) MainViewWorkerStatus.Log, client.Profiler.ToString(timer.Elapsed));
 				}
 
 				if (view.UseVerboseLogging)
@@ -381,7 +381,7 @@ DELETE FROM [Addresses];
 			_worker.ReportProgress((int) MainViewWorkerStatus.Log, "Clearing the database...");
 			database.Database.Migrate();
 			database.ClearDatabase();
-			return new SyncDatabaseProvider((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
+			return new SyncableDatabaseProvider((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
 		}
 
 		private static ISyncableDatabaseProvider GetSyncableEntityFrameworkProvider2(DatabaseKeyCache keyCache)
@@ -390,14 +390,14 @@ DELETE FROM [Addresses];
 			_worker.ReportProgress((int) MainViewWorkerStatus.Log, "Clearing the database...");
 			database.Database.Migrate();
 			database.ClearDatabase();
-			return new SyncDatabaseProvider((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
+			return new SyncableDatabaseProvider((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), ContosoDatabase.GetDefaultOptions(), keyCache);
 		}
 
 		private static ISyncableDatabaseProvider GetSyncableMemoryProvider(DatabaseKeyCache keyCache, DatabaseOptions options = null)
 		{
 			var database = new ContosoMemoryDatabase(options, keyCache);
 			database.Options.DisableEntityValidations = true;
-			return new SyncDatabaseProvider((x, y) => database, options ?? ContosoDatabase.GetDefaultOptions(), keyCache);
+			return new SyncableDatabaseProvider((x, y) => database, options ?? ContosoDatabase.GetDefaultOptions(), keyCache);
 		}
 
 		private static BenchmarkResult StartResult(string name)

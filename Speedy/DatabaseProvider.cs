@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using Speedy.Serialization;
 
 #endregion
 
@@ -44,15 +43,59 @@ namespace Speedy
 		#region Methods
 
 		/// <inheritdoc />
+		public void BulkProcess(int total, int iterationSize, Action<int, T> process)
+		{
+			BulkProcess(GetDatabase, total, iterationSize, process);
+		}
+
+		/// <inheritdoc />
 		public T GetDatabase()
 		{
-			return _provider(Options.DeepClone());
+			return GetDatabaseFromProvider(Options.DeepClone());
 		}
 
 		/// <inheritdoc />
 		public T GetDatabase(DatabaseOptions options)
 		{
-			return _provider(options);
+			return GetDatabaseFromProvider(options);
+		}
+
+		/// <summary>
+		/// Runs a bulk process where the database lifetime is based on the iteration size.
+		/// A database will be instantiated and used for the iteration count. When the iteration
+		/// count is reach the database will be saved and disposed. A new database will be created
+		/// and processing will continue until the total count is reached. Finally the database
+		/// will be saved and disposed.
+		/// </summary>
+		/// <param name="getDatabase"> Function to get the database. </param>
+		/// <param name="total"> The total amount of items to process. </param>
+		/// <param name="iterationSize"> The iteration size of each process. </param>
+		/// <param name="process"> The action to the process. </param>
+		internal static void BulkProcess(Func<T> getDatabase, int total, int iterationSize, Action<int, T> process)
+		{
+			var database = getDatabase();
+
+			for (var i = 1; i <= total; i++)
+			{
+				process(i, database);
+
+				if (i % iterationSize == 0)
+				{
+					database.SaveChanges();
+					database.Dispose();
+
+					if (i < total)
+					{
+						database = getDatabase();
+					}
+				}
+			}
+
+			if (database != null)
+			{
+				database.SaveChanges();
+				database.Dispose();
+			}
 		}
 
 		/// <inheritdoc />
@@ -68,41 +111,13 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Runs a bulk process where the database lifetime is based on the iteration size.
-		/// A database will be instantiated and used for the iteration count. When the iteration
-		/// count is reach the database will be saved and disposed. A new database will be created
-		/// and processing will continue until the total count is reached. Finally the database
-		/// will be saved and disposed.
+		/// Gets an instance of the database from the provider.
 		/// </summary>
-		/// <param name="total"></param>
-		/// <param name="iterationSize"></param>
-		/// <param name="process"></param>
-		public void BulkProcess(int total, int iterationSize, Action<int, T> process)
+		/// <param name="options"> The database options to use for the new database instance. </param>
+		/// <returns> The database instance. </returns>
+		protected virtual T GetDatabaseFromProvider(DatabaseOptions options)
 		{
-			var database = GetDatabase();
-
-			for (var i = 1; i <= total; i++)
-			{
-				process(i, database);
-
-				if (i % iterationSize == 0)
-				{
-					database.SaveChanges();
-					database.Dispose();
-					database = default;
-
-					if (i < total)
-					{
-						database = GetDatabase();
-					}
-				}
-			}
-
-			if (database != null)
-			{
-				database.SaveChanges();
-				database.Dispose();
-			}
+			return _provider.Invoke(options);
 		}
 
 		#endregion

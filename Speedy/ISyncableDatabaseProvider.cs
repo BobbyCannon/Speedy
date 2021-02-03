@@ -6,6 +6,23 @@
 	public interface ISyncableDatabaseProvider<out T> : ISyncableDatabaseProvider, IDatabaseProvider<T>
 		where T : ISyncableDatabase
 	{
+		#region Methods
+
+		/// <summary>
+		/// Gets an instance of the database.
+		/// </summary>
+		/// <returns> The database instance. </returns>
+		new T GetSyncableDatabase();
+
+		/// <summary>
+		/// Gets an instance of the database.
+		/// </summary>
+		/// <param name="options"> The database options to use for the new database instance. </param>
+		/// <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
+		/// <returns> The database instance. </returns>
+		new T GetSyncableDatabase(DatabaseOptions options, DatabaseKeyCache keyCache);
+
+		#endregion
 	}
 
 	/// <summary>
@@ -33,7 +50,7 @@
 		/// <summary>
 		/// Gets an instance of the database.
 		/// </summary>
-		///  <param name="options"> The database options to use for the new database instance. </param>
+		/// <param name="options"> The database options to use for the new database instance. </param>
 		/// <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
 		/// <returns> The database instance. </returns>
 		ISyncableDatabase GetSyncableDatabase(DatabaseOptions options, DatabaseKeyCache keyCache);

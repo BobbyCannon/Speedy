@@ -117,11 +117,6 @@ namespace Speedy.Sync
 		public SyncEngineState SyncState { get; }
 
 		/// <summary>
-		/// The version of the sync system. Update this version any time the sync system changed dramatically
-		/// </summary>
-		public abstract Version SyncSystemVersion { get; }
-
-		/// <summary>
 		/// The type of the sync.
 		/// </summary>
 		public T SyncType { get; private set; }
@@ -249,15 +244,14 @@ namespace Speedy.Sync
 					LastSyncedOnClient = DateTime.MinValue,
 					LastSyncedOnServer = DateTime.MinValue,
 					// note: everything below is a request, the sync clients (web sync controller)
-					// has the options to override. Ex: you may request 300 items then the sync
+					// has the options to override. Ex: you may request 600 items then the sync
 					// client may reduce it to only 100 items.
 					PermanentDeletions = false,
-					ItemsPerSyncRequest = 300,
+					ItemsPerSyncRequest = 600,
 					IncludeIssueDetails = false
 				};
 
 				options.Values.AddOrUpdate(Sync.SyncOptions.SyncKey, ((int) (object) syncType).ToString());
-				options.Values.AddOrUpdate(Sync.SyncOptions.SyncVersionKey, SyncSystemVersion.ToString(4));
 
 				// optional update to modify sync options
 				update?.Invoke(options);
@@ -303,10 +297,10 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Indicate the sync is complete.
 		/// </summary>
-		/// <param name="options"> The options of the completed sync. </param>
-		protected virtual void OnSyncCompleted(SyncOptions options)
+		/// <param name="results"> The results of the completed sync. </param>
+		protected virtual void OnSyncCompleted(SyncResults<T> results)
 		{
-			SyncCompleted?.Invoke(this, options);
+			SyncCompleted?.Invoke(this, results);
 		}
 
 		/// <summary>
@@ -329,7 +323,7 @@ namespace Speedy.Sync
 		/// start then the options will be null as they were never read or set.
 		/// </param>
 		/// <returns> The task for the process. </returns>
-		protected Task ProcessAsync(T syncType, Action<SyncOptions> updateOptions, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		protected Task ProcessAsync(T syncType, Action<SyncOptions> updateOptions, TimeSpan? waitFor = null, Action<SyncResults<T>> postAction = null)
 		{
 			if (!IsEnabled)
 			{
@@ -361,11 +355,12 @@ namespace Speedy.Sync
 			}
 
 			// Start the sync before we start the task
-			var options = StartSync(syncType);
+			var result = new SyncResults<T> { SyncType = syncType };
+			result.Options = StartSync(result);
 
 			// Start the sync in a background thread.
-			return Task.Run(() => RunSync(syncType, options, updateOptions), _cancellationToken.Token)
-				.ContinueWith(x => { StopSync(syncType, options, postAction); });
+			return Task.Run(() => RunSync(result, updateOptions), _cancellationToken.Token)
+				.ContinueWith(x => { StopSync(result, postAction); });
 		}
 
 		/// <summary>
@@ -384,21 +379,20 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Run the sync. This should only be called by ProcessAsync.
 		/// </summary>
-		/// <param name="syncType"> The type of the sync to process. </param>
-		/// <param name="syncOptions"> The options for the sync. </param>
-		/// <param name="updateOptions"> </param>
-		private void RunSync(T syncType, SyncOptions syncOptions, Action<SyncOptions> updateOptions)
+		/// <param name="results"> The results for the sync. </param>
+		/// <param name="updateOptions"> Update options before running sync. </param>
+		private void RunSync(SyncResults<T> results, Action<SyncOptions> updateOptions)
 		{
 			try
 			{
-				updateOptions?.Invoke(syncOptions);
+				updateOptions?.Invoke(results.Options);
 
-				OnLogEvent($"Syncing {syncType} for {syncOptions.LastSyncedOnClient}, {syncOptions.LastSyncedOnServer}", EventLevel.Verbose);
+				OnLogEvent($"Syncing {results.SyncType} for {results.Options.LastSyncedOnClient}, {results.Options.LastSyncedOnServer}", EventLevel.Verbose);
 
-				var client = GetSyncClientForClient();
-				var server = GetSyncClientForServer();
+				results.Client = GetSyncClientForClient();
+				results.Server = GetSyncClientForServer();
 
-				if (client == null || server == null)
+				if (results.Client == null || results.Server == null)
 				{
 					IsSyncSuccessful = false;
 					SyncState.Message = "Sync client for client or server is null.";
@@ -406,7 +400,7 @@ namespace Speedy.Sync
 					return;
 				}
 
-				var engine = new SyncEngine(client, server, syncOptions, _cancellationToken);
+				var engine = new SyncEngine(results.Client, results.Server, results.Options, _cancellationToken);
 
 				engine.SyncStateChanged += async (sender, state) =>
 				{
@@ -454,10 +448,10 @@ namespace Speedy.Sync
 			}
 		}
 
-		private SyncOptions StartSync(T syncType)
+		private SyncOptions StartSync(SyncResults<T> results)
 		{
 			// See if we have a timer for this sync type
-			if (SyncTimers.TryGetValue(syncType, out _syncTimer))
+			if (SyncTimers.TryGetValue(results.SyncType, out _syncTimer))
 			{
 				_syncTimer.Start();
 			}
@@ -466,13 +460,13 @@ namespace Speedy.Sync
 			IsSyncSuccessful = false;
 			SyncIssues.Clear();
 
-			OnLogEvent($"Sync {syncType} started", EventLevel.Verbose);
+			OnLogEvent($"Sync {results.SyncType} started", EventLevel.Verbose);
 
-			SyncType = syncType;
+			SyncType = results.SyncType;
 			_cancellationToken = new CancellationTokenSource();
 			_watch.Restart();
 
-			var options = GetSyncOptions(syncType);
+			var options = GetSyncOptions(results.SyncType);
 
 			OnPropertyChanged(nameof(IsCancellationPending));
 			OnPropertyChanged(nameof(IsRunning));
@@ -481,37 +475,39 @@ namespace Speedy.Sync
 			return options;
 		}
 
-		private void StopSync(T syncType, SyncOptions options, Action<SyncOptions> postAction)
+		private void StopSync(SyncResults<T> results, Action<SyncResults<T>> postAction)
 		{
-			try
-			{
-				postAction?.Invoke(options);
-			}
-			catch (Exception ex)
-			{
-				OnLogEvent(ex.Message, EventLevel.Error);
-			}
-
-			try
-			{
-				OnSyncCompleted(options);
-			}
-			catch (Exception ex)
-			{
-				OnLogEvent(ex.Message, EventLevel.Error);
-			}
-
 			if (_syncTimer != null)
 			{
-				_syncTimer?.Stop();
+				_syncTimer.Stop();
 
-				OnLogEvent($"Sync {syncType} stopped. {_syncTimer.Average:mm\\:ss\\.fff}", EventLevel.Verbose);
+				results.Elapsed = _syncTimer.Elapsed;
+
+				OnLogEvent($"Sync {results.SyncType} stopped. {_syncTimer.Average:mm\\:ss\\.fff}", EventLevel.Verbose);
 
 				_syncTimer = null;
 			}
 			else
 			{
-				OnLogEvent($"Sync {syncType} stopped", EventLevel.Verbose);
+				OnLogEvent($"Sync {results.SyncType} stopped", EventLevel.Verbose);
+			}
+
+			try
+			{
+				postAction?.Invoke(results);
+			}
+			catch (Exception ex)
+			{
+				OnLogEvent(ex.Message, EventLevel.Error);
+			}
+
+			try
+			{
+				OnSyncCompleted(results);
+			}
+			catch (Exception ex)
+			{
+				OnLogEvent(ex.Message, EventLevel.Error);
 			}
 
 			_watch.Stop();
@@ -550,12 +546,47 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Indicates the sync is completed.
 		/// </summary>
-		public event EventHandler<SyncOptions> SyncCompleted;
+		public event EventHandler<SyncResults<T>> SyncCompleted;
 
 		/// <summary>
 		/// Indicates the sync is being updated.
 		/// </summary>
 		public event EventHandler<SyncEngineState> SyncUpdated;
+
+		#endregion
+	}
+
+	/// <summary>
+	/// The results of the sync.
+	/// </summary>
+	public class SyncResults<T> : Bindable
+	{
+		#region Properties
+
+		/// <summary>
+		/// The sync client for the client.
+		/// </summary>
+		public ISyncClient Client { get; set; }
+
+		/// <summary>
+		/// The elapsed time for the sync.
+		/// </summary>
+		public TimeSpan Elapsed { get; set; }
+
+		/// <summary>
+		/// The sync options.
+		/// </summary>
+		public SyncOptions Options { get; set; }
+
+		/// <summary>
+		/// The sync client for the server.
+		/// </summary>
+		public ISyncClient Server { get; set; }
+
+		/// <summary>
+		/// The Type for the sync.
+		/// </summary>
+		public T SyncType { get; set; }
 
 		#endregion
 	}

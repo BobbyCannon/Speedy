@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Text;
 using Speedy.Profiling;
 
@@ -46,7 +47,7 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <summary>
-		/// The overall processing time for <seealso cref="SyncClient.ApplyChanges" />.
+		/// The overall processing time for SyncClient.ApplyChanges.
 		/// </summary>
 		public Timer ApplyChanges { get; }
 
@@ -109,7 +110,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="totalTime"> The overall time to process. This is for generating percent value. </param>
 		/// <returns> The human readable string for the profiler results. </returns>
-		public string ToString(Timer totalTime)
+		public string ToString(TimeSpan totalTime)
 		{
 			var builder = new StringBuilder();
 			builder.AppendLine(_name);
@@ -124,13 +125,12 @@ namespace Speedy.Sync
 			builder.AppendLine($"\t\tProcessSyncObjects::GetDatabase {ProcessSyncObjectsGetDatabase} : {Percent(totalTime, ProcessSyncObjectsGetDatabase)}");
 			builder.AppendLine($"\t\tProcessSyncObjects::SaveDatabase {ProcessSyncObjectsSaveDatabase} : {Percent(totalTime, ProcessSyncObjectsSaveDatabase)}");
 			builder.AppendLine($"\t\tProcessSyncObjects::ToList {ProcessSyncObjectsSyncObjectsToList} : {Percent(totalTime, ProcessSyncObjectsSyncObjectsToList)}");
-
 			return builder.ToString();
 		}
 
-		private string Percent(Timer total, Timer partial)
+		private string Percent(TimeSpan total, Timer partial)
 		{
-			return $"{(double) partial.Elapsed.Ticks / total.Elapsed.Ticks * 100:0.00}%";
+			return $"{(double) partial.Elapsed.Ticks / total.Ticks * 100:0.00}%";
 		}
 
 		#endregion

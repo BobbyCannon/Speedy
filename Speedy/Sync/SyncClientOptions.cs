@@ -10,7 +10,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents the options for a sync client
 	/// </summary>
-	public class SyncClientOptions : Bindable<SyncClientOptions>
+	public class SyncClientOptions : CloneableBindable<SyncClientOptions>
 	{
 		#region Properties
 

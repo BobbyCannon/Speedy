@@ -38,6 +38,7 @@ namespace Speedy.Net
 			DatabaseProvider = provider;
 			Name = name;
 			Options = new SyncClientOptions();
+			Profiler = new SyncClientProfiler(name);
 			Statistics = new SyncStatistics();
 			SyncSession = new SyncSession();
 			WebClient = new WebClient(serverUri, timeout, credential, proxy);
@@ -70,6 +71,9 @@ namespace Speedy.Net
 
 		/// <inheritdoc />
 		public SyncSession SyncSession { get; }
+
+		/// <inheritdoc />
+		public SyncClientProfiler Profiler { get; }
 
 		/// <summary>
 		/// The web client to use to connect to the server.

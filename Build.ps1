@@ -5,7 +5,7 @@
 	[Parameter()]
 	[string] $BuildNumber,
 	[Parameter()]
-	[string] $VersionSuffix = ""
+	[string] $VersionSuffix = "RC"
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,7 +42,7 @@ try
 
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 6 -Minor 5 -Build $BuildNumber
+	$newVersion = .\IncrementVersion.ps1 -Major 7 -Minor 0 -Build $BuildNumber
 	$nugetVersion = ([Version] $newVersion).ToString(3)
 	
 	if ($VersionSuffix.Length -gt 0)

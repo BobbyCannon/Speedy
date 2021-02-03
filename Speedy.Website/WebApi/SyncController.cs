@@ -35,7 +35,7 @@ namespace Speedy.Website.WebApi
 		public SyncController(ISyncableDatabaseProvider<IContosoDatabase> provider)
 			: base(provider.GetDatabase())
 		{
-			DatabaseProvider = new SyncDatabaseProvider<IContosoDatabase>(provider.GetSyncableDatabase, provider.Options, KeyCache);
+			DatabaseProvider = new SyncableDatabaseProvider<IContosoDatabase>(provider.GetSyncableDatabase, provider.Options, KeyCache);
 		}
 
 		static SyncController()

@@ -13,7 +13,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents options to be used during a sync.
 	/// </summary>
-	public class SyncOptions : Bindable<SyncOptions>
+	public class SyncOptions : CloneableBindable<SyncOptions>
 	{
 		#region Constants
 
@@ -21,11 +21,6 @@ namespace Speedy.Sync
 		/// The sync key value. This will be included in the default sync options values.
 		/// </summary>
 		public const string SyncKey = "SyncKey";
-
-		/// <summary>
-		/// The sync version key value. This will be included in the default sync options values.
-		/// </summary>
-		public const string SyncVersionKey = "SyncVersionKey";
 
 		#endregion
 
@@ -53,10 +48,7 @@ namespace Speedy.Sync
 			LastSyncedOnClient = DateTime.MinValue;
 			LastSyncedOnServer = DateTime.MinValue;
 			ItemsPerSyncRequest = 600;
-			Values = new Dictionary<string, string>
-			{
-				{ SyncVersionKey, "0.0.0.0" }
-			};
+			Values = new Dictionary<string, string>();
 
 			_filterLookup = new Dictionary<string, SyncRepositoryFilter>();
 		}

@@ -62,9 +62,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public DatabaseKeyCache KeyCache { get; set; }
 
-		/// <summary>
-		/// Gets the options for this database.
-		/// </summary>
+		/// <inheritdoc />
 		public DatabaseOptions Options { get; }
 
 		internal Dictionary<string, IDatabaseRepository> Repositories { get; }

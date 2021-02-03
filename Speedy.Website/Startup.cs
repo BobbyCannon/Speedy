@@ -186,7 +186,7 @@ namespace Speedy.Website
 
 			var isDevelopment = Environment.IsDevelopment();
 			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, null), ContosoDatabase.GetDefaultOptions());
-			var syncDatabaseProvider = new SyncDatabaseProvider<IContosoDatabase>((o, c) => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, c), ContosoDatabase.GetDefaultOptions(), SyncController.KeyCache);
+			var syncDatabaseProvider = new SyncableDatabaseProvider<IContosoDatabase>((o, c) => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, c), ContosoDatabase.GetDefaultOptions(), SyncController.KeyCache);
 
 			services.AddWebOptimizer(pipeline =>
 			{
@@ -279,7 +279,7 @@ namespace Speedy.Website
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
 			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null));
 			services.AddScoped<IDatabaseProvider<IContosoDatabase>, DatabaseProvider<IContosoDatabase>>(_ => databaseProvider);
-			services.AddScoped<ISyncableDatabaseProvider<IContosoDatabase>, SyncDatabaseProvider<IContosoDatabase>>(_ => syncDatabaseProvider);
+			services.AddScoped<ISyncableDatabaseProvider<IContosoDatabase>, SyncableDatabaseProvider<IContosoDatabase>>(_ => syncDatabaseProvider);
 
 			using var database = ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null);
 			database.Database.SetCommandTimeout((int) TimeSpan.FromMinutes(15).TotalSeconds);

@@ -50,15 +50,15 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
+		/// The total types tracked.
+		/// </summary>
+		public int Count => _cachedEntityId.Count;
+
+		/// <summary>
 		/// Gets or sets the list of entities to cache the keys (ID, Sync ID). If the collection is empty
 		/// then cache all sync entities.
 		/// </summary>
 		public Type[] SyncEntitiesToCache { get; set; }
-
-		/// <summary>
-		/// The total types tracked.
-		/// </summary>
-		public int Count => _cachedEntityId.Count;
 
 		/// <summary>
 		/// The total count for all items tracked.
@@ -149,6 +149,16 @@ namespace Speedy
 
 			var cache = _cachedEntityId[type];
 			return cache.TryGet(syncId.ToString(), out var cachedItem) ? cachedItem.Value : null;
+		}
+
+		/// <summary>
+		/// Initializes the default key cache.
+		/// </summary>
+		/// <param name="provider"> The syncable database provider. </param>
+		public void Initialize(ISyncableDatabaseProvider provider)
+		{
+			using var database = provider.GetSyncableDatabase();
+			Initialize(database);
 		}
 
 		/// <summary>

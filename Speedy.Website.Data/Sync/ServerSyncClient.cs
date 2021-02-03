@@ -98,39 +98,30 @@ namespace Speedy.Website.Data.Sync
 		}
 
 		/// <inheritdoc />
-		public override SyncSession BeginSync(Guid id, SyncOptions options)
+		public override SyncSession BeginSync(Guid id, SyncOptions untrustedOptions)
 		{
-			var validSyncVersion = options.Values.TryGetValue(SyncOptions.SyncVersionKey, out var versionString)
-				| Version.TryParse(versionString ?? string.Empty, out var version)
-				| (version >= MinimumSyncSystemSupported)
-				| (version <= MaximumSyncSystemSupported);
-
-			if (!validSyncVersion)
-			{
-				throw new SpeedyException(Constants.SyncClientInvalid);
-			}
-
 			// note: never trust the sync options. These are just suggestions from the client, you MUST ensure these suggestions are valid.
 			var syncOptions = new SyncOptions
 			{
 				IncludeIssueDetails = _account.InRole(AccountRole.Administrator),
-				ItemsPerSyncRequest = options.ItemsPerSyncRequest > 300 ? 300 : options.ItemsPerSyncRequest,
+				ItemsPerSyncRequest = untrustedOptions.ItemsPerSyncRequest > 600 ? 600 : untrustedOptions.ItemsPerSyncRequest,
+				// Do not allow clients to permanently delete entities
 				PermanentDeletions = false,
-				LastSyncedOnClient = options.LastSyncedOnClient,
-				LastSyncedOnServer = options.LastSyncedOnServer
+				LastSyncedOnClient = untrustedOptions.LastSyncedOnClient,
+				LastSyncedOnServer = untrustedOptions.LastSyncedOnServer
 			};
 
 			// Detect the type of sync requested
-			var syncKey = options.GetSyncType(SyncType.All);
+			var syncKey = untrustedOptions.GetSyncType(SyncType.All);
 
 			switch (syncKey)
 			{
 				case SyncType.Account:
 				{
-					if (options.Values.ContainsKey(ClientSyncManager.AccountValueKey))
+					if (untrustedOptions.Values.ContainsKey(ClientSyncManager.AccountValueKey))
 					{
 						// We want to sync a single account
-						Guid.TryParse(options.Values[ClientSyncManager.AccountValueKey], out var accountSyncId);
+						Guid.TryParse(untrustedOptions.Values[ClientSyncManager.AccountValueKey], out var accountSyncId);
 						syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>(x => x.SyncId == accountSyncId));
 					}
 					else
@@ -146,10 +137,10 @@ namespace Speedy.Website.Data.Sync
 				}
 				case SyncType.Address:
 				{
-					if (options.Values.ContainsKey(ClientSyncManager.AddressValueKey))
+					if (untrustedOptions.Values.ContainsKey(ClientSyncManager.AddressValueKey))
 					{
 						// We want to sync a single address
-						Guid.TryParse(options.Values[ClientSyncManager.AddressValueKey], out var addressSyncId);
+						Guid.TryParse(untrustedOptions.Values[ClientSyncManager.AddressValueKey], out var addressSyncId);
 						syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>(x => x.SyncId == addressSyncId));
 					}
 					else

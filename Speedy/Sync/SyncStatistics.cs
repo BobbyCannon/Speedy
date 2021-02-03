@@ -10,7 +10,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents the communication statistics for a sync client.
 	/// </summary>
-	public class SyncStatistics : Bindable<SyncStatistics>
+	public class SyncStatistics : CloneableBindable<SyncStatistics>
 	{
 		#region Properties
 

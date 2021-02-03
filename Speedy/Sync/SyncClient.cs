@@ -62,9 +62,7 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
-		/// <summary>
-		/// Profiler for tracking specific points during sync client processing.
-		/// </summary>
+		/// <inheritdoc />
 		public SyncClientProfiler Profiler { get; }
 
 		/// <inheritdoc />

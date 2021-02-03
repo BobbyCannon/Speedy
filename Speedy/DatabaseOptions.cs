@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Serialization;
 
 #endregion
 
@@ -12,7 +11,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents options for a Speedy database.
 	/// </summary>
-	public class DatabaseOptions : Bindable<DatabaseOptions>
+	public class DatabaseOptions : CloneableBindable<DatabaseOptions>
 	{
 		#region Constructors
 

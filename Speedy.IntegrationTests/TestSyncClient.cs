@@ -21,9 +21,10 @@ namespace Speedy.IntegrationTests
 			ChangesOffset = 0;
 			Corrections = new List<ServiceResult<SyncObject>>();
 			CorrectionsOffset = 0;
-			DatabaseProvider = new SyncDatabaseProvider((x, y) => null, new DatabaseOptions(), new DatabaseKeyCache());
+			DatabaseProvider = new SyncableDatabaseProvider((x, y) => null, new DatabaseOptions(), new DatabaseKeyCache());
 			Name = name;
 			Options = new SyncClientOptions();
+			Profiler = new SyncClientProfiler(name);
 			Statistics = new SyncStatistics();
 			SyncSession = new SyncSession();
 			SyncOptions = new SyncOptions();
@@ -46,7 +47,7 @@ namespace Speedy.IntegrationTests
 		public int CorrectionsOffset { get; private set; }
 
 		public ISyncableDatabaseProvider DatabaseProvider { get; }
-		
+
 		public SyncClientIncomingConverter IncomingConverter { get; set; }
 
 		public string Name { get; }
@@ -54,6 +55,8 @@ namespace Speedy.IntegrationTests
 		public SyncClientOptions Options { get; }
 
 		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
+
+		public SyncClientProfiler Profiler { get; }
 
 		public SyncStatistics Statistics { get; }
 

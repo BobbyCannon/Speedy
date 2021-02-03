@@ -236,7 +236,7 @@ namespace Speedy.IntegrationTests
 		public static ISyncableDatabaseProvider<ContosoClientMemoryDatabase> GetClientProvider()
 		{
 			var database = new ContosoClientMemoryDatabase();
-			return new SyncDatabaseProvider<ContosoClientMemoryDatabase>((x, y) =>
+			return new SyncableDatabaseProvider<ContosoClientMemoryDatabase>((x, y) =>
 			{
 				database.Options.UpdateWith(x);
 				return database;
@@ -345,7 +345,7 @@ namespace Speedy.IntegrationTests
 				InitializeDatabase(database, keyCache);
 			}
 
-			return new SyncDatabaseProvider<IContosoDatabase>((x, y) =>
+			return new SyncableDatabaseProvider<IContosoDatabase>((x, y) =>
 			{
 				database.Options.UpdateWith(x);
 				return database;
@@ -362,7 +362,7 @@ namespace Speedy.IntegrationTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqliteProvider2(DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -375,7 +375,7 @@ namespace Speedy.IntegrationTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqlProvider(DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -388,7 +388,7 @@ namespace Speedy.IntegrationTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqlProvider2(DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -401,7 +401,7 @@ namespace Speedy.IntegrationTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncClient GetSyncClient(string name, DatabaseType type, bool initializeDatabase, bool useKeyCache, bool useSecondaryConnection)

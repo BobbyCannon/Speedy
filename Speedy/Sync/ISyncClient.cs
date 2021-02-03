@@ -33,6 +33,11 @@
 		SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <summary>
+		/// Profiler for tracking specific points during sync client processing.
+		/// </summary>
+		SyncClientProfiler Profiler { get; }
+
+		/// <summary>
 		/// The communication statistics for this sync client.
 		/// </summary>
 		SyncStatistics Statistics { get; }

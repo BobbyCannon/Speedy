@@ -71,26 +71,19 @@ namespace Speedy.Data
 
 		#endregion
 
-		#region Properties
-
-		/// <inheritdoc />
-		public override Version SyncSystemVersion => new Version(1, 0, 0, 0);
-
-		#endregion
-
 		#region Methods
 
-		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public void Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			WaitOnTask(SyncAsync(waitFor, postAction), timeout);
 		}
 
-		public void SyncAccounts(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public void SyncAccounts(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			WaitOnTask(SyncAccountsAsync(waitFor, postAction), timeout);
 		}
 
-		public Task SyncAccountsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public Task SyncAccountsAsync(TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			OnLogEvent("Starting to sync accounts...", EventLevel.Verbose);
 
@@ -102,12 +95,12 @@ namespace Speedy.Data
 				postAction);
 		}
 
-		public void SyncAddresses(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public void SyncAddresses(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			WaitOnTask(SyncAddressesAsync(waitFor, postAction), timeout);
 		}
 
-		public Task SyncAddressesAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public Task SyncAddressesAsync(TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			OnLogEvent("Starting to sync addresses...", EventLevel.Verbose);
 
@@ -119,7 +112,7 @@ namespace Speedy.Data
 				postAction);
 		}
 
-		public Task SyncAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public Task SyncAsync(TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			OnLogEvent("Starting to sync all...", EventLevel.Verbose);
 
@@ -131,12 +124,12 @@ namespace Speedy.Data
 				postAction);
 		}
 
-		public void SyncLogEvents(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public void SyncLogEvents(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			WaitOnTask(SyncLogEventsAsync(waitFor, postAction), timeout);
 		}
 
-		public Task SyncLogEventsAsync(TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public Task SyncLogEventsAsync(TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
 			OnLogEvent("Starting to sync log events...", EventLevel.Verbose);
 

@@ -11,7 +11,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Event arguments for the sync engine status change event.
 	/// </summary>
-	public class SyncEngineState : Bindable<SyncEngineState>
+	public class SyncEngineState : CloneableBindable<SyncEngineState>
 	{
 		#region Constructors
 

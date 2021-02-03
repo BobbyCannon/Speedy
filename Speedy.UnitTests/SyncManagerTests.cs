@@ -40,14 +40,14 @@ namespace Speedy.UnitTests
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
-			manager.SyncAsync(TimeSpan.FromMilliseconds(30000), null, options => firstSyncOptions = options);
+			manager.SyncAsync(TimeSpan.FromMilliseconds(30000), null, results => firstSyncOptions = results.Options);
 			manager.WaitForSyncToStart(TimeSpan.FromMilliseconds(3000));
 			Assert.IsTrue(manager.IsRunning, "The sync manager should be running");
 
-			manager.SyncAccounts(null, null, options =>
+			manager.SyncAccounts(null, null, results =>
 			{
 				syncPostUpdateCalled = true;
-				secondSyncOptions = options;
+				secondSyncOptions = results.Options;
 			});
 
 			Assert.IsTrue(syncPostUpdateCalled, "The sync postUpdate was not called as expected");
@@ -117,8 +117,8 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, manager.AverageSyncTimeForAll.Samples);
 
 			// Start a sync that will run for a long while
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, options => secondSyncOptions = options);
-			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, options => firstSyncOptions = options);
+			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results.Options);
+			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results.Options);
 			manager.WaitForSyncToComplete();
 
 			var expected = new[]
@@ -156,9 +156,9 @@ namespace Speedy.UnitTests
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
-			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, options => firstSyncOptions = options);
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, options => secondSyncOptions = options);
-			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, options => thirdSyncOptions = options);
+			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, results => firstSyncOptions = results.Options);
+			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results.Options);
+			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, results => thirdSyncOptions = results.Options);
 			manager.WaitForSyncToComplete();
 
 			var expected = new[]
@@ -194,9 +194,9 @@ namespace Speedy.UnitTests
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
-			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, options => firstSyncOptions = options);
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), options => secondSyncOptions = options);
-			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), options => thirdSyncOptions = options);
+			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results.Options);
+			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => secondSyncOptions = results.Options);
+			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => thirdSyncOptions = results.Options);
 
 			while (thirdSyncOptions == null || manager.IsRunning)
 			{
@@ -245,8 +245,6 @@ namespace Speedy.UnitTests
 
 		public TestSyncManager(IDispatcher dispatcher) : base(dispatcher)
 		{
-			SyncSystemVersion = new Version(1, 2, 3, 4);
-
 			// Setup our sync options
 			GetOrAddSyncOptions(TestSyncType.All, options => { });
 			GetOrAddSyncOptions(TestSyncType.Accounts, options => { });
@@ -262,38 +260,36 @@ namespace Speedy.UnitTests
 
 		public AverageTimer AverageSyncTimeForAll { get; }
 
-		public override Version SyncSystemVersion { get; }
-
 		#endregion
 
 		#region Methods
 
-		public void Sync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public void Sync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
 			SyncAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
 		}
 
-		public void SyncAccounts(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public void SyncAccounts(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
 			SyncAccountsAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
 		}
 
-		public Task SyncAccountsAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public Task SyncAccountsAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
 			return ProcessAsync(TestSyncType.Accounts, options => DoTestDelay(testDelay), waitFor, postAction);
 		}
 
-		public void SyncAddresses(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public void SyncAddresses(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
 			SyncAddressesAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
 		}
 
-		public Task SyncAddressesAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public Task SyncAddressesAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
 			return ProcessAsync(TestSyncType.Addresses, options => DoTestDelay(testDelay), waitFor, postAction);
 		}
 
-		public Task SyncAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncOptions> postAction = null)
+		public Task SyncAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
 			return ProcessAsync(TestSyncType.All, options => DoTestDelay(testDelay), waitFor, postAction);
 		}

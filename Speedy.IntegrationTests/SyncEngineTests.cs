@@ -35,8 +35,6 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
 				var options = new SyncOptions();
-				options.Values.AddOrUpdate(SyncOptions.SyncVersionKey, "1.2.3.4");
-
 				var issues = SyncEngine.Run(client, server, options).SyncIssues;
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 

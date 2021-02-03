@@ -15,17 +15,13 @@
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
         </member>
-        <member name="M:Speedy.Bindable`1.DeepClone(System.Int32)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable`1.ShallowClone">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable`1.ShallowCloneExcept(System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable`1.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
+        <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.Boolean,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the updates. </param>
+            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
         <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.String[])">
             <inheritdoc />
@@ -56,9 +52,6 @@
             Cached version of the "real" type, meaning not EF proxy but rather root type
             </summary>
         </member>
-        <member name="M:Speedy.Bindable.DeepClone(System.Int32)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Bindable.GetDispatcher">
             <inheritdoc />
         </member>
@@ -78,22 +71,41 @@
             Pause / Un-pause the property change notifications
             </summary>
         </member>
-        <member name="M:Speedy.Bindable.ShallowClone">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.ShallowCloneExcept(System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.Unwrap">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the updates. </param>
+            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="E:Speedy.Bindable.PropertyChanged">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.CloneableBindable`1">
+            <summary>
+            Represents a bindable object.
+            </summary>
+        </member>
+        <member name="M:Speedy.CloneableBindable`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates a bindable object.
+            </summary>
+            <param name="dispatcher"> The dispatcher to update with. </param>
+        </member>
+        <member name="M:Speedy.CloneableBindable`1.DeepClone(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.CloneableBindable`1.ShallowClone">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.CloneableBindable`1.ShallowCloneExcept(System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Collections.BaseObservableCollection`1">
@@ -481,9 +493,7 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Database.Options">
-            <summary>
-            Gets the options for this database.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Database.Add``2(``0)">
             <inheritdoc />
@@ -611,15 +621,15 @@
             </summary>
             <param name="cacheTimeout"> The timeout for removing an item from the cache. </param>
         </member>
+        <member name="P:Speedy.DatabaseKeyCache.Count">
+            <summary>
+            The total types tracked.
+            </summary>
+        </member>
         <member name="P:Speedy.DatabaseKeyCache.SyncEntitiesToCache">
             <summary>
             Gets or sets the list of entities to cache the keys (ID, Sync ID). If the collection is empty
             then cache all sync entities.
-            </summary>
-        </member>
-        <member name="P:Speedy.DatabaseKeyCache.Count">
-            <summary>
-            The total types tracked.
             </summary>
         </member>
         <member name="P:Speedy.DatabaseKeyCache.TotalCachedItems">
@@ -658,6 +668,12 @@
             <param name="type"> The type of the entity. </param>
             <param name="syncId"> The sync ID of the entity. </param>
             <returns> The ID of the entity. </returns>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabaseProvider)">
+            <summary>
+            Initializes the default key cache.
+            </summary>
+            <param name="provider"> The syncable database provider. </param>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabase)">
             <summary>
@@ -756,19 +772,16 @@
         <member name="P:Speedy.DatabaseProvider`1.Options">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.DatabaseProvider`1.BulkProcess(System.Int32,System.Int32,System.Action{System.Int32,`0})">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.DatabaseProvider`1.GetDatabase">
             <inheritdoc />
         </member>
         <member name="M:Speedy.DatabaseProvider`1.GetDatabase(Speedy.DatabaseOptions)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DatabaseProvider`1.Speedy#IDatabaseProvider#GetDatabase">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.DatabaseProvider`1.Speedy#IDatabaseProvider#GetDatabase(Speedy.DatabaseOptions)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.DatabaseProvider`1.BulkProcess(System.Int32,System.Int32,System.Action{System.Int32,`0})">
+        <member name="M:Speedy.DatabaseProvider`1.BulkProcess(System.Func{`0},System.Int32,System.Int32,System.Action{System.Int32,`0})">
             <summary>
             Runs a bulk process where the database lifetime is based on the iteration size.
             A database will be instantiated and used for the iteration count. When the iteration
@@ -776,9 +789,23 @@
             and processing will continue until the total count is reached. Finally the database
             will be saved and disposed.
             </summary>
-            <param name="total"></param>
-            <param name="iterationSize"></param>
-            <param name="process"></param>
+            <param name="getDatabase"> Function to get the database. </param>
+            <param name="total"> The total amount of items to process. </param>
+            <param name="iterationSize"> The iteration size of each process. </param>
+            <param name="process"> The action to the process. </param>
+        </member>
+        <member name="M:Speedy.DatabaseProvider`1.Speedy#IDatabaseProvider#GetDatabase">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.DatabaseProvider`1.Speedy#IDatabaseProvider#GetDatabase(Speedy.DatabaseOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.DatabaseProvider`1.GetDatabaseFromProvider(Speedy.DatabaseOptions)">
+            <summary>
+            Gets an instance of the database from the provider.
+            </summary>
+            <param name="options"> The database options to use for the new database instance. </param>
+            <returns> The database instance. </returns>
         </member>
         <member name="T:Speedy.DatabaseType">
             <summary>
@@ -2033,6 +2060,18 @@
             Represents a database provider for syncable databases.
             </summary>
         </member>
+        <member name="M:Speedy.IDatabaseProvider`1.BulkProcess(System.Int32,System.Int32,System.Action{System.Int32,`0})">
+            <summary>
+            Runs a bulk process where the database lifetime is based on the iteration size.
+            A database will be instantiated and used for the iteration count. When the iteration
+            count is reach the database will be saved and disposed. A new database will be created
+            and processing will continue until the total count is reached. Finally the database
+            will be saved and disposed.
+            </summary>
+            <param name="total"> The total amount of items to process. </param>
+            <param name="iterationSize"> The iteration size of each process. </param>
+            <param name="process"> The action to the process. </param>
+        </member>
         <member name="M:Speedy.IDatabaseProvider`1.GetDatabase">
             <summary>
             Gets an instance of the database.
@@ -2293,6 +2332,20 @@
             Represents a database provider for syncable databases that is also a normal database provider.
             </summary>
         </member>
+        <member name="M:Speedy.ISyncableDatabaseProvider`1.GetSyncableDatabase">
+            <summary>
+            Gets an instance of the database.
+            </summary>
+            <returns> The database instance. </returns>
+        </member>
+        <member name="M:Speedy.ISyncableDatabaseProvider`1.GetSyncableDatabase(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
+            <summary>
+            Gets an instance of the database.
+            </summary>
+            <param name="options"> The database options to use for the new database instance. </param>
+            <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
+            <returns> The database instance. </returns>
+        </member>
         <member name="T:Speedy.ISyncableDatabaseProvider">
             <summary>
             Represents a database provider for syncable databases.
@@ -2313,7 +2366,7 @@
             <summary>
             Gets an instance of the database.
             </summary>
-             <param name="options"> The database options to use for the new database instance. </param>
+            <param name="options"> The database options to use for the new database instance. </param>
             <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
             <returns> The database instance. </returns>
         </member>
@@ -2798,6 +2851,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.SyncSession">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Net.WebSyncClient.Profiler">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.WebClient">
@@ -5742,6 +5798,11 @@
             An optional converter to process sync objects from Client to Server
             </summary>
         </member>
+        <member name="P:Speedy.Sync.ISyncClient.Profiler">
+            <summary>
+            Profiler for tracking specific points during sync client processing.
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.ISyncClient.Statistics">
             <summary>
             The communication statistics for this sync client.
@@ -5892,6 +5953,87 @@
             <param name="issues"> The issues to process. </param>
             <returns> The sync objects to resolve the issues. </returns>
         </member>
+        <member name="T:Speedy.Sync.SyncableDatabaseProvider`1">
+            <summary>
+            Represents a sync database provider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.ISyncableDatabase},Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.IDispatcher)">
+            <summary>
+            Instantiates a sync database provider using the provided function.
+            </summary>
+            <param name="function"> The function to return the syncable database. </param>
+            <param name="options"> The options for this database provider. </param>
+            <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
+            <param name="dispatcher"> An optional dispatcher to update with. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.BulkProcess(System.Int32,System.Int32,System.Action{System.Int32,`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.GetDatabase">
+            <summary>
+            Gets an instance of the database.
+            </summary>
+            <returns> The database instance. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.GetDatabase(Speedy.DatabaseOptions)">
+            <summary>
+            Gets an instance of the database.
+            </summary>
+            <returns> The database instance. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.GetSyncableDatabase">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.GetSyncableDatabase(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.Speedy#IDatabaseProvider{T}#GetDatabase">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.Speedy#IDatabaseProvider{T}#GetDatabase(Speedy.DatabaseOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Sync.SyncableDatabaseProvider">
+            <summary>
+            Represents a sync database provider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.ISyncableDatabase},Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.IDispatcher)">
+            <summary>
+            Instantiates a sync database provider using the provided function.
+            </summary>
+            <param name="function"> The function to return the syncable database. </param>
+            <param name="options"> The options for this database provider. </param>
+            <param name="keyCache"> An optional key manager for managing entity IDs (primary and sync). </param>
+            <param name="dispatcher"> An optional dispatcher to update with. </param>
+        </member>
+        <member name="P:Speedy.Sync.SyncableDatabaseProvider.KeyCache">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncableDatabaseProvider.Options">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider.GetDatabase">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider.GetDatabase(Speedy.DatabaseOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider.GetSyncableDatabase">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider.GetSyncableDatabase(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider.GetSyncableDatabaseFromProvider(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
+            <summary>
+            Gets an instance of the database from the provider.
+            </summary>
+            <param name="options"> The database options to use for the new database instance. </param>
+            <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
+            <returns> The database instance. </returns>
+        </member>
         <member name="T:Speedy.Sync.SyncClient">
             <summary>
             Represents a sync client.
@@ -5918,9 +6060,7 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncClient.Profiler">
-            <summary>
-            Profiler for tracking specific points during sync client processing.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncClient.Statistics">
             <inheritdoc />
@@ -6092,7 +6232,7 @@
         </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.ApplyChanges">
             <summary>
-            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.ApplyChanges(System.Guid,Speedy.Net.ServiceRequest{Speedy.Sync.SyncObject})" />.
+            The overall processing time for SyncClient.ApplyChanges.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.GetChangeCount">
@@ -6145,7 +6285,7 @@
             The "SyncObjectsToList" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObjects(Speedy.ISyncableDatabaseProvider,System.Collections.Generic.IEnumerable{Speedy.Sync.SyncObject},System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean)" />.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncClientProfiler.ToString(Speedy.Profiling.Timer)">
+        <member name="M:Speedy.Sync.SyncClientProfiler.ToString(System.TimeSpan)">
             <summary>
             Converts the profile results into a human readable string.
             </summary>
@@ -6169,56 +6309,6 @@
             <param name="name"> The name of the client. </param>
             <param name="credential"> The credential for the client. </param>
             <returns> The sync client. </returns>
-        </member>
-        <member name="T:Speedy.Sync.SyncDatabaseProvider`1">
-            <summary>
-            Represents a sync database provider.
-            </summary>
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider`1.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.ISyncableDatabase},Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
-            <summary>
-            Instantiates a sync database provider using the provided function.
-            </summary>
-            <param name="function"> The function to return the syncable database. </param>
-            <param name="options"> The options for this database provider. </param>
-            <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider`1.Speedy#IDatabaseProvider{T}#GetDatabase">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider`1.Speedy#IDatabaseProvider{T}#GetDatabase(Speedy.DatabaseOptions)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Sync.SyncDatabaseProvider">
-            <summary>
-            Represents a sync database provider.
-            </summary>
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider.#ctor(System.Func{Speedy.DatabaseOptions,Speedy.DatabaseKeyCache,Speedy.ISyncableDatabase},Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
-            <summary>
-            Instantiates a sync database provider using the provided function.
-            </summary>
-            <param name="function"> The function to return the syncable database. </param>
-            <param name="options"> The options for this database provider. </param>
-            <param name="keyCache"> An optional key manager for managing entity IDs (primary and sync). </param>
-        </member>
-        <member name="P:Speedy.Sync.SyncDatabaseProvider.KeyCache">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Sync.SyncDatabaseProvider.Options">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider.GetDatabase">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider.GetDatabase(Speedy.DatabaseOptions)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider.GetSyncableDatabase">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncDatabaseProvider.GetSyncableDatabase(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
-            <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncEngine">
             <summary>
@@ -6628,11 +6718,6 @@
             Gets the current sync state.
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncManager`1.SyncSystemVersion">
-            <summary>
-            The version of the sync system. Update this version any time the sync system changed dramatically
-            </summary>
-        </member>
         <member name="P:Speedy.Sync.SyncManager`1.SyncType">
             <summary>
             The type of the sync.
@@ -6715,11 +6800,11 @@
             <param name="message"> The message to be written. </param>
             <param name="level"> The level of this message. </param>
         </member>
-        <member name="M:Speedy.Sync.SyncManager`1.OnSyncCompleted(Speedy.Sync.SyncOptions)">
+        <member name="M:Speedy.Sync.SyncManager`1.OnSyncCompleted(Speedy.Sync.SyncResults{`0})">
             <summary>
             Indicate the sync is complete.
             </summary>
-            <param name="options"> The options of the completed sync. </param>
+            <param name="results"> The results of the completed sync. </param>
         </member>
         <member name="M:Speedy.Sync.SyncManager`1.OnSyncUpdated(Speedy.Sync.SyncEngineState)">
             <summary>
@@ -6727,7 +6812,7 @@
             </summary>
             <param name="state"> The state of the sync. </param>
         </member>
-        <member name="M:Speedy.Sync.SyncManager`1.ProcessAsync(`0,System.Action{Speedy.Sync.SyncOptions},System.Nullable{System.TimeSpan},System.Action{Speedy.Sync.SyncOptions})">
+        <member name="M:Speedy.Sync.SyncManager`1.ProcessAsync(`0,System.Action{Speedy.Sync.SyncOptions},System.Nullable{System.TimeSpan},System.Action{Speedy.Sync.SyncResults{`0}})">
             <summary>
             Processes a sync request.
             </summary>
@@ -6750,13 +6835,12 @@
             a TimeSpan that represents -1 milliseconds to wait indefinitely.
             </param>
         </member>
-        <member name="M:Speedy.Sync.SyncManager`1.RunSync(`0,Speedy.Sync.SyncOptions,System.Action{Speedy.Sync.SyncOptions})">
+        <member name="M:Speedy.Sync.SyncManager`1.RunSync(Speedy.Sync.SyncResults{`0},System.Action{Speedy.Sync.SyncOptions})">
             <summary>
             Run the sync. This should only be called by ProcessAsync.
             </summary>
-            <param name="syncType"> The type of the sync to process. </param>
-            <param name="syncOptions"> The options for the sync. </param>
-            <param name="updateOptions"> </param>
+            <param name="results"> The results for the sync. </param>
+            <param name="updateOptions"> Update options before running sync. </param>
         </member>
         <member name="E:Speedy.Sync.SyncManager`1.SyncCompleted">
             <summary>
@@ -6766,6 +6850,36 @@
         <member name="E:Speedy.Sync.SyncManager`1.SyncUpdated">
             <summary>
             Indicates the sync is being updated.
+            </summary>
+        </member>
+        <member name="T:Speedy.Sync.SyncResults`1">
+            <summary>
+            The results of the sync.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Client">
+            <summary>
+            The sync client for the client.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Elapsed">
+            <summary>
+            The elapsed time for the sync.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Options">
+            <summary>
+            The sync options.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.Server">
+            <summary>
+            The sync client for the server.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncType">
+            <summary>
+            The Type for the sync.
             </summary>
         </member>
         <member name="T:Speedy.Sync.SyncModel`1">
@@ -7037,11 +7151,6 @@
         <member name="F:Speedy.Sync.SyncOptions.SyncKey">
             <summary>
             The sync key value. This will be included in the default sync options values.
-            </summary>
-        </member>
-        <member name="F:Speedy.Sync.SyncOptions.SyncVersionKey">
-            <summary>
-            The sync version key value. This will be included in the default sync options values.
             </summary>
         </member>
         <member name="M:Speedy.Sync.SyncOptions.#ctor">
