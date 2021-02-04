@@ -3,6 +3,7 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Speedy.Extensions;
 
 #endregion
 
@@ -43,6 +44,17 @@ namespace Speedy.Serialization
 		public static T DeepClone<T>(this T item, bool ignoreVirtuals = false)
 		{
 			return FromJson<T>(item.ToJson(ignoreVirtuals ? _settingsForDeepClone1 : _settingsForDeepClone2));
+		}
+		
+		/// <summary>
+		/// Deep clone the item.
+		/// </summary>
+		/// <param name="item"> The item to clone. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
+		/// <returns> The clone of the item. </returns>
+		internal static object DeepCloneEntity(this IEntity item, bool ignoreVirtuals = false)
+		{
+			return FromJson(item.ToJson(ignoreVirtuals ? _settingsForDeepClone1 : _settingsForDeepClone2), item.GetRealType());
 		}
 
 		/// <summary>

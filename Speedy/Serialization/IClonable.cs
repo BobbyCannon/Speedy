@@ -21,13 +21,6 @@
 		/// <returns> The cloned objects. </returns>
 		public new T ShallowClone();
 
-		/// <summary>
-		/// Shallow clone the item. No child items are cloned.
-		/// </summary>
-		/// <param name="exclusions"> The properties will not be set during the clone. </param>
-		/// <returns> The cloned objects. </returns>
-		public new T ShallowCloneExcept(params string[] exclusions);
-
 		#endregion
 	}
 
@@ -50,13 +43,6 @@
 		/// </summary>
 		/// <returns> The cloned objects. </returns>
 		public object ShallowClone();
-
-		/// <summary>
-		/// Shallow clone the item. No child items are cloned.
-		/// </summary>
-		/// <param name="exclusions"> The properties will not be set during the clone. </param>
-		/// <returns> The cloned objects. </returns>
-		public object ShallowCloneExcept(params string[] exclusions);
 
 		#endregion
 	}

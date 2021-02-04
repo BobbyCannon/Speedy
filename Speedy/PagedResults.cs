@@ -68,7 +68,7 @@ namespace Speedy
 		/// <summary>
 		/// The value to determine if the request has more pages.
 		/// </summary>
-		public bool HasMore => Page != TotalPages;
+		public bool HasMore => Page > 0 && Page < TotalPages;
 
 		/// <summary>
 		/// The values to be include in the results. Defaults to an empty collection.

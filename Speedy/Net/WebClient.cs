@@ -173,15 +173,14 @@ namespace Speedy.Net
 		/// <returns> The server result. </returns>
 		public virtual TResult Post<TContent, TResult>(string uri, TContent content)
 		{
-			using (var result = InternalPost(uri, content))
-			{
-				if (!result.IsSuccessStatusCode)
-				{
-					throw new WebClientException(result);
-				}
+			using var result = InternalPost(uri, content);
 
-				return Deserialize<TResult>(result);
+			if (!result.IsSuccessStatusCode)
+			{
+				throw new WebClientException(result);
 			}
+
+			return Deserialize<TResult>(result);
 		}
 
 		/// <summary>

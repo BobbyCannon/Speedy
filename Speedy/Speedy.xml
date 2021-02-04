@@ -105,9 +105,6 @@
         <member name="M:Speedy.CloneableBindable`1.ShallowClone">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.CloneableBindable`1.ShallowCloneExcept(System.String[])">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Collections.BaseObservableCollection`1">
             <summary>
             Represents an observable collection that supports notification on clear.
@@ -857,6 +854,9 @@
             Gets or sets the ID of the entity.
             </summary>
         </member>
+        <member name="M:Speedy.Entity`1.DeepClone(System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Entity`1.IdIsSet">
             <inheritdoc />
         </member>
@@ -866,6 +866,9 @@
             </summary>
             <param name="currentKey"> The current version of the key. </param>
             <returns> The new key to be used in. </returns>
+        </member>
+        <member name="M:Speedy.Entity`1.ShallowClone">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity`1.TrySetId(System.String)">
             <inheritdoc />
@@ -966,6 +969,9 @@
         <member name="M:Speedy.Entity.CanBeModified">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Entity.DeepClone(System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Entity.EntityAdded">
             <inheritdoc />
         </member>
@@ -996,6 +1002,9 @@
             <summary>
             Reset the change tracking flag.
             </summary>
+        </member>
+        <member name="M:Speedy.Entity.ShallowClone">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.TrySetId(System.String)">
             <inheritdoc />
@@ -1922,16 +1931,6 @@
             <param name="value"> The value to be updated. </param>
             <param name="update"> The source of the updates. </param>
             <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.UpdateWithOnly``2(``0,``1,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <typeparam name="T"> The type to be updated. </typeparam>
-            <typeparam name="T2"> The source type of the provided update. </typeparam>
-            <param name="value"> The value to be updated. </param>
-            <param name="update"> The source of the updates. </param>
-            <param name="inclusions"> The list of members to update. </param>
         </member>
         <member name="T:Speedy.Extensions.UtilityExtensions">
             <summary>
@@ -3686,13 +3685,6 @@
             </summary>
             <returns> The cloned objects. </returns>
         </member>
-        <member name="M:Speedy.Serialization.ICloneable`1.ShallowCloneExcept(System.String[])">
-            <summary>
-            Shallow clone the item. No child items are cloned.
-            </summary>
-            <param name="exclusions"> The properties will not be set during the clone. </param>
-            <returns> The cloned objects. </returns>
-        </member>
         <member name="T:Speedy.Serialization.ICloneable">
             <summary>
             Represents a cloneable item.
@@ -3709,13 +3701,6 @@
             <summary>
             Shallow clone the item. No child items are cloned.
             </summary>
-            <returns> The cloned objects. </returns>
-        </member>
-        <member name="M:Speedy.Serialization.ICloneable.ShallowCloneExcept(System.String[])">
-            <summary>
-            Shallow clone the item. No child items are cloned.
-            </summary>
-            <param name="exclusions"> The properties will not be set during the clone. </param>
             <returns> The cloned objects. </returns>
         </member>
         <member name="T:Speedy.Serialization.JsonContractResolver">
@@ -3744,6 +3729,14 @@
             Deep clone the item.
             </summary>
             <typeparam name="T"> The type to clone. </typeparam>
+            <param name="item"> The item to clone. </param>
+            <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
+            <returns> The clone of the item. </returns>
+        </member>
+        <member name="M:Speedy.Serialization.Serializer.DeepCloneEntity(Speedy.IEntity,System.Boolean)">
+            <summary>
+            Deep clone the item.
+            </summary>
             <param name="item"> The item to clone. </param>
             <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
             <returns> The clone of the item. </returns>

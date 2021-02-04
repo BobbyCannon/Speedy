@@ -112,33 +112,6 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
-		public void UpdateWithOnly()
-		{
-			var date = DateTime.Parse("7/1/2019 05:18:30 PM");
-			var date2 = DateTime.Parse("7/1/2019 05:18:31 PM");
-			var entity = GetTestEntity(date);
-			var model = GetTestModel(date2);
-
-			entity.UpdateWithOnly(model, nameof(AddressEntity.Line1), nameof(AddressEntity.Postal));
-
-			var expected = new AddressEntity
-			{
-				City = "City",
-				CreatedOn = date,
-				Id = 99,
-				Line1 = "Line 1",
-				Line2 = "Line2",
-				ModifiedOn = date,
-				Postal = "Postal 2",
-				State = "State",
-				SyncId = Guid.Parse("3584456b-cf36-4049-9491-7d83d0fd8255")
-			};
-
-			// We expecting all members to change except virtual members
-			TestHelper.AreEqual(expected, entity);
-		}
-
-		[TestMethod]
 		public void UpdateWithSpecificMembers()
 		{
 			var date = DateTime.Parse("7/1/2019 05:18:30 PM");
@@ -199,6 +172,84 @@ namespace Speedy.UnitTests
 			TestHelper.AreEqual(expected, actual);
 			Assert.AreEqual(1, actual.Id);
 			Assert.AreEqual(expectedGuid, actual.SyncId);
+		}
+
+		[TestMethod]
+		public void DefaultDeepClone()
+		{
+			var address = new AddressEntity
+			{
+				City = "City",
+				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03),
+				Id = 2,
+				Line1 = "Line1",
+				Line2 = "Line2",
+				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03),
+				SyncId = Guid.Parse("513B9CF1-7596-4E2E-888D-835622A3FB2B"),
+				Postal = "29640",
+				State = "SC",
+				Accounts = new List<AccountEntity>
+				{
+					new AccountEntity { Name = "John" }
+				}
+			};
+
+			var expected = new AddressEntity
+			{
+				City = "City",
+				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03),
+				Id = 2,
+				Line1 = "Line1",
+				Line2 = "Line2",
+				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03),
+				SyncId = Guid.Parse("513B9CF1-7596-4E2E-888D-835622A3FB2B"),
+				Postal = "29640",
+				State = "SC",
+				Accounts = address.Accounts
+			};
+
+			var actual = (AddressEntity) address.DeepClone();
+			TestHelper.AreEqual(expected, actual);
+			Assert.AreNotSame(expected.Accounts, actual.Accounts);
+		}
+
+		[TestMethod]
+		public void DefaultShallowClone()
+		{
+			var address = new AddressEntity
+			{
+				City = "City",
+				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03),
+				Id = 2,
+				Line1 = "Line1",
+				Line2 = "Line2",
+				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03),
+				SyncId = Guid.Parse("513B9CF1-7596-4E2E-888D-835622A3FB2B"),
+				Postal = "29640",
+				State = "SC",
+				Accounts = new List<AccountEntity>
+				{
+					new AccountEntity { Name = "John" }
+				}
+			};
+
+			var expected = new AddressEntity
+			{
+				City = "City",
+				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03),
+				Id = 2,
+				Line1 = "Line1",
+				Line2 = "Line2",
+				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03),
+				SyncId = Guid.Parse("513B9CF1-7596-4E2E-888D-835622A3FB2B"),
+				Postal = "29640",
+				State = "SC",
+				Accounts = address.Accounts
+			};
+
+			var actual = (AddressEntity) address.ShallowClone();
+			TestHelper.AreEqual(expected, actual);
+			Assert.AreSame(expected.Accounts, actual.Accounts);
 		}
 
 		[TestMethod]

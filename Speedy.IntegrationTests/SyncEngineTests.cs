@@ -884,6 +884,80 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(1, server.AppliedChanges.Count);
 		}
 
+		[TestMethod]
+		public void SoftDeletedEntitiesShouldNotSync()
+		{
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				var address = NewAddress("Blah");
+				address.IsDeleted = true;
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				{
+					var addresses1 = clientDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					var addresses2 = serverDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					Assert.AreEqual(0, addresses1.Count);
+					Assert.AreEqual(1, addresses2.Count);
+				}
+
+				var options = new SyncOptions();
+				options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>(skipDeletedItemsOnInitialSync: true));
+				var issues = SyncEngine.Run(client, server, options).SyncIssues;
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				{
+					var addresses1 = clientDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					var addresses2 = serverDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					Assert.AreEqual(0, addresses1.Count);
+					Assert.AreEqual(1, addresses2.Count);
+				}
+
+				issues = CompleteTestSync(client, server, options);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+			}, false);
+		}
+
+		[TestMethod]
+		public void SoftDeletedEntitiesShouldSync()
+		{
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				var address = NewAddress("Blah");
+				address.IsDeleted = true;
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				{
+					var addresses1 = clientDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					var addresses2 = serverDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					Assert.AreEqual(0, addresses1.Count);
+					Assert.AreEqual(1, addresses2.Count);
+				}
+
+				var options = new SyncOptions();
+				options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>(skipDeletedItemsOnInitialSync: false));
+				var issues = SyncEngine.Run(client, server, options).SyncIssues;
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				{
+					var addresses1 = clientDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					var addresses2 = serverDatabase.Addresses.Where(x => x.Id == address.Id).ToList();
+					Assert.AreEqual(1, addresses1.Count);
+					Assert.AreEqual(1, addresses2.Count);
+				}
+
+				issues = CompleteTestSync(client, server, options);
+				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+			}, false);
+		}
+
 		/// <summary>
 		/// This test will test the proposed scenario
 		/// Server adds address       - 11:59:00
@@ -962,7 +1036,7 @@ namespace Speedy.IntegrationTests
 				var serverAddresses = serverDatabase.Addresses.ToList();
 				var client1Addresses = client1Database.Addresses.ToList();
 				var client2Addresses = client2Database.Addresses.ToList();
-				
+
 				Assert.AreEqual(1, serverAddresses.Count);
 				Assert.AreEqual(1, client1Addresses.Count);
 				Assert.AreEqual(1, client2Addresses.Count);
@@ -1006,7 +1080,7 @@ namespace Speedy.IntegrationTests
 				var serverAddresses = serverDatabase.Addresses.ToList();
 				var client1Addresses = client1Database.Addresses.ToList();
 				var client2Addresses = client2Database.Addresses.ToList();
-				
+
 				Assert.AreEqual(1, serverAddresses.Count);
 				Assert.AreEqual(1, client1Addresses.Count);
 				Assert.AreEqual(2, client2Addresses.Count);
@@ -1398,7 +1472,7 @@ namespace Speedy.IntegrationTests
 			var issues2 = SyncEngine.Run(client, server, options).SyncIssues;
 			Assert.IsTrue(server.Statistics.IsReset);
 			Assert.IsTrue(client.Statistics.IsReset);
-			
+
 			return issues1.Concat(issues2).ToList();
 		}
 

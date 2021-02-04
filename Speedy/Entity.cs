@@ -10,6 +10,7 @@ using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Storage;
 using Speedy.Sync;
+using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace Speedy
 	/// Represents a Speedy entity.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class Entity<T> : Entity, IUpdatable<Entity<T>>
+	public abstract class Entity<T> : Entity, IUpdatable<Entity<T>>, ICloneable<Entity<T>>
 	{
 		#region Properties
 
@@ -31,6 +32,12 @@ namespace Speedy
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc />
+		public new virtual Entity<T> DeepClone(int levels = -1)
+		{
+			return (Entity<T>) base.DeepClone(levels);
+		}
 
 		/// <inheritdoc />
 		public override bool IdIsSet()
@@ -81,6 +88,12 @@ namespace Speedy
 			}
 
 			return currentKey;
+		}
+
+		/// <inheritdoc />
+		public new virtual Entity<T> ShallowClone()
+		{
+			return (Entity<T>) MemberwiseClone();
 		}
 
 		/// <inheritdoc />
@@ -162,7 +175,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	public abstract class Entity : IEntity, IUpdatable
+	public abstract class Entity : IEntity
 	{
 		#region Fields
 
@@ -251,6 +264,12 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
+		public object DeepClone(int levels = -1)
+		{
+			return this.DeepCloneEntity();
+		}
+
+		/// <inheritdoc />
 		public virtual void EntityAdded()
 		{
 		}
@@ -302,6 +321,14 @@ namespace Speedy
 		public void ResetChangeTracking()
 		{
 			_hasChanges = false;
+		}
+
+		/// <inheritdoc />
+		public virtual object ShallowClone()
+		{
+			var test = Activator.CreateInstance(RealType);
+			test.UpdateWith(this);
+			return test;
 		}
 
 		/// <inheritdoc />
@@ -389,7 +416,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	public interface IEntity : INotifyPropertyChanged
+	public interface IEntity : INotifyPropertyChanged, IUpdatable, ICloneable
 	{
 		#region Methods
 

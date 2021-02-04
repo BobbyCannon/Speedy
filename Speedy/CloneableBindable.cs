@@ -53,14 +53,6 @@ namespace Speedy
 			return response;
 		}
 
-		/// <inheritdoc />
-		public virtual T ShallowCloneExcept(params string[] exclusions)
-		{
-			var response = new T();
-			response.UpdateWith(this, exclusions);
-			return response;
-		}
-
 		object ICloneable.DeepClone(int levels)
 		{
 			return DeepClone(levels);
@@ -69,11 +61,6 @@ namespace Speedy
 		object ICloneable.ShallowClone()
 		{
 			return ShallowClone();
-		}
-
-		object ICloneable.ShallowCloneExcept(params string[] exclusions)
-		{
-			return ShallowCloneExcept(exclusions);
 		}
 
 		#endregion

@@ -90,12 +90,29 @@ namespace Speedy.Storage
 			var query = this.Where(x => x.CreatedOn >= since && x.CreatedOn < until
 				|| x.ModifiedOn >= since && x.ModifiedOn < until);
 
+			// Disable merge because merged expression is very hard to read
+			// ReSharper disable once MergeSequentialPatterns
 			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
 			{
 				query = query.Where(srf.OutgoingFilter);
 			}
 
-			return query;
+			// If we have never synced, meaning we are syncing from DateTime.MinValue, and
+			// the repository has a filter that say we should skip deleted item on initial sync.
+			// The "SyncEntity.IsDeleted" is a soft deleted flag that suggest an item is deleted
+			// but it still exist in the database. If an item is "soft deleted" we will normally
+			// still sync the item to allow the clients (non-server) to have the opportunity to
+			// hard delete the item on their end.
+			if (since == DateTime.MinValue && filter?.SkipDeletedItemsOnInitialSync == true)
+			{
+				// We can skip soft deleted items that we will hard deleted on clients anyways
+				query = query.Where(x => !x.IsDeleted);
+			}
+
+			return query
+				.OrderBy(x => x.ModifiedOn)
+				.ThenBy(x => x.Id)
+				.AsQueryable();
 		}
 
 		/// <inheritdoc />
