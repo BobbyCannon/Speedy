@@ -6250,22 +6250,22 @@
         </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObject">
             <summary>
-            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            The overall processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean,System.Boolean)" />.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectAdded">
             <summary>
-            The "Added" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            The "Added" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean,System.Boolean)" />.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectModified">
             <summary>
-            The "Modified" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            The "Modified" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean,System.Boolean)" />.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectReadEntity">
             <summary>
-            The "ReadEntity" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Boolean,System.Boolean)" />.
+            The "ReadEntity" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean,System.Boolean)" />.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjects">
@@ -6647,7 +6647,22 @@
         </member>
         <member name="F:Speedy.Sync.SyncIssueType.ConstraintException">
             <summary>
-            The sync item is having issue with a constraint (ex. Unique Index)
+            The sync item is having issue with a constraint (ex. Unique Index).
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncIssueType.RepositoryFiltered">
+            <summary>
+            The item is not being processed because this repository is being filtered.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncIssueType.SyncEntityFiltered">
+            <summary>
+            The item is not being processed because the sync entity is being filtered.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncIssueType.UpdateException">
+            <summary>
+            The item is not being updated due to an update exception.
             </summary>
         </member>
         <member name="T:Speedy.Sync.SyncManager`1">

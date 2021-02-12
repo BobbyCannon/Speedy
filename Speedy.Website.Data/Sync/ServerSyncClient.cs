@@ -186,7 +186,7 @@ namespace Speedy.Website.Data.Sync
 
 		private SyncClientIncomingConverter GetIncomingFilter()
 		{
-			return new SyncClientIncomingConverter(
+			return new(
 				new SyncObjectIncomingConverter<Account, int, AccountEntity, int>(null,
 					(update, entity, processUpdate, type) =>
 					{
@@ -195,13 +195,19 @@ namespace Speedy.Website.Data.Sync
 							case SyncObjectStatus.Added:
 							{
 								processUpdate();
-								entity.SyncId = update.SyncId == Guid.Empty ? Guid.NewGuid() : update.SyncId;
 								return true;
 							}
 							case SyncObjectStatus.Deleted:
 							{
 								// Do not allow deletes unless you are administrator
-								return _account.InRole(AccountRole.Administrator);
+								var canDelete = _account.InRole(AccountRole.Administrator);
+								if (!canDelete)
+								{
+									// force an update to roll back client changes
+									entity.ModifiedOn = TimeService.UtcNow;
+								}
+
+								return canDelete;
 							}
 							default:
 							{
@@ -248,7 +254,11 @@ namespace Speedy.Website.Data.Sync
 							case SyncObjectStatus.Deleted:
 							default:
 							{
-								return false;
+								// force an update to roll back client changes
+								entity.ModifiedOn = TimeService.UtcNow;
+
+								// Also throw an exception to add a sync issue to the response
+								throw new UpdateException("You cannot modify or delete log entries.");
 							}
 						}
 					})

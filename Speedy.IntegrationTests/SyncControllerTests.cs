@@ -41,7 +41,6 @@ namespace Speedy.IntegrationTests
 				logEntity = EntityFactory.GetLogEvent("Hello World", LogLevel.Debug);
 				database.LogEvents.AddOrUpdate(logEntity);
 				database.SaveChanges();
-
 				account = database.Accounts.FirstOrDefault(x => x.Id == TestHelper.AdministratorId);
 			}
 
@@ -55,11 +54,16 @@ namespace Speedy.IntegrationTests
 			update.UpdateWith(logEntity);
 			update.Message = "Foo Bar";
 			update.Level = LogLevel.Critical;
+			update.ModifiedOn = TimeService.UtcNow;
 
 			var issues = controller.ApplyChanges(session.Id, new ServiceRequest<SyncObject>(update.ToSyncObject()));
 			controller.EndSync(session.Id);
 
-			Assert.AreEqual(0, issues.TotalCount);
+			Assert.AreEqual(1, issues.TotalCount);
+			Assert.AreEqual(logEntity.SyncId, issues.Collection[0].Id);
+			Assert.AreEqual(SyncIssueType.UpdateException, issues.Collection[0].IssueType);
+			Assert.AreEqual("You cannot modify or delete log entries.", issues.Collection[0].Message);
+			Assert.AreEqual("Speedy.Website.Data.Entities.LogEventEntity,Speedy.Website.Data", issues.Collection[0].TypeName);
 
 			using (var database = entityProvider.GetDatabase())
 			{

@@ -18,8 +18,23 @@
 		RelationshipConstraint = 1,
 
 		/// <summary>
-		/// The sync item is having issue with a constraint (ex. Unique Index)
+		/// The sync item is having issue with a constraint (ex. Unique Index).
 		/// </summary>
-		ConstraintException = 2
+		ConstraintException = 2,
+
+		/// <summary>
+		/// The item is not being processed because this repository is being filtered.
+		/// </summary>
+		RepositoryFiltered = 3,
+		
+		/// <summary>
+		/// The item is not being processed because the sync entity is being filtered.
+		/// </summary>
+		SyncEntityFiltered = 4,
+
+		/// <summary>
+		/// The item is not being updated due to an update exception.
+		/// </summary>
+		UpdateException = 5
 	}
 }

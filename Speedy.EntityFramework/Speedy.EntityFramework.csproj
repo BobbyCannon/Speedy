@@ -23,9 +23,9 @@
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>7.0.1.21446</AssemblyVersion>
-		<FileVersion>7.0.1.21446</FileVersion>
-		<Version>7.0.1</Version>
+		<AssemblyVersion>7.0.2.31841</AssemblyVersion>
+		<FileVersion>7.0.2.31841</FileVersion>
+		<Version>7.0.2</Version>
 		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\Speedy.EntityFramework.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

@@ -314,6 +314,7 @@ namespace Speedy.Sync
 				groups.ForEach(x => ProcessSyncObjects(DatabaseProvider, x.Where(y => y.Status != SyncObjectStatus.Deleted), response.Collection, corrections));
 				groups.Reverse().ForEach(x => ProcessSyncObjects(DatabaseProvider, x.Where(y => y.Status == SyncObjectStatus.Deleted), response.Collection, corrections));
 
+				response.TotalCount = response.Collection.Count;
 				return response;
 			});
 		}
@@ -376,7 +377,7 @@ namespace Speedy.Sync
 			return response;
 		}
 
-		private void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, bool correction, bool isIndividualProcess)
+		private void ProcessSyncObject(SyncObject syncObject, ISyncableDatabase database, ICollection<SyncIssue> issues, bool correction, bool isIndividualProcess)
 		{
 			Profiler.ProcessSyncObject.Time(() =>
 			{
@@ -387,7 +388,15 @@ namespace Speedy.Sync
 
 				if (SyncOptions.ShouldExcludeRepository(syncObject.TypeName))
 				{
-					Logger.Instance.Write(SyncSession.Id, "Ignoring this type because this repository is being filtered.", EventLevel.Verbose);
+					var issue = new SyncIssue
+					{
+						Id = syncObject.SyncId,
+						IssueType = SyncIssueType.RepositoryFiltered,
+						Message = "The item is not being processed because this repository is being filtered.",
+						TypeName = syncObject.TypeName
+					};
+					issues.Add(issue);
+					Logger.Instance.Write(SyncSession.Id, issue.Message, EventLevel.Verbose);
 					return;
 				}
 
@@ -400,7 +409,15 @@ namespace Speedy.Sync
 
 				if (SyncOptions.ShouldFilterEntity(syncObject.TypeName, syncEntity))
 				{
-					Logger.Instance.Write(SyncSession.Id, "Ignoring this type because this entity is being filtered.", EventLevel.Verbose);
+					var issue = new SyncIssue
+					{
+						Id = syncObject.SyncId,
+						IssueType = SyncIssueType.SyncEntityFiltered,
+						Message = "The item is not being processed because the sync entity is being filtered.",
+						TypeName = syncObject.TypeName
+					};
+					issues.Add(issue);
+					Logger.Instance.Write(SyncSession.Id, issue.Message, EventLevel.Verbose);
 					return;
 				}
 
@@ -458,13 +475,29 @@ namespace Speedy.Sync
 							// will need to be set manually being that it will be filtered on update.
 							foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
 							foundEntity.SyncId = syncObject.SyncId;
-							if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+							try
 							{
-								// todo: should we add a sync issue?
-								return;
+								if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+								{
+									// returning false just means do not process and do not return a sync issue
+									return;
+								}
+
+								UpdateLocalRelationships(foundEntity, database);
+								repository.Add(foundEntity);
 							}
-							UpdateLocalRelationships(foundEntity, database);
-							repository.Add(foundEntity);
+							catch (UpdateException ex)
+							{
+								// throwing an update exception just means return a sync issue
+								var issue = new SyncIssue
+								{
+									Id = syncObject.SyncId,
+									IssueType = SyncIssueType.UpdateException,
+									Message = ex.Message,
+									TypeName = syncObject.TypeName
+								};
+								issues.Add(issue);
+							}
 						});
 						break;
 
@@ -473,13 +506,28 @@ namespace Speedy.Sync
 						{
 							if (foundEntity != null && (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction))
 							{
-								if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+								try
 								{
-									// todo: should we add a sync issue?
-									return;
-								}
+									if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+									{
+										// returning false just means do not process and do not return a sync issue
+										return;
+									}
 
-								UpdateLocalRelationships(foundEntity, database);
+									UpdateLocalRelationships(foundEntity, database);
+								}
+								catch (UpdateException ex)
+								{
+									// throwing an update exception just means return a sync issue
+									var issue = new SyncIssue
+									{
+										Id = syncObject.SyncId,
+										IssueType = SyncIssueType.UpdateException,
+										Message = ex.Message,
+										TypeName = syncObject.TypeName
+									};
+									issues.Add(issue);
+								}
 							}
 						});
 						break;
@@ -487,19 +535,34 @@ namespace Speedy.Sync
 					case SyncObjectStatus.Deleted:
 						if (foundEntity != null)
 						{
-							if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+							try
 							{
-								// todo: should we add a sync issue?
-								break;
-							}
+								if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+								{
+									// returning false just means do not process the delete and do not return a sync issue
+									break;
+								}
 
-							if (SyncOptions.PermanentDeletions)
-							{
-								repository.Remove(foundEntity);
+								if (SyncOptions.PermanentDeletions)
+								{
+									repository.Remove(foundEntity);
+								}
+								else
+								{
+									foundEntity.IsDeleted = true;
+								}
 							}
-							else
+							catch (UpdateException ex)
 							{
-								foundEntity.IsDeleted = true;
+								// throwing an update exception just means return a sync issue
+								var issue = new SyncIssue
+								{
+									Id = syncObject.SyncId,
+									IssueType = SyncIssueType.UpdateException,
+									Message = ex.Message,
+									TypeName = syncObject.TypeName
+								};
+								issues.Add(issue);
 							}
 						}
 						break;
@@ -532,7 +595,7 @@ namespace Speedy.Sync
 				{
 					for (var i = 0; i < objects.Count; i++)
 					{
-						ProcessSyncObject(objects[i], database, corrections, false);
+						ProcessSyncObject(objects[i], database, issues, corrections, false);
 					}
 				});
 
@@ -561,7 +624,7 @@ namespace Speedy.Sync
 					using var database = provider.GetSyncableDatabase();
 					database.Options.MaintainCreatedOn = false;
 					database.Options.MaintainModifiedOn = Options.IsServerClient;
-					ProcessSyncObject(syncObject, database, corrections, true);
+					ProcessSyncObject(syncObject, database, issues, corrections, true);
 					database.SaveChanges();
 				}
 				catch (SyncIssueException ex)
