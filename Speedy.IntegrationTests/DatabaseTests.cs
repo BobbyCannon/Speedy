@@ -489,6 +489,7 @@ namespace Speedy.IntegrationTests
 						{
 							x => x.SyncId != Guid.Empty,
 							x => !x.IsDeleted,
+							x => !x.IsDeleted || x.SyncId != Guid.Empty,
 							x => x.CreatedOn > DateTime.MinValue && x.ModifiedOn < DateTime.MaxValue,
 							x => x.Id >= byte.MinValue && x.Id <= byte.MaxValue,
 							x => x.Id >= ushort.MinValue && x.Id <= ushort.MaxValue,
@@ -518,6 +519,50 @@ namespace Speedy.IntegrationTests
 								var count = database.Addresses.BulkRemove(filter);
 
 								Assert.AreEqual(10, count);
+							}
+
+							using (var database = provider.GetDatabase())
+							{
+								Assert.AreEqual(0, database.Addresses.Count(x => x.IsDeleted));
+								Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
+							}
+						});
+					}
+				);
+
+			var deletedOn = TimeService.UtcNow.AddDays(-7);
+
+			TestHelper.GetDataContexts(initialize: false)
+				.ForEach(provider =>
+					{
+						var filters = new List<Expression<Func<AddressEntity, bool>>>
+						{
+							x => x.IsDeleted,
+							x => x.IsDeleted && x.ModifiedOn <= deletedOn
+						};
+
+						filters.ForEach(filter =>
+						{
+							using (var database = provider.GetDatabase())
+							{
+								Console.WriteLine(database.GetType().Name + ": " + filter);
+
+								for (var i = 0; i < 10; i++)
+								{
+									var address = new AddressEntity { City = $"City{i}", Line1 = "Line", Line2 = "Line", Postal = "Postal", State = "State", IsDeleted = true, ModifiedOn = deletedOn };
+									database.Options.MaintainModifiedOn = false;
+									database.Addresses.Add(address);
+								}
+
+								database.SaveChanges();
+								
+								Assert.AreEqual(10, database.Addresses.Count());
+								Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
+
+								var count = database.Addresses.BulkRemove(filter);
+
+								Assert.AreEqual(10, count);
+								Assert.AreEqual(0, database.Addresses.Count());
 							}
 
 							using (var database = provider.GetDatabase())

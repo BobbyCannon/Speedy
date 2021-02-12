@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -302,18 +303,27 @@ namespace Speedy.EntityFramework.Sql
 			CreateWhere(statement, expression, ref memberName);
 		}
 
-		private static void CreateWhere(SqlStatement statement, Expression expression, ref string memberName)
+		private static void CreateWhere(SqlStatement statement, Expression expression, ref string memberName, string propertyName = null, bool setAssignmentValue = false)
 		{
 			switch (expression)
 			{
 				case MemberExpression memberExpression:
 				{
-					memberName = statement.TableInformation.PropertyToColumnName.TryGetValue(memberExpression.Member.Name, out var columnName) ? columnName : memberExpression.Member.Name;
-
-					var result = ProcessMemberExpression(memberName, statement, memberExpression);
-					if (!result)
+					if (setAssignmentValue)
 					{
-						statement.QueryWhere.Append($" {statement.TableInformation.ProviderPrefix}{memberName}{statement.TableInformation.ProviderSuffix}");
+						var name = statement.AddParameterValue(memberName, memberExpression);
+						statement.QueryWhere.Append($" @{name}");
+						memberName = string.Empty;
+					}
+					else
+					{
+						memberName = propertyName ?? (statement.TableInformation.PropertyToColumnName.TryGetValue(memberExpression.Member.Name, out var propertyColumnName) ? propertyColumnName : memberExpression.Member.Name);
+
+						var result = ProcessMemberExpression(memberName, statement, memberExpression);
+						if (!result)
+						{
+							statement.QueryWhere.Append($" {statement.TableInformation.ProviderPrefix}{memberName}{statement.TableInformation.ProviderSuffix}");
+						}
 					}
 					break;
 				}
@@ -334,27 +344,48 @@ namespace Speedy.EntityFramework.Sql
 					switch (unaryExpression.NodeType)
 					{
 						case ExpressionType.Convert:
-						case ExpressionType.Quote:
+						{
 							var body = unaryExpression.Operand.GetMemberValue("Body") as Expression;
 							CreateWhere(statement, body ?? unaryExpression.Operand, ref memberName);
 							break;
-
-						case ExpressionType.Not:
-							CreateWhere(statement, unaryExpression.Operand, ref memberName);
-							statement.QueryWhere.Append(" = 0");
+						}
+						case ExpressionType.Quote:
+						{
+							var body = unaryExpression.Operand.GetMemberValue("Body") as Expression;
+							CreateWhere(statement, body ?? unaryExpression.Operand, ref memberName);
+							if (body != null && body.NodeType == ExpressionType.MemberAccess && body.Type == typeof(bool))
+							{
+								statement.QueryWhere.Append(" = 1");
+							}
 							memberName = string.Empty;
 							break;
+						}
+						case ExpressionType.Not:
+						{
+							CreateWhere(statement, unaryExpression.Operand, ref memberName);
+							if (unaryExpression.Type == typeof(bool))
+							{
+								statement.QueryWhere.Append(" = 0");
+							}
+							memberName = string.Empty;
+							break;
+						}
 					}
 					break;
 				}
 				case BinaryExpression binaryExpression:
 				{
-					var valueIsNull = binaryExpression.Right is ConstantExpression constantExpression && constantExpression.Value == null;
 					CreateWhere(statement, binaryExpression.Left, ref memberName);
+					if (binaryExpression.Left.NodeType == ExpressionType.MemberAccess && binaryExpression.Left.Type == typeof(bool))
+					{
+						statement.QueryWhere.Append(" = 1");
+					}
+
+					var valueIsNull = binaryExpression.Right is ConstantExpression { Value: null };
 					statement.QueryWhere.Append(GetNodeType(binaryExpression, valueIsNull));
 					if (!valueIsNull)
 					{
-						CreateWhere(statement, binaryExpression.Right, ref memberName);
+						CreateWhere(statement, binaryExpression.Right, ref memberName, memberName, true);
 					}
 					break;
 				}
@@ -369,12 +400,31 @@ namespace Speedy.EntityFramework.Sql
 					CreateWhere(statement, methodExpression.Arguments[offset], ref memberName);
 					break;
 				}
+				case ParameterExpression parameterExpression:
+				{
+					ProcessParameterExpression(statement, parameterExpression, ref memberName);
+					break;
+				}
 				default:
 				{
 					// Need to support this?
 					Debug.WriteLine(expression.GetType().FullName);
 					break;
 				}
+			}
+		}
+
+		private static void ProcessParameterExpression(SqlStatement statement, ParameterExpression expression, ref string memberName)
+		{
+			statement.Query.Append(memberName);
+			
+			if (expression.Type == typeof(bool) && expression.NodeType == ExpressionType.MemberAccess)
+			{
+				statement.QueryWhere.Append(" = 1");
+			}
+			else if (expression.Type == typeof(bool) && expression.NodeType == ExpressionType.Not)
+			{
+				statement.QueryWhere.Append(" = 0");
 			}
 		}
 
@@ -498,8 +548,24 @@ namespace Speedy.EntityFramework.Sql
 
 		private static bool ProcessMemberExpression(string columnName, SqlStatement statement, MemberExpression memberExpression)
 		{
-			if (memberExpression.Expression != null && !(memberExpression.Expression is ConstantExpression))
+			if (memberExpression.Expression == null)
 			{
+				return false;
+			}
+
+			if (memberExpression.NodeType == ExpressionType.MemberAccess)
+			{
+				var propertyInfo = memberExpression.Member.GetCachedProperties().FirstOrDefault(x => x.Name == "PropertyType");
+				if (propertyInfo != null)
+				{
+					var propertyType = (Type) propertyInfo.GetValue(memberExpression.Member);
+					if (propertyType == typeof(bool))
+					{
+						statement.QueryWhere.Append($" {statement.TableInformation.ProviderPrefix}{columnName}{statement.TableInformation.ProviderSuffix}");
+						return true;
+					}
+				}
+
 				return false;
 			}
 
@@ -527,12 +593,14 @@ namespace Speedy.EntityFramework.Sql
 			else
 			{
 				var value = Expression.Lambda(memberExpression).Compile().DynamicInvoke();
-				var name = statement.AddParameterValue(null, value);
+				var name = statement.AddParameterValue(columnName, value);
 				statement.QueryWhere.Append($" @{name}");
 			}
 
 			return true;
 		}
+
+
 
 		private static void UpdateStatementParameters<T>(SqlStatement statement, T entity)
 		{

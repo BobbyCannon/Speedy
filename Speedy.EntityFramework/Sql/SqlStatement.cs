@@ -276,6 +276,11 @@ namespace Speedy.EntityFramework.Sql
 			return AddParameterValue(columnName, GetSqlType(expression.Type), expression.Value);
 		}
 
+		internal string AddParameterValue(string columnName, MemberExpression expression)
+		{
+			return AddParameterValue(columnName, GetSqlType(expression.Type), GetValue(expression));
+		}
+
 		internal string AddParameterValue(string columnName, object value)
 		{
 			return AddParameterValue(columnName, GetSqlType(value.GetType()), value);
@@ -349,7 +354,7 @@ namespace Speedy.EntityFramework.Sql
 
 			TableInformation.Properties
 				.Where(x => !excludedColumns.Contains(x.GetColumnName())
-					&& (!x.IsPrimaryKey() || (includePrimaryKeys && x.IsPrimaryKey())))
+					&& (!x.IsPrimaryKey() || includePrimaryKeys && x.IsPrimaryKey()))
 				.ForEach(x =>
 				{
 					var dbType = GetSqlType(x.PropertyInfo.PropertyType);
@@ -365,10 +370,7 @@ namespace Speedy.EntityFramework.Sql
 			{
 				return sqliteType;
 			}
-			else
-			{
-				return SqliteType.Integer;
-			}
+			return SqliteType.Integer;
 		}
 
 		internal static SqliteType GetSqliteType(Type type)
@@ -382,10 +384,7 @@ namespace Speedy.EntityFramework.Sql
 			{
 				return _typeToSqlDbTypeDictionary[type];
 			}
-			else
-			{
-				return SqlDbType.BigInt;
-			}
+			return SqlDbType.BigInt;
 		}
 
 		internal string GetWhereColumnList(IDictionary<string, string> columnsAndParameters)
@@ -396,6 +395,14 @@ namespace Speedy.EntityFramework.Sql
 		private string GetNextParameterName()
 		{
 			return $"{ParameterPrefix}{Parameters.Count}";
+		}
+
+		internal static object GetValue(MemberExpression member)
+		{
+			var objectMember = Expression.Convert(member, typeof(object));
+			var getterLambda = Expression.Lambda<Func<object>>(objectMember);
+			var getter = getterLambda.Compile();
+			return getter();
 		}
 
 		#endregion

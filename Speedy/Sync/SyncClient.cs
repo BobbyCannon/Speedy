@@ -39,6 +39,10 @@ namespace Speedy.Sync
 			Options = new SyncClientOptions();
 			Profiler = new SyncClientProfiler(name);
 			Statistics = new SyncStatistics();
+			SyncOptions = new SyncOptions();
+
+			// do not initialize this, this is for the sync engine to setup
+			//SyncSession = new SyncSession();
 
 			_changeCount = -1;
 		}

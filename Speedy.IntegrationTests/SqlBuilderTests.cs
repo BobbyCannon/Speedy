@@ -29,12 +29,17 @@ namespace Speedy.IntegrationTests
 		{
 			var provider = TestHelper.GetSqlProvider();
 			using var database = (ContosoSqlDatabase) provider.GetDatabase();
+			var deletedOn = new DateTime(2021, 02, 05);
 
 			var accountFilters = new Dictionary<Expression<Func<AccountEntity, bool>>, (string query, string parameters, SqlParameter[] p)>
 			{
-				{ x => x.SyncId != Guid.Empty, ("DELETE FROM [dbo].[Accounts] WHERE [AccountSyncId] <> @p0", "", new[] { new SqlParameter("p0", Guid.Empty) }) },
+				{ x => x.SyncId != Guid.Empty, ("DELETE FROM [dbo].[Accounts] WHERE [AccountSyncId] <> @p0", "AccountSyncId:p0", new[] { new SqlParameter("p0", Guid.Empty) }) },
 				{ x => x.Id > 2, ("DELETE FROM [dbo].[Accounts] WHERE [AccountId] > @p0", "AccountId:p0", new[] { new SqlParameter("p0", 2) }) },
-				{ x => x.Nickname == "Fred", ("DELETE FROM [dbo].[Accounts] WHERE [AccountNickname] = @p0", "AccountNickname:p0", new[] { new SqlParameter("p0", SqlDbType.Text) { DbType = DbType.AnsiString, Value = "Fred" } }) }
+				{ x => x.Nickname == "Fred", ("DELETE FROM [dbo].[Accounts] WHERE [AccountNickname] = @p0", "AccountNickname:p0", new[] { new SqlParameter("p0", SqlDbType.Text) { DbType = DbType.AnsiString, Value = "Fred" } }) },
+				{ x => x.IsDeleted, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 1", "", new SqlParameter[0]) },
+				{ x => !x.IsDeleted, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 0", "", new SqlParameter[0]) },
+				{ x => x.IsDeleted && x.ModifiedOn <= deletedOn, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 1 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
+				{ x => !x.IsDeleted && x.ModifiedOn <= deletedOn, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 0 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) }
 			};
 
 			accountFilters.ForEach(filter =>

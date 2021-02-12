@@ -69,8 +69,7 @@ namespace Speedy.Storage
 			get
 			{
 				var newEntities = _repository.GetRawQueryable(_filter).Count(x => !x.IdIsSet());
-				var existingEntities = _repository.Where(_filter).Select(x => x.Id).Count();
-
+				var existingEntities = _repository.Where(_filter).Count(x => x.IdIsSet());
 				return newEntities + existingEntities;
 			}
 		}
