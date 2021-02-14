@@ -8,7 +8,7 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CompareNETObjects" Version="4.71.0" />
+		<PackageReference Include="CompareNETObjects" Version="4.72.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
 		<PackageReference Include="Moq" Version="4.16.0" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
