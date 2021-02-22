@@ -156,10 +156,10 @@ namespace Speedy.Sync
 						continue;
 					}
 
-					var filter = SyncOptions.GetRepositoryFilter(repository);
+					var lookupFilter = SyncOptions.GetRepositoryLookupFilter(repository);
 
 					// Check to see if this repository should be skipped
-					var changeCount = repository.GetChangeCount(request.Since, request.Until, filter);
+					var changeCount = repository.GetChangeCount(request.Since, request.Until, lookupFilter);
 					if (changeCount <= remainingSkip)
 					{
 						// this repo changes was processed in a previous GetChanges request
@@ -167,7 +167,7 @@ namespace Speedy.Sync
 						continue;
 					}
 
-					var changes = repository.GetChanges(request.Since, request.Until, remainingSkip, take - response.Collection.Count, filter).ToList();
+					var changes = repository.GetChanges(request.Since, request.Until, remainingSkip, take - response.Collection.Count, lookupFilter).ToList();
 					var items = OutgoingConverter?.Convert(changes).ToList() ?? changes;
 
 					response.Collection.AddRange(items);
@@ -338,8 +338,8 @@ namespace Speedy.Sync
 					return 0;
 				}
 
-				var filter = SyncOptions.GetRepositoryFilter(repository);
-				return repository.GetChangeCount(request.Since, request.Until, filter);
+				var lookupFilter = SyncOptions.GetRepositoryLookupFilter(repository);
+				return repository.GetChangeCount(request.Since, request.Until, lookupFilter);
 			});
 
 			return _changeCount;
@@ -429,7 +429,7 @@ namespace Speedy.Sync
 					throw new InvalidDataException("Failed to find a syncable repository for the entity.");
 				}
 
-				var filter = SyncOptions.GetRepositoryFilter(repository);
+				var lookupFilter = SyncOptions.GetRepositoryLookupFilter(repository);
 				var foundEntity = Profiler.ProcessSyncObjectReadEntity.Time(() =>
 				{
 					// Check to see if primary key caching is enabled and is never expiring for a client
@@ -441,9 +441,11 @@ namespace Speedy.Sync
 					// sync items individually which could destroy performance.
 					//
 					// Disable caching when running "individual" processing just in case there is caching issues.
-					if (!isIndividualProcess && database.KeyCache != null && Options.EnablePrimaryKeyCache && !Options.IsServerClient)
+					// Disable caching if the repository is using a different lookup filter because matching could be using a different "sync lookup key"
+					// - todo: change key cache to add a "GetEntitySyncId" (see GetEntityId) method, this way we could cache on any lookup key
+					if (lookupFilter == null && !isIndividualProcess && database.KeyCache != null && Options.EnablePrimaryKeyCache && !Options.IsServerClient)
 					{
-						var id = database.KeyCache.GetEntityId(type, syncEntity.SyncId);
+						var id = database.KeyCache.GetEntityId(syncEntity);
 						if (id == null)
 						{
 							// The ID was not found so the entity is to believed to not exist.
@@ -451,7 +453,7 @@ namespace Speedy.Sync
 						}
 					}
 
-					return repository.Read(syncEntity, filter);
+					return repository.Read(syncEntity, lookupFilter);
 				});
 
 				var syncStatus = syncObject.Status;

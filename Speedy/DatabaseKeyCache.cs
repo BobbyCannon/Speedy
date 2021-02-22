@@ -75,16 +75,16 @@ namespace Speedy
 		/// <param name="entity"> The entity to be cached. </param>
 		public void AddEntity(ISyncEntity entity)
 		{
-			AddEntityId(entity.GetRealType(), entity.SyncId, entity.GetEntityId());
+			AddEntityId(entity.GetRealType(), entity.GetEntitySyncId(), entity.GetEntityId());
 		}
 
 		/// <summary>
 		/// Cache an entity ID for the entity Sync ID.
 		/// </summary>
 		/// <param name="type"> The type of the entity. </param>
-		/// <param name="syncId"> The sync ID of the entity. </param>
+		/// <param name="syncId"> The sync ID of the entity. Will be converted to a string using "ToString". </param>
 		/// <param name="id"> The ID of the entity. </param>
-		public void AddEntityId(Type type, Guid syncId, object id)
+		public void AddEntityId(Type type, object syncId, object id)
 		{
 			if (id == null)
 			{
@@ -135,12 +135,22 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Get the entity ID for the sync entity.
+		/// </summary>
+		/// <param name="entity"> The type of the entity. </param>
+		/// <returns> The ID of the entity. </returns>
+		public object GetEntityId<T>(T entity) where T : ISyncEntity
+		{
+			return GetEntityId(entity.GetRealType(), entity.GetEntitySyncId());
+		}
+
+		/// <summary>
 		/// Get the entity ID for the sync ID.
 		/// </summary>
 		/// <param name="type"> The type of the entity. </param>
 		/// <param name="syncId"> The sync ID of the entity. </param>
 		/// <returns> The ID of the entity. </returns>
-		public object GetEntityId(Type type, Guid syncId)
+		public object GetEntityId(Type type, object syncId)
 		{
 			if (!_cachedEntityId.ContainsKey(type))
 			{

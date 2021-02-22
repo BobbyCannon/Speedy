@@ -53,6 +53,12 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
+		public object GetEntitySyncId()
+		{
+			return SyncId;
+		}
+
+		/// <inheritdoc />
 		public bool IsPropertyExcludedForIncomingSync(string propertyName)
 		{
 			return ExclusionCacheForIncomingSync[RealType].Contains(propertyName);

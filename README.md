@@ -1,8 +1,6 @@
 ﻿# Speedy
 
-Speedy is a simple easy to use Entity Framework unit testing framework.
-
->**Note**: Version 5 is currently in _beta_ testing.
+Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.
 
 ### Setup an interface to describe your database
 
@@ -15,8 +13,6 @@ public interface IContosoDatabase : IDatabase
 ```
 
 ### Setup your Entity Framework database
-
-Version 5 for Entity Framework Core
 
 ``` csharp
 public class ContosoDatabase : EntityFrameworkDatabase, IContosoDatabase
@@ -78,8 +74,6 @@ public class ContosoMemoryDatabase : Database, IContosoDatabase
 
 Preferable you'll write all your _unit test_ using the memory database. You can then use the Entity Framework database for your _integration tests_.
 
-This is a test for v5 for Entity Framework Core.
-
 ``` csharp
 [TestMethod]
 public void AddAddressTest()
@@ -135,5 +129,6 @@ public void AddAddressTest()
 
 ## Versions
 
-- v5 supports Entity Framework Core (beta testing)
+- v7 is the latest supported version
+- v5+ supports Entity Framework Core
 - v4 supports Entity Framework 6

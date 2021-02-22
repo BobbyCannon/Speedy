@@ -595,14 +595,16 @@ namespace Speedy.IntegrationTests
 		{
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 00);
 
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { IsServerClient = true } };
+			var keyCache1 = new DatabaseKeyCache();
+			var keyCache2 = new DatabaseKeyCache();
+			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(keyCache: keyCache1)) { Options = { EnablePrimaryKeyCache = true }};
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(keyCache: keyCache2)) { Options = { EnablePrimaryKeyCache = true, IsServerClient = true } };
 			var settingName1 = "Setting1";
 			var settingName2 = "Setting2";
-			var clientSetting1 = NewSetting(settingName1, "foo");
-			var clientSetting2 = NewSetting(settingName2, "bar");
-			var serverSetting1 = NewSetting(settingName1, "hello");
-			var serverSetting2 = NewSetting(settingName2, "world");
+			var clientSetting1 = NewSetting(settingName1, "foo", Guid.Parse("00000000-0000-0000-0000-000000000001"));
+			var clientSetting2 = NewSetting(settingName2, "bar", Guid.Parse("00000000-0000-0000-0000-000000000002"));
+			var serverSetting1 = NewSetting(settingName1, "hello", Guid.Parse("00000000-0000-0000-0000-000000000003"));
+			var serverSetting2 = NewSetting(settingName2, "world", Guid.Parse("00000000-0000-0000-0000-000000000004"));
 
 			using (var database = client.GetDatabase<IContosoDatabase>())
 			{
@@ -1505,14 +1507,14 @@ namespace Speedy.IntegrationTests
 			};
 		}
 
-		private static SettingEntity NewSetting(string name, string value)
+		private static SettingEntity NewSetting(string name, string value, Guid? syncId = null)
 		{
 			var time = TimeService.UtcNow;
 			return new SettingEntity
 			{
 				Name = name,
 				Value = value,
-				SyncId = Guid.NewGuid(),
+				SyncId = syncId ?? Guid.NewGuid(),
 				CreatedOn = time,
 				ModifiedOn = time
 			};

@@ -34,8 +34,15 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets the primary key (ID) of the sync entity.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns> The primary key value for the sync entity. </returns>
 		object GetEntityId();
+		
+		/// <summary>
+		/// Gets the sync key (ID) of the sync entity. Defaults to SyncId.
+		/// This can be overriden by setting the LookupFilter for a sync repository filter.
+		/// </summary>
+		/// <returns> The sync key value for the sync entity. </returns>
+		object GetEntitySyncId();
 
 		/// <summary>
 		/// Checks a property to see if it can be synced in incoming data.

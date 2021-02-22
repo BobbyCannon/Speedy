@@ -640,12 +640,12 @@
             </summary>
             <param name="entity"> The entity to be cached. </param>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.AddEntityId(System.Type,System.Guid,System.Object)">
+        <member name="M:Speedy.DatabaseKeyCache.AddEntityId(System.Type,System.Object,System.Object)">
             <summary>
             Cache an entity ID for the entity Sync ID.
             </summary>
             <param name="type"> The type of the entity. </param>
-            <param name="syncId"> The sync ID of the entity. </param>
+            <param name="syncId"> The sync ID of the entity. Will be converted to a string using "ToString". </param>
             <param name="id"> The ID of the entity. </param>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.Cleanup">
@@ -658,7 +658,14 @@
             Clear all caches from the manager
             </summary>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.GetEntityId(System.Type,System.Guid)">
+        <member name="M:Speedy.DatabaseKeyCache.GetEntityId``1(``0)">
+            <summary>
+            Get the entity ID for the sync entity.
+            </summary>
+            <param name="entity"> The type of the entity. </param>
+            <returns> The ID of the entity. </returns>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.GetEntityId(System.Type,System.Object)">
             <summary>
             Get the entity ID for the sync ID.
             </summary>
@@ -5855,7 +5862,14 @@
             <summary>
             Gets the primary key (ID) of the sync entity.
             </summary>
-            <returns></returns>
+            <returns> The primary key value for the sync entity. </returns>
+        </member>
+        <member name="M:Speedy.Sync.ISyncEntity.GetEntitySyncId">
+            <summary>
+            Gets the sync key (ID) of the sync entity. Defaults to SyncId.
+            This can be overriden by setting the LookupFilter for a sync repository filter.
+            </summary>
+            <returns> The sync key value for the sync entity. </returns>
         </member>
         <member name="M:Speedy.Sync.ISyncEntity.IsPropertyExcludedForIncomingSync(System.String)">
             <summary>
@@ -6546,6 +6560,9 @@
         <member name="M:Speedy.Sync.SyncEntity`1.GetEntityId">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Sync.SyncEntity`1.GetEntitySyncId">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncEntity`1.IsPropertyExcludedForIncomingSync(System.String)">
             <inheritdoc />
         </member>
@@ -7218,7 +7235,7 @@
             <param name="typeAssemblyName"> The type name to check for. Should be in assembly name format. </param>
             <returns> True if the type is filter or false if otherwise. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncOptions.GetRepositoryFilter(Speedy.ISyncableRepository)">
+        <member name="M:Speedy.Sync.SyncOptions.GetRepositoryLookupFilter(Speedy.ISyncableRepository)">
             <summary>
             Find a filter for the provided repository.
             </summary>
@@ -7233,7 +7250,7 @@
             <param name="entity"> The entity to be tested. </param>
             <returns> True if the entity should be filter or false if otherwise. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncOptions.GetRepositoryFilter(System.String)">
+        <member name="M:Speedy.Sync.SyncOptions.GetRepositoryLookupFilter(System.String)">
             <summary>
             Find a filter for the provided repository.
             </summary>

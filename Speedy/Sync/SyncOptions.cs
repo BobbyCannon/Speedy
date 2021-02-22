@@ -182,9 +182,9 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="repository"> The repository to process. </param>
 		/// <returns> The filter if found or null otherwise. </returns>
-		internal SyncRepositoryFilter GetRepositoryFilter(ISyncableRepository repository)
+		internal SyncRepositoryFilter GetRepositoryLookupFilter(ISyncableRepository repository)
 		{
-			return GetRepositoryFilter(repository?.TypeName);
+			return GetRepositoryLookupFilter(repository?.TypeName);
 		}
 
 		/// <summary>
@@ -195,7 +195,7 @@ namespace Speedy.Sync
 		/// <returns> True if the entity should be filter or false if otherwise. </returns>
 		internal bool ShouldFilterEntity(string typeAssemblyName, ISyncEntity entity)
 		{
-			var filter = GetRepositoryFilter(typeAssemblyName);
+			var filter = GetRepositoryLookupFilter(typeAssemblyName);
 			if (filter == null)
 			{
 				return false;
@@ -212,7 +212,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="typeAssemblyName"> The repository type assembly name to process. </param>
 		/// <returns> The filter if found or null otherwise. </returns>
-		private SyncRepositoryFilter GetRepositoryFilter(string typeAssemblyName)
+		private SyncRepositoryFilter GetRepositoryLookupFilter(string typeAssemblyName)
 		{
 			return _filterLookup.ContainsKey(typeAssemblyName) ? _filterLookup[typeAssemblyName] : null;
 		}

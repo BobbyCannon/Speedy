@@ -32,18 +32,18 @@ namespace Speedy.IntegrationTests
 
 				// Creating an address like normal, cache should not contain the ID yet
 				var address = DataHelper.NewAddress("Blah");
-				var addressId = client.DatabaseProvider.KeyCache.GetEntityId(typeof(AddressEntity), address.SyncId);
+				var addressId = client.DatabaseProvider.KeyCache.GetEntityId(address);
 				Assert.IsNull(addressId);
 
 				// Cache should be updated automatically
 				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
-				addressId = client.DatabaseProvider.KeyCache.GetEntityId(typeof(AddressEntity), address.SyncId);
+				addressId = client.DatabaseProvider.KeyCache.GetEntityId(address);
 				Assert.IsNotNull(addressId);
 				Assert.AreEqual(address.Id, (long) addressId);
 				
 				// Cache should be updated automatically
 				client.GetDatabase<IContosoDatabase>().RemoveSaveAndCleanup<AddressEntity, long>(address);
-				addressId = client.DatabaseProvider.KeyCache.GetEntityId(typeof(AddressEntity), address.SyncId);
+				addressId = client.DatabaseProvider.KeyCache.GetEntityId(address);
 				Assert.IsNull(addressId);
 			});
 		}
