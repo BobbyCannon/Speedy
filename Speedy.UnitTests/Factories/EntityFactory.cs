@@ -176,6 +176,15 @@ namespace Speedy.UnitTests.Factories
 			return result;
 		}
 
+		public static SettingEntity GetSetting(string name, string value)
+		{
+			return new()
+			{
+				Name = name,
+				Value = value
+			};
+		}
+
 		#endregion
 	}
 }

@@ -52,30 +52,14 @@ namespace Speedy.Website.Data.Sync
 
 		static ServerSyncClient()
 		{
-			MinimumSyncSystemSupported = new Version(0, 0, 0, 0);
-			MaximumSyncSystemSupported = new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
-
 			_accountAssemblyName = typeof(Account).ToAssemblyName();
 			_outgoingConverter = new SyncClientOutgoingConverter(
 				new SyncObjectOutgoingConverter<AccountEntity, int, Account, int>(),
 				new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>(),
-				new SyncObjectOutgoingConverter<LogEventEntity, long, LogEvent, long>()
+				new SyncObjectOutgoingConverter<LogEventEntity, long, LogEvent, long>(),
+				new SyncObjectOutgoingConverter<SettingEntity, long, Setting, long>()
 			);
 		}
-
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// Maximum sync system supported.
-		/// </summary>
-		public static Version MaximumSyncSystemSupported { get; set; }
-
-		/// <summary>
-		/// Minimum sync system supported.
-		/// </summary>
-		public static Version MinimumSyncSystemSupported { get; set; }
 
 		#endregion
 
@@ -166,6 +150,7 @@ namespace Speedy.Website.Data.Sync
 					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>());
 					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<LogEventEntity>());
+					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<SettingEntity>());
 					break;
 				}
 			}
@@ -259,6 +244,37 @@ namespace Speedy.Website.Data.Sync
 
 								// Also throw an exception to add a sync issue to the response
 								throw new UpdateException("You cannot modify or delete log entries.");
+							}
+						}
+					}),
+				new SyncObjectIncomingConverter<Setting, long, SettingEntity, long>(null,
+					(update, entity, processUpdate, type) =>
+					{
+						switch (type)
+						{
+							case SyncObjectStatus.Added:
+							{
+								processUpdate();
+								return true;
+							}
+							case SyncObjectStatus.Modified:
+							{
+								processUpdate();
+								return true;
+							}
+							case SyncObjectStatus.Deleted:
+							default:
+							{
+								if (entity.Name == "cannot delete")
+								{
+									// force an update to roll back client changes
+									entity.ModifiedOn = TimeService.UtcNow;
+
+									// Also throw an exception to add a sync issue to the response
+									throw new UpdateException("You cannot delete this setting.");
+								}
+
+								return true;
 							}
 						}
 					})

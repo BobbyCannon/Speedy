@@ -13,7 +13,7 @@ using Speedy.Extensions;
 
 namespace Speedy.Client.Data
 {
-	public class ContosoClientDatabase : EntityFrameworkDatabase
+	public class ContosoClientDatabase : EntityFrameworkDatabase, IContosoClientDatabase
 	{
 		#region Constructors
 
@@ -41,6 +41,8 @@ namespace Speedy.Client.Data
 		public IRepository<ClientAddress, long> Addresses => GetSyncableRepository<ClientAddress, long>();
 
 		public IRepository<ClientLogEvent, long> LogEvents => GetSyncableRepository<ClientLogEvent, long>();
+
+		public IRepository<ClientSetting, long> Settings => GetSyncableRepository<ClientSetting, long>();
 
 		#endregion
 
@@ -78,13 +80,14 @@ namespace Speedy.Client.Data
 
 		public static DatabaseOptions GetDefaultOptions()
 		{
-			return new DatabaseOptions
+			return new()
 			{
 				SyncOrder = new[]
 				{
 					typeof(ClientAddress).ToAssemblyName(),
 					typeof(ClientAccount).ToAssemblyName(),
-					typeof(ClientLogEvent).ToAssemblyName()
+					typeof(ClientLogEvent).ToAssemblyName(),
+					typeof(ClientSetting).ToAssemblyName()
 				}
 			};
 		}
@@ -102,10 +105,7 @@ namespace Speedy.Client.Data
 
 		public static ContosoClientDatabase UseSqlite(string connectionString = null, DatabaseOptions options = null)
 		{
-			if (connectionString == null)
-			{
-				connectionString = GetConnectionString();
-			}
+			connectionString ??= GetConnectionString();
 
 			var builder = new DbContextOptionsBuilder<ContosoClientDatabase>();
 			return new ContosoClientDatabase(builder.UseSqlite(connectionString, UpdateOptions).Options, options);

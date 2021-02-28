@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Client.Data;
-using Speedy.Data.Client;
 using Speedy.Extensions;
 using Speedy.Sync;
+using Speedy.UnitTests.Factories;
 using Speedy.Website.Data;
 
 #endregion
@@ -76,7 +76,7 @@ namespace Speedy.IntegrationTests
 		public void SortShouldNotBreakLocalRepository()
 		{
 			using var database = GetDatabase();
-			database.Addresses.Add(GetAddress());
+			database.Addresses.Add(ClientFactory.GetClientAddress());
 			Assert.AreEqual(0, database.Addresses.Count());
 			database.SaveChanges();
 			Assert.AreEqual(1, database.Addresses.Count());
@@ -90,18 +90,10 @@ namespace Speedy.IntegrationTests
 			sortMethod.Invoke(database.Accounts, new object[0]);
 
 			var address = database.Addresses.First();
-			address.Accounts.Add(GetPerson());
+			address.Accounts.Add(ClientFactory.GetClientAccount("Test", address));
 			Assert.AreEqual(0, database.Accounts.Count());
 			database.SaveChanges();
 			Assert.AreEqual(1, database.Accounts.Count());
-		}
-
-		private ClientAddress GetAddress()
-		{
-			return new()
-			{
-				City = "City"
-			};
 		}
 
 		private static ContosoClientMemoryDatabase GetDatabase(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
@@ -112,14 +104,6 @@ namespace Speedy.IntegrationTests
 		private static IDatabaseProvider<IContosoDatabase> GetDatabaseProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
 		{
 			return TestHelper.GetMemoryProvider(options, keyCache);
-		}
-
-		private ClientAccount GetPerson()
-		{
-			return new()
-			{
-				Name = "John"
-			};
 		}
 
 		#endregion

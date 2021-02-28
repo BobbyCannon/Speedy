@@ -21,6 +21,7 @@ namespace Speedy.UnitTests.Factories
 				Address = address,
 				EmailAddress = name + "@speedy.local",
 				Name = name,
+				Roles = string.Empty,
 				SyncId = Guid.NewGuid()
 			};
 
@@ -37,8 +38,8 @@ namespace Speedy.UnitTests.Factories
 				Id = default,
 				Line1 = line1 ?? Guid.NewGuid().ToString(),
 				Line2 = Guid.NewGuid().ToString(),
-				Postal = postal ?? Guid.NewGuid().ToString(),
-				State = state ?? Guid.NewGuid().ToString(),
+				Postal = (postal ?? Guid.NewGuid().ToString()).Substring(25),
+				State = (state ?? Guid.NewGuid().ToString()).Substring(25),
 				SyncId = Guid.NewGuid()
 			};
 
@@ -59,6 +60,15 @@ namespace Speedy.UnitTests.Factories
 			update?.Invoke(result);
 
 			return result;
+		}
+
+		public static ClientSetting GetSetting(string name, string value)
+		{
+			return new()
+			{
+				Name = name,
+				Value = value
+			};
 		}
 
 		#endregion

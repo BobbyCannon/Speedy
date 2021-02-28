@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Speedy.Data.Client;
+using Speedy.EntityFramework;
 using Speedy.Extensions;
 
 #endregion
@@ -10,7 +11,7 @@ namespace Speedy.Client.Data
 	/// <summary>
 	/// Represents a model database that would be a client side representation of their data model.
 	/// </summary>
-	public class ContosoClientMemoryDatabase : Database
+	public class ContosoClientMemoryDatabase : Database, IContosoClientDatabase
 	{
 		#region Constructors
 
@@ -18,16 +19,15 @@ namespace Speedy.Client.Data
 		{
 		}
 
-		public ContosoClientMemoryDatabase(DatabaseOptions options, DatabaseKeyCache keyCache) : base(options, keyCache)
+		public ContosoClientMemoryDatabase(DatabaseOptions options, DatabaseKeyCache keyCache)
+			: base(options ?? ContosoClientDatabase.GetDefaultOptions(), keyCache)
 		{
 			Accounts = GetSyncableRepository<ClientAccount, int>();
 			Addresses = GetSyncableRepository<ClientAddress, long>();
 			LogEvents = GetSyncableRepository<ClientLogEvent, long>();
-
-			SetRequiredOptions(Options);
-
-			// This is our only mapping
-			HasRequired<ClientAccount, int, ClientAddress, long>(true, x => x.Address, x => x.AddressId, x => x.Accounts);
+			Settings = GetSyncableRepository<ClientSetting, long>();
+			
+			this.ConfigureModelViaMapping();
 		}
 
 		#endregion
@@ -40,21 +40,7 @@ namespace Speedy.Client.Data
 
 		public IRepository<ClientLogEvent, long> LogEvents { get; }
 
-		#endregion
-
-		#region Methods
-
-		public static DatabaseOptions GetDefaultOptions()
-		{
-			var response = new DatabaseOptions();
-			SetRequiredOptions(response);
-			return response;
-		}
-
-		public static void SetRequiredOptions(DatabaseOptions options)
-		{
-			options.SyncOrder = new[] { typeof(ClientAddress).ToAssemblyName(), typeof(ClientAccount).ToAssemblyName(), typeof(ClientLogEvent).ToAssemblyName() };
-		}
+		public IRepository<ClientSetting, long> Settings { get; }
 
 		#endregion
 	}

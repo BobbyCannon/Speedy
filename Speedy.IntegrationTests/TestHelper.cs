@@ -240,7 +240,7 @@ namespace Speedy.IntegrationTests
 			{
 				database.Options.UpdateWith(x);
 				return database;
-			}, ContosoClientMemoryDatabase.GetDefaultOptions(), null);
+			}, ContosoClientDatabase.GetDefaultOptions(), null);
 		}
 
 		public static ControllerContext GetControllerContext(AccountEntity account)
@@ -507,12 +507,16 @@ namespace Speedy.IntegrationTests
 			{
 				var outgoingConverter = new SyncClientOutgoingConverter(
 					new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>(),
-					new SyncObjectOutgoingConverter<AccountEntity, int, Account, int>()
+					new SyncObjectOutgoingConverter<AccountEntity, int, Account, int>(),
+					new SyncObjectOutgoingConverter<LogEventEntity, long, LogEvent, long>(),
+					new SyncObjectOutgoingConverter<SettingEntity, long, Setting, long>()
 				);
 
 				var incomingConverter = new SyncClientIncomingConverter(
 					new SyncObjectIncomingConverter<Address, long, AddressEntity, long>(),
-					new SyncObjectIncomingConverter<Account, int, AccountEntity, int>()
+					new SyncObjectIncomingConverter<Account, int, AccountEntity, int>(),
+					new SyncObjectIncomingConverter<LogEvent, long, LogEventEntity, long>(),
+					new SyncObjectIncomingConverter<Setting, long, SettingEntity, long>()
 				);
 
 				var credential = new NetworkCredential("admin@speedy.local", "Password");

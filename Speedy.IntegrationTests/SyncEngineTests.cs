@@ -506,26 +506,11 @@ namespace Speedy.IntegrationTests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				var address = NewAddress("123 Elm Street");
-				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+				var setting1 = NewSetting("Foo", "Bar");
+				var setting2 = NewSetting("Hello", "World");
 
-				var address2 = NewAddress("123 Elm Street");
-				address2.SyncId = address.SyncId;
-				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address2);
-
-				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-				{
-					Assert.AreEqual(2, clientDatabase.Addresses.Count());
-					Assert.AreEqual(2, serverDatabase.Addresses.Count());
-
-					clientDatabase.Addresses.Remove(x => x.SyncId == address.SyncId);
-					clientDatabase.SaveChanges();
-
-					Assert.AreEqual(1, clientDatabase.Addresses.Count(x => !x.IsDeleted));
-					Assert.AreEqual(1, clientDatabase.Addresses.Count(x => x.IsDeleted));
-					Assert.AreEqual(2, serverDatabase.Addresses.Count(x => !x.IsDeleted));
-				}
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting1);
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting2);
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
@@ -533,13 +518,26 @@ namespace Speedy.IntegrationTests
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 				{
-					// Addresses deletions cannot be synced
-					Assert.AreEqual(1, clientDatabase.Addresses.Count(x => !x.IsDeleted));
-					Assert.AreEqual(1, clientDatabase.Addresses.Count(x => x.IsDeleted));
-					Assert.AreEqual(2, serverDatabase.Addresses.Count(x => !x.IsDeleted));
-					Assert.AreEqual(0, serverDatabase.Addresses.Count(x => x.IsDeleted));
+					Assert.AreEqual(2, clientDatabase.Settings.Count(x => !x.IsDeleted));
+					Assert.AreEqual(2, serverDatabase.Settings.Count(x => !x.IsDeleted));
 
-					// todo: add item that can sync deletes
+					clientDatabase.Settings.Remove(x => x.Id > 1);
+					clientDatabase.SaveChanges();
+
+					Assert.AreEqual(1, clientDatabase.Settings.Count(x => x.IsDeleted));
+					Assert.AreEqual(0, serverDatabase.Settings.Count(x => x.IsDeleted));
+				}
+
+				engine.Run();
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				{
+					Assert.AreEqual(1, clientDatabase.Settings.Count(x => !x.IsDeleted));
+					Assert.AreEqual(1, clientDatabase.Settings.Count(x => x.IsDeleted));
+
+					Assert.AreEqual(1, serverDatabase.Settings.Count(x => !x.IsDeleted));
+					Assert.AreEqual(1, serverDatabase.Settings.Count(x => x.IsDeleted));
 				}
 			});
 		}
@@ -549,25 +547,11 @@ namespace Speedy.IntegrationTests
 		{
 			TestHelper.TestServerAndClients((server, client) =>
 			{
-				var address = NewAddress("123 Elm Street");
-				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
+				var setting1 = NewSetting("Foo", "Bar");
+				var setting2 = NewSetting("Hello", "World");
 
-				var address2 = NewAddress("123 Elm Street");
-				address2.SyncId = address.SyncId;
-				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address2);
-
-				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
-				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
-				{
-					Assert.AreEqual(2, clientDatabase.Addresses.Count(x => !x.IsDeleted));
-					Assert.AreEqual(2, serverDatabase.Addresses.Count(x => !x.IsDeleted));
-
-					serverDatabase.Addresses.Remove(x => x.Id > 1);
-					serverDatabase.SaveChanges();
-
-					Assert.AreEqual(0, clientDatabase.Addresses.Count(x => x.IsDeleted));
-					Assert.AreEqual(1, serverDatabase.Addresses.Count(x => x.IsDeleted));
-				}
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting1);
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting2);
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
@@ -575,15 +559,30 @@ namespace Speedy.IntegrationTests
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 				{
-					Assert.AreEqual(2, clientDatabase.Addresses.Count(x => !x.IsDeleted));
-					Assert.AreEqual(0, clientDatabase.Addresses.Count(x => x.IsDeleted));
+					Assert.AreEqual(2, clientDatabase.Settings.Count(x => !x.IsDeleted));
+					Assert.AreEqual(2, serverDatabase.Settings.Count(x => !x.IsDeleted));
 
-					Assert.AreEqual(1, serverDatabase.Addresses.Count(x => !x.IsDeleted));
-					Assert.AreEqual(1, serverDatabase.Addresses.Count(x => x.IsDeleted));
+					serverDatabase.Settings.Remove(x => x.Id > 1);
+					serverDatabase.SaveChanges();
+
+					Assert.AreEqual(0, clientDatabase.Settings.Count(x => x.IsDeleted));
+					Assert.AreEqual(1, serverDatabase.Settings.Count(x => x.IsDeleted));
+				}
+
+				engine.Run();
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				{
+					Assert.AreEqual(1, clientDatabase.Settings.Count(x => !x.IsDeleted));
+					Assert.AreEqual(1, clientDatabase.Settings.Count(x => x.IsDeleted));
+
+					Assert.AreEqual(1, serverDatabase.Settings.Count(x => !x.IsDeleted));
+					Assert.AreEqual(1, serverDatabase.Settings.Count(x => x.IsDeleted));
 				}
 			});
 		}
-
+		
 		[TestCleanup]
 		public void Initialize()
 		{
@@ -664,10 +663,10 @@ namespace Speedy.IntegrationTests
 
 		/// <summary>
 		/// This test will test the proposed scenario
-		/// Server adds address       - 11:59:00
+		/// Server adds address     - 11:59:00
 		/// Manual Sync
 		/// Client Starts Sync      - 12:00:00
-		/// Server updates address    - 12:00:01
+		/// Server updates address  - 12:00:01
 		/// Client Reads Server     - 12:01:00
 		/// </summary>
 		[TestMethod]

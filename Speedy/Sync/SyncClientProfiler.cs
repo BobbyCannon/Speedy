@@ -35,6 +35,7 @@ namespace Speedy.Sync
 			ProcessSyncObjectsSyncObjectsToList = new Timer();
 			ProcessSyncObject = new Timer();
 			ProcessSyncObjectAdded = new Timer();
+			ProcessSyncObjectDeleted = new Timer();
 			ProcessSyncObjectModified = new Timer();
 			ProcessSyncObjectReadEntity = new Timer();
 			ProcessSyncObjects = new Timer();
@@ -70,6 +71,11 @@ namespace Speedy.Sync
 		/// The "Added" portion of processing time for <seealso cref="SyncClient.ProcessSyncObject" />.
 		/// </summary>
 		public Timer ProcessSyncObjectAdded { get; }
+
+		/// <summary>
+		/// The "Deleted" portion of processing time for <seealso cref="SyncClient.ProcessSyncObject" />.
+		/// </summary>
+		public Timer ProcessSyncObjectDeleted { get; }
 
 		/// <summary>
 		/// The "Modified" portion of processing time for <seealso cref="SyncClient.ProcessSyncObject" />.

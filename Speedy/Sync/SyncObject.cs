@@ -95,9 +95,11 @@ namespace Speedy.Sync
 				ModifiedOn = syncEntity.ModifiedOn,
 				SyncId = syncEntity.SyncId,
 				TypeName = syncEntity.RealType.ToAssemblyName(),
-				Status = syncEntity.CreatedOn == syncEntity.ModifiedOn
-					? SyncObjectStatus.Added
-					: SyncObjectStatus.Modified
+				Status = syncEntity.IsDeleted
+					? SyncObjectStatus.Deleted
+					: syncEntity.CreatedOn == syncEntity.ModifiedOn
+						? SyncObjectStatus.Added
+						: SyncObjectStatus.Modified
 			};
 		}
 

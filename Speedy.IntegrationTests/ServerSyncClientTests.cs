@@ -4,11 +4,13 @@ using System;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Client.Data;
 using Speedy.Data;
 using Speedy.Data.Client;
 using Speedy.Data.WebApi;
+using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
 using Speedy.Sync;
@@ -24,7 +26,7 @@ using Speedy.Website.WebApi;
 namespace Speedy.IntegrationTests
 {
 	[TestClass]
-	public class SyncControllerTests : BaseTests
+	public class ServerSyncClientTests : BaseTests
 	{
 		#region Methods
 
@@ -73,6 +75,109 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(LogLevel.Debug, actual.Level);
 			}
 		}
+		
+		[TestMethod]
+		public void SettingsShouldDelete()
+		{
+			var currentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
+
+			TimeService.UtcNowProvider = () => currentTime; // currentTime = {2/25/2021 08:42:32 AM}
+
+			var dispatcher = TestHelper.GetDispatcher();
+			var clientProvider = TestHelper.GetClientProvider();
+			var entityProvider = TestHelper.GetSyncableMemoryProvider();
+			var keyCache = new DatabaseKeyCache();
+
+			using (var database = entityProvider.GetDatabase())
+			{
+				var setting = EntityFactory.GetSetting("foo", "bar");
+				database.Settings.Add(setting);
+				database.SaveChanges();
+			}
+
+			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
+			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
+			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
+
+			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
+			syncManager.Sync();
+			
+			using (var database = clientProvider.GetDatabase())
+			{
+				var settings = database.Settings.ToList();
+				Assert.AreEqual(1, settings.Count);
+
+				settings[0].IsDeleted = true;
+				database.SaveChanges();
+			}
+
+			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:34 AM}
+			syncManager.Sync();
+
+			using (var database = entityProvider.GetDatabase())
+			{
+				var settings = database.Settings.ToList();
+				Assert.AreEqual(1, settings.Count);
+				Assert.AreEqual(true, settings[0].IsDeleted);
+			}
+		}
+		
+		[TestMethod]
+		public void SettingsShouldNotDelete()
+		{
+			var currentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
+
+			TimeService.UtcNowProvider = () => currentTime; // currentTime = {2/25/2021 08:42:32 AM}
+
+			var dispatcher = TestHelper.GetDispatcher();
+			var clientProvider = TestHelper.GetClientProvider();
+			var entityProvider = TestHelper.GetSyncableMemoryProvider();
+			var keyCache = new DatabaseKeyCache();
+			SettingEntity setting;
+
+			using (var database = entityProvider.GetDatabase())
+			{
+				setting = EntityFactory.GetSetting("cannot delete", "very important");
+				database.Settings.Add(setting);
+				database.SaveChanges();
+			}
+
+			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
+			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
+			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
+
+			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
+			syncManager.Sync();
+			
+			using (var database = clientProvider.GetDatabase())
+			{
+				var settings = database.Settings.ToList();
+				Assert.AreEqual(1, settings.Count);
+
+				settings[0].IsDeleted = true;
+				database.SaveChanges();
+			}
+
+			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:34 AM}
+			syncManager.Sync();
+
+			Assert.AreEqual(1, syncManager.SyncIssues.Count);
+			Assert.AreEqual(setting.SyncId, syncManager.SyncIssues[0].Id);
+			Assert.AreEqual(SyncIssueType.UpdateException, syncManager.SyncIssues[0].IssueType);
+			Assert.AreEqual("You cannot delete this setting.", syncManager.SyncIssues[0].Message);
+			Assert.AreEqual(typeof(SettingEntity).ToAssemblyName(), syncManager.SyncIssues[0].TypeName);
+
+			using (var database = entityProvider.GetDatabase())
+			{
+				var settings = database.Settings.ToList();
+				Assert.AreEqual(1, settings.Count);
+				Assert.AreEqual(false, settings[0].IsDeleted);
+			}
+		}
 
 		[TestMethod]
 		public void ShouldSyncAllSyncItems()
@@ -97,32 +202,30 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));
 			Assert.AreNotEqual(0, logger.Events.Count);
 
-			using (var clientDatabase = clientProvider.GetDatabase())
-			using (var entityDatabase = entityProvider.GetDatabase())
+			using var clientDatabase = clientProvider.GetDatabase();
+			using var entityDatabase = entityProvider.GetDatabase();
+			var clientAccounts = clientDatabase.Accounts.ToList();
+			var clientAddresses = clientDatabase.Addresses.ToList();
+			var clientLogEvents = clientDatabase.LogEvents.ToList();
+			var serverAccounts = entityDatabase.Accounts.ToList();
+			var serverAddresses = entityDatabase.Addresses.ToList();
+			var serverLogEvents = entityDatabase.LogEvents.ToList();
+
+			Assert.AreEqual(2, clientAccounts.Count);
+			Assert.AreEqual(2, clientAddresses.Count);
+			Assert.AreEqual(6, clientLogEvents.Count);
+			Assert.AreEqual(2, serverAccounts.Count);
+			Assert.AreEqual(2, serverAddresses.Count);
+			Assert.AreEqual(6, serverLogEvents.Count);
+
+			Compare(clientAccounts[0], serverAccounts[1]);
+			Compare(clientAccounts[1], serverAccounts[0]);
+			Compare(clientAddresses[0], serverAddresses[1]);
+			Compare(clientAddresses[1], serverAddresses[0]);
+
+			for (var i = 0; i < clientLogEvents.Count; i++)
 			{
-				var clientAccounts = clientDatabase.Accounts.ToList();
-				var clientAddresses = clientDatabase.Addresses.ToList();
-				var clientLogEvents = clientDatabase.LogEvents.ToList();
-				var serverAccounts = entityDatabase.Accounts.ToList();
-				var serverAddresses = entityDatabase.Addresses.ToList();
-				var serverLogEvents = entityDatabase.LogEvents.ToList();
-
-				Assert.AreEqual(2, clientAccounts.Count);
-				Assert.AreEqual(2, clientAddresses.Count);
-				Assert.AreEqual(6, clientLogEvents.Count);
-				Assert.AreEqual(2, serverAccounts.Count);
-				Assert.AreEqual(2, serverAddresses.Count);
-				Assert.AreEqual(6, serverLogEvents.Count);
-
-				Compare(clientAccounts[0], serverAccounts[1]);
-				Compare(clientAccounts[1], serverAccounts[0]);
-				Compare(clientAddresses[0], serverAddresses[1]);
-				Compare(clientAddresses[1], serverAddresses[0]);
-
-				for (var i = 0; i < clientLogEvents.Count; i++)
-				{
-					Compare(clientLogEvents[i], serverLogEvents[i]);
-				}
+				Compare(clientLogEvents[i], serverLogEvents[i]);
 			}
 		}
 
@@ -264,6 +367,7 @@ namespace Speedy.IntegrationTests
 
 			Assert.AreNotEqual(0, memoryDatabase.Accounts.Count());
 			Assert.AreNotEqual(0, memoryDatabase.Addresses.Count());
+			Assert.AreNotEqual(0, memoryDatabase.LogEvents.Count());
 		}
 
 		#endregion

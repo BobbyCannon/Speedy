@@ -54,18 +54,21 @@ namespace Speedy.Data
 				options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>());
 				options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>());
 				options.AddSyncableFilter(new SyncRepositoryFilter<ClientLogEvent>());
+				options.AddSyncableFilter(new SyncRepositoryFilter<ClientSetting>());
 			});
 
 			IncomingConverter = new SyncClientIncomingConverter(
 				new SyncObjectIncomingConverter<Account, int, ClientAccount, int>((account, clientAccount) => clientAccount.Roles = ClientAccount.CombineRoles(account.Roles)),
 				new SyncObjectIncomingConverter<Address, long, ClientAddress, long>(),
-				new SyncObjectIncomingConverter<LogEvent, long, ClientLogEvent, long>()
+				new SyncObjectIncomingConverter<LogEvent, long, ClientLogEvent, long>(),
+				new SyncObjectIncomingConverter<Setting, long, ClientSetting, long>()
 			);
 
 			OutgoingConverter = new SyncClientOutgoingConverter(
 				new SyncObjectOutgoingConverter<ClientAccount, int, Account, int>((clientAccount, account) => account.Roles = ClientAccount.SplitRoles(clientAccount.Roles)),
 				new SyncObjectOutgoingConverter<ClientAddress, long, Address, long>(),
-				new SyncObjectOutgoingConverter<ClientLogEvent, long, LogEvent, long>()
+				new SyncObjectOutgoingConverter<ClientLogEvent, long, LogEvent, long>(),
+				new SyncObjectOutgoingConverter<ClientSetting, long, Setting, long>()
 			);
 		}
 

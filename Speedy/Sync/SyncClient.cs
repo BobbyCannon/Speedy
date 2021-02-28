@@ -310,10 +310,8 @@ namespace Speedy.Sync
 				}
 
 				var response = new ServiceResult<SyncIssue> { Collection = new List<SyncIssue>() };
-
 				groups.ForEach(x => ProcessSyncObjects(DatabaseProvider, x.Where(y => y.Status != SyncObjectStatus.Deleted), response.Collection, corrections));
 				groups.Reverse().ForEach(x => ProcessSyncObjects(DatabaseProvider, x.Where(y => y.Status == SyncObjectStatus.Deleted), response.Collection, corrections));
-
 				response.TotalCount = response.Collection.Count;
 				return response;
 			});
@@ -467,6 +465,11 @@ namespace Speedy.Sync
 					syncStatus = SyncObjectStatus.Added;
 				}
 
+				if (syncEntity.IsDeleted && syncStatus != SyncObjectStatus.Deleted)
+				{
+					syncStatus = SyncObjectStatus.Deleted;
+				}
+
 				switch (syncStatus)
 				{
 					case SyncObjectStatus.Added:
@@ -477,28 +480,10 @@ namespace Speedy.Sync
 							// will need to be set manually being that it will be filtered on update.
 							foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
 							foundEntity.SyncId = syncObject.SyncId;
-							try
+							
+							if (UpdateEntity(database, syncObject, syncEntity, foundEntity, syncStatus, issues))
 							{
-								if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
-								{
-									// returning false just means do not process and do not return a sync issue
-									return;
-								}
-
-								UpdateLocalRelationships(foundEntity, database);
 								repository.Add(foundEntity);
-							}
-							catch (UpdateException ex)
-							{
-								// throwing an update exception just means return a sync issue
-								var issue = new SyncIssue
-								{
-									Id = syncObject.SyncId,
-									IssueType = SyncIssueType.UpdateException,
-									Message = ex.Message,
-									TypeName = syncObject.TypeName
-								};
-								issues.Add(issue);
 							}
 						});
 						break;
@@ -506,73 +491,89 @@ namespace Speedy.Sync
 					case SyncObjectStatus.Modified:
 						Profiler.ProcessSyncObjectModified.Time(() =>
 						{
-							if (foundEntity != null && (foundEntity.ModifiedOn < syncEntity.ModifiedOn || correction))
+							if (foundEntity == null || (foundEntity.ModifiedOn >= syncEntity.ModifiedOn && !correction))
 							{
-								try
-								{
-									if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
-									{
-										// returning false just means do not process and do not return a sync issue
-										return;
-									}
+								// Did not find the entity or it has not changed.
+								return;
+							}
 
-									UpdateLocalRelationships(foundEntity, database);
-								}
-								catch (UpdateException ex)
-								{
-									// throwing an update exception just means return a sync issue
-									var issue = new SyncIssue
-									{
-										Id = syncObject.SyncId,
-										IssueType = SyncIssueType.UpdateException,
-										Message = ex.Message,
-										TypeName = syncObject.TypeName
-									};
-									issues.Add(issue);
-								}
+							if (!UpdateEntity(database, syncObject, syncEntity, foundEntity, syncStatus, issues))
+							{
+								// todo: roll back any possible changes
 							}
 						});
 						break;
 
 					case SyncObjectStatus.Deleted:
-						if (foundEntity != null)
+						Profiler.ProcessSyncObjectDeleted.Time(() =>
 						{
-							try
+							if (foundEntity == null)
 							{
-								if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
-								{
-									// returning false just means do not process the delete and do not return a sync issue
-									break;
-								}
-
+								// Check to see if we are permanently deleting sync entity
 								if (SyncOptions.PermanentDeletions)
 								{
-									repository.Remove(foundEntity);
+									// Entity not found and we don't soft delete so bounce
+									return;
 								}
-								else
-								{
-									foundEntity.IsDeleted = true;
-								}
+
+								// We did not find the entity and we should be soft deleting
+								// this means we must "add" the entity so we can delete it
+
+								// Insert the "soft deleted" item into the database "IsDeleted" will be handled below.
+								foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
+								foundEntity.SyncId = syncObject.SyncId;
+								repository.Add(foundEntity);
 							}
-							catch (UpdateException ex)
+
+							if (!UpdateEntity(database, syncObject, syncEntity, foundEntity, syncStatus, issues))
 							{
-								// throwing an update exception just means return a sync issue
-								var issue = new SyncIssue
-								{
-									Id = syncObject.SyncId,
-									IssueType = SyncIssueType.UpdateException,
-									Message = ex.Message,
-									TypeName = syncObject.TypeName
-								};
-								issues.Add(issue);
+								// todo: roll back any possible changes
+								return;
 							}
-						}
+
+							if (SyncOptions.PermanentDeletions)
+							{
+								repository.Remove(foundEntity);
+							}
+							else
+							{
+								foundEntity.IsDeleted = true;
+							}
+						});
 						break;
 
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
 			});
+		}
+
+		private bool UpdateEntity(ISyncableDatabase database, SyncObject syncObject, ISyncEntity syncEntity, ISyncEntity foundEntity, SyncObjectStatus syncStatus, ICollection<SyncIssue> issues)
+		{
+			try
+			{
+				if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+				{
+					// returning false just means do not process and do not return a sync issue
+					return false;
+				}
+
+				UpdateLocalRelationships(foundEntity, database);
+				return true;
+			}
+			catch (UpdateException ex)
+			{
+				// throwing an update exception just means return a sync issue
+				var issue = new SyncIssue
+				{
+					Id = syncObject.SyncId,
+					IssueType = SyncIssueType.UpdateException,
+					Message = ex.Message,
+					TypeName = syncObject.TypeName
+				};
+				issues.Add(issue);
+				return false;
+			}
 		}
 
 		private void ProcessSyncObjects(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)

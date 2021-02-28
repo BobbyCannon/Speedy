@@ -6272,6 +6272,11 @@
             The "Added" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean,System.Boolean)" />.
             </summary>
         </member>
+        <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectDeleted">
+            <summary>
+            The "Deleted" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean,System.Boolean)" />.
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.SyncClientProfiler.ProcessSyncObjectModified">
             <summary>
             The "Modified" portion of processing time for <seealso cref="M:Speedy.Sync.SyncClient.ProcessSyncObject(Speedy.Sync.SyncObject,Speedy.ISyncableDatabase,System.Collections.Generic.ICollection{Speedy.Sync.SyncIssue},System.Boolean,System.Boolean)" />.
