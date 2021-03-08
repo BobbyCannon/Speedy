@@ -6733,6 +6733,11 @@
             The item is not being updated due to an update exception.
             </summary>
         </member>
+        <member name="F:Speedy.Sync.SyncIssueType.ClientException">
+            <summary>
+            There was an exception with one of the sync clients.
+            </summary>
+        </member>
         <member name="T:Speedy.Sync.SyncManager`1">
             <summary>
             Represents a sync manager for syncing two clients.

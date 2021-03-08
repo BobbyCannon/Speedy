@@ -214,15 +214,14 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public virtual TResult Put<TContent, TResult>(string uri, TContent content)
 		{
-			using (var result = InternalPut(uri, content))
-			{
-				if (!result.IsSuccessStatusCode)
-				{
-					throw new WebClientException(result);
-				}
+			using var result = InternalPut(uri, content);
 
-				return result.Content.ReadAsStringAsync().Result.FromJson<TResult>();
+			if (!result.IsSuccessStatusCode)
+			{
+				throw new WebClientException(result);
 			}
+
+			return result.Content.ReadAsStringAsync().Result.FromJson<TResult>();
 		}
 
 		/// <summary>
@@ -275,53 +274,32 @@ namespace Speedy.Net
 
 		private HttpResponseMessage InternalPatch<T>(string uri, T content)
 		{
-			using (var handler = new HttpClientHandler())
-			{
-				using (var client = CreateHttpClient(handler))
-				{
-					var json = GetJson(content);
-
-					using (var objectContent = new StringContent(json, Encoding.UTF8, "application/json-patch+json"))
-					{
-						var response = PatchAsync(client, uri, objectContent).Result;
-						return ProcessResponse(response, handler);
-					}
-				}
-			}
+			using var handler = new HttpClientHandler();
+			using var client = CreateHttpClient(handler);
+			var json = GetJson(content);
+			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json-patch+json");
+			var response = PatchAsync(client, uri, objectContent).Result;
+			return ProcessResponse(response, handler);
 		}
 
 		private HttpResponseMessage InternalPost<T>(string uri, T content)
 		{
-			using (var handler = new HttpClientHandler())
-			{
-				using (var client = CreateHttpClient(handler))
-				{
-					var json = GetJson(content);
-
-					using (var objectContent = new StringContent(json, Encoding.UTF8, "application/json"))
-					{
-						var response = client.PostAsync(uri, objectContent).Result;
-						return ProcessResponse(response, handler);
-					}
-				}
-			}
+			using var handler = new HttpClientHandler();
+			using var client = CreateHttpClient(handler);
+			var json = GetJson(content);
+			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
+			var response = client.PostAsync(uri, objectContent).Result;
+			return ProcessResponse(response, handler);
 		}
 
 		private HttpResponseMessage InternalPut<T>(string uri, T content)
 		{
-			using (var handler = new HttpClientHandler())
-			{
-				using (var client = CreateHttpClient(handler))
-				{
-					var json = GetJson(content);
-
-					using (var objectContent = new StringContent(json, Encoding.UTF8, "application/json"))
-					{
-						var response = client.PutAsync(uri, objectContent).Result;
-						return ProcessResponse(response, handler);
-					}
-				}
-			}
+			using var handler = new HttpClientHandler();
+			using var client = CreateHttpClient(handler);
+			var json = GetJson(content);
+			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
+			var response = client.PutAsync(uri, objectContent).Result;
+			return ProcessResponse(response, handler);
 		}
 
 		private async Task<HttpResponseMessage> PatchAsync(HttpClient client, string uri, HttpContent content)

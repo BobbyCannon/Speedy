@@ -26,7 +26,7 @@
 		/// The item is not being processed because this repository is being filtered.
 		/// </summary>
 		RepositoryFiltered = 3,
-		
+
 		/// <summary>
 		/// The item is not being processed because the sync entity is being filtered.
 		/// </summary>
@@ -35,6 +35,11 @@
 		/// <summary>
 		/// The item is not being updated due to an update exception.
 		/// </summary>
-		UpdateException = 5
+		UpdateException = 5,
+
+		/// <summary>
+		/// There was an exception with one of the sync clients.
+		/// </summary>
+		ClientException = 6
 	}
 }

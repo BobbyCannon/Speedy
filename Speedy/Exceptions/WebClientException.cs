@@ -1,11 +1,9 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
-using Speedy.Sync;
 
 #endregion
 

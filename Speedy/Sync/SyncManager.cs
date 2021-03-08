@@ -383,9 +383,7 @@ namespace Speedy.Sync
 
 				if (results.Client == null || results.Server == null)
 				{
-					SyncState.Message = "Sync client for client or server is null.";
-					OnSyncUpdated(SyncState);
-					return results;
+					throw new Exception("Sync client for client or server is null.");
 				}
 
 				var engine = new SyncEngine(results.Client, results.Server, results.Options, _cancellationToken);
@@ -414,23 +412,33 @@ namespace Speedy.Sync
 			catch (WebClientException ex)
 			{
 				results.SyncSuccessful = false;
-
-				switch (ex.Code)
+				results.SyncIssues.Add(new SyncIssue
 				{
-					case HttpStatusCode.Unauthorized:
-						SyncState.Message = "Unauthorized: please update your credentials in settings or contact support.";
-						break;
+					Id = Guid.Empty,
+					IssueType = SyncIssueType.ClientException,
+					Message = ex.Message,
+					TypeName = string.Empty
+				});
 
-					default:
-						SyncState.Message = ex.Message;
-						break;
-				}
+				SyncState.Message = ex.Code switch
+				{
+					HttpStatusCode.Unauthorized => "Unauthorized: please update your credentials in settings or contact support.",
+					_ => ex.Message
+				};
 
 				OnSyncUpdated(SyncState);
 			}
 			catch (Exception ex)
 			{
 				results.SyncSuccessful = false;
+				results.SyncIssues.Add(new SyncIssue
+				{
+					Id = Guid.Empty,
+					IssueType = SyncIssueType.ClientException,
+					Message = ex.Message,
+					TypeName = string.Empty
+				});
+
 				SyncState.Message = ex.Message;
 				OnSyncUpdated(SyncState);
 			}
