@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -46,7 +45,6 @@ namespace Speedy.Sync
 			ProcessTimeout = TimeSpan.FromMilliseconds(60000);
 			SessionId = Guid.NewGuid();
 			ShowProgressThreshold = TimeSpan.FromMilliseconds(1000);
-			SyncIssues = new List<SyncIssue>();
 			SyncState = new SyncEngineState(Dispatcher);
 			SyncOptions = new ConcurrentDictionary<T, SyncOptions>();
 			SyncTimers = new ConcurrentDictionary<T, AverageTimer>();
@@ -77,11 +75,6 @@ namespace Speedy.Sync
 		public bool IsRunning => _cancellationToken != null && !_cancellationToken.IsCancellationRequested || _watch.IsRunning;
 
 		/// <summary>
-		/// Gets a value indicating if the last sync was successful.
-		/// </summary>
-		public bool IsSyncSuccessful { get; protected set; }
-
-		/// <summary>
 		/// Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
 		/// </summary>
 		public SyncClientOutgoingConverter OutgoingConverter { get; protected set; }
@@ -105,11 +98,6 @@ namespace Speedy.Sync
 		/// Gets the value to determine when to trigger <seealso cref="ShowProgress" />. Defaults to one second.
 		/// </summary>
 		public TimeSpan ShowProgressThreshold { get; set; }
-
-		/// <summary>
-		/// Gets the list of issues that occurred during the last sync.
-		/// </summary>
-		public IList<SyncIssue> SyncIssues { get; }
 
 		/// <summary>
 		/// Gets the current sync state.
@@ -323,13 +311,13 @@ namespace Speedy.Sync
 		/// start then the options will be null as they were never read or set.
 		/// </param>
 		/// <returns> The task for the process. </returns>
-		protected Task ProcessAsync(T syncType, Action<SyncOptions> updateOptions, TimeSpan? waitFor = null, Action<SyncResults<T>> postAction = null)
+		protected Task<SyncResults<T>> ProcessAsync(T syncType, Action<SyncOptions> updateOptions, TimeSpan? waitFor = null, Action<SyncResults<T>> postAction = null)
 		{
 			if (!IsEnabled)
 			{
 				OnLogEvent($"Sync Manager is not enabled so Sync {syncType} not started.", EventLevel.Verbose);
 				postAction?.Invoke(null);
-				return Task.CompletedTask;
+				return Task.FromResult(new SyncResults<T>());
 			}
 
 			if (IsRunning)
@@ -338,7 +326,7 @@ namespace Speedy.Sync
 				{
 					OnLogEvent($"Sync {SyncType} is already running so Sync {syncType} not started.", EventLevel.Verbose);
 					postAction?.Invoke(null);
-					return Task.CompletedTask;
+					return Task.FromResult(new SyncResults<T>());
 				}
 
 				// See if we are going to force current sync to stop
@@ -351,7 +339,7 @@ namespace Speedy.Sync
 			{
 				OnLogEvent($"Failed to Sync {syncType} because current Sync {SyncType} never completed while waiting.", EventLevel.Verbose);
 				postAction?.Invoke(null);
-				return Task.CompletedTask;
+				return Task.FromResult(new SyncResults<T>());
 			}
 
 			// Start the sync before we start the task
@@ -360,7 +348,7 @@ namespace Speedy.Sync
 
 			// Start the sync in a background thread.
 			return Task.Run(() => RunSync(result, updateOptions), _cancellationToken.Token)
-				.ContinueWith(x => { StopSync(result, postAction); });
+				.ContinueWith(x => StopSync(result, postAction));
 		}
 
 		/// <summary>
@@ -371,9 +359,10 @@ namespace Speedy.Sync
 		/// A TimeSpan that represents the number of milliseconds to wait, or
 		/// a TimeSpan that represents -1 milliseconds to wait indefinitely.
 		/// </param>
-		protected void WaitOnTask(Task task, TimeSpan? timeout)
+		protected SyncResults<T> WaitOnTask(Task<SyncResults<T>> task, TimeSpan? timeout)
 		{
-			Task.WaitAll(new[] { task }, timeout ?? ProcessTimeout);
+			Task.WaitAll(new Task[] { task }, timeout ?? ProcessTimeout);
+			return task.Result;
 		}
 
 		/// <summary>
@@ -381,7 +370,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="results"> The results for the sync. </param>
 		/// <param name="updateOptions"> Update options before running sync. </param>
-		private void RunSync(SyncResults<T> results, Action<SyncOptions> updateOptions)
+		private SyncResults<T> RunSync(SyncResults<T> results, Action<SyncOptions> updateOptions)
 		{
 			try
 			{
@@ -394,14 +383,12 @@ namespace Speedy.Sync
 
 				if (results.Client == null || results.Server == null)
 				{
-					IsSyncSuccessful = false;
 					SyncState.Message = "Sync client for client or server is null.";
 					OnSyncUpdated(SyncState);
-					return;
+					return results;
 				}
 
 				var engine = new SyncEngine(results.Client, results.Server, results.Options, _cancellationToken);
-
 				engine.SyncStateChanged += async (sender, state) =>
 				{
 					SyncState.UpdateWith(state);
@@ -420,12 +407,14 @@ namespace Speedy.Sync
 
 				engine.Run();
 
-				SyncIssues.Clear();
-				SyncIssues.AddRange(engine.SyncIssues);
-				IsSyncSuccessful = !_cancellationToken.IsCancellationRequested && !SyncIssues.Any();
+				results.SyncIssues.AddRange(engine.SyncIssues);
+				results.SyncSuccessful = !_cancellationToken.IsCancellationRequested && !results.SyncIssues.Any();
+				results.SyncCompleted = true;
 			}
 			catch (WebClientException ex)
 			{
+				results.SyncSuccessful = false;
+
 				switch (ex.Code)
 				{
 					case HttpStatusCode.Unauthorized:
@@ -437,15 +426,16 @@ namespace Speedy.Sync
 						break;
 				}
 
-				IsSyncSuccessful = false;
 				OnSyncUpdated(SyncState);
 			}
 			catch (Exception ex)
 			{
-				IsSyncSuccessful = false;
+				results.SyncSuccessful = false;
 				SyncState.Message = ex.Message;
 				OnSyncUpdated(SyncState);
 			}
+
+			return results;
 		}
 
 		private SyncOptions StartSync(SyncResults<T> results)
@@ -455,10 +445,6 @@ namespace Speedy.Sync
 			{
 				_syncTimer.Start();
 			}
-
-			// Start with sync failed so only successful sync will work
-			IsSyncSuccessful = false;
-			SyncIssues.Clear();
 
 			OnLogEvent($"Sync {results.SyncType} started", EventLevel.Verbose);
 
@@ -475,7 +461,7 @@ namespace Speedy.Sync
 			return options;
 		}
 
-		private void StopSync(SyncResults<T> results, Action<SyncResults<T>> postAction)
+		private SyncResults<T> StopSync(SyncResults<T> results, Action<SyncResults<T>> postAction)
 		{
 			if (_syncTimer != null)
 			{
@@ -517,6 +503,8 @@ namespace Speedy.Sync
 			OnPropertyChanged(nameof(IsCancellationPending));
 			OnPropertyChanged(nameof(IsRunning));
 			OnPropertyChanged(nameof(ShowProgress));
+
+			return results;
 		}
 
 		private bool WaitForSyncAvailableThenStart(TimeSpan timeout)

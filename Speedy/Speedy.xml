@@ -1466,6 +1466,29 @@
             The amount of ticks in the Min Date / Time value.
             </summary>
         </member>
+        <member name="T:Speedy.Extensions.EnumExtensions">
+            <summary>
+            Extensions for enumerations
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.ClearFlag``1(``0,``0)">
+            <summary>
+            Clear the "flagged" enum value.
+            </summary>
+            <typeparam name="T"> The type of the enum value. </typeparam>
+            <param name="value"> The value to update. </param>
+            <param name="flag"> The flag to be cleared. </param>
+            <returns> The value with the flagged cleared. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.SetFlag``1(``0,``0)">
+            <summary>
+            Set the "flagged" enum value.
+            </summary>
+            <typeparam name="T"> The type of the enum value. </typeparam>
+            <param name="value"> The value to update. </param>
+            <param name="flag"> The flag to be set. </param>
+            <returns> The value with the flagged set. </returns>
+        </member>
         <member name="T:Speedy.Extensions.ExpressionExtensions">
             <summary>
             Extensions for expressions
@@ -1875,12 +1898,35 @@
             Extensions for Task
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults(System.Threading.Tasks.Task)">
+            <summary>
+            Await the results of a task.
+            </summary>
+            <param name="task"> The task to run. </param>
+        </member>
+        <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults``1(System.Threading.Tasks.Task{``0})">
+            <summary>
+            Await the results of a task.
+            </summary>
+            <typeparam name="T"> The type to return. </typeparam>
+            <param name="task"> The task to run. </param>
+            <returns> The result of the task. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults``1(System.Threading.Tasks.Task{``0},System.TimeSpan)">
+            <summary>
+            Await the results of a task.
+            </summary>
+            <typeparam name="T"> The type to return. </typeparam>
+            <param name="task"> The task to run. </param>
+            <param name="timeout"> The timeout if the task does not complete. </param>
+            <returns> The result of the task. </returns>
+        </member>
         <member name="M:Speedy.Extensions.TaskExtensions.IsCompleted(System.Threading.Tasks.Task)">
             <summary>
             Determine if a task has started and is completed.
             </summary>
             <param name="task"> The task to check. </param>
-            <returns> True if the task is Cancelled, Faulted, or RanToCompletion otherwise false.</returns>
+            <returns> True if the task is Cancelled, Faulted, or RanToCompletion otherwise false. </returns>
         </member>
         <member name="T:Speedy.Extensions.TrackerExtensions">
             <summary>
@@ -6718,11 +6764,6 @@
             Gets a value indicating the running status of the sync manager.
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncManager`1.IsSyncSuccessful">
-            <summary>
-            Gets a value indicating if the last sync was successful.
-            </summary>
-        </member>
         <member name="P:Speedy.Sync.SyncManager`1.OutgoingConverter">
             <summary>
             Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
@@ -6746,11 +6787,6 @@
         <member name="P:Speedy.Sync.SyncManager`1.ShowProgressThreshold">
             <summary>
             Gets the value to determine when to trigger <seealso cref="P:Speedy.Sync.SyncManager`1.ShowProgress" />. Defaults to one second.
-            </summary>
-        </member>
-        <member name="P:Speedy.Sync.SyncManager`1.SyncIssues">
-            <summary>
-            Gets the list of issues that occurred during the last sync.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncManager`1.SyncState">
@@ -6865,7 +6901,7 @@
             </param>
             <returns> The task for the process. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncManager`1.WaitOnTask(System.Threading.Tasks.Task,System.Nullable{System.TimeSpan})">
+        <member name="M:Speedy.Sync.SyncManager`1.WaitOnTask(System.Threading.Tasks.Task{Speedy.Sync.SyncResults{`0}},System.Nullable{System.TimeSpan})">
             <summary>
             Wait on a task to be completed.
             </summary>
@@ -7379,6 +7415,11 @@
             The results of the sync.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncResults`1.#ctor">
+            <summary>
+            Initiates an instances of the sync results.
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.SyncResults`1.Client">
             <summary>
             The sync client for the client.
@@ -7399,9 +7440,69 @@
             The sync client for the server.
             </summary>
         </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncCancelled">
+            <summary>
+            Gets a value indicating if the last sync was started.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncCompleted">
+            <summary>
+            The sync ran to completion.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncIssues">
+            <summary>
+            Gets the list of issues that occurred during the last sync.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncStarted">
+            <summary>
+            Gets a value indicating if the last sync was started.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncStatus">
+            <summary>
+            The sync result status
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SyncSuccessful">
+            <summary>
+            Gets a value indicating if the last sync was successful.
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.SyncResults`1.SyncType">
             <summary>
             The Type for the sync.
+            </summary>
+        </member>
+        <member name="T:Speedy.Sync.SyncResultStatus">
+            <summary>
+            The status of the sync result.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncResultStatus.Unknown">
+            <summary>
+            No flags have been set.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncResultStatus.Successful">
+            <summary>
+            The sync was completed successfully.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncResultStatus.Started">
+            <summary>
+            The sync was able to start.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncResultStatus.Cancelled">
+            <summary>
+            The sync was cancelled.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncResultStatus.Completed">
+            <summary>
+            The sync was able to run the full sync cycle.
             </summary>
         </member>
         <member name="T:Speedy.Sync.SyncSession">

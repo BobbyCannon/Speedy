@@ -1,18 +1,12 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Speedy.Extensions;
 using Speedy.Logging;
-using Speedy.Net;
-using Speedy.Profiling;
 using Speedy.Sync;
 
 #endregion
@@ -117,8 +111,8 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, manager.AverageSyncTimeForAll.Samples);
 
 			// Start a sync that will run for a long while
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results?.Options);
-			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results?.Options);
+			var result1 = manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results?.Options);
+			var result2 = manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results?.Options);
 			manager.WaitForSyncToComplete();
 
 			var expected = new[]
@@ -134,9 +128,12 @@ namespace Speedy.UnitTests
 
 			var actual = logListener.Events.Select(x => x.GetDetailedMessage()).ToArray();
 			actual.ForEach(x => Console.WriteLine($"\"{x}\","));
+			var actualResult1 = result1.AwaitResults();
+			var actualResult2 = result2.AwaitResults();
 
 			TestHelper.AreEqual(expected, actual);
-			Assert.IsTrue(manager.IsSyncSuccessful, "Sync should have been successful");
+			Assert.IsTrue(actualResult1.SyncSuccessful, "Sync should have been successful");
+			Assert.AreEqual(SyncResultStatus.Unknown, actualResult2.SyncStatus, "Sync should not have started");
 			Assert.AreEqual(0, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
 		}
 
@@ -156,10 +153,13 @@ namespace Speedy.UnitTests
 			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
-			manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, results => firstSyncOptions = results?.Options);
-			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results?.Options);
-			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, results => thirdSyncOptions = results?.Options);
+			var result1 = manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, results => firstSyncOptions = results?.Options);
+			var result2 = manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), null, results => secondSyncOptions = results?.Options);
+			var result3 = manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), null, results => thirdSyncOptions = results?.Options);
 			manager.WaitForSyncToComplete();
+			var actualResult1 = result1.AwaitResults();
+			var actualResult2 = result2.AwaitResults();
+			var actualResult3 = result3.AwaitResults();
 
 			var expected = new[]
 			{
@@ -174,7 +174,9 @@ namespace Speedy.UnitTests
 			actual.ForEach(x => Console.WriteLine($"\"{x}\","));
 
 			TestHelper.AreEqual(expected, actual);
-			Assert.IsTrue(manager.IsSyncSuccessful, "Sync should have been successful");
+			Assert.IsTrue(actualResult1.SyncSuccessful, "Sync should have been successful");
+			Assert.AreEqual(SyncResultStatus.Unknown, actualResult2.SyncStatus, "Sync should not have started");
+			Assert.AreEqual(SyncResultStatus.Unknown, actualResult3.SyncStatus, "Sync should not have started");
 			Assert.AreEqual(18000, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
 		}
 
@@ -223,145 +225,6 @@ namespace Speedy.UnitTests
 
 			TestHelper.AreEqual(expected, actual);
 			Assert.AreEqual(17000, manager.AverageSyncTimeForAll.Average.TotalMilliseconds);
-		}
-
-		#endregion
-	}
-
-	public enum TestSyncType
-	{
-		All = 0,
-		Accounts = 1,
-		Addresses = 2
-	}
-
-	public class TestSyncManager : SyncManager<TestSyncType>
-	{
-		#region Constructors
-
-		public TestSyncManager() : this(new DefaultDispatcher())
-		{
-		}
-
-		public TestSyncManager(IDispatcher dispatcher) : base(dispatcher)
-		{
-			// Setup our sync options
-			GetOrAddSyncOptions(TestSyncType.All, options => { });
-			GetOrAddSyncOptions(TestSyncType.Accounts, options => { });
-			GetOrAddSyncOptions(TestSyncType.Addresses, options => { });
-
-			// Setup tracking of certain syncs
-			AverageSyncTimeForAll = SyncTimers.GetOrAdd(TestSyncType.All, new AverageTimer(10, Dispatcher));
-		}
-
-		#endregion
-
-		#region Properties
-
-		public AverageTimer AverageSyncTimeForAll { get; }
-
-		#endregion
-
-		#region Methods
-
-		public void Sync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
-		{
-			SyncAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
-		}
-
-		public void SyncAccounts(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
-		{
-			SyncAccountsAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
-		}
-
-		public Task SyncAccountsAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
-		{
-			return ProcessAsync(TestSyncType.Accounts, options => DoTestDelay(testDelay), waitFor, postAction);
-		}
-
-		public void SyncAddresses(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
-		{
-			SyncAddressesAsync(testDelay, waitFor, postAction).Wait(waitFor ?? ProcessTimeout);
-		}
-
-		public Task SyncAddressesAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
-		{
-			return ProcessAsync(TestSyncType.Addresses, options => DoTestDelay(testDelay), waitFor, postAction);
-		}
-
-		public Task SyncAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
-		{
-			return ProcessAsync(TestSyncType.All, options => DoTestDelay(testDelay), waitFor, postAction);
-		}
-
-		protected override ISyncClient GetSyncClientForClient()
-		{
-			var corrections = new List<SyncObject>();
-			var client = new Mock<ISyncClient>();
-			var statistics = new SyncStatistics();
-
-			client.Setup(x => x.Statistics).Returns(() => statistics);
-
-			client.Setup(x => x.BeginSync(It.IsAny<Guid>(), It.IsAny<SyncOptions>()))
-				.Returns<Guid, SyncOptions>((i, o) => new SyncSession { Id = i, StartedOn = TimeService.UtcNow });
-
-			client.Setup(x => x.GetChanges(It.IsAny<Guid>(), It.IsAny<SyncRequest>()))
-				.Returns<Guid, SyncRequest>((id, x) => new ServiceResult<SyncObject>());
-
-			client.Setup(x => x.ApplyChanges(It.IsAny<Guid>(), It.IsAny<ServiceRequest<SyncObject>>()))
-				.Returns<Guid, ServiceRequest<SyncObject>>((id, x) => new ServiceResult<SyncIssue>());
-
-			client.Setup(x => x.ApplyCorrections(It.IsAny<Guid>(), It.IsAny<ServiceRequest<SyncObject>>()))
-				.Returns<Guid, ServiceRequest<SyncObject>>((id, x) =>
-				{
-					corrections.AddRange(x.Collection);
-					return new ServiceResult<SyncIssue>();
-				});
-
-			return client.Object;
-		}
-
-		protected override ISyncClient GetSyncClientForServer()
-		{
-			var corrections = new List<SyncObject>();
-			var client = new Mock<ISyncClient>();
-			var statistics = new SyncStatistics();
-
-			client.Setup(x => x.Statistics).Returns(() => statistics);
-
-			client.Setup(x => x.BeginSync(It.IsAny<Guid>(), It.IsAny<SyncOptions>()))
-				.Returns<Guid, SyncOptions>((i, o) => new SyncSession { Id = i, StartedOn = TimeService.UtcNow });
-
-			client.Setup(x => x.GetChanges(It.IsAny<Guid>(), It.IsAny<SyncRequest>()))
-				.Returns<Guid, SyncRequest>((id, x) => new ServiceResult<SyncObject>());
-
-			client.Setup(x => x.ApplyChanges(It.IsAny<Guid>(), It.IsAny<ServiceRequest<SyncObject>>()))
-				.Returns<Guid, ServiceRequest<SyncObject>>((id, x) => new ServiceResult<SyncIssue>());
-
-			client.Setup(x => x.ApplyCorrections(It.IsAny<Guid>(), It.IsAny<ServiceRequest<SyncObject>>()))
-				.Returns<Guid, ServiceRequest<SyncObject>>((id, x) =>
-				{
-					corrections.AddRange(x.Collection);
-					return new ServiceResult<SyncIssue>();
-				});
-
-			return client.Object;
-		}
-
-		private void DoTestDelay(TimeSpan? testDelay)
-		{
-			if (testDelay == null)
-			{
-				return;
-			}
-
-			var watch = Stopwatch.StartNew();
-
-			while (watch.Elapsed <= testDelay.Value && !IsCancellationPending)
-			{
-				// Delay while getting options
-				Thread.Sleep(10);
-			}
 		}
 
 		#endregion

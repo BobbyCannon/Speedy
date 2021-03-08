@@ -163,13 +163,13 @@ namespace Speedy.IntegrationTests
 			}
 
 			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:34 AM}
-			syncManager.Sync();
+			var result = syncManager.Sync();
 
-			Assert.AreEqual(1, syncManager.SyncIssues.Count);
-			Assert.AreEqual(setting.SyncId, syncManager.SyncIssues[0].Id);
-			Assert.AreEqual(SyncIssueType.UpdateException, syncManager.SyncIssues[0].IssueType);
-			Assert.AreEqual("You cannot delete this setting.", syncManager.SyncIssues[0].Message);
-			Assert.AreEqual(typeof(SettingEntity).ToAssemblyName(), syncManager.SyncIssues[0].TypeName);
+			Assert.AreEqual(1, result.SyncIssues.Count);
+			Assert.AreEqual(setting.SyncId, result.SyncIssues[0].Id);
+			Assert.AreEqual(SyncIssueType.UpdateException, result.SyncIssues[0].IssueType);
+			Assert.AreEqual("You cannot delete this setting.", result.SyncIssues[0].Message);
+			Assert.AreEqual(typeof(SettingEntity).ToAssemblyName(), result.SyncIssues[0].TypeName);
 
 			using (var database = entityProvider.GetDatabase())
 			{
@@ -197,9 +197,9 @@ namespace Speedy.IntegrationTests
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
-			syncManager.Sync();
+			var result = syncManager.Sync();
 
-			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));
+			Assert.AreEqual(true, result.SyncSuccessful, string.Join(Environment.NewLine, result.SyncIssues.Select(x => x.Message)));
 			Assert.AreNotEqual(0, logger.Events.Count);
 
 			using var clientDatabase = clientProvider.GetDatabase();
@@ -247,9 +247,9 @@ namespace Speedy.IntegrationTests
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
-			syncManager.SyncAddresses();
+			var result = syncManager.SyncAddresses();
 
-			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));
+			Assert.AreEqual(true, result.SyncSuccessful, string.Join(Environment.NewLine, result.SyncIssues.Select(x => x.Message)));
 			Assert.AreNotEqual(0, logger.Events.Count);
 
 			using (var clientDatabase = clientProvider.GetDatabase())
@@ -292,9 +292,9 @@ namespace Speedy.IntegrationTests
 			var syncClientProvider = new SyncClientProvider((n, c) => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
-			syncManager.SyncLogEvents();
+			var result = syncManager.SyncLogEvents();
 
-			Assert.AreEqual(true, syncManager.IsSyncSuccessful, string.Join(Environment.NewLine, syncManager.SyncIssues.Select(x => x.Message)));
+			Assert.AreEqual(true, result.SyncSuccessful, string.Join(Environment.NewLine, result.SyncIssues.Select(x => x.Message)));
 			Assert.AreNotEqual(0, logger.Events.Count);
 
 			using (var clientDatabase = clientProvider.GetDatabase())
