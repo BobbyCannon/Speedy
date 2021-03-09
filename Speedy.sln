@@ -55,7 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Benchmark", "Speedy.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Website", "Speedy.Website\Speedy.Website.csproj", "{164D25B9-E09C-4A9E-8EDF-51223E3CEA41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.PerformanceTests", "Speedy.PerformanceTests\Speedy.PerformanceTests.csproj", "{4545D785-1E2C-4254-9A19-47471EC335F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.PerformanceTests", "Speedy.PerformanceTests\Speedy.PerformanceTests.csproj", "{4545D785-1E2C-4254-9A19-47471EC335F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
