@@ -305,8 +305,11 @@ namespace Speedy.Sync
 				destination = Activator.CreateInstance<T1>();
 			}
 
-			// Update will not set the sync ID
-			destination.SyncId = source.SyncId;
+			if (!destination.IsPropertyExcludedForSyncUpdate(nameof(ISyncEntity.SyncId)))
+			{
+				// Update will not set the sync ID
+				destination.SyncId = source.SyncId;
+			}
 
 			// Handle all one to one properties (same name & type) and all sync entity base properties
 			Action convert = () => destination.UpdateWith(source, false, false, excludePropertiesForSyncUpdate);

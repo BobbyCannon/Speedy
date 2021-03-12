@@ -150,7 +150,10 @@ namespace Speedy.Website.Data.Sync
 					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>());
 					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<LogEventEntity>());
-					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<SettingEntity>());
+					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<SettingEntity>(null, null,
+						// This filter below replaces lookup for "SyncId"
+						x => y => y.Name == x.Name)
+					);
 					break;
 				}
 			}

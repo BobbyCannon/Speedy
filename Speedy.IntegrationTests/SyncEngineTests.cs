@@ -84,6 +84,43 @@ namespace Speedy.IntegrationTests
 				CompleteTestSync(client, server, options);
 			});
 		}
+		
+		[TestMethod]
+		public void AddItemToClientAndServerWithSyncEntityWithCustomLookupFilter()
+		{
+			TestHelper.TestServerAndClients((server, client) =>
+			{
+				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(NewSetting("Foo", "Bar", Guid.Parse("3E89C239-9B29-4E47-B4CA-C0695450FC07")));
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(NewSetting("Foo", "Bar", Guid.Parse("5323C23E-6959-47EE-9EDD-6CC1185859DA")));
+
+				var options = new SyncOptions();
+				options.AddSyncableFilter(new SyncRepositoryFilter<SettingEntity>(null, null,
+					// This filter below replaces lookup for "SyncId"
+					x => y => y.Name == x.Name)
+				);
+				var engine = SyncEngine.Run(client, server, options);
+
+				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
+
+				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
+				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
+				{
+					var settings1 = clientDatabase.Settings.OrderBy(x => x.Id).ToList();
+					var settings2 = serverDatabase.Settings.OrderBy(x => x.Id).ToList();
+
+					Assert.AreEqual(1, settings1.Count);
+					Assert.AreEqual(1, settings2.Count);
+
+					var actual1 = settings1[0].Unwrap<SettingEntity>();
+					var actual2 = settings2[0].Unwrap<SettingEntity>();
+
+					TestHelper.AreEqual(actual1, actual2, nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn), nameof(ISyncEntity.SyncId));
+					Assert.AreNotEqual(actual1.SyncId, actual2.SyncId);
+				}
+
+				CompleteTestSync(client, server, options, false);
+			}, false);
+		}
 
 		/// <summary>
 		/// This test will force both sides to have a local address with ID of 1 then sync.
