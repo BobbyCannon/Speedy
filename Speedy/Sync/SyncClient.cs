@@ -594,19 +594,22 @@ namespace Speedy.Sync
 					return d;
 				});
 
-				Profiler.ProcessSyncObjects.Time(() =>
+				try
 				{
-					for (var i = 0; i < objects.Count; i++)
+					Profiler.ProcessSyncObjects.Time(() =>
 					{
-						ProcessSyncObject(objects[i], database, issues, corrections, false);
-					}
-				});
+						for (var i = 0; i < objects.Count; i++)
+						{
+							ProcessSyncObject(objects[i], database, issues, corrections, false);
+						}
+					});
 
-				Profiler.ProcessSyncObjectsSaveDatabase.Time(() =>
+					Profiler.ProcessSyncObjectsSaveDatabase.Time(() => database.SaveChanges());
+				}
+				finally
 				{
-					database.SaveChanges();
 					database.Dispose();
-				});
+				}
 			}
 			catch
 			{

@@ -38,15 +38,15 @@ namespace Speedy.Sync
 		/// <param name="dispatcher"> The dispatcher to update with. </param>
 		protected SyncManager(IDispatcher dispatcher) : base(dispatcher)
 		{
-			SyncType = default;
 			_watch = new Stopwatch();
 
 			IsEnabled = true;
 			ProcessTimeout = TimeSpan.FromMilliseconds(60000);
 			SessionId = Guid.NewGuid();
 			ShowProgressThreshold = TimeSpan.FromMilliseconds(1000);
-			SyncState = new SyncEngineState(Dispatcher);
 			SyncOptions = new ConcurrentDictionary<T, SyncOptions>();
+			SyncState = new SyncEngineState(Dispatcher);
+			SyncType = default;
 			SyncTimers = new ConcurrentDictionary<T, AverageTimer>();
 		}
 

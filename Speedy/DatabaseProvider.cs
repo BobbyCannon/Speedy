@@ -75,25 +75,28 @@ namespace Speedy
 		{
 			var database = getDatabase();
 
-			for (var i = 1; i <= total; i++)
+			try
 			{
-				process(i, database);
-
-				if (i % iterationSize == 0)
+				for (var i = 1; i <= total; i++)
 				{
-					database.SaveChanges();
-					database.Dispose();
+					process(i, database);
 
-					if (i < total)
+					if (i % iterationSize == 0)
 					{
-						database = getDatabase();
+						database.SaveChanges();
+						database.Dispose();
+
+						if (i < total)
+						{
+							database = getDatabase();
+						}
 					}
 				}
-			}
 
-			if (database != null)
-			{
 				database.SaveChanges();
+			}
+			finally
+			{
 				database.Dispose();
 			}
 		}
