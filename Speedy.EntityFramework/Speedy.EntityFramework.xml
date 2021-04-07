@@ -526,6 +526,16 @@
             <param name="expression"> The expression to process. </param>
             <returns> The SQL update statement. </returns>
         </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.CreateWhere(Speedy.EntityFramework.Sql.SqlStatement,System.Linq.Expressions.Expression,System.String@,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="statement"> </param>
+            <param name="expression"> </param>
+            <param name="memberName"> </param>
+            <param name="propertyName"> </param>
+            <param name="setAssignmentValue"> States the expression is a value assignment. Meaning it's the right side of an assignment so set it as a parameter value. </param>
+        </member>
         <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlInsert(Speedy.EntityFramework.Sql.SqlStatement,System.Boolean)">
             <summary>
             Get SQL insert script from query.

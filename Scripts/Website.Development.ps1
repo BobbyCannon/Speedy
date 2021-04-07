@@ -27,3 +27,27 @@ Get-ChildItem *.db -Path "C:\Workspaces\GitHub\Speedy" -Recurse | Remove-Item
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Client.Data\Migrations -Force -Recurse
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Website.Data.Sql\Migrations -Force -Recurse
 Remove-Item C:\Workspaces\GitHub\Speedy\Speedy.Website.Data.Sqlite\Migrations -Force -Recurse
+
+# Remove All SSL Certificates
+
+$rootcert = Get-ChildItem cert:\LocalMachine\root -Recurse | Where { $_.FriendlyName -eq $dnsname }
+
+if ($rootcert -ne $null)
+{
+	Write-Host "Removing Certificate..."
+	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "Root", "LocalMachine"
+	$store.Open("ReadWrite")
+	$store.Remove($rootcert)
+	$store.Close()
+}
+
+$cert = Get-ChildItem cert:\LocalMachine\WebHosting -Recurse | Where { $_.FriendlyName -eq $dnsname }
+
+if ($cert -ne $null)
+{
+	Write-Host "Removing Certificate..."
+	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "WebHosting", "LocalMachine"
+	$store.Open("ReadWrite")
+	$store.Remove($cert)
+	$store.Close()
+}

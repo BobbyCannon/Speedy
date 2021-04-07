@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Data.WebApi;
 using Speedy.EntityFramework.Sql;
 using Speedy.Extensions;
 using Speedy.Website.Data.Entities;
@@ -37,9 +38,15 @@ namespace Speedy.IntegrationTests
 				{ x => x.Id > 2, ("DELETE FROM [dbo].[Accounts] WHERE [AccountId] > @p0", "AccountId:p0", new[] { new SqlParameter("p0", 2) }) },
 				{ x => x.Nickname == "Fred", ("DELETE FROM [dbo].[Accounts] WHERE [AccountNickname] = @p0", "AccountNickname:p0", new[] { new SqlParameter("p0", SqlDbType.Text) { DbType = DbType.AnsiString, Value = "Fred" } }) },
 				{ x => x.IsDeleted, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 1", "", new SqlParameter[0]) },
+				// ReSharper disable once RedundantBoolCompare
+				{ x => x.IsDeleted == true, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0", "AccountIsDeleted:p0", new[] { new SqlParameter("p0", true) }) },
 				{ x => !x.IsDeleted, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 0", "", new SqlParameter[0]) },
-				{ x => x.IsDeleted && x.ModifiedOn <= deletedOn, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 1 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
-				{ x => !x.IsDeleted && x.ModifiedOn <= deletedOn, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 0 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) }
+				{ x => x.IsDeleted == false, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0", "AccountIsDeleted:p0", new[] { new SqlParameter("p0", false) }) },
+				{ x => x.IsDeleted && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 1 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
+				// ReSharper disable once RedundantBoolCompare
+				{ x => x.IsDeleted == true && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0 AND [AccountModifiedOn] <= @p1", "AccountIsDeleted:p0, AccountModifiedOn:p1", new[] { new SqlParameter("p0", SqlDbType.Bit) { Value = true }, new SqlParameter("p1", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
+				{ x => !x.IsDeleted && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 0 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
+				{ x => x.IsDeleted == false && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0 AND [AccountModifiedOn] <= @p1", "AccountIsDeleted:p0, AccountModifiedOn:p1", new[] { new SqlParameter("p0", SqlDbType.Bit) { Value = false }, new SqlParameter("p1", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) }
 			};
 
 			accountFilters.ForEach(filter =>
@@ -63,31 +70,31 @@ namespace Speedy.IntegrationTests
 						new SqlParameter[0])
 				},
 				{
-					x => x.CreatedOn > DateTime.MinValue && x.ModifiedOn < DateTime.MaxValue, ("DELETE FROM [dbo].[Addresses] WHERE [AddressCreatedOn] > @p0 AND [AddressModifiedOn] < @p1",
+					x => (x.CreatedOn > DateTime.MinValue) && (x.ModifiedOn < DateTime.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressCreatedOn] > @p0 AND [AddressModifiedOn] < @p1",
 						new[] { new SqlParameter("p0", SqlDbType.DateTime2) { Value = DateTime.MinValue }, new SqlParameter("p1", SqlDbType.DateTime2) { Value = DateTime.MaxValue } })
 				},
 				{
-					x => x.Id >= byte.MinValue && x.Id <= byte.MaxValue, ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
+					x => (x.Id >= byte.MinValue) && (x.Id <= byte.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
 						new[] { new SqlParameter("p0", SqlDbType.BigInt) { Value = (long) byte.MinValue }, new SqlParameter("p1", SqlDbType.BigInt) { Value = (long) byte.MaxValue } })
 				},
 				{
-					x => x.Id >= ushort.MinValue && x.Id <= ushort.MaxValue, ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
+					x => (x.Id >= ushort.MinValue) && (x.Id <= ushort.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
 						new[] { new SqlParameter("p0", SqlDbType.BigInt) { Value = (long) ushort.MinValue }, new SqlParameter("p1", SqlDbType.BigInt) { Value = (long) ushort.MaxValue } })
 				},
 				{
-					x => x.Id >= short.MinValue && x.Id <= short.MaxValue, ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
+					x => (x.Id >= short.MinValue) && (x.Id <= short.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
 						new[] { new SqlParameter("p0", SqlDbType.BigInt) { Value = (long) short.MinValue }, new SqlParameter("p1", SqlDbType.BigInt) { Value = (long) short.MaxValue } })
 				},
 				{
-					x => x.Id >= uint.MinValue && x.Id <= uint.MaxValue, ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
+					x => (x.Id >= uint.MinValue) && (x.Id <= uint.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
 						new[] { new SqlParameter("p0", SqlDbType.BigInt) { Value = (long) uint.MinValue }, new SqlParameter("p1", SqlDbType.BigInt) { Value = (long) uint.MaxValue } })
 				},
 				{
-					x => x.Id >= int.MinValue && x.Id <= int.MaxValue, ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
+					x => (x.Id >= int.MinValue) && (x.Id <= int.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
 						new[] { new SqlParameter("p0", SqlDbType.BigInt) { Value = (long) int.MinValue }, new SqlParameter("p1", SqlDbType.BigInt) { Value = (long) int.MaxValue } })
 				},
 				{
-					x => x.Id >= long.MinValue && x.Id <= long.MaxValue, ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
+					x => (x.Id >= long.MinValue) && (x.Id <= long.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressId] >= @p0 AND [AddressId] <= @p1",
 						new[] { new SqlParameter("p0", SqlDbType.BigInt) { Value = long.MinValue }, new SqlParameter("p1", SqlDbType.BigInt) { Value = long.MaxValue } })
 				}
 			};
@@ -179,31 +186,31 @@ namespace Speedy.IntegrationTests
 				{ x => x.SyncId != Guid.Empty, ("DELETE FROM \"Addresses\" WHERE \"AddressSyncId\" <> @p0", new[] { new SqliteParameter("p0", Guid.Empty) }) },
 				{ x => !x.IsDeleted, ("DELETE FROM \"Addresses\" WHERE \"AddressIsDeleted\" = 0", new SqliteParameter[0]) },
 				{
-					x => x.CreatedOn > DateTime.MinValue && x.ModifiedOn < DateTime.MaxValue, ("DELETE FROM \"Addresses\" WHERE \"AddressCreatedOn\" > @p0 AND \"AddressModifiedOn\" < @p1",
+					x => (x.CreatedOn > DateTime.MinValue) && (x.ModifiedOn < DateTime.MaxValue), ("DELETE FROM \"Addresses\" WHERE \"AddressCreatedOn\" > @p0 AND \"AddressModifiedOn\" < @p1",
 						new[] { new SqliteParameter("p0", SqlDbType.DateTime2) { Value = DateTime.MinValue }, new SqliteParameter("p1", SqlDbType.DateTime2) { Value = DateTime.MaxValue } })
 				},
 				{
-					x => x.Id >= byte.MinValue && x.Id <= byte.MaxValue, ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
+					x => (x.Id >= byte.MinValue) && (x.Id <= byte.MaxValue), ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
 						new[] { new SqliteParameter("p0", SqlDbType.BigInt) { Value = (long) byte.MinValue }, new SqliteParameter("p1", SqlDbType.BigInt) { Value = (long) byte.MaxValue } })
 				},
 				{
-					x => x.Id >= ushort.MinValue && x.Id <= ushort.MaxValue, ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
+					x => (x.Id >= ushort.MinValue) && (x.Id <= ushort.MaxValue), ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
 						new[] { new SqliteParameter("p0", SqlDbType.BigInt) { Value = (long) ushort.MinValue }, new SqliteParameter("p1", SqlDbType.BigInt) { Value = (long) ushort.MaxValue } })
 				},
 				{
-					x => x.Id >= short.MinValue && x.Id <= short.MaxValue, ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
+					x => (x.Id >= short.MinValue) && (x.Id <= short.MaxValue), ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
 						new[] { new SqliteParameter("p0", SqlDbType.BigInt) { Value = (long) short.MinValue }, new SqliteParameter("p1", SqlDbType.BigInt) { Value = (long) short.MaxValue } })
 				},
 				{
-					x => x.Id >= uint.MinValue && x.Id <= uint.MaxValue, ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
+					x => (x.Id >= uint.MinValue) && (x.Id <= uint.MaxValue), ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
 						new[] { new SqliteParameter("p0", SqlDbType.BigInt) { Value = (long) uint.MinValue }, new SqliteParameter("p1", SqlDbType.BigInt) { Value = (long) uint.MaxValue } })
 				},
 				{
-					x => x.Id >= int.MinValue && x.Id <= int.MaxValue, ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
+					x => (x.Id >= int.MinValue) && (x.Id <= int.MaxValue), ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
 						new[] { new SqliteParameter("p0", SqlDbType.BigInt) { Value = (long) int.MinValue }, new SqliteParameter("p1", SqlDbType.BigInt) { Value = (long) int.MaxValue } })
 				},
 				{
-					x => x.Id >= long.MinValue && x.Id <= long.MaxValue, ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
+					x => (x.Id >= long.MinValue) && (x.Id <= long.MaxValue), ("DELETE FROM \"Addresses\" WHERE \"AddressId\" >= @p0 AND \"AddressId\" <= @p1",
 						new[]
 						{
 							new SqliteParameter("p0", SqlDbType.BigInt) { Value = long.MinValue }, new SqliteParameter("p1", SqlDbType.BigInt) { Value = long.MaxValue }
@@ -296,6 +303,87 @@ namespace Speedy.IntegrationTests
 
 		[TestMethod]
 		public void SqlUpdate()
+		{
+			var provider = TestHelper.GetSqlProvider();
+			using var database = (ContosoSqlDatabase) provider.GetDatabase();
+			var test = new { Message = "foo bar" };
+			var actual = SqlBuilder.GetSqlUpdate(database, database.LogEvents.Where(x => x.Level == LogLevel.Critical), entity => new LogEventEntity { Message = test.Message });
+			var expected = "UPDATE [dbo].[LogEvents] SET [Message] = @p0 WHERE [Level] = @p1";
+			var actualQuery = actual.Query.ToString();
+			Assert.AreEqual(expected, actualQuery, actualQuery);
+			Assert.AreEqual(2, actual.Parameters.Count);
+			Assert.AreEqual(SqlDbType.Text, ((SqlParameter) actual.Parameters[0]).SqlDbType);
+			Assert.AreEqual("foo bar", ((SqlParameter) actual.Parameters[0]).SqlValue.ToString());
+			Assert.AreEqual(SqlDbType.Int, ((SqlParameter) actual.Parameters[1]).SqlDbType);
+			Assert.AreEqual("0", ((SqlParameter) actual.Parameters[1]).SqlValue.ToString());
+		}
+
+		[TestMethod]
+		public void SqlUpdateWithBooleans()
+		{
+			var provider = TestHelper.GetSqlProvider();
+			using var database = (ContosoSqlDatabase) provider.GetDatabase();
+			var test = new { Message = "foo bar" };
+			var actual = SqlBuilder.GetSqlUpdate(database, database.LogEvents.Where(x => x.IsDeleted), entity => new LogEventEntity { Message = test.Message });
+			var expected = "UPDATE [dbo].[LogEvents] SET [Message] = @p0 WHERE [IsDeleted] = 1";
+			var actualQuery = actual.Query.ToString();
+			Assert.AreEqual(expected, actualQuery);
+			Assert.AreEqual(1, actual.Parameters.Count);
+			Assert.AreEqual(SqlDbType.Text, ((SqlParameter) actual.Parameters[0]).SqlDbType);
+			Assert.AreEqual("foo bar", ((SqlParameter) actual.Parameters[0]).SqlValue.ToString());
+
+			actual = SqlBuilder.GetSqlUpdate(database, database.LogEvents.Where(x => !x.IsDeleted), entity => new LogEventEntity { Message = test.Message });
+			expected = "UPDATE [dbo].[LogEvents] SET [Message] = @p0 WHERE [IsDeleted] = 0";
+			actualQuery = actual.Query.ToString();
+			Assert.AreEqual(expected, actualQuery);
+			Assert.AreEqual(1, actual.Parameters.Count);
+			Assert.AreEqual(SqlDbType.Text, ((SqlParameter) actual.Parameters[0]).SqlDbType);
+			Assert.AreEqual("foo bar", ((SqlParameter) actual.Parameters[0]).SqlValue.ToString());
+
+			// ReSharper disable once RedundantBoolCompare
+			actual = SqlBuilder.GetSqlUpdate(database, database.LogEvents.Where(x => x.IsDeleted == true), entity => new LogEventEntity { Message = test.Message });
+			expected = "UPDATE [dbo].[LogEvents] SET [Message] = @p0 WHERE [IsDeleted] = @p1";
+			actualQuery = actual.Query.ToString();
+			Assert.AreEqual(expected, actualQuery);
+			Assert.AreEqual(2, actual.Parameters.Count);
+			Assert.AreEqual(SqlDbType.Text, ((SqlParameter) actual.Parameters[0]).SqlDbType);
+			Assert.AreEqual("foo bar", ((SqlParameter) actual.Parameters[0]).SqlValue.ToString());
+			Assert.AreEqual(SqlDbType.Bit, ((SqlParameter) actual.Parameters[1]).SqlDbType);
+			Assert.AreEqual("True", ((SqlParameter) actual.Parameters[1]).SqlValue.ToString());
+
+			actual = SqlBuilder.GetSqlUpdate(database, database.LogEvents.Where(x => x.IsDeleted == false), entity => new LogEventEntity { Message = test.Message });
+			expected = "UPDATE [dbo].[LogEvents] SET [Message] = @p0 WHERE [IsDeleted] = @p1";
+			actualQuery = actual.Query.ToString();
+			Assert.AreEqual(expected, actualQuery);
+			Assert.AreEqual(2, actual.Parameters.Count);
+			Assert.AreEqual(SqlDbType.Text, ((SqlParameter) actual.Parameters[0]).SqlDbType);
+			Assert.AreEqual("foo bar", ((SqlParameter) actual.Parameters[0]).SqlValue.ToString());
+			Assert.AreEqual(SqlDbType.Bit, ((SqlParameter) actual.Parameters[1]).SqlDbType);
+			Assert.AreEqual("False", ((SqlParameter) actual.Parameters[1]).SqlValue.ToString());
+
+			actual = SqlBuilder.GetSqlUpdate(database, database.LogEvents.Where(x => (x.Level == LogLevel.Critical) && x.IsDeleted), entity => new LogEventEntity { Message = test.Message });
+			expected = "UPDATE [dbo].[LogEvents] SET [Message] = @p0 WHERE [Level] = @p1 AND [IsDeleted] = 1";
+			actualQuery = actual.Query.ToString();
+			Assert.AreEqual(expected, actualQuery);
+			Assert.AreEqual(2, actual.Parameters.Count);
+			Assert.AreEqual(SqlDbType.Text, ((SqlParameter) actual.Parameters[0]).SqlDbType);
+			Assert.AreEqual("foo bar", ((SqlParameter) actual.Parameters[0]).SqlValue.ToString());
+			Assert.AreEqual(SqlDbType.Int, ((SqlParameter) actual.Parameters[1]).SqlDbType);
+			Assert.AreEqual("0", ((SqlParameter) actual.Parameters[1]).SqlValue.ToString());
+
+			actual = SqlBuilder.GetSqlUpdate(database, database.LogEvents.Where(x => (x.Level == LogLevel.Critical) && !x.IsDeleted), entity => new LogEventEntity { Message = test.Message });
+			expected = "UPDATE [dbo].[LogEvents] SET [Message] = @p0 WHERE [Level] = @p1 AND [IsDeleted] = 0";
+			actualQuery = actual.Query.ToString();
+			Assert.AreEqual(expected, actualQuery);
+			Assert.AreEqual(2, actual.Parameters.Count);
+			Assert.AreEqual(SqlDbType.Text, ((SqlParameter) actual.Parameters[0]).SqlDbType);
+			Assert.AreEqual("foo bar", ((SqlParameter) actual.Parameters[0]).SqlValue.ToString());
+			Assert.AreEqual(SqlDbType.Int, ((SqlParameter) actual.Parameters[1]).SqlDbType);
+			Assert.AreEqual("0", ((SqlParameter) actual.Parameters[1]).SqlValue.ToString());
+		}
+
+		[TestMethod]
+		public void SqlUpdateWithoutQuery()
 		{
 			var provider = TestHelper.GetSqlProvider();
 			using var database = (ContosoSqlDatabase) provider.GetDatabase();

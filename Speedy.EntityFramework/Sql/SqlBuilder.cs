@@ -5,7 +5,6 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -238,7 +237,7 @@ namespace Speedy.EntityFramework.Sql
 
 						CreateUpdateBody(statement, assignment.Expression, ref memberName);
 
-						if (memberInitExpression.Bindings.IndexOf(item) < memberInitExpression.Bindings.Count - 1)
+						if (memberInitExpression.Bindings.IndexOf(item) < (memberInitExpression.Bindings.Count - 1))
 						{
 							statement.QueryUpdate.Append(" ,");
 						}
@@ -278,10 +277,11 @@ namespace Speedy.EntityFramework.Sql
 				}
 				case BinaryExpression binaryExpression:
 				{
-					var valueIsNull = binaryExpression.Right is ConstantExpression constantExpression && constantExpression.Value == null;
+					var valueIsNull = binaryExpression.Right is ConstantExpression constantExpression && (constantExpression.Value == null);
 					CreateUpdateBody(statement, binaryExpression.Left, ref memberName);
-					statement.QueryUpdate.Append(GetNodeType(binaryExpression, valueIsNull));
-					if (!valueIsNull)
+					var result = ProcessExpressionType(binaryExpression, valueIsNull);
+					statement.QueryUpdate.Append(result.expression);
+					if (result.awaitingValue)
 					{
 						CreateUpdateBody(statement, binaryExpression.Right, ref memberName);
 					}
@@ -303,7 +303,15 @@ namespace Speedy.EntityFramework.Sql
 			CreateWhere(statement, expression, ref memberName);
 		}
 
-		private static void CreateWhere(SqlStatement statement, Expression expression, ref string memberName, string propertyName = null, bool setAssignmentValue = false)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="statement"> </param>
+		/// <param name="expression"> </param>
+		/// <param name="memberName"> </param>
+		/// <param name="propertyName"> </param>
+		/// <param name="setAssignmentValue"> States the expression is a value assignment. Meaning it's the right side of an assignment so set it as a parameter value. </param>
+		private static void CreateWhere(SqlStatement statement, Expression expression, ref string memberName, string propertyName = null, bool setAssignmentValue = false, bool isFinalExpression = false)
 		{
 			switch (expression)
 			{
@@ -319,7 +327,7 @@ namespace Speedy.EntityFramework.Sql
 					{
 						memberName = propertyName ?? (statement.TableInformation.PropertyToColumnName.TryGetValue(memberExpression.Member.Name, out var propertyColumnName) ? propertyColumnName : memberExpression.Member.Name);
 
-						var result = ProcessMemberExpression(memberName, statement, memberExpression);
+						var result = ProcessMemberExpression(memberName, statement, memberExpression, isFinalExpression);
 						if (!result)
 						{
 							statement.QueryWhere.Append($" {statement.TableInformation.ProviderPrefix}{memberName}{statement.TableInformation.ProviderSuffix}");
@@ -345,6 +353,12 @@ namespace Speedy.EntityFramework.Sql
 					{
 						case ExpressionType.Convert:
 						{
+							if (unaryExpression.Operand is MemberExpression memberExpression)
+							{
+								CreateWhere(statement, memberExpression, ref memberName);
+								break;
+							}
+
 							var body = unaryExpression.Operand.GetMemberValue("Body") as Expression;
 							CreateWhere(statement, body ?? unaryExpression.Operand, ref memberName);
 							break;
@@ -352,11 +366,7 @@ namespace Speedy.EntityFramework.Sql
 						case ExpressionType.Quote:
 						{
 							var body = unaryExpression.Operand.GetMemberValue("Body") as Expression;
-							CreateWhere(statement, body ?? unaryExpression.Operand, ref memberName);
-							if (body != null && body.NodeType == ExpressionType.MemberAccess && body.Type == typeof(bool))
-							{
-								statement.QueryWhere.Append(" = 1");
-							}
+							CreateWhere(statement, body ?? unaryExpression.Operand, ref memberName, isFinalExpression: true);
 							memberName = string.Empty;
 							break;
 						}
@@ -375,17 +385,22 @@ namespace Speedy.EntityFramework.Sql
 				}
 				case BinaryExpression binaryExpression:
 				{
-					CreateWhere(statement, binaryExpression.Left, ref memberName);
-					if (binaryExpression.Left.NodeType == ExpressionType.MemberAccess && binaryExpression.Left.Type == typeof(bool))
-					{
-						statement.QueryWhere.Append(" = 1");
-					}
-
 					var valueIsNull = binaryExpression.Right is ConstantExpression { Value: null };
-					statement.QueryWhere.Append(GetNodeType(binaryExpression, valueIsNull));
+					var results = ProcessExpressionType(binaryExpression, valueIsNull);
+
+					CreateWhere(statement, binaryExpression.Left, ref memberName, isFinalExpression: !results.awaitingValue);
+
+					statement.QueryWhere.Append(results.expression);
 					if (!valueIsNull)
 					{
-						CreateWhere(statement, binaryExpression.Right, ref memberName, memberName, true);
+						if (!results.awaitingValue && binaryExpression.Right is MemberExpression mExpression && (mExpression.Expression != null))
+						{
+							CreateWhere(statement, binaryExpression.Right, ref memberName, isFinalExpression: true);
+						}
+						else
+						{
+							CreateWhere(statement, binaryExpression.Right, ref memberName, memberName, true, true);
+						}
 					}
 					break;
 				}
@@ -411,93 +426,6 @@ namespace Speedy.EntityFramework.Sql
 					Debug.WriteLine(expression.GetType().FullName);
 					break;
 				}
-			}
-		}
-
-		private static void ProcessParameterExpression(SqlStatement statement, ParameterExpression expression, ref string memberName)
-		{
-			statement.Query.Append(memberName);
-			
-			if (expression.Type == typeof(bool) && expression.NodeType == ExpressionType.MemberAccess)
-			{
-				statement.QueryWhere.Append(" = 1");
-			}
-			else if (expression.Type == typeof(bool) && expression.NodeType == ExpressionType.Not)
-			{
-				statement.QueryWhere.Append(" = 0");
-			}
-		}
-
-		private static string GetNodeType(BinaryExpression expression, bool valueIsNull)
-		{
-			switch (expression.NodeType)
-			{
-				case ExpressionType.AndAlso:
-					return " AND";
-
-				case ExpressionType.OrElse:
-					return " OR";
-
-				case ExpressionType.Add:
-					return " +";
-
-				case ExpressionType.AddAssign:
-					return " +=";
-
-				case ExpressionType.Subtract:
-					return " -";
-
-				case ExpressionType.SubtractAssign:
-					return " -=";
-
-				case ExpressionType.And:
-					return " &";
-
-				case ExpressionType.AndAssign:
-					return " &=";
-
-				case ExpressionType.Or:
-					return " |";
-
-				case ExpressionType.Modulo:
-					return " %";
-
-				case ExpressionType.ModuloAssign:
-					return " %=";
-
-				case ExpressionType.Divide:
-					return " /";
-
-				case ExpressionType.DivideAssign:
-					return " /=";
-
-				case ExpressionType.Multiply:
-					return " *";
-
-				case ExpressionType.MultiplyAssign:
-					return " *=";
-
-				case ExpressionType.GreaterThan:
-					return " >";
-
-				case ExpressionType.GreaterThanOrEqual:
-					return " >=";
-
-				case ExpressionType.LessThan:
-					return " <";
-
-				case ExpressionType.LessThanOrEqual:
-					return " <=";
-
-				case ExpressionType.Assign:
-				case ExpressionType.Equal:
-					return valueIsNull ? " IS NULL" : " =";
-
-				case ExpressionType.NotEqual:
-					return valueIsNull ? " IS NOT NULL" : " <>";
-
-				default:
-					throw new NotSupportedException(expression.NodeType.ToString());
 			}
 		}
 
@@ -546,7 +474,80 @@ namespace Speedy.EntityFramework.Sql
 			return statement;
 		}
 
-		private static bool ProcessMemberExpression(string columnName, SqlStatement statement, MemberExpression memberExpression)
+		private static (string expression, bool awaitingValue) ProcessExpressionType(BinaryExpression expression, bool valueIsNull)
+		{
+			switch (expression.NodeType)
+			{
+				case ExpressionType.AndAlso:
+					return (" AND", false);
+
+				case ExpressionType.OrElse:
+					return (" OR", false);
+
+				case ExpressionType.Add:
+					return (" +", true);
+
+				case ExpressionType.AddAssign:
+					return (" +=", true);
+
+				case ExpressionType.Subtract:
+					return (" -", true);
+
+				case ExpressionType.SubtractAssign:
+					return (" -=", true);
+
+				case ExpressionType.And:
+					return (" &", true);
+
+				case ExpressionType.AndAssign:
+					return (" &=", true);
+
+				case ExpressionType.Or:
+					return (" |", true);
+
+				case ExpressionType.Modulo:
+					return (" %", true);
+
+				case ExpressionType.ModuloAssign:
+					return (" %=", true);
+
+				case ExpressionType.Divide:
+					return (" /", true);
+
+				case ExpressionType.DivideAssign:
+					return (" /=", true);
+
+				case ExpressionType.Multiply:
+					return (" *", true);
+
+				case ExpressionType.MultiplyAssign:
+					return (" *=", true);
+
+				case ExpressionType.GreaterThan:
+					return (" >", true);
+
+				case ExpressionType.GreaterThanOrEqual:
+					return (" >=", true);
+
+				case ExpressionType.LessThan:
+					return (" <", true);
+
+				case ExpressionType.LessThanOrEqual:
+					return (" <=", true);
+
+				case ExpressionType.Assign:
+				case ExpressionType.Equal:
+					return valueIsNull ? (" IS NULL", false) : (" =", true);
+
+				case ExpressionType.NotEqual:
+					return valueIsNull ? (" IS NOT NULL", false) : (" <>", true);
+
+				default:
+					throw new NotSupportedException(expression.NodeType.ToString());
+			}
+		}
+
+		private static bool ProcessMemberExpression(string columnName, SqlStatement statement, MemberExpression memberExpression, bool isFinalExpression)
 		{
 			if (memberExpression.Expression == null)
 			{
@@ -562,6 +563,10 @@ namespace Speedy.EntityFramework.Sql
 					if (propertyType == typeof(bool))
 					{
 						statement.QueryWhere.Append($" {statement.TableInformation.ProviderPrefix}{columnName}{statement.TableInformation.ProviderSuffix}");
+						if (isFinalExpression)
+						{
+							statement.QueryWhere.Append(" = 1");
+						}
 						return true;
 					}
 				}
@@ -600,7 +605,19 @@ namespace Speedy.EntityFramework.Sql
 			return true;
 		}
 
+		private static void ProcessParameterExpression(SqlStatement statement, ParameterExpression expression, ref string memberName)
+		{
+			statement.Query.Append(memberName);
 
+			if ((expression.Type == typeof(bool)) && (expression.NodeType == ExpressionType.MemberAccess))
+			{
+				statement.QueryWhere.Append(" = 1");
+			}
+			else if ((expression.Type == typeof(bool)) && (expression.NodeType == ExpressionType.Not))
+			{
+				statement.QueryWhere.Append(" = 0");
+			}
+		}
 
 		private static void UpdateStatementParameters<T>(SqlStatement statement, T entity)
 		{

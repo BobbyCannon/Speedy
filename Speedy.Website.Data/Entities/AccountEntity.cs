@@ -120,13 +120,17 @@ namespace Speedy.Website.Data.Entities
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
 			return base.GetDefaultExclusionsForIncomingSync()
-				.Append(nameof(Address), nameof(AddressId), nameof(Groups), nameof(PasswordHash), nameof(Pets), nameof(Roles));
+				.Append(nameof(Address), nameof(AddressId), nameof(Groups), nameof(LastLoginDate), nameof(PasswordHash), nameof(Pets), nameof(Roles));
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
 		{
 			// Update defaults are the same as incoming sync defaults
-			return base.GetDefaultExclusionsForIncomingSync();
+			var response = base.GetDefaultExclusionsForOutgoingSync()
+				.Append(GetDefaultExclusionsForIncomingSync());
+
+			response.Remove(nameof(LastLoginDate));
+			return response;
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForSyncUpdate()

@@ -10,8 +10,8 @@ $ErrorActionPreference = "STOP"
 
 Clear-Host
 
-$versionFull = "8.0.4.19693"
-$version = "8.0.4"
+$versionFull = "8.0.5.17277"
+$version = "8.0.5"
 $files = Get-ChildItem $ProjectPath *.csproj -Recurse | Select-Object Fullname
 
 $speedyR = "<Reference Include=`"Speedy, Version=$($versionFull), Culture=neutral, PublicKeyToken=8db7b042d9663bf8, processorArchitecture=MSIL`"><HintPath>..\packages\Speedy.$version\lib\netstandard2.0\Speedy.dll</HintPath></Reference>"

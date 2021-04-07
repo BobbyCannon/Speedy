@@ -24,8 +24,7 @@ namespace Speedy.Website.Data.Entities
 
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
-			return base.GetDefaultExclusionsForIncomingSync()
-				.Append(nameof(SyncId));
+			return base.GetDefaultExclusionsForIncomingSync();
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
@@ -37,7 +36,8 @@ namespace Speedy.Website.Data.Entities
 		protected override HashSet<string> GetDefaultExclusionsForSyncUpdate()
 		{
 			return base.GetDefaultExclusionsForSyncUpdate()
-				.Append(GetDefaultExclusionsForIncomingSync());
+				.Append(GetDefaultExclusionsForIncomingSync())
+				.Append(nameof(IsDeleted));
 		}
 
 		#endregion

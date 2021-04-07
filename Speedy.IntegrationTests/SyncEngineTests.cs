@@ -603,7 +603,9 @@ namespace Speedy.IntegrationTests
 					serverDatabase.SaveChanges();
 
 					Assert.AreEqual(0, clientDatabase.Settings.Count(x => x.IsDeleted));
+					Assert.AreEqual(2, clientDatabase.Settings.Count(x => !x.IsDeleted));
 					Assert.AreEqual(1, serverDatabase.Settings.Count(x => x.IsDeleted));
+					Assert.AreEqual(1, serverDatabase.Settings.Count(x => !x.IsDeleted));
 				}
 
 				engine.Run();
