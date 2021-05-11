@@ -51,7 +51,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public virtual void UpdateWith(T update, params string[] exclusions)
 		{
-			UpdatableExtensions.UpdateWith(this, update, exclusions);
+			this.UpdateWithUsingReflection(update, exclusions);
 		}
 
 		#endregion
@@ -185,7 +185,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public virtual void UpdateWith(object update, params string[] exclusions)
 		{
-			UpdatableExtensions.UpdateWith(this, update, exclusions);
+			this.UpdateWithUsingReflection(update, exclusions);
 		}
 
 		#endregion

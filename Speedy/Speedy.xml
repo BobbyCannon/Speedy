@@ -1975,7 +1975,7 @@
             Extensions for the IUpdatable interface
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.UpdateWith``2(``0,``1,System.String[])">
+        <member name="M:Speedy.Extensions.UpdatableExtensions.UpdateWithUsingReflection``2(``0,``1,System.String[])">
             <summary>
             Allows updating of one type to another based on member Name and Type.
             </summary>

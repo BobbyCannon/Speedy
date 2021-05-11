@@ -49,7 +49,7 @@ namespace Speedy
 		public virtual T ShallowClone()
 		{
 			var response = new T();
-			response.UpdateWith(this);
+			response.UpdateWithUsingReflection(this);
 			return response;
 		}
 

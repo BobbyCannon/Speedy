@@ -41,7 +41,7 @@ namespace Speedy.UnitTests.Extensions
 			Assert.AreNotEqual(destination.SyncId, source.SyncId);
 
 			// Update all members except virtual members
-			UpdatableExtensions.UpdateWith(destination, source, typeof(AccountEntity).GetVirtualPropertyNames().ToArray());
+			destination.UpdateWithUsingReflection(source, typeof(AccountEntity).GetVirtualPropertyNames().ToArray());
 
 			// All non virtual should be equal
 			Assert.AreNotEqual(destination.Address, source.Address);
@@ -57,7 +57,7 @@ namespace Speedy.UnitTests.Extensions
 			Assert.AreEqual(destination.SyncId, source.SyncId);
 
 			// Update all members
-			UpdatableExtensions.UpdateWith(destination, source);
+			UpdatableExtensions.UpdateWithUsingReflection(destination, source);
 
 			// All members should be equal now
 			Assert.AreEqual(destination.Address, source.Address);

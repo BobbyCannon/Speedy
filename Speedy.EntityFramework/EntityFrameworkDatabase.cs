@@ -513,17 +513,17 @@ namespace Speedy.EntityFramework
 						createdEntity.CreatedOn = now;
 					}
 
+					if (modifiableEntity != null && maintainModifiedOnDate)
+					{
+						modifiableEntity.ModifiedOn = now;
+					}
+
 					if (syncableEntity != null)
 					{
 						if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
 						{
 							syncableEntity.SyncId = Guid.NewGuid();
 						}
-					}
-
-					if (modifiableEntity != null && maintainModifiedOnDate)
-					{
-						modifiableEntity.ModifiedOn = now;
 					}
 
 					entity.EntityAdded();
@@ -539,10 +539,18 @@ namespace Speedy.EntityFramework
 
 					_collectionChangeTracker.AddUpdatedEntity(entity);
 
+					// If Speedy is maintaining the CreatedOn date then we will not allow modifications outside Speedy
 					if (createdEntity != null && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
 					{
 						// Do not allow created on to change for entities.
 						createdEntity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
+					}
+
+					// If Speedy is maintaining the ModifiedOn then we will set it to 'now'
+					if (modifiableEntity != null && maintainModifiedOnDate)
+					{
+						// Update modified to now for new entities.
+						modifiableEntity.ModifiedOn = now;
 					}
 
 					if (syncableEntity != null)
@@ -552,12 +560,6 @@ namespace Speedy.EntityFramework
 						{
 							syncableEntity.SyncId = (Guid) entry.OriginalValues["SyncId"];
 						}
-					}
-
-					if (modifiableEntity != null && maintainModifiedOnDate)
-					{
-						// Update modified to now for new entities.
-						modifiableEntity.ModifiedOn = now;
 					}
 
 					entity.EntityModified();

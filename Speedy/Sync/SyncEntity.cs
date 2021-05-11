@@ -143,7 +143,7 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public void UpdateWith(ISyncEntity update, params string[] exclusions)
 		{
-			UpdatableExtensions.UpdateWith(this, update, exclusions);
+			this.UpdateWithUsingReflection(update, exclusions);
 		}
 
 		/// <summary>

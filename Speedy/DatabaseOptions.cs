@@ -82,7 +82,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public override DatabaseOptions DeepClone(int levels = -1)
 		{
-			return new()
+			return new DatabaseOptions
 			{
 				DisableEntityValidations = DisableEntityValidations,
 				MaintainCreatedOn = MaintainCreatedOn,

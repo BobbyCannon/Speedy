@@ -33,8 +33,6 @@ if (!(Test-Path $destination2 -PathType Container))
 
 try
 {
-	& "ResetAssemblyInfos.ps1"
-	
 	if ($BuildNumber.Length -le 0)
 	{
 		$BuildNumber = "+";

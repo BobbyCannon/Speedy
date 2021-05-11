@@ -21,7 +21,7 @@ namespace Speedy.Extensions
 		/// <param name="value"> The value to be updated. </param>
 		/// <param name="update"> The source of the updates. </param>
 		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public static void UpdateWith<T, T2>(this T value, T2 update, params string[] exclusions)
+		public static void UpdateWithUsingReflection<T, T2>(this T value, T2 update, params string[] exclusions)
 		{
 			if (value == null || update == null)
 			{

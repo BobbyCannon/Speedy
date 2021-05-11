@@ -143,7 +143,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public override void UpdateWith(object update, params string[] exclusions)
 		{
-			UpdatableExtensions.UpdateWith(this, update, exclusions);
+			this.UpdateWithUsingReflection(update, exclusions);
 		}
 
 		/// <summary>
@@ -166,7 +166,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public virtual void UpdateWith(Entity<T> update, params string[] exclusions)
 		{
-			UpdatableExtensions.UpdateWith(this, update, exclusions);
+			this.UpdateWithUsingReflection(update, exclusions);
 		}
 
 		#endregion
@@ -327,7 +327,7 @@ namespace Speedy
 		public virtual object ShallowClone()
 		{
 			var test = Activator.CreateInstance(RealType);
-			test.UpdateWith(this);
+			test.UpdateWithUsingReflection(this);
 			return test;
 		}
 
