@@ -3,26 +3,28 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>698fe656-11be-4f44-bd5a-e32b91bd21b1</UserSecretsId>
+		<LangVersion>latest</LangVersion>
+		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Remove="compilerconfig.json" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Humanizer.Core" Version="2.8.26" />
-		<PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.295" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.*" />
-		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.*">
+		<PackageReference Include="Humanizer.Core" Version="2.10.1" />
+		<PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.307" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.6" />
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.6">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.*">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.6">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.113" />
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-		<PackageReference Include="System.Windows.Extensions" Version="4.7.0" />
+		<PackageReference Include="System.Windows.Extensions" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.Data\Speedy.Data.csproj" />

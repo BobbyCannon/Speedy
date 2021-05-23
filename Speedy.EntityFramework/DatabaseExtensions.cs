@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Speedy.Configuration;
 using Speedy.Exceptions;
 using Speedy.Extensions;
+using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 #endregion
 

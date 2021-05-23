@@ -1415,12 +1415,12 @@ namespace Speedy.IntegrationTests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address),
-						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable."
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
 					
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address.Id),
-						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable."
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
 				});
 		}

@@ -39,8 +39,8 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.State).HasColumnName("AddressState").HasMaxLength(128).IsRequired();
 			b.Property(x => x.SyncId).HasColumnName("AddressSyncId").IsRequired();
 
-			b.HasIndex(x => x.LinkedAddressId).HasName("IX_Address_LinkedAddressId");
-			b.HasIndex(x => x.SyncId).HasName("IX_Address_SyncId").IsUnique();
+			b.HasIndex(x => x.LinkedAddressId).HasDatabaseName("IX_Address_LinkedAddressId");
+			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_Address_SyncId").IsUnique();
 
 			b.HasOne(x => x.Account).WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
 			b.HasOne(x => x.LinkedAddress).WithMany(x => x.LinkedAddresses).HasForeignKey(x => x.LinkedAddressId).OnDelete(DeleteBehavior.Restrict);

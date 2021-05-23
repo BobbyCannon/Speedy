@@ -28,9 +28,9 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Role).HasColumnName("Role").HasMaxLength(4000).IsRequired();
 
-			b.HasIndex(x => x.GroupId).HasName("IX_GroupMembers_GroupId");
-			b.HasIndex(x => x.MemberId).HasName("IX_GroupMembers_MemberId");
-			b.HasIndex(x => x.MemberSyncId).HasName("IX_GroupMembers_MemberSyncId");
+			b.HasIndex(x => x.GroupId).HasDatabaseName("IX_GroupMembers_GroupId");
+			b.HasIndex(x => x.MemberId).HasDatabaseName("IX_GroupMembers_MemberId");
+			b.HasIndex(x => x.MemberSyncId).HasDatabaseName("IX_GroupMembers_MemberSyncId");
 
 			b.HasOne(x => x.Group).WithMany(x => x.Members).HasForeignKey(x => x.GroupId).OnDelete(DeleteBehavior.Cascade);
 			b.HasOne(x => x.Member).WithMany(x => x.Groups).HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Cascade);

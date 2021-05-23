@@ -558,7 +558,7 @@ namespace Speedy
 					continue;
 				}
 
-				var message = $"The association between entity types '{entity.RealType.Name}' and '{configuration.TypeName}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.";
+				var message = $"The association between entity types '{entity.RealType.Name}' and '{configuration.TypeName}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable.";
 				throw new InvalidOperationException(message);
 			}
 		}

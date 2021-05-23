@@ -32,8 +32,8 @@ namespace Speedy.Client.Data.Mapping
 			b.Property(x => x.State).HasColumnName("AddressState").HasMaxLength(25).IsRequired();
 			b.Property(x => x.SyncId).HasColumnName("AddressSyncId").IsRequired();
 
-			b.HasIndex(x => x.LastClientUpdate).HasName("IX_Addresses_LastClientUpdate").IsUnique(false);
-			b.HasIndex(x => x.SyncId).HasName("IX_Addresses_SyncId").IsUnique();
+			b.HasIndex(x => x.LastClientUpdate).HasDatabaseName("IX_Addresses_LastClientUpdate").IsUnique(false);
+			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_Addresses_SyncId").IsUnique();
 		}
 
 		#endregion

@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Speedy.Extensions;
 
 #endregion
@@ -341,11 +342,11 @@ namespace Speedy.EntityFramework.Sql
 			if (onlyIncludePrimaryKeys)
 			{
 				return TableInformation.Properties
-					.Where(x => x.IsPrimaryKey() && !excludedColumns.Contains(x.GetColumnName()))
+					.Where(x => x.IsPrimaryKey() && !excludedColumns.Contains(x.GetColumnName(StoreObjectIdentifier.Table(TableInformation.TableName, TableInformation.SchemaName))))
 					.Select(x =>
 					{
 						var dbType = GetSqlType(x.PropertyInfo.PropertyType);
-						var columnName = x.GetColumnName();
+						var columnName = x.GetColumnName(StoreObjectIdentifier.Table(TableInformation.TableName, TableInformation.SchemaName));
 						var parameterName = AddOrUpdateParameter(columnName, dbType);
 						return (columnName, parameterName);
 					})
@@ -353,12 +354,13 @@ namespace Speedy.EntityFramework.Sql
 			}
 
 			TableInformation.Properties
-				.Where(x => !excludedColumns.Contains(x.GetColumnName())
+				.Where(x => !excludedColumns.Contains(x.GetColumnName(StoreObjectIdentifier.Table(TableInformation.TableName, null)))
 					&& (!x.IsPrimaryKey() || includePrimaryKeys && x.IsPrimaryKey()))
 				.ForEach(x =>
 				{
 					var dbType = GetSqlType(x.PropertyInfo.PropertyType);
-					AddOrUpdateParameter(x.GetColumnName(), dbType);
+					var result = x.GetColumnName(StoreObjectIdentifier.Table(TableInformation.TableName, TableInformation.SchemaName));
+					AddOrUpdateParameter(result, dbType);
 				});
 
 			return ParameterNameByColumnName;

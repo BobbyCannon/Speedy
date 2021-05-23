@@ -27,8 +27,8 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.ParentId).HasColumnName("ParentId").IsRequired();
 			b.Property(x => x.Quantity).HasColumnName("Quantity").IsRequired();
 
-			b.HasIndex(x => x.ChildId).HasName("IX_FoodRelationships_ChildId");
-			b.HasIndex(x => x.ParentId).HasName("IX_FoodRelationships_ParentId");
+			b.HasIndex(x => x.ChildId).HasDatabaseName("IX_FoodRelationships_ChildId");
+			b.HasIndex(x => x.ParentId).HasDatabaseName("IX_FoodRelationships_ParentId");
 
 			b.HasOne(x => x.Child).WithMany(x => x.ParentRelationships).HasForeignKey(x => x.ChildId).OnDelete(DeleteBehavior.Restrict);
 			b.HasOne(x => x.Parent).WithMany(x => x.ChildRelationships).HasForeignKey(x => x.ParentId).OnDelete(DeleteBehavior.Restrict);

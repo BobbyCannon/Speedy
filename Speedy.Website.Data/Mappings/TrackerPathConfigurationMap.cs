@@ -48,7 +48,7 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.Type08).IsRequired();
 			b.Property(x => x.Type09).IsRequired();
 
-			b.HasIndex(x => x.SyncId).HasName("IX_TrackerPathConfigurations_SyncId").IsUnique();
+			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_TrackerPathConfigurations_SyncId").IsUnique();
 		}
 
 		#endregion

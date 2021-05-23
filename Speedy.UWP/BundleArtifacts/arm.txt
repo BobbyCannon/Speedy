@@ -1,2 +1,0 @@
-MainPackage=C:\Workspaces\GitHub\Speedy\Speedy.UWP\bin\ARM\Release\Speedy.UWP_1.0.0.0_ARM.msix
-SymbolPackage=C:\Workspaces\GitHub\Speedy\Speedy.UWP\obj\ARM\Release\Symbols\Speedy.UWP_1.0.0.0_ARM.appxsym

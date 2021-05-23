@@ -32,8 +32,8 @@ namespace Speedy.Client.Data.Mapping
 			b.Property(x => x.Roles).HasColumnName("AccountRoles").IsRequired();
 			b.Property(x => x.SyncId).HasColumnName("AccountSyncId").IsRequired();
 
-			b.HasIndex(x => x.LastClientUpdate).HasName("IX_Accounts_LastClientUpdate").IsUnique(false);
-			b.HasIndex(x => x.SyncId).HasName("IX_Accounts_SyncId").IsUnique();
+			b.HasIndex(x => x.LastClientUpdate).HasDatabaseName("IX_Accounts_LastClientUpdate").IsUnique(false);
+			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_Accounts_SyncId").IsUnique();
 
 			b.HasOne(x => x.Address).WithMany(x => x.Accounts).HasForeignKey(x => x.AddressId).OnDelete(DeleteBehavior.NoAction);
 		}

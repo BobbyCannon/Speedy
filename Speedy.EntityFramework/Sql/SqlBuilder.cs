@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Speedy.Extensions;
 
 #endregion
@@ -171,7 +172,7 @@ namespace Speedy.EntityFramework.Sql
 			foreach (var property in statement.TableInformation.Properties)
 			{
 				var entityProperty = statement.TableInformation.EntityProperties[property.Name];
-				var columnName = property.GetColumnName();
+				var columnName = property.GetColumnName(StoreObjectIdentifier.Table(statement.TableInformation.TableName, statement.TableInformation.SchemaName));
 
 				if (!statement.ParametersByColumnName.TryGetValue(columnName, out var parameter))
 				{
@@ -192,7 +193,7 @@ namespace Speedy.EntityFramework.Sql
 			foreach (var property in statement.TableInformation.Properties)
 			{
 				var entityProperty = statement.TableInformation.EntityProperties[property.Name];
-				var columnName = property.GetColumnName();
+				var columnName = property.GetColumnName(StoreObjectIdentifier.Table(statement.TableInformation.TableName, statement.TableInformation.SchemaName));
 
 				if (!statement.ParametersByColumnName.TryGetValue(columnName, out var parameter))
 				{
@@ -311,6 +312,7 @@ namespace Speedy.EntityFramework.Sql
 		/// <param name="memberName"> </param>
 		/// <param name="propertyName"> </param>
 		/// <param name="setAssignmentValue"> States the expression is a value assignment. Meaning it's the right side of an assignment so set it as a parameter value. </param>
+		/// <param name="isFinalExpression"> </param>
 		private static void CreateWhere(SqlStatement statement, Expression expression, ref string memberName, string propertyName = null, bool setAssignmentValue = false, bool isFinalExpression = false)
 		{
 			switch (expression)
