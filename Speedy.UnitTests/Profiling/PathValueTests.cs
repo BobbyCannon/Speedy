@@ -17,7 +17,7 @@ namespace Speedy.UnitTests.Profiling
 		public void ConstructorObjectShouldConvertToValue()
 		{
 			var dateTimeValue = new TrackerPathValue("Test", new DateTime(2020, 12, 15, 01, 02, 03, 999, DateTimeKind.Utc));
-			Assert.AreEqual("12/15/2020 01:02:03 AM", dateTimeValue.Value);
+			Assert.AreEqual("12/15/2020 1:02:03 AM", dateTimeValue.Value);
 
 			var timeValue = new TrackerPathValue("Test", new TimeSpan(123, 12, 59, 59, 999));
 			Assert.AreEqual("123.12:59:59.9990000", timeValue.Value);

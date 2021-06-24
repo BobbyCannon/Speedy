@@ -1884,6 +1884,20 @@
             Extensions for the string type.
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ConvertHexStringToByteArray(System.String)">
+            <summary>
+            Convert a hex string to a byte array.
+            </summary>
+            <param name="hexString"> A string with hex data (2 bytes per character). </param>
+            <returns> The byte array value of the hex string. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.FromHexString(System.String)">
+            <summary>
+            Convert a HEX string to a regular text string.
+            </summary>
+            <param name="value"> A string with hex data (2 bytes per character). </param>
+            <returns> The string value. </returns>
+        </member>
         <member name="M:Speedy.Extensions.StringExtensions.MaxLength(System.String,System.Int32,System.Boolean)">
             <summary>
             Trims string to a maximum length.
@@ -1892,6 +1906,27 @@
             <param name="max"> The maximum length of the string. </param>
             <param name="addEllipses"> The option to add ellipses to shorted strings. Defaults to false. </param>
             <returns> The value limited to the maximum length. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.String)">
+            <summary>
+            Converts a string to hex string value. Ex. "A" -> "41"
+            </summary>
+            <param name="value"> The string value to convert. </param>
+            <returns> The string in a hex string format. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.Guid)">
+            <summary>
+            Converts a byte array to a hex string format. Ex. [41],[42] = "4142"
+            </summary>
+            <param name="data"> The byte array to convert. </param>
+            <returns> The byte array in a hex string format. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.Byte[])">
+            <summary>
+            Converts a byte array to a hex string format. Ex. [41],[42] = "4142"
+            </summary>
+            <param name="data"> The byte array to convert. </param>
+            <returns> The byte array in a hex string format. </returns>
         </member>
         <member name="T:Speedy.Extensions.TaskExtensions">
             <summary>
@@ -2039,6 +2074,17 @@
             <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
             <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
             <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.Wait(System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="cancellationPending"> A check for cancellation. </param>
+            <param name="value"> The value of time to wait for. </param>
+            <param name="delay"> The delay between checks. </param>
+            <param name="minimum"> The minimal time to wait. </param>
+            <param name="maximum"> The maximum time to wait. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
         </member>
         <member name="T:Speedy.IBindable">
             <summary>

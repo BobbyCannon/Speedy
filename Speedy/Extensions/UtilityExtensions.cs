@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Timer = Speedy.Profiling.Timer;
 
 #endregion
 
@@ -29,7 +30,7 @@ namespace Speedy.Extensions
 				action(item);
 			}
 		}
-		
+
 		/// <summary>
 		/// Runs action1 if the test is true or action2 if false.
 		/// </summary>
@@ -121,20 +122,58 @@ namespace Speedy.Extensions
 		/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
 		public static bool Wait(Func<bool> action, int timeout, int delay)
 		{
-			var watch = Stopwatch.StartNew();
-			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
-			var result = false;
+			// Leave here for performance reason, in case cancellation has already been requested
+			// Note: this cut 75% of time for existing cancellations
+			if (action())
+			{
+				return true;
+			}
 
-			while (!result)
+			var watch = Timer.StartNew();
+			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
+
+			while (!action())
 			{
 				if (watch.Elapsed > watchTimeout)
 				{
 					return false;
 				}
 
-				result = action();
+				Thread.Sleep(delay);
+			}
 
-				if (!result)
+			return true;
+		}
+
+		/// <summary>
+		/// Wait for a cancellation or for the value to time out.
+		/// </summary>
+		/// <param name="cancellationPending"> A check for cancellation. </param>
+		/// <param name="value"> The value of time to wait for. </param>
+		/// <param name="delay"> The delay between checks. </param>
+		/// <param name="minimum"> The minimal time to wait. </param>
+		/// <param name="maximum"> The maximum time to wait. </param>
+		/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+		public static bool Wait(Func<bool> cancellationPending, TimeSpan value, TimeSpan delay, TimeSpan minimum, TimeSpan maximum)
+		{
+			// Leave here for performance reason, in case cancellation has already been requested
+			// Note: this cut 75% of time for existing cancellations
+			if (cancellationPending())
+			{
+				return false;
+			}
+
+			var watch = Timer.StartNew();
+			var shouldDelay = delay.Ticks > 0;
+
+			while (((watch.Elapsed < value) || (watch.Elapsed < minimum)) && (watch.Elapsed < maximum))
+			{
+				if (cancellationPending())
+				{
+					return false;
+				}
+
+				if (shouldDelay)
 				{
 					Thread.Sleep(delay);
 				}

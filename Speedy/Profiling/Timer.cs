@@ -23,7 +23,7 @@ namespace Speedy.Profiling
 		/// <summary>
 		/// Instantiates an instance of the timer.
 		/// </summary>
-		public Timer() : this(new DefaultDispatcher())
+		public Timer() : this(null)
 		{
 		}
 

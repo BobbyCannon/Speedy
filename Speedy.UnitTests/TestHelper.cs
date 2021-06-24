@@ -95,7 +95,7 @@ namespace Speedy.UnitTests
 		{
 			foreach (var i in item)
 			{
-				Debug.Write($"{i:X2},");
+				Console.Write($"{i:X2},");
 			}
 
 			Console.WriteLine("");
