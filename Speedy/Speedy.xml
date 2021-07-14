@@ -6840,25 +6840,25 @@
             Gets the value to determine when to trigger <seealso cref="P:Speedy.Sync.SyncManager`1.ShowProgress" />. Defaults to one second.
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncManager`1.SyncState">
-            <summary>
-            Gets the current sync state.
-            </summary>
-        </member>
-        <member name="P:Speedy.Sync.SyncManager`1.SyncType">
-            <summary>
-            The type of the sync.
-            </summary>
-        </member>
         <member name="P:Speedy.Sync.SyncManager`1.SyncOptions">
             <summary>
             The configure sync options for the sync manager.
             </summary>
             <seealso cref="M:Speedy.Sync.SyncManager`1.GetOrAddSyncOptions(`0,System.Action{Speedy.Sync.SyncOptions})" />
         </member>
+        <member name="P:Speedy.Sync.SyncManager`1.SyncState">
+            <summary>
+            Gets the current sync state.
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.SyncManager`1.SyncTimers">
             <summary>
             The configure sync timers for the sync manager.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncManager`1.SyncType">
+            <summary>
+            The type of the sync.
             </summary>
         </member>
         <member name="M:Speedy.Sync.SyncManager`1.CancelSync">
@@ -6897,6 +6897,17 @@
             <param name="syncType"> The type of sync these options are for. </param>
             <param name="update"> Optional update action to change provided defaults. </param>
             <returns> The default set of options. </returns>
+            <remarks>
+            This should only be use in the sync manager constructor.
+            </remarks>
+        </member>
+        <member name="M:Speedy.Sync.SyncManager`1.GetOrAddSyncTimer(`0,System.Int32)">
+            <summary>
+            Gets or adds an average sync timer for a sync type. This will track the average time spent syncing for the provided type.
+            </summary>
+            <param name="syncType"> The type of sync these options are for. </param>
+            <param name="limit"> Optional limit of syncs to average. </param>
+            <returns> The timer for tracking the time spent syncing. </returns>
             <remarks>
             This should only be use in the sync manager constructor.
             </remarks>
@@ -7618,6 +7629,38 @@
         </member>
         <member name="M:Speedy.Sync.SyncStatistics.UpdateWith(Speedy.Sync.SyncStatistics,System.String[])">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Sync.SyncTimer">
+            <summary>
+            Represents a timer for tracking a sync session.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncTimer.#ctor">
+            <summary>
+            Instantiates an instance of the class.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncTimer.#ctor(System.Int32,Speedy.IDispatcher)">
+            <summary>
+            Instantiates an instance of the class.
+            </summary>
+            <param name="limit"> Optional limit of syncs to average. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.Sync.SyncTimer.CancelledSyncs">
+            <summary>
+            Tracks the number of cancelled syncs.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncTimer.FailedSyncs">
+            <summary>
+            Tracks the number of failed syncs.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncTimer.SuccessfulSyncs">
+            <summary>
+            Tracks the number of successful syncs.
+            </summary>
         </member>
         <member name="T:Speedy.TimeService">
             <summary>

@@ -13,6 +13,18 @@ namespace Speedy.UnitTests
 		#region Methods
 
 		[TestMethod]
+		public void EqualRanges()
+		{
+			var actual = new ExclusionKey(typeof(AccountEntity), true, true, true);
+			Assert.IsFalse(actual.Equals(null));
+			Assert.IsTrue(actual.Equals(actual));
+			Assert.IsFalse(actual.Equals((object) null));
+			Assert.IsTrue(actual.Equals((object) actual));
+			// ReSharper disable once SuspiciousTypeConversion.Global
+			Assert.IsFalse(actual.Equals((object) this));
+		}
+
+		[TestMethod]
 		public void ShouldEqual()
 		{
 			var expected = GetCombinations();
