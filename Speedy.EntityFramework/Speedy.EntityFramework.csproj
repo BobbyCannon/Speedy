@@ -24,9 +24,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>9.0.1.0</AssemblyVersion>
-		<FileVersion>9.0.1.0</FileVersion>
-		<Version>9.0.1</Version>
+		<AssemblyVersion>9.0.2.0</AssemblyVersion>
+		<FileVersion>9.0.2.0</FileVersion>
+		<Version>9.0.2</Version>
 		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\Speedy.EntityFramework.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

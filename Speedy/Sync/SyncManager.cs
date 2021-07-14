@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Logging;
-using Speedy.Profiling;
 
 #endregion
 
@@ -263,7 +262,7 @@ namespace Speedy.Sync
 		/// <remarks>
 		/// This should only be use in the sync manager constructor.
 		/// </remarks>
-		protected AverageTimer GetOrAddSyncTimer(T syncType, int limit = 10)
+		protected SyncTimer GetOrAddSyncTimer(T syncType, int limit = 10)
 		{
 			return _syncTimers.GetOrAdd(syncType, new SyncTimer(limit, Dispatcher));
 		}
