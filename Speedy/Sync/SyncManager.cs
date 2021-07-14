@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -25,7 +26,9 @@ namespace Speedy.Sync
 		#region Fields
 
 		private CancellationTokenSource _cancellationToken;
-		private AverageTimer _syncTimer;
+		private readonly ConcurrentDictionary<T, SyncOptions> _syncOptions;
+		private SyncTimer _syncTimer;
+		private readonly ConcurrentDictionary<T, SyncTimer> _syncTimers;
 		private readonly Stopwatch _watch;
 
 		#endregion
@@ -44,10 +47,11 @@ namespace Speedy.Sync
 			ProcessTimeout = TimeSpan.FromMilliseconds(60000);
 			SessionId = Guid.NewGuid();
 			ShowProgressThreshold = TimeSpan.FromMilliseconds(1000);
-			SyncOptions = new ConcurrentDictionary<T, SyncOptions>();
 			SyncState = new SyncEngineState(Dispatcher);
 			SyncType = default;
-			SyncTimers = new ConcurrentDictionary<T, AverageTimer>();
+
+			_syncOptions = new ConcurrentDictionary<T, SyncOptions>();
+			_syncTimers = new ConcurrentDictionary<T, SyncTimer>();
 		}
 
 		#endregion
@@ -72,7 +76,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a value indicating the running status of the sync manager.
 		/// </summary>
-		public bool IsRunning => _cancellationToken != null && !_cancellationToken.IsCancellationRequested || _watch.IsRunning;
+		public bool IsRunning => ((_cancellationToken != null) && !_cancellationToken.IsCancellationRequested) || _watch.IsRunning;
 
 		/// <summary>
 		/// Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
@@ -92,7 +96,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a flag to indicate progress should be shown. Will only be true if sync takes longer than the <seealso cref="ShowProgressThreshold" />.
 		/// </summary>
-		public bool ShowProgress => _watch.IsRunning && _watch.Elapsed >= ShowProgressThreshold;
+		public bool ShowProgress => _watch.IsRunning && (_watch.Elapsed >= ShowProgressThreshold);
 
 		/// <summary>
 		/// Gets the value to determine when to trigger <seealso cref="ShowProgress" />. Defaults to one second.
@@ -100,25 +104,25 @@ namespace Speedy.Sync
 		public TimeSpan ShowProgressThreshold { get; set; }
 
 		/// <summary>
+		/// The configure sync options for the sync manager.
+		/// </summary>
+		/// <seealso cref="GetOrAddSyncOptions" />
+		public ReadOnlyDictionary<T, SyncOptions> SyncOptions => new ReadOnlyDictionary<T, SyncOptions>(_syncOptions);
+
+		/// <summary>
 		/// Gets the current sync state.
 		/// </summary>
 		public SyncEngineState SyncState { get; }
 
 		/// <summary>
+		/// The configure sync timers for the sync manager.
+		/// </summary>
+		public ReadOnlyDictionary<T, SyncTimer> SyncTimers => new ReadOnlyDictionary<T, SyncTimer>(_syncTimers);
+
+		/// <summary>
 		/// The type of the sync.
 		/// </summary>
 		public T SyncType { get; private set; }
-
-		/// <summary>
-		/// The configure sync options for the sync manager.
-		/// </summary>
-		/// <seealso cref="GetOrAddSyncOptions" />
-		protected ConcurrentDictionary<T, SyncOptions> SyncOptions { get; }
-
-		/// <summary>
-		/// The configure sync timers for the sync manager.
-		/// </summary>
-		protected ConcurrentDictionary<T, AverageTimer> SyncTimers { get; }
 
 		#endregion
 
@@ -146,7 +150,7 @@ namespace Speedy.Sync
 		/// <param name="lastSyncedOnServer"> The last time when synced on the server. </param>
 		public void ResetSyncDates(DateTime lastSyncedOnClient, DateTime lastSyncedOnServer)
 		{
-			foreach (var collectionOptions in SyncOptions.Values)
+			foreach (var collectionOptions in _syncOptions.Values)
 			{
 				collectionOptions.LastSyncedOnClient = lastSyncedOnClient;
 				collectionOptions.LastSyncedOnServer = lastSyncedOnServer;
@@ -220,7 +224,7 @@ namespace Speedy.Sync
 		/// </remarks>
 		protected SyncOptions GetOrAddSyncOptions(T syncType, Action<SyncOptions> update = null)
 		{
-			return SyncOptions.GetOrAdd(syncType, key =>
+			return _syncOptions.GetOrAdd(syncType, key =>
 			{
 				if (SyncOptions.ContainsKey(syncType))
 				{
@@ -244,10 +248,24 @@ namespace Speedy.Sync
 				// optional update to modify sync options
 				update?.Invoke(options);
 
-				SyncOptions.GetOrAdd(syncType, options);
+				_syncOptions.GetOrAdd(syncType, options);
 
 				return options;
 			});
+		}
+
+		/// <summary>
+		/// Gets or adds an average sync timer for a sync type. This will track the average time spent syncing for the provided type.
+		/// </summary>
+		/// <param name="syncType"> The type of sync these options are for. </param>
+		/// <param name="limit"> Optional limit of syncs to average. </param>
+		/// <returns> The timer for tracking the time spent syncing. </returns>
+		/// <remarks>
+		/// This should only be use in the sync manager constructor.
+		/// </remarks>
+		protected AverageTimer GetOrAddSyncTimer(T syncType, int limit = 10)
+		{
+			return _syncTimers.GetOrAdd(syncType, new SyncTimer(limit, Dispatcher));
 		}
 
 		/// <summary>
@@ -348,7 +366,11 @@ namespace Speedy.Sync
 
 			// Start the sync in a background thread.
 			return Task.Run(() => RunSync(result, updateOptions), _cancellationToken.Token)
-				.ContinueWith(x => StopSync(result, postAction));
+				.ContinueWith(x =>
+				{
+					result.SyncCancelled |= x.IsCanceled;
+					return StopSync(result, postAction);
+				});
 		}
 
 		/// <summary>
@@ -381,7 +403,7 @@ namespace Speedy.Sync
 				results.Client = GetSyncClientForClient();
 				results.Server = GetSyncClientForServer();
 
-				if (results.Client == null || results.Server == null)
+				if ((results.Client == null) || (results.Server == null))
 				{
 					throw new Exception("Sync client for client or server is null.");
 				}
@@ -407,11 +429,13 @@ namespace Speedy.Sync
 
 				results.SyncIssues.AddRange(engine.SyncIssues);
 				results.SyncSuccessful = !_cancellationToken.IsCancellationRequested && !results.SyncIssues.Any();
+				results.SyncCancelled = _cancellationToken.IsCancellationRequested;
 				results.SyncCompleted = true;
 			}
 			catch (WebClientException ex)
 			{
 				results.SyncSuccessful = false;
+				results.SyncCancelled = false;
 				results.SyncIssues.Add(new SyncIssue
 				{
 					Id = Guid.Empty,
@@ -431,6 +455,7 @@ namespace Speedy.Sync
 			catch (Exception ex)
 			{
 				results.SyncSuccessful = false;
+				results.SyncCancelled = false;
 				results.SyncIssues.Add(new SyncIssue
 				{
 					Id = Guid.Empty,
@@ -473,7 +498,21 @@ namespace Speedy.Sync
 		{
 			if (_syncTimer != null)
 			{
-				_syncTimer.Stop();
+				if (results.SyncCancelled)
+				{
+					_syncTimer.CancelledSyncs++;
+					_syncTimer.Reset();
+				}
+				else if (results.SyncSuccessful)
+				{
+					_syncTimer.SuccessfulSyncs++;
+					_syncTimer.Stop();
+				}
+				else
+				{
+					_syncTimer.FailedSyncs++;
+					_syncTimer.Stop();
+				}
 
 				results.Elapsed = _syncTimer.Elapsed;
 
@@ -518,7 +557,7 @@ namespace Speedy.Sync
 		private bool WaitForSyncAvailableThenStart(TimeSpan timeout)
 		{
 			// Wait for an existing sync
-			while (IsRunning && _watch.Elapsed < timeout)
+			while (IsRunning && (_watch.Elapsed < timeout))
 			{
 				Thread.Sleep(10);
 			}

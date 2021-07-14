@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -23,9 +23,9 @@
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.0.7.27687</AssemblyVersion>
-		<FileVersion>8.0.7.27687</FileVersion>
-		<Version>8.0.7</Version>
+		<AssemblyVersion>8.0.8.16854</AssemblyVersion>
+		<FileVersion>8.0.8.16854</FileVersion>
+		<Version>8.0.8</Version>
 		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\Speedy.EntityFramework.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

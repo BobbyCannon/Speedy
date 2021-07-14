@@ -30,17 +30,12 @@ namespace Speedy.UnitTests
 			GetOrAddSyncOptions(TestSyncType.Addresses, options => { });
 
 			// Setup tracking of certain syncs
-			AverageSyncTimeForAll = SyncTimers.GetOrAdd(TestSyncType.All, new AverageTimer(10, Dispatcher));
+			GetOrAddSyncTimer(TestSyncType.All);
+			GetOrAddSyncTimer(TestSyncType.Accounts);
 		}
 
 		#endregion
-
-		#region Properties
-
-		public AverageTimer AverageSyncTimeForAll { get; }
-
-		#endregion
-
+		
 		#region Methods
 
 		public SyncResults<TestSyncType> Sync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)

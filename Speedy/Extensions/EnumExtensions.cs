@@ -39,15 +39,10 @@ namespace Speedy.Extensions
 
 		private static T SetFlag<T>(this T value, T flag, bool set) where T : Enum
 		{
-			var eValue = Convert.ToInt32(value);
-			var eFlag = Convert.ToInt32(flag);
-
-			if (set)
-			{
-				return (T) (object) (eValue | eFlag);
-			}
-
-			return (T) (object) (eValue & ~eFlag);
+			var eValue = Convert.ToUInt64(value);
+			var eFlag = Convert.ToUInt64(flag);
+			var fValue = set ? eValue | eFlag : eValue & ~eFlag;
+			return (T) Enum.ToObject(typeof(T), fValue);
 		}
 
 		#endregion
