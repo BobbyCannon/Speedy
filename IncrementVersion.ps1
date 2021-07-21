@@ -7,9 +7,11 @@ param
 	[Parameter(Mandatory = $false)]
 	[string] $Minor,
 	[Parameter(Mandatory = $false)]
-	[string] $Build = "*",
+	[string] $Build,
 	[Parameter(Mandatory = $false)]
-	[string] $Revision = "*"
+	[string] $Revision,
+	[Parameter(Mandatory = $false)]
+	[DateTime] $DateSince
 )
 
 $assemblyPattern = "[0-9]+(\.([0-9]+|\*)){1,3}"
@@ -41,7 +43,7 @@ function Get-VersionArray
 		[Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true)]
 		[string] $VersionLine
 	)
-	
+
 	$version = $VersionLine | Select-String $assemblyPattern | % { $_.Matches.Value }
 	$versionParts = $version.Split('.')
 
@@ -49,7 +51,6 @@ function Get-VersionArray
 	
 	if ($versionParts.Length -lt 3)
 	{
-
 		$versionParts += 0
 	}
 
@@ -57,10 +58,9 @@ function Get-VersionArray
 	
 	if ($versionParts.Length -lt 4)
 	{
-
 		$versionParts += 0
 	}
-	
+
 	return $versionParts
 }
 
@@ -88,20 +88,21 @@ function Set-BuildNumbers
 	foreach ($file in $files)
 	{
 		$fileXml = [xml](Get-Content $file.FullName -Raw)
-		$propertyGroup = $fileXml.Project.PropertyGroup
 
-		if ($propertyGroup.AssemblyVersion -ne $null)
+		if ($fileXml.Project.PropertyGroup.AssemblyVersion -ne $null)
 		{
 			Write-Verbose $file.FullName
-			
-			$propertyGroup.AssemblyVersion = $versionNumber
-			$propertyGroup.FileVersion = $versionNumber
-			
-			if ($propertyGroup.Version -ne $null) 
+			$fileXml.Project.PropertyGroup.AssemblyVersion = $versionNumber
+			$fileXml.Project.PropertyGroup.FileVersion = $versionNumber
+
+			foreach ($group in $fileXml.Project.PropertyGroup)
 			{
-				$propertyGroup.Version = $versionNumber
+				if ($group.Version)
+				{
+					$group.Version = $versionNumber
+				}
 			}
-			
+
 			Set-Content -Path $file.FullName -Value (Format-Xml -Data $fileXml.OuterXml) -Encoding UTF8
 		}
 	}
@@ -121,7 +122,6 @@ try
 	{
 		$versionArray[0] = ([int] $versionArray[0]) + 1
 	}
-
 	elseif($Major.Length -gt 0)
 	{
 		$versionArray[0] = $Major
@@ -131,7 +131,6 @@ try
 	{
 		$versionArray[1] = ([int] $versionArray[1]) + 1
 	}
-
 	elseif($Minor.Length -gt 0)
 	{
 		$versionArray[1] = $Minor
@@ -146,7 +145,6 @@ try
 	{
 		$versionArray[2] = ([int] $versionArray[2]) + 1
 	}
-
 	elseif($Build.Length -gt 0)
 	{
 		$versionArray[2] = $Build
@@ -154,17 +152,16 @@ try
 	elseif($Minor.Length -gt 0)
 	{
 		$Build = "0"
-		$versionArray[ 2] = $Build
+		$versionArray[2] = $Build
 	}
 
 	if ($Revision -eq "+")
 	{
 		$versionArray[3] = ([int] $versionArray[3]) + 1
 	}
-
 	elseif($Revision.Length -gt 0)
 	{
-		$versionArray[ 3] = $Revision
+		$versionArray[3] = $Revision
 	}
 	elseif($Build.Length -gt 0)
 	{
@@ -174,7 +171,7 @@ try
 
 	if (($Major.Length -le 0) -and ($Minor.Length -le 0) -and ($Build.Length -le 0) -and ($Revision.Length -le 0))
 	{
-		$versionArray[ 3] = ([int] $versionArray[ 3]) + 1
+		$versionArray[3] = ([int] $versionArray[3]) + 1
 	}
 
 	$newVersionNumber = Convert-VersionArray $versionArray

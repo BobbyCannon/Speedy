@@ -119,8 +119,9 @@ namespace Speedy.Extensions
 		/// <param name="action"> The action to call. </param>
 		/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
 		/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
+		/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
 		/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
-		public static bool Wait(Func<bool> action, int timeout, int delay)
+		public static bool Wait(Func<bool> action, int timeout, int delay, bool useTimeService = false)
 		{
 			// Leave here for performance reason, in case cancellation has already been requested
 			// Note: this cut 75% of time for existing cancellations
@@ -129,12 +130,14 @@ namespace Speedy.Extensions
 				return true;
 			}
 
-			var watch = Timer.StartNew();
+			var watch = Stopwatch.StartNew();
+			var timer = Timer.StartNew();
+			Func<TimeSpan> elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
 			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
 
 			while (!action())
 			{
-				if (watch.Elapsed > watchTimeout)
+				if (elapsed() > watchTimeout)
 				{
 					return false;
 				}
@@ -153,8 +156,9 @@ namespace Speedy.Extensions
 		/// <param name="delay"> The delay between checks. </param>
 		/// <param name="minimum"> The minimal time to wait. </param>
 		/// <param name="maximum"> The maximum time to wait. </param>
+		/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
 		/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
-		public static bool Wait(Func<bool> cancellationPending, TimeSpan value, TimeSpan delay, TimeSpan minimum, TimeSpan maximum)
+		public static bool Wait(Func<bool> cancellationPending, TimeSpan value, TimeSpan delay, TimeSpan minimum, TimeSpan maximum, bool useTimeService = false)
 		{
 			// Leave here for performance reason, in case cancellation has already been requested
 			// Note: this cut 75% of time for existing cancellations
@@ -163,10 +167,12 @@ namespace Speedy.Extensions
 				return false;
 			}
 
-			var watch = Timer.StartNew();
+			var watch = Stopwatch.StartNew();
+			var timer = Timer.StartNew();
+			Func<TimeSpan> elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
 			var shouldDelay = delay.Ticks > 0;
 
-			while (((watch.Elapsed < value) || (watch.Elapsed < minimum)) && (watch.Elapsed < maximum))
+			while (((elapsed() < value) || (elapsed() < minimum)) && (elapsed() < maximum))
 			{
 				if (cancellationPending())
 				{

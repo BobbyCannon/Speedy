@@ -1,9 +1,9 @@
 ﻿param
 (
-	[Parameter()]
+	[Parameter(Mandatory = $false, Position = 0)]
 	[string] $Configuration = "Release",
 	[Parameter()]
-	[string] $BuildNumber,
+	[string] $BuildNumber = "+",
 	[Parameter()]
 	[string] $VersionSuffix = ""
 )
@@ -13,6 +13,12 @@ $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = $PSScriptRoot
 #$scriptPath = "C:\Workspaces\GitHub\Speedy"
 $productName = "Speedy"
+
+if ($scriptPath.Length -le 0)
+{
+	$scriptPath = "C:\Workspaces\GitHub\$productName"
+}
+
 $destination = "$scriptPath\Binaries"
 $destination2 = "C:\Workspaces\Nuget\Development"
 
@@ -33,31 +39,11 @@ if (!(Test-Path $destination2 -PathType Container))
 
 try
 {
-	if ($BuildNumber.Length -le 0)
-	{
-		$BuildNumber = "+";
-	}
-
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 8 -Minor 0 -Build $BuildNumber
-	$nugetVersion = ([Version] $newVersion).ToString(3)
+	$newVersion = .\IncrementVersion.ps1 -Build $BuildNumber
+	$newVersion
 	
-	if ($VersionSuffix.Length -gt 0)
-	{
-		$nugetVersion = "$nugetVersion-$VersionSuffix"
-	}
-	
-	$projectFiles = "$scriptPath\Speedy\Speedy.csproj", "$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj"
-
-	# Set the nuget version
-	foreach ($filePath in $projectFiles)
-	{
-		$fileXml = [xml](Get-Content -Path $filePath)
-		$fileXml.Project.PropertyGroup.Version = $nugetVersion
-		Set-Content -Path $filePath -Value (Format-Xml $fileXml.OuterXml) -Encoding UTF8
-	}
-
 	& nuget.exe restore "$scriptPath\$productName.sln"
 
 	$msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe"
@@ -71,14 +57,20 @@ try
 
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.dll" "$destination\bin\"
 	Copy-Item "$productName\bin\$Configuration\netstandard2.0\$productName.pdb" "$destination\bin\"
+	
+	$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
+	$nugetVersion = $versionInfo.ProductVersionRaw.ToString(3)
+
+	if ($VersionSuffix.Length -gt 0)
+	{
+		$nugetVersion = "$nugetVersion-$VersionSuffix"
+	}
 
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination\"
 
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination2\"
-
-	$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
 
 	if ($versionInfo.FileVersion.ToString() -ne $newVersion)
 	{
