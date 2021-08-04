@@ -1,6 +1,6 @@
 ﻿param
 (
-	[Parameter(Mandatory = $false, Position = 0)]
+	[Parameter()]
 	[string] $Configuration = "Release",
 	[Parameter()]
 	[string] $BuildNumber = "+",

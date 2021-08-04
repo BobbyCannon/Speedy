@@ -50,6 +50,23 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Convert the hex string back to byte array.
+		/// </summary>
+		/// <param name="value"> The hex string to be converter. </param>
+		/// <returns> The byte array. </returns>
+		public static byte[] FromHexStringToArray(this string value)
+		{
+			var bytes = new byte[value.Length / 2];
+
+			for (var i = 0; i < bytes.Length; i++)
+			{
+				bytes[i] = Convert.ToByte(value.Substring(i * 2, 2), 16);
+			}
+
+			return bytes;
+		}
+		
+		/// <summary>
 		/// Trims string to a maximum length.
 		/// </summary>
 		/// <param name="value"> The value to process. </param>
@@ -91,7 +108,7 @@ namespace Speedy.Extensions
 			hexString = hexString.Replace("-", "");
 			return hexString;
 		}
-		
+
 		/// <summary>
 		/// Converts a byte array to a hex string format. Ex. [41],[42] = "4142"
 		/// </summary>
@@ -102,6 +119,78 @@ namespace Speedy.Extensions
 			var hexString = BitConverter.ToString(data);
 			hexString = hexString.Replace("-", "");
 			return hexString;
+		}
+
+		/// <summary>
+		/// To literal version of the string.
+		/// </summary>
+		/// <param name="input"> The string input. </param>
+		/// <returns> The literal version of the string. </returns>
+		public static string ToLiteral(this string input)
+		{
+			if (input == null)
+			{
+				return "null";
+			}
+
+			var literal = new StringBuilder(input.Length);
+			literal.Append("\"");
+			foreach (var c in input)
+			{
+				switch (c)
+				{
+					case '\'':
+						literal.Append(@"\'");
+						break;
+					case '\"':
+						literal.Append("\\\"");
+						break;
+					case '\\':
+						literal.Append(@"\\");
+						break;
+					case '\0':
+						literal.Append(@"\0");
+						break;
+					case '\a':
+						literal.Append(@"\a");
+						break;
+					case '\b':
+						literal.Append(@"\b");
+						break;
+					case '\f':
+						literal.Append(@"\f");
+						break;
+					case '\n':
+						literal.Append(@"\n");
+						break;
+					case '\r':
+						literal.Append(@"\r");
+						break;
+					case '\t':
+						literal.Append(@"\t");
+						break;
+					case '\v':
+						literal.Append(@"\v");
+						break;
+					default:
+						// ASCII printable character
+						if ((c >= 0x20) && (c <= 0x7e))
+						{
+							literal.Append(c);
+							// As UTF16 escaped character
+						}
+						else
+						{
+							literal.Append(@"\u");
+							literal.Append(((int) c).ToString("x4"));
+						}
+
+						break;
+				}
+			}
+
+			literal.Append("\"");
+			return literal.ToString();
 		}
 
 		#endregion

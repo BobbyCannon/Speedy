@@ -535,7 +535,7 @@
             <param name="memberName"> </param>
             <param name="propertyName"> </param>
             <param name="setAssignmentValue"> States the expression is a value assignment. Meaning it's the right side of an assignment so set it as a parameter value. </param>
-            <param name="isFinalExpression"></param>
+            <param name="isFinalExpression"> </param>
         </member>
         <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlInsert(Speedy.EntityFramework.Sql.SqlStatement,System.Boolean)">
             <summary>

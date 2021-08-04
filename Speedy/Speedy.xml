@@ -673,17 +673,25 @@
             <param name="syncId"> The sync ID of the entity. </param>
             <returns> The ID of the entity. </returns>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabaseProvider)">
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(System.Type[])">
+            <summary>
+            Initializes the default key cache.
+            </summary>
+            <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabaseProvider,System.Type[])">
             <summary>
             Initializes the default key cache.
             </summary>
             <param name="provider"> The syncable database provider. </param>
+            <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabase)">
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabase,System.Type[])">
             <summary>
             Initializes the default key cache.
             </summary>
             <param name="database"> The syncable database. </param>
+            <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.RemoveEntity(Speedy.Sync.ISyncEntity)">
             <summary>
@@ -697,6 +705,13 @@
             </summary>
             <param name="type"> The type of the entity. </param>
             <param name="syncId"> The sync ID of the entity. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.SupportsType(System.Type)">
+            <summary>
+            Does the key cache support the following type.
+            </summary>
+            <param name="type"> The type to test for. </param>
+            <returns> True if the type is support or false if otherwise. </returns>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.ToDetailedString">
             <summary>
@@ -1624,6 +1639,45 @@
             <param name="settings"> The JSON serializer settings. </param>
             <returns> The converter of provided type or otherwise default type. </returns>
         </member>
+        <member name="T:Speedy.Extensions.ObjectExtensions">
+            <summary>
+            Extensions for the string type.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateBoolean(System.Object,System.Boolean)">
+            <summary>
+            Validate an object as a string with in a range.
+            </summary>
+            <param name="value"> The string as an object. </param>
+            <param name="expected"> The expected value. </param>
+            <returns> True if the value is a boolean and matches the expected value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateIntRange(System.Object,System.Int32,System.Int32)">
+            <summary>
+            Validate an object as a string with in a range.
+            </summary>
+            <param name="value"> The string as an object. </param>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <returns> True if the value is a string and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateStringRange(System.Object,System.Int32,System.Int32)">
+            <summary>
+            Validate an object as a string with in a range.
+            </summary>
+            <param name="value"> The string as an object. </param>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <returns> True if the value is a string and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.IfThenElse(System.Func{System.Boolean},System.Action,System.Action)">
+            <summary>
+            Executes a provided action if the test is successful.
+            </summary>
+            <param name="test"> The test to determine action to take. </param>
+            <param name="action1"> The action to perform if the test is true. </param>
+            <param name="action2"> The action to perform if the test is false. </param>
+        </member>
         <member name="T:Speedy.Extensions.QueryableExtensions">
             <summary>
             Extensions for queryable
@@ -1898,6 +1952,13 @@
             <param name="value"> A string with hex data (2 bytes per character). </param>
             <returns> The string value. </returns>
         </member>
+        <member name="M:Speedy.Extensions.StringExtensions.FromHexStringToArray(System.String)">
+            <summary>
+            Convert the hex string back to byte array.
+            </summary>
+            <param name="value"> The hex string to be converter. </param>
+            <returns> The byte array. </returns>
+        </member>
         <member name="M:Speedy.Extensions.StringExtensions.MaxLength(System.String,System.Int32,System.Boolean)">
             <summary>
             Trims string to a maximum length.
@@ -1927,6 +1988,13 @@
             </summary>
             <param name="data"> The byte array to convert. </param>
             <returns> The byte array in a hex string format. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToLiteral(System.String)">
+            <summary>
+            To literal version of the string.
+            </summary>
+            <param name="input"> The string input. </param>
+            <returns> The literal version of the string. </returns>
         </member>
         <member name="T:Speedy.Extensions.TaskExtensions">
             <summary>
@@ -3058,7 +3126,7 @@
             <param name="key"> The key for the option. </param>
             <param name="value"> The value for the option. </param>
         </member>
-        <member name="M:Speedy.PagedRequest.Cleanup(System.Int32)">
+        <member name="M:Speedy.PagedRequest.Cleanup(System.Int32,System.Int32)">
             <summary>
             Cleanup the request. Set default values.
             </summary>
@@ -3176,6 +3244,242 @@
             Calculate the start and end pagination values.
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Speedy.PartialUpdate`1">
+            <summary>
+            This class contains updates for an entity. JSON is deserialized into this type.
+            </summary>
+            <typeparam name="T"> The type of entity to be updated. </typeparam>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.#ctor">
+            <summary>
+            Instantiates a partial update.
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.#ctor(Speedy.PartialUpdateOptions{`0})">
+            <summary>
+            Instantiates a paged request.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdate`1.Options">
+            <summary>
+            The options for the partial update.
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.Apply(System.Object)">
+            <summary>
+            Applies the updates to the entity.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.Apply(`0)">
+            <summary>
+            Applies the updates to the entity.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.FromJson(System.String,Speedy.PartialUpdateOptions)">
+            <summary>
+            Gets a partial update from a JSON string.
+            </summary>
+            <param name="json"> The JSON containing the partial update. </param>
+            <param name="options"> An optional set of options to use during parsing. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.GetInstance">
+            <summary>
+            Creates an instance of the type and applies the partial update.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.Validate">
+            <summary>
+            Validates the partial update is good.
+            </summary>
+        </member>
+        <member name="T:Speedy.PartialUpdate">
+            <summary>
+            This class contains updates for an entity. JSON is deserialized into this type.
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdate.#ctor">
+            <summary>
+            Instantiate an instance of the partial update.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdate.Updates">
+            <summary>
+            A list of updates for this partial update.
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdate.Apply(System.Object)">
+            <summary>
+            Applies the updates to the entity.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate.FromJson``1(System.String,Speedy.PartialUpdateOptions{``0})">
+            <summary>
+            Gets a partial update from a JSON string.
+            </summary>
+            <typeparam name="T"> The type the partial update is for. </typeparam>
+            <param name="json"> The JSON containing the partial update. </param>
+            <param name="options"> An optional set of options to use during parsing. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.FromJson``1(Newtonsoft.Json.JsonReader,Speedy.PartialUpdateOptions)">
+            <summary>
+            Gets a partial update from a JSON string.
+            </summary>
+            <typeparam name="T"> The type the partial update is for. </typeparam>
+            <param name="reader"> The JSON reader containing the partial update. </param>
+            <param name="options"> An optional set of options to use during parsing. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.FromJson(System.String,System.Type,Speedy.PartialUpdateOptions)">
+            <summary>
+            Gets a partial update from a JSON string.
+            </summary>
+            <param name="json"> The JSON containing the partial update. </param>
+            <param name="type"> The type the partial update is for. </param>
+            <param name="options"> An optional set of options to use during parsing. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.FromJson(Newtonsoft.Json.JsonReader,System.Type,Speedy.PartialUpdateOptions)">
+            <summary>
+            Gets a partial update from a JSON string.
+            </summary>
+            <param name="reader"> The JSON reader containing the partial update. </param>
+            <param name="type"> The type the partial update is for. </param>
+            <param name="options"> An optional set of options to use during parsing. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.GetPropertyValue``1(System.String)">
+            <summary>
+            Get the property value.
+            </summary>
+            <typeparam name="T"> </typeparam>
+            <param name="name"> </param>
+            <returns> </returns>
+        </member>
+        <member name="T:Speedy.PartialUpdateConverter">
+            <summary>
+            Converter used to deserialize JSON string to partial updates.
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateConverter.CanConvert(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.PartialUpdateConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.PartialUpdateConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.PartialUpdateOptions`1">
+            <summary>
+            Options for Partial Update
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions`1.Property``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Configure a validation for a property.
+            </summary>
+        </member>
+        <member name="T:Speedy.PartialUpdateOptions">
+            <summary>
+            Options for Partial Update
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.#ctor">
+            <summary>
+            Instantiates options for validation for a partial update.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.ExcludedProperties">
+            <summary>
+            Properties to be excluded.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.IncludedProperties">
+            <summary>
+            Properties to be included.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.Validations">
+            <summary>
+            The validations for a partial update.
+            </summary>
+        </member>
+        <member name="T:Speedy.PartialUpdateOptions.PartialValidation">
+            <summary>
+            Validation for Partial Update
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation.#ctor(System.String)">
+            <summary>
+            Instantiates a validation for a partial update.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.PartialValidation.Message">
+            <summary>
+            The text of the message that will be thrown if the validation fails.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.PartialValidation.Name">
+            <summary>
+            The name of the validation.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.PartialValidation.Required">
+            <summary>
+            Gets or sets the flag to clear / set a required requirement.
+            </summary>
+        </member>
+        <member name="T:Speedy.PartialUpdateOptions.PartialValidation`1">
+            <summary>
+            Validation for Partial Update
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation`1.#ctor(System.String)">
+            <summary>
+            Instantiates a validation for a partial update.
+            </summary>
+            <param name="name"> The name of the partial update. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation`1.HasMinMaxRange(System.Int32,System.Int32)">
+            <summary>
+            Set a minimum and maximum for the value.
+            </summary>
+            <param name="minimum"> The inclusive minimal value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <returns> The validation for method chaining. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation`1.IsRequired(System.Boolean)">
+            <summary>
+            Sets the flag to clear / set a required requirement.
+            </summary>
+            <param name="required"> </param>
+            <returns> The validation for method chaining. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation`1.Process(System.Object)">
+            <summary>
+            Process a validation against an object.
+            </summary>
+            <param name="value"> The object to validate against. Must be of type T. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation`1.Process(`0)">
+            <summary>
+            Process a validation against an object.
+            </summary>
+            <param name="value"> The value to validate against. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation`1.Throws(System.String)">
+            <summary>
+            The message to throw if the validation fails.
+            </summary>
+            <param name="message"> The text of the message that will be thrown if the validation fails. </param>
+            <returns> The validation for method chaining. </returns>
         </member>
         <member name="T:Speedy.Profiling.AverageTimer">
             <summary>

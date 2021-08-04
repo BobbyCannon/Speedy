@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Sync;
+using Speedy.UnitTests;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 
@@ -12,7 +13,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.IntegrationTests
 {
 	[TestClass]
-	public class CachedSyncClientTests
+	public class CachedSyncClientTests : BaseTests
 	{
 		#region Methods
 
@@ -20,6 +21,8 @@ namespace Speedy.IntegrationTests
 		public void CacheOnlyCertainEntities()
 		{
 			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false);
+			var keyCache = server.DatabaseProvider.KeyCache;
+			keyCache.Initialize();
 
 			AddressEntity address;
 			AccountEntity account;
@@ -33,18 +36,21 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Should have two cached entity IDs, one for the address and one for the account
-			Assert.AreEqual(2, server.DatabaseProvider.KeyCache.TotalCachedItems);
-			Assert.AreEqual(1L, server.DatabaseProvider.KeyCache.GetEntityId(address));
-			Assert.AreEqual(1, server.DatabaseProvider.KeyCache.GetEntityId(account));
+			Assert.AreEqual(2, keyCache.TotalCachedItems);
+			Assert.AreEqual(1L, keyCache.GetEntityId(address));
+			Assert.AreEqual(1, keyCache.GetEntityId(account));
 
 			server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false);
-			server.DatabaseProvider.KeyCache.SyncEntitiesToCache = new[] { typeof(AddressEntity) };
+			keyCache = server.DatabaseProvider.KeyCache;
+			keyCache.Initialize(typeof(AddressEntity));
 
 			// Brand new key cache manager
-			Assert.AreEqual(1, server.DatabaseProvider.KeyCache.SyncEntitiesToCache.Length);
-			Assert.AreEqual(0, server.DatabaseProvider.KeyCache.TotalCachedItems);
-			Assert.AreEqual(null, server.DatabaseProvider.KeyCache.GetEntityId(address));
-			Assert.AreEqual(null, server.DatabaseProvider.KeyCache.GetEntityId(account));
+			Assert.IsTrue(keyCache.SupportsType(typeof(AddressEntity)));
+			Assert.IsFalse(keyCache.SupportsType(typeof(AccountEntity)));
+			Assert.AreEqual(1, keyCache.SyncEntitiesToCache.Length);
+			Assert.AreEqual(0, keyCache.TotalCachedItems);
+			Assert.AreEqual(null, keyCache.GetEntityId(address));
+			Assert.AreEqual(null, keyCache.GetEntityId(account));
 
 			using (var database = server.GetDatabase<IContosoDatabase>())
 			{
@@ -55,9 +61,35 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Should have only cached entity IDs, one for the address but none for the account
-			Assert.AreEqual(1, server.DatabaseProvider.KeyCache.TotalCachedItems);
-			Assert.AreEqual(1L, server.DatabaseProvider.KeyCache.GetEntityId(address));
-			Assert.AreEqual(null, server.DatabaseProvider.KeyCache.GetEntityId(account));
+			Assert.AreEqual(1, keyCache.TotalCachedItems);
+			Assert.AreEqual(1L, keyCache.GetEntityId(address));
+			Assert.AreEqual(null, keyCache.GetEntityId(account));
+		}
+
+		[TestMethod]
+		public void InitializeShouldResetCache()
+		{
+			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false);
+			var keyCache = server.DatabaseProvider.KeyCache;
+
+			// Initialize with no parameters
+			keyCache.AddEntityId(typeof(AddressEntity), Guid.Parse("4B6E7980-3715-4C2C-9DC6-F9A5F2A40351"), 1);
+			Assert.AreEqual(1, keyCache.Count);
+			keyCache.Initialize();
+			Assert.AreEqual(0, keyCache.Count);
+
+			// Initialize with database provider
+			keyCache.AddEntityId(typeof(AddressEntity), Guid.Parse("4B6E7980-3715-4C2C-9DC6-F9A5F2A40351"), 1);
+			Assert.AreEqual(1, keyCache.Count);
+			keyCache.Initialize(server.DatabaseProvider, typeof(AddressEntity));
+			Assert.AreEqual(0, keyCache.Count);
+			
+			// Initialize with database
+			keyCache.AddEntityId(typeof(AddressEntity), Guid.Parse("4B6E7980-3715-4C2C-9DC6-F9A5F2A40351"), 1);
+			Assert.AreEqual(1, keyCache.Count);
+			using var database = server.DatabaseProvider.GetSyncableDatabase();
+			keyCache.Initialize(database, typeof(AddressEntity));
+			Assert.AreEqual(0, keyCache.Count);
 		}
 
 		[TestMethod]
