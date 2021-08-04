@@ -180,7 +180,7 @@ namespace Speedy.UnitTests.Extensions
 				currentTime += TimeSpan.FromSeconds(10);
 				count++;
 				return false;
-			}, timeout, delay, minimum, maximum);
+			}, timeout, delay, minimum, maximum, true);
 
 			Assert.AreEqual(7, count);
 			Assert.AreEqual(true, actual);
@@ -203,7 +203,7 @@ namespace Speedy.UnitTests.Extensions
 				currentTime += TimeSpan.FromSeconds(60);
 				count++;
 				return false;
-			}, timeout, delay, minimum, maximum);
+			}, timeout, delay, minimum, maximum, true);
 
 			Assert.AreEqual(11, count);
 			Assert.AreEqual(true, actual);
@@ -256,7 +256,7 @@ namespace Speedy.UnitTests.Extensions
 				}
 				count++;
 				return false;
-			}, timeout, delay, minimum, maximum);
+			}, timeout, delay, minimum, maximum, true);
 			watch.Stop();
 
 			watch.Elapsed.Dump();

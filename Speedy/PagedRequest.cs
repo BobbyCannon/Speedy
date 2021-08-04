@@ -113,7 +113,7 @@ namespace Speedy
 		/// <summary>
 		/// Cleanup the request. Set default values.
 		/// </summary>
-		public void Cleanup(int perPage = 10)
+		public void Cleanup(int perPage = 10, int maxPerPage = 100)
 		{
 			Cleanup(Filter, x => x == null, () => Filter = string.Empty);
 			Cleanup(FilterValues, x => x == null, () => FilterValues = new List<string>());
@@ -123,6 +123,7 @@ namespace Speedy
 			Cleanup(Order, x => x == null, () => Order = string.Empty);
 			Cleanup(Page, x => x <= 0, () => Page = 1);
 			Cleanup(PerPage, x => x <= 0, () => PerPage = perPage);
+			Cleanup(PerPage, x => x > maxPerPage, () => PerPage = maxPerPage);
 		}
 
 		/// <summary>

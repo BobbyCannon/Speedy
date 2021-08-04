@@ -673,17 +673,25 @@
             <param name="syncId"> The sync ID of the entity. </param>
             <returns> The ID of the entity. </returns>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabaseProvider)">
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(System.Type[])">
+            <summary>
+            Initializes the default key cache.
+            </summary>
+            <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabaseProvider,System.Type[])">
             <summary>
             Initializes the default key cache.
             </summary>
             <param name="provider"> The syncable database provider. </param>
+            <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabase)">
+        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabase,System.Type[])">
             <summary>
             Initializes the default key cache.
             </summary>
             <param name="database"> The syncable database. </param>
+            <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.RemoveEntity(Speedy.Sync.ISyncEntity)">
             <summary>
@@ -697,6 +705,13 @@
             </summary>
             <param name="type"> The type of the entity. </param>
             <param name="syncId"> The sync ID of the entity. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.SupportsType(System.Type)">
+            <summary>
+            Does the key cache support the following type.
+            </summary>
+            <param name="type"> The type to test for. </param>
+            <returns> True if the type is support or false if otherwise. </returns>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.ToDetailedString">
             <summary>
@@ -1898,6 +1913,13 @@
             <param name="value"> A string with hex data (2 bytes per character). </param>
             <returns> The string value. </returns>
         </member>
+        <member name="M:Speedy.Extensions.StringExtensions.FromHexStringToArray(System.String)">
+            <summary>
+            Convert the hex string back to byte array.
+            </summary>
+            <param name="value"> The hex string to be converter. </param>
+            <returns> The byte array. </returns>
+        </member>
         <member name="M:Speedy.Extensions.StringExtensions.MaxLength(System.String,System.Int32,System.Boolean)">
             <summary>
             Trims string to a maximum length.
@@ -1927,6 +1949,13 @@
             </summary>
             <param name="data"> The byte array to convert. </param>
             <returns> The byte array in a hex string format. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToLiteral(System.String)">
+            <summary>
+            To literal version of the string.
+            </summary>
+            <param name="input"> The string input. </param>
+            <returns> The literal version of the string. </returns>
         </member>
         <member name="T:Speedy.Extensions.TaskExtensions">
             <summary>
@@ -2065,7 +2094,7 @@
             <param name="delay"> The delay between retries. </param>
             <returns> The response from the action. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UtilityExtensions.Wait(System.Func{System.Boolean},System.Int32,System.Int32)">
+        <member name="M:Speedy.Extensions.UtilityExtensions.Wait(System.Func{System.Boolean},System.Int32,System.Int32,System.Boolean)">
             <summary>
             Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
             time.
@@ -2073,9 +2102,10 @@
             <param name="action"> The action to call. </param>
             <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
             <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
             <returns> Returns true of the call completed successfully or false if it timed out. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UtilityExtensions.Wait(System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan)">
+        <member name="M:Speedy.Extensions.UtilityExtensions.Wait(System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Boolean)">
             <summary>
             Wait for a cancellation or for the value to time out.
             </summary>
@@ -2084,6 +2114,7 @@
             <param name="delay"> The delay between checks. </param>
             <param name="minimum"> The minimal time to wait. </param>
             <param name="maximum"> The maximum time to wait. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
             <returns> True if the wait was completed, false if the wait was cancelled. </returns>
         </member>
         <member name="T:Speedy.IBindable">
@@ -3056,7 +3087,7 @@
             <param name="key"> The key for the option. </param>
             <param name="value"> The value for the option. </param>
         </member>
-        <member name="M:Speedy.PagedRequest.Cleanup(System.Int32)">
+        <member name="M:Speedy.PagedRequest.Cleanup(System.Int32,System.Int32)">
             <summary>
             Cleanup the request. Set default values.
             </summary>

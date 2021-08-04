@@ -3,7 +3,7 @@
 	[Parameter()]
 	[string] $Configuration = "Release",
 	[Parameter()]
-	[string] $BuildNumber,
+	[string] $BuildNumber = "+",
 	[Parameter()]
 	[string] $VersionSuffix = ""
 )
@@ -33,11 +33,6 @@ if (!(Test-Path $destination2 -PathType Container))
 
 try
 {
-	if ($BuildNumber.Length -le 0)
-	{
-		$BuildNumber = "+";
-	}
-
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
 	$newVersion = .\IncrementVersion.ps1 -Major 9 -Minor 0 -Build $BuildNumber -Revision 0
