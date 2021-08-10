@@ -64,6 +64,9 @@ namespace Speedy.Net
 		public SyncClientOutgoingConverter OutgoingConverter { get; set; }
 
 		/// <inheritdoc />
+		public SyncClientProfiler Profiler { get; }
+
+		/// <inheritdoc />
 		public SyncStatistics Statistics { get; }
 
 		/// <inheritdoc />
@@ -71,9 +74,6 @@ namespace Speedy.Net
 
 		/// <inheritdoc />
 		public SyncSession SyncSession { get; }
-
-		/// <inheritdoc />
-		public SyncClientProfiler Profiler { get; }
 
 		/// <summary>
 		/// The web client to use to connect to the server.

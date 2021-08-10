@@ -25,7 +25,7 @@ namespace Speedy.Serialization
 
 		static Serializer()
 		{
-			_settingsForDeserialization = new SerializerSettings(false, false, false, false, false, false);
+			_settingsForDeserialization = new SerializerSettings(false);
 			_settingsForDeepClone1 = new SerializerSettings(ignoreVirtuals: true);
 			_settingsForDeepClone2 = new SerializerSettings(ignoreVirtuals: false);
 		}
@@ -39,21 +39,35 @@ namespace Speedy.Serialization
 		/// </summary>
 		/// <typeparam name="T"> The type to clone. </typeparam>
 		/// <param name="item"> The item to clone. </param>
+		/// <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
 		/// <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
 		/// <returns> The clone of the item. </returns>
-		public static T DeepClone<T>(this T item, bool ignoreVirtuals = false)
+		public static T DeepClone<T>(this T item, int? maxDepth = null, bool ignoreVirtuals = false)
 		{
+			if (maxDepth != null)
+			{
+				var settings = new SerializerSettings(ignoreVirtuals: ignoreVirtuals) { JsonSettings = { MaxDepth = maxDepth } };
+				return FromJson<T>(item.ToJson(settings));
+			}
+
 			return FromJson<T>(item.ToJson(ignoreVirtuals ? _settingsForDeepClone1 : _settingsForDeepClone2));
 		}
-		
+
 		/// <summary>
 		/// Deep clone the item.
 		/// </summary>
 		/// <param name="item"> The item to clone. </param>
+		/// <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
 		/// <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
 		/// <returns> The clone of the item. </returns>
-		internal static object DeepCloneEntity(this IEntity item, bool ignoreVirtuals = false)
+		public static object DeepCloneObject(this object item, int? maxDepth = null, bool ignoreVirtuals = false)
 		{
+			if (maxDepth != null)
+			{
+				var settings = new SerializerSettings(ignoreVirtuals: ignoreVirtuals) { JsonSettings = { MaxDepth = maxDepth } };
+				return FromJson(item.ToJson(settings), item.GetRealType());
+			}
+
 			return FromJson(item.ToJson(ignoreVirtuals ? _settingsForDeepClone1 : _settingsForDeepClone2), item.GetRealType());
 		}
 
@@ -190,22 +204,6 @@ namespace Speedy.Serialization
 			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
 			update?.Invoke(response);
 			return response;
-		}
-
-		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context.
-		/// </summary>
-		/// <param name="value"> The value to unwrap from the proxy. </param>
-		/// <param name="type"> The type of the outgoing object. </param>
-		/// <returns> The disconnected entity. </returns>
-		public static object Unwrap(this object value, Type type)
-		{
-			if (value is IUnwrappable unwrappable)
-			{
-				return unwrappable.Unwrap();
-			}
-
-			return value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson(type);
 		}
 
 		#endregion

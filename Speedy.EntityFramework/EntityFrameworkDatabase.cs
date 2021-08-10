@@ -495,7 +495,7 @@ namespace Speedy.EntityFramework
 			var createdEntity = entity as ICreatedEntity;
 			var modifiableEntity = entity as IModifiableEntity;
 			var syncableEntity = entity as ISyncEntity;
-			var maintainedEntity = Options.UnmaintainEntities.All(x => x != entry.Entity.GetType());
+			var maintainedEntity = Options.UnmaintainedEntities.All(x => x != entry.Entity.GetType());
 			var maintainCreatedOnDate = maintainedEntity && Options.MaintainCreatedOn;
 			var maintainModifiedOnDate = maintainedEntity && Options.MaintainModifiedOn;
 			var maintainSyncId = maintainedEntity && Options.MaintainSyncId;

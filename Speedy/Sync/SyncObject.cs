@@ -24,7 +24,7 @@ namespace Speedy.Sync
 
 		static SyncObject()
 		{
-			_cachedSettings = new SerializerSettings(false, false, false, true, true, false);
+			_cachedSettings = new SerializerSettings(false, false, false, true, true);
 		}
 
 		#endregion

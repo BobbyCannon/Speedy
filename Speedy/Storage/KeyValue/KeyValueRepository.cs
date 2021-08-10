@@ -103,7 +103,7 @@ namespace Speedy.Storage.KeyValue
 			_options = options;
 			_cache = new Dictionary<string, Tuple<string, DateTime, ulong>>(_options.Limit == int.MaxValue ? 4096 : _options.Limit);
 			_changes = new Dictionary<string, Tuple<string, DateTime, ulong>>();
-			_settings = new SerializerSettings(false, false, false, true, false, false);
+			_settings = new SerializerSettings(false, false, false, true);
 			_writeIndex = 0;
 
 			DirectoryInfo = directoryInfo;

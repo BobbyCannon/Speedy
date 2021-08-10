@@ -103,41 +103,6 @@ namespace Speedy.Profiling
 		}
 
 		/// <summary>
-		/// Start the timer, performs the action, then stops the timer.
-		/// </summary>
-		/// <param name="action"> The action to be timed. </param>
-		public void Time(Action action)
-		{
-			try
-			{
-				Start();
-				action();
-			}
-			finally
-			{
-				Stop();
-			}
-		}
-
-		/// <summary>
-		/// Start the timer, performs the function, then stops the timer, then returns the value from the function.
-		/// </summary>
-		/// <param name="function"> The action to be timed. </param>
-		/// <returns> The value return from the function. </returns>
-		public T Time<T>(Func<T> function)
-		{
-			try
-			{
-				Start();
-				return function();
-			}
-			finally
-			{
-				Stop();
-			}
-		}
-
-		/// <summary>
 		/// Reset the average timer.
 		/// </summary>
 		public void Reset()
@@ -202,6 +167,41 @@ namespace Speedy.Profiling
 			{
 				OnPropertyChanged(nameof(Elapsed));
 				OnPropertyChanged(nameof(IsRunning));
+			}
+		}
+
+		/// <summary>
+		/// Start the timer, performs the action, then stops the timer.
+		/// </summary>
+		/// <param name="action"> The action to be timed. </param>
+		public void Time(Action action)
+		{
+			try
+			{
+				Start();
+				action();
+			}
+			finally
+			{
+				Stop();
+			}
+		}
+
+		/// <summary>
+		/// Start the timer, performs the function, then stops the timer, then returns the value from the function.
+		/// </summary>
+		/// <param name="function"> The action to be timed. </param>
+		/// <returns> The value return from the function. </returns>
+		public T Time<T>(Func<T> function)
+		{
+			try
+			{
+				Start();
+				return function();
+			}
+			finally
+			{
+				Stop();
 			}
 		}
 

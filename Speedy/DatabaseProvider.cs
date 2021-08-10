@@ -28,7 +28,7 @@ namespace Speedy
 		{
 			_provider = provider;
 
-			Options = options?.DeepClone() ?? new DatabaseOptions();
+			Options = (DatabaseOptions) options?.DeepClone() ?? new DatabaseOptions();
 		}
 
 		#endregion
@@ -51,13 +51,23 @@ namespace Speedy
 		/// <inheritdoc />
 		public T GetDatabase()
 		{
-			return GetDatabaseFromProvider(Options.DeepClone());
+			return GetDatabaseFromProvider((DatabaseOptions) Options.DeepClone());
 		}
 
 		/// <inheritdoc />
 		public T GetDatabase(DatabaseOptions options)
 		{
 			return GetDatabaseFromProvider(options);
+		}
+
+		/// <summary>
+		/// Gets an instance of the database from the provider.
+		/// </summary>
+		/// <param name="options"> The database options to use for the new database instance. </param>
+		/// <returns> The database instance. </returns>
+		protected virtual T GetDatabaseFromProvider(DatabaseOptions options)
+		{
+			return _provider.Invoke(options);
 		}
 
 		/// <summary>
@@ -111,16 +121,6 @@ namespace Speedy
 		IDatabase IDatabaseProvider.GetDatabase(DatabaseOptions options)
 		{
 			return GetDatabase(options);
-		}
-
-		/// <summary>
-		/// Gets an instance of the database from the provider.
-		/// </summary>
-		/// <param name="options"> The database options to use for the new database instance. </param>
-		/// <returns> The database instance. </returns>
-		protected virtual T GetDatabaseFromProvider(DatabaseOptions options)
-		{
-			return _provider.Invoke(options);
 		}
 
 		#endregion

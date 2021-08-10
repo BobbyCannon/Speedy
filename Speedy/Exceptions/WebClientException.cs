@@ -25,12 +25,11 @@ namespace Speedy.Exceptions
 			Code = HttpStatusCode.OK;
 		}
 
-		
 		/// <summary>
 		/// Instantiates an instance of the exception.
 		/// </summary>
 		public WebClientException(HttpResponseMessage result)
-			: this (result.StatusCode, result.Content.ReadAsStringAsync().Result)
+			: this(result.StatusCode, result.Content.ReadAsStringAsync().Result)
 		{
 		}
 
@@ -45,7 +44,7 @@ namespace Speedy.Exceptions
 		/// <summary>
 		/// Instantiates an instance of the exception.
 		/// </summary>
-		public WebClientException(HttpStatusCode code,string message, Exception inner) : base(message, inner)
+		public WebClientException(HttpStatusCode code, string message, Exception inner) : base(message, inner)
 		{
 			Code = code;
 		}

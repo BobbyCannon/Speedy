@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -33,7 +32,7 @@ namespace Speedy.Serialization.Converters
 			{
 				return default;
 			}
-			
+
 			var item = JObject.Load(reader);
 			var major = int.TryParse(item["Major"]?.ToString(), out var m0) ? m0 : 0;
 			var minor = int.TryParse(item["Minor"]?.ToString(), out var m1) ? m1 : 0;

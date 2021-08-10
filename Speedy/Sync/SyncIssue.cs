@@ -1,6 +1,8 @@
 ﻿#region References
 
 using System;
+using System.Linq;
+using Speedy.Extensions;
 
 #endregion
 
@@ -9,7 +11,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents as issue that occurred during sync.
 	/// </summary>
-	public class SyncIssue : Bindable<SyncIssue>
+	public class SyncIssue : Bindable
 	{
 		#region Properties
 
@@ -57,6 +59,55 @@ namespace Speedy.Sync
 		public override string ToString()
 		{
 			return $"{IssueType}:{TypeName} - {Message}";
+		}
+
+		/// <summary>
+		/// Update the SyncStatistics with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		/// <param name="exclusions"> An optional set of properties to exclude. </param>
+		public void UpdateWith(SyncIssue update, params string[] exclusions)
+		{
+			// If the update is null then there is nothing to do.
+			if (update == null)
+			{
+				return;
+			}
+
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+			if (exclusions.Length <= 0)
+			{
+				Id = update.Id;
+				IssueType = update.IssueType;
+				Message = update.Message;
+				TypeName = update.TypeName;
+			}
+			else
+			{
+				this.IfThen(x => !exclusions.Contains(nameof(Id)), x => x.Id = update.Id);
+				this.IfThen(x => !exclusions.Contains(nameof(IssueType)), x => x.IssueType = update.IssueType);
+				this.IfThen(x => !exclusions.Contains(nameof(Message)), x => x.Message = update.Message);
+				this.IfThen(x => !exclusions.Contains(nameof(TypeName)), x => x.TypeName = update.TypeName);
+			}
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			switch (update)
+			{
+				case SyncIssue options:
+				{
+					UpdateWith(options, exclusions);
+					return;
+				}
+				default:
+				{
+					base.UpdateWith(update, exclusions);
+					return;
+				}
+			}
 		}
 
 		#endregion

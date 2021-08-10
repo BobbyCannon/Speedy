@@ -24,7 +24,7 @@ namespace Speedy
 		/// <summary>
 		/// Instantiate an instance of the IncludableQueryable
 		/// </summary>
-		/// <param name="query"></param>
+		/// <param name="query"> </param>
 		public IncludableQueryable(IQueryable<T> query)
 		{
 			_query = query;

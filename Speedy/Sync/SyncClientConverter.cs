@@ -12,6 +12,8 @@ namespace Speedy.Sync
 	/// </summary>
 	public class SyncClientIncomingConverter : SyncClientConverter
 	{
+		#region Constructors
+
 		/// <summary>
 		/// Instantiates a sync input converter to be used during syncing.
 		/// </summary>
@@ -19,13 +21,17 @@ namespace Speedy.Sync
 		public SyncClientIncomingConverter(params SyncObjectIncomingConverter[] converters) : base(true, false, true, converters)
 		{
 		}
+
+		#endregion
 	}
-	
+
 	/// <summary>
 	/// Represents a sync object output converter for the sync client.
 	/// </summary>
 	public class SyncClientOutgoingConverter : SyncClientConverter
 	{
+		#region Constructors
+
 		/// <summary>
 		/// Instantiates a sync output converter to be used during syncing.
 		/// </summary>
@@ -33,6 +39,8 @@ namespace Speedy.Sync
 		public SyncClientOutgoingConverter(params SyncObjectOutgoingConverter[] converters) : base(false, true, false, converters)
 		{
 		}
+
+		#endregion
 	}
 
 	/// <summary>
@@ -108,31 +116,6 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Updates this sync object with another object.
-		/// </summary>
-		/// <param name="source"> The entity with the updates. </param>
-		/// <param name="destination"> The destination sync entity to be updated. </param>
-		/// <param name="status"> The status of the update. </param>
-		/// <returns> Return true if the entity was updated and should be saved. </returns>
-		public bool Update(ISyncEntity source, ISyncEntity destination, SyncObjectStatus status)
-		{
-			// Cycle through each converter to process each object.
-			foreach (var converter in _converters)
-			{
-				// Ensure this converter can process the object.
-				if (!converter.CanUpdate(source))
-				{
-					continue;
-				}
-
-				// Convert the object.
-				return converter.Update(source, destination, status, ExcludePropertiesForSyncUpdate);
-			}
-
-			return false;
-		}
-
-		/// <summary>
 		/// Process the provided sync object through the converters.
 		/// </summary>
 		/// <param name="value"> The sync object to process. </param>
@@ -176,6 +159,31 @@ namespace Speedy.Sync
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Updates this sync object with another object.
+		/// </summary>
+		/// <param name="source"> The entity with the updates. </param>
+		/// <param name="destination"> The destination sync entity to be updated. </param>
+		/// <param name="status"> The status of the update. </param>
+		/// <returns> Return true if the entity was updated and should be saved. </returns>
+		public bool Update(ISyncEntity source, ISyncEntity destination, SyncObjectStatus status)
+		{
+			// Cycle through each converter to process each object.
+			foreach (var converter in _converters)
+			{
+				// Ensure this converter can process the object.
+				if (!converter.CanUpdate(source))
+				{
+					continue;
+				}
+
+				// Convert the object.
+				return converter.Update(source, destination, status, ExcludePropertiesForSyncUpdate);
+			}
+
+			return false;
 		}
 
 		#endregion

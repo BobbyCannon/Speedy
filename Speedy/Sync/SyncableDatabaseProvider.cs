@@ -105,7 +105,7 @@ namespace Speedy.Sync
 		{
 			_function = function;
 
-			Options = options?.DeepClone() ?? new DatabaseOptions();
+			Options = (DatabaseOptions) options?.DeepClone() ?? new DatabaseOptions();
 			KeyCache = keyCache;
 		}
 
@@ -138,7 +138,7 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public ISyncableDatabase GetSyncableDatabase()
 		{
-			return GetSyncableDatabaseFromProvider(Options.DeepClone(), KeyCache);
+			return GetSyncableDatabaseFromProvider((DatabaseOptions) Options.DeepClone(), KeyCache);
 		}
 
 		/// <inheritdoc />

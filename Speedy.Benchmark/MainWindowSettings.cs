@@ -10,7 +10,7 @@ using Speedy.Storage;
 
 namespace Speedy.Benchmark
 {
-	public class MainWindowSettings : IUpdatable<MainWindowSettings>
+	public class MainWindowSettings : IUpdatable
 	{
 		#region Constructors
 

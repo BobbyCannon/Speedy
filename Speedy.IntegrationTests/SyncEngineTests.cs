@@ -111,8 +111,8 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(1, settings1.Count);
 					Assert.AreEqual(1, settings2.Count);
 
-					var actual1 = settings1[0].Unwrap<SettingEntity>();
-					var actual2 = settings2[0].Unwrap<SettingEntity>();
+					var actual1 = (SettingEntity) settings1[0].Unwrap();
+					var actual2 = (SettingEntity) settings2[0].Unwrap();
 
 					TestHelper.AreEqual(actual1, actual2, nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn), nameof(ISyncEntity.SyncId));
 					Assert.AreNotEqual(actual1.SyncId, actual2.SyncId);
@@ -1289,7 +1289,7 @@ namespace Speedy.IntegrationTests
 				var address = NewAddress("123 Elm Street");
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
 
-				address = address.Unwrap<AddressEntity>();
+				address = (AddressEntity) address.Unwrap();
 				address.Id = 0;
 				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
 

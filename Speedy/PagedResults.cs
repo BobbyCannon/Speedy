@@ -107,7 +107,7 @@ namespace Speedy
 		/// <summary>
 		/// Calculate the start and end pagination values.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns> </returns>
 		public (int start, int end) CalculatePaginationValues()
 		{
 			var start = Page - 2;

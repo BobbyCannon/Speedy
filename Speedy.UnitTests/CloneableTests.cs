@@ -6,12 +6,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Profiling;
 using Speedy.Serialization;
 using Speedy.Sync;
-using Speedy.UnitTests;
 using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.PerformanceTests
+namespace Speedy.UnitTests
 {
 	[TestClass]
 	public class CloneableTests
@@ -23,15 +22,15 @@ namespace Speedy.PerformanceTests
 		{
 			var testItems = new[]
 			{
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = true, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = true, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = true, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = true, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = true, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = new[] { "foo" }, Timeout = TimeSpan.FromSeconds(30), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromTicks(1), UnmaintainEntities = Array.Empty<Type>() },
-				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromTicks(1), UnmaintainEntities = new[] { typeof(ISyncEntity) } }
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = true, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = true, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = true, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = true, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = true, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromSeconds(30), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = new[] { "foo" }, Timeout = TimeSpan.FromSeconds(30), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromTicks(1), UnmaintainedEntities = Array.Empty<Type>() },
+				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromTicks(1), UnmaintainedEntities = new[] { typeof(ISyncEntity) } }
 			};
 
 			BaseShouldCloneTest(testItems);
@@ -85,17 +84,17 @@ namespace Speedy.PerformanceTests
 			{
 				var expected = e.ShouldExcludeRepository(typeof(AddressEntity));
 				var actual = clone.ShouldExcludeRepository(typeof(AddressEntity));
-				Assert.AreEqual(expected, actual);
+				TestHelper.AreEqual(expected, actual);
 			});
 		}
 
-		private static void BaseShouldCloneTest<T>(IEnumerable<T> testItems, Action<T,T> additionalDeepCloneValidations = null) where T : ICloneable<T>
+		private static void BaseShouldCloneTest<T>(IEnumerable<T> testItems, Action<T,T> additionalDeepCloneValidations = null) where T : Speedy.Serialization.ICloneable
 		{
 			foreach (var testItem in testItems)
 			{
 				// ReSharper disable once InvokeAsExtensionMethod
-				var (deepClone, timer2) = Timer.Create(() => testItem.DeepClone());
-				var (shallowClone, timer3) = Timer.Create(() => testItem.ShallowClone());
+				var (deepClone, timer2) = Timer.Create(() => (T) testItem.DeepClone());
+				var (shallowClone, timer3) = Timer.Create(() => (T) testItem.ShallowClone());
 
 				TestHelper.AreEqual(testItem, deepClone);
 				TestHelper.AreEqual(testItem, shallowClone);

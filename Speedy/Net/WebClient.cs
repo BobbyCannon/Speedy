@@ -1,6 +1,5 @@
 ﻿#region References
 
-using Speedy.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -8,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Serialization;
 
@@ -83,14 +83,14 @@ namespace Speedy.Net
 		}
 
 		/// <summary>
+		/// Gets or sets an optional proxy for the connection.
+		/// </summary>
+		public WebProxy Proxy { get; set; }
+
+		/// <summary>
 		/// Gets or sets the number of milliseconds to wait before the request times out. The default value is 100 seconds.
 		/// </summary>
 		public TimeSpan Timeout { get; set; }
-
-		/// <summary>
-		/// Gets or sets an optional proxy for the connection.
-		/// </summary>
-		public WebProxy Proxy { get;  set; }
 
 		#endregion
 

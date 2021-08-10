@@ -155,7 +155,7 @@ namespace Speedy.UnitTests.Extensions
 		{
 			var count = 0;
 			var watch = Stopwatch.StartNew();
-			var result = UtilityExtensions.Wait(() => ++count > 100, 500, 100);
+			var result = UtilityExtensions.Wait(() => ++count > 100, 500, 100, true);
 			watch.Stop();
 			Assert.IsFalse(result);
 			Assert.AreEqual(7, count);
@@ -226,7 +226,7 @@ namespace Speedy.UnitTests.Extensions
 			{
 				count++;
 				return true;
-			}, timeout, delay, minimum, maximum);
+			}, timeout, delay, minimum, maximum, true);
 			watch.Stop();
 
 			watch.Elapsed.Dump();

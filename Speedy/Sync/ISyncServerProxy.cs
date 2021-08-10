@@ -1,7 +1,7 @@
 ﻿#region References
 
-using Speedy.Net;
 using System;
+using Speedy.Net;
 
 #endregion
 

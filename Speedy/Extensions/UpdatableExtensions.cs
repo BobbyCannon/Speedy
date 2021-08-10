@@ -35,6 +35,13 @@ namespace Speedy.Extensions
 
 			foreach (var thisProperty in destinationProperties)
 			{
+				// Ensure the source can read this property
+				var canRead = thisProperty.CanRead && thisProperty.GetMethod.IsPublic;
+				if (!canRead)
+				{
+					continue;
+				}
+
 				// Ensure the destination can write this property
 				var canWrite = thisProperty.CanWrite && thisProperty.SetMethod.IsPublic;
 				if (!canWrite)
@@ -52,7 +59,7 @@ namespace Speedy.Extensions
 				var updateProperty = sourceProperties.FirstOrDefault(x => x.Name == thisProperty.Name && x.PropertyType == thisProperty.PropertyType);
 				if (updateProperty == null)
 				{
-					// Skip this because target type does not have correct property.
+					// Skip this because target type does not have correct property name and / or type.
 					continue;
 				}
 

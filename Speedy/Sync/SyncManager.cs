@@ -75,7 +75,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a value indicating the running status of the sync manager.
 		/// </summary>
-		public bool IsRunning => ((_cancellationToken != null) && !_cancellationToken.IsCancellationRequested) || _watch.IsRunning;
+		public bool IsRunning => _cancellationToken != null && !_cancellationToken.IsCancellationRequested || _watch.IsRunning;
 
 		/// <summary>
 		/// Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
@@ -95,7 +95,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a flag to indicate progress should be shown. Will only be true if sync takes longer than the <seealso cref="ShowProgressThreshold" />.
 		/// </summary>
-		public bool ShowProgress => _watch.IsRunning && (_watch.Elapsed >= ShowProgressThreshold);
+		public bool ShowProgress => _watch.IsRunning && _watch.Elapsed >= ShowProgressThreshold;
 
 		/// <summary>
 		/// Gets the value to determine when to trigger <seealso cref="ShowProgress" />. Defaults to one second.
@@ -402,7 +402,7 @@ namespace Speedy.Sync
 				results.Client = GetSyncClientForClient();
 				results.Server = GetSyncClientForServer();
 
-				if ((results.Client == null) || (results.Server == null))
+				if (results.Client == null || results.Server == null)
 				{
 					throw new Exception("Sync client for client or server is null.");
 				}
@@ -556,7 +556,7 @@ namespace Speedy.Sync
 		private bool WaitForSyncAvailableThenStart(TimeSpan timeout)
 		{
 			// Wait for an existing sync
-			while (IsRunning && (_watch.Elapsed < timeout))
+			while (IsRunning && _watch.Elapsed < timeout)
 			{
 				Thread.Sleep(10);
 			}

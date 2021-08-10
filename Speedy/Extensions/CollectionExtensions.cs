@@ -127,9 +127,9 @@ namespace Speedy.Extensions
 			var response = new Dictionary<T, T2>();
 			foreach (var item in dictionary)
 			{
-				if (item.Value is ICloneable<T2> cloneable)
+				if (item.Value is Serialization.ICloneable cloneable)
 				{
-					response.Add(item.Key, cloneable.DeepClone());
+					response.Add(item.Key, (T2) cloneable.DeepClone());
 				}
 				else
 				{
@@ -152,9 +152,9 @@ namespace Speedy.Extensions
 			var response = new Dictionary<T, T2>();
 			foreach (var item in dictionary)
 			{
-				if (item.Value is ICloneable<T2> cloneable)
+				if (item.Value is Serialization.ICloneable cloneable)
 				{
-					response.Add(item.Key, cloneable.DeepClone());
+					response.Add(item.Key, (T2) cloneable.DeepClone());
 				}
 				else
 				{

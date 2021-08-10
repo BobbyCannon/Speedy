@@ -1,9 +1,7 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Newtonsoft.Json;
 using Speedy.Extensions;
 using Speedy.Storage;
@@ -15,52 +13,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class Bindable<T> : Bindable, IUpdatable<T>
-	{
-		#region Constructors
-
-		/// <summary>
-		/// Instantiates a bindable object.
-		/// </summary>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
-		protected Bindable(IDispatcher dispatcher = null) : base(dispatcher)
-		{
-		}
-
-		#endregion
-
-		#region Methods
-
-		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
-		/// </summary>
-		/// <param name="update"> The source of the updates. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public virtual void UpdateWith(T update, bool excludeVirtuals, params string[] exclusions)
-		{
-			var totalExclusions = new HashSet<string>(exclusions);
-			if (excludeVirtuals)
-			{
-				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
-			}
-
-			UpdateWith(update, totalExclusions.ToArray());
-		}
-
-		/// <inheritdoc />
-		public virtual void UpdateWith(T update, params string[] exclusions)
-		{
-			this.UpdateWithUsingReflection(update, exclusions);
-		}
-
-		#endregion
-	}
-
-	/// <summary>
-	/// Represents a bindable object.
-	/// </summary>
-	public abstract class Bindable : IUpdatable, INotifyPropertyChanged, IBindable
+	public abstract class Bindable : INotifyPropertyChanged, IBindable, IUpdatable
 	{
 		#region Fields
 
@@ -125,7 +78,7 @@ namespace Speedy
 		/// Indicates the property has changed on the bindable object.
 		/// </summary>
 		/// <param name="propertyName"> The name of the property has changed. </param>
-		public virtual void OnPropertyChanged(string propertyName = null)
+		public virtual void OnPropertyChanged(string propertyName)
 		{
 			// Ensure we have not paused property notifications
 			if (_pausePropertyChanged)
@@ -137,7 +90,7 @@ namespace Speedy
 			// todo: move this to another virtual method that would then be called by this on property changed
 			// I had to move this dispatcher code up. Also would be nice to only dispatch specific properties, right?
 
-			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(propertyName));
 				return;
@@ -163,23 +116,6 @@ namespace Speedy
 		public virtual void UpdateDispatcher(IDispatcher dispatcher)
 		{
 			Dispatcher = dispatcher;
-		}
-
-		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
-		/// </summary>
-		/// <param name="update"> The source of the updates. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public virtual void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
-		{
-			var totalExclusions = new HashSet<string>(exclusions);
-			if (excludeVirtuals)
-			{
-				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
-			}
-
-			UpdateWith(update, totalExclusions.ToArray());
 		}
 
 		/// <inheritdoc />

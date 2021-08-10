@@ -24,10 +24,10 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>9.0.3.0</AssemblyVersion>
-		<FileVersion>9.0.3.0</FileVersion>
-		<Version>9.0.3</Version>
-		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy\Speedy.xml</DocumentationFile>
+		<AssemblyVersion>9.0.4.0</AssemblyVersion>
+		<FileVersion>9.0.4.0</FileVersion>
+		<Version>9.0.4</Version>
+		<DocumentationFile>Speedy.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />
@@ -38,7 +38,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="PropertyChanged.Fody" Version="3.3.3" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />

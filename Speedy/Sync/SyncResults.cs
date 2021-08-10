@@ -57,9 +57,10 @@ namespace Speedy.Sync
 		public bool SyncCancelled
 		{
 			get => SyncStatus.HasFlag(SyncResultStatus.Cancelled);
-			set => SyncStatus = value 
-				? SyncStatus.SetFlag(SyncResultStatus.Cancelled)
-				: SyncStatus.ClearFlag(SyncResultStatus.Cancelled);
+			set =>
+				SyncStatus = value
+					? SyncStatus.SetFlag(SyncResultStatus.Cancelled)
+					: SyncStatus.ClearFlag(SyncResultStatus.Cancelled);
 		}
 
 		/// <summary>
@@ -68,7 +69,10 @@ namespace Speedy.Sync
 		public bool SyncCompleted
 		{
 			get => SyncStatus.HasFlag(SyncResultStatus.Completed);
-			set => SyncStatus = SyncStatus.SetFlag(SyncResultStatus.Completed);
+			set =>
+				SyncStatus = value
+					? SyncStatus = SyncStatus.SetFlag(SyncResultStatus.Completed)
+					: SyncStatus = SyncStatus.ClearFlag(SyncResultStatus.Completed);
 		}
 
 		/// <summary>
@@ -82,9 +86,10 @@ namespace Speedy.Sync
 		public bool SyncStarted
 		{
 			get => SyncStatus.HasFlag(SyncResultStatus.Started);
-			set => SyncStatus = value 
-				? SyncStatus.SetFlag(SyncResultStatus.Started)
-				: SyncStatus.ClearFlag(SyncResultStatus.Started);
+			set =>
+				SyncStatus = value
+					? SyncStatus.SetFlag(SyncResultStatus.Started)
+					: SyncStatus.ClearFlag(SyncResultStatus.Started);
 		}
 
 		/// <summary>
@@ -98,9 +103,10 @@ namespace Speedy.Sync
 		public bool SyncSuccessful
 		{
 			get => SyncStatus.HasFlag(SyncResultStatus.Successful);
-			set => SyncStatus = value 
-				? SyncStatus.SetFlag(SyncResultStatus.Successful)
-				: SyncStatus.ClearFlag(SyncResultStatus.Successful);
+			set =>
+				SyncStatus = value
+					? SyncStatus.SetFlag(SyncResultStatus.Successful)
+					: SyncStatus.ClearFlag(SyncResultStatus.Successful);
 		}
 
 		/// <summary>

@@ -27,7 +27,7 @@ namespace Speedy
 			PermanentSyncEntityDeletions = false;
 			SyncOrder = Array.Empty<string>();
 			Timeout = TimeSpan.FromSeconds(30);
-			UnmaintainEntities = Array.Empty<Type>();
+			UnmaintainedEntities = Array.Empty<Type>();
 		}
 
 		#endregion
@@ -73,44 +73,67 @@ namespace Speedy
 		/// <summary>
 		/// Gets or sets the list of entities to ignore during maintenance updates.
 		/// </summary>
-		public Type[] UnmaintainEntities { get; set; }
+		public Type[] UnmaintainedEntities { get; set; }
 
 		#endregion
 
 		#region Methods
 
-		/// <inheritdoc />
-		public override DatabaseOptions DeepClone(int levels = -1)
+		/// <summary>
+		/// Update these database options.
+		/// </summary>
+		/// <param name="update"> </param>
+		/// <param name="exclusions"> </param>
+		public void UpdateWith(DatabaseOptions update, params string[] exclusions)
 		{
-			return new DatabaseOptions
-			{
-				DisableEntityValidations = DisableEntityValidations,
-				MaintainCreatedOn = MaintainCreatedOn,
-				MaintainModifiedOn = MaintainModifiedOn,
-				MaintainSyncId = MaintainSyncId,
-				PermanentSyncEntityDeletions = PermanentSyncEntityDeletions,
-				SyncOrder = SyncOrder,
-				Timeout = Timeout,
-				UnmaintainEntities = UnmaintainEntities
-			};
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWith(DatabaseOptions update, params string[] exclusions)
-		{
+			// If the update is null then there is nothing to do.
 			if (update == null)
 			{
 				return;
 			}
 
-			this.IfThen(x => !exclusions.Contains(nameof(DisableEntityValidations)), x => x.DisableEntityValidations = update.DisableEntityValidations);
-			this.IfThen(x => !exclusions.Contains(nameof(MaintainCreatedOn)), x => x.MaintainCreatedOn = update.MaintainCreatedOn);
-			this.IfThen(x => !exclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);
-			this.IfThen(x => !exclusions.Contains(nameof(MaintainSyncId)), x => x.MaintainSyncId = update.MaintainSyncId);
-			this.IfThen(x => !exclusions.Contains(nameof(PermanentSyncEntityDeletions)), x => x.PermanentSyncEntityDeletions = update.PermanentSyncEntityDeletions);
-			this.IfThen(x => !exclusions.Contains(nameof(SyncOrder)), x => x.SyncOrder = (string[]) update.SyncOrder.Clone());
-			this.IfThen(x => !exclusions.Contains(nameof(Timeout)), x => x.Timeout = update.Timeout);
-			this.IfThen(x => !exclusions.Contains(nameof(UnmaintainEntities)), x => x.UnmaintainEntities = (Type[]) update.UnmaintainEntities.Clone());
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+			if (exclusions.Length <= 0)
+			{
+				DisableEntityValidations = update.DisableEntityValidations;
+				MaintainCreatedOn = update.MaintainCreatedOn;
+				MaintainModifiedOn = update.MaintainModifiedOn;
+				MaintainSyncId = update.MaintainSyncId;
+				PermanentSyncEntityDeletions = update.PermanentSyncEntityDeletions;
+				SyncOrder = update.SyncOrder;
+				Timeout = update.Timeout;
+				UnmaintainedEntities = update.UnmaintainedEntities;
+			}
+			else
+			{
+				this.IfThen(x => !exclusions.Contains(nameof(DisableEntityValidations)), x => x.DisableEntityValidations = update.DisableEntityValidations);
+				this.IfThen(x => !exclusions.Contains(nameof(MaintainCreatedOn)), x => x.MaintainCreatedOn = update.MaintainCreatedOn);
+				this.IfThen(x => !exclusions.Contains(nameof(MaintainModifiedOn)), x => x.MaintainModifiedOn = update.MaintainModifiedOn);
+				this.IfThen(x => !exclusions.Contains(nameof(MaintainSyncId)), x => x.MaintainSyncId = update.MaintainSyncId);
+				this.IfThen(x => !exclusions.Contains(nameof(PermanentSyncEntityDeletions)), x => x.PermanentSyncEntityDeletions = update.PermanentSyncEntityDeletions);
+				this.IfThen(x => !exclusions.Contains(nameof(SyncOrder)), x => x.SyncOrder = (string[]) update.SyncOrder.Clone());
+				this.IfThen(x => !exclusions.Contains(nameof(Timeout)), x => x.Timeout = update.Timeout);
+				this.IfThen(x => !exclusions.Contains(nameof(UnmaintainedEntities)), x => x.UnmaintainedEntities = (Type[]) update.UnmaintainedEntities.Clone());
+			}
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			switch (update)
+			{
+				case DatabaseOptions options:
+				{
+					UpdateWith(options, exclusions);
+					return;
+				}
+				default:
+				{
+					base.UpdateWith(update, exclusions);
+					return;
+				}
+			}
 		}
 
 		#endregion

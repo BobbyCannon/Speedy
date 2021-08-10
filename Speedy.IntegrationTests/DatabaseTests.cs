@@ -247,7 +247,7 @@ namespace Speedy.IntegrationTests
 				{
 					using var database = provider.GetDatabase();
 					Console.WriteLine(database.GetType().Name);
-					database.Options.UnmaintainEntities = new[] { typeof(AddressEntity) };
+					database.Options.UnmaintainedEntities = new[] { typeof(AddressEntity) };
 
 					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 
@@ -858,7 +858,7 @@ namespace Speedy.IntegrationTests
 
 					using (var database = provider.GetDatabase())
 					{
-						var actual = database.LogEvents.ToList().First().Unwrap<LogEventEntity>();
+						var actual = database.LogEvents.ToList().First().Unwrap();
 						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 					}
 				});

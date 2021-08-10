@@ -1,0 +1,32 @@
+﻿#region References
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Profiling;
+using Speedy.Serialization;
+using Speedy.UnitTests;
+using Speedy.UnitTests.Factories;
+using Speedy.Website.Data.Entities;
+
+#endregion
+
+namespace Speedy.PerformanceTests
+{
+	[TestClass]
+	public class PartialUpdateTests
+	{
+		#region Methods
+
+		[TestMethod]
+		public void ShouldBeFast()
+		{
+			var addressJson = EntityFactory.GetAddress().ToJson();
+			addressJson.Dump();
+			var (update, timer) = Timer.Create(() => PartialUpdate.FromJson<AddressEntity>(addressJson));
+			timer.Elapsed.Dump();
+			Assert.IsTrue(timer.Elapsed.TotalMilliseconds < 50.0, $"Total Milliseconds: {timer.Elapsed.TotalMilliseconds}");
+			Assert.IsNotNull(update);
+		}
+
+		#endregion
+	}
+}
