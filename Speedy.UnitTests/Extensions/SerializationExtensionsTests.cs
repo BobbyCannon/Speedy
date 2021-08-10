@@ -6,7 +6,6 @@ using Speedy.Data.WebApi;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.UnitTests.Factories;
-using Sproto;
 
 #endregion
 
@@ -45,13 +44,13 @@ namespace Speedy.UnitTests.Extensions
 			// First use the default values
 			var expected = "{\"$id\":\"1\",\"AcknowledgedOn\":null,\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":0,\"IsDeleted\":false,\"Level\":0,\"LoggedOn\":\"2019-07-17T20:05:55Z\",\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\",\"SyncId\":\"51387f23-c0ce-47b6-bfad-5e273b82a5a1\"}";
 			var actual = logEvent.ToJson();
-			actual.Escape().Dump();
+			actual.ToLiteral().Dump();
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 
 			// Now override the default
 			expected = "{\"$id\":\"1\",\"acknowledgedOn\":null,\"createdOn\":\"2019-07-17T20:05:55Z\",\"id\":0,\"isDeleted\":false,\"level\":0,\"loggedOn\":\"2019-07-17T20:05:55Z\",\"message\":\"Hello\",\"modifiedOn\":\"2019-07-17T20:05:55Z\",\"syncId\":\"51387f23-c0ce-47b6-bfad-5e273b82a5a1\"}";
 			actual = logEvent.ToJson(camelCase: true);
-			actual.Escape().Dump();
+			actual.ToLiteral().Dump();
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 		}
 
@@ -64,19 +63,19 @@ namespace Speedy.UnitTests.Extensions
 			// First use the default values
 			var expected = "{\"$id\":\"1\",\"AcknowledgedOn\":null,\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":0,\"IsDeleted\":false,\"Level\":4,\"LoggedOn\":\"2019-07-17T20:05:55Z\",\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\",\"SyncId\":\"3ec4021a-02c9-4a03-9314-6c078f1a5596\"}";
 			var actual = logEvent.ToJson();
-			actual.Escape().Dump();
+			actual.ToLiteral().Dump();
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 
 			// Now override the default
 			expected = "{\"$id\":\"1\",\"AcknowledgedOn\":null,\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":0,\"IsDeleted\":false,\"Level\":\"Debug\",\"LoggedOn\":\"2019-07-17T20:05:55Z\",\"Message\":\"Hello\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\",\"SyncId\":\"3ec4021a-02c9-4a03-9314-6c078f1a5596\"}";
 			actual = logEvent.ToJson(convertEnumsToString: true);
-			actual.Escape().Dump();
+			actual.ToLiteral().Dump();
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 
 			// Now override the default and use camel casing
 			expected = "{\"$id\":\"1\",\"acknowledgedOn\":null,\"createdOn\":\"2019-07-17T20:05:55Z\",\"id\":0,\"isDeleted\":false,\"level\":\"debug\",\"loggedOn\":\"2019-07-17T20:05:55Z\",\"message\":\"Hello\",\"modifiedOn\":\"2019-07-17T20:05:55Z\",\"syncId\":\"3ec4021a-02c9-4a03-9314-6c078f1a5596\"}";
 			actual = logEvent.ToJson(camelCase: true, convertEnumsToString: true);
-			actual.Escape().Dump();
+			actual.ToLiteral().Dump();
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 		}
 
@@ -89,13 +88,13 @@ namespace Speedy.UnitTests.Extensions
 			// First use the default values
 			var expected = "{\"$id\":\"1\",\"AcknowledgedOn\":null,\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":0,\"IsDeleted\":false,\"Level\":1,\"LoggedOn\":\"2019-07-17T20:05:55Z\",\"Message\":null,\"ModifiedOn\":\"2019-07-17T20:05:55Z\",\"SyncId\":\"b2bcd532-e952-4966-a6f0-09a14c6c6dda\"}";
 			var actual = logEvent.ToJson();
-			actual.Escape().Dump();
+			actual.ToLiteral().Dump();
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 
 			// Now override the default
 			expected = "{\"$id\":\"1\",\"CreatedOn\":\"2019-07-17T20:05:55Z\",\"Id\":0,\"IsDeleted\":false,\"Level\":1,\"LoggedOn\":\"2019-07-17T20:05:55Z\",\"ModifiedOn\":\"2019-07-17T20:05:55Z\",\"SyncId\":\"b2bcd532-e952-4966-a6f0-09a14c6c6dda\"}";
 			actual = logEvent.ToJson(ignoreNullValues: true);
-			actual.Escape().Dump();
+			actual.ToLiteral().Dump();
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 		}
 

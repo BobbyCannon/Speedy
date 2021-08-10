@@ -623,20 +623,22 @@ namespace Speedy.UnitTests
 		public void ReadInvalidKeyShouldThrowException()
 		{
 			var name = Guid.NewGuid().ToString();
-			using (var context = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10))
-			{
-				var repository = context;
-				TestHelper.ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), "Could not find the entry with the key.");
-			}
+			using var context = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
+			var repository = context;
+			TestHelper.ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), "Could not find the entry with the key.");
 		}
 
 		[TestMethod]
 		public void ReadItemFromCache()
 		{
+			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
+
+			TimeService.UtcNowProvider = () => currentTime;
+
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			Thread.Sleep(1500);
+			currentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -689,10 +691,14 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void ReadOnlyWrittenItemsFromDisk()
 		{
+			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
+
+			TimeService.UtcNowProvider = () => currentTime;
+
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			Thread.Sleep(1500);
+			currentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Foo2", "Bar2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -899,10 +905,14 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void SaveShouldOnlyWriteItemsOverTimeoutToFile()
 		{
+			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
+
+			TimeService.UtcNowProvider = () => currentTime;
+
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			Thread.Sleep(1500);
+			currentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();

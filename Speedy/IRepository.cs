@@ -36,19 +36,19 @@ namespace Speedy
 		/// </summary>
 		/// <param name="entities"> The items to be inserted. </param>
 		public int BulkAdd(params T[] entities);
-		
+
 		/// <summary>
 		/// Bulk add to do more performant additions.
 		/// </summary>
 		/// <param name="entities"> The items to be inserted. </param>
 		public int BulkAdd(IEnumerable<T> entities);
-		
+
 		/// <summary>
 		/// Bulk command to do more performant additions and / or updates.
 		/// </summary>
 		/// <param name="entities"> The items to be inserted. </param>
 		public int BulkAddOrUpdate(params T[] entities);
-		
+
 		/// <summary>
 		/// Bulk command to do more performant additions and / or updates.
 		/// </summary>
@@ -63,7 +63,7 @@ namespace Speedy
 		/// Please let me know if you find an expression that does not work.
 		/// </remarks>
 		int BulkRemove(Expression<Func<T, bool>> filter);
-		
+
 		/// <summary>
 		/// Bulk update base on provided query and update expression. Only simple expressions are supported.
 		/// </summary>

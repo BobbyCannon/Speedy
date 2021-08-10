@@ -179,7 +179,7 @@ namespace Speedy.Sync
 		{
 			await Task.Factory.StartNew(Run, CancellationSource.Token);
 		}
-		
+
 		/// <summary>
 		/// Stops the sync process.
 		/// </summary>
@@ -214,7 +214,7 @@ namespace Speedy.Sync
 			State.Count = count ?? 0;
 			State.Total = total ?? 0;
 
-			SyncStateChanged?.Invoke(this, State.DeepClone());
+			SyncStateChanged?.Invoke(this, (SyncEngineState) State.DeepClone());
 		}
 
 		/// <summary>

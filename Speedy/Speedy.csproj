@@ -23,10 +23,10 @@
 		<PackageId>Speedy</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.1.1.0</AssemblyVersion>
-		<FileVersion>8.1.1.0</FileVersion>
-		<Version>8.1.1.0</Version>
-		<DocumentationFile>C:\Workspaces\GitHub\Speedy\Speedy\Speedy.xml</DocumentationFile>
+		<AssemblyVersion>8.1.2.0</AssemblyVersion>
+		<FileVersion>8.1.2.0</FileVersion>
+		<Version>8.1.2.0</Version>
+		<DocumentationFile>Speedy.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

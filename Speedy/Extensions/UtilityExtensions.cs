@@ -172,7 +172,7 @@ namespace Speedy.Extensions
 			Func<TimeSpan> elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
 			var shouldDelay = delay.Ticks > 0;
 
-			while (((elapsed() < value) || (elapsed() < minimum)) && (elapsed() < maximum))
+			while ((elapsed() < value || elapsed() < minimum) && elapsed() < maximum)
 			{
 				if (cancellationPending())
 				{

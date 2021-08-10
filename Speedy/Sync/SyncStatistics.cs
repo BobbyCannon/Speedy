@@ -50,19 +50,6 @@ namespace Speedy.Sync
 
 		#region Methods
 
-		/// <inheritdoc />
-		public override SyncStatistics DeepClone(int levels = -1)
-		{
-			return new()
-			{
-				AppliedChanges = AppliedChanges,
-				AppliedCorrections = AppliedCorrections,
-				Changes = Changes,
-				Corrections = Corrections,
-				IndividualProcessCount = IndividualProcessCount
-			};
-		}
-
 		/// <summary>
 		/// Allows resetting of the sync statistics.
 		/// </summary>
@@ -75,19 +62,55 @@ namespace Speedy.Sync
 			IndividualProcessCount = 0;
 		}
 
-		/// <inheritdoc />
-		public override void UpdateWith(SyncStatistics update, params string[] exclusions)
+		/// <summary>
+		/// Update the SyncStatistics with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		/// <param name="exclusions"> An optional set of properties to exclude. </param>
+		public void UpdateWith(SyncStatistics update, params string[] exclusions)
 		{
+			// If the update is null then there is nothing to do.
 			if (update == null)
 			{
 				return;
 			}
 
-			this.IfThen(x => !exclusions.Contains(nameof(AppliedChanges)), x => x.AppliedChanges = update.AppliedChanges);
-			this.IfThen(x => !exclusions.Contains(nameof(AppliedCorrections)), x => x.AppliedCorrections = update.AppliedCorrections);
-			this.IfThen(x => !exclusions.Contains(nameof(Changes)), x => x.Changes = update.Changes);
-			this.IfThen(x => !exclusions.Contains(nameof(Corrections)), x => x.Corrections = update.Corrections);
-			this.IfThen(x => !exclusions.Contains(nameof(IndividualProcessCount)), x => x.IndividualProcessCount = update.IndividualProcessCount);
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+			if (exclusions.Length <= 0)
+			{
+				AppliedChanges = update.AppliedChanges;
+				AppliedCorrections = update.AppliedCorrections;
+				Changes = update.Changes;
+				Corrections = update.Corrections;
+				IndividualProcessCount = update.IndividualProcessCount;
+			}
+			else
+			{
+				this.IfThen(x => !exclusions.Contains(nameof(AppliedChanges)), x => x.AppliedChanges = update.AppliedChanges);
+				this.IfThen(x => !exclusions.Contains(nameof(AppliedCorrections)), x => x.AppliedCorrections = update.AppliedCorrections);
+				this.IfThen(x => !exclusions.Contains(nameof(Changes)), x => x.Changes = update.Changes);
+				this.IfThen(x => !exclusions.Contains(nameof(Corrections)), x => x.Corrections = update.Corrections);
+				this.IfThen(x => !exclusions.Contains(nameof(IndividualProcessCount)), x => x.IndividualProcessCount = update.IndividualProcessCount);
+			}
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			switch (update)
+			{
+				case SyncStatistics options:
+				{
+					UpdateWith(options, exclusions);
+					return;
+				}
+				default:
+				{
+					base.UpdateWith(update, exclusions);
+					return;
+				}
+			}
 		}
 
 		#endregion

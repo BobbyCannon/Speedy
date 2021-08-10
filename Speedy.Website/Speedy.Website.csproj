@@ -3,6 +3,8 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>698fe656-11be-4f44-bd5a-e32b91bd21b1</UserSecretsId>
+		<LangVersion>latest</LangVersion>
+		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Remove="compilerconfig.json" />
@@ -10,13 +12,13 @@
 	<ItemGroup>
 		<PackageReference Include="Humanizer.Core" Version="2.11.10" />
 		<PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.311" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.17" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.18" />
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.17">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.18">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.17">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.18">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

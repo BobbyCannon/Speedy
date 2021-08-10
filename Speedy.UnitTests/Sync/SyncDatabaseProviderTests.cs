@@ -6,7 +6,7 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.UnitTests
+namespace Speedy.UnitTests.Sync
 {
 	/// <summary>
 	/// Summary description for SyncDatabaseProviderTests.

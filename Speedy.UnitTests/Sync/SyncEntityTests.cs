@@ -10,7 +10,7 @@ using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.UnitTests
+namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
 	public class SyncEntityTests : BaseTests
@@ -91,7 +91,7 @@ namespace Speedy.UnitTests
 			var model = GetTestModel(date2);
 
 			model.Accounts = null;
-			entity.UpdateWith(model, false);
+			entity.UpdateWith(model);
 
 			var expected = new AddressEntity
 			{
@@ -120,7 +120,7 @@ namespace Speedy.UnitTests
 			var model = GetTestModel(date2);
 
 			model.Accounts = null;
-			entity.UpdateWith(model, false, nameof(AddressEntity.City), nameof(AddressEntity.Postal));
+			entity.UpdateWith(model, nameof(AddressEntity.City), nameof(AddressEntity.Postal));
 
 			var expected = new AddressEntity
 			{

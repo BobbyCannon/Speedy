@@ -2,11 +2,10 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Profiling;
-using Speedy.UnitTests;
 
 #endregion
 
-namespace Speedy.PerformanceTests
+namespace Speedy.UnitTests
 {
 	[TestClass]
 	public class TimerTests : BaseTests

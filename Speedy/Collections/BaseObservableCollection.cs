@@ -89,7 +89,7 @@ namespace Speedy.Collections
 		/// Indicates the property has changed on the collection object.
 		/// </summary>
 		/// <param name="propertyName"> The name of the property has changed. </param>
-		public virtual void OnPropertyChanged(string propertyName = null)
+		public virtual void OnPropertyChanged(string propertyName)
 		{
 			OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
 		}

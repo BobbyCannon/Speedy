@@ -156,7 +156,7 @@ namespace Speedy.Storage
 				return;
 			}
 
-			var maintainedEntity = Database.Options.UnmaintainEntities.All(x => x != entity.GetType());
+			var maintainedEntity = Database.Options.UnmaintainedEntities.All(x => x != entity.GetType());
 			var maintainSyncId = maintainedEntity && Database.Options.MaintainSyncId;
 
 			if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
@@ -463,7 +463,7 @@ namespace Speedy.Storage
 				var createdEntity = entity as ICreatedEntity;
 				var modifiableEntity = entity as IModifiableEntity;
 				var syncableEntity = entity as ISyncEntity;
-				var maintainedEntity = Database.Options.UnmaintainEntities.All(x => x != entry.Entity.GetType());
+				var maintainedEntity = Database.Options.UnmaintainedEntities.All(x => x != entry.Entity.GetType());
 				var maintainCreatedOnDate = maintainedEntity && Database.Options.MaintainCreatedOn;
 				var maintainModifiedOnDate = maintainedEntity && Database.Options.MaintainModifiedOn;
 				var maintainSyncId = maintainedEntity && Database.Options.MaintainSyncId;
@@ -788,7 +788,7 @@ namespace Speedy.Storage
 			{
 				Database.KeyCache.RemoveEntityId(syncEntity.GetType(), syncEntity.SyncId);
 			}
-			
+
 			if (entityState.OldEntity is ISyncEntity oldSyncEntity)
 			{
 				Database.KeyCache.RemoveEntityId(oldSyncEntity.GetType(), oldSyncEntity.SyncId);
@@ -834,13 +834,13 @@ namespace Speedy.Storage
 
 		#region Events
 
+		/// <inheritdoc />
+		public event NotifyCollectionChangedEventHandler CollectionChanged;
+
 		/// <summary>
 		/// Occurs when an entity is being added.
 		/// </summary>
 		internal event Action<T> AddingEntity;
-
-		/// <inheritdoc />
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
 
 		/// <summary>
 		/// Occurs when an entity is being deleted.

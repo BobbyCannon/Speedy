@@ -79,19 +79,7 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <inheritdoc />
-		public override SyncEngineState DeepClone(int levels = -1)
-		{
-			return new()
-			{
-				Count = Count,
-				Message = Message,
-				Status = Status,
-				Total = Total
-			};
-		}
-
-		/// <inheritdoc />
-		public override void OnPropertyChanged(string propertyName = null)
+		public override void OnPropertyChanged(string propertyName)
 		{
 			switch (propertyName)
 			{
@@ -119,18 +107,53 @@ namespace Speedy.Sync
 				: $"{Status}: {Message}";
 		}
 
-		/// <inheritdoc />
-		public override void UpdateWith(SyncEngineState update, params string[] exclusions)
+		/// <summary>
+		/// Update the SyncStatistics with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		/// <param name="exclusions"> An optional set of properties to exclude. </param>
+		public void UpdateWith(SyncEngineState update, params string[] exclusions)
 		{
+			// If the update is null then there is nothing to do.
 			if (update == null)
 			{
 				return;
 			}
 
-			this.IfThen(x => !exclusions.Contains(nameof(Count)), x => x.Count = update.Count);
-			this.IfThen(x => !exclusions.Contains(nameof(Message)), x => x.Message = update.Message);
-			this.IfThen(x => !exclusions.Contains(nameof(Status)), x => x.Status = update.Status);
-			this.IfThen(x => !exclusions.Contains(nameof(Total)), x => x.Total = update.Total);
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+			if (exclusions.Length <= 0)
+			{
+				Count = update.Count;
+				Message = update.Message;
+				Status = update.Status;
+				Total = update.Total;
+			}
+			else
+			{
+				this.IfThen(x => !exclusions.Contains(nameof(Count)), x => x.Count = update.Count);
+				this.IfThen(x => !exclusions.Contains(nameof(Message)), x => x.Message = update.Message);
+				this.IfThen(x => !exclusions.Contains(nameof(Status)), x => x.Status = update.Status);
+				this.IfThen(x => !exclusions.Contains(nameof(Total)), x => x.Total = update.Total);
+			}
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			switch (update)
+			{
+				case SyncEngineState options:
+				{
+					UpdateWith(options, exclusions);
+					return;
+				}
+				default:
+				{
+					base.UpdateWith(update, exclusions);
+					return;
+				}
+			}
 		}
 
 		#endregion

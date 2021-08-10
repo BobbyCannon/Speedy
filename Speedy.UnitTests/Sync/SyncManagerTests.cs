@@ -11,7 +11,7 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.UnitTests
+namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
 	public class SyncManagerTests : BaseTests

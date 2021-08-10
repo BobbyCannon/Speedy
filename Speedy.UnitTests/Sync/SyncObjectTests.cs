@@ -9,7 +9,7 @@ using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.UnitTests
+namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
 	public class SyncObjectTests : BaseTests

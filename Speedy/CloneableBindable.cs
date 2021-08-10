@@ -1,7 +1,9 @@
 ﻿#region References
 
+using System;
 using Speedy.Extensions;
 using Speedy.Serialization;
+using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -10,15 +12,8 @@ namespace Speedy
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class CloneableBindable<T> : Bindable<T>, ICloneable<T> where T : new()
+	public abstract class CloneableBindable<T> : Bindable, ICloneable where T : new()
 	{
-		#region Fields
-
-		// ReSharper disable once StaticMemberInGenericType
-		private static readonly SerializerSettings _defaultDeepCloneSettings;
-
-		#endregion
-
 		#region Constructors
 
 		/// <summary>
@@ -29,38 +24,29 @@ namespace Speedy
 		{
 		}
 
-		static CloneableBindable()
-		{
-			_defaultDeepCloneSettings = new SerializerSettings { IgnoreVirtuals = true, IgnoreReadOnly = true };
-		}
-
 		#endregion
 
 		#region Methods
 
 		/// <inheritdoc />
-		public virtual T DeepClone(int levels = -1)
+		public virtual object DeepClone(int? maxDepth = null)
 		{
-			// Defaults to serializer deep clone. Type would want to override this to make it more efficient.
-			return this.ToJson(_defaultDeepCloneSettings).FromJson<T>();
+			return (T) this.DeepCloneObject(maxDepth);
 		}
 
 		/// <inheritdoc />
-		public virtual T ShallowClone()
+		public virtual object ShallowClone()
 		{
-			var response = new T();
-			response.UpdateWithUsingReflection(this);
-			return response;
-		}
-
-		object ICloneable.DeepClone(int levels)
-		{
-			return DeepClone(levels);
-		}
-
-		object ICloneable.ShallowClone()
-		{
-			return ShallowClone();
+			var test = Activator.CreateInstance<T>();
+			if (test is Entity entity)
+			{
+				entity.UpdateWith(this, false, false, false);
+			}
+			else
+			{
+				test.UpdateWithUsingReflection(this);
+			}
+			return test;
 		}
 
 		#endregion

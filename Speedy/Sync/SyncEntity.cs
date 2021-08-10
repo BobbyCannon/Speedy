@@ -83,24 +83,13 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public override object Unwrap()
-		{
-			if (this is IUnwrappable)
-			{
-				return ((IUnwrappable) this).Unwrap();
-			}
-
-			var syncObject = ToSyncObject();
-			return syncObject.ToSyncEntity();
-		}
-
-		/// <inheritdoc />
 		public virtual void UpdateLocalSyncIds()
 		{
+			var syncEntityInterface = typeof(ISyncEntity);
 			var properties = RealType.GetCachedProperties().ToList();
 			var entityRelationships = properties
 				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
-				.Where(x => SyncEntityInterfaceType.IsAssignableFrom(x.PropertyType))
+				.Where(x => syncEntityInterface.IsAssignableFrom(x.PropertyType))
 				.ToList();
 
 			foreach (var entityRelationship in entityRelationships)
@@ -128,24 +117,6 @@ namespace Speedy.Sync
 			UpdateWith(update, exclusions.ToArray());
 		}
 
-		/// <inheritdoc />
-		public void UpdateWith(ISyncEntity update, bool excludeVirtuals, params string[] exclusions)
-		{
-			var totalExclusions = new HashSet<string>(exclusions);
-			if (excludeVirtuals)
-			{
-				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
-			}
-
-			UpdateWith(update, totalExclusions.ToArray());
-		}
-
-		/// <inheritdoc />
-		public void UpdateWith(ISyncEntity update, params string[] exclusions)
-		{
-			this.UpdateWithUsingReflection(update, exclusions);
-		}
-
 		/// <summary>
 		/// Gets the default exclusions for incoming sync data. Warning: this is called during constructor,
 		/// overrides need to be sure to only return static values as to not cause issues.
@@ -153,7 +124,7 @@ namespace Speedy.Sync
 		/// <returns> The values to exclude during sync. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
-			return new() { nameof(Id) };
+			return new HashSet<string> { nameof(Id) };
 		}
 
 		/// <summary>
@@ -163,7 +134,7 @@ namespace Speedy.Sync
 		/// <returns> The values to exclude during sync. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForOutgoingSync()
 		{
-			return new() { nameof(Id) };
+			return new HashSet<string> { nameof(Id) };
 		}
 
 		/// <summary>
@@ -173,7 +144,7 @@ namespace Speedy.Sync
 		/// <returns> The values to exclude during update. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForSyncUpdate()
 		{
-			return new() { nameof(Id) };
+			return new HashSet<string> { nameof(Id) };
 		}
 
 		#endregion

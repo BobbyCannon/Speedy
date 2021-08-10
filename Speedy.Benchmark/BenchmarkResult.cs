@@ -36,7 +36,7 @@ namespace Speedy.Benchmark
 
 		#region Methods
 
-		public override void OnPropertyChanged(string propertyName = null)
+		public override void OnPropertyChanged(string propertyName)
 		{
 			switch (propertyName)
 			{

@@ -33,7 +33,7 @@ namespace Speedy.Serialization
 		/// <param name="ignoreMember"> </param>
 		public JsonContractResolver(bool camelCase, Func<Type, HashSet<string>> initializeType, Func<string, bool> ignoreMember)
 		{
-			NamingStrategy = camelCase ? (NamingStrategy) new CamelCaseNamingStrategy() : new DefaultNamingStrategy();
+			NamingStrategy = camelCase ? new CamelCaseNamingStrategy() : new DefaultNamingStrategy();
 			NamingStrategy.OverrideSpecifiedNames = false;
 			NamingStrategy.ProcessDictionaryKeys = false;
 			NamingStrategy.ProcessExtensionDataNames = false;

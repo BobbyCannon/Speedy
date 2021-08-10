@@ -4,28 +4,6 @@
         <name>Speedy</name>
     </assembly>
     <members>
-        <member name="T:Speedy.Bindable`1">
-            <summary>
-            Represents a bindable object.
-            </summary>
-        </member>
-        <member name="M:Speedy.Bindable`1.#ctor(Speedy.IDispatcher)">
-            <summary>
-            Instantiates a bindable object.
-            </summary>
-            <param name="dispatcher"> The dispatcher to update with. </param>
-        </member>
-        <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.Boolean,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the updates. </param>
-            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
-        <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.String[])">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Bindable">
             <summary>
             Represents a bindable object.
@@ -74,14 +52,6 @@
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the updates. </param>
-            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
@@ -99,7 +69,7 @@
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
         </member>
-        <member name="M:Speedy.CloneableBindable`1.DeepClone(System.Int32)">
+        <member name="M:Speedy.CloneableBindable`1.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.CloneableBindable`1.ShallowClone">
@@ -526,9 +496,6 @@
             <typeparam name="T2"> The type of the entity key. </typeparam>
             <returns> The repository for the type. </returns>
         </member>
-        <member name="M:Speedy.Database.Remove``2(``0)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Database.GetSyncableRepositories(Speedy.Sync.SyncOptions)">
             <inheritdoc />
         </member>
@@ -567,6 +534,9 @@
             <typeparam name="T"> The entity for the configuration. </typeparam>
             <typeparam name="T2"> The type of the entity key. </typeparam>
             <returns> The configuration for the entity property. </returns>
+        </member>
+        <member name="M:Speedy.Database.Remove``2(``0)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Database.SaveChanges">
             <summary>
@@ -765,15 +735,19 @@
             Gets or sets the timeout for blocking calls.
             </summary>
         </member>
-        <member name="P:Speedy.DatabaseOptions.UnmaintainEntities">
+        <member name="P:Speedy.DatabaseOptions.UnmaintainedEntities">
             <summary>
             Gets or sets the list of entities to ignore during maintenance updates.
             </summary>
         </member>
-        <member name="M:Speedy.DatabaseOptions.DeepClone(System.Int32)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.DatabaseOptions.UpdateWith(Speedy.DatabaseOptions,System.String[])">
+            <summary>
+            Update these database options.
+            </summary>
+            <param name="update"> </param>
+            <param name="exclusions"> </param>
+        </member>
+        <member name="M:Speedy.DatabaseOptions.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.DatabaseProvider`1">
@@ -800,6 +774,13 @@
         <member name="M:Speedy.DatabaseProvider`1.GetDatabase(Speedy.DatabaseOptions)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.DatabaseProvider`1.GetDatabaseFromProvider(Speedy.DatabaseOptions)">
+            <summary>
+            Gets an instance of the database from the provider.
+            </summary>
+            <param name="options"> The database options to use for the new database instance. </param>
+            <returns> The database instance. </returns>
+        </member>
         <member name="M:Speedy.DatabaseProvider`1.BulkProcess(System.Func{`0},System.Int32,System.Int32,System.Action{System.Int32,`0})">
             <summary>
             Runs a bulk process where the database lifetime is based on the iteration size.
@@ -818,13 +799,6 @@
         </member>
         <member name="M:Speedy.DatabaseProvider`1.Speedy#IDatabaseProvider#GetDatabase(Speedy.DatabaseOptions)">
             <inheritdoc />
-        </member>
-        <member name="M:Speedy.DatabaseProvider`1.GetDatabaseFromProvider(Speedy.DatabaseOptions)">
-            <summary>
-            Gets an instance of the database from the provider.
-            </summary>
-            <param name="options"> The database options to use for the new database instance. </param>
-            <returns> The database instance. </returns>
         </member>
         <member name="T:Speedy.DatabaseType">
             <summary>
@@ -876,9 +850,6 @@
             Gets or sets the ID of the entity.
             </summary>
         </member>
-        <member name="M:Speedy.Entity`1.DeepClone(System.Int32)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity`1.IdIsSet">
             <inheritdoc />
         </member>
@@ -889,27 +860,8 @@
             <param name="currentKey"> The current version of the key. </param>
             <returns> The new key to be used in. </returns>
         </member>
-        <member name="M:Speedy.Entity`1.ShallowClone">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity`1.TrySetId(System.String)">
             <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity`1.Unwrap``1(System.Action{``0})">
-            <summary>
-            Unwrap the entity from the proxy as a specific type.
-            </summary>
-            <param name="update"> An optional update method. </param>
-            <returns> The real entity unwrapped from the Entity Framework proxy. </returns>
-        </member>
-        <member name="M:Speedy.Entity`1.UpdateWith(Speedy.Entity{`0},System.Boolean,System.Boolean,System.Boolean)">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the updates. </param>
-            <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
-            <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
-            <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
         </member>
         <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <inheritdoc />
@@ -917,28 +869,12 @@
         <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity`1.UpdateWith(Speedy.Entity{`0},System.Boolean,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the updates. </param>
-            <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
-        <member name="M:Speedy.Entity`1.UpdateWith(Speedy.Entity{`0},System.String[])">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Entity">
             <summary>
             Represents a Speedy entity.
             </summary>
         </member>
-        <member name="F:Speedy.Entity.SyncEntityInterfaceType">
-            <summary>
-            Represents the base type for a sync entity interface, just a quick lookup value.
-            </summary>
-        </member>
-        <member name="F:Speedy.Entity.ExcludedProperties">
+        <member name="F:Speedy.Entity._excludedProperties">
             <summary>
             Cache of combination of exclusions.
             </summary>
@@ -991,7 +927,7 @@
         <member name="M:Speedy.Entity.CanBeModified">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity.DeepClone(System.Int32)">
+        <member name="M:Speedy.Entity.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.EntityAdded">
@@ -1033,7 +969,7 @@
         </member>
         <member name="M:Speedy.Entity.Unwrap">
             <summary>
-            Unwrap the entity from the proxy.
+            Unwrap the entity from the proxy. Will ignore virtual properties.
             </summary>
             <returns>
             The real entity unwrapped from the Entity Framework proxy.
@@ -1041,7 +977,7 @@
         </member>
         <member name="M:Speedy.Entity.UpdateWith(System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
-            Allows updating of one type to another based on member Name and Type.
+            Allows updating of one type to another based on member Name and Type. Virtual properties are ignore by default.
             </summary>
             <param name="update"> The source of the updates. </param>
             <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
@@ -1612,14 +1548,14 @@
             Extensions for logging.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.LoggingExtensions.GetMessage(System.Diagnostics.Tracing.EventWrittenEventArgs)">
+        <member name="M:Speedy.Extensions.LoggingExtensions.GetDetailedMessage(System.Diagnostics.Tracing.EventWrittenEventArgs)">
             <summary>
             Convert the event written event argument to its payload string
             </summary>
             <param name="args"> The item to process. </param>
             <returns> The formatted message. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LoggingExtensions.GetDetailedMessage(System.Diagnostics.Tracing.EventWrittenEventArgs)">
+        <member name="M:Speedy.Extensions.LoggingExtensions.GetMessage(System.Diagnostics.Tracing.EventWrittenEventArgs)">
             <summary>
             Convert the event written event argument to its payload string
             </summary>
@@ -1643,6 +1579,14 @@
             <summary>
             Extensions for the string type.
             </summary>
+        </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.IfThenElse(System.Func{System.Boolean},System.Action,System.Action)">
+            <summary>
+            Executes a provided action if the test is successful.
+            </summary>
+            <param name="test"> The test to determine action to take. </param>
+            <param name="action1"> The action to perform if the test is true. </param>
+            <param name="action2"> The action to perform if the test is false. </param>
         </member>
         <member name="M:Speedy.Extensions.ObjectExtensions.ValidateBoolean(System.Object,System.Boolean)">
             <summary>
@@ -1669,14 +1613,6 @@
             <param name="minimum"> The inclusive minimum value. </param>
             <param name="maximum"> The inclusive maximum value. </param>
             <returns> True if the value is a string and within the provided range. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.IfThenElse(System.Func{System.Boolean},System.Action,System.Action)">
-            <summary>
-            Executes a provided action if the test is successful.
-            </summary>
-            <param name="test"> The test to determine action to take. </param>
-            <param name="action1"> The action to perform if the test is true. </param>
-            <param name="action2"> The action to perform if the test is false. </param>
         </member>
         <member name="T:Speedy.Extensions.QueryableExtensions">
             <summary>
@@ -2347,7 +2283,7 @@
             <summary>
             Instantiate an instance of the IncludableQueryable
             </summary>
-            <param name="query"></param>
+            <param name="query"> </param>
         </member>
         <member name="P:Speedy.IncludableQueryable`2.ElementType">
             <inheritdoc />
@@ -2897,14 +2833,14 @@
             Determines if the connection is authenticated.
             </summary>
         </member>
-        <member name="P:Speedy.Net.WebClient.Timeout">
-            <summary>
-            Gets or sets the number of milliseconds to wait before the request times out. The default value is 100 seconds.
-            </summary>
-        </member>
         <member name="P:Speedy.Net.WebClient.Proxy">
             <summary>
             Gets or sets an optional proxy for the connection.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.WebClient.Timeout">
+            <summary>
+            Gets or sets the number of milliseconds to wait before the request times out. The default value is 100 seconds.
             </summary>
         </member>
         <member name="M:Speedy.Net.WebClient.Delete(System.String)">
@@ -3022,6 +2958,9 @@
         <member name="P:Speedy.Net.WebSyncClient.OutgoingConverter">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Net.WebSyncClient.Profiler">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Net.WebSyncClient.Statistics">
             <inheritdoc />
         </member>
@@ -3029,9 +2968,6 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.SyncSession">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Net.WebSyncClient.Profiler">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.WebClient">
@@ -3243,7 +3179,7 @@
             <summary>
             Calculate the start and end pagination values.
             </summary>
-            <returns></returns>
+            <returns> </returns>
         </member>
         <member name="T:Speedy.PartialUpdate`1">
             <summary>
@@ -3362,6 +3298,11 @@
             <param name="name"> </param>
             <returns> </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate.Validate">
+            <summary>
+            Validate an update.
+            </summary>
+        </member>
         <member name="T:Speedy.PartialUpdateConverter">
             <summary>
             Converter used to deserialize JSON string to partial updates.
@@ -3411,6 +3352,18 @@
             The validations for a partial update.
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdateOptions.ExcludeProperties(System.String[])">
+            <summary>
+            Exclude properties for this partial update options.
+            </summary>
+            <param name="properties"> The properties to be excluded. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.IncludeProperties(System.String[])">
+            <summary>
+            Include properties for this partial update options.
+            </summary>
+            <param name="properties"> The properties to be included. </param>
+        </member>
         <member name="T:Speedy.PartialUpdateOptions.PartialValidation">
             <summary>
             Validation for Partial Update
@@ -3435,6 +3388,12 @@
             <summary>
             Gets or sets the flag to clear / set a required requirement.
             </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.PartialValidation.Process(System.Object)">
+            <summary>
+            Process a value through an update validation.
+            </summary>
+            <param name="value"> The value to test against a validation. </param>
         </member>
         <member name="T:Speedy.PartialUpdateOptions.PartialValidation`1">
             <summary>
@@ -3480,6 +3439,31 @@
             </summary>
             <param name="message"> The text of the message that will be thrown if the validation fails. </param>
             <returns> The validation for method chaining. </returns>
+        </member>
+        <member name="T:Speedy.PartialUpdateValue">
+            <summary>
+            A value of a partial update.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateValue.Path">
+            <summary>
+            The path of the update.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateValue.TypeValue">
+            <summary>
+            The type of the value being apply.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateValue.Update">
+            <summary>
+            The update delegate.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateValue.Value">
+            <summary>
+            The value.
+            </summary>
         </member>
         <member name="T:Speedy.Profiling.AverageTimer">
             <summary>
@@ -3540,19 +3524,6 @@
             Cancel the timer.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.AverageTimer.Time(System.Action)">
-            <summary>
-            Start the timer, performs the action, then stops the timer.
-            </summary>
-            <param name="action"> The action to be timed. </param>
-        </member>
-        <member name="M:Speedy.Profiling.AverageTimer.Time``1(System.Func{``0})">
-            <summary>
-            Start the timer, performs the function, then stops the timer, then returns the value from the function.
-            </summary>
-            <param name="function"> The action to be timed. </param>
-            <returns> The value return from the function. </returns>
-        </member>
         <member name="M:Speedy.Profiling.AverageTimer.Reset">
             <summary>
             Reset the average timer.
@@ -3567,6 +3538,19 @@
             <summary>
             Stop the timer then update the average.
             </summary>
+        </member>
+        <member name="M:Speedy.Profiling.AverageTimer.Time(System.Action)">
+            <summary>
+            Start the timer, performs the action, then stops the timer.
+            </summary>
+            <param name="action"> The action to be timed. </param>
+        </member>
+        <member name="M:Speedy.Profiling.AverageTimer.Time``1(System.Func{``0})">
+            <summary>
+            Start the timer, performs the function, then stops the timer, then returns the value from the function.
+            </summary>
+            <param name="function"> The action to be timed. </param>
+            <returns> The value return from the function. </returns>
         </member>
         <member name="T:Speedy.Profiling.ITrackerPathRepository">
             <summary>
@@ -4071,35 +4055,16 @@
         <member name="M:Speedy.Serialization.Converters.VersionStringConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Version,Newtonsoft.Json.JsonSerializer)">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Serialization.ICloneable`1">
-            <summary>
-            Represents a cloneable item.
-            </summary>
-            <typeparam name="T"> The type of the item to clone. </typeparam>
-        </member>
-        <member name="M:Speedy.Serialization.ICloneable`1.DeepClone(System.Int32)">
-            <summary>
-            Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
-            </summary>
-            <param name="levels"> The number of levels deep to clone. Default is full hierarchy. </param>
-            <returns> The cloned objects. </returns>
-        </member>
-        <member name="M:Speedy.Serialization.ICloneable`1.ShallowClone">
-            <summary>
-            Shallow clone the item. No child items are cloned.
-            </summary>
-            <returns> The cloned objects. </returns>
-        </member>
         <member name="T:Speedy.Serialization.ICloneable">
             <summary>
             Represents a cloneable item.
             </summary>
         </member>
-        <member name="M:Speedy.Serialization.ICloneable.DeepClone(System.Int32)">
+        <member name="M:Speedy.Serialization.ICloneable.DeepClone(System.Nullable{System.Int32})">
             <summary>
             Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
             </summary>
-            <param name="levels"> The number of levels deep to clone. Default is full hierarchy. </param>
+            <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
             <returns> The cloned objects. </returns>
         </member>
         <member name="M:Speedy.Serialization.ICloneable.ShallowClone">
@@ -4129,20 +4094,22 @@
             Represents a serializer
             </summary>
         </member>
-        <member name="M:Speedy.Serialization.Serializer.DeepClone``1(``0,System.Boolean)">
+        <member name="M:Speedy.Serialization.Serializer.DeepClone``1(``0,System.Nullable{System.Int32},System.Boolean)">
             <summary>
             Deep clone the item.
             </summary>
             <typeparam name="T"> The type to clone. </typeparam>
             <param name="item"> The item to clone. </param>
+            <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
             <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
             <returns> The clone of the item. </returns>
         </member>
-        <member name="M:Speedy.Serialization.Serializer.DeepCloneEntity(Speedy.IEntity,System.Boolean)">
+        <member name="M:Speedy.Serialization.Serializer.DeepCloneObject(System.Object,System.Nullable{System.Int32},System.Boolean)">
             <summary>
             Deep clone the item.
             </summary>
             <param name="item"> The item to clone. </param>
+            <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
             <param name="ignoreVirtuals"> Flag to ignore the virtual properties. </param>
             <returns> The clone of the item. </returns>
         </member>
@@ -4229,14 +4196,6 @@
             <typeparam name="T2"> The type of the outgoing object. </typeparam>
             <param name="value"> The value to unwrap from the proxy. </param>
             <param name="update"> An optional update method. </param>
-            <returns> The disconnected entity. </returns>
-        </member>
-        <member name="M:Speedy.Serialization.Serializer.Unwrap(System.Object,System.Type)">
-            <summary>
-            Unwraps a sync entity and disconnects it from the Entity Framework context.
-            </summary>
-            <param name="value"> The value to unwrap from the proxy. </param>
-            <param name="type"> The type of the outgoing object. </param>
             <returns> The disconnected entity. </returns>
         </member>
         <member name="T:Speedy.Serialization.SerializerSettings">
@@ -4335,7 +4294,11 @@
             </summary>
         </member>
         <member name="M:Speedy.Serialization.SerializerSettings.UpdateWith(Speedy.Serialization.SerializerSettings,System.String[])">
-            <inheritdoc />
+            <summary>
+            Update the SyncStatistics with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
         </member>
         <member name="M:Speedy.Serialization.SerializerSettings.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
@@ -4654,18 +4617,6 @@
             <summary>
             Validates all entities in the repository.
             </summary>
-        </member>
-        <member name="T:Speedy.Storage.IUpdatable`1">
-            <summary>
-            Represents an updatable item
-            </summary>
-        </member>
-        <member name="M:Speedy.Storage.IUpdatable`1.UpdateWith(`0,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the update. </param>
-            <param name="exclusions"> The properties will not be set during update. </param>
         </member>
         <member name="T:Speedy.Storage.IUpdatable">
             <summary>
@@ -6048,13 +5999,13 @@
             <param name="entity"> The entity to update. </param>
             <param name="updatedEntity"> The new values to update the entity with. </param>
         </member>
+        <member name="E:Speedy.Storage.Repository`2.CollectionChanged">
+            <inheritdoc />
+        </member>
         <member name="E:Speedy.Storage.Repository`2.AddingEntity">
             <summary>
             Occurs when an entity is being added.
             </summary>
-        </member>
-        <member name="E:Speedy.Storage.Repository`2.CollectionChanged">
-            <inheritdoc />
         </member>
         <member name="E:Speedy.Storage.Repository`2.DeletingEntity">
             <summary>
@@ -6309,14 +6260,6 @@
             <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
             <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
             <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-        </member>
-        <member name="M:Speedy.Sync.ISyncEntity.UpdateWith(Speedy.Sync.ISyncEntity,System.Boolean,System.String[])">
-            <summary>
-            Updates the entity with the provided entity.
-            </summary>
-            <param name="update"> The source of the update. </param>
-            <param name="excludeVirtuals"> Exclude virtuals members. </param>
-            <param name="exclusions"> The properties will not be set during update. </param>
         </member>
         <member name="T:Speedy.Sync.ISyncServerProxy">
             <summary>
@@ -6589,15 +6532,6 @@
             <param name="collection"> The collection to process. </param>
             <returns> The request with an updated collection. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncClientConverter.Update(Speedy.Sync.ISyncEntity,Speedy.Sync.ISyncEntity,Speedy.Sync.SyncObjectStatus)">
-            <summary>
-            Updates this sync object with another object.
-            </summary>
-            <param name="source"> The entity with the updates. </param>
-            <param name="destination"> The destination sync entity to be updated. </param>
-            <param name="status"> The status of the update. </param>
-            <returns> Return true if the entity was updated and should be saved. </returns>
-        </member>
         <member name="M:Speedy.Sync.SyncClientConverter.Convert(Speedy.Sync.SyncObject)">
             <summary>
             Process the provided sync object through the converters.
@@ -6611,6 +6545,15 @@
             </summary>
             <param name="issue"> The sync issue to process. </param>
             <returns> The process sync issue otherwise null if could not be converted. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncClientConverter.Update(Speedy.Sync.ISyncEntity,Speedy.Sync.ISyncEntity,Speedy.Sync.SyncObjectStatus)">
+            <summary>
+            Updates this sync object with another object.
+            </summary>
+            <param name="source"> The entity with the updates. </param>
+            <param name="destination"> The destination sync entity to be updated. </param>
+            <param name="status"> The status of the update. </param>
+            <returns> Return true if the entity was updated and should be saved. </returns>
         </member>
         <member name="T:Speedy.Sync.SyncClientOptions">
             <summary>
@@ -6628,10 +6571,14 @@
             be updated to the current server time. This should only be set for the "Server" sync client that represents the primary database.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncClientOptions.DeepClone(System.Int32)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Sync.SyncClientOptions.UpdateWith(Speedy.Sync.SyncClientOptions,System.String[])">
+            <summary>
+            Update the SyncStatistics with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncClientOptions.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncClientProfiler">
@@ -6891,9 +6838,6 @@
             Gets or sets the total count of the items to process.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncEngineState.DeepClone(System.Int32)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Sync.SyncEngineState.OnPropertyChanged(System.String)">
             <inheritdoc />
         </member>
@@ -6901,6 +6845,13 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEngineState.UpdateWith(Speedy.Sync.SyncEngineState,System.String[])">
+            <summary>
+            Update the SyncStatistics with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncEngineState.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncEngineStatus">
@@ -6978,19 +6929,10 @@
         <member name="M:Speedy.Sync.SyncEntity`1.ToSyncObject">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.SyncEntity`1.Unwrap">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Sync.SyncEntity`1.UpdateLocalSyncIds">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.UpdateWith(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncEntity`1.UpdateWith(Speedy.Sync.ISyncEntity,System.Boolean,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncEntity`1.UpdateWith(Speedy.Sync.ISyncEntity,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.GetDefaultExclusionsForIncomingSync">
@@ -7046,6 +6988,16 @@
             <returns> The converted sync entity in a sync object format. </returns>
         </member>
         <member name="M:Speedy.Sync.SyncIssue.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncIssue.UpdateWith(Speedy.Sync.SyncIssue,System.String[])">
+            <summary>
+            Update the SyncStatistics with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncIssue.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncIssueType">
@@ -7313,14 +7265,14 @@
             Represents a thread dispatcher to help with cross threaded request.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncModel`1.GetDispatcher">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncModel`1.OnPropertyChanged(System.String)">
             <summary>
             Indicates the property has changed on the bindable object.
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
-        </member>
-        <member name="M:Speedy.Sync.SyncModel`1.GetDispatcher">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncModel`1.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
@@ -7614,7 +7566,7 @@
             </summary>
             <param name="filter"> The syncable filter to be added. </param>
         </member>
-        <member name="M:Speedy.Sync.SyncOptions.DeepClone(System.Int32)">
+        <member name="M:Speedy.Sync.SyncOptions.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncOptions.GetSyncType``1(``0)">
@@ -7630,6 +7582,9 @@
             Resets the syncable filters
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncOptions.ShallowClone">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncOptions.ShouldExcludeRepository(System.Type)">
             <summary>
             Check to see if a repository has been excluded from syncing.
@@ -7643,6 +7598,16 @@
             </summary>
             <param name="typeAssemblyName"> The type name to check for. Should be in assembly name format. </param>
             <returns> True if the type is filter or false if otherwise. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncOptions.UpdateWith(Speedy.Sync.SyncOptions,System.String[])">
+            <summary>
+            Update the SyncStatistics with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncOptions.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncOptions.GetRepositoryLookupFilter(Speedy.ISyncableRepository)">
             <summary>
@@ -7925,15 +7890,19 @@
             Returns true if the statistics are all zero.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncStatistics.DeepClone(System.Int32)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Sync.SyncStatistics.Reset">
             <summary>
             Allows resetting of the sync statistics.
             </summary>
         </member>
         <member name="M:Speedy.Sync.SyncStatistics.UpdateWith(Speedy.Sync.SyncStatistics,System.String[])">
+            <summary>
+            Update the SyncStatistics with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncStatistics.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncTimer">

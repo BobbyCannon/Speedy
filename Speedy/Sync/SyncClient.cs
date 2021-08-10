@@ -440,8 +440,13 @@ namespace Speedy.Sync
 					//
 					// Disable caching when running "individual" processing just in case there is caching issues.
 					// Disable caching if the repository is using a different lookup filter because matching could be using a different "sync lookup key"
-					// - todo: change key cache to add a "GetEntitySyncId" (see GetEntityId) method, this way we could cache on any lookup key
-					if (lookupFilter == null && !isIndividualProcess && database.KeyCache != null && Options.EnablePrimaryKeyCache && !Options.IsServerClient)
+					//  - todo: change key cache to add a "GetEntitySyncId" (see GetEntityId) method, this way we could cache on any lookup key
+					// Disable caching if the cache does not support the sync entity type
+					if (lookupFilter == null
+						&& !isIndividualProcess
+						&& Options.EnablePrimaryKeyCache
+						&& !Options.IsServerClient
+						&& database.KeyCache?.SupportsType(type) == true)
 					{
 						var id = database.KeyCache.GetEntityId(syncEntity);
 						if (id == null)
@@ -480,7 +485,7 @@ namespace Speedy.Sync
 							// will need to be set manually being that it will be filtered on update.
 							foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
 							foundEntity.SyncId = syncObject.SyncId;
-							
+
 							if (UpdateEntity(database, syncObject, syncEntity, foundEntity, syncStatus, issues))
 							{
 								repository.Add(foundEntity);
@@ -491,7 +496,7 @@ namespace Speedy.Sync
 					case SyncObjectStatus.Modified:
 						Profiler.ProcessSyncObjectModified.Time(() =>
 						{
-							if (foundEntity == null || (foundEntity.ModifiedOn >= syncEntity.ModifiedOn && !correction))
+							if (foundEntity == null || foundEntity.ModifiedOn >= syncEntity.ModifiedOn && !correction)
 							{
 								// Did not find the entity or it has not changed.
 								return;
@@ -546,34 +551,6 @@ namespace Speedy.Sync
 						throw new ArgumentOutOfRangeException();
 				}
 			});
-		}
-
-		private bool UpdateEntity(ISyncableDatabase database, SyncObject syncObject, ISyncEntity syncEntity, ISyncEntity foundEntity, SyncObjectStatus syncStatus, ICollection<SyncIssue> issues)
-		{
-			try
-			{
-				if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
-				{
-					// returning false just means do not process and do not return a sync issue
-					return false;
-				}
-
-				UpdateLocalRelationships(foundEntity, database);
-				return true;
-			}
-			catch (UpdateException ex)
-			{
-				// throwing an update exception just means return a sync issue
-				var issue = new SyncIssue
-				{
-					Id = syncObject.SyncId,
-					IssueType = SyncIssueType.UpdateException,
-					Message = ex.Message,
-					TypeName = syncObject.TypeName
-				};
-				issues.Add(issue);
-				return false;
-			}
 		}
 
 		private void ProcessSyncObjects(ISyncableDatabaseProvider provider, IEnumerable<SyncObject> syncObjects, ICollection<SyncIssue> issues, bool corrections)
@@ -715,6 +692,34 @@ namespace Speedy.Sync
 
 					issues.Add(issue);
 				}
+			}
+		}
+
+		private bool UpdateEntity(ISyncableDatabase database, SyncObject syncObject, ISyncEntity syncEntity, ISyncEntity foundEntity, SyncObjectStatus syncStatus, ICollection<SyncIssue> issues)
+		{
+			try
+			{
+				if (!UpdateEntity(syncEntity, foundEntity, syncStatus))
+				{
+					// returning false just means do not process and do not return a sync issue
+					return false;
+				}
+
+				UpdateLocalRelationships(foundEntity, database);
+				return true;
+			}
+			catch (UpdateException ex)
+			{
+				// throwing an update exception just means return a sync issue
+				var issue = new SyncIssue
+				{
+					Id = syncObject.SyncId,
+					IssueType = SyncIssueType.UpdateException,
+					Message = ex.Message,
+					TypeName = syncObject.TypeName
+				};
+				issues.Add(issue);
+				return false;
 			}
 		}
 

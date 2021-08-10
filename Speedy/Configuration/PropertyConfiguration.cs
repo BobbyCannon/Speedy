@@ -20,10 +20,10 @@ namespace Speedy.Configuration
 		private readonly Type _entityType;
 		private int _maxLength;
 		private int _minLength;
-		private string _typeName;
+		private readonly string _nodeType;
 		private readonly Expression<Func<T, object>> _property;
 		private readonly Func<T, object> _propertyFunction;
-		private readonly string _nodeType;
+		private string _typeName;
 
 		#endregion
 

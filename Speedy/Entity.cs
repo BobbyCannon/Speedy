@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Storage;
-using Speedy.Sync;
 using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
@@ -20,7 +19,7 @@ namespace Speedy
 	/// Represents a Speedy entity.
 	/// </summary>
 	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class Entity<T> : Entity, IUpdatable<Entity<T>>, ICloneable<Entity<T>>
+	public abstract class Entity<T> : Entity
 	{
 		#region Properties
 
@@ -32,12 +31,6 @@ namespace Speedy
 		#endregion
 
 		#region Methods
-
-		/// <inheritdoc />
-		public new virtual Entity<T> DeepClone(int levels = -1)
-		{
-			return (Entity<T>) base.DeepClone(levels);
-		}
 
 		/// <inheritdoc />
 		public override bool IdIsSet()
@@ -91,12 +84,6 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public new virtual Entity<T> ShallowClone()
-		{
-			return (Entity<T>) MemberwiseClone();
-		}
-
-		/// <inheritdoc />
 		public override bool TrySetId(string id)
 		{
 			try
@@ -108,29 +95,6 @@ namespace Speedy
 			{
 				return false;
 			}
-		}
-
-		/// <summary>
-		/// Unwrap the entity from the proxy as a specific type.
-		/// </summary>
-		/// <param name="update"> An optional update method. </param>
-		/// <returns> The real entity unwrapped from the Entity Framework proxy. </returns>
-		public T1 Unwrap<T1>(Action<T1> update = null)
-		{
-			return this.Unwrap<Entity<T>, T1>(update);
-		}
-
-		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
-		/// </summary>
-		/// <param name="update"> The source of the updates. </param>
-		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
-		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
-		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-		public virtual void UpdateWith(Entity<T> update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
-		{
-			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
-			UpdateWith(update, exclusions.ToArray());
 		}
 
 		/// <inheritdoc />
@@ -146,48 +110,20 @@ namespace Speedy
 			this.UpdateWithUsingReflection(update, exclusions);
 		}
 
-		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
-		/// </summary>
-		/// <param name="update"> The source of the updates. </param>
-		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. Defaults to true. </param>
-		/// <param name="exclusions"> An optional list of members to exclude. </param>
-		public virtual void UpdateWith(Entity<T> update, bool excludeVirtuals, params string[] exclusions)
-		{
-			var totalExclusions = new HashSet<string>(exclusions);
-			if (excludeVirtuals)
-			{
-				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
-			}
-
-			UpdateWith(update, totalExclusions.ToArray());
-		}
-
-		/// <inheritdoc />
-		public virtual void UpdateWith(Entity<T> update, params string[] exclusions)
-		{
-			this.UpdateWithUsingReflection(update, exclusions);
-		}
-
 		#endregion
 	}
 
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	public abstract class Entity : IEntity
+	public abstract class Entity : IEntity, IUnwrappable
 	{
 		#region Fields
 
 		/// <summary>
-		/// Represents the base type for a sync entity interface, just a quick lookup value.
-		/// </summary>
-		protected static readonly Type SyncEntityInterfaceType;
-
-		/// <summary>
 		/// Cache of combination of exclusions.
 		/// </summary>
-		internal static readonly ConcurrentDictionary<ExclusionKey, HashSet<string>> ExcludedProperties;
+		private static readonly ConcurrentDictionary<ExclusionKey, HashSet<string>> _excludedProperties;
 
 		/// <summary>
 		/// All hash sets for types, this is for optimization
@@ -225,8 +161,7 @@ namespace Speedy
 			ExclusionCacheForIncomingSync = new ConcurrentDictionary<Type, HashSet<string>>();
 			ExclusionCacheForOutgoingSync = new ConcurrentDictionary<Type, HashSet<string>>();
 			ExclusionCacheForSyncUpdate = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExcludedProperties = new ConcurrentDictionary<ExclusionKey, HashSet<string>>();
-			SyncEntityInterfaceType = typeof(ISyncEntity);
+			_excludedProperties = new ConcurrentDictionary<ExclusionKey, HashSet<string>>();
 		}
 
 		#endregion
@@ -264,9 +199,9 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public object DeepClone(int levels = -1)
+		public object DeepClone(int? maxDepth = null)
 		{
-			return this.DeepCloneEntity();
+			return this.DeepCloneObject(maxDepth);
 		}
 
 		/// <inheritdoc />
@@ -327,7 +262,14 @@ namespace Speedy
 		public virtual object ShallowClone()
 		{
 			var test = Activator.CreateInstance(RealType);
-			test.UpdateWithUsingReflection(this);
+			if (test is Entity entity)
+			{
+				entity.UpdateWith(this);
+			}
+			else
+			{
+				test.UpdateWithUsingReflection(this);
+			}
 			return test;
 		}
 
@@ -335,18 +277,27 @@ namespace Speedy
 		public abstract bool TrySetId(string id);
 
 		/// <summary>
-		/// Unwrap the entity from the proxy.
+		/// Unwrap the entity from the proxy. Will ignore virtual properties.
 		/// </summary>
 		/// <returns>
 		/// The real entity unwrapped from the Entity Framework proxy.
 		/// </returns>
 		public virtual object Unwrap()
 		{
-			return this.Unwrap(RealType);
+			var test = Activator.CreateInstance(RealType);
+			if (test is Entity entity)
+			{
+				entity.UpdateWith(this, false, false, false);
+			}
+			else
+			{
+				test.UpdateWithUsingReflection(this);
+			}
+			return test;
 		}
 
 		/// <summary>
-		/// Allows updating of one type to another based on member Name and Type.
+		/// Allows updating of one type to another based on member Name and Type. Virtual properties are ignore by default.
 		/// </summary>
 		/// <param name="update"> The source of the updates. </param>
 		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
@@ -364,7 +315,7 @@ namespace Speedy
 		/// <returns> The values to exclude during change tracking. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForChangeTracking()
 		{
-			return new();
+			return new HashSet<string>();
 		}
 
 		/// <summary>
@@ -379,7 +330,7 @@ namespace Speedy
 		{
 			var key = new ExclusionKey(type, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
 
-			return ExcludedProperties.GetOrAdd(key, x =>
+			return _excludedProperties.GetOrAdd(key, x =>
 			{
 				var exclusions = new HashSet<string>();
 				exclusions.AddRange(type.GetVirtualPropertyNames());

@@ -311,7 +311,7 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
-		public void MultithreadedWriteAndReadTest()
+		public void MultiThreadedWriteAndReadTest()
 		{
 			using var context = new KeyValueMemoryRepository(Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 10);
 			var repository = context;
@@ -355,7 +355,7 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
-		public void MultithreadedWriteTest()
+		public void MultiThreadedWriteTest()
 		{
 			using (var context = new KeyValueMemoryRepository(Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
 			{
@@ -397,42 +397,40 @@ namespace Speedy.UnitTests
 		/// Overlapping item writes should be acceptable, not efficient but acceptable.
 		/// </summary>
 		[TestMethod]
-		public void MultithreadedWriteTestOverlappingEvents()
+		public void MultiThreadedWriteTestOverlappingEvents()
 		{
-			using (var context = new KeyValueMemoryRepository(Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5))
+			using var context = new KeyValueMemoryRepository(Guid.NewGuid().ToString(), TimeSpan.FromSeconds(1), 5);
+			var repository = context;
+			var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
 			{
-				var repository = context;
-				var action = new Action<IKeyValueRepository<string>, int, int>((repo, min, max) =>
+				for (var i = min; i < max; i++)
 				{
-					for (var i = min; i < max; i++)
-					{
-						repository.Write("Key" + i, "Value" + i);
-						repository.Save();
-					}
+					repository.Write("Key" + i, "Value" + i);
+					repository.Save();
+				}
 
-					repository.Flush();
-				});
-
-				var size = 10;
-
-				var tasks = new[]
-				{
-					Task.Factory.StartNew(() => action(repository, 0, size)),
-					Task.Factory.StartNew(() => action(repository, 1, 1 + size)),
-					Task.Factory.StartNew(() => action(repository, 2, 2 + size)),
-					Task.Factory.StartNew(() => action(repository, 3, 3 + size)),
-					Task.Factory.StartNew(() => action(repository, 4, 4 + size)),
-					Task.Factory.StartNew(() => action(repository, 5, 5 + size)),
-					Task.Factory.StartNew(() => action(repository, 6, 6 + size)),
-					Task.Factory.StartNew(() => action(repository, 7, 7 + size))
-				};
-
-				Task.WaitAll(tasks);
 				repository.Flush();
+			});
 
-				var actual = repository.Read().ToList();
-				Assert.AreEqual(tasks.Length + size - 1, actual.Count);
-			}
+			var size = 10;
+
+			var tasks = new[]
+			{
+				Task.Factory.StartNew(() => action(repository, 0, size)),
+				Task.Factory.StartNew(() => action(repository, 1, 1 + size)),
+				Task.Factory.StartNew(() => action(repository, 2, 2 + size)),
+				Task.Factory.StartNew(() => action(repository, 3, 3 + size)),
+				Task.Factory.StartNew(() => action(repository, 4, 4 + size)),
+				Task.Factory.StartNew(() => action(repository, 5, 5 + size)),
+				Task.Factory.StartNew(() => action(repository, 6, 6 + size)),
+				Task.Factory.StartNew(() => action(repository, 7, 7 + size))
+			};
+
+			Task.WaitAll(tasks);
+			repository.Flush();
+
+			var actual = repository.Read().ToList();
+			Assert.AreEqual(tasks.Length + size - 1, actual.Count);
 		}
 
 		[TestMethod]

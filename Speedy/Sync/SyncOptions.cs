@@ -109,24 +109,9 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public override SyncOptions DeepClone(int levels = -1)
+		public override object DeepClone(int? maxDepth = null)
 		{
-			var response = new SyncOptions
-			{
-				IncludeIssueDetails = IncludeIssueDetails,
-				ItemsPerSyncRequest = ItemsPerSyncRequest,
-				LastSyncedOnClient = LastSyncedOnClient,
-				LastSyncedOnServer = LastSyncedOnServer,
-				PermanentDeletions = PermanentDeletions,
-				Values = Values.DeepClone()
-			};
-
-			foreach (var lookup in _filterLookup)
-			{
-				response.AddSyncableFilter(lookup.Value);
-			}
-
-			return response;
+			return ShallowClone();
 		}
 
 		/// <summary>
@@ -157,6 +142,27 @@ namespace Speedy.Sync
 			_filterLookup.Clear();
 		}
 
+		/// <inheritdoc />
+		public override object ShallowClone()
+		{
+			var response = new SyncOptions
+			{
+				IncludeIssueDetails = IncludeIssueDetails,
+				ItemsPerSyncRequest = ItemsPerSyncRequest,
+				LastSyncedOnClient = LastSyncedOnClient,
+				LastSyncedOnServer = LastSyncedOnServer,
+				PermanentDeletions = PermanentDeletions,
+				Values = Values.DeepClone()
+			};
+
+			foreach (var lookup in _filterLookup)
+			{
+				response.AddSyncableFilter(lookup.Value);
+			}
+
+			return response;
+		}
+
 		/// <summary>
 		/// Check to see if a repository has been excluded from syncing.
 		/// </summary>
@@ -175,6 +181,59 @@ namespace Speedy.Sync
 		public bool ShouldExcludeRepository(string typeAssemblyName)
 		{
 			return _filterLookup.Count > 0 && !_filterLookup.ContainsKey(typeAssemblyName);
+		}
+
+		/// <summary>
+		/// Update the SyncStatistics with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		/// <param name="exclusions"> An optional set of properties to exclude. </param>
+		public void UpdateWith(SyncOptions update, params string[] exclusions)
+		{
+			// If the update is null then there is nothing to do.
+			if (update == null)
+			{
+				return;
+			}
+
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+			if (exclusions.Length <= 0)
+			{
+				IncludeIssueDetails = update.IncludeIssueDetails;
+				ItemsPerSyncRequest = update.ItemsPerSyncRequest;
+				LastSyncedOnClient = update.LastSyncedOnClient;
+				LastSyncedOnServer = update.LastSyncedOnServer;
+				PermanentDeletions = update.PermanentDeletions;
+				Values = update.Values.DeepClone();
+			}
+			else
+			{
+				this.IfThen(x => !exclusions.Contains(nameof(IncludeIssueDetails)), x => x.IncludeIssueDetails = update.IncludeIssueDetails);
+				this.IfThen(x => !exclusions.Contains(nameof(ItemsPerSyncRequest)), x => x.ItemsPerSyncRequest = update.ItemsPerSyncRequest);
+				this.IfThen(x => !exclusions.Contains(nameof(LastSyncedOnClient)), x => x.LastSyncedOnClient = update.LastSyncedOnClient);
+				this.IfThen(x => !exclusions.Contains(nameof(LastSyncedOnServer)), x => x.LastSyncedOnServer = update.LastSyncedOnServer);
+				this.IfThen(x => !exclusions.Contains(nameof(PermanentDeletions)), x => x.PermanentDeletions = update.PermanentDeletions);
+				this.IfThen(x => !exclusions.Contains(nameof(Values)), x => x.Values = update.Values.DeepClone());
+			}
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			switch (update)
+			{
+				case SyncOptions options:
+				{
+					UpdateWith(options, exclusions);
+					return;
+				}
+				default:
+				{
+					base.UpdateWith(update, exclusions);
+					return;
+				}
+			}
 		}
 
 		/// <summary>

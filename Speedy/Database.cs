@@ -45,7 +45,7 @@ namespace Speedy
 			IndexConfigurations = new Dictionary<string, IndexConfiguration>();
 			KeyCache = keyCache;
 			OneToManyRelationships = new Dictionary<string, object[]>();
-			Options = options?.DeepClone() ?? new DatabaseOptions();
+			Options = (DatabaseOptions) options?.DeepClone() ?? new DatabaseOptions();
 			EntityIndexConfigurations = new Dictionary<Type, List<IndexConfiguration>>();
 			EntityPropertyConfigurations = new Dictionary<Type, List<IPropertyConfiguration>>();
 			PropertyConfigurations = new Dictionary<string, IPropertyConfiguration>();
@@ -143,13 +143,6 @@ namespace Speedy
 			var repository = CreateRepository<T, T2>();
 			Repositories.Add(key, repository);
 			return repository;
-		}
-
-		/// <inheritdoc />
-		public T Remove<T, T2>(T item) where T : Entity<T2>
-		{
-			GetRepository<T, T2>().Remove(item);
-			return item;
 		}
 
 		/// <inheritdoc />
@@ -301,6 +294,13 @@ namespace Speedy
 			entityConfigurations.Add(response);
 
 			return response;
+		}
+
+		/// <inheritdoc />
+		public T Remove<T, T2>(T item) where T : Entity<T2>
+		{
+			GetRepository<T, T2>().Remove(item);
+			return item;
 		}
 
 		/// <summary>

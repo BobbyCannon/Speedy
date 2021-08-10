@@ -1,4 +1,8 @@
-﻿using System;
+﻿#region References
+
+using System;
+
+#endregion
 
 namespace Speedy
 {
@@ -36,7 +40,7 @@ namespace Speedy
 
 		#endregion
 	}
-	
+
 	/// <summary>
 	/// Represents a database provider for syncable databases.
 	/// </summary>

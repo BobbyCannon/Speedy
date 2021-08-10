@@ -22,7 +22,7 @@ namespace Speedy.Extensions
 		/// <returns> The byte array value of the hex string. </returns>
 		public static byte[] ConvertHexStringToByteArray(this string hexString)
 		{
-			if ((hexString.Length % 2) != 0)
+			if (hexString.Length % 2 != 0)
 			{
 				throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "The binary key cannot have an odd number of digits: {0}", hexString));
 			}
@@ -65,7 +65,7 @@ namespace Speedy.Extensions
 
 			return bytes;
 		}
-		
+
 		/// <summary>
 		/// Trims string to a maximum length.
 		/// </summary>
@@ -75,12 +75,12 @@ namespace Speedy.Extensions
 		/// <returns> The value limited to the maximum length. </returns>
 		public static string MaxLength(this string value, int max, bool addEllipses = false)
 		{
-			if (string.IsNullOrWhiteSpace(value) || (max <= 0))
+			if (string.IsNullOrWhiteSpace(value) || max <= 0)
 			{
 				return string.Empty;
 			}
 
-			var shouldAddEllipses = addEllipses && (value.Length > max) && (max >= 4);
+			var shouldAddEllipses = addEllipses && value.Length > max && max >= 4;
 
 			return value.Length > max ? value.Substring(0, shouldAddEllipses ? max - 3 : max) + (shouldAddEllipses ? "..." : string.Empty) : value;
 		}
@@ -174,7 +174,7 @@ namespace Speedy.Extensions
 						break;
 					default:
 						// ASCII printable character
-						if ((c >= 0x20) && (c <= 0x7e))
+						if (c >= 0x20 && c <= 0x7e)
 						{
 							literal.Append(c);
 							// As UTF16 escaped character

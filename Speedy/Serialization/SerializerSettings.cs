@@ -15,7 +15,7 @@ namespace Speedy.Serialization
 	/// <summary>
 	/// Represents serialization settings
 	/// </summary>
-	public class SerializerSettings : Bindable<SerializerSettings>
+	public class SerializerSettings : Bindable
 	{
 		#region Fields
 
@@ -29,7 +29,7 @@ namespace Speedy.Serialization
 		/// <summary>
 		/// Instantiates a set of settings for the serializer.
 		/// </summary>
-		public SerializerSettings() : this(false, false, false, false, false, false)
+		public SerializerSettings() : this(false)
 		{
 		}
 
@@ -190,30 +190,59 @@ namespace Speedy.Serialization
 			DefaultSettings = new SerializerSettings { HasChanges = false };
 		}
 
-		/// <inheritdoc />
-		public override void UpdateWith(SerializerSettings value, params string[] exclusions)
+		/// <summary>
+		/// Update the SyncStatistics with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		/// <param name="exclusions"> An optional set of properties to exclude. </param>
+		public void UpdateWith(SerializerSettings update, params string[] exclusions)
 		{
-			if (value == null)
+			// If the update is null then there is nothing to do.
+			if (update == null)
 			{
 				return;
 			}
 
-			this.IfThen(x => !exclusions.Contains(nameof(CamelCase)), x => x.CamelCase = value.CamelCase);
-			this.IfThen(x => !exclusions.Contains(nameof(ConvertEnumsToString)), x => x.ConvertEnumsToString = value.ConvertEnumsToString);
-			this.IfThen(x => !exclusions.Contains(nameof(IgnoreNullValues)), x => x.IgnoreNullValues = value.IgnoreNullValues);
-			this.IfThen(x => !exclusions.Contains(nameof(IgnoreReadOnly)), x => x.IgnoreReadOnly = value.IgnoreReadOnly);
-			this.IfThen(x => !exclusions.Contains(nameof(IgnoreVirtuals)), x => x.IgnoreVirtuals = value.IgnoreVirtuals);
-			this.IfThen(x => !exclusions.Contains(nameof(Indented)), x => x.Indented = value.Indented);
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
 
-			UpdateJsonSerializerSettings();
-
-			HasChanges = false;
+			if (exclusions.Length <= 0)
+			{
+				CamelCase = update.CamelCase;
+				ConvertEnumsToString = update.ConvertEnumsToString;
+				IgnoreNullValues = update.IgnoreNullValues;
+				IgnoreReadOnly = update.IgnoreReadOnly;
+				IgnoreVirtuals = update.IgnoreVirtuals;
+				Indented = update.Indented;
+				JsonSettings = update.JsonSettings;
+			}
+			else
+			{
+				this.IfThen(x => !exclusions.Contains(nameof(CamelCase)), x => x.CamelCase = update.CamelCase);
+				this.IfThen(x => !exclusions.Contains(nameof(ConvertEnumsToString)), x => x.ConvertEnumsToString = update.ConvertEnumsToString);
+				this.IfThen(x => !exclusions.Contains(nameof(IgnoreNullValues)), x => x.IgnoreNullValues = update.IgnoreNullValues);
+				this.IfThen(x => !exclusions.Contains(nameof(IgnoreReadOnly)), x => x.IgnoreReadOnly = update.IgnoreReadOnly);
+				this.IfThen(x => !exclusions.Contains(nameof(IgnoreVirtuals)), x => x.IgnoreVirtuals = update.IgnoreVirtuals);
+				this.IfThen(x => !exclusions.Contains(nameof(Indented)), x => x.Indented = update.Indented);
+				this.IfThen(x => !exclusions.Contains(nameof(JsonSettings)), x => x.JsonSettings = update.JsonSettings);
+			}
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object value, params string[] exclusions)
+		public override void UpdateWith(object update, params string[] exclusions)
 		{
-			UpdateWith(value as SerializerSettings, exclusions);
+			switch (update)
+			{
+				case SerializerSettings options:
+				{
+					UpdateWith(options, exclusions);
+					return;
+				}
+				default:
+				{
+					base.UpdateWith(update, exclusions);
+					return;
+				}
+			}
 		}
 
 		private static void AddOrUpdateConverter(ICollection<JsonConverter> converters, JsonConverter converter)

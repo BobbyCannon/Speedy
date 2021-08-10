@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using Speedy.Storage;
 
 #endregion
 
@@ -10,7 +9,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represent an entity that can be synced.
 	/// </summary>
-	public interface ISyncEntity : IModifiableEntity, IUpdatable<ISyncEntity>
+	public interface ISyncEntity : IModifiableEntity
 	{
 		#region Properties
 
@@ -36,7 +35,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <returns> The primary key value for the sync entity. </returns>
 		object GetEntityId();
-		
+
 		/// <summary>
 		/// Gets the sync key (ID) of the sync entity. Defaults to SyncId.
 		/// This can be overriden by setting the LookupFilter for a sync repository filter.
@@ -84,14 +83,6 @@ namespace Speedy.Sync
 		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
 		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
 		void UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate);
-
-		/// <summary>
-		/// Updates the entity with the provided entity.
-		/// </summary>
-		/// <param name="update"> The source of the update. </param>
-		/// <param name="excludeVirtuals"> Exclude virtuals members. </param>
-		/// <param name="exclusions"> The properties will not be set during update. </param>
-		void UpdateWith(ISyncEntity update, bool excludeVirtuals, params string[] exclusions);
 
 		#endregion
 	}

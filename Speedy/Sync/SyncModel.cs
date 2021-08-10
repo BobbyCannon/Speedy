@@ -39,11 +39,17 @@ namespace Speedy.Sync
 
 		#region Methods
 
+		/// <inheritdoc />
+		public IDispatcher GetDispatcher()
+		{
+			return Dispatcher;
+		}
+
 		/// <summary>
 		/// Indicates the property has changed on the bindable object.
 		/// </summary>
 		/// <param name="propertyName"> The name of the property has changed. </param>
-		public override void OnPropertyChanged(string propertyName = null)
+		public override void OnPropertyChanged(string propertyName)
 		{
 			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
 			{
@@ -52,12 +58,6 @@ namespace Speedy.Sync
 			}
 
 			base.OnPropertyChanged(propertyName);
-		}
-
-		/// <inheritdoc />
-		public IDispatcher GetDispatcher()
-		{
-			return Dispatcher;
 		}
 
 		/// <inheritdoc />

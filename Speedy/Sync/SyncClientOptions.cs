@@ -29,26 +29,49 @@ namespace Speedy.Sync
 
 		#region Methods
 
-		/// <inheritdoc />
-		public override SyncClientOptions DeepClone(int levels = -1)
+		/// <summary>
+		/// Update the SyncStatistics with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		/// <param name="exclusions"> An optional set of properties to exclude. </param>
+		public void UpdateWith(SyncClientOptions update, params string[] exclusions)
 		{
-			return new()
-			{
-				EnablePrimaryKeyCache = EnablePrimaryKeyCache,
-				IsServerClient = IsServerClient
-			};
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWith(SyncClientOptions update, params string[] exclusions)
-		{
-			if (update is null)
+			// If the update is null then there is nothing to do.
+			if (update == null)
 			{
 				return;
 			}
 
-			this.IfThen(x => !exclusions.Contains(nameof(EnablePrimaryKeyCache)), x => x.EnablePrimaryKeyCache = update.EnablePrimaryKeyCache);
-			this.IfThen(x => !exclusions.Contains(nameof(IsServerClient)), x => x.IsServerClient = update.IsServerClient);
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+			if (exclusions.Length <= 0)
+			{
+				EnablePrimaryKeyCache = update.EnablePrimaryKeyCache;
+				IsServerClient = update.IsServerClient;
+			}
+			else
+			{
+				this.IfThen(x => !exclusions.Contains(nameof(EnablePrimaryKeyCache)), x => x.EnablePrimaryKeyCache = update.EnablePrimaryKeyCache);
+				this.IfThen(x => !exclusions.Contains(nameof(IsServerClient)), x => x.IsServerClient = update.IsServerClient);
+			}
+		}
+
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			switch (update)
+			{
+				case SyncClientOptions options:
+				{
+					UpdateWith(options, exclusions);
+					return;
+				}
+				default:
+				{
+					base.UpdateWith(update, exclusions);
+					return;
+				}
+			}
 		}
 
 		#endregion
