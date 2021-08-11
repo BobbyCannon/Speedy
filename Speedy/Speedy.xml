@@ -55,6 +55,9 @@
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="E:Speedy.Bindable.PropertyChanged">
             <inheritdoc />
         </member>
@@ -863,10 +866,13 @@
         <member name="M:Speedy.Entity`1.TrySetId(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.String[])">
+        <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.Boolean,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Entity">
@@ -975,6 +981,12 @@
             The real entity unwrapped from the Entity Framework proxy.
             </returns>
         </member>
+        <member name="M:Speedy.Entity.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Entity.UpdateWith(System.Object,System.Boolean,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Entity.UpdateWith(System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Allows updating of one type to another based on member Name and Type. Virtual properties are ignore by default.
@@ -983,9 +995,6 @@
             <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
             <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
             <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-        </member>
-        <member name="M:Speedy.Entity.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.GetDefaultExclusionsForChangeTracking">
             <summary>
@@ -4628,7 +4637,15 @@
             Allows updating of one type to another based on member Name and Type.
             </summary>
             <param name="update"> The source of the update. </param>
-            <param name="exclusions"> The properties will not be set during update. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+        </member>
+        <member name="M:Speedy.Storage.IUpdatable.UpdateWith(System.Object,System.Boolean,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the update. </param>
+            <param name="excludeVirtuals"> An optional value to exclude virtual members. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
         <member name="T:Speedy.Storage.KeyValue.IKeyValueRepository`1">
             <summary>

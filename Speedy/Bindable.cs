@@ -1,7 +1,9 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Newtonsoft.Json;
 using Speedy.Extensions;
 using Speedy.Storage;
@@ -122,6 +124,18 @@ namespace Speedy
 		public virtual void UpdateWith(object update, params string[] exclusions)
 		{
 			this.UpdateWithUsingReflection(update, exclusions);
+		}
+
+		/// <inheritdoc />
+		public void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
+		{
+			var totalExclusions = new HashSet<string>(exclusions);
+			if (excludeVirtuals)
+			{
+				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
+			}
+
+			UpdateWith(update, totalExclusions.ToArray());
 		}
 
 		#endregion

@@ -98,16 +98,28 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
-		{
-			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
-			UpdateWith(update, exclusions.ToArray());
-		}
-
-		/// <inheritdoc />
 		public override void UpdateWith(object update, params string[] exclusions)
 		{
 			this.UpdateWithUsingReflection(update, exclusions);
+		}
+
+		/// <inheritdoc />
+		public sealed override void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
+		{
+			var totalExclusions = new HashSet<string>(exclusions);
+			if (excludeVirtuals)
+			{
+				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
+			}
+
+			UpdateWith(update, totalExclusions.ToArray());
+		}
+
+		/// <inheritdoc />
+		public sealed override void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		{
+			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+			UpdateWith(update, exclusions.ToArray());
 		}
 
 		#endregion
@@ -296,6 +308,12 @@ namespace Speedy
 			return test;
 		}
 
+		/// <inheritdoc />
+		public abstract void UpdateWith(object update, params string[] exclusions);
+
+		/// <inheritdoc />
+		public abstract void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions);
+
 		/// <summary>
 		/// Allows updating of one type to another based on member Name and Type. Virtual properties are ignore by default.
 		/// </summary>
@@ -304,9 +322,6 @@ namespace Speedy
 		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
 		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
 		public abstract void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate);
-
-		/// <inheritdoc />
-		public abstract void UpdateWith(object update, params string[] exclusions);
 
 		/// <summary>
 		/// Gets the default exclusions for change tracking. Warning: this is called during constructor, overrides need to be
