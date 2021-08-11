@@ -4,13 +4,12 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using Speedy.Serialization;
-using Speedy.Storage;
 
 #endregion
 
 namespace Speedy.Benchmark
 {
-	public class MainWindowSettings : IUpdatable
+	public class MainWindowSettings : Bindable
 	{
 		#region Constructors
 
@@ -66,24 +65,6 @@ namespace Speedy.Benchmark
 			{
 				// ignore this
 			}
-		}
-
-		public void UpdateWith(MainWindowSettings update, params string[] exclusions)
-		{
-			if (update == null)
-			{
-				return;
-			}
-
-			Left = update.Left;
-			Top = update.Top;
-			Height = update.Height;
-			Width = update.Width;
-		}
-
-		public void UpdateWith(object update, params string[] exclusions)
-		{
-			UpdateWith(update as MainWindowSettings, exclusions);
 		}
 
 		#endregion

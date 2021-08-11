@@ -11,8 +11,16 @@
 		/// Allows updating of one type to another based on member Name and Type.
 		/// </summary>
 		/// <param name="update"> The source of the update. </param>
-		/// <param name="exclusions"> The properties will not be set during update. </param>
+		/// <param name="exclusions"> An optional list of members to exclude. </param>
 		void UpdateWith(object update, params string[] exclusions);
+
+		/// <summary>
+		/// Allows updating of one type to another based on member Name and Type.
+		/// </summary>
+		/// <param name="update"> The source of the update. </param>
+		/// <param name="excludeVirtuals"> An optional value to exclude virtual members. </param>
+		/// <param name="exclusions"> An optional list of members to exclude. </param>
+		void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions);
 
 		#endregion
 	}
