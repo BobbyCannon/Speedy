@@ -19,7 +19,10 @@ namespace Speedy.Extensions
 	{
 		#region Constants
 
-		private const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
+		/// <summary>
+		/// Default flags for cached access.
+		/// </summary>
+		public const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
 
 		#endregion
 

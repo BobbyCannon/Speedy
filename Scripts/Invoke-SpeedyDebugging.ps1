@@ -7,11 +7,13 @@ param
 )
 
 $ErrorActionPreference = "STOP"
+$scriptPath = $PSScriptRoot.Replace("\Scripts", "")
+#$scriptPath = "C:\Workspaces\GitHub\Speedy"
 
 Clear-Host
 
-$versionFull = "8.1.0.0"
-$version = "8.1.0"
+$versionFull = "8.1.4.0"
+$version = "8.1.4"
 $files = Get-ChildItem $ProjectPath *.csproj -Recurse | Select-Object Fullname
 
 $speedyR = "<Reference Include=`"Speedy, Version=$($versionFull), Culture=neutral, PublicKeyToken=8db7b042d9663bf8, processorArchitecture=MSIL`"><HintPath>..\packages\Speedy.$version\lib\netstandard2.0\Speedy.dll</HintPath></Reference>"
@@ -23,8 +25,8 @@ $speedyPER2 = "<PackageReference Include=`"Speedy.EntityFramework`"><Version>$ve
 $speedyPCR = "<Reference Include=`"Speedy, Version=$($versionFull), Culture=neutral, PublicKeyToken=8db7b042d9663bf8, processorArchitecture=MSIL`"><HintPath>..\packages\Speedy.$version\lib\netstandard2.0\Speedy.dll</HintPath></Reference>"
 $speedyPCER = "<Reference Include=`"Speedy.EntityFramework, Version=$($versionFull), Culture=neutral, PublicKeyToken=8db7b042d9663bf8, processorArchitecture=MSIL`"><HintPath>..\packages\Speedy.EntityFramework.$version\lib\netstandard2.0\Speedy.EntityFramework.dll</HintPath></Reference>"
 
-$speedyNR = "<Reference Include=`"Speedy`"><HintPath>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\bin\Debug\netstandard2.0\Speedy.dll</HintPath></Reference>"
-$speedyNR2 = "<Reference Include=`"Speedy.EntityFramework`"><HintPath>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\bin\Debug\netstandard2.0\Speedy.EntityFramework.dll</HintPath></Reference>"
+$speedyNR = "<Reference Include=`"Speedy`"><HintPath>$scriptPath\Speedy.EntityFramework\bin\Debug\netstandard2.0\Speedy.dll</HintPath></Reference>"
+$speedyNR2 = "<Reference Include=`"Speedy.EntityFramework`"><HintPath>$scriptPath\Speedy.EntityFramework\bin\Debug\netstandard2.0\Speedy.EntityFramework.dll</HintPath></Reference>"
 
 
 foreach ($file in $files)

@@ -15,7 +15,7 @@ namespace Speedy.Website.Data.Entities
 	/// <summary>
 	/// Represents the account entity.
 	/// </summary>
-	public class AccountEntity : SyncEntity<int>, IUnwrappable
+	public class AccountEntity : SyncEntity<int>
 	{
 		#region Constructors
 
@@ -79,7 +79,7 @@ namespace Speedy.Website.Data.Entities
 
 		public IEnumerable<string> GetRoles()
 		{
-			return string.IsNullOrEmpty(Roles) ? new string[0] : Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+			return string.IsNullOrEmpty(Roles) ? Array.Empty<string>() : Roles.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
 		}
 
 		public bool InRole(params AccountRole[] roles)
@@ -99,28 +99,15 @@ namespace Speedy.Website.Data.Entities
 		/// <returns> The array of roles. </returns>
 		public static IEnumerable<string> SplitRoles(string roles)
 		{
-			return roles?.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
-		}
-
-		public override object Unwrap()
-		{
-			return new AccountEntity
-			{
-				AddressId = AddressId,
-				AddressSyncId = AddressSyncId,
-				Id = Id,
-				Name = Name,
-				CreatedOn = CreatedOn,
-				ModifiedOn = ModifiedOn,
-				IsDeleted = IsDeleted,
-				SyncId = SyncId
-			};
+			return roles?.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
 			return base.GetDefaultExclusionsForIncomingSync()
-				.Append(nameof(Address), nameof(AddressId), nameof(Groups), nameof(LastLoginDate), nameof(PasswordHash), nameof(Pets), nameof(Roles));
+				.Append(nameof(Address), nameof(AddressId), nameof(Groups),
+					nameof(LastLoginDate), nameof(PasswordHash), nameof(Pets), nameof(Roles)
+				);
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()

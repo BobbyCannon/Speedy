@@ -1,8 +1,10 @@
 ﻿#region References
 
+using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Sync;
+using Speedy.UnitTests;
 using Speedy.Website.Data;
 
 #endregion
@@ -42,7 +44,7 @@ namespace Speedy.IntegrationTests
 
 			using (var database = provider.GetDatabase())
 			{
-				database.Options.SyncOrder = new string[0];
+				database.Options.SyncOrder = Array.Empty<string>();
 				var repositories = database.GetSyncableRepositories(new SyncOptions()).ToList();
 				repositories.ForEach(x => x.TypeName.Dump());
 				Assert.AreEqual(6, repositories.Count);

@@ -1669,6 +1669,11 @@
             Extensions for all the things.
             </summary>
         </member>
+        <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultFlags">
+            <summary>
+            Default flags for cached access.
+            </summary>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.CachedMakeGenericMethod(System.Reflection.MethodInfo,System.Type[])">
             <summary>
             Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
@@ -6694,6 +6699,26 @@
             <param name="credential"> The credential for the client. </param>
             <returns> The sync client. </returns>
         </member>
+        <member name="T:Speedy.Sync.SyncDirection">
+            <summary>
+            The sync direction.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncDirection.PullDownThenPushUp">
+            <summary>
+            Sync content by pulling from the Server then push content from the Client.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncDirection.PullDown">
+            <summary>
+            Sync content by pulling from the Server down to the Client.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncDirection.PushUp">
+            <summary>
+            Sync content by pushing content from the Client up to the Server.
+            </summary>
+        </member>
         <member name="T:Speedy.Sync.SyncEngine">
             <summary>
             Represents the sync engine.
@@ -7570,6 +7595,11 @@
         <member name="P:Speedy.Sync.SyncOptions.PermanentDeletions">
             <summary>
             If true the sync will actually delete entities marked for deletion. Defaults to false where IsDeleted will be marked "true".
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncOptions.SyncDirection">
+            <summary>
+            The direction to sync.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncOptions.Values">

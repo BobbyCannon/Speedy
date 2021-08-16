@@ -8,6 +8,7 @@ using Speedy.Data.Client;
 using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Sync;
+using Speedy.UnitTests;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;

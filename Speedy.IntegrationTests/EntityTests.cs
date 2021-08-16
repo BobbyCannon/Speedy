@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
+using Speedy.UnitTests;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -18,7 +19,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UnwrapCustomShouldWork()
 		{
-			var people = new AccountEntity
+			var expected = new AccountEntity
 			{
 				Id = 99,
 				SyncId = Guid.Parse("BA664BE6-EA39-49F1-8B8F-0965294590BD"),
@@ -27,18 +28,18 @@ namespace Speedy.IntegrationTests
 				ModifiedOn = new DateTime(2019, 8, 5),
 				AddressId = 98,
 				AddressSyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D"),
-				Name = "John"
+				Address = new AddressEntity { Id = 98, SyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D") },
+				Name = "John",
+				EmailAddress = "john@domain.com",
+				ExternalId = "j-123",
+				LastLoginDate = new DateTime(2021, 08, 10, 08, 59, 45, DateTimeKind.Utc),
+				Nickname = "nick",
+				PasswordHash = "hash",
+				Roles = ",roles,"
 			};
 
-			var actual = (AccountEntity) people.Unwrap();
-			Assert.AreEqual(99, actual.Id);
-			Assert.AreEqual(Guid.Parse("BA664BE6-EA39-49F1-8B8F-0965294590BD"), actual.SyncId);
-			Assert.AreEqual(true, actual.IsDeleted);
-			Assert.AreEqual(new DateTime(2019, 8, 4), actual.CreatedOn);
-			Assert.AreEqual(new DateTime(2019, 8, 5), actual.ModifiedOn);
-			Assert.AreEqual(98, actual.AddressId);
-			Assert.AreEqual(Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D"), actual.AddressSyncId);
-			Assert.AreEqual("John", actual.Name);
+			var actual = (AccountEntity) expected.Unwrap();
+			TestHelper.AreEqual(expected, actual, nameof(AccountEntity.Address));
 			Assert.AreEqual(null, actual.Address);
 			Assert.AreNotEqual(null, actual.Groups);
 			Assert.AreEqual(0, actual.Groups.Count);
@@ -72,6 +73,127 @@ namespace Speedy.IntegrationTests
 						TestHelper.AreEqual(expected, actual, true, nameof(FoodEntity.Id), nameof(FoodEntity.CreatedOn), nameof(FoodEntity.ModifiedOn));
 					}
 				});
+		}
+
+		[TestMethod]
+		public void UpdateWithShouldExcludeAllSyncItems()
+		{
+			var expected = new AccountEntity
+			{
+				Id = 99,
+				SyncId = Guid.Parse("BA664BE6-EA39-49F1-8B8F-0965294590BD"),
+				IsDeleted = true,
+				CreatedOn = new DateTime(2019, 8, 4),
+				ModifiedOn = new DateTime(2019, 8, 5),
+				AddressId = 98,
+				AddressSyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D"),
+				Address = new AddressEntity { Id = 98, SyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D") },
+				Name = "John",
+				EmailAddress = "john@domain.com",
+				ExternalId = "j-123",
+				LastLoginDate = new DateTime(2021, 08, 10, 08, 59, 45, DateTimeKind.Utc),
+				Nickname = "nick",
+				PasswordHash = "hash",
+				Roles = ",roles,",
+				Groups = new[] { new GroupMemberEntity() },
+				Pets = new[] { new PetEntity() }
+			};
+
+			var actual = new AccountEntity();
+			actual.UpdateWith(expected, true, true, true);
+
+			TestHelper.AreEqual(expected, actual,
+				nameof(AccountEntity.Address),
+				nameof(AccountEntity.AddressId),
+				nameof(AccountEntity.Groups),
+				nameof(AccountEntity.Id),
+				nameof(AccountEntity.IsDeleted),
+				nameof(AccountEntity.LastLoginDate),
+				nameof(AccountEntity.PasswordHash),
+				nameof(AccountEntity.Pets),
+				nameof(AccountEntity.Roles)
+			);
+
+			Assert.AreEqual(null, actual.Address);
+			Assert.AreNotEqual(null, actual.Groups);
+			Assert.AreEqual(0, actual.Groups.Count);
+			Assert.AreNotEqual(null, actual.Pets);
+			Assert.AreEqual(0, actual.Pets.Count);
+		}
+
+		[TestMethod]
+		public void UpdateWithShouldExcludeVirtuals()
+		{
+			var expected = new AccountEntity
+			{
+				Id = 99,
+				SyncId = Guid.Parse("BA664BE6-EA39-49F1-8B8F-0965294590BD"),
+				IsDeleted = true,
+				CreatedOn = new DateTime(2019, 8, 4),
+				ModifiedOn = new DateTime(2019, 8, 5),
+				AddressId = 98,
+				AddressSyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D"),
+				Address = new AddressEntity { Id = 98, SyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D") },
+				Name = "John",
+				EmailAddress = "john@domain.com",
+				ExternalId = "j-123",
+				LastLoginDate = new DateTime(2021, 08, 10, 08, 59, 45, DateTimeKind.Utc),
+				Nickname = "nick",
+				PasswordHash = "hash",
+				Roles = ",roles,",
+				Groups = new[] { new GroupMemberEntity() },
+				Pets = new[] { new PetEntity() }
+			};
+
+			var actual = new AccountEntity();
+			actual.UpdateWith(expected, true);
+
+			TestHelper.AreEqual(expected, actual,
+				nameof(AccountEntity.Address),
+				nameof(AccountEntity.Groups),
+				nameof(AccountEntity.Pets)
+			);
+
+			Assert.AreEqual(null, actual.Address);
+			Assert.AreNotEqual(null, actual.Groups);
+			Assert.AreEqual(0, actual.Groups.Count);
+			Assert.AreNotEqual(null, actual.Pets);
+			Assert.AreEqual(0, actual.Pets.Count);
+		}
+
+		[TestMethod]
+		public void UpdateWithShouldIncludeVirtuals()
+		{
+			var expected = new AccountEntity
+			{
+				Id = 99,
+				SyncId = Guid.Parse("BA664BE6-EA39-49F1-8B8F-0965294590BD"),
+				IsDeleted = true,
+				CreatedOn = new DateTime(2019, 8, 4),
+				ModifiedOn = new DateTime(2019, 8, 5),
+				AddressId = 98,
+				AddressSyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D"),
+				Address = new AddressEntity { Id = 98, SyncId = Guid.Parse("09AE3305-211E-48EF-99E0-191E2E1D686D") },
+				Name = "John",
+				EmailAddress = "john@domain.com",
+				ExternalId = "j-123",
+				LastLoginDate = new DateTime(2021, 08, 10, 08, 59, 45, DateTimeKind.Utc),
+				Nickname = "nick",
+				PasswordHash = "hash",
+				Roles = ",roles,",
+				Groups = new[] { new GroupMemberEntity() },
+				Pets = new[] { new PetEntity() }
+			};
+
+			var actual = new AccountEntity();
+			actual.UpdateWith(expected);
+
+			TestHelper.AreEqual(expected, actual);
+			Assert.AreNotEqual(null, actual.Address);
+			Assert.AreNotEqual(null, actual.Groups);
+			Assert.AreEqual(1, actual.Groups.Count);
+			Assert.AreNotEqual(null, actual.Pets);
+			Assert.AreEqual(1, actual.Pets.Count);
 		}
 
 		#endregion

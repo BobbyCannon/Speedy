@@ -311,7 +311,7 @@ namespace Speedy.EntityFramework.Sql
 		/// <param name="memberName"> </param>
 		/// <param name="propertyName"> </param>
 		/// <param name="setAssignmentValue"> States the expression is a value assignment. Meaning it's the right side of an assignment so set it as a parameter value. </param>
-		/// <param name="isFinalExpression"></param>
+		/// <param name="isFinalExpression"> </param>
 		private static void CreateWhere(SqlStatement statement, Expression expression, ref string memberName, string propertyName = null, bool setAssignmentValue = false, bool isFinalExpression = false)
 		{
 			switch (expression)

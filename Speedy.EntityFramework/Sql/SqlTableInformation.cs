@@ -79,14 +79,17 @@ namespace Speedy.EntityFramework.Sql
 
 			var type = typeof(T);
 			var entityType = database.Model.FindEntityType(type);
-			var allProperties = entityType.GetProperties().ToList();
+			var allProperties = entityType.GetProperties().OrderBy(x => x.Name).ToList();
 			var timestampDbTypeName = nameof(TimestampAttribute).Replace("Attribute", "").ToLower();
 			var timeStampProperties = allProperties.Where(a => a.IsConcurrencyToken && a.ValueGenerated == ValueGenerated.OnAddOrUpdate || a.GetColumnType() == timestampDbTypeName).ToList();
 			var allPropertiesExceptTimeStamp = allProperties.Except(timeStampProperties).ToList();
 
 			// Prepare for updates
-			var entityProperties = type.GetCachedProperties();
-			var properties = allPropertiesExceptTimeStamp.Where(a => a.GetComputedColumnSql() == null).ToList();
+			var entityProperties = type.GetCachedProperties().ToList();
+			var properties = allPropertiesExceptTimeStamp
+				.Where(a => a.GetComputedColumnSql() == null)
+				.OrderBy(x => x.GetColumnName())
+				.ToList();
 
 			// Update members with new values
 			TableName = entityType.GetTableName();
