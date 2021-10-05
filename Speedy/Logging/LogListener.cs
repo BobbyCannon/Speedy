@@ -27,23 +27,16 @@ namespace Speedy.Logging
 		/// </summary>
 		/// <param name="sessionId"> The session of the log to monitor. </param>
 		/// <param name="level"> The level in which to log. </param>
-		private LogListener(Guid sessionId, EventLevel level = EventLevel.Informational)
+		internal LogListener(Guid sessionId, EventLevel level = EventLevel.Informational)
 		{
 			SessionId = sessionId;
 			Level = level;
-
-			Events = new List<EventWrittenEventArgs>();
 			OnlyEventsWithMessages = true;
 		}
 
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// The events that have been captured from the event source (logger).
-		/// </summary>
-		public List<EventWrittenEventArgs> Events { get; }
 
 		/// <summary>
 		/// The log listener is listening.
@@ -136,7 +129,6 @@ namespace Speedy.Logging
 				return;
 			}
 
-			Events.Add(args);
 			EventWritten?.Invoke(this, args);
 
 			if (OutputToConsole)

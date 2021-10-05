@@ -2628,11 +2628,6 @@
             <param name="sessionId"> The session of the log to monitor. </param>
             <param name="level"> The level in which to log. </param>
         </member>
-        <member name="P:Speedy.Logging.LogListener.Events">
-            <summary>
-            The events that have been captured from the event source (logger).
-            </summary>
-        </member>
         <member name="P:Speedy.Logging.LogListener.IsListening">
             <summary>
             The log listener is listening.
@@ -2700,6 +2695,27 @@
             </summary>
         </member>
         <member name="E:Speedy.Logging.LogListener.PropertyChanged">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Logging.MemoryLogListener">
+            <summary>
+            Log listener that will keep a history of events.
+            </summary>
+        </member>
+        <member name="P:Speedy.Logging.MemoryLogListener.Events">
+            <summary>
+            The events that have been captured from the event source (logger).
+            </summary>
+        </member>
+        <member name="M:Speedy.Logging.MemoryLogListener.CreateSession(System.Guid,System.Diagnostics.Tracing.EventLevel,System.Action{Speedy.Logging.LogListener})">
+            <summary>
+            Create an instance of the log listener and start listening.
+            </summary>
+            <param name="sessionId"> The session of the log to monitor. </param>
+            <param name="level"> The level in which to log. </param>
+            <param name="initialize"> An optional initialize action. </param>
+        </member>
+        <member name="M:Speedy.Logging.MemoryLogListener.OnEventWritten(System.Diagnostics.Tracing.EventWrittenEventArgs)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.ModifiableEntity`1">

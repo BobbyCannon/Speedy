@@ -1,41 +1,36 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon>Speedy.ico</ApplicationIcon>
-    <LangVersion>latest</LangVersion>
-    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Speedy.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
-    <ProjectReference Include="..\Speedy.UnitTests\Speedy.UnitTests.csproj" />
-    <ProjectReference Include="..\Speedy\Speedy.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Speedy.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.18">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.18">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
-  </ItemGroup>
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net5.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Speedy.ico</ApplicationIcon>
+		<LangVersion>latest</LangVersion>
+		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="Speedy.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
+		<ProjectReference Include="..\Speedy.UnitTests\Speedy.UnitTests.csproj" />
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="Speedy.ico">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.19">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.19">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
+	</ItemGroup>
 </Project>

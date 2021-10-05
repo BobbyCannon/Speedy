@@ -31,7 +31,7 @@ namespace Speedy.UnitTests.Sync
 
 			var manager = new TestSyncManager();
 			var syncPostUpdateCalled = false;
-			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
+			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
 			manager.SyncAsync(TimeSpan.FromMilliseconds(30000), null, results => firstSyncOptions = results.Options);
@@ -84,7 +84,7 @@ namespace Speedy.UnitTests.Sync
 			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Informational);
+			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Informational);
 
 			manager.SyncAccounts();
 			manager.WaitForSyncToComplete();
@@ -111,7 +111,7 @@ namespace Speedy.UnitTests.Sync
 			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
+			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			Assert.AreEqual(0, manager.SyncTimers[TestSyncType.All].Elapsed.Ticks);
 			Assert.AreEqual(0, manager.SyncTimers[TestSyncType.All].Samples);
@@ -162,7 +162,7 @@ namespace Speedy.UnitTests.Sync
 			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
+			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
 			var result1 = manager.SyncAsync(TimeSpan.FromMilliseconds(1000), null, results => firstSyncOptions = results?.Options);
@@ -205,7 +205,7 @@ namespace Speedy.UnitTests.Sync
 			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
-			using var logListener = LogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
+			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
 
 			// Start a sync that will run for a long while
 			manager.SyncAsync(TimeSpan.FromMilliseconds(100), null, results => firstSyncOptions = results?.Options);

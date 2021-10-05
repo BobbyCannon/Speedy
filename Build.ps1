@@ -47,6 +47,12 @@ try
 	& nuget.exe restore "$scriptPath\$productName.sln"
 
 	$msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe"
+	
+	if (!(Test-Path $msbuild -PathType Leaf))
+	{
+		$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Preview\Msbuild\Current\bin\MSBuild.exe"
+	}
+	
 	& $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /v:m /m
 
 	if ($LASTEXITCODE -ne 0)

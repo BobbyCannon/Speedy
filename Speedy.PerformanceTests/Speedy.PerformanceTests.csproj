@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net5.0-windows</TargetFramework>
@@ -8,11 +9,11 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.18">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.19">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.18">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.19">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -22,7 +23,7 @@
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Speedy.UnitTests\Speedy.UnitTests.csproj" />
-	  <ProjectReference Include="..\Speedy\Speedy.csproj" />
+		<ProjectReference Include="..\Speedy.UnitTests\Speedy.UnitTests.csproj" />
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 	</ItemGroup>
 </Project>
