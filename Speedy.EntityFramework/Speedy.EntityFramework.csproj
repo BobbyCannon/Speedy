@@ -6,7 +6,7 @@
 		<AssemblyTitle>Speedy.EntityFramework</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.EntityFramework</Product>
-		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
+		<Description>Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.</Description>
 		<Copyright>© Copyright 2014-2021</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
