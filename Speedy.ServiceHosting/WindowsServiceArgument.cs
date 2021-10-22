@@ -9,7 +9,14 @@ namespace Speedy.ServiceHosting
 	/// <summary>
 	/// Represents a specific argument for a windows service.
 	/// </summary>
-	public class WindowsServiceArgument : CommandLineArgument
+	public class WindowsServiceArgument : WindowsServiceArgument<object>
+	{
+	}
+
+	/// <summary>
+	/// Represents a specific argument for a windows service.
+	/// </summary>
+	public class WindowsServiceArgument<T> : CommandLineArgument<T>
 	{
 		#region Constructors
 

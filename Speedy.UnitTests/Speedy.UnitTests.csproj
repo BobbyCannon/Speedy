@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
@@ -9,9 +8,9 @@
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>8.1.5.0</AssemblyVersion>
-		<FileVersion>8.1.5.0</FileVersion>
-		<Version>8.1.5.0</Version>
+		<AssemblyVersion>8.1.6.0</AssemblyVersion>
+		<FileVersion>8.1.6.0</FileVersion>
+		<Version>8.1.6.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.74.0" />
@@ -24,6 +23,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj" />
+		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting.Example\Speedy.ServiceHosting.Example.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />

@@ -245,12 +245,17 @@
             Represents a specific argument for a windows service.
             </summary>
         </member>
-        <member name="M:Speedy.ServiceHosting.WindowsServiceArgument.#ctor">
+        <member name="T:Speedy.ServiceHosting.WindowsServiceArgument`1">
+            <summary>
+            Represents a specific argument for a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceArgument`1.#ctor">
             <summary>
             Instantiates an instance of the windows service command line argument.
             </summary>
         </member>
-        <member name="P:Speedy.ServiceHosting.WindowsServiceArgument.IncludeInServiceArguments">
+        <member name="P:Speedy.ServiceHosting.WindowsServiceArgument`1.IncludeInServiceArguments">
             <summary>
             Determine if this argument should be included in the windows service argument string. Defaults to true (include).
             </summary>
@@ -354,6 +359,9 @@
             </summary>
         </member>
         <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.BuildHelpInformation(System.Text.StringBuilder,System.Func{Speedy.Configuration.CommandLine.CommandLineArgument,System.Boolean})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.BuildIssueInformation(System.Text.StringBuilder)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.Initialize(System.String[])">

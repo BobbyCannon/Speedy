@@ -20,7 +20,7 @@ namespace Speedy.UnitTests.ServiceHosting
 			var options = GetWindowsServiceOptions();
 			var actual = options.BuildHelpInformation();
 			actual.Escape().Dump();
-			Assert.AreEqual("Foo Bar 8.1.5.0\r\n\t[-i] Install the service.\r\n\t[-u] Uninstall the service.\r\n\t[-d] Wait for the debugger.\r\n\t[-v] Verbose logging.\r\n\t[-h] Print out the help menu.\r\n", actual);
+			Assert.AreEqual("Foo Bar 8.1.6.0\r\n\t[-i] Install the service.\r\n\t[-u] Uninstall the service.\r\n\t[-d] Wait for the debugger.\r\n\t[-v] Verbose logging.\r\n\t[-h] Print out the help menu.\r\n", actual);
 		}
 
 		[TestMethod]

@@ -81,27 +81,31 @@ namespace Speedy.ServiceHosting
 		/// <summary>
 		/// Allows public access to the OnStart method.
 		/// </summary>
-		public void Start()
+		public int Start()
 		{
 			// Show help if asked or if no argument were provided
 			if (Options.ShowHelp)
 			{
 				WriteLine(Options.BuildHelpInformation());
-				return;
+				return 0;
+			}
+
+			if (!Options.IsValid)
+			{
+				WriteLine(Options.BuildIssueInformation());
+				return -1;
 			}
 
 			WriteLine($"{Options.ServiceDisplayName} v{Options.ServiceVersion}");
 
 			if (Options.InstallService)
 			{
-				InstallService();
-				return;
+				return InstallService();
 			}
 
 			if (Options.UninstallService)
 			{
-				UninstallService();
-				return;
+				return UninstallService();
 			}
 
 			// Check to see if we need to run in service mode.
@@ -109,12 +113,13 @@ namespace Speedy.ServiceHosting
 			{
 				// Run the service in service mode.
 				Run(this);
-				return;
+				return 0;
 			}
 
 			// Start the process in debug mode.
 			OnStart(null);
 			HandleConsole();
+			return 0;
 		}
 
 		/// <summary>
@@ -235,7 +240,7 @@ namespace Speedy.ServiceHosting
 		/// <summary>
 		/// Install the service as a windows service.
 		/// </summary>
-		private void InstallService()
+		private int InstallService()
 		{
 			try
 			{
@@ -248,10 +253,13 @@ namespace Speedy.ServiceHosting
 					// prior to executing the application that uses the source. Install first then after that it can be used.
 					EventLog.CreateEventSource(ServiceName, "Application");
 				}
+
+				return 0;
 			}
 			catch (Exception ex)
 			{
 				WriteLine(ex.ToDetailedString(), EventLevel.Critical);
+				return -1;
 			}
 		}
 
@@ -288,7 +296,7 @@ namespace Speedy.ServiceHosting
 		/// <summary>
 		/// Uninstalls the service.
 		/// </summary>
-		private void UninstallService()
+		private int UninstallService()
 		{
 			try
 			{
@@ -299,10 +307,13 @@ namespace Speedy.ServiceHosting
 				{
 					EventLog.DeleteEventSource(ServiceName);
 				}
+
+				return 0;
 			}
 			catch (Exception ex)
 			{
 				WriteLine(ex.ToDetailedString(), EventLevel.Critical);
+				return -1;
 			}
 		}
 

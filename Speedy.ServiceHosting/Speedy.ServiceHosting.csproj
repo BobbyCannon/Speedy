@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -23,9 +23,9 @@
 		<PackageId>Speedy.ServiceHosting</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.1.5.0</AssemblyVersion>
-		<FileVersion>8.1.5.0</FileVersion>
-		<Version>8.1.5.0</Version>
+		<AssemblyVersion>8.1.6.0</AssemblyVersion>
+		<FileVersion>8.1.6.0</FileVersion>
+		<Version>8.1.6.0</Version>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -35,7 +35,7 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.7.0" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

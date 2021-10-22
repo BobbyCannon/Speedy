@@ -9,8 +9,44 @@ namespace Speedy.Configuration.CommandLine
 	/// <summary>
 	/// Class managing the argument information
 	/// </summary>
+	public class CommandLineArgument<T> : CommandLineArgument
+	{
+		#region Fields
+
+		private T _typedDefaultValue;
+
+		#endregion
+
+		#region Properties
+
+		/// <summary>
+		/// The default value for arguments if not provided.
+		/// </summary>
+		public new T DefaultValue
+		{
+			get => _typedDefaultValue;
+			set
+			{
+				_typedDefaultValue = value;
+				HasDefaultValue = true;
+			}
+		}
+
+		#endregion
+	}
+
+	/// <summary>
+	/// Class managing the argument information
+	/// </summary>
 	public class CommandLineArgument : Bindable
 	{
+		#region Fields
+
+		private object _defaultValue;
+		private string _value;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -26,9 +62,27 @@ namespace Speedy.Configuration.CommandLine
 		#region Properties
 
 		/// <summary>
+		/// The default value for arguments if not provided.
+		/// </summary>
+		public object DefaultValue
+		{
+			get => _defaultValue;
+			set
+			{
+				_defaultValue = value;
+				HasDefaultValue = true;
+			}
+		}
+
+		/// <summary>
+		/// The argument has a default value.
+		/// </summary>
+		public bool HasDefaultValue { get; protected set; }
+
+		/// <summary>
 		/// True if the argument has a value.
 		/// </summary>
-		public bool HasValue => !string.IsNullOrWhiteSpace(Value);
+		public bool HasValue { get; private set; }
 
 		/// <summary>
 		/// The help description.
@@ -68,7 +122,15 @@ namespace Speedy.Configuration.CommandLine
 		/// <summary>
 		/// The value parse from the command line.
 		/// </summary>
-		public string Value { get; set; }
+		public string Value
+		{
+			get => _value;
+			set
+			{
+				_value = value;
+				HasValue = true;
+			}
+		}
 
 		/// <summary>
 		/// True if the argument was found.
@@ -86,6 +148,33 @@ namespace Speedy.Configuration.CommandLine
 		public string GetHelpDescription()
 		{
 			return $"[{Prefix}{Name}] {Help}";
+		}
+
+		/// <summary>
+		/// Gets the issue description for argument.
+		/// </summary>
+		/// <returns> The description of the issue for the argument. </returns>
+		public string GetIssueDescription()
+		{
+			if (IsFlag && IsRequired && !WasFound)
+			{
+				return $"The required flag [{Name}] was not found.";
+			}
+
+			if (!IsFlag && IsRequired)
+			{
+				if (!WasFound)
+				{
+					return $"The required argument [{Name}] was not found.";
+				}
+
+				if (!HasValue)
+				{
+					return $"The required argument [{Name}] value was not provided";
+				}
+			}
+
+			return "Unknown";
 		}
 
 		/// <summary>
@@ -120,9 +209,9 @@ namespace Speedy.Configuration.CommandLine
 			// Cannot process if
 			//  - already process (WasFound)
 			//  - is a "flag" argument, meaning should not have a value
-			//  - value is not provided (Null)
+			//  - value is not provided AND there is no default value
 			//  - value starts with the Prefix (ex -,--,/)
-			if (WasFound || IsFlag || (value == null) || (value.StartsWith(Prefix)))
+			if (WasFound || IsFlag || ((value == null) && !HasDefaultValue) || (value?.StartsWith(Prefix) == true))
 			{
 				return false;
 			}

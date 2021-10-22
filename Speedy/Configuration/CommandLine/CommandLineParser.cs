@@ -101,6 +101,22 @@ namespace Speedy.Configuration.CommandLine
 			return builder.ToString();
 		}
 
+		/// <summary>
+		/// Builds the issue information that will be displayed with the -h command option is requested.
+		/// </summary>
+		/// <returns> The string to be displayed. </returns>
+		public virtual string BuildIssueInformation(StringBuilder builder = null)
+		{
+			builder ??= new StringBuilder();
+
+			foreach (var argument in this.Where(x => !x.IsValid))
+			{
+				builder.AppendLine($"\t{argument.GetIssueDescription()}");
+			}
+
+			return builder.ToString();
+		}
+
 		/// <inheritdoc />
 		public IEnumerator<CommandLineArgument> GetEnumerator()
 		{
@@ -172,32 +188,50 @@ namespace Speedy.Configuration.CommandLine
 		/// <param name="name"> The name of the property. </param>
 		/// <param name="defaultValue"> The default value if the argument was not found or the value was not provided. </param>
 		/// <returns> The found command line value otherwise the default value provided. </returns>
-		public T PropertyValue<T>(string name, T defaultValue)
+		public T PropertyValue<T>(string name, T defaultValue = default)
 		{
-			var value = _arguments.Values.FirstOrDefault(x => x.PropertyName == name)?.Value;
-			if (value == null)
+			var argument = _arguments.Values.FirstOrDefault(x => x.PropertyName == name);
+			var value = argument?.Value;
+
+			if ((value == null) && (argument?.HasDefaultValue == false))
 			{
 				return defaultValue;
 			}
 
-			return defaultValue switch
+			var dValue = default(T);
+			if (argument is CommandLineArgument<T> typedArgument && typedArgument.HasDefaultValue)
 			{
-				byte _ => byte.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				char _ => char.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				short _ => short.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				ushort _ => ushort.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				int _ => int.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				uint _ => uint.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				long _ => long.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				ulong _ => ulong.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				float _ => float.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				double _ => double.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				TimeSpan _ => TimeSpan.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				DateTime _ => DateTime.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				DateTimeOffset _ => DateTimeOffset.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				OscTimeTag _ => OscTimeTag.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				Version _ => Version.TryParse(value, out var pValue) ? (T) (object) pValue : defaultValue,
-				_ => defaultValue
+				dValue = typedArgument.DefaultValue;
+			}
+			else if ((argument != null) && argument.HasDefaultValue)
+			{
+				dValue = argument.DefaultValue is T castValue ? castValue : default;
+			}
+
+			if (value == null)
+			{
+				return dValue;
+			}
+
+			return dValue switch
+			{
+				byte _ => byte.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				char _ => char.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				short _ => short.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				ushort _ => ushort.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				int _ => int.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				uint _ => uint.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				long _ => long.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				ulong _ => ulong.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				float _ => float.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				double _ => double.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				TimeSpan _ => TimeSpan.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				DateTime _ => DateTime.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				DateTimeOffset _ => DateTimeOffset.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				OscTimeTag _ => OscTimeTag.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				Version _ => Version.TryParse(value, out var pValue) ? (T) (object) pValue : dValue,
+				string _ => value is T tValue ? tValue : dValue,
+				_ => value is T tValue ? tValue : dValue
 			};
 		}
 

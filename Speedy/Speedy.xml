@@ -237,6 +237,16 @@
         <member name="M:Speedy.Collections.SortedObservableCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Configuration.CommandLine.CommandLineArgument`1">
+            <summary>
+            Class managing the argument information
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument`1.DefaultValue">
+            <summary>
+            The default value for arguments if not provided.
+            </summary>
+        </member>
         <member name="T:Speedy.Configuration.CommandLine.CommandLineArgument">
             <summary>
             Class managing the argument information
@@ -245,6 +255,16 @@
         <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.#ctor">
             <summary>
             Creates an instance of a command line argument.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.DefaultValue">
+            <summary>
+            The default value for arguments if not provided.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.HasDefaultValue">
+            <summary>
+            The argument has a default value.
             </summary>
         </member>
         <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.HasValue">
@@ -302,6 +322,12 @@
             Gets the help description for argument.
             </summary>
             <returns> The description for the argument. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.GetIssueDescription">
+            <summary>
+            Gets the issue description for argument.
+            </summary>
+            <returns> The description of the issue for the argument. </returns>
         </member>
         <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.Process(System.String)">
             <summary>
@@ -362,6 +388,12 @@
         <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.BuildHelpInformation(System.Text.StringBuilder,System.Func{Speedy.Configuration.CommandLine.CommandLineArgument,System.Boolean})">
             <summary>
             Builds the help information that will be displayed with the -h command option is requested.
+            </summary>
+            <returns> The string to be displayed. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.BuildIssueInformation(System.Text.StringBuilder)">
+            <summary>
+            Builds the issue information that will be displayed with the -h command option is requested.
             </summary>
             <returns> The string to be displayed. </returns>
         </member>

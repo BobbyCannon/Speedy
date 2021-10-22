@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
@@ -74,6 +75,9 @@ namespace Speedy.UnitTests
 				missing.ForEach(x => Console.WriteLine($"\t\t{x}"));
 				throw new Exception("Be sure to host file for development mode.");
 			}
+
+			var assembly = Assembly.GetExecutingAssembly();
+			Version = assembly.GetName().Version?.ToString(4) ?? "0.0.0.0";
 		}
 
 		#endregion
@@ -89,6 +93,8 @@ namespace Speedy.UnitTests
 		public static string DefaultSqliteConnection { get; }
 
 		public static string DefaultSqliteConnection2 { get; }
+		
+		public static string Version { get; }
 
 		#endregion
 

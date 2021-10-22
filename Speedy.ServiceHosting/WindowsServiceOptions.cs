@@ -114,6 +114,14 @@ namespace Speedy.ServiceHosting
 			builder.AppendLine($"{ServiceDisplayName} {ServiceVersion}");
 			return base.BuildHelpInformation(builder, shouldIncludeCheck);
 		}
+		
+		/// <inheritdoc />
+		public override string BuildIssueInformation(StringBuilder builder = null)
+		{
+			builder ??= new StringBuilder();
+			builder.AppendLine($"{ServiceDisplayName} {ServiceVersion}");
+			return base.BuildIssueInformation(builder);
+		}
 
 		/// <summary>
 		/// Initialize the service options.

@@ -21,7 +21,9 @@ namespace Speedy.ServiceHosting.Example
 
 		#region Properties
 
-		public int Start => PropertyValue(nameof(Start), 0);
+		public string Message => PropertyValue<string>(nameof(Message));
+
+		public int Start => PropertyValue<int>(nameof(Start));
 
 		#endregion
 
@@ -29,12 +31,20 @@ namespace Speedy.ServiceHosting.Example
 
 		public override void SetupArguments()
 		{
-			Add(new WindowsServiceArgument
+			Add(new WindowsServiceArgument<int>
 			{
 				Help = "The offset to start with.",
-				IncludeInServiceArguments = false,
 				Name = nameof(Start).ToLower(),
-				PropertyName = nameof(Start)
+				PropertyName = nameof(Start),
+				DefaultValue = 1
+			});
+
+			Add(new WindowsServiceArgument<string>
+			{
+				Help = "A require message to print.",
+				Name = "m",
+				PropertyName = nameof(Message),
+				IsRequired = true
 			});
 
 			base.SetupArguments();
