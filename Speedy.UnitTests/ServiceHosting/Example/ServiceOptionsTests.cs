@@ -17,7 +17,7 @@ namespace Speedy.UnitTests.ServiceHosting.Example
 		{
 			var options = GetOptions("-start", "12");
 			Assert.AreEqual(12, options.Start);
-			
+
 			options = GetOptions("-start");
 			Assert.AreEqual(0, options.Start);
 		}

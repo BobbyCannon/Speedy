@@ -51,6 +51,14 @@ namespace Speedy.UnitTests.ServiceHosting
 		}
 
 		[TestMethod]
+		public void ParseKnownArguments()
+		{
+			var options = GetWindowsServiceOptions("-i", "-u", "-h", "-d", "-v");
+			Assert.AreEqual("-d -v", options.ToServiceString());
+			Assert.AreEqual("-i -u -d -v -h", options.ToString());
+		}
+
+		[TestMethod]
 		public void ParseUninstallArgument()
 		{
 			var options = GetWindowsServiceOptions("-u");
@@ -68,15 +76,7 @@ namespace Speedy.UnitTests.ServiceHosting
 			Assert.AreEqual("-c", options.ToServiceString());
 			Assert.AreEqual("-c", options.ToString());
 		}
-		
-		[TestMethod]
-		public void ParseKnownArguments()
-		{
-			var options = GetWindowsServiceOptions("-i", "-u", "-h", "-d", "-v");
-			Assert.AreEqual("-d -v", options.ToServiceString());
-			Assert.AreEqual("-i -u -d -v -h", options.ToString());
-		}
-		
+
 		[TestMethod]
 		public void ParseUnknownArgumentWithValue()
 		{
@@ -87,7 +87,7 @@ namespace Speedy.UnitTests.ServiceHosting
 				(new[] { "-c", "1", "-u" }, 1, "-c", "1", "-c 1", "-u -c 1"),
 				(new[] { "-name", "\"Bobby\"", "-u" }, 1, "-name", "\"Bobby\"", "-name \"Bobby\"", "-u -name \"Bobby\"")
 			};
-			
+
 			foreach (var scenario in scenarios)
 			{
 				var options = GetWindowsServiceOptions(scenario.args);

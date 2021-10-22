@@ -1,6 +1,10 @@
-﻿using System;
+﻿#region References
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.ServiceHosting;
+
+#endregion
 
 namespace Speedy.UnitTests.ServiceHosting
 {
