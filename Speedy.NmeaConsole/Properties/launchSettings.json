@@ -1,0 +1,8 @@
+{
+	"profiles": {
+		"Speedy.NmeaConsole": {
+			"commandName": "Project",
+			"commandLineArgs": "-p 6 -o 22031 -v"
+		}
+	}
+}

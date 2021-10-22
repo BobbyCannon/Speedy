@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Profiling;
-using Speedy.Serialization;
 using Speedy.Sync;
 using Speedy.Website.Data.Entities;
+using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -88,7 +88,7 @@ namespace Speedy.UnitTests
 			});
 		}
 
-		private static void BaseShouldCloneTest<T>(IEnumerable<T> testItems, Action<T,T> additionalDeepCloneValidations = null) where T : Speedy.Serialization.ICloneable
+		private static void BaseShouldCloneTest<T>(IEnumerable<T> testItems, Action<T, T> additionalDeepCloneValidations = null) where T : ICloneable
 		{
 			foreach (var testItem in testItems)
 			{

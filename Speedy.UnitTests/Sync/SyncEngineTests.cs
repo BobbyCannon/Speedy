@@ -17,27 +17,6 @@ namespace Speedy.UnitTests.Sync
 		#region Methods
 
 		[TestMethod]
-		public void PushUpShouldNotPullServerContent()
-		{
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
-
-			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
-
-			var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
-			var issues = SyncEngine.Run(client, server, options).SyncIssues;
-			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-
-			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
-			using var serverDatabase = server.GetDatabase<IContosoDatabase>();
-
-			var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			Assert.AreEqual(0, addresses1.Count);
-			Assert.AreEqual(1, addresses2.Count);
-		}
-		
-		[TestMethod]
 		public void PullDownShouldNotPushClientContent()
 		{
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
@@ -57,7 +36,7 @@ namespace Speedy.UnitTests.Sync
 			Assert.AreEqual(1, addresses1.Count);
 			Assert.AreEqual(0, addresses2.Count);
 		}
-		
+
 		[TestMethod]
 		public void PullDownShouldSuccessButShouldNotPushClientContent()
 		{
@@ -82,7 +61,28 @@ namespace Speedy.UnitTests.Sync
 			Assert.AreNotEqual(addresses1[0].Line1, addresses2[0].Line1);
 			Assert.AreEqual(addresses1[1].Line1, addresses2[0].Line1);
 		}
-		
+
+		[TestMethod]
+		public void PushUpShouldNotPullServerContent()
+		{
+			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
+
+			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
+
+			var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
+			var issues = SyncEngine.Run(client, server, options).SyncIssues;
+			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+			using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+
+			var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+			var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+			Assert.AreEqual(0, addresses1.Count);
+			Assert.AreEqual(1, addresses2.Count);
+		}
+
 		[TestMethod]
 		public void PushUpShouldSuccessButShouldNotPullServerContent()
 		{

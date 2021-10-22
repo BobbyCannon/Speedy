@@ -126,7 +126,7 @@ namespace Speedy.UnitTests.Sync
 				"4/23/2020 1:55:24 AM Verbose : Sync Accounts started",
 				"4/23/2020 1:55:25 AM Verbose : Sync Accounts is already running so Sync All not started.",
 				"4/23/2020 1:55:26 AM Verbose : Syncing Accounts for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"4/23/2020 1:55:41 AM Verbose : Sync Accounts stopped. 00:17.000",
+				"4/23/2020 1:55:41 AM Verbose : Sync Accounts stopped. 00:17.000"
 			};
 
 			Assert.AreEqual(0, manager.SyncTimers[TestSyncType.All].Elapsed.Ticks);
@@ -212,7 +212,7 @@ namespace Speedy.UnitTests.Sync
 			manager.SyncAccountsAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => secondSyncOptions = results?.Options);
 			manager.SyncAddressesAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), results => thirdSyncOptions = results?.Options);
 
-			while (thirdSyncOptions == null || manager.IsRunning)
+			while ((thirdSyncOptions == null) || manager.IsRunning)
 			{
 				Thread.Sleep(10);
 			}
@@ -229,7 +229,7 @@ namespace Speedy.UnitTests.Sync
 				"4/23/2020 1:56:00 AM Verbose : Sync Accounts stopped. 00:17.000",
 				"4/23/2020 1:56:01 AM Verbose : Sync Addresses started",
 				"4/23/2020 1:56:02 AM Verbose : Syncing Addresses for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"4/23/2020 1:56:16 AM Verbose : Sync Addresses stopped",
+				"4/23/2020 1:56:16 AM Verbose : Sync Addresses stopped"
 			};
 
 			var actual = logListener.Events.Select(x => x.GetDetailedMessage()).ToArray();

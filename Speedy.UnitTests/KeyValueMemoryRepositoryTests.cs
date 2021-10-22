@@ -340,18 +340,18 @@ namespace Speedy.UnitTests
 			{
 				Task.Factory.StartNew(() => writeAction(repository, 0, size)),
 				Task.Factory.StartNew(() => readAction(repository)),
-				Task.Factory.StartNew(() => writeAction(repository, 1 * size, 1 * size + size)),
+				Task.Factory.StartNew(() => writeAction(repository, 1 * size, (1 * size) + size)),
 				Task.Factory.StartNew(() => readAction(repository)),
-				Task.Factory.StartNew(() => writeAction(repository, 2 * size, 2 * size + size)),
+				Task.Factory.StartNew(() => writeAction(repository, 2 * size, (2 * size) + size)),
 				Task.Factory.StartNew(() => readAction(repository)),
-				Task.Factory.StartNew(() => writeAction(repository, 3 * size, 3 * size + size)),
+				Task.Factory.StartNew(() => writeAction(repository, 3 * size, (3 * size) + size)),
 				Task.Factory.StartNew(() => readAction(repository))
 			};
 
 			Task.WaitAll(tasks);
 
 			var actual = repository.Read().ToList();
-			Assert.AreEqual(tasks.Length / 2 * size, actual.Count);
+			Assert.AreEqual((tasks.Length / 2) * size, actual.Count);
 		}
 
 		[TestMethod]
@@ -376,13 +376,13 @@ namespace Speedy.UnitTests
 				var tasks = new[]
 				{
 					Task.Factory.StartNew(() => action(repository, 0, size)),
-					Task.Factory.StartNew(() => action(repository, 1 * size, 1 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 2 * size, 2 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 3 * size, 3 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 4 * size, 4 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 5 * size, 5 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 6 * size, 6 * size + size)),
-					Task.Factory.StartNew(() => action(repository, 7 * size, 7 * size + size))
+					Task.Factory.StartNew(() => action(repository, 1 * size, (1 * size) + size)),
+					Task.Factory.StartNew(() => action(repository, 2 * size, (2 * size) + size)),
+					Task.Factory.StartNew(() => action(repository, 3 * size, (3 * size) + size)),
+					Task.Factory.StartNew(() => action(repository, 4 * size, (4 * size) + size)),
+					Task.Factory.StartNew(() => action(repository, 5 * size, (5 * size) + size)),
+					Task.Factory.StartNew(() => action(repository, 6 * size, (6 * size) + size)),
+					Task.Factory.StartNew(() => action(repository, 7 * size, (7 * size) + size))
 				};
 
 				Task.WaitAll(tasks);
@@ -430,7 +430,7 @@ namespace Speedy.UnitTests
 			repository.Flush();
 
 			var actual = repository.Read().ToList();
-			Assert.AreEqual(tasks.Length + size - 1, actual.Count);
+			Assert.AreEqual((tasks.Length + size) - 1, actual.Count);
 		}
 
 		[TestMethod]
@@ -537,6 +537,22 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void ReadKeys()
+		{
+			using var repository = new KeyValueMemoryRepository(Guid.NewGuid().ToString());
+			repository.Write("Key1", "Item1");
+			repository.Write("Key2", "Item2");
+			repository.Write("Key3", "Item3");
+			repository.Write("Key1", "Item1");
+			repository.Save();
+
+			var expected = new List<string> { "Key2", "Key3", "Key1" };
+			var actual = repository.ReadKeys().ToList();
+			Assert.AreEqual(3, actual.Count);
+			TestHelper.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
 		public void ReadOrderWithCaching()
 		{
 			var name = Guid.NewGuid().ToString();
@@ -607,22 +623,6 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read(key => key != repository.Name).ToList();
 			Assert.AreEqual(2, actual.Count);
-			TestHelper.AreEqual(expected, actual);
-		}
-
-		[TestMethod]
-		public void ReadKeys()
-		{
-			using var repository = new KeyValueMemoryRepository(Guid.NewGuid().ToString());
-			repository.Write("Key1", "Item1");
-			repository.Write("Key2", "Item2");
-			repository.Write("Key3", "Item3");
-			repository.Write("Key1", "Item1");
-			repository.Save();
-
-			var expected = new List<string> { "Key2", "Key3", "Key1" };
-			var actual = repository.ReadKeys().ToList();
-			Assert.AreEqual(3, actual.Count);
 			TestHelper.AreEqual(expected, actual);
 		}
 

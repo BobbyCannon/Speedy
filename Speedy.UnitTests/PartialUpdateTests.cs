@@ -111,7 +111,7 @@ namespace Speedy.UnitTests
 
 			for (var i = 0; i < entities.Length; i++)
 			{
-				builder.AppendLine($"{{ entities[{i}], {entities[i].ToJson().ToLiteral()} }},");
+				builder.AppendLine($"{{ entities[{i}], {entities[i].ToJson().Escape()} }},");
 			}
 
 			//Clipboard.SetText(builder.ToString());
@@ -231,7 +231,7 @@ namespace Speedy.UnitTests
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			var options = new PartialUpdateOptions<MyClass>();
 			var message = "Name must be between 1 to 5 characters.";
-			options.Property(x => x.Name).HasMinMaxRange(1,5).IsRequired().Throws(message);
+			options.Property(x => x.Name).HasMinMaxRange(1, 5).IsRequired().Throws(message);
 			var update = PartialUpdate.FromJson(json, options);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), message);
 		}
@@ -244,7 +244,7 @@ namespace Speedy.UnitTests
 			{
 				var options = new PartialUpdateOptions<MyClass>();
 				var message = "Name must be between 1 to 5 characters.";
-				options.Property(x => x.Name).HasMinMaxRange(1,5).IsRequired(false).Throws(message);
+				options.Property(x => x.Name).HasMinMaxRange(1, 5).IsRequired(false).Throws(message);
 				var update = PartialUpdate.FromJson(json, options);
 				update.Validate();
 			}

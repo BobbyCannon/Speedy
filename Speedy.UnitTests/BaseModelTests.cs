@@ -64,16 +64,16 @@ namespace Speedy.UnitTests
 					random.GetBytes(buffer, 0, 8);
 					property.SetValue(response, BitConverter.ToDouble(buffer, 0));
 				}
-				else if (type == typeof(Guid) || type == typeof(Guid?))
+				else if ((type == typeof(Guid)) || (type == typeof(Guid?)))
 				{
 					property.SetValue(response, Guid.NewGuid());
 				}
-				else if (type == typeof(int) || type == typeof(int?))
+				else if ((type == typeof(int)) || (type == typeof(int?)))
 				{
 					random.GetBytes(buffer, 0, 4);
 					property.SetValue(response, BitConverter.ToInt32(buffer, 0));
 				}
-				else if (type == typeof(long) || type == typeof(long?))
+				else if ((type == typeof(long)) || (type == typeof(long?)))
 				{
 					random.GetBytes(buffer, 0, 8);
 					property.SetValue(response, BitConverter.ToInt64(buffer, 0));
@@ -103,7 +103,7 @@ namespace Speedy.UnitTests
 
 		private object GetDefaultValue(Type propertyType)
 		{
-			var isCollection = propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(ICollection<>);
+			var isCollection = propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>));
 
 			if (isCollection)
 			{
@@ -113,7 +113,7 @@ namespace Speedy.UnitTests
 			}
 
 			return propertyType.IsNullableType()
-				|| propertyType == typeof(string)
+				|| (propertyType == typeof(string))
 					? null
 					: Activator.CreateInstance(propertyType);
 		}
@@ -161,7 +161,7 @@ namespace Speedy.UnitTests
 
 			var actual = new T() as IUpdatable;
 			var membersToIgnore = new List<string>();
-			
+
 			Assert.IsNotNull(actual);
 
 			if (excludeVirtuals)

@@ -20,40 +20,6 @@ namespace Speedy.UnitTests.Collections
 		#region Methods
 
 		[TestMethod]
-		public void CollectionShouldSort()
-		{
-			var collection = new SortedObservableCollection<string>(new OrderBy<string>(x => x));
-			collection.AddRange(new[] { "b", "d", "c", "a" });
-			TestHelper.AreEqual(new[] { "a", "b", "c", "d" }, collection.ToArray());
-		}
-
-		[TestMethod]
-		public void DistinctSortedObservableShouldNotAllowDuplicates()
-		{
-			var collection = new SortedObservableCollection<ClientAccount>(new OrderBy<ClientAccount>(x => x.SyncId))
-			{
-				DistinctCheck = (x, y) => x.SyncId == y.SyncId
-			};
-			var account1 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
-			var account2 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
-			collection.Add(account1);
-			collection.Add(account2);
-			Assert.AreEqual(1, collection.Count);
-		}
-
-		[TestMethod]
-		public void SortedObservableShouldAllowDuplicates()
-		{
-			var collection = new SortedObservableCollection<ClientAccount>(new OrderBy<ClientAccount>(x => x.SyncId));
-			var account1 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
-			var account2 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
-			collection.Add(account1);
-			collection.Add(account2);
-			Assert.AreEqual(2, collection.Count);
-		}
-
-
-		[TestMethod]
 		public void AddShouldAutomaticallyOrder()
 		{
 			var collection = new SortedObservableCollection<ClientAccount>(
@@ -80,6 +46,28 @@ namespace Speedy.UnitTests.Collections
 			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[3].Action);
 			Assert.AreEqual(0, actual[3].NewStartingIndex);
 			Assert.AreEqual(-1, actual[3].OldStartingIndex);
+		}
+
+		[TestMethod]
+		public void CollectionShouldSort()
+		{
+			var collection = new SortedObservableCollection<string>(new OrderBy<string>(x => x));
+			collection.AddRange(new[] { "b", "d", "c", "a" });
+			TestHelper.AreEqual(new[] { "a", "b", "c", "d" }, collection.ToArray());
+		}
+
+		[TestMethod]
+		public void DistinctSortedObservableShouldNotAllowDuplicates()
+		{
+			var collection = new SortedObservableCollection<ClientAccount>(new OrderBy<ClientAccount>(x => x.SyncId))
+			{
+				DistinctCheck = (x, y) => x.SyncId == y.SyncId
+			};
+			var account1 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
+			var account2 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
+			collection.Add(account1);
+			collection.Add(account2);
+			Assert.AreEqual(1, collection.Count);
 		}
 
 		[TestMethod]
@@ -145,7 +133,7 @@ namespace Speedy.UnitTests.Collections
 
 			Assert.AreEqual(6, actual.Count);
 		}
-		
+
 		[TestMethod]
 		public void SortAlphaNumeric()
 		{
@@ -185,6 +173,17 @@ namespace Speedy.UnitTests.Collections
 			Assert.AreEqual(8, actual.Count);
 			Assert.AreEqual("ab2b3b4c", displayNames);
 			Assert.AreEqual("12340", ids);
+		}
+
+		[TestMethod]
+		public void SortedObservableShouldAllowDuplicates()
+		{
+			var collection = new SortedObservableCollection<ClientAccount>(new OrderBy<ClientAccount>(x => x.SyncId));
+			var account1 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
+			var account2 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
+			collection.Add(account1);
+			collection.Add(account2);
+			Assert.AreEqual(2, collection.Count);
 		}
 
 		#endregion

@@ -64,7 +64,7 @@ namespace Speedy.UnitTests.Factories
 
 		public static ClientSetting GetSetting(string name, string value)
 		{
-			return new()
+			return new ClientSetting
 			{
 				Name = name,
 				Value = value

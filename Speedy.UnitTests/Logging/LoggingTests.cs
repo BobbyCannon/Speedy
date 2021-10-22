@@ -35,7 +35,7 @@ namespace Speedy.UnitTests.Logging
 			var startTime = new DateTime(2020, 04, 23, 03, 26, 12, DateTimeKind.Utc);
 			var offset = 0;
 
-			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);			
+			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
 			using (var listener = MemoryLogListener.CreateSession(id1, EventLevel.Informational))
 			{

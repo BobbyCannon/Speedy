@@ -14,29 +14,6 @@ namespace Speedy.Extensions
 		#region Methods
 
 		/// <summary>
-		/// Safely create a directory.
-		/// </summary>
-		/// <param name="info"> The information on the directory to create. </param>
-		public static void SafeCreate(this DirectoryInfo info)
-		{
-			UtilityExtensions.Retry(() =>
-			{
-				info.Refresh();
-
-				if (!info.Exists)
-				{
-					info.Create();
-				}
-			}, 1000, 10);
-
-			UtilityExtensions.Wait(() =>
-			{
-				info.Refresh();
-				return info.Exists;
-			}, 1000, 10);
-		}
-
-		/// <summary>
 		/// Safely create a file.
 		/// </summary>
 		/// <param name="file"> The information of the file to create. </param>
@@ -78,29 +55,6 @@ namespace Speedy.Extensions
 				if (info.Exists)
 				{
 					info.Delete();
-				}
-			}, 1000, 10);
-
-			UtilityExtensions.Wait(() =>
-			{
-				info.Refresh();
-				return !info.Exists;
-			}, 1000, 10);
-		}
-
-		/// <summary>
-		/// Safely delete a directory.
-		/// </summary>
-		/// <param name="info"> The information of the directory to delete. </param>
-		public static void SafeDelete(this DirectoryInfo info)
-		{
-			UtilityExtensions.Retry(() =>
-			{
-				info.Refresh();
-
-				if (info.Exists)
-				{
-					info.Delete(true);
 				}
 			}, 1000, 10);
 

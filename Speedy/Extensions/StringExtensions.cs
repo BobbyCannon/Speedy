@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
@@ -38,6 +39,87 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// To literal version of the string.
+		/// </summary>
+		/// <param name="input"> The string input. </param>
+		/// <returns> The literal version of the string. </returns>
+		public static string Escape(this string input)
+		{
+			if (input == null)
+			{
+				return "null";
+			}
+
+			var literal = new StringBuilder(input.Length);
+
+			foreach (var c in input)
+			{
+				switch (c)
+				{
+					case '\'':
+						literal.Append(@"\'");
+						continue;
+					case '\"':
+						literal.Append("\\\"");
+						continue;
+					case '\\':
+						literal.Append(@"\\");
+						continue;
+					case '\0':
+						literal.Append(@"\0");
+						continue;
+					case '\a':
+						literal.Append(@"\a");
+						continue;
+					case '\b':
+						literal.Append(@"\b");
+						continue;
+					case '\f':
+						literal.Append(@"\f");
+						continue;
+					case '\n':
+						literal.Append(@"\n");
+						continue;
+					case '\r':
+						literal.Append(@"\r");
+						continue;
+					case '\t':
+						literal.Append(@"\t");
+						continue;
+					case '\v':
+						literal.Append(@"\v");
+						continue;
+					default:
+						// ASCII printable character
+						if (c >= 0x20 && c <= 0x7e)
+						{
+							literal.Append(c);
+							// As UTF16 escaped character
+						}
+						else
+						{
+							literal.Append(@"\u");
+							literal.Append(((int) c).ToString("x4"));
+						}
+						continue;
+				}
+			}
+
+			return literal.ToString();
+		}
+
+		/// <summary>
+		/// Turn a byte array into a readable, escaped string
+		/// </summary>
+		/// <param name="bytes"> bytes </param>
+		/// <returns> a string </returns>
+		public static string Escape(this byte[] bytes)
+		{
+			var data = Encoding.UTF8.GetString(bytes);
+			return Escape(data);
+		}
+
+		/// <summary>
 		/// Convert a HEX string to a regular text string.
 		/// </summary>
 		/// <param name="value"> A string with hex data (2 bytes per character). </param>
@@ -64,6 +146,32 @@ namespace Speedy.Extensions
 			}
 
 			return bytes;
+		}
+
+		/// <summary>
+		/// Gets a stable hash code for a string value.
+		/// </summary>
+		/// <param name="value"> The string value. </param>
+		/// <returns> The hash code for the value. </returns>
+		public static int GetStableHashCode(this string value)
+		{
+			unchecked
+			{
+				var hash1 = 5381;
+				var hash2 = hash1;
+
+				for (var i = 0; i < value.Length && value[i] != '\0'; i += 2)
+				{
+					hash1 = ((hash1 << 5) + hash1) ^ value[i];
+					if (i == value.Length - 1 || value[i + 1] == '\0')
+					{
+						break;
+					}
+					hash2 = ((hash2 << 5) + hash2) ^ value[i + 1];
+				}
+
+				return hash1 + hash2 * 1566083941;
+			}
 		}
 
 		/// <summary>
@@ -122,75 +230,208 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
-		/// To literal version of the string.
+		/// Turn a readable string into a byte array
 		/// </summary>
-		/// <param name="input"> The string input. </param>
-		/// <returns> The literal version of the string. </returns>
-		public static string ToLiteral(this string input)
+		/// <param name="value"> a string, optionally with escape sequences in it </param>
+		/// <returns> The unescape version of the provided value. </returns>
+		public static string Unescape(this string value)
 		{
-			if (input == null)
-			{
-				return "null";
-			}
+			var count = 0;
+			var isEscaped = false;
+			var parseHexNext = false;
+			var parseHexCount = 0;
+			var parseHexCounts = new List<int>();
 
-			var literal = new StringBuilder(input.Length);
-			literal.Append("\"");
-			foreach (var c in input)
+			// first we count the number of chars we will be returning
+			for (var i = 0; i < value.Length; i++)
 			{
-				switch (c)
+				var c = value[i];
+
+				if (parseHexNext)
 				{
-					case '\'':
-						literal.Append(@"\'");
-						break;
-					case '\"':
-						literal.Append("\\\"");
-						break;
-					case '\\':
-						literal.Append(@"\\");
-						break;
-					case '\0':
-						literal.Append(@"\0");
-						break;
-					case '\a':
-						literal.Append(@"\a");
-						break;
-					case '\b':
-						literal.Append(@"\b");
-						break;
-					case '\f':
-						literal.Append(@"\f");
-						break;
-					case '\n':
-						literal.Append(@"\n");
-						break;
-					case '\r':
-						literal.Append(@"\r");
-						break;
-					case '\t':
-						literal.Append(@"\t");
-						break;
-					case '\v':
-						literal.Append(@"\v");
-						break;
-					default:
-						// ASCII printable character
-						if (c >= 0x20 && c <= 0x7e)
-						{
-							literal.Append(c);
-							// As UTF16 escaped character
-						}
-						else
-						{
-							literal.Append(@"\u");
-							literal.Append(((int) c).ToString("x4"));
-						}
+					if (Uri.IsHexDigit(c))
+					{
+						parseHexCount++;
+					}
+					else
+					{
+						parseHexCounts.Add(parseHexCount);
+						count += parseHexCount;
+						parseHexNext = false;
+						parseHexCount = 0;
+					}
+				}
 
-						break;
+				// if we are not in  an escape sequence and the char is a escape char
+				else if (isEscaped == false && c == '\\')
+				{
+					// escape
+					isEscaped = true;
+
+					// increment count
+					count++;
+				}
+
+				// else if we are escaped
+				else if (isEscaped)
+				{
+					// reset escape state
+					isEscaped = false;
+
+					// check the char against the set of known escape chars
+					switch (char.ToLower(c))
+					{
+						case '0':
+						case 'a':
+						case 'b':
+						case 'f':
+						case 'n':
+						case 'r':
+						case 't':
+						case 'v':
+						case '\'':
+						case '\\':
+						case '"':
+							// do not increment count
+							break;
+
+						case 'u':
+							// Skip the 4 value because they are unicode values
+							i += 4;
+							break;
+
+						case 'x':
+							// do not increment count
+							parseHexNext = true;
+							parseHexCount = 0;
+							break;
+
+						default:
+							// this is not a valid escape sequence
+							throw new Exception($"Invalid escape sequence at char of [{c}] at offset {i - 1}.");
+					}
+				}
+				else
+				{
+					// normal char increment count
+					count++;
 				}
 			}
 
-			literal.Append("\"");
-			return literal.ToString();
+			if (parseHexNext)
+			{
+				throw new Exception($"Invalid escape sequence at char '{value.Length - 1}' missing hex value.");
+			}
+
+			if (isEscaped)
+			{
+				throw new Exception($"Invalid escape sequence at char '{value.Length - 1}'.");
+			}
+
+			// create a character array for the result
+			var chars = new char[count];
+			var hexCountIndex = 0;
+			var j = 0;
+
+			// actually populate the array
+			for (var i = 0; i < value.Length; i++)
+			{
+				var c = value[i];
+
+				// if we are not in  an escape sequence and the char is a escape char
+				if (isEscaped == false && c == '\\')
+				{
+					// escape
+					isEscaped = true;
+				}
+
+				// else if we are escaped
+				else if (isEscaped)
+				{
+					// reset escape state
+					isEscaped = false;
+
+					// check the char against the set of known escape chars
+					switch (char.ToLower(value[i]))
+					{
+						case '0':
+							chars[j++] = '\0';
+							break;
+
+						case 'a':
+							chars[j++] = '\a';
+							break;
+
+						case 'b':
+							chars[j++] = '\b';
+							break;
+
+						case 'f':
+							chars[j++] = '\f';
+							break;
+
+						case 'n':
+							chars[j++] = '\n';
+							break;
+
+						case 'r':
+							chars[j++] = '\r';
+							break;
+
+						case 't':
+							chars[j++] = '\t';
+							break;
+
+						case 'v':
+							chars[j++] = '\v';
+							break;
+
+						case '\\':
+							chars[j++] = '\\';
+							break;
+
+						case '\'':
+							chars[j++] = '\'';
+							break;
+
+						case '"':
+							chars[j++] = '"';
+							break;
+
+						case 'x':
+							chars[j++] = '\\';
+							chars[j++] = c;
+							var hexCount = parseHexCounts[hexCountIndex++];
+							for (var h = 0; h < hexCount; h++)
+							{
+								chars[j++] = value[++i];
+							}
+							break;
+
+						case 'u':
+							chars[j++] = (char) ((Uri.FromHex(value[++i]) << 12) | (Uri.FromHex(value[++i]) << 8) | (Uri.FromHex(value[++i]) << 4) | Uri.FromHex(value[++i]));
+							break;
+					}
+				}
+				else
+				{
+					// normal char
+					chars[j++] = c;
+				}
+			}
+
+			return new string(chars);
+		}
+
+		internal static int AlignedStringLength(this string val)
+		{
+			var len = val.Length + (4 - val.Length % 4);
+			if (len <= val.Length)
+			{
+				len += 4;
+			}
+
+			return len;
 		}
 
 		#endregion

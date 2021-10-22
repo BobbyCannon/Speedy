@@ -474,28 +474,6 @@ namespace Speedy.Extensions
 				"> is not a publicly-visible type, so the default value cannot be retrieved");
 		}
 
-		/// <summary>
-		/// Gets a detailed string of the exception. Includes messages of all exceptions.
-		/// </summary>
-		/// <param name="ex"> The exception to process. </param>
-		/// <returns> The detailed string of the exception. </returns>
-		internal static string ToDetailedString(this Exception ex)
-		{
-			var builder = new StringBuilder();
-			AddExceptionToBuilder(builder, ex);
-			return builder.ToString();
-		}
-
-		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
-		{
-			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
-
-			if (ex.InnerException != null)
-			{
-				AddExceptionToBuilder(builder, ex.InnerException);
-			}
-		}
-
 		private static MemberInfo GetCachedMember(object obj, string memberName)
 		{
 			var type = obj?.GetType() ?? throw new ArgumentNullException(nameof(obj));

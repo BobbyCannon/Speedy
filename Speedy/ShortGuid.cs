@@ -24,6 +24,15 @@ namespace Speedy
 		#region Constructors
 
 		/// <summary>
+		/// Creates a ShortGuid.
+		/// </summary>
+		public ShortGuid()
+		{
+			Guid = Guid.NewGuid();
+			Value = Encode(Guid);
+		}
+
+		/// <summary>
 		/// Creates a ShortGuid from a base64 encoded string.
 		/// </summary>
 		/// <param name="value">

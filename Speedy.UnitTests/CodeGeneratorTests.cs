@@ -69,7 +69,7 @@ namespace Speedy.UnitTests
 			Clipboard.SetText(builder.ToString());
 			Console.Write(builder.ToString());
 		}
-		
+
 		[TestMethod]
 		public void CopyOverloadForUpdateWithToClipboard()
 		{
@@ -124,7 +124,7 @@ public void UpdateWith({type.Name} update, params string[] exclusions)
 			builder.AppendLine("\t//base.UpdateWith(update, exclusions);");
 			builder.AppendLine("}\r\n");
 			builder.AppendLine($"/// <inheritdoc />\r\npublic override void UpdateWith(object update, params string[] exclusions)\r\n{{\r\n\tswitch (update)\r\n\t{{\r\n\t\tcase {type.Name} options:\r\n\t\t{{\r\n\t\t\tUpdateWith(options, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t\tdefault:\r\n\t\t{{\r\n\t\t\tbase.UpdateWith(update, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t}}\r\n}}");
-			
+
 			Clipboard.SetText(builder.ToString());
 			Console.Write(builder.ToString());
 		}

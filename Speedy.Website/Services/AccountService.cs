@@ -67,7 +67,7 @@ namespace Speedy.Website.Services
 
 		public static string Hash(string password, string salt)
 		{
-			using HashAlgorithm algorithm = new SHA256Managed();
+			using HashAlgorithm algorithm = SHA256.Create();
 			var pBytes = Encoding.Unicode.GetBytes(password);
 			var sBytes = Encoding.Unicode.GetBytes(salt);
 			var tBytes = new byte[sBytes.Length + pBytes.Length];

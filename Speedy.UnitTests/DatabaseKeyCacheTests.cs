@@ -20,12 +20,12 @@ namespace Speedy.UnitTests
 		public void Cleanup()
 		{
 			var currentTime = new DateTime(2021, 02, 04, 08, 00, 01, DateTimeKind.Utc);
-			
+
 			TimeService.UtcNowProvider = () => currentTime;
 
 			var cache = new DatabaseKeyCache(new TimeSpan(0, 0, 2));
 			cache.AddEntityId(typeof(AddressEntity), Guid.Parse("4BC15FD1-B6F0-4BDF-A24C-BBC8A88ADDCB"), 1);
-			
+
 			// Should still be cached even after cleanup
 			cache.Cleanup();
 			Assert.AreEqual(1, cache.TotalCachedItems);
@@ -48,7 +48,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual("\tSpeedy.Website.Data.Entities.AddressEntity\r\n\t\t3d5859ee-5c0d-4cd5-8edb-5d4b9127cadf-2\r\n", cache.ToDetailedString());
 
 			currentTime = currentTime.AddSeconds(1);
-			
+
 			// Cache should be clear the only remaining item after cleanup because enough time passed
 			cache.Cleanup();
 			Assert.AreEqual(0, cache.TotalCachedItems);

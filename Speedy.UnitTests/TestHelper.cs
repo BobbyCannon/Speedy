@@ -64,7 +64,7 @@ namespace Speedy.UnitTests
 
 			var lines = File.ReadAllLines("C:\\Windows\\System32\\drivers\\etc\\hosts")
 				.Select(x => x.Trim())
-				.Where(x => !x.StartsWith("#") && x.Length > 0)
+				.Where(x => !x.StartsWith("#") && (x.Length > 0))
 				.ToList();
 
 			var missing = hostEntries.Where(x => !lines.Any(y => y.Contains(x))).ToList();
@@ -297,7 +297,7 @@ namespace Speedy.UnitTests
 		{
 			var random = new Random();
 			var list = collection.ToList();
-			if (!list.Any() || exclude != null && list.Count == 1)
+			if (!list.Any() || ((exclude != null) && (list.Count == 1)))
 			{
 				return null;
 			}
@@ -555,15 +555,15 @@ namespace Speedy.UnitTests
 
 			var scenarios = new List<(DatabaseType server, DatabaseType client)>
 			{
-				new(DatabaseType.Memory, DatabaseType.Memory),
-				new(DatabaseType.Memory, DatabaseType.Sql),
-				new(DatabaseType.Memory, DatabaseType.Sqlite),
-				new(DatabaseType.Sql, DatabaseType.Memory),
-				new(DatabaseType.Sql, DatabaseType.Sql),
-				new(DatabaseType.Sql, DatabaseType.Sqlite),
-				new(DatabaseType.Sqlite, DatabaseType.Memory),
-				new(DatabaseType.Sqlite, DatabaseType.Sql),
-				new(DatabaseType.Sqlite, DatabaseType.Sqlite)
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Memory, DatabaseType.Memory),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Memory, DatabaseType.Sql),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Memory, DatabaseType.Sqlite),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sql, DatabaseType.Memory),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sql, DatabaseType.Sql),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sql, DatabaseType.Sqlite),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sqlite, DatabaseType.Memory),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sqlite, DatabaseType.Sql),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sqlite, DatabaseType.Sqlite)
 			};
 
 			foreach (var (server, client) in scenarios)

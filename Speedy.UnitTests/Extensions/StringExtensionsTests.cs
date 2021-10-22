@@ -1,7 +1,5 @@
 ﻿#region References
 
-using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
 
@@ -19,7 +17,6 @@ namespace Speedy.UnitTests.Extensions
 		{
 			Assert.AreEqual("ABab", "41426162".FromHexString());
 			Assert.AreEqual("\b\t\r\n", "08090D0A".FromHexString());
-			
 		}
 
 		[TestMethod]

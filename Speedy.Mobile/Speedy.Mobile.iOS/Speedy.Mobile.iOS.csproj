@@ -148,19 +148,19 @@
       <Version>2.1.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>3.*</Version>
+      <Version>3.1.20</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational">
-      <Version>3.*</Version>
+      <Version>3.1.20</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core">
-      <Version>3.*</Version>
+      <Version>3.1.20</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions">
-      <Version>3.*</Version>
+      <Version>3.1.20</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json">
-      <Version>3.*</Version>
+      <Version>3.1.20</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyModel">
       <Version>3.1.6</Version>

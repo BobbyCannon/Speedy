@@ -1,0 +1,8 @@
+{
+	"profiles": {
+		"Speedy.ServiceHosting.Example": {
+			"commandName": "Project",
+			"commandLineArgs": ""
+		}
+	}
+}

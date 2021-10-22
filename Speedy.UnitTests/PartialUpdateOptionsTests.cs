@@ -40,9 +40,9 @@ namespace Speedy.UnitTests
 			actual = update.GetInstance();
 			Assert.AreEqual(20, actual.Age);
 
-			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson<MyClass>("{ \"age\": 21 }", options).Validate(), "Age must be between 10 and 20.");
+			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson("{ \"age\": 21 }", options).Validate(), "Age must be between 10 and 20.");
 		}
-		
+
 		[TestMethod]
 		public void PropertyValidationForMinMaxRangeForString()
 		{
@@ -56,19 +56,19 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(nameof(MyClass.Name), property.Name);
 			Assert.AreEqual(false, property.Required);
 
-			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson<MyClass>("{ \"name\": \"123456789\" }", options).Validate(), "Name must be between 10 and 12.");
+			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson("{ \"name\": \"123456789\" }", options).Validate(), "Name must be between 10 and 12.");
 
-			var update = PartialUpdate.FromJson<MyClass>("{ \"name\": \"1234567890\" }", options);
+			var update = PartialUpdate.FromJson("{ \"name\": \"1234567890\" }", options);
 			update.Validate();
 			var actual = update.GetInstance();
 			Assert.AreEqual("1234567890", actual.Name);
 
-			update = PartialUpdate.FromJson<MyClass>("{ \"name\": \"123456789012\" }", options);
+			update = PartialUpdate.FromJson("{ \"name\": \"123456789012\" }", options);
 			update.Validate();
 			actual = update.GetInstance();
 			Assert.AreEqual("123456789012", actual.Name);
 
-			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson<MyClass>("{ \"name\": \"123456789\" }", options).Validate(), "Name must be between 10 and 12.");
+			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson("{ \"name\": \"123456789\" }", options).Validate(), "Name must be between 10 and 12.");
 		}
 
 		#endregion

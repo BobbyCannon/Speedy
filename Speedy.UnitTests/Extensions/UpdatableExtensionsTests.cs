@@ -57,7 +57,7 @@ namespace Speedy.UnitTests.Extensions
 			Assert.AreEqual(destination.SyncId, source.SyncId);
 
 			// Update all members
-			UpdatableExtensions.UpdateWithUsingReflection(destination, source);
+			destination.UpdateWithUsingReflection(source);
 
 			// All members should be equal now
 			Assert.AreEqual(destination.Address, source.Address);

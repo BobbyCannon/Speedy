@@ -429,18 +429,18 @@ namespace Speedy.UnitTests
 			{
 				Task.Factory.StartNew(() => writeAction(repository, 0, size)),
 				Task.Factory.StartNew(() => readAction(repository)),
-				Task.Factory.StartNew(() => writeAction(repository, 1 * size, 1 * size + size)),
+				Task.Factory.StartNew(() => writeAction(repository, 1 * size, (1 * size) + size)),
 				Task.Factory.StartNew(() => readAction(repository)),
-				Task.Factory.StartNew(() => writeAction(repository, 2 * size, 2 * size + size)),
+				Task.Factory.StartNew(() => writeAction(repository, 2 * size, (2 * size) + size)),
 				Task.Factory.StartNew(() => readAction(repository)),
-				Task.Factory.StartNew(() => writeAction(repository, 3 * size, 3 * size + size)),
+				Task.Factory.StartNew(() => writeAction(repository, 3 * size, (3 * size) + size)),
 				Task.Factory.StartNew(() => readAction(repository))
 			};
 
 			Task.WaitAll(tasks);
 
 			var actual = repository.Read().ToList();
-			Assert.AreEqual(tasks.Length / 2 * size, actual.Count);
+			Assert.AreEqual((tasks.Length / 2) * size, actual.Count);
 		}
 
 		[TestMethod]
@@ -464,13 +464,13 @@ namespace Speedy.UnitTests
 			var tasks = new[]
 			{
 				Task.Factory.StartNew(() => action(repository, 0, size)),
-				Task.Factory.StartNew(() => action(repository, 1 * size, 1 * size + size)),
-				Task.Factory.StartNew(() => action(repository, 2 * size, 2 * size + size)),
-				Task.Factory.StartNew(() => action(repository, 3 * size, 3 * size + size)),
-				Task.Factory.StartNew(() => action(repository, 4 * size, 4 * size + size)),
-				Task.Factory.StartNew(() => action(repository, 5 * size, 5 * size + size)),
-				Task.Factory.StartNew(() => action(repository, 6 * size, 6 * size + size)),
-				Task.Factory.StartNew(() => action(repository, 7 * size, 7 * size + size))
+				Task.Factory.StartNew(() => action(repository, 1 * size, (1 * size) + size)),
+				Task.Factory.StartNew(() => action(repository, 2 * size, (2 * size) + size)),
+				Task.Factory.StartNew(() => action(repository, 3 * size, (3 * size) + size)),
+				Task.Factory.StartNew(() => action(repository, 4 * size, (4 * size) + size)),
+				Task.Factory.StartNew(() => action(repository, 5 * size, (5 * size) + size)),
+				Task.Factory.StartNew(() => action(repository, 6 * size, (6 * size) + size)),
+				Task.Factory.StartNew(() => action(repository, 7 * size, (7 * size) + size))
 			};
 
 			Task.WaitAll(tasks);
@@ -517,7 +517,7 @@ namespace Speedy.UnitTests
 			repository.Flush();
 
 			var actual = repository.Read().ToList();
-			Assert.AreEqual(tasks.Length + size - 1, actual.Count);
+			Assert.AreEqual((tasks.Length + size) - 1, actual.Count);
 		}
 
 		[TestMethod]

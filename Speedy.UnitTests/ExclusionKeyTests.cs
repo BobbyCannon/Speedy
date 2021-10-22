@@ -21,7 +21,7 @@ namespace Speedy.UnitTests
 			Assert.IsFalse(actual.Equals((object) null));
 			Assert.IsTrue(actual.Equals((object) actual));
 			// ReSharper disable once SuspiciousTypeConversion.Global
-			Assert.IsFalse(actual.Equals((object) this));
+			Assert.IsFalse(actual.Equals(this));
 		}
 
 		[TestMethod]

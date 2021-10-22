@@ -93,13 +93,13 @@ namespace Speedy.UnitTests.Serialization
 			//actual.Dump();
 			Assert.AreEqual(expected, actual);
 		}
-		
+
 		[TestMethod]
 		public void SerializationIndented()
 		{
 			var data = GetTestClass();
 			var expected = "{\r\n  \"$id\": \"1\",\r\n  \"Age\": 21,\r\n  \"CreatedOn\": \"2020-02-17T12:12:45Z\",\r\n  \"Id\": 42,\r\n  \"IsDeleted\": false,\r\n  \"ModifiedOn\": \"2020-02-17T12:12:45Z\",\r\n  \"Name\": \"John Doe\",\r\n  \"Percent\": 1.23,\r\n  \"SyncId\": \"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\r\n  \"TestEnum\": 1\r\n}";
-			var actual = data.ToJson(indented: true);
+			var actual = data.ToJson(true);
 			//actual.Dump();
 			Assert.AreEqual(expected, actual);
 		}
