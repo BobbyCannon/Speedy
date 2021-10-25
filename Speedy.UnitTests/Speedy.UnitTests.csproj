@@ -8,19 +8,27 @@
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+		<AssemblyVersion>9.0.6.0</AssemblyVersion>
+		<FileVersion>9.0.6.0</FileVersion>
+		<Version>9.0.6.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CompareNETObjects" Version="4.73.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
+		<PackageReference Include="CompareNETObjects" Version="4.74.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
 		<PackageReference Include="Moq" Version="4.16.1" />
-		<PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
-		<PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.7" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.7" />
 		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
+		<PackageReference Include="System.IO.Ports" Version="5.0.1" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj" />
+		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />
+		<ProjectReference Include="..\Speedy.ServiceHosting.Example\Speedy.ServiceHosting.Example.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
+		<ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 	</ItemGroup>
 </Project>

@@ -3,14 +3,14 @@
 $siteName = "Speedy"
 $dnsname = "speedy.local"
 
-$cert = Get-ChildItem cert:\LocalMachine\WebHosting -Recurse | Where { $_.FriendlyName -eq $dnsname }
+$cert = Get-ChildItem cert:\LocalMachine\Root -Recurse | Where { $_.FriendlyName -eq $dnsname }
 
 if ($cert -eq $null)
 {
 	Write-Host "Adding new self signed certificate to root"
 
 	$cert = New-SelfSignedCertificate -FriendlyName $dnsname -KeyFriendlyName $dnsname -Subject $dnsname -DnsName $dnsname
-	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "Root", "LocalMachine"
+	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "root", "LocalMachine"
 	$store.Open("ReadWrite")
 	$store.Add($cert)
 	$store.Close()
@@ -33,7 +33,7 @@ if ($site -eq $null)
 	
 	$site = Get-Website $siteName
 	$webPath = "IIS:\Sites\$siteName"
-		
+
 	$bindings = @()
 	$bindings += @{ protocol="http"; bindingInformation="*:80:$dnsname"}
 	$bindings += @{ protocol="https"; bindingInformation="*:443:$dnsname"; sslFlags=1 }

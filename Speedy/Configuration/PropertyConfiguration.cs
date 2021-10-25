@@ -37,7 +37,7 @@ namespace Speedy.Configuration
 		{
 			_entityType = typeof(T);
 			_property = property;
-			_nodeType = (_property as dynamic).Body.NodeType.ToString();
+			_nodeType = ((dynamic) _property).Body.NodeType.ToString();
 			_propertyFunction = _property.Compile();
 			_maxLength = -1;
 			_minLength = -1;

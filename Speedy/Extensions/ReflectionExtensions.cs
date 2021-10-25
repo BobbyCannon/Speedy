@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 
 #endregion
@@ -19,7 +20,10 @@ namespace Speedy.Extensions
 	{
 		#region Constants
 
-		private const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
+		/// <summary>
+		/// Default flags for cached access.
+		/// </summary>
+		public const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
 
 		#endregion
 
@@ -30,6 +34,7 @@ namespace Speedy.Extensions
 		private static readonly ConcurrentDictionary<string, Type[]> _methodsGenericArgumentInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _propertyGetAccessors;
 		private static readonly ConcurrentDictionary<Type, string> _typeAssemblyNames;
+		private static readonly ConcurrentDictionary<string, Func<object>> _typeEmitDelegates;
 		private static readonly ConcurrentDictionary<string, FieldInfo[]> _typeFieldInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _typeMethodInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _typeMethodsInfos;
@@ -47,6 +52,7 @@ namespace Speedy.Extensions
 			_methodsGenericArgumentInfos = new ConcurrentDictionary<string, Type[]>();
 			_propertyGetAccessors = new ConcurrentDictionary<string, MethodInfo[]>();
 			_typeAssemblyNames = new ConcurrentDictionary<Type, string>();
+			_typeEmitDelegates = new ConcurrentDictionary<string, Func<object>>();
 			_typeFieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
 			_typeMethodInfos = new ConcurrentDictionary<string, MethodInfo>();
 			_typeMethodsInfos = new ConcurrentDictionary<string, MethodInfo[]>();
@@ -70,6 +76,49 @@ namespace Speedy.Extensions
 			var fullName = info.ReflectedType?.FullName + "." + info.Name;
 			var key = info.ToString().Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
 			return _genericMethods.GetOrAdd(key, x => info.MakeGenericMethod(arguments));
+		}
+
+		/// <summary>
+		/// Quickly create a new type of a generic.
+		/// </summary>
+		/// <param name="type"> The type to be created. </param>
+		/// <returns> The new instances of the type. </returns>
+		/// <exception cref="InvalidOperationException"> The provided type is invalid. </exception>
+		public static object CreateNewInstance(Type type)
+		{
+			if (type == null)
+			{
+				throw new ArgumentNullException(nameof(type));
+			}
+
+			if (type.FullName == null)
+			{
+				throw new InvalidOperationException("The provided type is invalid.");
+			}
+
+			var expression = _typeEmitDelegates.GetOrAdd(type.FullName, x =>
+			{
+				var createHeadersMethod = new DynamicMethod($"Emit{type.FullName}", type, null, type.Module, false);
+				var ctor = type.GetConstructor(Type.EmptyTypes);
+				var il = createHeadersMethod.GetILGenerator();
+				il.Emit(OpCodes.Newobj, ctor);
+				il.Emit(OpCodes.Ret);
+				return Expression.Lambda<Func<object>>(Expression.New(type)).Compile();
+			});
+
+			return expression.DynamicInvoke();
+		}
+
+		/// <summary>
+		/// Quickly create a new type of a generic.
+		/// </summary>
+		/// <typeparam name="T"> The type to be created. </typeparam>
+		/// <returns> The new instances of the type. </returns>
+		/// <exception cref="InvalidOperationException"> The provided type is invalid. </exception>
+		public static T CreateNewInstance<T>()
+		{
+			var type = typeof(T);
+			return (T) CreateNewInstance(type);
 		}
 
 		/// <summary>
@@ -288,7 +337,7 @@ namespace Speedy.Extensions
 				return ((dynamic) unaryExpression.Operand).Member?.Name;
 			}
 
-			return (expression as dynamic).Body.Member.Name;
+			return ((dynamic) expression).Body.Member.Name;
 		}
 
 		/// <summary>
@@ -469,28 +518,6 @@ namespace Speedy.Extensions
 			// Fail with exception
 			throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
 				"> is not a publicly-visible type, so the default value cannot be retrieved");
-		}
-
-		/// <summary>
-		/// Gets a detailed string of the exception. Includes messages of all exceptions.
-		/// </summary>
-		/// <param name="ex"> The exception to process. </param>
-		/// <returns> The detailed string of the exception. </returns>
-		internal static string ToDetailedString(this Exception ex)
-		{
-			var builder = new StringBuilder();
-			AddExceptionToBuilder(builder, ex);
-			return builder.ToString();
-		}
-
-		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
-		{
-			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
-
-			if (ex.InnerException != null)
-			{
-				AddExceptionToBuilder(builder, ex.InnerException);
-			}
 		}
 
 		private static MemberInfo GetCachedMember(object obj, string memberName)

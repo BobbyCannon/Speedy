@@ -35,13 +35,13 @@ namespace Speedy.UnitTests.Logging
 			var startTime = new DateTime(2020, 04, 23, 03, 26, 12, DateTimeKind.Utc);
 			var offset = 0;
 
-			TimeService.UtcNowProvider = () =>  startTime.AddSeconds(offset++);			
+			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
 
-			using (var listener = LogListener.CreateSession(id1, EventLevel.Informational))
+			using (var listener = MemoryLogListener.CreateSession(id1, EventLevel.Informational))
 			{
 				Logger.Instance.Write(id1, "First message from logger 1.", EventLevel.Informational);
 
-				using (var listener2 = LogListener.CreateSession(id2, EventLevel.Informational))
+				using (var listener2 = MemoryLogListener.CreateSession(id2, EventLevel.Informational))
 				{
 					Logger.Instance.Write(id2, "First message from logger 2.", EventLevel.Informational);
 					Logger.Instance.Write(id2, "Second message from logger 2 (critical).", EventLevel.Critical);

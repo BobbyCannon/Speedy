@@ -1,0 +1,389 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Speedy.ServiceHosting</name>
+    </assembly>
+    <members>
+        <member name="T:Speedy.ServiceHosting.Web.IWindowsServiceWebService">
+            <summary>
+            Represents the web service interface for updates.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.IWindowsServiceWebService.CheckForUpdate(Speedy.ServiceHosting.Web.WindowsServiceDetails)">
+            <summary>
+            Checks to see if there is an update for the service. The size of the update will be return.
+            If the service returns an empty name and 0 size if no update is available.
+            </summary>
+            <param name="details"> The details of the service that is checking for the update. </param>
+            <returns> The size of the update. </returns>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.IWindowsServiceWebService.DownloadUpdateChunk(Speedy.ServiceHosting.Web.WindowsServiceUpdateRequest)">
+            <summary>
+            Downloads a chuck of the update based on the offset.
+            </summary>
+            <param name="request"> The request to download the chuck for.. </param>
+            <returns> A chuck of the update starting from the update. </returns>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.IWindowsServiceWebService.Login(System.Net.NetworkCredential)">
+            <summary>
+            Allows the client to log in to the service. This only has to be implemented by services that require
+            authentication. If you service does not require authentication then just leave this method not implemented.
+            </summary>
+            <param name="credentials"> The credentials to use for authentication. </param>
+        </member>
+        <member name="T:Speedy.ServiceHosting.Web.WindowsServiceDetails">
+            <summary>
+            Represents windows service requesting an update.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.Web.WindowsServiceDetails.Name">
+            <summary>
+            The name of the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.Web.WindowsServiceDetails.Version">
+            <summary>
+            The version of the service.
+            </summary>
+        </member>
+        <member name="T:Speedy.ServiceHosting.Web.WindowsServiceUpdate">
+            <summary>
+            Represents the update details for a Windows service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.Web.WindowsServiceUpdate.Name">
+            <summary>
+            Gets or sets the name of the update.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.Web.WindowsServiceUpdate.Size">
+            <summary>
+            Gets or sets the size of the update.
+            </summary>
+        </member>
+        <member name="T:Speedy.ServiceHosting.Web.WindowsServiceUpdateRequest">
+            <summary>
+            Represents a request for a chunk of a Windows service update.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.Web.WindowsServiceUpdateRequest.Name">
+            <summary>
+            Gets or sets the name of the update.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.Web.WindowsServiceUpdateRequest.Offset">
+            <summary>
+            Gets or sets the offset to start reading the update chunk.
+            </summary>
+        </member>
+        <member name="T:Speedy.ServiceHosting.Web.WindowsServiceWebClient">
+            <summary>
+            An example of a windows service web client.
+            </summary>
+            <seealso cref="T:Speedy.Net.WebClient" />
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.#ctor(System.String,System.Net.NetworkCredential)">
+            <summary>
+            Instantiates an instances of the windows service web client.
+            </summary>
+            <param name="uri"> The URI of the web server. </param>
+            <param name="credentials"> The network credentials for authentication. </param>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.#ctor(System.String,System.Int32,System.Net.NetworkCredential)">
+            <summary>
+            Instantiates an instances of the windows service web client.
+            </summary>
+            <param name="uri"> The URI of the web server. </param>
+            <param name="timeout"> The timeout in milliseconds. </param>
+            <param name="credentials"> The network credentials for authentication. </param>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.CheckForUpdate(Speedy.ServiceHosting.Web.WindowsServiceDetails)">
+            <summary>
+            Checks to see if there is an update for the service. The size of the update will be return.
+            If the service returns an empty name and 0 size if no update is available.
+            </summary>
+            <param name="details"> The details of the service that is checking for the update. </param>
+            <returns> The size of the update. </returns>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.DownloadUpdateChunk(Speedy.ServiceHosting.Web.WindowsServiceUpdateRequest)">
+            <summary>
+            Downloads a chuck of the update based on the offset.
+            </summary>
+            <param name="request"> The request to download the chuck for.. </param>
+            <returns> A chuck of the update starting from the update. </returns>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.Login(System.Net.NetworkCredential)">
+            <summary>
+            Allows the client to log in to the service. This only has to be implemented by services that require
+            authentication. If you service does not require authentication then just leave this method not implemented.
+            </summary>
+            <param name="credentials"> The credentials to use for authentication. </param>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.CheckResponse(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Validate the response for the request.
+            </summary>
+            <param name="response"> The response to check. </param>
+        </member>
+        <member name="T:Speedy.ServiceHosting.Web.WindowsServiceWebService">
+            <summary>
+            An example of a windows service web service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebService.#ctor(System.String)">
+            <summary>
+            Instantiates
+            </summary>
+            <param name="directory"> </param>
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebService.CheckForUpdate(Speedy.ServiceHosting.Web.WindowsServiceDetails)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebService.DownloadUpdateChunk(Speedy.ServiceHosting.Web.WindowsServiceUpdateRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebService.Login(System.Net.NetworkCredential)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.ServiceHosting.WindowsService">
+            <summary>
+            Represents a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService.#ctor(Speedy.ServiceHosting.WindowsServiceOptions)">
+            <summary>
+            Initializes a new instance of the WindowsService class.
+            </summary>
+        </member>
+        <member name="T:Speedy.ServiceHosting.WindowsService`1">
+            <summary>
+            Represents a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.#ctor(`0)">
+            <summary>
+            Initializes a new instance of the WindowsService class.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsService`1.IsRunning">
+            <summary>
+            Gets a value indicating if the service is running.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsService`1.TriggerPending">
+            <summary>
+            Gets a value indicating if the service is being trigger.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsService`1.Options">
+            <summary>
+            Gets the options for the service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.Start">
+            <summary>
+            Allows public access to the OnStart method.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.OnStart(System.String[])">
+            <summary>
+            When implemented in a derived class, executes when a Start command is sent to the service by the Service Control Manager (SCM) or when the operating system
+            starts (for a service that starts automatically). Specifies actions to take when the service starts.
+            </summary>
+            <param name="args"> Data passed by the start command. </param>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.OnStop">
+            <summary>
+            When implemented in a derived class, executes when a Stop command is sent to the service by the Service Control Manager (SCM). Specifies actions to take when
+            a service stops running.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.Process">
+            <summary>
+            The thread for the service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.Sleep(System.Int32)">
+            <summary>
+            Puts the service to sleep for provided delay (in milliseconds). The service will be woke up if the service gets a request to close or to trigger the service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.Sleep(System.TimeSpan)">
+            <summary>
+            Puts the service to sleep for provided delay. The service will be woke up if the service gets a request to close or to trigger the service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.WriteLine(System.String,System.Diagnostics.Tracing.EventLevel)">
+            <summary>
+            Writes an message to the logger at a provided level.
+            </summary>
+            <param name="message"> The message to write. </param>
+            <param name="level"> The level at which to write the message. </param>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.HandleConsole">
+            <summary>
+            Grab the console and wait for it to close.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.InstallService">
+            <summary>
+            Install the service as a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.ServiceThread">
+            <summary>
+            Internal management of service thread.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.UninstallService">
+            <summary>
+            Uninstalls the service.
+            </summary>
+        </member>
+        <member name="T:Speedy.ServiceHosting.WindowsServiceArgument">
+            <summary>
+            Represents a specific argument for a windows service.
+            </summary>
+        </member>
+        <member name="T:Speedy.ServiceHosting.WindowsServiceArgument`1">
+            <summary>
+            Represents a specific argument for a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceArgument`1.#ctor">
+            <summary>
+            Instantiates an instance of the windows service command line argument.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceArgument`1.IncludeInServiceArguments">
+            <summary>
+            Determine if this argument should be included in the windows service argument string. Defaults to true (include).
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceInstaller.InstallService(System.String,System.String,System.String,System.String,System.ServiceProcess.ServiceStartMode,System.String,System.String)">
+            <summary>
+            Install an executable as a service.
+            </summary>
+            <param name="serviceFilePath"> The path to the service executable. </param>
+            <param name="serviceArguments"> The arguments for the service. </param>
+            <param name="serviceName"> The name of the service. </param>
+            <param name="displayName"> THe display name of the service. </param>
+            <param name="startType"> The startup type. </param>
+            <param name="userName"> The username to run as. </param>
+            <param name="password"> The password of the user. </param>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceInstaller.UninstallService(System.String)">
+            <summary>
+            Uninstall a service by name.
+            </summary>
+            <param name="serviceName"> The name of the service. </param>
+        </member>
+        <member name="T:Speedy.ServiceHosting.WindowsServiceOptions">
+            <summary>
+            Represents the options for a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.#ctor">
+            <summary>
+            Instantiates the options for a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.#ctor(System.Guid,System.String,System.String)">
+            <summary>
+            Instantiates the options for a windows service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.InstallService">
+            <summary>
+            Flag to indicate to install the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceDirectory">
+            <summary>
+            Gets the directory for the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceDisplayName">
+            <summary>
+            Gets the display name of the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceFileName">
+            <summary>
+            Gets the file name of the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceFilePath">
+            <summary>
+            Gets the file path of the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceId">
+            <summary>
+            The ID of the service. You can listen for the logs of this service using this ID and LogListener.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceName">
+            <summary>
+            Gets the name of the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceProcessName">
+            <summary>
+            Gets the process name for the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ServiceVersion">
+            <summary>
+            Gets the version of the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.ShowHelp">
+            <summary>
+            Show the help for the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.UninstallService">
+            <summary>
+            Flag to indicate to uninstall the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.VerboseLogging">
+            <summary>
+            Flag to indicate to use verbose logging.
+            </summary>
+        </member>
+        <member name="P:Speedy.ServiceHosting.WindowsServiceOptions.WaitForDebugger">
+            <summary>
+            Flag to indicate to wait for a debugger.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.BuildHelpInformation(System.Text.StringBuilder,System.Func{Speedy.Configuration.CommandLine.CommandLineArgument,System.Boolean})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.BuildIssueInformation(System.Text.StringBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.Initialize(System.String[])">
+            <summary>
+            Initialize the service options.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.SetupArguments">
+            <summary>
+            Setup arguments for a windows service.
+            </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.ToServiceString">
+            <summary>
+            Gets the string for the service.
+            </summary>
+            <returns> The string for the service. </returns>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceOptions.Initialize(System.Reflection.Assembly)">
+            <summary>
+            Initialize the service options.
+            </summary>
+        </member>
+    </members>
+</doc>

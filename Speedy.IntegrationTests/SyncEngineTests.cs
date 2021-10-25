@@ -284,7 +284,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
-				using var listener = LogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
+				using var listener = MemoryLogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
 				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;
@@ -335,7 +335,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
 				var engine = new SyncEngine(client, server, new SyncOptions());
-				using var listener = LogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
+				using var listener = MemoryLogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
 				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;

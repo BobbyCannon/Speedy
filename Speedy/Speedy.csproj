@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.1</TargetFrameworks>
@@ -6,8 +6,8 @@
 		<AssemblyTitle>Speedy</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy</Product>
-		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
-		<Copyright>© Copyright 2014-2021</Copyright>
+		<Description>Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.</Description>
+		<Copyright>Â© Copyright 2014-2021</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -24,9 +24,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>9.0.5.0</AssemblyVersion>
-		<FileVersion>9.0.5.0</FileVersion>
-		<Version>9.0.5</Version>
+		<AssemblyVersion>9.0.6.0</AssemblyVersion>
+		<FileVersion>9.0.6.0</FileVersion>
+		<Version>9.0.6.0</Version>
 		<DocumentationFile>Speedy.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -37,8 +37,10 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="NETStandard.Library" Version="2.0.3" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />

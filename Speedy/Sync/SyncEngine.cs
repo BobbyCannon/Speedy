@@ -120,13 +120,13 @@ namespace Speedy.Sync
 
 			var incoming = new Dictionary<Guid, DateTime>();
 
-			if (!CancellationSource.IsCancellationRequested)
+			if (!CancellationSource.IsCancellationRequested && Options.SyncDirection.HasFlag(SyncDirection.PullDown))
 			{
 				OnSyncStateChanged(status: SyncEngineStatus.Pulling);
 				incoming = Process(Server, Client, Options.LastSyncedOnServer, serverSession.StartedOn, incoming);
 			}
 
-			if (!CancellationSource.IsCancellationRequested)
+			if (!CancellationSource.IsCancellationRequested && Options.SyncDirection.HasFlag(SyncDirection.PushUp))
 			{
 				OnSyncStateChanged(status: SyncEngineStatus.Pushing);
 				Process(Client, Server, Options.LastSyncedOnClient, clientSession.StartedOn, incoming);

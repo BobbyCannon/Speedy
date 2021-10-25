@@ -24,7 +24,7 @@ namespace Speedy.UnitTests.Extensions
 			dictionary.AddIfMissing("foo", "bar");
 			Assert.AreEqual(1, dictionary.Count);
 		}
-		
+
 		[TestMethod]
 		public void AddOrUpdateTests()
 		{

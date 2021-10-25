@@ -373,8 +373,7 @@ input[type=text]:read-only {
 		@include rem-units(margin, $i, '!important');
 	}
 
-	.margin-top-#{$i},
-	.margin-top-#{$i}-then-0 {
+	.margin-top-#{$i} {
 		@include rem-units(margin-top, $i, '!important');
 	}
 
@@ -382,13 +381,11 @@ input[type=text]:read-only {
 		@include rem-units(margin-bottom, $i, '!important');
 	}
 
-	.margin-left-#{$i},
-	.margin-left-#{$i}-then-0 {
+	.margin-left-#{$i} {
 		@include rem-units(margin-left, $i, '!important');
 	}
 
-	.margin-right-#{$i},
-	.margin-right-#{$i}-then-0 {
+	.margin-right-#{$i} {
 		@include rem-units(margin-right, $i, '!important');
 	}
 
@@ -402,13 +399,11 @@ input[type=text]:read-only {
 		@include rem-units(margin-right, $i, '!important');
 	}
 
-	.padding-#{$i},
-	.padding-#{$i}-then-0 {
+	.padding-#{$i} {
 		@include rem-units(padding, $i, '!important');
 	}
 
-	.padding-top-#{$i},
-	.padding-top-#{$i}-then-0 {
+	.padding-top-#{$i} {
 		@include rem-units(padding-top, $i, '!important');
 	}
 
@@ -416,13 +411,11 @@ input[type=text]:read-only {
 		@include rem-units(padding-bottom, $i, '!important');
 	}
 
-	.padding-left-#{$i},
-	.padding-left-#{$i}-then-0 {
+	.padding-left-#{$i} {
 		@include rem-units(padding-left, $i, '!important');
 	}
 
-	.padding-right-#{$i},
-	.padding-right-#{$i}-then-0 {
+	.padding-right-#{$i} {
 		@include rem-units(padding-right, $i, '!important');
 	}
 
@@ -431,8 +424,7 @@ input[type=text]:read-only {
 		@include rem-units(padding-bottom, $i, '!important');
 	}
 
-	.padding-left-right-#{$i},
-	.padding-left-right-#{$i}-then-0 {
+	.padding-left-right-#{$i} {
 		@include rem-units(padding-left, $i, '!important');
 		@include rem-units(padding-right, $i, '!important');
 	}

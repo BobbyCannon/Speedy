@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using Speedy.Net;
-using Speedy.Profiling;
 using Speedy.Sync;
 
 #endregion
@@ -35,7 +34,7 @@ namespace Speedy.UnitTests
 		}
 
 		#endregion
-		
+
 		#region Methods
 
 		public SyncResults<TestSyncType> Sync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
@@ -131,7 +130,7 @@ namespace Speedy.UnitTests
 
 			var watch = Stopwatch.StartNew();
 
-			while (watch.Elapsed <= testDelay.Value && !IsCancellationPending)
+			while ((watch.Elapsed <= testDelay.Value) && !IsCancellationPending)
 			{
 				// Delay while getting options
 				Thread.Sleep(10);

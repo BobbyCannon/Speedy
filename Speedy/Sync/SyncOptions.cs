@@ -48,6 +48,7 @@ namespace Speedy.Sync
 			LastSyncedOnClient = DateTime.MinValue;
 			LastSyncedOnServer = DateTime.MinValue;
 			ItemsPerSyncRequest = 600;
+			SyncDirection = SyncDirection.PullDownThenPushUp;
 			Values = new Dictionary<string, string>();
 
 			_filterLookup = new Dictionary<string, SyncRepositoryFilter>();
@@ -81,6 +82,11 @@ namespace Speedy.Sync
 		/// If true the sync will actually delete entities marked for deletion. Defaults to false where IsDeleted will be marked "true".
 		/// </summary>
 		public bool PermanentDeletions { get; set; }
+
+		/// <summary>
+		/// The direction to sync.
+		/// </summary>
+		public SyncDirection SyncDirection { get; set; }
 
 		/// <summary>
 		/// Additional values for synchronizing.
@@ -152,6 +158,7 @@ namespace Speedy.Sync
 				LastSyncedOnClient = LastSyncedOnClient,
 				LastSyncedOnServer = LastSyncedOnServer,
 				PermanentDeletions = PermanentDeletions,
+				SyncDirection = SyncDirection,
 				Values = Values.DeepClone()
 			};
 
@@ -205,6 +212,7 @@ namespace Speedy.Sync
 				LastSyncedOnClient = update.LastSyncedOnClient;
 				LastSyncedOnServer = update.LastSyncedOnServer;
 				PermanentDeletions = update.PermanentDeletions;
+				SyncDirection = update.SyncDirection;
 				Values = update.Values.DeepClone();
 			}
 			else
@@ -214,7 +222,13 @@ namespace Speedy.Sync
 				this.IfThen(x => !exclusions.Contains(nameof(LastSyncedOnClient)), x => x.LastSyncedOnClient = update.LastSyncedOnClient);
 				this.IfThen(x => !exclusions.Contains(nameof(LastSyncedOnServer)), x => x.LastSyncedOnServer = update.LastSyncedOnServer);
 				this.IfThen(x => !exclusions.Contains(nameof(PermanentDeletions)), x => x.PermanentDeletions = update.PermanentDeletions);
+				this.IfThen(x => !exclusions.Contains(nameof(SyncDirection)), x => x.SyncDirection = update.SyncDirection);
 				this.IfThen(x => !exclusions.Contains(nameof(Values)), x => x.Values = update.Values.DeepClone());
+			}
+
+			foreach (var lookup in update._filterLookup)
+			{
+				AddSyncableFilter(lookup.Value);
 			}
 		}
 

@@ -7,6 +7,8 @@ param
 )
 
 $ErrorActionPreference = "STOP"
+$scriptPath = $PSScriptRoot
+#$scriptPath = "C:\Workspaces\EpicCoders\Speedy"
 
 Clear-Host
 
@@ -14,12 +16,17 @@ $versionFull = "9.0.0.0"
 $version = "9.0.0"
 $files = Get-ChildItem $ProjectPath *.csproj -Recurse | Select-Object Fullname
 
-# Package Reference
 $speedyPR = "<PackageReference Include=`"Speedy`" Version=`"$version`" />"
-$speedyPER = "<PackageReference Include=`"Speedy.EntityFramework`" Version=`"$version`" />"
+$speedyPR2 = "<PackageReference Include=`"Speedy`"><Version>$version</Version></PackageReference>"
 
-$speedyNR = "<Reference Include=`"Speedy`"><HintPath>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\bin\Debug\Speedy.dll</HintPath></Reference>"
-$speedyNER = "<Reference Include=`"Speedy.EntityFramework`"><HintPath>C:\Workspaces\GitHub\Speedy\Speedy.EntityFramework\bin\Debug\Speedy.EntityFramework.dll</HintPath></Reference>"
+$speedyPER = "<PackageReference Include=`"Speedy.EntityFramework`" Version=`"$version`" />"
+$speedyPER2 = "<PackageReference Include=`"Speedy.EntityFramework`"><Version>$version</Version></PackageReference>"
+
+$speedyPSR = "<PackageReference Include=`"Speedy.ServiceHosting`" Version=`"$version`" />"
+$speedyPSR2 = "<PackageReference Include=`"Speedy.ServiceHosting`"><Version>$version</Version></PackageReference>"
+$speedyNR = "<Reference Include=`"Speedy`"><HintPath>$scriptPath\Speedy.EntityFramework\bin\Debug\Speedy.dll</HintPath></Reference>"
+$speedyNER = "<Reference Include=`"Speedy.EntityFramework`"><HintPath>$scriptPath\Speedy.EntityFramework\bin\Debug\Speedy.EntityFramework.dll</HintPath></Reference>"
+$speedyNSR = "<Reference Include=`"Speedy.ServiceHosting`"><HintPath>$scriptPath\Speedy.ServiceHosting\bin\Debug\Speedy.ServiceHosting.dll</HintPath></Reference>"
 
 foreach ($file in $files)
 {
@@ -35,11 +42,16 @@ foreach ($file in $files)
 	{
 		$data = $data.Replace($speedyNR, $speedyPR)
 		$data = $data.Replace($speedyNER, $speedyPER)
+		$data = $data.Replace($speedyNSR, $speedyPSR)
 	}
 	else
 	{
 		$data = $data.Replace($speedyPR, $speedyNR)
+		$data = $data.Replace($speedyPR2, $speedyNR)
 		$data = $data.Replace($speedyPER, $speedyNER)
+		$data = $data.Replace($speedyPER2, $speedyNER)
+		$data = $data.Replace($speedyPSR, $speedyNSR)
+		$data = $data.Replace($speedyPSR2, $speedyNSR)
 	}
 	
 	$data = Format-Xml -Data $data -IndentCount 4 -IndentCharacter ' '

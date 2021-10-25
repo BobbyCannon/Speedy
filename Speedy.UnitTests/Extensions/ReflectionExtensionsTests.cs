@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
+
 #pragma warning disable 169
 
 #endregion
@@ -38,6 +39,16 @@ namespace Speedy.UnitTests.Extensions
 		}
 
 		[TestMethod]
+		public void MethodTests()
+		{
+			// Get Method Info by Name
+			var type = typeof(ReflectionClassTest);
+			var methodInfo = type.GetCachedMethod("MethodOne");
+			Assert.AreNotEqual(null, methodInfo);
+			Assert.AreEqual("MethodOne", methodInfo.Name);
+		}
+
+		[TestMethod]
 		public void PropertyTests()
 		{
 			// By class type
@@ -48,16 +59,6 @@ namespace Speedy.UnitTests.Extensions
 			expected = new[] { "PrivateProperty" };
 			properties = type.GetCachedProperties(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic).Select(x => x.Name).ToArray();
 			TestHelper.AreEqual(expected, properties);
-		}
-
-		[TestMethod]
-		public void MethodTests()
-		{
-			// Get Method Info by Name
-			var type = typeof(ReflectionClassTest);
-			var methodInfo = type.GetCachedMethod("MethodOne");
-			Assert.AreNotEqual(null, methodInfo);
-			Assert.AreEqual("MethodOne", methodInfo.Name);
 		}
 
 		#endregion

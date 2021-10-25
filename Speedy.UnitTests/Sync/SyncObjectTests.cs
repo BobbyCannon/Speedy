@@ -54,7 +54,7 @@ namespace Speedy.UnitTests.Sync
 				new SyncObjectIncomingConverter<ClientAddress, long, AddressEntity, long>(),
 				new SyncObjectIncomingConverter<ClientAccount, int, AccountEntity, int>()
 			);
-			
+
 			var actual = converter.Convert(changes).ToList();
 			var expectedAddress = "{\"$id\":\"1\",\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2019-01-01T02:03:04Z\",\"Id\":0,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2019-02-03T04:05:06Z\",\"Postal\":\"Postal\",\"State\":\"State\",\"SyncId\":\"efc2c530-37b6-4fa5-ab71-bd38a3b4d277\"}";
 			var expectedAccount = "{\"$id\":\"1\",\"AddressId\":0,\"AddressSyncId\":\"efc2c530-37b6-4fa5-ab71-bd38a3b4d277\",\"CreatedOn\":\"2019-01-01T02:03:04Z\",\"EmailAddress\":null,\"ExternalId\":null,\"Id\":0,\"IsDeleted\":false,\"LastLoginDate\":\"0001-01-01T00:00:00\",\"ModifiedOn\":\"2019-02-03T04:05:06Z\",\"Name\":\"John\",\"Nickname\":null,\"PasswordHash\":null,\"Roles\":null,\"SyncId\":\"7d880bb3-183f-4f75-86d8-9834ffe8fad2\"}";

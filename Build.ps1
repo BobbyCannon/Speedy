@@ -69,9 +69,11 @@ try
 
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination\"
+	Copy-Item "$productName.ServiceHosting\bin\$Configuration\$productName.ServiceHosting.$nugetVersion.nupkg" "$destination\"
 
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination2\"
+	Copy-Item "$productName.ServiceHosting\bin\$Configuration\$productName.ServiceHosting.$nugetVersion.nupkg" "$destination2\"
 
 	$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
 

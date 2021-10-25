@@ -15,7 +15,7 @@ namespace Speedy.Website.Data.Entities
 	/// <summary>
 	/// Represents the account entity.
 	/// </summary>
-	public class AccountEntity : SyncEntity<int>, IUnwrappable
+	public class AccountEntity : SyncEntity<int>
 	{
 		#region Constructors
 

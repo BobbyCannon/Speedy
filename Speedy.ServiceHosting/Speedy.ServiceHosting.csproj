@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.1</TargetFrameworks>
+		<Configurations>Debug;Release</Configurations>
+		<AssemblyTitle>Speedy.ServiceHosting</AssemblyTitle>
+		<Company>Bobby Cannon</Company>
+		<Product>Speedy.ServiceHosting</Product>
+		<Description>Speedy is a simple easy to use service hosting framework.</Description>
+		<Copyright>© Copyright 2014-2021</Copyright>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>false</DelaySign>
+		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>Speedy.png</PackageIcon>
+		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
+		<PackageLicenseFile>License.txt</PackageLicenseFile>
+		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
+		<RepositoryType></RepositoryType>
+		<PackageTags>ServiceHosting, WindowsServices, Windows, Services, Service, Hosting</PackageTags>
+		<PackageId>Speedy.ServiceHosting</PackageId>
+		<Authors>Bobby Cannon</Authors>
+		<LangVersion>latest</LangVersion>
+		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+		<AssemblyVersion>9.0.6.0</AssemblyVersion>
+		<FileVersion>9.0.6.0</FileVersion>
+		<Version>9.0.6.0</Version>
+		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="Speedy.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
+</Project>

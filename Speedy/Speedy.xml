@@ -237,6 +237,203 @@
         <member name="M:Speedy.Collections.SortedObservableCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Configuration.CommandLine.CommandLineArgument`1">
+            <summary>
+            Class managing the argument information
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument`1.DefaultValue">
+            <summary>
+            The default value for arguments if not provided.
+            </summary>
+        </member>
+        <member name="T:Speedy.Configuration.CommandLine.CommandLineArgument">
+            <summary>
+            Class managing the argument information
+            </summary>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.#ctor">
+            <summary>
+            Creates an instance of a command line argument.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.DefaultValue">
+            <summary>
+            The default value for arguments if not provided.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.HasDefaultValue">
+            <summary>
+            The argument has a default value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.HasValue">
+            <summary>
+            True if the argument has a value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.Help">
+            <summary>
+            The help description.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.IsFlag">
+            <summary>
+            The argument represents just an existing flag with no following value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.IsRequired">
+            <summary>
+            True if the argument is required.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.IsValid">
+            <summary>
+            The argument was found and is flag or has value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.Name">
+            <summary>
+            The name of the argument.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.Prefix">
+            <summary>
+            The prefix of the command line argument. Defaults to "-".
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.PropertyName">
+            <summary>
+            An optional property name for locating arguments.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.Value">
+            <summary>
+            The value parse from the command line.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineArgument.WasFound">
+            <summary>
+            True if the argument was found.
+            </summary>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.GetHelpDescription">
+            <summary>
+            Gets the help description for argument.
+            </summary>
+            <returns> The description for the argument. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.GetIssueDescription">
+            <summary>
+            Gets the issue description for argument.
+            </summary>
+            <returns> The description of the issue for the argument. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.Process(System.String)">
+            <summary>
+            Try and parse the argument with out a value.
+            </summary>
+            <param name="argument"> The argument name with prefix. </param>
+            <returns> True if processed otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.Process(System.String,System.String)">
+            <summary>
+            Try and parse the argument with a value.
+            </summary>
+            <param name="argument"> The argument name with prefix. </param>
+            <param name="value"> The argument value. </param>
+            <returns> True if processed otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.Reset">
+            <summary>
+            Resets the argument state.
+            </summary>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Configuration.CommandLine.CommandLineParser">
+            <summary>
+            Represents a command line parser.
+            </summary>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.#ctor">
+            <summary>
+            Instantiates an instance of the command line parser.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineParser.IsValid">
+            <summary>
+            All arguments are valid.
+            </summary>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineParser.Item(System.String)">
+            <summary>
+            Gets a command line argument by name.
+            </summary>
+            <param name="index"> The name of the argument. </param>
+            <returns> The argument of the name requested. </returns>
+        </member>
+        <member name="P:Speedy.Configuration.CommandLine.CommandLineParser.UnknownArguments">
+            <summary>
+            Arguments that are unknown by the loaded argument settings.
+            </summary>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.Add(Speedy.Configuration.CommandLine.CommandLineArgument)">
+            <summary>
+            Adds an argument to the command line parser.
+            </summary>
+            <param name="argument"> The argument to be added. </param>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.BuildHelpInformation(System.Text.StringBuilder,System.Func{Speedy.Configuration.CommandLine.CommandLineArgument,System.Boolean})">
+            <summary>
+            Builds the help information that will be displayed with the -h command option is requested.
+            </summary>
+            <returns> The string to be displayed. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.BuildIssueInformation(System.Text.StringBuilder)">
+            <summary>
+            Builds the issue information that will be displayed with the -h command option is requested.
+            </summary>
+            <returns> The string to be displayed. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.Parse(System.String[])">
+            <summary>
+            Process a provided sets of arguments
+            </summary>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.Property(System.String)">
+            <summary>
+            Gets an argument by th. property name.
+            </summary>
+            <param name="name"> The name of the property. </param>
+            <returns> The found command line argument otherwise null. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.PropertyValue``1(System.String,``0)">
+            <summary>
+            Gets an argument value the property name.
+            </summary>
+            <param name="name"> The name of the property. </param>
+            <param name="defaultValue"> The default value if the argument was not found or the value was not provided. </param>
+            <returns> The found command line value otherwise the default value provided. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.Reset">
+            <summary>
+            Resets the command line parser.
+            </summary>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.ToString">
+            <summary>
+            Gets the command line.
+            </summary>
+            <returns> The command line. </returns>
+        </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineParser.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Configuration.IndexConfiguration">
             <summary>
             The configuration for an index property.
@@ -1346,6 +1543,21 @@
             <param name="values"> The values to add. </param>
             <returns> A new HashSet containing the new values. </returns>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[])">
+            <summary>
+            Calculate a CRC using CRC-16/KERMIT.
+            </summary>
+            <param name="data"> The data to calculate the CRC for. </param>
+            <returns> The CRC for the data. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[],System.Int32)">
+            <summary>
+            Calculate a CRC using CRC-16/KERMIT.
+            </summary>
+            <param name="data"> The data to calculate the CRC for. </param>
+            <param name="length"> The length to calculate. </param>
+            <returns> The CRC for the data. </returns>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.DeepClone``2(System.Collections.Generic.IDictionary{``0,``1})">
             <summary>
             Deep clone a dictionary of items. Will use the ICloneable interface if available.
@@ -1394,6 +1606,16 @@
             <param name="cultureInfo"> The culture information to use during sort. </param>
             <returns> The sorted collection. </returns>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.SubArray``1(``0[],System.Int32,System.Int32)">
+            <summary>
+            Gets a sub array from an existing array.
+            </summary>
+            <typeparam name="T"> The type of the array items. </typeparam>
+            <param name="data"> The array to pull from. </param>
+            <param name="index"> The index to start from. </param>
+            <param name="length"> The amount of data to pull. </param>
+            <returns> The sub array of data. </returns>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.ToListSafe``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Safely convert an enumeration to a list without worry about "InvalidOperationException" due to collection being modified.
@@ -1426,6 +1648,36 @@
             The amount of ticks in the Min Date / Time value.
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.ToOscTimeTag(System.DateTime)">
+            <summary>
+            Convert a DateTime to an OscTimeTag.
+            </summary>
+            <param name="time"> The time to be converted. </param>
+            <returns> The DateTime in OscTimeTag format. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.DirectoryInfoExtensions">
+            <summary>
+            Extensions for directory info
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.DirectoryInfoExtensions.Empty(System.IO.DirectoryInfo)">
+            <summary>
+            Empties a directory of all the files and the directories.
+            </summary>
+            <param name="directory">The directory to empty.</param>
+        </member>
+        <member name="M:Speedy.Extensions.DirectoryInfoExtensions.SafeCreate(System.IO.DirectoryInfo)">
+            <summary>
+            Safely create a directory.
+            </summary>
+            <param name="info"> The information on the directory to create. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DirectoryInfoExtensions.SafeDelete(System.IO.DirectoryInfo)">
+            <summary>
+            Safely delete a directory.
+            </summary>
+            <param name="info"> The information of the directory to delete. </param>
+        </member>
         <member name="T:Speedy.Extensions.EnumExtensions">
             <summary>
             Extensions for enumerations
@@ -1440,6 +1692,14 @@
             <param name="flag"> The flag to be cleared. </param>
             <returns> The value with the flagged cleared. </returns>
         </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDescription``1(``0,System.Object[])">
+            <summary>
+            Gets the display name of the enum value.
+            </summary>
+            <param name="enumerationValue"> The enum value to get the name for. </param>
+            <param name="arguments"> Any optional values for the description value. </param>
+            <returns> The description of the enum value. </returns>
+        </member>
         <member name="M:Speedy.Extensions.EnumExtensions.SetFlag``1(``0,``0)">
             <summary>
             Set the "flagged" enum value.
@@ -1448,6 +1708,60 @@
             <param name="value"> The value to update. </param>
             <param name="flag"> The flag to be set. </param>
             <returns> The value with the flagged set. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.ToDisplayName(System.Enum)">
+            <summary>
+            Gets the display name.
+            </summary>
+            <param name="value"> The enum value to get the name for. </param>
+            <returns> The name of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.ToDisplayNames``1">
+            <summary>
+            Gets the display names for an enum.
+            </summary>
+            <typeparam name="T"> The enum value to get the name for. </typeparam>
+            <returns> The name of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.ToDisplayShortName(System.Enum)">
+            <summary>
+            Gets the display short name.
+            </summary>
+            <param name="value"> The enum value to get the short name for. </param>
+            <returns> The short name of the value. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.ExceptionExtensions">
+            <summary>
+            Extensions for enumerations
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.ExceptionExtensions.CleanMessage(System.Exception)">
+            <summary>
+            Clean the exception of the Parameter meta data.
+            </summary>
+            <param name="ex"> The exception to clean. </param>
+            <returns> The cleaned message. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ExceptionExtensions.GetMessage(System.Exception)">
+            <summary>
+            Gets the message value of the exception. Skips all AggregateException messages.
+            </summary>
+            <param name="exception"> The exception to process. </param>
+            <returns> The message value of the exception. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ExceptionExtensions.ToDetailedString(System.Exception)">
+            <summary>
+            Gets the details of the exception.
+            </summary>
+            <param name="ex"> The exception to be processed. </param>
+            <returns> The detailed string for the exception. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ExceptionExtensions.AddExceptionToBuilder(System.Text.StringBuilder,System.Exception)">
+            <summary>
+            Add the exception details to the string builder.
+            </summary>
+            <param name="builder"> The builder to be appended to. </param>
+            <param name="ex"> The exception to be processed. </param>
         </member>
         <member name="T:Speedy.Extensions.ExpressionExtensions">
             <summary>
@@ -1488,12 +1802,6 @@
             File system extensions (file / directories)
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.FileExtensions.SafeCreate(System.IO.DirectoryInfo)">
-            <summary>
-            Safely create a directory.
-            </summary>
-            <param name="info"> The information on the directory to create. </param>
-        </member>
         <member name="M:Speedy.Extensions.FileExtensions.SafeCreate(System.IO.FileInfo)">
             <summary>
             Safely create a file.
@@ -1505,12 +1813,6 @@
             Safely delete a file.
             </summary>
             <param name="info"> The information of the file to delete. </param>
-        </member>
-        <member name="M:Speedy.Extensions.FileExtensions.SafeDelete(System.IO.DirectoryInfo)">
-            <summary>
-            Safely delete a directory.
-            </summary>
-            <param name="info"> The information of the directory to delete. </param>
         </member>
         <member name="M:Speedy.Extensions.FileExtensions.SafeMove(System.IO.FileInfo,System.IO.FileInfo)">
             <summary>
@@ -1669,6 +1971,11 @@
             Extensions for all the things.
             </summary>
         </member>
+        <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultFlags">
+            <summary>
+            Default flags for cached access.
+            </summary>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.CachedMakeGenericMethod(System.Reflection.MethodInfo,System.Type[])">
             <summary>
             Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
@@ -1677,6 +1984,22 @@
             <param name="info"> The property information to get the generic arguments for. </param>
             <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
             <returns> The method information with generics. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateNewInstance(System.Type)">
+            <summary>
+            Quickly create a new type of a generic.
+            </summary>
+            <param name="type"> The type to be created. </param>
+            <returns> The new instances of the type. </returns>
+            <exception cref="T:System.InvalidOperationException"> The provided type is invalid. </exception>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateNewInstance``1">
+            <summary>
+            Quickly create a new type of a generic.
+            </summary>
+            <typeparam name="T"> The type to be created. </typeparam>
+            <returns> The new instances of the type. </returns>
+            <exception cref="T:System.InvalidOperationException"> The provided type is invalid. </exception>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedAccessors(System.Reflection.PropertyInfo)">
             <summary>
@@ -1871,13 +2194,6 @@
             exception.
             </remarks>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.ToDetailedString(System.Exception)">
-            <summary>
-            Gets a detailed string of the exception. Includes messages of all exceptions.
-            </summary>
-            <param name="ex"> The exception to process. </param>
-            <returns> The detailed string of the exception. </returns>
-        </member>
         <member name="T:Speedy.Extensions.StringExtensions">
             <summary>
             Extensions for the string type.
@@ -1889,6 +2205,20 @@
             </summary>
             <param name="hexString"> A string with hex data (2 bytes per character). </param>
             <returns> The byte array value of the hex string. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.Escape(System.String)">
+            <summary>
+            To literal version of the string.
+            </summary>
+            <param name="input"> The string input. </param>
+            <returns> The literal version of the string. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.Escape(System.Byte[])">
+            <summary>
+            Turn a byte array into a readable, escaped string
+            </summary>
+            <param name="bytes"> bytes </param>
+            <returns> a string </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.FromHexString(System.String)">
             <summary>
@@ -1903,6 +2233,13 @@
             </summary>
             <param name="value"> The hex string to be converter. </param>
             <returns> The byte array. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.GetStableHashCode(System.String)">
+            <summary>
+            Gets a stable hash code for a string value.
+            </summary>
+            <param name="value"> The string value. </param>
+            <returns> The hash code for the value. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.MaxLength(System.String,System.Int32,System.Boolean)">
             <summary>
@@ -1934,12 +2271,12 @@
             <param name="data"> The byte array to convert. </param>
             <returns> The byte array in a hex string format. </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.ToLiteral(System.String)">
+        <member name="M:Speedy.Extensions.StringExtensions.Unescape(System.String)">
             <summary>
-            To literal version of the string.
+            Turn a readable string into a byte array
             </summary>
-            <param name="input"> The string input. </param>
-            <returns> The literal version of the string. </returns>
+            <param name="value"> a string, optionally with escape sequences in it </param>
+            <returns> The unescape version of the provided value. </returns>
         </member>
         <member name="T:Speedy.Extensions.TaskExtensions">
             <summary>
@@ -2623,11 +2960,6 @@
             <param name="sessionId"> The session of the log to monitor. </param>
             <param name="level"> The level in which to log. </param>
         </member>
-        <member name="P:Speedy.Logging.LogListener.Events">
-            <summary>
-            The events that have been captured from the event source (logger).
-            </summary>
-        </member>
         <member name="P:Speedy.Logging.LogListener.IsListening">
             <summary>
             The log listener is listening.
@@ -2695,6 +3027,27 @@
             </summary>
         </member>
         <member name="E:Speedy.Logging.LogListener.PropertyChanged">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Logging.MemoryLogListener">
+            <summary>
+            Log listener that will keep a history of events.
+            </summary>
+        </member>
+        <member name="P:Speedy.Logging.MemoryLogListener.Events">
+            <summary>
+            The events that have been captured from the event source (logger).
+            </summary>
+        </member>
+        <member name="M:Speedy.Logging.MemoryLogListener.CreateSession(System.Guid,System.Diagnostics.Tracing.EventLevel,System.Action{Speedy.Logging.LogListener})">
+            <summary>
+            Create an instance of the log listener and start listening.
+            </summary>
+            <param name="sessionId"> The session of the log to monitor. </param>
+            <param name="level"> The level in which to log. </param>
+            <param name="initialize"> An optional initialize action. </param>
+        </member>
+        <member name="M:Speedy.Logging.MemoryLogListener.OnEventWritten(System.Diagnostics.Tracing.EventWrittenEventArgs)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.ModifiableEntity`1">
@@ -4047,6 +4400,1522 @@
         <member name="M:Speedy.Profiling.TrackerPathValue.ToString">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Protocols.Csv.CsvParser">
+            <summary>
+            Parser for CSV file format.
+            </summary>
+            <remarks>
+            https://csv-spec.org/
+            https://datatracker.ietf.org/doc/html/rfc4180#section-2
+            </remarks>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvParser.#ctor(System.IO.TextReader,Speedy.Protocols.Csv.CsvParserOptions)">
+            <summary>
+            Instantiates an instance of the CSV parser.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvParser.BufferSize">
+            <summary>
+            Size of the circular buffer. Buffer size limits max length of the CSV line that can be processed.
+            </summary>
+            <remarks> Default buffer size is 32kb. </remarks>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvParser.FieldsCount">
+            <summary>
+            The count of fields in the current record.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvParser.Item(System.Int32)">
+            <summary>
+            Access a field by the index.
+            </summary>
+            <param name="idx"> The field index. </param>
+            <returns> The field content or null if the index is out of range. </returns>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvParser.Options">
+            <summary>
+            Options for the CSV parser.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvParser.Read">
+            <summary>
+            Reads a record from the CSV parser.
+            </summary>
+            <returns> </returns>
+            <exception cref="T:System.IO.InvalidDataException"> </exception>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvParser.ReadContent``1(System.String,System.Func{``0,Speedy.Protocols.Csv.CsvParser,System.Boolean})">
+            <summary>
+            Read content from a CSV file using default options.
+            </summary>
+            <typeparam name="T"> The type to be returned. </typeparam>
+            <param name="content"> The CSV content in string format. </param>
+            <param name="mapper"> The mapper to map a record to the type. </param>
+            <returns> A list of types from the CSV records. </returns>
+            <exception cref="T:System.Exception"> Failed to parse line {line number}. </exception>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvParser.ReadContent``1(System.String,Speedy.Protocols.Csv.CsvParserOptions,System.Func{``0,Speedy.Protocols.Csv.CsvParser,System.Boolean})">
+            <summary>
+            Read content from a CSV file.
+            </summary>
+            <typeparam name="T"> The type to be returned. </typeparam>
+            <param name="content"> The CSV content in string format. </param>
+            <param name="options"> The options for parsing. </param>
+            <param name="mapper"> The mapper to map a record to the type. </param>
+            <returns> A list of types from the CSV records. </returns>
+            <exception cref="T:System.Exception"> Failed to parse line {line number}. </exception>
+        </member>
+        <member name="T:Speedy.Protocols.Csv.CsvParserOptions">
+            <summary>
+            Options for the CSV parser.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvParserOptions.#ctor">
+            <summary>
+            Instantiates an instance of the CSV parser options.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvParserOptions.Delimiter">
+            <summary>
+            The character delimiter for the CSV file.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvParserOptions.HasHeader">
+            <summary>
+            An options to parse out a header from the CSV file.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvParserOptions.TrimFields">
+            <summary>
+            If true start/end spaces are excluded from field values (except values in quotes). True by default.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ParseArgument(System.String)">
+            <summary>
+            Parse a single argument
+            </summary>
+            <param name="str"> string contain the argument to parse </param>
+            <returns> the parsed argument </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ParseArgument(System.String,System.IFormatProvider)">
+            <summary>
+            Parse a single argument
+            </summary>
+            <param name="str"> string contain the argument to parse </param>
+            <param name="provider"> format provider to use </param>
+            <returns> the parsed argument </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ParseArguments(System.String,System.Collections.Generic.List{System.Object},System.Int32,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Parse arguments
+            </summary>
+            <param name="str"> string to parse </param>
+            <param name="arguments"> the list to put the parsed arguments into </param>
+            <param name="index"> the current index within the string </param>
+            <param name="provider"> the format to use </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ScanForwardObject(System.String,System.Int32)">
+            <summary>
+            Scan for object start and end control chars
+            </summary>
+            <param name="str"> the string to scan </param>
+            <param name="controlChar"> the index of the starting control char </param>
+            <returns> the index of the end char </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ParseObject(System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Parse an object value.
+            </summary>
+            <param name="str"> The string contain the object to parse. </param>
+            <param name="provider"> The format provider to use. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> The parsed argument or a string if unknown type. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ScanForward(System.String,System.Int32,System.Char,System.Char,System.String)">
+            <summary>
+            Scan for start and end control chars
+            </summary>
+            <param name="str"> the string to scan </param>
+            <param name="controlChar"> the index of the starting control char </param>
+            <param name="startChar"> start control char </param>
+            <param name="endChar"> end control char </param>
+            <param name="errorString"> string to use in the case of an error </param>
+            <returns> the index of the end char </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ScanForwardInArray(System.String,System.Int32)">
+            <summary>
+            Scan for array start and end control chars
+            </summary>
+            <param name="str"> the string to scan </param>
+            <param name="controlChar"> the index of the starting control char </param>
+            <returns> the index of the end char </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Extensions.ScanForwardUntil(System.String,System.Int32,System.Char,System.Char)">
+            <summary>
+            Scan for start and end control chars
+            </summary>
+            <param name="str"> the string to scan </param>
+            <param name="index"> the index to start from </param>
+            <param name="endChar"> end control char </param>
+            <param name="escapeCharacter"> the escape character </param>
+            <returns> the index of the end char </returns>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException">
+            <summary>
+            Represents a checksum error during parsing.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException.#ctor">
+            <summary>
+            Instantiates an instance of the exception.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException.#ctor(System.String)">
+            <summary>
+            Instantiates an instance of the exception.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException.#ctor(System.String,System.Exception)">
+            <summary>
+            Instantiates an instance of the exception.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Instantiates an instance of the exception.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Exceptions.NmeaParseMismatchException">
+            <summary>
+            Represents a mismatch error during parsing.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Exceptions.NmeaParseUnknownException">
+            <summary>
+            Represents a unknown error during parsing.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseUnknownException.#ctor">
+            <summary>
+            Instantiates an instance of the exception.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseUnknownException.#ctor(System.String)">
+            <summary>
+            Instantiates an instance of the exception.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Location">
+            <summary>
+            Position - location
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Location.ToDecimal">
+            <summary>
+            XXYY.YYYY = XX + (YYYYYY / 600000) graden.
+            (d)dd + (mm.mmmm/60) (* -1 for W and S)
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GbsMessage">
+            <summary>
+            Represents a GBS message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.Messages.GbsMessage.Time">
+            <summary>
+            Time in the hhmmss.ss format.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GgaMessage">
+            <summary>
+            Represents a GGA message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.Messages.GgaMessage.Time">
+            <summary>
+            Time in the hhmmss.ss format.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GllMessage">
+            <summary>
+            Represents a GLL message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.Messages.GllMessage.Time">
+            <summary>
+            Time in the hhmmss.ss format.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GnsMessage">
+            <summary>
+            GP: GlobalPositioningSystem
+            To provide information specific to the GPS constellation when more than one constellation is used
+            for the differential position fix.
+            GL: GlonassReceiver
+            To provide information specific to the GLONASS constellation when more than one constellation is used
+            for the differential position fix
+            GN: GlobalNavigationSatelliteSystem
+            GNSS position fix from more than one constellation (eg. GPS + GLONASS)
+            </summary>
+            <remarks>
+            Priority should be GN > GL > GP.
+            </remarks>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GrsMessage">
+            <summary>
+            Represents a GRS message.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GsaMessage">
+            <summary>
+            Represents a GSA message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.Messages.GsaMessage.PrnsOfSatellitesUsedForFix">
+            <summary>
+            Pseudo-Random Noise for satellites used for fix.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.Messages.GsaMessage.AddPrn(System.String)">
+            <summary>
+            Add pseudo-random noise for a satellite.
+            </summary>
+            <param name="prn"> </param>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GstMessage">
+            <summary>
+            Represents a GST message.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.GsvMessage">
+            <summary>
+            Represents a GSV message.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.RmcMessage">
+            <summary>
+            Represents a RMC message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.Messages.RmcMessage.Time">
+            <summary>
+            Time in the hhmmss.ss format.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.TxtMessage">
+            <summary>
+            Represents a TXT message.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.VtgMessage">
+            <summary>
+            Represents a VTG message.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.Messages.ZdaMessage">
+            <summary>
+            Represents a ZDA message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.Messages.ZdaMessage.Time">
+            <summary>
+            Time in the hhmmss.ss format.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.ModeIndicator">
+            <summary>
+            Represents a mode indicator.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.ModeIndicator.#ctor(System.String)">
+            <summary>
+            Instantiates an instance of the mode indicator.
+            </summary>
+            <param name="modeIndicator"> The mode indicator in string format. </param>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.ModeIndicator.Mode">
+            <summary>
+            The mode character.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.ModeIndicator.ModeName">
+            <summary>
+            The name of the mode.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.ModeIndicator.IsSet">
+            <summary>
+            Determines if the mode is set.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.ModeIndicator.IsValid">
+            <summary>
+            Determines if the mode indicator is valid.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.ModeIndicator.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.NmeaMessage">
+            <summary>
+            Base message
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.NmeaMessage.Checksum">
+            <summary>
+            The checksum for this message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.NmeaMessage.Prefix">
+            <summary>
+            The prefix known as Talker ID.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.NmeaMessage.ReceivedOn">
+            <summary>
+            The date and time the message was received on.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.NmeaMessage.Type">
+            <summary>
+            The sentence type of this NMEA message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Nmea.NmeaMessage.Arguments">
+            <summary>
+            The arguments of this message.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.ExtractChecksum(System.String)">
+            <summary>
+            Take the last characters which should be the checksum
+            </summary>
+            <param name="sentence"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.GetArgument``1(System.Int32,``0)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <typeparam name="T"> The type of the argument expected. </typeparam>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.GetArgumentAsDouble(System.Int32,System.Double)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.GetArgumentAsInteger(System.Int32,System.Int32)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.GetArgumentAsUnsignedInteger(System.Int32,System.UInt32)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.ParseChecksum(System.String)">
+            <summary>
+            Calculate checksum of Nmea sentence.
+            </summary>
+            <param name="sentence"> The Nmea sentence </param>
+            <returns> The hexidecimal checksum </returns>
+            <remarks>
+            Example taken from https://gist.github.com/maxp/1193206
+            </remarks>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.Reset">
+            <summary>
+            Reset the message to default.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.UpdateChecksum">
+            <summary>
+            Update the Checksum property by using ToString() value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.GetArgument(System.Int32,System.String)">
+            <summary>
+            Gets the argument for the index offset.
+            </summary>
+            <param name="index"> The index of the argument to cast. </param>
+            <param name="defaultValue"> The default value if the argument index does not exists. </param>
+            <returns> The typed argument. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaMessage.CalculateChecksum(System.String)">
+            <summary>
+            Generates a checksum for a NMEA sentence
+            </summary>
+            <param name="sentence"> The sentence to calculate for. </param>
+            <returns> The checksum in a two-character hexadecimal format. </returns>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.GlonassReceiver">
+            <summary>
+            GL - GLONASS Receiver
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.GlobalPositioningSystem">
+            <summary>
+            GP - Global Positioning System (GPS)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.AutomaticIdentificationSystem">
+            <summary>
+            AI - Automatic Identification System
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.DigitalSelectiveCalling">
+            <summary>
+            CD - Digital Selective Calling (DSC)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.DataReceiver">
+            <summary>
+            CR - Data Receiver
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.Satellite">
+            <summary>
+            CS - Satellite
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.RadioTelephoneMfHf">
+            <summary>
+            CT - Radio-Telephone (MF/HF)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.RadioTelephoneVhf">
+            <summary>
+            CV - Radio-Telephone (VHF)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.ScanningReceiver">
+            <summary>
+            CX - Scanning Receiver
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.DeccaNavigator">
+            <summary>
+            DE - DECCA Navigator
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.DirectionFinder">
+            <summary>
+            DF - Direction Finder
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.ElectronicChartSystem">
+            <summary>
+            EC - Electronic Chart System (ECS)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.ElectronicChartDisplayAndInformationSystem">
+            <summary>
+            EI - Electronic Chart Display &amp; Information System (ECDIS)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.EmergencyPositionIndicatingBeacon">
+            <summary>
+            EP - Emergency Position Indicating Beacon (EPIRB)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.EngineRoomMonitoringSystems">
+            <summary>
+            ER - Engine Room Monitoring Systems
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.GlobalNavigationSatelliteSystem">
+            <summary>
+            GN - Global Navigation Satellite System (GNSS)
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.HeadingSensors">
+            <summary>
+            HC - HEADING SENSORS: Compass, Magnetic
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.GyroNorthSeeking">
+            <summary>
+            HE - Gyro, North Seeking
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.GyroNonNorthSeeking">
+            <summary>
+            HN - Gyro, Non-North Seeking
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.IntegratedInstrumentation">
+            <summary>
+            II - Integrated Instrumentation
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.IntegratedNavigation">
+            <summary>
+            IN - Integrated Navigation
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.LoranC">
+            <summary>
+            LC - Loran C
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.RadarAndOrRadarPlotting">
+            <summary>
+            RA - Radar and/or Radar Plotting
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.SounderDepth">
+            <summary>
+            SD - Sounder, depth
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.ElectronicPositioningSystem">
+            <summary>
+            SN - Electronic Positioning System, other/general
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.SounderScanning">
+            <summary>
+            SS - Sounder, scanning
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.TurnRateIndicator">
+            <summary>
+            TI - Turn Rate Indicator
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.VelocitySensors">
+            <summary>
+            VD - VELOCITY SENSORS: Doppler, other/general
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.SpeedLogWaterMagnetic">
+            <summary>
+            VM - Speed Log, Water, Magnetic
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.SpeedLogWaterMechanical">
+            <summary>
+            VW - Speed Log, Water, Mechanical
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.VoyageDataRecorder">
+            <summary>
+            VR - Voyage Data Recorder
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.Transducer">
+            <summary>
+            YX - Transducer
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.TimeKeepers">
+            <summary>
+            ZA - TIMEKEEPERS, TIME/DATE: Atomic Clock
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.Chronometer">
+            <summary>
+            ZC - Chronometer
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.Quartz">
+            <summary>
+            ZQ - Quartz
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.RadioUpdate">
+            <summary>
+            ZV - Radio Update
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessagePrefix.WeatherInstruments">
+            <summary>
+            WI - Weather Instruments
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessageType.GGA">
+            <summary>
+            Time, position, and fix related data
+            </summary>
+            <remarks>
+            An example of the GGA message string is:
+            $GPGGA,172814.0,3723.46587704,N,12202.26957864,W, 2,6,1.2,18.893,M,-25.669,M,2.0,0031*4F
+            Also note - The data string exceeds the NMEA standard length.
+            </remarks>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessageType.GNS">
+            <summary>
+            GNSS fix data.
+            GNSS capable receivers will always output this message with the GN talker ID.
+            GNSS capable receivers will also output this message with the GP and/or GL talker ID
+            when using more than one constellation for the position fix.
+            </summary>
+            <remarks>
+            An example of the GNS message output from a GNSS capable receiver is:
+            $GNGNS,014035.00,4332.69262,S,17235.48549,E,RR,13,0.9,25.63,11.24,,*70&lt;CR&gt;&lt;LF&gt;
+            $GPGNS,014035.00,,,,,,8,,,,1.0,23*76&lt;CR&gt;&lt;LF&gt;
+            $GLGNS,014035.00,,,,,,5,,,,1.0,23*67&lt;CR&gt;&lt;LF&gt;
+            </remarks>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessageType.GSA">
+            <summary>
+            GSA - Overall Satellite Data
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessageType.GSV">
+            <summary>
+            GSV - Detailed Satellite Data
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Nmea.NmeaMessageType.TXT">
+            <summary>
+            For the transmission of short text messages, longer text messages may be transmitted
+            by using multiple sentences. This sentence is intended to convey human readable textual
+            information for display purposes
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.IOscMessageHandler.GetModel(Speedy.Protocols.Osc.OscMessage)">
+            <summary>
+            Get the object this handler will process
+            </summary>
+            <param name="message"> </param>
+            <returns> </returns>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscAddress.Item(System.Int32)">
+            <summary>
+            Access each index of the address parts.
+            </summary>
+            <param name="index"> The index of the part. </param>
+            <returns> The address part at the given index. </returns>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscAddress.Value">
+            <summary>
+            The original string value of the address.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscAddress.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscAddress.IsValidAddress(System.String)">
+            <summary>
+            Is the supplied address a valid literal address (no wildcards or lists)
+            </summary>
+            <param name="address"> the address to check </param>
+            <returns> true if the address is valid </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscAddress.Matches(System.String)">
+            <summary>
+            Sees if the address matches the provide address
+            </summary>
+            <param name="address"> The address to check for match. </param>
+            <returns> Return true if the address matches the provided address. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscAddress.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscAddress.ParseAddress(System.String)">
+            <summary>
+            Parse the OSC address from a string.
+            </summary>
+            <param name="address"> The string value of the OSC address. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscBitConverter.GetBytes(System.Byte[])">
+            <summary>
+            Get bytes ensuring the byte array is the correct OSC length.
+            </summary>
+            <param name="value"> The value to get bytes for. </param>
+            <returns> The correctly length byte array value. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscBitConverter.GetBytes(System.Char)">
+            <summary>
+            A char still is expected to be 4 bytes long due to OSC byte structure.
+            </summary>
+            <param name="value"> The value of the char. </param>
+            <returns> The OSC bytes for the value. </returns>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscBundle.Count">
+            <summary>
+            The number of packets in the bundle.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscBundle.IsExtended">
+            <summary>
+            If true this is an extended message that contains a CRC.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscBundle.Item(System.Int32)">
+            <summary>
+            Access bundle messages by index
+            </summary>
+            <param name="index"> the index of the message </param>
+            <returns> message at the supplied index </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscBundle.ParseBundle(System.Byte[],System.Int32)">
+            <summary>
+            Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
+            </summary>
+            <param name="bundle"> The bundle data in byte format. </param>
+            <param name="length"> The length of the data. </param>
+            <returns> Bundle containing elements and a time tag </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscBundle.ParseBundle(System.String,System.IFormatProvider)">
+            <summary>
+            Parse a bundle from a string using the supplied provider.
+            </summary>
+            <param name="value"> A string containing the OSC bundle data. </param>
+            <param name="provider"> The format provider to use during parsing. </param>
+            <returns> The parsed OSC bundle. </returns>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscCommand.Address">
+            <summary>
+            Get the address of the parsed message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscCommand.HasBeenRead">
+            <summary>
+            This indicates a value has been read from the server.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscCommand.HasBeenUpdated">
+            <summary>
+            Indicates modifications has been made since loaded from the message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscCommand.Time">
+            <summary>
+            Gets the time of the
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscCommand.Version">
+            <summary>
+            An optional version for tracking command changes.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscCommand.OscMessage">
+            <summary>
+            The message that represents this command.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.FromMessage``1(System.String,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Gets an OscCommand from an OscMessage
+            </summary>
+            <typeparam name="T"> The type to be returned. </typeparam>
+            <param name="message"> The message to be loaded. </param>
+            <param name="parsers"> The optional parsers to load the message. </param>
+            <returns> The OscCommand with the message loaded. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.FromMessage``1(Speedy.Protocols.Osc.OscMessage)">
+            <summary>
+            Gets an OscCommand from an OscMessage
+            </summary>
+            <typeparam name="T"> The type to be returned. </typeparam>
+            <param name="message"> The message to be loaded. </param>
+            <returns> The OscCommand with the message loaded. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgument``1(``0)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <typeparam name="T"> The type of the argument expected. </typeparam>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgument``1(System.Int32,``0)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <typeparam name="T"> The type of the argument expected. </typeparam>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgument``1(Speedy.Protocols.Osc.OscArgumentParser{``0},``0)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <typeparam name="T"> The type of the argument expected. </typeparam>
+            <param name="parser"> The parser to be used to process the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgument``1(System.Int32,Speedy.Protocols.Osc.OscArgumentParser{``0},``0)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <typeparam name="T"> The type of the argument expected. </typeparam>
+            <param name="index"> The index of the argument. </param>
+            <param name="parser"> The parser to be used to process the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsBlob">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsBlob(System.Int32,System.Byte[])">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsBoolean">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsBoolean(System.Int32,System.Boolean)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsByte">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsByte(System.Int32,System.Byte)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsDateTime">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsDateTime(System.Int32,System.DateTime)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsDouble">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsDouble(System.Int32,System.Double)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsFloat">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsFloat(System.Int32,System.Single)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsGuid">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsGuid(System.Int32,System.Guid)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsInteger">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsInteger(System.Int32,System.Int32)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsLong">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsLong(System.Int32,System.Int64)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsOscTimeTag">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsOscTimeTag(System.Int32,Speedy.Protocols.Osc.OscTimeTag)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsSByte(System.Int32,System.SByte)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsShort(System.Int32,System.Int16)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsString">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsString(System.Int32,System.String)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsTimeSpan">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsTimeSpan(System.Int32,System.TimeSpan)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsUnsignedInteger">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsUnsignedInteger(System.Int32,System.UInt32)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsUnsignedLong">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsUnsignedLong(System.Int32,System.UInt64)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsUnsignedShort(System.Int32,System.UInt16)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.SetArguments(System.Object[])">
+            <summary>
+            Sets the arguments of the OscMessage.
+            </summary>
+            <param name="arguments"> The arguments for the OscMessage. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.StartArgumentProcessing">
+            <summary>
+            Resets the index for sequential argument processing. Call this before calling "GetArgument" methods that do *not* provide an index.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.ToBundle(System.Nullable{Speedy.Protocols.Osc.OscTimeTag})">
+            <summary>
+            Converts the OscCommand into an OscBundle.
+            </summary>
+            <param name="time"> On optional time for the bundle. Defaults to OscTimeTag.UtcNow. </param>
+            <returns> The OscBundle containing this OscCommand as an OscMessage. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.ToMessage(System.Boolean)">
+            <summary>
+            Converts this OSC command to an OSC Message.
+            </summary>
+            <param name="includeArguments"> Option to include arguments in message. Defaults to true. If true then UpdateMessage will be called to populate the message. </param>
+            <returns> The OSC message. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.ToString">
+            <summary>
+            Returns the OscMessage string value.
+            </summary>
+            <returns> The string value in OscMessage format. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.UndoChanges">
+            <summary>
+            Reloads the original message which undo all changes.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommandHandler`1.GetModel(Speedy.Protocols.Osc.OscMessage)">
+            <summary>
+            Get the object this handler will process
+            </summary>
+            <param name="message"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(System.String,System.Object[])">
+            <summary>
+            Instantiates an instance of an OSC message for the provided address and arguments.
+            </summary>
+            <param name="address"> The address. </param>
+            <param name="args"> The arguments. </param>
+            <remarks>
+            Do NOT call this constructor with an object[] unless you want a message with a single
+            object of type object[]. Because an object[] is an object the parameter is seen as a
+            single entry array.
+            </remarks>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(Speedy.Protocols.Osc.OscTimeTag,System.String,System.Object[])">
+            <summary>
+            Instantiates an instance of an OSC message for the provided address and arguments.
+            </summary>
+            <param name="time"> The time. </param>
+            <param name="address"> The address. </param>
+            <param name="args"> The arguments. </param>
+            <remarks>
+            Do NOT call this constructor with an object[] unless you want a message with a single
+            object of type object[]. Because an object[] is an object the parameter is seen as a
+            single entry array.
+            </remarks>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscMessage.Address">
+            <summary>
+            The address of the message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscMessage.Arguments">
+            <summary>
+            The arguments of this message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscMessage.Count">
+            <summary>
+            The number of arguments in the message.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscMessage.IsEmpty">
+            <summary>
+            The argument list is empty.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscMessage.Item(System.Int32)">
+            <summary>
+            Access Arguments by index
+            </summary>
+            <param name="index"> the index of the argument </param>
+            <returns> argument at the supplied index </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.FromObjectArray(System.String,System.Collections.Generic.IEnumerable{System.Object})">
+            <summary>
+            They'll be times when you want to instantiate an message with an actually object array. Used this factory method. If you pass
+            an object[] to the constructor it will actually be an object[] with one entry of that object[].
+            </summary>
+            <param name="address"> The address. </param>
+            <param name="args"> The arguments. </param>
+            <returns> The message for the address and arguments. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.FromObjectArray(Speedy.Protocols.Osc.OscTimeTag,System.String,System.Collections.Generic.IEnumerable{System.Object})">
+            <summary>
+            They'll be times when you want to instantiate an message with an actually object array. Used this factory method. If you pass
+            an object[] to the constructor it will actually be an object[] with one entry of that object[].
+            </summary>
+            <param name="time"> The time. </param>
+            <param name="address"> The address. </param>
+            <param name="args"> The arguments. </param>
+            <returns> The message for the address and arguments. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.GetArgument``1(System.Int32,``0)">
+            <summary>
+            Gets the argument as the specified type. Does a direct cast so if the type is wrong then it will exception.
+            </summary>
+            <typeparam name="T"> The type the argument is. </typeparam>
+            <param name="index"> The index of the argument to cast. </param>
+            <param name="defaultValue"> The default value if the argument index does not exists. </param>
+            <returns> The typed argument. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.SetArguments(System.Object[])">
+            <summary>
+            Sets the arguments for the message.
+            </summary>
+            <param name="arguments"> The arguments to be set. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ParseMessage(Speedy.Protocols.Osc.OscTimeTag,System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
+            </summary>
+            <param name="time"> The created time of the message. </param>
+            <param name="data"> The data for the message. </param>
+            <param name="length"> The length for the message. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> Message containing various arguments and an address </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ParseMessage(Speedy.Protocols.Osc.OscTimeTag,System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Parse a message from a string using the supplied provider.
+            </summary>
+            <param name="time"> The time to represent the message. </param>
+            <param name="value"> A string containing the OSC message data. </param>
+            <param name="provider"> The format provider to use during parsing. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> The parsed OSC message. </returns>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscPacket.Time">
+            <summary>
+            Gets the time of this bundle.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.Byte[],Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
+            </summary>
+            <param name="data"> The data for the message. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> Message containing various arguments and an address </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.Byte[],Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
+            </summary>
+            <param name="time"> The created time of the message. </param>
+            <param name="data"> The data for the message. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> Message containing various arguments and an address </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
+            </summary>
+            <param name="data"> The data for the message. </param>
+            <param name="length"> The length for the message. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> Message containing various arguments and an address </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
+            </summary>
+            <param name="time"> The created time of the message. </param>
+            <param name="data"> The data for the message. </param>
+            <param name="length"> The length for the message. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> Message containing various arguments and an address </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.String,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Parse a packet from a string using the default provider InvariantCulture.
+            </summary>
+            <param name="value"> A string containing the OSC packet data. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> The parsed OSC packet. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Parse a packet from a string using the supplied provider.
+            </summary>
+            <param name="value"> A string containing the OSC packet data. </param>
+            <param name="provider"> The format provider to use during parsing. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> The parsed OSC packet. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.String,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Parse a packet from a string using the supplied provider.
+            </summary>
+            <param name="time"> The time for the OscPacket. </param>
+            <param name="value"> A string containing the OSC packet data. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> The parsed OSC packet. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
+            <summary>
+            Parse a packet from a string using the supplied provider.
+            </summary>
+            <param name="time"> The time for the OscPacket. </param>
+            <param name="value"> A string containing the OSC packet data. </param>
+            <param name="provider"> The format provider to use during parsing. </param>
+            <param name="parsers"> An optional set of OSC argument parsers. </param>
+            <returns> The parsed OSC packet. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.Add``1(``0)">
+            <summary>
+            Add a setting to the manager.
+            </summary>
+            <param name="setting"> The setting to add. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.AddRange``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Add a collection of settings to the manager.
+            </summary>
+            <param name="settings"> The settings to add. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.Clear">
+            <summary>
+            Remove all settings from the manager.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.Remove``1(``0)">
+            <summary>
+            Remove a setting from the manager.
+            </summary>
+            <param name="setting"> The setting to be removed. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.RequestAllSettings">
+            <summary>
+            Invokes a read request to all settings.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.RequestChangedSettings">
+            <summary>
+            Invokes a read request to all changed or unread settings.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.RequestUnreadSettings">
+            <summary>
+            Invokes a read request to all unread settings.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.ResetAllReadStatus">
+            <summary>
+            Reset the read status. This allows us to then request all settings to refresh all settings.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.SendAllSettings(System.Boolean)">
+            <summary>
+            Sends all setting to the server. The setting must have been read at
+            least once. All non read settings will be ignored.
+            </summary>
+            <param name="force"> Force the setting to send even if never read. Default to false forcing the value to be read before it can be updated. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.SendChangedSettings(System.Boolean)">
+            <summary>
+            Sends all settings that have been changed to the server.
+            </summary>
+            <param name="force">
+            Force the settings to send even if never read. Default to false forcing the values to be read before they can be updated.
+            </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.UndoChangedSettings(System.Boolean)">
+            <summary>
+            Reset all settings that have been changed back to the values in the original message.
+            </summary>
+            <param name="force">
+            Force the settings to send even if never read. Default to false forcing the values to be read before they can be updated.
+            </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.UpdateSetting(Speedy.Protocols.Osc.OscMessage)">
+            <summary>
+            Update a manager setting with a new value.
+            </summary>
+            <param name="message"> The value to update with </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.UpdateSetting(Speedy.Protocols.Osc.OscSetting)">
+            <summary>
+            Update a manager setting with a new value.
+            </summary>
+            <param name="setting"> The value to update with. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSettingsManager.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatistics.Reset">
+            <summary>
+            Reset the values for all statistic values in this set.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatistics.SetAllUpdateIntervals(System.TimeSpan)">
+            <summary>
+            Sets the update interval for all statistic values in this set.
+            </summary>
+            <param name="interval"> </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscSymbol.#ctor(System.String)">
+            <summary>
+            Represents an alternate type for systems that differentiate "symbols" from "strings".
+            </summary>
+            <param name="value"> The symbol value. </param>
+        </member>
+        <member name="T:Speedy.Protocols.Osc.OscTimeTag">
+            <summary>
+            Time tags are represented by a 64 bit fixed point number. The first 32 bits specify the number of seconds since midnight on January 1, 1900, and
+            the last 32 bits specify fractional parts of a second to a precision of about 200 picoseconds. This is the representation used by Internet NTP
+            timestamps.The time tag value consisting of 63 zero bits followed by a one in the least significant bit is a special case meaning "immediately."
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Osc.OscTimeTag.MaxValue">
+            <summary>
+            The maximum OSC date time for any OscTimeTag.
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Osc.OscTimeTag.MaxDateTime">
+            <summary>
+            The minimum date for any OscTimeTag.
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Osc.OscTimeTag.MinDateTime">
+            <summary>
+            The minimum date for any OscTimeTag.
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Osc.OscTimeTag.MinValue">
+            <summary>
+            The minimum OSC date time for any OscTimeTag.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscTimeTag.Now">
+            <summary>
+            Gets a OscTimeTag object that is set to the current date and time on this computer, expressed as the local time.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscTimeTag.PreciseValue">
+            <summary>
+            Gets the number of seconds including fractional parts since midnight on January 1, 1900.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscTimeTag.Seconds">
+            <summary>
+            Gets the number of seconds since midnight on January 1, 1900. This is the first 32 bits of the 64 bit fixed point OscTimeTag value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscTimeTag.SubSeconds">
+            <summary>
+            Gets the fractional parts of a second. This is the 32 bits of the 64 bit fixed point OscTimeTag value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscTimeTag.UtcNow">
+            <summary>
+            Gets a OscTimeTag object that is set to the current date and time on this computer, expressed as the Coordinated Universal Time (UTC).
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscTimeTag.Value">
+            <summary>
+            Gets or set the value of the tag.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscTimeTag.Add(System.TimeSpan)">
+            <summary>
+            Adds a timespan to this time tag.
+            </summary>
+            <param name="span"> The time span to be added. </param>
+            <returns> The adjusted time. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscTimeTag.AddMilliseconds(System.Double)">
+            <summary>
+            Adds milliseconds to this time tag.
+            </summary>
+            <param name="value"> The milliseconds to be added. </param>
+            <returns> The adjusted time. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscTimeTag.AddSeconds(System.Double)">
+            <summary>
+            Adds seconds to this time tag.
+            </summary>
+            <param name="value"> The seconds to be added. </param>
+            <returns> The adjusted time. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscTimeTag.FromDateTime(System.DateTime)">
+            <summary>
+            Get a OscTimeTag from a DateTime value.
+            </summary>
+            <param name="datetime"> DateTime value. </param>
+            <returns> The equivalent value as an osc time tag. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscTimeTag.FromTimeSpan(System.TimeSpan)">
+            <summary>
+            Get a OscTimeTag from a TimeSpan value.
+            </summary>
+            <param name="span"> The span of time. </param>
+            <returns> The equivalent value as an osc time tag. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscTimeTag.ToDateTime">
+            <summary>
+            Get the equivalent DateTime value from the OscTimeTag.
+            </summary>
+            <returns>
+            The equivalent value as DateTime type.
+            </returns>
+        </member>
         <member name="T:Speedy.Serialization.Converters.VersionStringConverter">
             <summary>
             Converter for Version to convert to/from string format of "0.0.0.0".
@@ -4332,6 +6201,11 @@
             <summary>
             A read-only instance of the ShortGuid class whose value
             is guaranteed to be all zeroes.
+            </summary>
+        </member>
+        <member name="M:Speedy.ShortGuid.#ctor">
+            <summary>
+            Creates a ShortGuid.
             </summary>
         </member>
         <member name="M:Speedy.ShortGuid.#ctor(System.String)">
@@ -6694,6 +8568,26 @@
             <param name="credential"> The credential for the client. </param>
             <returns> The sync client. </returns>
         </member>
+        <member name="T:Speedy.Sync.SyncDirection">
+            <summary>
+            The sync direction.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncDirection.PullDownThenPushUp">
+            <summary>
+            Sync content by pulling from the Server then push content from the Client.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncDirection.PullDown">
+            <summary>
+            Sync content by pulling from the Server down to the Client.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncDirection.PushUp">
+            <summary>
+            Sync content by pushing content from the Client up to the Server.
+            </summary>
+        </member>
         <member name="T:Speedy.Sync.SyncEngine">
             <summary>
             Represents the sync engine.
@@ -7570,6 +9464,11 @@
         <member name="P:Speedy.Sync.SyncOptions.PermanentDeletions">
             <summary>
             If true the sync will actually delete entities marked for deletion. Defaults to false where IsDeleted will be marked "true".
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncOptions.SyncDirection">
+            <summary>
+            The direction to sync.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncOptions.Values">

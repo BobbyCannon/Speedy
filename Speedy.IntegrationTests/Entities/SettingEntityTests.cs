@@ -9,7 +9,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.IntegrationTests.Entities
 {
 	[TestClass]
-	public class SettingEntityTests : BaseEntityTests
+	public class SettingEntityTests : BaseEntityTests<SettingEntity>
 	{
 		#region Methods
 
@@ -19,7 +19,7 @@ namespace Speedy.IntegrationTests.Entities
 		[TestMethod]
 		public void SyncExclusions()
 		{
-			var entity = new SettingEntity();
+			var entity = GetModelWithNonDefaultValues();
 			var expected = new Dictionary<string, (bool incoming, bool outgoing, bool syncUpdate, bool changeTracking)>
 			{
 				{ "Id", (true, true, true, false) },

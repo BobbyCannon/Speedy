@@ -21,7 +21,7 @@ namespace Speedy.UnitTests.Profiling
 
 			var timeValue = new TrackerPathValue("Test", new TimeSpan(123, 12, 59, 59, 999));
 			Assert.AreEqual("123.12:59:59.9990000", timeValue.Value);
-			
+
 			var timeValue2 = new TrackerPathValue("Test", TimeSpan.FromTicks(1));
 			Assert.AreEqual("00:00:00.0000001", timeValue2.Value);
 		}

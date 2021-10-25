@@ -178,7 +178,7 @@ namespace Speedy.UnitTests.Factories
 
 		public static SettingEntity GetSetting(string name, string value)
 		{
-			return new()
+			return new SettingEntity
 			{
 				Name = name,
 				Value = value

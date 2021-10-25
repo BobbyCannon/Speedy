@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.WebApi;
 using Speedy.EntityFramework.Sql;
 using Speedy.Extensions;
+using Speedy.UnitTests;
 using Speedy.Website.Data.Entities;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
