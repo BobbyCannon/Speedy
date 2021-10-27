@@ -72,10 +72,10 @@ namespace Speedy.Protocols.Osc
 					{
 						return false;
 					}
-					return Port == bytes[0]
-						&& Status == bytes[1]
-						&& Data1 == bytes[2]
-						&& Data2 == bytes[3];
+					return (Port == bytes[0])
+						&& (Status == bytes[1])
+						&& (Data1 == bytes[2])
+						&& (Data2 == bytes[3]);
 
 				default:
 					return false;
@@ -84,7 +84,7 @@ namespace Speedy.Protocols.Osc
 
 		public bool Equals(OscMidi other)
 		{
-			return Data1 == other.Data1 && Data2 == other.Data2 && Port == other.Port && Status == other.Status;
+			return (Data1 == other.Data1) && (Data2 == other.Data2) && (Port == other.Port) && (Status == other.Status);
 		}
 
 		public override int GetHashCode()
@@ -174,7 +174,7 @@ namespace Speedy.Protocols.Osc
 
 		public void ParseOscValue(byte[] value, ref int index)
 		{
-			if (value.Length <= index + 3)
+			if (value.Length <= (index + 3))
 			{
 				throw new IndexOutOfRangeException();
 			}

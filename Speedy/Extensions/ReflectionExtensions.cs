@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 #endregion
 
@@ -311,7 +310,7 @@ namespace Speedy.Extensions
 				}
 
 				var arg = type.GenericTypeArguments?.ToArray();
-				if (arg == null || arg.Length <= 0)
+				if ((arg == null) || (arg.Length <= 0))
 				{
 					type = type.BaseType;
 					continue;
@@ -356,7 +355,7 @@ namespace Speedy.Extensions
 		public static Type GetRealType(this object item)
 		{
 			var type = item.GetType();
-			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true || type.FullName?.Contains("Castle.Proxies") == true;
+			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true) || (type.FullName?.Contains("Castle.Proxies") == true);
 			return isProxy ? type.BaseType : type;
 		}
 
@@ -367,7 +366,7 @@ namespace Speedy.Extensions
 		/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
 		public static Type GetRealType(this Type type)
 		{
-			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true || type.FullName?.Contains("Castle.Proxies") == true;
+			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true) || (type.FullName?.Contains("Castle.Proxies") == true);
 			return isProxy ? type.BaseType : type;
 		}
 
@@ -439,7 +438,7 @@ namespace Speedy.Extensions
 		internal static object GetDefault(this Type type)
 		{
 			// If no Type was supplied, if the Type was a reference type, or if the Type was a System.Void, return null
-			if (type == null || !type.IsValueType || type == typeof(void))
+			if ((type == null) || !type.IsValueType || (type == typeof(void)))
 			{
 				return null;
 			}

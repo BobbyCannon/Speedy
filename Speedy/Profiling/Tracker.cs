@@ -346,7 +346,7 @@ namespace Speedy.Profiling
 
 					delayWatch.Restart();
 
-					while (delayWatch.Elapsed.TotalMilliseconds < pathProcessingDelay && !worker.CancellationPending)
+					while ((delayWatch.Elapsed.TotalMilliseconds < pathProcessingDelay) && !worker.CancellationPending)
 					{
 						Thread.Sleep(50);
 					}

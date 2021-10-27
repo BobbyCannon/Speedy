@@ -68,7 +68,7 @@ namespace Speedy
 		/// <summary>
 		/// The value to determine if the request has more pages.
 		/// </summary>
-		public bool HasMore => Page > 0 && Page < TotalPages;
+		public bool HasMore => (Page > 0) && (Page < TotalPages);
 
 		/// <summary>
 		/// The values to be include in the results. Defaults to an empty collection.
@@ -98,7 +98,7 @@ namespace Speedy
 		/// <summary>
 		/// The total count of pages for the request.
 		/// </summary>
-		public int TotalPages => TotalCount > 0 ? TotalCount / PerPage + (TotalCount % PerPage > 0 ? 1 : 0) : 1;
+		public int TotalPages => TotalCount > 0 ? (TotalCount / PerPage) + ((TotalCount % PerPage) > 0 ? 1 : 0) : 1;
 
 		#endregion
 

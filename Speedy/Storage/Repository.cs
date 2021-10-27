@@ -159,7 +159,7 @@ namespace Speedy.Storage
 			var maintainedEntity = Database.Options.UnmaintainedEntities.All(x => x != entity.GetType());
 			var maintainSyncId = maintainedEntity && Database.Options.MaintainSyncId;
 
-			if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
+			if (maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
 			{
 				syncableEntity.SyncId = Guid.NewGuid();
 			}
@@ -471,12 +471,12 @@ namespace Speedy.Storage
 				switch (entry.State)
 				{
 					case EntityStateType.Added:
-						if (createdEntity != null && maintainCreatedOnDate)
+						if ((createdEntity != null) && maintainCreatedOnDate)
 						{
 							createdEntity.CreatedOn = now;
 						}
 
-						if (modifiableEntity != null && maintainModifiedOnDate)
+						if ((modifiableEntity != null) && maintainModifiedOnDate)
 						{
 							modifiableEntity.ModifiedOn = now;
 						}
@@ -494,9 +494,9 @@ namespace Speedy.Storage
 							continue;
 						}
 
-						if (createdEntity != null && maintainCreatedOnDate)
+						if ((createdEntity != null) && maintainCreatedOnDate)
 						{
-							if (entry.OldEntity is ICreatedEntity oldCreatedEntity && oldCreatedEntity.CreatedOn != createdEntity.CreatedOn)
+							if (entry.OldEntity is ICreatedEntity oldCreatedEntity && (oldCreatedEntity.CreatedOn != createdEntity.CreatedOn))
 							{
 								createdEntity.CreatedOn = oldCreatedEntity.CreatedOn;
 							}
@@ -514,7 +514,7 @@ namespace Speedy.Storage
 							}
 						}
 
-						if (modifiableEntity != null && maintainModifiedOnDate)
+						if ((modifiableEntity != null) && maintainModifiedOnDate)
 						{
 							modifiableEntity.ModifiedOn = now;
 						}
@@ -575,7 +575,7 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public void ValidateEntities()
 		{
-			Cache.Where(x => x.State == EntityStateType.Added || x.State == EntityStateType.Modified)
+			Cache.Where(x => (x.State == EntityStateType.Added) || (x.State == EntityStateType.Modified))
 				.ToList()
 				.ForEach(x => OnValidateEntity(x.Entity));
 
@@ -676,12 +676,12 @@ namespace Speedy.Storage
 
 		private bool CompareEntity(T entity1, T entity2)
 		{
-			if (entity1 == null && entity2 == null)
+			if ((entity1 == null) && (entity2 == null))
 			{
 				return true;
 			}
 
-			if (entity1 == null || entity2 == null)
+			if ((entity1 == null) || (entity2 == null))
 			{
 				return false;
 			}
@@ -754,7 +754,7 @@ namespace Speedy.Storage
 
 			NotifyCollectionChangedEventArgs eventArgs = null;
 
-			if (added.Count > 0 && removed.Count > 0)
+			if ((added.Count > 0) && (removed.Count > 0))
 			{
 				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, added, removed);
 			}

@@ -189,9 +189,9 @@ namespace Speedy.Sync
 
 			var timeOut = timeout != null ? TimeService.UtcNow.Add(timeout.Value) : TimeService.UtcNow.AddSeconds(30);
 
-			while (TimeService.UtcNow <= timeOut
-				&& State.Status != SyncEngineStatus.Stopped
-				&& State.Status != SyncEngineStatus.Cancelled)
+			while ((TimeService.UtcNow <= timeOut)
+					&& (State.Status != SyncEngineStatus.Stopped)
+					&& (State.Status != SyncEngineStatus.Cancelled))
 			{
 				Thread.Sleep(10);
 			}
@@ -242,7 +242,7 @@ namespace Speedy.Sync
 				hasMore = changes.HasMore;
 
 				// Filter out any existing items that have been synced already (must have been excluded with the same modified on date/time)
-				request.Collection = changes.Collection.Where(x => !exclude.ContainsKey(x.SyncId) || exclude[x.SyncId] != x.ModifiedOn).ToList();
+				request.Collection = changes.Collection.Where(x => !exclude.ContainsKey(x.SyncId) || (exclude[x.SyncId] != x.ModifiedOn)).ToList();
 
 				if (!request.Collection.Any())
 				{
@@ -276,7 +276,7 @@ namespace Speedy.Sync
 				{
 					var results = sourceClient.GetCorrections(SessionId, issuesToProcess);
 
-					if (results != null && results.Collection.Any())
+					if ((results != null) && results.Collection.Any())
 					{
 						RemoveIssues(_syncIssues, results.Collection);
 						request.Collection = results.Collection;
@@ -285,7 +285,7 @@ namespace Speedy.Sync
 
 					results = destinationClient.GetCorrections(SessionId, issuesToProcess);
 
-					if (results != null && results.Collection.Any())
+					if ((results != null) && results.Collection.Any())
 					{
 						RemoveIssues(_syncIssues, results.Collection);
 						request.Collection = results.Collection;

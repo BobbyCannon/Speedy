@@ -136,7 +136,7 @@ namespace Speedy
 			var options = Options.ToList();
 			var values = OptionValues.ToList();
 			var i = options.IndexOf(option);
-			return i < 0 || i >= values.Count ? null : values[i];
+			return (i < 0) || (i >= values.Count) ? null : values[i];
 		}
 
 		/// <summary>

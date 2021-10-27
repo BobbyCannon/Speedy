@@ -86,7 +86,7 @@ namespace Speedy.Protocols
 
 		public static string ArgumentsToString(this object[] args, IFormatProvider provider)
 		{
-			if (args == null || args.Length == 0)
+			if ((args == null) || (args.Length == 0))
 			{
 				return string.Empty;
 			}
@@ -137,7 +137,7 @@ namespace Speedy.Protocols
 			var retVal = 0;
 			foreach (var item in items)
 			{
-				if (retVal >= start && predicate(item))
+				if ((retVal >= start) && predicate(item))
 				{
 					return retVal;
 				}
@@ -204,26 +204,26 @@ namespace Speedy.Protocols
 			}
 
 			// try to parse a hex value
-			if (argString.Length > 2 && argString.StartsWith("0x"))
+			if ((argString.Length > 2) && argString.StartsWith("0x"))
 			{
 				var hexString = argString.Substring(2);
 
-				if (hexString.Length <= 8 && int.TryParse(hexString, NumberStyles.HexNumber, provider, out var iValue))
+				if ((hexString.Length <= 8) && int.TryParse(hexString, NumberStyles.HexNumber, provider, out var iValue))
 				{
 					return iValue;
 				}
 
-				if (hexString.Length <= 9 && hexString[hexString.Length - 1] == 'u' && uint.TryParse(hexString.Substring(0, hexString.Length - 1), NumberStyles.HexNumber, provider, out var uiValue))
+				if ((hexString.Length <= 9) && (hexString[hexString.Length - 1] == 'u') && uint.TryParse(hexString.Substring(0, hexString.Length - 1), NumberStyles.HexNumber, provider, out var uiValue))
 				{
 					return uiValue;
 				}
 
-				if (hexString.Length <= 16 && long.TryParse(hexString, NumberStyles.HexNumber, provider, out var lValue))
+				if ((hexString.Length <= 16) && long.TryParse(hexString, NumberStyles.HexNumber, provider, out var lValue))
 				{
 					return lValue;
 				}
 
-				if (hexString.Length <= 17 && hexString[hexString.Length - 1] == 'L' && long.TryParse(hexString.Substring(0, hexString.Length - 1), NumberStyles.HexNumber, provider, out var lValue2))
+				if ((hexString.Length <= 17) && (hexString[hexString.Length - 1] == 'L') && long.TryParse(hexString.Substring(0, hexString.Length - 1), NumberStyles.HexNumber, provider, out var lValue2))
 				{
 					return lValue2;
 				}
@@ -322,7 +322,7 @@ namespace Speedy.Protocols
 			}
 
 			// parse char
-			if (argString.Length == 3 && argString[0] == '\'' && argString[2] == '\'')
+			if ((argString.Length == 3) && (argString[0] == '\'') && (argString[2] == '\''))
 			{
 				var c = str.Trim()[1];
 				return c;
@@ -339,7 +339,7 @@ namespace Speedy.Protocols
 			{
 				var end = argString.LastIndexOf('"');
 
-				if (end < argString.Length - 1)
+				if (end < (argString.Length - 1))
 				{
 					// some kind of other value tacked on the end of a string! 
 					throw new Exception($"Malformed string argument '{argString}'");
@@ -369,7 +369,7 @@ namespace Speedy.Protocols
 			{
 				trimmed = trimmed.Substring(2);
 
-				if (trimmed.Length % 2 != 0)
+				if ((trimmed.Length % 2) != 0)
 				{
 					// this is an error
 					throw new Exception("Invalid blob string length");
@@ -420,7 +420,7 @@ namespace Speedy.Protocols
 			// if the default is to be Base64 encoded
 			// return "64x" + System.Convert.ToBase64String(bytes);
 
-			var sb = new StringBuilder(bytes.Length * 2 + 2);
+			var sb = new StringBuilder((bytes.Length * 2) + 2);
 
 			sb.Append("0x");
 
@@ -604,7 +604,7 @@ namespace Speedy.Protocols
 				throw new Exception($"Malformed object '{strTrimmed}', missing type name");
 			}
 
-			if (colon + 1 >= strTrimmed.Length)
+			if ((colon + 1) >= strTrimmed.Length)
 			{
 				throw new Exception($"Malformed object '{strTrimmed}'");
 			}
@@ -750,12 +750,12 @@ namespace Speedy.Protocols
 
 			while (index < str.Length)
 			{
-				if (str[index] == endChar && !hasEscape)
+				if ((str[index] == endChar) && !hasEscape)
 				{
 					return index;
 				}
 
-				hasEscape = !hasEscape && str[index] == escapeCharacter;
+				hasEscape = !hasEscape && (str[index] == escapeCharacter);
 				index++;
 			}
 

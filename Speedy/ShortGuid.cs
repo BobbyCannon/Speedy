@@ -17,7 +17,7 @@ namespace Speedy
 		/// A read-only instance of the ShortGuid class whose value
 		/// is guaranteed to be all zeroes.
 		/// </summary>
-		public static readonly ShortGuid Empty = new(Guid.Empty);
+		public static readonly ShortGuid Empty = new ShortGuid(Guid.Empty);
 
 		#endregion
 
@@ -103,7 +103,7 @@ namespace Speedy
 		/// <returns> </returns>
 		public static ShortGuid NewGuid()
 		{
-			return new(Guid.NewGuid());
+			return new ShortGuid(Guid.NewGuid());
 		}
 
 		/// <summary>
@@ -113,7 +113,7 @@ namespace Speedy
 		/// <returns> The short guid version of the full guid. </returns>
 		public static ShortGuid ParseGuid(string guid)
 		{
-			return new(Guid.Parse(guid));
+			return new ShortGuid(Guid.Parse(guid));
 		}
 
 		/// <summary>
@@ -123,7 +123,7 @@ namespace Speedy
 		/// <returns> The short guid version of the short guid string. </returns>
 		public static ShortGuid ParseShortGuid(string sguid)
 		{
-			return new(sguid);
+			return new ShortGuid(sguid);
 		}
 
 		/// <summary>
@@ -165,7 +165,7 @@ namespace Speedy
 		/// <returns> </returns>
 		public static implicit operator ShortGuid(string shortGuid)
 		{
-			return new(shortGuid);
+			return new ShortGuid(shortGuid);
 		}
 
 		/// <summary>
@@ -175,7 +175,7 @@ namespace Speedy
 		/// <returns> </returns>
 		public static implicit operator ShortGuid(Guid guid)
 		{
-			return new(guid);
+			return new ShortGuid(guid);
 		}
 
 		/// <summary>

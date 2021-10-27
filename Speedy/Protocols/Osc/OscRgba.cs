@@ -64,7 +64,7 @@ namespace Speedy.Protocols.Osc
 						return false;
 					}
 
-					return R == bytes[0] && G == bytes[1] && B == bytes[2] && A == bytes[3];
+					return (R == bytes[0]) && (G == bytes[1]) && (B == bytes[2]) && (A == bytes[3]);
 
 				default:
 					return false;
@@ -73,7 +73,7 @@ namespace Speedy.Protocols.Osc
 
 		public bool Equals(OscRgba other)
 		{
-			return A == other.A && B == other.B && G == other.G && R == other.R;
+			return (A == other.A) && (B == other.B) && (G == other.G) && (R == other.R);
 		}
 
 		public override int GetHashCode()

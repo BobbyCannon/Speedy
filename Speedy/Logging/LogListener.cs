@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Tracing;
 using System.Runtime.CompilerServices;
@@ -119,7 +118,7 @@ namespace Speedy.Logging
 		/// <inheritdoc />
 		protected override void OnEventWritten(EventWrittenEventArgs args)
 		{
-			if (SessionId != Guid.Empty && !Equals(args.Payload[0], SessionId))
+			if ((SessionId != Guid.Empty) && !Equals(args.Payload[0], SessionId))
 			{
 				return;
 			}

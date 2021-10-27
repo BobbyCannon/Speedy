@@ -8,8 +8,6 @@ using System.Collections.Generic;
 
 #pragma warning disable 1591
 
-#pragma warning disable 1591
-
 namespace Speedy.Protocols.Osc
 {
 	public class OscStatistics : Dictionary<string, OscStatisticValue>, IEnumerable<OscStatisticValue>

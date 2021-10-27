@@ -311,7 +311,7 @@ namespace Speedy.Net
 
 		private HttpResponseMessage ProcessResponse(HttpResponseMessage response, HttpClientHandler handler)
 		{
-			if (handler.CookieContainer != null && Uri.IsWellFormedUriString(BaseUri, UriKind.Absolute))
+			if ((handler.CookieContainer != null) && Uri.IsWellFormedUriString(BaseUri, UriKind.Absolute))
 			{
 				Cookies = handler.CookieContainer.GetCookies(new Uri(BaseUri));
 			}

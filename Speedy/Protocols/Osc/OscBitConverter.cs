@@ -23,9 +23,9 @@ namespace Speedy.Protocols.Osc
 		{
 			// Calculate the correct length (size + bytes)
 			var len = 4 + value.Length;
-			if (len % 4 > 0)
+			if ((len % 4) > 0)
 			{
-				len += 4 - len % 4;
+				len += 4 - (len % 4);
 			}
 
 			var buffer = new byte[len];
@@ -110,7 +110,7 @@ namespace Speedy.Protocols.Osc
 		public static byte[] GetBytes(string value)
 		{
 			// Make sure we have room for the null terminator
-			var len = value.Length + (4 - value.Length % 4);
+			var len = value.Length + (4 - (value.Length % 4));
 			if (len <= value.Length)
 			{
 				len += 4;
@@ -234,7 +234,7 @@ namespace Speedy.Protocols.Osc
 			string output = null;
 			var i = index + 4;
 
-			for (; i - 1 < buffer.Length; i += 4)
+			for (; (i - 1) < buffer.Length; i += 4)
 			{
 				if (buffer[i - 1] == 0)
 				{
@@ -243,7 +243,7 @@ namespace Speedy.Protocols.Osc
 				}
 			}
 
-			if (i >= buffer.Length && output == null)
+			if ((i >= buffer.Length) && (output == null))
 			{
 				throw new Exception("No null terminator after type string");
 			}

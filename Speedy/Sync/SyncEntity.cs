@@ -96,7 +96,7 @@ namespace Speedy.Sync
 			{
 				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == $"{entityRelationship.Name}SyncId");
 
-				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && entityRelationshipSyncIdProperty != null)
+				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && (entityRelationshipSyncIdProperty != null))
 				{
 					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
 					if (otherEntitySyncId != syncEntity.SyncId)

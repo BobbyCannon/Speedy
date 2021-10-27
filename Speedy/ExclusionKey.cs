@@ -91,10 +91,10 @@ namespace Speedy
 				return true;
 			}
 
-			return Type?.FullName?.Equals(other.Type.FullName) == true
-				&& ExcludeIncomingSync == other.ExcludeIncomingSync
-				&& ExcludeOutgoingSync == other.ExcludeOutgoingSync
-				&& ExcludeSyncUpdate == other.ExcludeSyncUpdate;
+			return (Type?.FullName?.Equals(other.Type.FullName) == true)
+				&& (ExcludeIncomingSync == other.ExcludeIncomingSync)
+				&& (ExcludeOutgoingSync == other.ExcludeOutgoingSync)
+				&& (ExcludeSyncUpdate == other.ExcludeSyncUpdate);
 		}
 
 		/// <inheritdoc />

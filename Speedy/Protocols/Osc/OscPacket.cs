@@ -11,8 +11,20 @@ using Speedy.Extensions;
 
 namespace Speedy.Protocols.Osc
 {
-	public abstract class OscPacket
+	public abstract class OscPacket : Bindable
 	{
+		#region Constructors
+
+		protected OscPacket() : this(null)
+		{
+		}
+
+		protected OscPacket(IDispatcher dispatcher) : base(dispatcher)
+		{
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
@@ -71,7 +83,7 @@ namespace Speedy.Protocols.Osc
 		{
 			try
 			{
-				if (data[0] == '#' || data[0] == '+')
+				if ((data[0] == '#') || (data[0] == '+'))
 				{
 					return OscBundle.ParseBundle(data, length);
 				}
@@ -160,7 +172,7 @@ namespace Speedy.Protocols.Osc
 				break;
 			}
 
-			if (i >= buffer.Length && address == null)
+			if ((i >= buffer.Length) && (address == null))
 			{
 				throw new Exception("no comma found");
 			}
@@ -182,7 +194,7 @@ namespace Speedy.Protocols.Osc
 				}
 			}
 
-			if (i >= buffer.Length && types == null)
+			if ((i >= buffer.Length) && (types == null))
 			{
 				throw new Exception("No null terminator after type string");
 			}

@@ -96,7 +96,7 @@ namespace Speedy.Configuration
 
 			bool Predicate(T x)
 			{
-				if (_properties.Any(p => p.IsNullable == true && p.GetValue(typedEntity) == null))
+				if (_properties.Any(p => (p.IsNullable == true) && (p.GetValue(typedEntity) == null)))
 				{
 					return false;
 				}
@@ -106,7 +106,7 @@ namespace Speedy.Configuration
 
 			var propertyValues = _properties.Select(x => x.GetValue(typedEntity)).ToList();
 
-			if (_combinedPropertyNames == "SyncId" && Equals(propertyValues[0], Guid.Empty))
+			if ((_combinedPropertyNames == "SyncId") && Equals(propertyValues[0], Guid.Empty))
 			{
 				return;
 			}

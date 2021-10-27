@@ -104,7 +104,7 @@ namespace Speedy.Collections
 		{
 			base.OnCollectionChanged(e);
 
-			if (OrderBy == null || e.Action == NotifyCollectionChangedAction.Move || e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Reset)
+			if ((OrderBy == null) || (e.Action == NotifyCollectionChangedAction.Move) || (e.Action == NotifyCollectionChangedAction.Remove) || (e.Action == NotifyCollectionChangedAction.Reset))
 			{
 				// No need to sort on these actions
 				return;

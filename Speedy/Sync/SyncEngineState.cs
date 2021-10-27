@@ -43,9 +43,9 @@ namespace Speedy.Sync
 		/// Indicates if the sync engine is running.
 		/// </summary>
 		public bool IsRunning =>
-			Status != SyncEngineStatus.Cancelled
-			&& Status != SyncEngineStatus.Completed
-			&& Status != SyncEngineStatus.Stopped;
+			(Status != SyncEngineStatus.Cancelled)
+			&& (Status != SyncEngineStatus.Completed)
+			&& (Status != SyncEngineStatus.Stopped);
 
 		/// <summary>
 		/// Gets or set the message for the state.
@@ -59,7 +59,7 @@ namespace Speedy.Sync
 		{
 			get
 			{
-				var result = Total == 0 ? 0 : Math.Round((double) Count / Total * 100, 2);
+				var result = Total == 0 ? 0 : Math.Round(((double) Count / Total) * 100, 2);
 				return double.IsNaN(result) || double.IsInfinity(result) ? 0 : result;
 			}
 		}

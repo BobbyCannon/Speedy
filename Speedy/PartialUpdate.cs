@@ -80,13 +80,13 @@ namespace Speedy
 
 			foreach (var update in Updates)
 			{
-				if (Options.IncludedProperties != null && !Options.IncludedProperties.Contains(update.Key, StringComparer.OrdinalIgnoreCase))
+				if ((Options.IncludedProperties != null) && !Options.IncludedProperties.Contains(update.Key, StringComparer.OrdinalIgnoreCase))
 				{
 					// Ignore this property because we only want to include it
 					continue;
 				}
 
-				if (Options.ExcludedProperties != null && Options.ExcludedProperties.Contains(update.Key, StringComparer.OrdinalIgnoreCase))
+				if ((Options.ExcludedProperties != null) && Options.ExcludedProperties.Contains(update.Key, StringComparer.OrdinalIgnoreCase))
 				{
 					// Ignore this property because we only want to exclude it
 					continue;

@@ -54,9 +54,9 @@ namespace Speedy.Protocols.Nmea
 
 			// indicators
 			var nesw = Indicator;
-			var plusMinus = nesw == "S" || nesw == "W" ? -1 : 1;
+			var plusMinus = (nesw == "S") || (nesw == "W") ? -1 : 1;
 
-			var result = (Convert.ToDouble(dd) + Convert.ToDouble(minute) / 60.0) * plusMinus;
+			var result = (Convert.ToDouble(dd) + (Convert.ToDouble(minute) / 60.0)) * plusMinus;
 			return result;
 		}
 

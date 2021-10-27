@@ -91,7 +91,7 @@ namespace Speedy
 				return;
 			}
 
-			if (SyncEntitiesToCache.Length > 0 && !SyncEntitiesToCache.Contains(type))
+			if ((SyncEntitiesToCache.Length > 0) && !SyncEntitiesToCache.Contains(type))
 			{
 				// We are filtering what sync entities to cache and this entity is not in the list
 				return;
@@ -233,7 +233,7 @@ namespace Speedy
 		/// <returns> True if the type is support or false if otherwise. </returns>
 		public bool SupportsType(Type type)
 		{
-			return SyncEntitiesToCache.Length <= 0 || SyncEntitiesToCache.Contains(type);
+			return (SyncEntitiesToCache.Length <= 0) || SyncEntitiesToCache.Contains(type);
 		}
 
 		/// <summary>
@@ -264,7 +264,7 @@ namespace Speedy
 			{
 				var type = repository.RealType;
 
-				if (SyncEntitiesToCache.Length > 0 && !SyncEntitiesToCache.Contains(type))
+				if ((SyncEntitiesToCache.Length > 0) && !SyncEntitiesToCache.Contains(type))
 				{
 					// We are filtering what sync entities to cache and this entity is not in the list
 					continue;

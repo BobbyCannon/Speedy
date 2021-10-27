@@ -136,7 +136,7 @@ namespace Speedy.Sync
 
 		private string Percent(TimeSpan total, Timer partial)
 		{
-			return $"{(double) partial.Elapsed.Ticks / total.Ticks * 100:0.00}%";
+			return $"{((double) partial.Elapsed.Ticks / total.Ticks) * 100:0.00}%";
 		}
 
 		#endregion

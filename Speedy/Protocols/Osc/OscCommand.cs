@@ -1,8 +1,6 @@
 #region References
 
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -10,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Speedy.Protocols.Osc
 {
-	public abstract class OscCommand : INotifyPropertyChanged
+	public abstract class OscCommand : Bindable
 	{
 		#region Fields
 
@@ -21,7 +19,11 @@ namespace Speedy.Protocols.Osc
 
 		#region Constructors
 
-		protected OscCommand(string address, int version)
+		protected OscCommand(string address, int version) : this(address, version, null)
+		{
+		}
+
+		protected OscCommand(string address, int version, IDispatcher dispatcher) : base(dispatcher)
 		{
 			Address = address;
 			OscMessage = new OscMessage(Address);
@@ -856,14 +858,14 @@ namespace Speedy.Protocols.Osc
 			}
 		}
 
-		public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		public override void OnPropertyChanged(string propertyName)
 		{
 			if (propertyName != nameof(HasBeenUpdated))
 			{
 				HasBeenUpdated = true;
 			}
 
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			base.OnPropertyChanged(propertyName);
 		}
 
 		/// <summary>
@@ -940,12 +942,6 @@ namespace Speedy.Protocols.Osc
 		protected abstract void LoadMessage();
 
 		protected abstract void UpdateMessage();
-
-		#endregion
-
-		#region Events
-
-		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 	}

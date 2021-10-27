@@ -331,8 +331,8 @@ namespace Speedy.Serialization
 			var stringEnumConverter = JsonSettings.GetConverter<StringEnumConverter>();
 			var contractResolver = JsonSettings.ContractResolver as JsonContractResolver;
 
-			CamelCase = stringEnumConverter?.NamingStrategy?.GetType() == camelCaseNamingStrategyType
-				&& contractResolver?.NamingStrategy?.GetType() == camelCaseNamingStrategyType;
+			CamelCase = (stringEnumConverter?.NamingStrategy?.GetType() == camelCaseNamingStrategyType)
+				&& (contractResolver?.NamingStrategy?.GetType() == camelCaseNamingStrategyType);
 
 			IgnoreNullValues = JsonSettings.NullValueHandling == NullValueHandling.Ignore;
 			ConvertEnumsToString = stringEnumConverter != null;

@@ -49,7 +49,7 @@ namespace Speedy.Net
 		/// <summary>
 		/// The value to determine if the request has more pages.
 		/// </summary>
-		public bool HasMore => Collection.Count > 0 && Skipped + Collection.Count < TotalCount;
+		public bool HasMore => (Collection.Count > 0) && ((Skipped + Collection.Count) < TotalCount);
 
 		/// <summary>
 		/// The number of items that was skipped to start this result.

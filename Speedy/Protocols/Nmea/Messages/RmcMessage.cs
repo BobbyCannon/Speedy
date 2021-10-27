@@ -126,12 +126,12 @@ namespace Speedy.Protocols.Nmea.Messages
 				MagneticVariationUnit
 			);
 
-			if (ModeIndicator != null && ModeIndicator.IsSet())
+			if ((ModeIndicator != null) && ModeIndicator.IsSet())
 			{
 				start += $",{ModeIndicator}";
 			}
 
-			if (NavigationStatus != null && NavigationStatus.IsSet())
+			if ((NavigationStatus != null) && NavigationStatus.IsSet())
 			{
 				start += $",{NavigationStatus}";
 			}

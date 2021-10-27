@@ -10,10 +10,11 @@ using Speedy.Extensions;
 
 #endregion
 
-#pragma warning disable 1591
-
 namespace Speedy.Protocols.Osc
 {
+	/// <summary>
+	/// Represents an OSC message.
+	/// </summary>
 	public class OscMessage : OscPacket, IEnumerable<object>
 	{
 		#region Constructors
@@ -29,7 +30,7 @@ namespace Speedy.Protocols.Osc
 		/// single entry array.
 		/// </remarks>
 		public OscMessage(string address, params object[] args)
-			: this(OscTimeTag.UtcNow, address, args)
+			: this(OscTimeTag.UtcNow, address, null, args)
 		{
 		}
 
@@ -45,6 +46,23 @@ namespace Speedy.Protocols.Osc
 		/// single entry array.
 		/// </remarks>
 		public OscMessage(OscTimeTag time, string address, params object[] args)
+			: this(time, address, null, args)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of an OSC message for the provided address and arguments.
+		/// </summary>
+		/// <param name="time"> The time. </param>
+		/// <param name="address"> The address. </param>
+		/// <param name="dispatcher"> The dispatcher for updates. </param>
+		/// <param name="args"> The arguments. </param>
+		/// <remarks>
+		/// Do NOT call this constructor with an object[] unless you want a message with a single
+		/// object of type object[]. Because an object[] is an object the parameter is seen as a
+		/// single entry array.
+		/// </remarks>
+		public OscMessage(OscTimeTag time, string address, IDispatcher dispatcher, params object[] args) : base(dispatcher)
 		{
 			Address = address;
 			Arguments = new List<object>();
@@ -147,6 +165,10 @@ namespace Speedy.Protocols.Osc
 			Arguments.AddRange(arguments);
 		}
 
+		/// <summary>
+		/// Convert the message to a byte array.
+		/// </summary>
+		/// <returns> The bytes that represents the message. </returns>
 		public override byte[] ToByteArray()
 		{
 			var parts = new List<byte[]>();
@@ -304,7 +326,7 @@ namespace Speedy.Protocols.Osc
 
 				i++;
 
-				if (currentList != Arguments && i == currentList.Count)
+				if ((currentList != Arguments) && (i == currentList.Count))
 				{
 					// End of array, go back to main Argument list
 					typeString += "]";
@@ -334,16 +356,28 @@ namespace Speedy.Protocols.Osc
 			return output;
 		}
 
+		/// <summary>
+		/// Converts the message to a HEX string.
+		/// </summary>
+		/// <returns> A hex string format of the message. </returns>
 		public string ToHexString()
 		{
 			return ToString(CultureInfo.InvariantCulture, true);
 		}
 
+		/// <summary>
+		/// Converts the message to a string.
+		/// </summary>
+		/// <returns> A string format of the message. </returns>
 		public override string ToString()
 		{
 			return ToString(CultureInfo.InvariantCulture, false);
 		}
 
+		/// <summary>
+		/// Converts the message to a string.
+		/// </summary>
+		/// <returns> A string format of the message. </returns>
 		public string ToString(IFormatProvider provider, bool numberAsHex)
 		{
 			var sb = new StringBuilder();
@@ -494,7 +528,7 @@ namespace Speedy.Protocols.Osc
 			var address = GetAddress(data, index);
 			index += data.FirstIndexAfter(address.Length, x => x == ',');
 
-			if (index % 4 != 0)
+			if ((index % 4) != 0)
 			{
 				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidMessageAddressMisAligned);
 			}
@@ -503,7 +537,7 @@ namespace Speedy.Protocols.Osc
 			var types = GetTypes(data, index);
 			index += types.Length;
 
-			while (index % 4 != 0)
+			while ((index % 4) != 0)
 			{
 				index++;
 			}
@@ -513,7 +547,7 @@ namespace Speedy.Protocols.Osc
 			foreach (var type in types)
 			{
 				// skip leading comma
-				if (type == ',' && !commaParsed)
+				if ((type == ',') && !commaParsed)
 				{
 					commaParsed = true;
 					continue;
@@ -663,7 +697,7 @@ namespace Speedy.Protocols.Osc
 						break;
 				}
 
-				while (index % 4 != 0)
+				while ((index % 4) != 0)
 				{
 					index++;
 				}

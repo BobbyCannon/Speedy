@@ -141,7 +141,7 @@ namespace Speedy.Extensions
 		/// <returns> A new HashSet containing the new values. </returns>
 		public static HashSet<T> Append<T>(this HashSet<T> set, params T[] values)
 		{
-			return new(set.Union(values));
+			return new HashSet<T>(set.Union(values));
 		}
 
 		/// <summary>
@@ -153,7 +153,7 @@ namespace Speedy.Extensions
 		/// <returns> A new HashSet containing the new values. </returns>
 		public static HashSet<T> Append<T>(this HashSet<T> set, HashSet<T> values)
 		{
-			return new(set.Union(values));
+			return new HashSet<T>(set.Union(values));
 		}
 
 		/// <summary>

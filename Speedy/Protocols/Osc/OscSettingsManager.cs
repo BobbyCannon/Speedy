@@ -167,7 +167,7 @@ namespace Speedy.Protocols.Osc
 		{
 			foreach (var s in this)
 			{
-				if (s.CanWrite && (s.HasBeenRead && s.HasBeenUpdated || force))
+				if (s.CanWrite && ((s.HasBeenRead && s.HasBeenUpdated) || force))
 				{
 					s.RequestWrite();
 				}
@@ -184,7 +184,7 @@ namespace Speedy.Protocols.Osc
 		{
 			foreach (var s in this)
 			{
-				if (s.HasBeenRead && s.HasBeenUpdated || force)
+				if ((s.HasBeenRead && s.HasBeenUpdated) || force)
 				{
 					s.UndoChanges();
 				}

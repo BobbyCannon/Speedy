@@ -39,7 +39,7 @@ namespace Speedy.Extensions
 		/// <returns> True if the value is a boolean and matches the expected value. </returns>
 		public static bool ValidateBoolean(this object value, bool expected)
 		{
-			return value is bool bValue && bValue == expected;
+			return value is bool bValue && (bValue == expected);
 		}
 
 		/// <summary>
@@ -56,8 +56,8 @@ namespace Speedy.Extensions
 				return false;
 			}
 
-			return iValue >= minimum
-				&& iValue <= maximum;
+			return (iValue >= minimum)
+				&& (iValue <= maximum);
 		}
 
 		/// <summary>
@@ -74,8 +74,8 @@ namespace Speedy.Extensions
 				return false;
 			}
 
-			return sValue.Length >= minimum
-				&& sValue.Length <= maximum;
+			return (sValue.Length >= minimum)
+				&& (sValue.Length <= maximum);
 		}
 
 		#endregion

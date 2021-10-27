@@ -1664,7 +1664,7 @@
             <summary>
             Empties a directory of all the files and the directories.
             </summary>
-            <param name="directory">The directory to empty.</param>
+            <param name="directory"> The directory to empty. </param>
         </member>
         <member name="M:Speedy.Extensions.DirectoryInfoExtensions.SafeCreate(System.IO.DirectoryInfo)">
             <summary>
@@ -5513,6 +5513,11 @@
             <param name="message"> </param>
             <returns> </returns>
         </member>
+        <member name="T:Speedy.Protocols.Osc.OscMessage">
+            <summary>
+            Represents an OSC message.
+            </summary>
+        </member>
         <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(System.String,System.Object[])">
             <summary>
             Instantiates an instance of an OSC message for the provided address and arguments.
@@ -5531,6 +5536,20 @@
             </summary>
             <param name="time"> The time. </param>
             <param name="address"> The address. </param>
+            <param name="args"> The arguments. </param>
+            <remarks>
+            Do NOT call this constructor with an object[] unless you want a message with a single
+            object of type object[]. Because an object[] is an object the parameter is seen as a
+            single entry array.
+            </remarks>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(Speedy.Protocols.Osc.OscTimeTag,System.String,Speedy.IDispatcher,System.Object[])">
+            <summary>
+            Instantiates an instance of an OSC message for the provided address and arguments.
+            </summary>
+            <param name="time"> The time. </param>
+            <param name="address"> The address. </param>
+            <param name="dispatcher"> The dispatcher for updates. </param>
             <param name="args"> The arguments. </param>
             <remarks>
             Do NOT call this constructor with an object[] unless you want a message with a single
@@ -5601,6 +5620,30 @@
             Sets the arguments for the message.
             </summary>
             <param name="arguments"> The arguments to be set. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ToByteArray">
+            <summary>
+            Convert the message to a byte array.
+            </summary>
+            <returns> The bytes that represents the message. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ToHexString">
+            <summary>
+            Converts the message to a HEX string.
+            </summary>
+            <returns> A hex string format of the message. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ToString">
+            <summary>
+            Converts the message to a string.
+            </summary>
+            <returns> A string format of the message. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ToString(System.IFormatProvider,System.Boolean)">
+            <summary>
+            Converts the message to a string.
+            </summary>
+            <returns> A string format of the message. </returns>
         </member>
         <member name="M:Speedy.Protocols.Osc.OscMessage.ParseMessage(Speedy.Protocols.Osc.OscTimeTag,System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
             <summary>
@@ -5793,6 +5836,65 @@
             Sets the update interval for all statistic values in this set.
             </summary>
             <param name="interval"> </param>
+        </member>
+        <member name="T:Speedy.Protocols.Osc.OscStatisticValue">
+            <summary>
+            Represents a value for an OSC statistic.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatisticValue.#ctor(System.String)">
+            <summary>
+            Create an instance of the OSC statistic.
+            </summary>
+            <param name="name"> The name of the value. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatisticValue.#ctor(System.String,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the OSC statistic.
+            </summary>
+            <param name="name"> The name of the value. </param>
+            <param name="dispatcher"> The dispatcher for updates. </param>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscStatisticValue.Name">
+            <summary>
+            The name of the statistic.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscStatisticValue.Rate">
+            <summary>
+            The rate of the statistic.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscStatisticValue.Total">
+            <summary>
+            The total of the statistic.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Osc.OscStatisticValue.UpdateInterval">
+            <summary>
+            The interval to update the statistic.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatisticValue.Increment(System.Int32)">
+            <summary>
+            Increment the statistic. Default amount is 1.
+            </summary>
+            <param name="amount"> The amount to increment. Defaults to 1. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatisticValue.InvokePropertyChanged">
+            <summary>
+            Notify the UI with property changed events.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatisticValue.Reset">
+            <summary>
+            Resets the statistic to 0.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Osc.OscStatisticValue.UpdateRate">
+            <summary>
+            Updates the rate of updates.
+            </summary>
         </member>
         <member name="M:Speedy.Protocols.Osc.OscSymbol.#ctor(System.String)">
             <summary>

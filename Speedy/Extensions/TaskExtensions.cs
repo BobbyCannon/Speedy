@@ -54,9 +54,9 @@ namespace Speedy.Extensions
 		/// <returns> True if the task is Cancelled, Faulted, or RanToCompletion otherwise false. </returns>
 		public static bool IsCompleted(this Task task)
 		{
-			return task.Status == TaskStatus.Canceled
-				|| task.Status == TaskStatus.Faulted
-				|| task.Status == TaskStatus.RanToCompletion;
+			return (task.Status == TaskStatus.Canceled)
+				|| (task.Status == TaskStatus.Faulted)
+				|| (task.Status == TaskStatus.RanToCompletion);
 		}
 
 		private static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)

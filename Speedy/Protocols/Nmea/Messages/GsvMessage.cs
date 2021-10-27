@@ -71,10 +71,10 @@ namespace Speedy.Protocols.Nmea.Messages
 				Satellites.Add(
 					new Satellite
 					{
-						SatellitePrnNumber = GetArgument(3 + i * 4 + 0),
-						ElevationDegrees = GetArgument(3 + i * 4 + 1),
-						AzimuthDegrees = GetArgument(3 + i * 4 + 2),
-						SignalStrength = GetArgument(3 + i * 4 + 3)
+						SatellitePrnNumber = GetArgument(3 + (i * 4) + 0),
+						ElevationDegrees = GetArgument(3 + (i * 4) + 1),
+						AzimuthDegrees = GetArgument(3 + (i * 4) + 2),
+						SignalStrength = GetArgument(3 + (i * 4) + 3)
 					});
 			}
 		}
@@ -116,7 +116,7 @@ namespace Speedy.Protocols.Nmea.Messages
 				return 4;
 			}
 
-			return numberOfSatellitesInView - (sentenceNr - 1) * 4;
+			return numberOfSatellitesInView - ((sentenceNr - 1) * 4);
 		}
 
 		#endregion

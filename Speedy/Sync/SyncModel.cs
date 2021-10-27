@@ -51,7 +51,7 @@ namespace Speedy.Sync
 		/// <param name="propertyName"> The name of the property has changed. </param>
 		public override void OnPropertyChanged(string propertyName)
 		{
-			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
+			if ((Dispatcher != null) && !Dispatcher.HasThreadAccess)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(propertyName));
 				return;

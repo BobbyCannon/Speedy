@@ -377,7 +377,7 @@ namespace Speedy
 
 			NotifyCollectionChangedEventArgs eventArgs = null;
 
-			if (added.Count > 0 && removed.Count > 0)
+			if ((added.Count > 0) && (removed.Count > 0))
 			{
 				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, added, removed);
 			}
@@ -457,7 +457,7 @@ namespace Speedy
 			where T1 : Entity<T1K>
 			where T2 : Entity<T2K>
 		{
-			if (!OneToManyRelationships.ContainsKey(key) || entity == null)
+			if (!OneToManyRelationships.ContainsKey(key) || (entity == null))
 			{
 				return null;
 			}
@@ -472,7 +472,7 @@ namespace Speedy
 			var response = new RelationshipRepository<T2, T2K>(key, (Repository<T2, T2K>) repository, x =>
 			{
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (!Equals(invokedKey, default(T2K)) && invokedKey?.Equals(entity.Id) == true)
+				if (!Equals(invokedKey, default(T2K)) && (invokedKey?.Equals(entity.Id) == true))
 				{
 					return true;
 				}
@@ -500,7 +500,7 @@ namespace Speedy
 				}
 
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (invokedKey != null && !invokedKey.Equals(invokedEntity.Id))
+				if ((invokedKey != null) && !invokedKey.Equals(invokedEntity.Id))
 				{
 					invokedEntity.Id = (T1K) invokedKey;
 				}
@@ -602,7 +602,7 @@ namespace Speedy
 				var gCount = method.GetCachedGenericArguments().Count;
 				var pCount = method.GetCachedParameters().Count;
 
-				if (typeArgs.Length != gCount || argTypes.Length != pCount)
+				if ((typeArgs.Length != gCount) || (argTypes.Length != pCount))
 				{
 					continue;
 				}
@@ -707,7 +707,7 @@ namespace Speedy
 			var entityRelationship = itemProperties.FirstOrDefault(x => x.Name == entityType.Name);
 			entityRelationship?.SetValue(item, entity, null);
 
-			var entityRelationshipId = itemProperties.FirstOrDefault(x => x.Name == entityType.Name + "Id");
+			var entityRelationshipId = itemProperties.FirstOrDefault(x => x.Name == (entityType.Name + "Id"));
 			var entityKeyId = entityProperties.FirstOrDefault(x => x.Name == nameof(Entity<int>.Id));
 			entityRelationshipId?.SetValue(item, entityKeyId?.GetValue(entity), null);
 		}
@@ -779,9 +779,9 @@ namespace Speedy
 			foreach (var entityRelationship in entityRelationships)
 			{
 				var otherEntity = entityRelationship.GetValue(entity, null) as IEntity;
-				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
+				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "Id"));
 
-				if (otherEntity == null && entityRelationshipIdProperty != null)
+				if ((otherEntity == null) && (entityRelationshipIdProperty != null))
 				{
 					var otherEntityId = entityRelationshipIdProperty.GetValue(entity, null);
 					var defaultValue = entityRelationshipIdProperty.PropertyType.GetDefault();
@@ -793,7 +793,7 @@ namespace Speedy
 						entityRelationship.SetValue(entity, otherEntity, null);
 					}
 				}
-				else if (otherEntity != null && entityRelationshipIdProperty != null)
+				else if ((otherEntity != null) && (entityRelationshipIdProperty != null))
 				{
 					var repository = Repositories[entityRelationship.PropertyType.ToAssemblyName()];
 					var repositoryType = repository.GetType();
@@ -832,9 +832,9 @@ namespace Speedy
 						entityRelationshipIdProperty.SetValue(entity, otherId, null);
 					}
 
-					var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
+					var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "SyncId"));
 
-					if (entityRelationship.GetValue(entity, null) is ISyncEntity syncEntity && entityRelationshipSyncIdProperty != null)
+					if (entityRelationship.GetValue(entity, null) is ISyncEntity syncEntity && (entityRelationshipSyncIdProperty != null))
 					{
 						var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(entity, null);
 						if (otherEntitySyncId != syncEntity.SyncId)

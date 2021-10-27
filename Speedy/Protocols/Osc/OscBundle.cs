@@ -193,7 +193,7 @@ namespace Speedy.Protocols.Osc
 			var timeTag = new OscTimeTag(time);
 			index += 8;
 
-			if (bundleTag != "#bundle\0" && bundleTag != "+bundle\0")
+			if ((bundleTag != "#bundle\0") && (bundleTag != "+bundle\0"))
 			{
 				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidBundle);
 			}
@@ -226,7 +226,7 @@ namespace Speedy.Protocols.Osc
 				messages.Add(message);
 				index += size;
 
-				while (index % 4 != 0)
+				while ((index % 4) != 0)
 				{
 					index++;
 				}
@@ -311,7 +311,7 @@ namespace Speedy.Protocols.Osc
 
 			var messages = new List<OscPacket>();
 
-			while (start > 0 && start < value.Length)
+			while ((start > 0) && (start < value.Length))
 			{
 				end = Extensions.ScanForwardObject(value, start);
 				messages.Add(Parse(value.Substring(start + 1, end - (start + 1)).Trim(), provider));
@@ -325,7 +325,7 @@ namespace Speedy.Protocols.Osc
 
 				gap = value.Substring(start, end - start).Trim();
 
-				if (gap.Equals(",") == false && string.IsNullOrWhiteSpace(gap) == false)
+				if ((gap.Equals(",") == false) && (string.IsNullOrWhiteSpace(gap) == false))
 				{
 					return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParsedMessageArray, gap);
 				}

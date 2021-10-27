@@ -46,7 +46,7 @@ namespace Speedy.Storage
 
 		private void EntityOnPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (State == EntityStateType.Unmodified && Entity.HasChanges())
+			if ((State == EntityStateType.Unmodified) && Entity.HasChanges())
 			{
 				State = EntityStateType.Modified;
 			}

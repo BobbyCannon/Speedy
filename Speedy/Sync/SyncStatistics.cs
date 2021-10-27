@@ -44,7 +44,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Returns true if the statistics are all zero.
 		/// </summary>
-		public bool IsReset => AppliedChanges == 0 && AppliedCorrections == 0 && Changes == 0 && Corrections == 0 && IndividualProcessCount == 0;
+		public bool IsReset => (AppliedChanges == 0) && (AppliedCorrections == 0) && (Changes == 0) && (Corrections == 0) && (IndividualProcessCount == 0);
 
 		#endregion
 

@@ -152,9 +152,9 @@ namespace Speedy.Serialization
 				return true;
 			});
 
-			return (input.StartsWith("{") && input.EndsWith("}")
-					|| input.StartsWith("[") && input.EndsWith("]")
-					|| input.StartsWith("\"") && input.EndsWith("\"")
+			return ((input.StartsWith("{") && input.EndsWith("}"))
+					|| (input.StartsWith("[") && input.EndsWith("]"))
+					|| (input.StartsWith("\"") && input.EndsWith("\""))
 				) && isWellFormed();
 		}
 

@@ -11,12 +11,12 @@ namespace Speedy.Extensions
 	/// </summary>
 	public static class DirectoryInfoExtensions
 	{
-		#region Static Methods
+		#region Methods
 
 		/// <summary>
 		/// Empties a directory of all the files and the directories.
 		/// </summary>
-		/// <param name="directory">The directory to empty.</param>
+		/// <param name="directory"> The directory to empty. </param>
 		public static void Empty(this DirectoryInfo directory)
 		{
 			// See if the directory exists.

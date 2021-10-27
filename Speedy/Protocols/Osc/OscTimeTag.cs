@@ -80,7 +80,7 @@ namespace Speedy.Protocols.Osc
 		/// <summary>
 		/// Gets the number of seconds including fractional parts since midnight on January 1, 1900.
 		/// </summary>
-		public decimal PreciseValue => Seconds + SubSeconds / (decimal) uint.MaxValue;
+		public decimal PreciseValue => Seconds + (SubSeconds / (decimal) uint.MaxValue);
 
 		/// <summary>
 		/// Gets the number of seconds since midnight on January 1, 1900. This is the first 32 bits of the 64 bit fixed point OscTimeTag value.
@@ -179,18 +179,18 @@ namespace Speedy.Protocols.Osc
 		/// <returns> The equivalent value as an osc time tag. </returns>
 		public static OscTimeTag FromDateTime(DateTime datetime)
 		{
-			if (datetime <= DateTime.MinValue
-				|| datetime <= MinDateTime
-				|| datetime.ToUniversalTime() == DateTime.MinValue
-				|| datetime.ToUniversalTime() == MinDateTime)
+			if ((datetime <= DateTime.MinValue)
+				|| (datetime <= MinDateTime)
+				|| (datetime.ToUniversalTime() == DateTime.MinValue)
+				|| (datetime.ToUniversalTime() == MinDateTime))
 			{
 				return MinValue;
 			}
 
-			if (datetime >= DateTime.MaxValue
-				|| datetime >= MaxDateTime
-				|| datetime.ToUniversalTime() == DateTime.MaxValue
-				|| datetime.ToUniversalTime() == MaxDateTime)
+			if ((datetime >= DateTime.MaxValue)
+				|| (datetime >= MaxDateTime)
+				|| (datetime.ToUniversalTime() == DateTime.MaxValue)
+				|| (datetime.ToUniversalTime() == MaxDateTime))
 			{
 				return MaxValue;
 			}
@@ -214,8 +214,8 @@ namespace Speedy.Protocols.Osc
 		{
 			var seconds = span.TotalSeconds;
 			var secondsUInt = (uint) seconds;
-			var milliseconds = span.TotalMilliseconds - (double) secondsUInt * 1000;
-			var fraction = milliseconds / 1000.0 * uint.MaxValue;
+			var milliseconds = span.TotalMilliseconds - ((double) secondsUInt * 1000);
+			var fraction = (milliseconds / 1000.0) * uint.MaxValue;
 			return new OscTimeTag(((ulong) (secondsUInt & 0xFFFFFFFF) << 32) | ((ulong) fraction & 0xFFFFFFFF));
 		}
 
@@ -332,7 +332,7 @@ namespace Speedy.Protocols.Osc
 			// Kas: http://stackoverflow.com/questions/5206857/convert-ntp-timestamp-to-utc
 			var seconds = Seconds;
 			var fraction = SubSeconds;
-			var milliseconds = fraction / (double) uint.MaxValue * 1000;
+			var milliseconds = (fraction / (double) uint.MaxValue) * 1000;
 			var datetime = MinDateTime.AddSeconds(seconds).AddMilliseconds(milliseconds);
 			return datetime;
 		}
