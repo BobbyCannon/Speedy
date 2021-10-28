@@ -36,7 +36,7 @@ namespace Speedy.ServiceHosting
 		public static void InstallService(string serviceFilePath, string serviceArguments, string serviceName, string displayName,
 			ServiceStartMode startType, string userName = "", string password = "")
 		{
-			var serviceCommandLine = $"\"{serviceFilePath}\" {serviceArguments.Escape()}";
+			var serviceCommandLine = $"\"{serviceFilePath}\" {serviceArguments}".Escape();
 			var serviceControl = new Process();
 
 			var serviceControlArguments = new StringBuilder();

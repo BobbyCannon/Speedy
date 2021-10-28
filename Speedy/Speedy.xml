@@ -247,6 +247,9 @@
             The default value for arguments if not provided.
             </summary>
         </member>
+        <member name="M:Speedy.Configuration.CommandLine.CommandLineArgument`1.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Configuration.CommandLine.CommandLineArgument">
             <summary>
             Class managing the argument information
@@ -1749,19 +1752,21 @@
             <param name="exception"> The exception to process. </param>
             <returns> The message value of the exception. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ExceptionExtensions.ToDetailedString(System.Exception)">
+        <member name="M:Speedy.Extensions.ExceptionExtensions.ToDetailedString(System.Exception,System.Boolean)">
             <summary>
             Gets the details of the exception.
             </summary>
             <param name="ex"> The exception to be processed. </param>
+            <param name="includeStackTrace"> Optionally include the stack trace. Defaults to true. </param>
             <returns> The detailed string for the exception. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ExceptionExtensions.AddExceptionToBuilder(System.Text.StringBuilder,System.Exception)">
+        <member name="M:Speedy.Extensions.ExceptionExtensions.AddExceptionToBuilder(System.Text.StringBuilder,System.Exception,System.Boolean)">
             <summary>
             Add the exception details to the string builder.
             </summary>
             <param name="builder"> The builder to be appended to. </param>
             <param name="ex"> The exception to be processed. </param>
+            <param name="includeStackTrace"> Optionally include the stack trace. Defaults to true. </param>
         </member>
         <member name="T:Speedy.Extensions.ExpressionExtensions">
             <summary>

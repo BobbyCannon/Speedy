@@ -12,8 +12,8 @@ $scriptPath = $PSScriptRoot.Replace("\Scripts", "")
 
 Clear-Host
 
-$versionFull = "8.1.7.0"
-$version = "8.1.7"
+$versionFull = "8.1.8.0"
+$version = "8.1.8"
 $files = Get-ChildItem $ProjectPath *.csproj -Recurse | Select-Object Fullname
 
 $speedyPR = "<PackageReference Include=`"Speedy`" Version=`"$version`" />"

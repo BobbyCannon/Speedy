@@ -18,6 +18,12 @@ namespace Speedy.ServiceHosting
 	/// </summary>
 	public class WindowsServiceArgument<T> : CommandLineArgument<T>
 	{
+		#region Fields
+
+		private bool _includeInServiceArguments;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -35,7 +41,11 @@ namespace Speedy.ServiceHosting
 		/// <summary>
 		/// Determine if this argument should be included in the windows service argument string. Defaults to true (include).
 		/// </summary>
-		public bool IncludeInServiceArguments { get; set; }
+		public bool IncludeInServiceArguments
+		{
+			get => _includeInServiceArguments || IsRequired;
+			set => _includeInServiceArguments = value;
+		}
 
 		#endregion
 	}

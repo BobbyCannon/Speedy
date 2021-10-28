@@ -20,7 +20,23 @@ namespace Speedy.UnitTests.ServiceHosting
 			var options = GetWindowsServiceOptions();
 			var actual = options.BuildHelpInformation();
 			actual.Escape().Dump();
-			Assert.AreEqual("Foo Bar 8.1.6.0\r\n\t[-i] Install the service.\r\n\t[-u] Uninstall the service.\r\n\t[-d] Wait for the debugger.\r\n\t[-v] Verbose logging.\r\n\t[-h] Print out the help menu.\r\n", actual);
+			Assert.AreEqual($"Foo Bar {TestHelper.Version}\r\n\t[-i] Install the service.\r\n\t[-u] Uninstall the service.\r\n\t[-d] Wait for the debugger.\r\n\t[-v] Verbose logging.\r\n\t[-h] Print out the help menu.\r\n", actual);
+		}
+
+		[TestMethod]
+		public void IncludeInServiceArgumentsReturnTrueIfRequired()
+		{
+			var argument = new WindowsServiceArgument
+			{
+				IncludeInServiceArguments = false,
+				IsRequired = false
+			};
+
+			Assert.AreEqual(false, argument.IncludeInServiceArguments);
+
+			argument.IsRequired = true;
+
+			Assert.AreEqual(true, argument.IncludeInServiceArguments);
 		}
 
 		[TestMethod]

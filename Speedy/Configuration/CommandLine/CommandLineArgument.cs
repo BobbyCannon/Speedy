@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using Speedy.Extensions;
 
 #endregion
 
@@ -30,6 +31,22 @@ namespace Speedy.Configuration.CommandLine
 				_typedDefaultValue = value;
 				HasDefaultValue = true;
 			}
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return WasFound
+				? HasValue
+					? typeof(T) == typeof(string)
+						? $"{Prefix}{Name} \"{Value.Escape()}\""
+						: $"{Prefix}{Name} {Value}"
+					: $"{Prefix}{Name}"
+				: string.Empty;
 		}
 
 		#endregion
