@@ -10,7 +10,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.20" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.21" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="1.1.6" />
 	</ItemGroup>
 	<ItemGroup>

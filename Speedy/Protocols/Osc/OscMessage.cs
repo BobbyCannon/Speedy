@@ -10,6 +10,8 @@ using Speedy.Extensions;
 
 #endregion
 
+#pragma warning disable 1591
+
 namespace Speedy.Protocols.Osc
 {
 	/// <summary>

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Storage;
 
 #endregion
@@ -116,7 +117,7 @@ namespace Speedy.Configuration
 				return;
 			}
 
-			if (_isUnique && (repository.Any(Predicate) || repository.AnyNew(entity, Predicate)))
+			if (_isUnique && (repository.ToListSafe().Any(Predicate) || repository.AnyNew(entity, Predicate)))
 			{
 				throw new ValidationException($"{_name}: Cannot insert duplicate row. The duplicate key value is ({string.Join(",", propertyValues)}).");
 			}

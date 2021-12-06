@@ -89,7 +89,7 @@ namespace Speedy.EntityFramework
 				throw new SpeedyException(SpeedyException.SyncEntityIncorrectType);
 			}
 
-			if (filter is SyncRepositoryFilter<T> srf && srf.LookupFilter != null)
+			if (filter is SyncRepositoryFilter<T> srf && srf.HasLookupFilter)
 			{
 				return Set.FirstOrDefault(srf.LookupFilter.Invoke(entity));
 			}

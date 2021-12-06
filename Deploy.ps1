@@ -31,7 +31,7 @@ if (!(Test-Path $msbuild -PathType Leaf))
 
 if (!(Test-Path $msbuild -PathType Leaf))
 {
-	$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Preview\Msbuild\Current\Bin\MSBuild.exe"
+	$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Professional\Msbuild\Current\Bin\MSBuild.exe"
 }
 
 & $msbuild "$scriptPath\Speedy.Website\Speedy.Website.csproj" /p:Configuration="$Configuration" /p:PublishProfile=localhost /p:DeployOnBuild=True /p:VisualStudioVersion=16.0 /t:Rebuild /v:m

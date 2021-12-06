@@ -156,10 +156,10 @@ namespace Speedy.Sync
 						continue;
 					}
 
-					var lookupFilter = SyncOptions.GetRepositoryLookupFilter(repository);
+					var syncRepositoryFilter = SyncOptions.GetRepositoryLookupFilter(repository);
 
 					// Check to see if this repository should be skipped
-					var changeCount = repository.GetChangeCount(request.Since, request.Until, lookupFilter);
+					var changeCount = repository.GetChangeCount(request.Since, request.Until, syncRepositoryFilter);
 					if (changeCount <= remainingSkip)
 					{
 						// this repo changes was processed in a previous GetChanges request
@@ -167,7 +167,7 @@ namespace Speedy.Sync
 						continue;
 					}
 
-					var changes = repository.GetChanges(request.Since, request.Until, remainingSkip, take - response.Collection.Count, lookupFilter).ToList();
+					var changes = repository.GetChanges(request.Since, request.Until, remainingSkip, take - response.Collection.Count, syncRepositoryFilter).ToList();
 					var items = OutgoingConverter?.Convert(changes).ToList() ?? changes;
 
 					response.Collection.AddRange(items);
@@ -336,8 +336,8 @@ namespace Speedy.Sync
 					return 0;
 				}
 
-				var lookupFilter = SyncOptions.GetRepositoryLookupFilter(repository);
-				return repository.GetChangeCount(request.Since, request.Until, lookupFilter);
+				var syncRepositoryFilter = SyncOptions.GetRepositoryLookupFilter(repository);
+				return repository.GetChangeCount(request.Since, request.Until, syncRepositoryFilter);
 			});
 
 			return _changeCount;
@@ -427,7 +427,7 @@ namespace Speedy.Sync
 					throw new InvalidDataException("Failed to find a syncable repository for the entity.");
 				}
 
-				var lookupFilter = SyncOptions.GetRepositoryLookupFilter(repository);
+				var syncRepositoryFilter = SyncOptions.GetRepositoryLookupFilter(repository);
 				var foundEntity = Profiler.ProcessSyncObjectReadEntity.Time(() =>
 				{
 					// Check to see if primary key caching is enabled and is never expiring for a client
@@ -442,7 +442,7 @@ namespace Speedy.Sync
 					// Disable caching if the repository is using a different lookup filter because matching could be using a different "sync lookup key"
 					//  - todo: change key cache to add a "GetEntitySyncId" (see GetEntityId) method, this way we could cache on any lookup key
 					// Disable caching if the cache does not support the sync entity type
-					if ((lookupFilter == null)
+					if ((syncRepositoryFilter?.HasLookupFilter != true)
 						&& !isIndividualProcess
 						&& Options.EnablePrimaryKeyCache
 						&& !Options.IsServerClient
@@ -456,7 +456,7 @@ namespace Speedy.Sync
 						}
 					}
 
-					return repository.Read(syncEntity, lookupFilter);
+					return repository.Read(syncEntity, syncRepositoryFilter);
 				});
 
 				var syncStatus = syncObject.Status;

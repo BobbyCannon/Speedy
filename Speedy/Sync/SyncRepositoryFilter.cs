@@ -32,6 +32,9 @@ namespace Speedy.Sync
 
 		#region Properties
 
+		/// <inheritdoc />
+		public override bool HasLookupFilter => LookupFilter != null;
+
 		/// <summary>
 		/// The incoming filter for the type.
 		/// </summary>
@@ -92,6 +95,11 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// Returns true if lookup expression is not null otherwise false.
+		/// </summary>
+		public virtual bool HasLookupFilter => LookupExpression != null;
 
 		/// <summary>
 		/// The incoming filter as a generic object.

@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using Speedy.Extensions;
@@ -19,7 +19,7 @@ namespace Speedy
 	{
 		#region Fields
 
-		private readonly Dictionary<Type, MemoryCache> _cachedEntityId;
+		private readonly ConcurrentDictionary<Type, MemoryCache> _cachedEntityId;
 		private readonly TimeSpan _cacheTimeout;
 
 		#endregion
@@ -39,7 +39,7 @@ namespace Speedy
 		/// <param name="cacheTimeout"> The timeout for removing an item from the cache. </param>
 		public DatabaseKeyCache(TimeSpan cacheTimeout)
 		{
-			_cachedEntityId = new Dictionary<Type, MemoryCache>();
+			_cachedEntityId = new ConcurrentDictionary<Type, MemoryCache>();
 			_cacheTimeout = cacheTimeout;
 
 			SyncEntitiesToCache = Array.Empty<Type>();
@@ -97,12 +97,7 @@ namespace Speedy
 				return;
 			}
 
-			if (!_cachedEntityId.ContainsKey(type))
-			{
-				_cachedEntityId.Add(type, new MemoryCache(_cacheTimeout));
-			}
-
-			var cache = _cachedEntityId[type];
+			var cache = _cachedEntityId.GetOrAdd(type, _ => new MemoryCache(_cacheTimeout));
 			cache.Set(syncId.ToString(), id);
 		}
 
@@ -122,7 +117,7 @@ namespace Speedy
 			_cachedEntityId
 				.Where(x => x.Value.IsEmpty)
 				.ToList()
-				.ForEach(x => _cachedEntityId.Remove(x.Key));
+				.ForEach(x => _cachedEntityId.TryRemove(x.Key, out _));
 		}
 
 		/// <summary>
@@ -152,12 +147,7 @@ namespace Speedy
 		/// <returns> The ID of the entity. </returns>
 		public object GetEntityId(Type type, object syncId)
 		{
-			if (!_cachedEntityId.ContainsKey(type))
-			{
-				_cachedEntityId.Add(type, new MemoryCache(_cacheTimeout));
-			}
-
-			var cache = _cachedEntityId[type];
+			var cache = _cachedEntityId.GetOrAdd(type, _ => new MemoryCache(_cacheTimeout));
 			return cache.TryGet(syncId.ToString(), out var cachedItem) ? cachedItem.Value : null;
 		}
 
@@ -243,11 +233,11 @@ namespace Speedy
 		public string ToDetailedString()
 		{
 			var builder = new StringBuilder();
-			foreach (var test in _cachedEntityId)
+			foreach (var cache in _cachedEntityId)
 			{
-				builder.AppendLine($"\t{test.Key.FullName}");
+				builder.AppendLine($"\t{cache.Key.FullName}");
 
-				foreach (var test2 in test.Value)
+				foreach (var test2 in cache.Value)
 				{
 					builder.AppendLine($"\t\t{test2.Key}-{test2.Value}");
 				}

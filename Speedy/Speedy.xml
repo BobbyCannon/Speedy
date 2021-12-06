@@ -9653,6 +9653,9 @@
             <param name="lookupFilter"> The filter for the type for looking up the entity (GetChanges/GetCorrections). </param>
             <param name="skipDeletedItemsOnInitialSync"> The option to skipped SyncEntity.IsDeleted on initial sync. </param>
         </member>
+        <member name="P:Speedy.Sync.SyncRepositoryFilter`1.HasLookupFilter">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Sync.SyncRepositoryFilter`1.IncomingFilter">
             <summary>
             The incoming filter for the type.
@@ -9689,6 +9692,11 @@
             <param name="incomingFilter"> The incoming filter for the type. </param>
             <param name="lookupFilter"> The lookup filter for the type. </param>
             <param name="skipDeletedItemsOnInitialSync"> The option to skipped SyncEntity.IsDeleted on initial sync. </param>
+        </member>
+        <member name="P:Speedy.Sync.SyncRepositoryFilter.HasLookupFilter">
+            <summary>
+            Returns true if lookup expression is not null otherwise false.
+            </summary>
         </member>
         <member name="P:Speedy.Sync.SyncRepositoryFilter.IncomingExpression">
             <summary>

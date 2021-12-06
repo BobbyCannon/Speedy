@@ -173,7 +173,7 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public void AssignKeys(List<IEntity> processed)
 		{
-			foreach (var entityState in Cache)
+			foreach (var entityState in Cache.ToListSafe())
 			{
 				AssignKey(entityState.Entity, processed);
 			}
@@ -629,12 +629,12 @@ namespace Speedy.Storage
 
 		internal bool AnyNew(object entity, Func<T, bool> func)
 		{
-			return Cache.Any(x => !ReferenceEquals(x.Entity, entity) && func(x.OldEntity));
+			return Cache.ToListSafe().Any(x => !ReferenceEquals(x.Entity, entity) && func(x.OldEntity));
 		}
 
 		private T CloneEntity(T entity)
 		{
-			var constructorInfo = _type.GetConstructor(new Type[0]);
+			var constructorInfo = _type.GetConstructor(Type.EmptyTypes);
 			if (constructorInfo == null)
 			{
 				throw new SpeedyException("Failed to create new instance...");

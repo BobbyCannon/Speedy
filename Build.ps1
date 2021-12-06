@@ -50,7 +50,7 @@ try
 	
 	if (!(Test-Path $msbuild -PathType Leaf))
 	{
-		$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Preview\Msbuild\Current\bin\MSBuild.exe"
+		$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Professional\Msbuild\Current\Bin\MSBuild.exe"
 	}
 	
 	& $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /v:m /m

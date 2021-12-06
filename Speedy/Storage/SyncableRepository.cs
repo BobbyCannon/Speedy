@@ -130,7 +130,7 @@ namespace Speedy.Storage
 				throw new SpeedyException(SpeedyException.SyncEntityIncorrectType);
 			}
 
-			if (filter is SyncRepositoryFilter<T> srf && (srf.LookupFilter != null))
+			if (filter is SyncRepositoryFilter<T> srf && srf.HasLookupFilter)
 			{
 				return Cache.Select(x => x.Entity).AsQueryable().FirstOrDefault(srf.LookupFilter.Invoke(entity));
 			}
