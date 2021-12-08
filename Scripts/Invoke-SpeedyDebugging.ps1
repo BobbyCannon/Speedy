@@ -12,8 +12,11 @@ $scriptPath = $PSScriptRoot.Replace("\Scripts", "")
 
 Clear-Host
 
-$versionFull = "8.1.9.0"
-$version = "8.1.9"
+$file = ([System.IO.FileInfo] "$scriptPath\Speedy\Speedy.csproj")
+$fileXml = [xml](Get-Content $file.FullName -Raw)
+$versionFull = $fileXml.Project.PropertyGroup.AssemblyVersion.ToString()
+$version = $versionFull.Substring(0, $versionFull.LastIndexOf("."))
+
 $files = Get-ChildItem $ProjectPath *.csproj -Recurse | Select-Object Fullname
 
 $speedyPR = "<PackageReference Include=`"Speedy`" Version=`"$version`" />"

@@ -93,7 +93,7 @@ namespace Speedy.UnitTests
 		public static string DefaultSqliteConnection { get; }
 
 		public static string DefaultSqliteConnection2 { get; }
-		
+
 		public static string Version { get; }
 
 		#endregion

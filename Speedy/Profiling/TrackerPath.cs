@@ -131,7 +131,6 @@ namespace Speedy.Profiling
 			IsCompleted = true;
 			CompletedOn = TimeService.UtcNow;
 			Completed?.Invoke(this);
-			Completed = null;
 			return this;
 		}
 
@@ -201,6 +200,8 @@ namespace Speedy.Profiling
 		/// <param name="disposing"> True if disposing and false if otherwise. </param>
 		protected virtual void Dispose(bool disposing)
 		{
+			Disposed?.Invoke(this);
+
 			if (!disposing)
 			{
 				return;
@@ -252,6 +253,11 @@ namespace Speedy.Profiling
 		/// Occurs when the path is completed.
 		/// </summary>
 		internal event Action<TrackerPath> Completed;
+		
+		/// <summary>
+		/// Occurs when the path is disposed.
+		/// </summary>
+		internal event Action<TrackerPath> Disposed;
 
 		#endregion
 	}

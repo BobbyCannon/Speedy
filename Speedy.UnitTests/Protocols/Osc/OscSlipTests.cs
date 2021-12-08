@@ -257,7 +257,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			actual.Dump();
 
 			TestHelper.AreEqual(expected, actual);
-			Assert.IsTrue(actual.Length % 4 == 1);
+			Assert.IsTrue((actual.Length % 4) == 1);
 		}
 
 		[TestMethod]
@@ -272,7 +272,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			data.Dump();
 
 			TestHelper.AreEqual(expected, data);
-			Assert.IsTrue(data.Length % 4 == 1);
+			Assert.IsTrue((data.Length % 4) == 1);
 
 			var packets = new List<OscPacket>();
 			var processor = new OscSlip();
@@ -307,7 +307,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			data.Dump();
 
 			TestHelper.AreEqual(expected, data);
-			Assert.IsTrue(data.Length % 4 == 1);
+			Assert.IsTrue((data.Length % 4) == 1);
 
 			var packets = new List<OscPacket>();
 			var processor = new OscSlip();
@@ -343,7 +343,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			data.Dump();
 
 			TestHelper.AreEqual(expected, data);
-			Assert.IsTrue(data.Length % 4 == 1);
+			Assert.IsTrue((data.Length % 4) == 1);
 
 			var packets = new List<OscPacket>();
 			var processor = new OscSlip();

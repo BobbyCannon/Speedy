@@ -22,15 +22,6 @@ namespace Speedy.UnitTests.Protocols.Nmea
 		}
 
 		[TestMethod]
-		public void TestMethodExtractChecksumNoStar()
-		{
-			var n = new RmcMessage();
-			var m = "$GNRMC,143718.00,A,4513.13793,N,01859.19704,E,0.050,,290719,,,A";
-			var c = n.ExtractChecksum(m);
-			Assert.AreEqual(string.Empty, c);
-		}
-		
-		[TestMethod]
 		public void TestMethodExtractChecksumInvalidSize()
 		{
 			var n = new RmcMessage();
@@ -41,6 +32,15 @@ namespace Speedy.UnitTests.Protocols.Nmea
 			Assert.AreEqual(string.Empty, n.ExtractChecksum("   "));
 			Assert.AreEqual(string.Empty, n.ExtractChecksum("$*"));
 			Assert.AreEqual(string.Empty, n.ExtractChecksum("$GNRMC,*"));
+		}
+
+		[TestMethod]
+		public void TestMethodExtractChecksumNoStar()
+		{
+			var n = new RmcMessage();
+			var m = "$GNRMC,143718.00,A,4513.13793,N,01859.19704,E,0.050,,290719,,,A";
+			var c = n.ExtractChecksum(m);
+			Assert.AreEqual(string.Empty, c);
 		}
 
 		[TestMethod]

@@ -114,7 +114,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.IsNotNull(actualMessage);
 			var actualCommand = new TestOscCommand();
 			actualCommand.Load(actualMessage);
-			TestHelper.AreEqual(command, actualCommand,  nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			TestHelper.AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 
 			command = GetTestCommand();
 			command.Version = 2;
@@ -139,7 +139,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.IsNotNull(actualMessage);
 			actualCommand = new TestOscCommand();
 			actualCommand.Load(actualMessage);
-			TestHelper.AreEqual(command, actualCommand,  nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			TestHelper.AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 		}
 
 		[TestMethod]

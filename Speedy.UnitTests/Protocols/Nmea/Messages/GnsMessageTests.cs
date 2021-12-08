@@ -24,8 +24,8 @@ namespace Speedy.UnitTests.Protocols.Nmea.Messages
 					{
 						Prefix = NmeaMessagePrefix.GlobalNavigationSatelliteSystem,
 						Time = 14035.00,
-						Latitude = new Location("4332.69262","S"),
-						Longitude = new Location("17235.48549","E"),
+						Latitude = new Location("4332.69262", "S"),
+						Longitude = new Location("17235.48549", "E"),
 						ModeIndicator = "RR",
 						NumberOfSatellites = 13,
 						HorizontalDilutionOfPrecision = 0.9,
@@ -42,8 +42,8 @@ namespace Speedy.UnitTests.Protocols.Nmea.Messages
 					{
 						Prefix = NmeaMessagePrefix.GlobalPositioningSystem,
 						Time = 3000,
-						Latitude = new Location("4253.65208","N"),
-						Longitude = new Location("07852.11903","W"),
+						Latitude = new Location("4253.65208", "N"),
+						Longitude = new Location("07852.11903", "W"),
 						ModeIndicator = "DA",
 						NumberOfSatellites = 14,
 						HorizontalDilutionOfPrecision = 0.76,
@@ -61,8 +61,8 @@ namespace Speedy.UnitTests.Protocols.Nmea.Messages
 					{
 						Prefix = NmeaMessagePrefix.GlobalPositioningSystem,
 						Time = 3000,
-						Latitude = new Location("4253.65208","N"),
-						Longitude = new Location("07852.11903","W"),
+						Latitude = new Location("4253.65208", "N"),
+						Longitude = new Location("07852.11903", "W"),
 						ModeIndicator = "DA",
 						NumberOfSatellites = 14,
 						HorizontalDilutionOfPrecision = 0.76,

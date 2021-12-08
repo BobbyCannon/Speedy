@@ -23,7 +23,6 @@ namespace Speedy.UnitTests.Protocols.Nmea
 		{
 			var scenarios = new (NmeaMessagePrefix prefix, NmeaMessageType type, string sentance)[]
 			{
-
 				(NmeaMessagePrefix.GlonassReceiver, NmeaMessageType.AAM, "$GLAAM,"),
 				(NmeaMessagePrefix.GlonassReceiver, NmeaMessageType.ALM, "$GLALM,"),
 				(NmeaMessagePrefix.GlonassReceiver, NmeaMessageType.APA, "$GLAPA,"),
@@ -1207,7 +1206,7 @@ namespace Speedy.UnitTests.Protocols.Nmea
 				(NmeaMessagePrefix.WeatherInstruments, NmeaMessageType.ZTG, "$WIZTG,"),
 				(NmeaMessagePrefix.WeatherInstruments, NmeaMessageType.ZDA, "$WIZDA,"),
 				(NmeaMessagePrefix.WeatherInstruments, NmeaMessageType.TXT, "$WITXT,"),
-				(NmeaMessagePrefix.WeatherInstruments, NmeaMessageType.GBS, "$WIGBS,"),
+				(NmeaMessagePrefix.WeatherInstruments, NmeaMessageType.GBS, "$WIGBS,")
 			};
 
 			var prefixes = Enum.GetValues(typeof(NmeaMessagePrefix)).Cast<NmeaMessagePrefix>().Where(x => x != NmeaMessagePrefix.Unknown).ToArray();
@@ -1215,7 +1214,6 @@ namespace Speedy.UnitTests.Protocols.Nmea
 
 			foreach (var prefix in prefixes)
 			{
-
 				foreach (var type in types)
 				{
 					$"(NmeaMessagePrefix.{prefix}, NmeaMessageType.{type}, \"${prefix.ToDisplayShortName()}{type.ToDisplayShortName()},\"),".Dump();

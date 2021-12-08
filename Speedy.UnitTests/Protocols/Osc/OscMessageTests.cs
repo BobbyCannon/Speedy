@@ -141,7 +141,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", false);
 			//                         /     a                 ,     F
@@ -150,7 +150,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 		}
 
 		[TestMethod]
@@ -185,7 +185,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "1");
 			//                         /     a                 ,     s                 1
@@ -194,7 +194,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "123");
 			//                         /     a                 ,     s                 1     2     3
@@ -203,7 +203,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "1234");
 			//                         /     a                 ,     s                 1     2     3     4
@@ -212,7 +212,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "12345");
 			//                         /     a                 ,     s                 1     2     3     4     5
@@ -221,7 +221,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 		}
 
 		[TestMethod]
@@ -268,7 +268,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", 23, "12345");
 			//                         /     a                 ,     i     s                            23     1     2     3     4     5
@@ -277,7 +277,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, membersToIgnore: new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", 23, Guid.Parse("0354FF2E-508C-4CF6-8BEA-2A2870E78A9B"));
 			//                         /     a                 ,     i     s                            23     0     3     5     4     F     F     2     E     -     5     0     8     C     -     4     C     F     6     -     8     B     E     A     -     2     A     2     8     7     0     E     7     8     A     9     B

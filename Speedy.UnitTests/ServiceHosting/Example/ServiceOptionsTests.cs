@@ -28,6 +28,7 @@ namespace Speedy.UnitTests.ServiceHosting.Example
 			Assert.AreEqual(true, options.IsValid);
 			Assert.AreEqual($"Service Hosting {version}\r\n", options.BuildIssueInformation());
 			Assert.AreEqual("-m \"test\"", options.ToServiceString());
+			Assert.AreEqual("-m \"test\"", options["m"].ToString());
 			
 			options = GetOptions("-m", "\"test\"");
 			Assert.AreEqual(0, options.UnknownArguments.Count);
@@ -35,6 +36,7 @@ namespace Speedy.UnitTests.ServiceHosting.Example
 			Assert.AreEqual(true, options.IsValid);
 			Assert.AreEqual($"Service Hosting {version}\r\n", options.BuildIssueInformation());
 			Assert.AreEqual("-m \"\\\"test\\\"\"", options.ToServiceString());
+			Assert.AreEqual("-m \"\\\"test\\\"\"", options["m"].ToString());
 		}
 
 		[TestMethod]

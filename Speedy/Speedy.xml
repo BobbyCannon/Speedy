@@ -4352,6 +4352,11 @@
             Occurs when the path is completed.
             </summary>
         </member>
+        <member name="E:Speedy.Profiling.TrackerPath.Disposed">
+            <summary>
+            Occurs when the path is disposed.
+            </summary>
+        </member>
         <member name="T:Speedy.Profiling.TrackerPathValue">
             <summary>
             Represents a value for a tracker path.

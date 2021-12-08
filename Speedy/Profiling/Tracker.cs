@@ -221,7 +221,8 @@ namespace Speedy.Profiling
 		{
 			ValidateTrackerState();
 			var response = new TrackerPath { ParentId = _session.Id, Name = name, Values = values.ToList(), Type = name };
-			response.Completed += x => _currentCacheRepository.WriteAndSave(x);
+			response.Completed += OnResponseOnCompleted;
+			response.Disposed += ResponseOnDisposed;
 			return response;
 		}
 
@@ -296,6 +297,11 @@ namespace Speedy.Profiling
 			response.Values.AddRange(values);
 
 			return response;
+		}
+
+		private void OnResponseOnCompleted(TrackerPath x)
+		{
+			_currentCacheRepository.WriteAndSave(x);
 		}
 
 		private static void PathProcessorOnDoWork(object sender, DoWorkEventArgs args)
@@ -449,6 +455,12 @@ namespace Speedy.Profiling
 		private int ProcessSession()
 		{
 			return ProcessRepository(this, _currentCacheRepository, PathRepository);
+		}
+
+		private void ResponseOnDisposed(TrackerPath path)
+		{
+			path.Completed -= OnResponseOnCompleted;
+			path.Disposed -= ResponseOnDisposed;
 		}
 
 		/// <summary>

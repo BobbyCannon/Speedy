@@ -39,9 +39,9 @@ namespace Speedy.UnitTests.Protocols.Samples
 			switch (obj)
 			{
 				case SampleCustomValue value:
-					return Start == value.Start
-						&& End == value.End
-						&& Volume == value.Volume;
+					return (Start == value.Start)
+						&& (End == value.End)
+						&& (Volume == value.Volume);
 
 				default:
 					return false;
@@ -50,7 +50,7 @@ namespace Speedy.UnitTests.Protocols.Samples
 
 		public bool Equals(SampleCustomValue other)
 		{
-			return End == other.End && Start == other.Start && Volume == other.Volume;
+			return (End == other.End) && (Start == other.Start) && (Volume == other.Volume);
 		}
 
 		public override int GetHashCode()
