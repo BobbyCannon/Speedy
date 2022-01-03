@@ -12,7 +12,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents an sync object.
 	/// </summary>
-	public class SyncObject
+	public struct SyncObject : IComparable<SyncObject>, IEquatable<SyncObject>
 	{
 		#region Fields
 
@@ -104,5 +104,57 @@ namespace Speedy.Sync
 		}
 
 		#endregion
+
+		/// <inheritdoc />
+		public bool Equals(SyncObject other)
+		{
+			return (Data == other.Data) && ModifiedOn.Equals(other.ModifiedOn) && (Status == other.Status) && SyncId.Equals(other.SyncId) && (TypeName == other.TypeName);
+		}
+
+		/// <inheritdoc />
+		public override bool Equals(object obj)
+		{
+			return obj is SyncObject other && Equals(other);
+		}
+
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				var hashCode = Data != null ? Data.GetHashCode() : 0;
+				hashCode = (hashCode * 397) ^ ModifiedOn.GetHashCode();
+				hashCode = (hashCode * 397) ^ (int) Status;
+				hashCode = (hashCode * 397) ^ SyncId.GetHashCode();
+				hashCode = (hashCode * 397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
+				return hashCode;
+			}
+		}
+
+		/// <inheritdoc />
+		public int CompareTo(SyncObject other)
+		{
+			var dataComparison = string.Compare(Data, other.Data, StringComparison.Ordinal);
+			if (dataComparison != 0)
+			{
+				return dataComparison;
+			}
+			var modifiedOnComparison = ModifiedOn.CompareTo(other.ModifiedOn);
+			if (modifiedOnComparison != 0)
+			{
+				return modifiedOnComparison;
+			}
+			var statusComparison = Status.CompareTo(other.Status);
+			if (statusComparison != 0)
+			{
+				return statusComparison;
+			}
+			var syncIdComparison = SyncId.CompareTo(other.SyncId);
+			if (syncIdComparison != 0)
+			{
+				return syncIdComparison;
+			}
+			return string.Compare(TypeName, other.TypeName, StringComparison.Ordinal);
+		}
 	}
 }

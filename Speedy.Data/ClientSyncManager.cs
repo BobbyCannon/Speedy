@@ -121,6 +121,12 @@ namespace Speedy.Data
 
 			return ProcessAsync(SyncType.All, options =>
 				{
+					options.ResetFilters();
+					options.AddSyncableFilter(new SyncRepositoryFilter<ClientAddress>());
+					options.AddSyncableFilter(new SyncRepositoryFilter<ClientAccount>());
+					options.AddSyncableFilter(new SyncRepositoryFilter<ClientLogEvent>());
+					options.AddSyncableFilter(new SyncRepositoryFilter<ClientSetting>());
+
 					OnLogEvent("Sync all started", EventLevel.Verbose);
 				},
 				waitFor,
@@ -147,13 +153,23 @@ namespace Speedy.Data
 		/// <inheritdoc />
 		protected override ISyncClient GetSyncClientForClient()
 		{
-			return new SyncClient("Client (local)", _databaseProvider) { IncomingConverter = IncomingConverter, OutgoingConverter = OutgoingConverter };
+			return new SyncClient("Client (local)", _databaseProvider)
+			{
+				IncomingConverter = IncomingConverter, 
+				OutgoingConverter = OutgoingConverter,
+				Options = { EnablePrimaryKeyCache = true, IsServerClient = false }
+			};
 		}
 
 		/// <inheritdoc />
 		protected override ISyncClient GetSyncClientForServer()
 		{
-			return _serverProvider.GetClient("Server (remote)", _credentialProvider());
+			var client = _serverProvider.GetClient("Server (remote)", _credentialProvider());
+			if (client != null)
+			{
+				client.Options.IsServerClient = true;
+			}
+			return client;
 		}
 
 		#endregion

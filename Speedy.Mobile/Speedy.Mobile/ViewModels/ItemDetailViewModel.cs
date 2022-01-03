@@ -10,7 +10,7 @@ namespace Speedy.Mobile.ViewModels
 	{
 		#region Constructors
 
-		public ItemDetailViewModel(ClientLogEvent item = null)
+		public ItemDetailViewModel(ClientLogEvent item, IDispatcher dispatcher) : base(dispatcher)
 		{
 			Title = item?.Message;
 			Item = item;

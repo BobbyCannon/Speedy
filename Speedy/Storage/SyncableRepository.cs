@@ -69,7 +69,11 @@ namespace Speedy.Storage
 			}
 
 			var entities = query.Take(take).ToList();
-			var objects = entities.Select(x => x.ToSyncObject()).Where(x => x != null).ToList();
+			var objects = entities
+				.Select(x => x.ToSyncObject())
+				.Where(x => !x.Equals(SyncObjectExtensions.Empty))
+				.ToList();
+
 			return objects;
 		}
 

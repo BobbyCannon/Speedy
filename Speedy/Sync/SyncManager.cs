@@ -406,25 +406,18 @@ namespace Speedy.Sync
 				{
 					throw new Exception("Sync client for client or server is null.");
 				}
+				
+				using var engine = new SyncEngine(results.Client, results.Server, results.Options, _cancellationToken);
 
-				var engine = new SyncEngine(results.Client, results.Server, results.Options, _cancellationToken);
-				engine.SyncStateChanged += async (sender, state) =>
+				try
 				{
-					SyncState.UpdateWith(state);
-					OnSyncUpdated(state);
-
-					if (Dispatcher != null)
-					{
-						await Dispatcher.RunAsync(() =>
-						{
-							OnPropertyChanged(nameof(IsCancellationPending));
-							OnPropertyChanged(nameof(IsRunning));
-							OnPropertyChanged(nameof(ShowProgress));
-						});
-					}
-				};
-
-				engine.Run();
+					engine.SyncStateChanged += OnEngineOnSyncStateChanged;
+					engine.Run();
+				}
+				finally
+				{
+					engine.SyncStateChanged -= OnEngineOnSyncStateChanged;
+				}
 
 				results.SyncIssues.AddRange(engine.SyncIssues);
 				results.SyncSuccessful = !_cancellationToken.IsCancellationRequested && !results.SyncIssues.Any();
@@ -468,6 +461,23 @@ namespace Speedy.Sync
 			}
 
 			return results;
+		}
+
+		private async void OnEngineOnSyncStateChanged(object sender, SyncEngineState state)
+		{
+			SyncState.UpdateWith(state);
+
+			OnSyncUpdated(state);
+
+			if (Dispatcher != null)
+			{
+				await Dispatcher.RunAsync(() =>
+				{
+					OnPropertyChanged(nameof(IsCancellationPending));
+					OnPropertyChanged(nameof(IsRunning));
+					OnPropertyChanged(nameof(ShowProgress));
+				});
+			}
 		}
 
 		private SyncOptions StartSync(SyncResults<T> results)

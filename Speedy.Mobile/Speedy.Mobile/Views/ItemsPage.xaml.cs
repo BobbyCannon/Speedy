@@ -13,11 +13,11 @@ namespace Speedy.Mobile.Views
 	// Learn more about making custom code visible in the Xamarin.Forms previewer
 	// by visiting https://aka.ms/xamarinforms-previewer
 	[DesignTimeVisible(false)]
-	public partial class ItemsPage : ContentPage
+	public partial class ItemsPage
 	{
 		#region Fields
 
-		private readonly ItemsViewModel viewModel;
+		private readonly ItemsViewModel _viewModel;
 
 		#endregion
 
@@ -27,8 +27,11 @@ namespace Speedy.Mobile.Views
 		{
 			InitializeComponent();
 
-			BindingContext = viewModel = new ItemsViewModel();
+			MobileDispatcher = new MobileDispatcher();
+			BindingContext = _viewModel = new ItemsViewModel(MobileDispatcher);
 		}
+
+		public MobileDispatcher MobileDispatcher { get; }
 
 		#endregion
 
@@ -38,9 +41,9 @@ namespace Speedy.Mobile.Views
 		{
 			base.OnAppearing();
 
-			if (viewModel.Items.Count == 0)
+			if (_viewModel.Items.Count == 0)
 			{
-				viewModel.IsBusy = true;
+				_viewModel.IsBusy = true;
 			}
 		}
 
@@ -53,7 +56,7 @@ namespace Speedy.Mobile.Views
 		{
 			var layout = (BindableObject) sender;
 			var item = (ClientLogEvent) layout.BindingContext;
-			await Navigation.PushAsync(new ItemDetailPage(new ItemDetailViewModel(item)));
+			await Navigation.PushAsync(new ItemDetailPage(new ItemDetailViewModel(item, MobileDispatcher)));
 		}
 
 		#endregion

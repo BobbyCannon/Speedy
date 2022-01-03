@@ -9,9 +9,9 @@
 		xmlns:vm="clr-namespace:Speedy.Mobile.ViewModels"
 		Title="{Binding Title}">
 
-	<ContentPage.BindingContext>
+	<d:ContentPage.BindingContext>
 		<vm:AboutViewModel />
-	</ContentPage.BindingContext>
+	</d:ContentPage.BindingContext>
 
 	<ContentPage.Resources>
 		<ResourceDictionary>

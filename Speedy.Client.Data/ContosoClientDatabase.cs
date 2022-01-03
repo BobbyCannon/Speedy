@@ -80,7 +80,7 @@ namespace Speedy.Client.Data
 
 		public static DatabaseOptions GetDefaultOptions()
 		{
-			return new()
+			return new DatabaseOptions
 			{
 				SyncOrder = new[]
 				{
@@ -103,12 +103,12 @@ namespace Speedy.Client.Data
 			return directoryPath;
 		}
 
-		public static ContosoClientDatabase UseSqlite(string connectionString = null, DatabaseOptions options = null)
+		public static ContosoClientDatabase UseSqlite(string connectionString = null, DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
 		{
 			connectionString ??= GetConnectionString();
 
 			var builder = new DbContextOptionsBuilder<ContosoClientDatabase>();
-			return new ContosoClientDatabase(builder.UseSqlite(connectionString, UpdateOptions).Options, options);
+			return new ContosoClientDatabase(builder.UseSqlite(connectionString, UpdateOptions).Options, options, keyCache);
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

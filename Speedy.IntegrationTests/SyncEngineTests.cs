@@ -35,7 +35,8 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
 				var options = new SyncOptions();
-				var issues = SyncEngine.Run(client, server, options).SyncIssues;
+				using var engine = SyncEngine.Run(client, server, options);
+				var issues = engine.SyncIssues;
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -63,7 +64,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Bar"));
 
 				var options = new SyncOptions();
-				var engine = SyncEngine.Run(client, server, options);
+				using var engine = SyncEngine.Run(client, server, options);
 
 				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
@@ -98,7 +99,7 @@ namespace Speedy.IntegrationTests
 					// This filter below replaces lookup for "SyncId"
 					x => y => y.Name == x.Name)
 				);
-				var engine = SyncEngine.Run(client, server, options);
+				using var engine = SyncEngine.Run(client, server, options);
 
 				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
@@ -137,7 +138,8 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Bar"));
 
 				var options = new SyncOptions();
-				var issues = SyncEngine.Run(client, server, options).SyncIssues;
+				using var engine = SyncEngine.Run(client, server, options);
+				var issues = engine.SyncIssues;
 
 				Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
@@ -172,7 +174,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
 				var options = new SyncOptions();
-				var engine = SyncEngine.Run(client, server, options);
+				using var engine = SyncEngine.Run(client, server, options);
 
 				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
@@ -189,15 +191,15 @@ namespace Speedy.IntegrationTests
 					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), "Id", nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn));
 				}
 
-				engine = SyncEngine.Run(client, server, options);
+				using var engine2 = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
+				Assert.AreEqual(0, engine2.SyncIssues.Count, string.Join(",", engine2.SyncIssues.Select(x => x.Message)));
 				Assert.IsFalse(client.Statistics.IsReset);
 				Assert.IsFalse(client.Statistics.IsReset);
 
-				engine = SyncEngine.Run(client, server, options);
+				using var engine3 = SyncEngine.Run(client, server, options);
 
-				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
+				Assert.AreEqual(0, engine3.SyncIssues.Count, string.Join(",", engine3.SyncIssues.Select(x => x.Message)));
 				Assert.IsTrue(client.Statistics.IsReset);
 				Assert.IsTrue(client.Statistics.IsReset);
 			});
@@ -210,7 +212,7 @@ namespace Speedy.IntegrationTests
 			{
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(NewAddress("Blah"));
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
@@ -234,7 +236,7 @@ namespace Speedy.IntegrationTests
 				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Foo"), Name = "Foo" });
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
@@ -283,7 +285,7 @@ namespace Speedy.IntegrationTests
 				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Foo"), Name = "Foo" });
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				using var listener = MemoryLogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
@@ -334,7 +336,7 @@ namespace Speedy.IntegrationTests
 				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Foo"), Name = "Foo" });
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(new AccountEntity { Address = NewAddress("Bar"), Name = "Bar" });
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				using var listener = MemoryLogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
@@ -389,7 +391,7 @@ namespace Speedy.IntegrationTests
 				person2.Address.SyncId = person.Address.SyncId;
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AccountEntity, int>(person2);
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
@@ -508,7 +510,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual("123 Elm Street", addresses[1].Line1);
 			}
 
-			SyncEngine.Run(client, server, clientOptions);
+			SyncEngine.Run(client, server, clientOptions).Dispose();
 
 			// Server should now have 3 addresses
 			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -526,7 +528,8 @@ namespace Speedy.IntegrationTests
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 01, 06);
 			clientOptions.LastSyncedOnServer = serverSession.StartedOn;
 			clientOptions.LastSyncedOnClient = clientSession.StartedOn;
-			SyncEngine.Run(client, server, clientOptions);
+			
+			SyncEngine.Run(client, server, clientOptions).Dispose();
 
 			using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 			{
@@ -549,7 +552,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting1);
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting2);
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -590,7 +593,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting1);
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting2);
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -663,7 +666,7 @@ namespace Speedy.IntegrationTests
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 02);
 
 			var options = new SyncOptions();
-			var engine = new SyncEngine(client, server, options);
+			using var engine = new SyncEngine(client, server, options);
 			options.AddSyncableFilter(new SyncRepositoryFilter<SettingEntity>(null, null, o => x => x.Name == o.Name));
 			engine.Run();
 
@@ -783,7 +786,7 @@ namespace Speedy.IntegrationTests
 					return new ServiceResult<SyncIssue>();
 				});
 
-			var engine = new SyncEngine(client.Object, server, options);
+			using var engine = new SyncEngine(client.Object, server, options);
 			engine.Run();
 
 			// Server should just ignore the request, there should have been no corrections
@@ -822,7 +825,7 @@ namespace Speedy.IntegrationTests
 				var options = new SyncOptions();
 				options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 
-				var engine = new SyncEngine(client, server, options);
+				using var engine = new SyncEngine(client, server, options);
 				engine.Run();
 
 				Assert.AreEqual(0, engine.SyncIssues.Count);
@@ -883,7 +886,7 @@ namespace Speedy.IntegrationTests
 					options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 					options.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>(x => x.SyncId == account.SyncId));
 
-					var engine = new SyncEngine(listener.SessionId, client, server, options);
+					using var engine = new SyncEngine(listener.SessionId, client, server, options);
 					engine.Run();
 
 					Assert.AreEqual(0, engine.SyncIssues.Count);
@@ -918,7 +921,7 @@ namespace Speedy.IntegrationTests
 
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 01);
 
-			var engine = new SyncEngine(client, server, new SyncOptions());
+			using var engine = new SyncEngine(client, server, new SyncOptions());
 			engine.Run();
 
 			Assert.AreEqual(1, server.AppliedChanges.Count);
@@ -1060,9 +1063,9 @@ namespace Speedy.IntegrationTests
 			// Sync Set 1: Go ahead and sync the data to all locations
 			"\r\nSync Set 1".Dump();
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 01);
-			SyncEngine.Run(client1, server1, client1Options);
+			SyncEngine.Run(client1, server1, client1Options).Dispose();
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 02);
-			SyncEngine.Run(client2, server2, client2Options);
+			SyncEngine.Run(client2, server2, client2Options).Dispose();
 
 			// Prepare a new address for client 2
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 11, 59, 03);
@@ -1236,13 +1239,13 @@ namespace Speedy.IntegrationTests
 			"\r\nSync Set 2".Dump();
 			client1Options.LastSyncedOnServer = serverStart;
 			client1Options.LastSyncedOnClient = client1Start;
-			SyncEngine.Run(client1, server1, client1Options);
+			SyncEngine.Run(client1, server1, client1Options).Dispose();
 			Assert.IsFalse(client1.Statistics.IsReset);
 			Assert.IsFalse(server1.Statistics.IsReset);
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 04, 01);
 			client2Options.LastSyncedOnServer = serverStart;
 			client2Options.LastSyncedOnClient = client2Start;
-			SyncEngine.Run(client2, server2, client2Options);
+			SyncEngine.Run(client2, server2, client2Options).Dispose();
 			Assert.IsFalse(client2.Statistics.IsReset);
 			Assert.IsFalse(server2.Statistics.IsReset);
 
@@ -1270,13 +1273,13 @@ namespace Speedy.IntegrationTests
 			"\r\nSync Set 3".Dump();
 			client1Options.LastSyncedOnServer = client1Options.LastSyncedOnServer;
 			client1Options.LastSyncedOnClient = client1Options.LastSyncedOnClient;
-			SyncEngine.Run(client1, server1, client1Options);
+			SyncEngine.Run(client1, server1, client1Options).Dispose();
 			Assert.IsTrue(client1.Statistics.IsReset);
 			Assert.IsTrue(server1.Statistics.IsReset);
 			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 10, 12, 05, 01);
 			client2Options.LastSyncedOnServer = client2Options.LastSyncedOnServer;
 			client2Options.LastSyncedOnClient = client2Options.LastSyncedOnClient;
-			SyncEngine.Run(client2, server2, client2Options);
+			SyncEngine.Run(client2, server2, client2Options).Dispose();
 			Assert.IsTrue(client2.Statistics.IsReset);
 			Assert.IsTrue(server2.Statistics.IsReset);
 		}
@@ -1307,7 +1310,7 @@ namespace Speedy.IntegrationTests
 					serverDatabase.SaveChanges();
 				}
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -1354,7 +1357,7 @@ namespace Speedy.IntegrationTests
 					clientDatabase.SaveChanges();
 				}
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				Assert.IsFalse(engine.SyncIssues.Count > 0, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
@@ -1389,7 +1392,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(1, serverDatabase.Accounts.Count());
 				}
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				AddressEntity removedAddress;
@@ -1453,7 +1456,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(1, serverDatabase.Accounts.Count());
 				}
 
-				var engine = new SyncEngine(client, server, new SyncOptions());
+				using var engine = new SyncEngine(client, server, new SyncOptions());
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -1497,7 +1500,8 @@ namespace Speedy.IntegrationTests
 			if (doublePass)
 			{
 				// Catch up sync
-				issues1 = SyncEngine.Run(client, server, options).SyncIssues;
+				using var engine1 = SyncEngine.Run(client, server, options);
+				issues1 = engine1.SyncIssues;
 				Assert.IsFalse(server.Statistics.IsReset);
 				Assert.IsFalse(client.Statistics.IsReset);
 				Assert.AreEqual(0, server.Statistics.IndividualProcessCount);
@@ -1509,7 +1513,8 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Final sync
-			var issues2 = SyncEngine.Run(client, server, options).SyncIssues;
+			using var engine2 = SyncEngine.Run(client, server, options);
+			var issues2 = engine2.SyncIssues;
 			Assert.IsTrue(server.Statistics.IsReset);
 			Assert.IsTrue(client.Statistics.IsReset);
 

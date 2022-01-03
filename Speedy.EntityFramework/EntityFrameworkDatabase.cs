@@ -190,7 +190,7 @@ namespace Speedy.EntityFramework
 				return null;
 			}
 
-			if (_syncableRepositories.TryGetValue(type.ToAssemblyName(), out var repository))
+			if (_syncableRepositories.TryGetValue(assemblyName, out var repository))
 			{
 				return repository;
 			}

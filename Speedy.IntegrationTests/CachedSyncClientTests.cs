@@ -112,7 +112,7 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(address.Id, (long) addressId);
 
 			// Now we will sync the address to the server
-			var engine = SyncEngine.Run(client, server, new SyncOptions());
+			using var engine = SyncEngine.Run(client, server, new SyncOptions());
 			Assert.AreEqual(0, engine.SyncIssues.Count);
 
 			using (var database = server.GetDatabase<IContosoDatabase>())
@@ -132,8 +132,8 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(0, client.DatabaseProvider.KeyCache.TotalCachedItems);
 
 			// Now we will sync the address change from the server to the client
-			engine = SyncEngine.Run(client, server, new SyncOptions());
-			Assert.AreEqual(0, engine.SyncIssues.Count);
+			using var engine2 = SyncEngine.Run(client, server, new SyncOptions());
+			Assert.AreEqual(0, engine2.SyncIssues.Count);
 			Assert.AreEqual(1, client.Statistics.IndividualProcessCount);
 			Assert.AreEqual(1, client.DatabaseProvider.KeyCache.TotalCachedItems);
 			Assert.AreEqual(1L, client.DatabaseProvider.KeyCache.GetEntityId(address));
@@ -156,8 +156,8 @@ namespace Speedy.IntegrationTests
 
 			// Now we will sync the second address change from the server to the client
 			// The client should use the cache properly meaning no individual processing
-			engine = SyncEngine.Run(client, server, new SyncOptions());
-			Assert.AreEqual(0, engine.SyncIssues.Count);
+			using var engine3 = SyncEngine.Run(client, server, new SyncOptions());
+			Assert.AreEqual(0, engine3.SyncIssues.Count);
 			Assert.AreEqual(0, client.Statistics.IndividualProcessCount);
 
 			using (var database = client.GetDatabase<IContosoDatabase>())

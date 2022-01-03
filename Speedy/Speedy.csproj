@@ -23,9 +23,9 @@
 		<PackageId>Speedy</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.2.1.0</AssemblyVersion>
-		<FileVersion>8.2.1.0</FileVersion>
-		<Version>8.2.1.0</Version>
+		<AssemblyVersion>8.2.2.0</AssemblyVersion>
+		<FileVersion>8.2.2.0</FileVersion>
+		<Version>8.2.2.0</Version>
 		<DocumentationFile>Speedy.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -38,7 +38,7 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
-		<PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />

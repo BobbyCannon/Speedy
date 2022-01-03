@@ -38,7 +38,7 @@ namespace Speedy.Mobile.Views
 				Message = "Item 1"
 			};
 
-			viewModel = new ItemDetailViewModel(item);
+			viewModel = new ItemDetailViewModel(item, new MobileDispatcher());
 			BindingContext = viewModel;
 		}
 

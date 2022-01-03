@@ -1,8 +1,8 @@
 ﻿#region References
 
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
+using Speedy.Collections;
 
 #endregion
 
@@ -15,8 +15,7 @@ namespace Speedy.Profiling
 	{
 		#region Fields
 
-		private readonly Collection<long> _collection;
-		private readonly int _limit;
+		private readonly LimitedCollection<long> _collection;
 		private readonly Timer _timer;
 
 		#endregion
@@ -53,8 +52,7 @@ namespace Speedy.Profiling
 		/// <param name="dispatcher"> The dispatcher. </param>
 		public AverageTimer(int limit, IDispatcher dispatcher) : base(dispatcher)
 		{
-			_collection = new Collection<long>();
-			_limit = limit;
+			_collection = new LimitedCollection<long>(limit);
 			_timer = new Timer();
 		}
 
@@ -145,7 +143,7 @@ namespace Speedy.Profiling
 
 				_timer.Stop();
 
-				if (_limit == 0)
+				if (_collection.Limit == 0)
 				{
 					Average = Count <= 0 ? _timer.Elapsed : TimeSpan.FromTicks((Average.Ticks + Elapsed.Ticks) / 2);
 					Count++;
@@ -153,11 +151,6 @@ namespace Speedy.Profiling
 				}
 
 				_collection.Add(_timer.Elapsed.Ticks);
-
-				while (_collection.Count > _limit)
-				{
-					_collection.RemoveAt(0);
-				}
 
 				Samples = _collection.Count;
 				Average = new TimeSpan((long) _collection.Average());

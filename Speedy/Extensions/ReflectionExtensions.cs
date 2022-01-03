@@ -290,7 +290,7 @@ namespace Speedy.Extensions
 				return ((dynamic) unaryExpression.Operand).Member?.Name;
 			}
 
-			return (expression as dynamic).Body.Member.Name;
+			return ((dynamic) expression).Body.Member.Name;
 		}
 
 		/// <summary>

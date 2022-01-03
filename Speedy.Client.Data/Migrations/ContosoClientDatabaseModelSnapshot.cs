@@ -14,7 +14,7 @@ namespace Speedy.Client.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.10");
+                .HasAnnotation("ProductVersion", "3.1.22");
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAccount", b =>
                 {
@@ -197,6 +197,50 @@ namespace Speedy.Client.Data.Migrations
                         .HasName("IX_LogEvents_SyncId");
 
                     b.ToTable("LogEvents","dbo");
+                });
+
+            modelBuilder.Entity("Speedy.Data.Client.ClientSetting", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastClientUpdate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256)
+                        .IsUnicode(false);
+
+                    b.Property<Guid>("SyncId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .IsUnicode(false);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LastClientUpdate")
+                        .HasName("IX_Settings_LastClientUpdate");
+
+                    b.HasIndex("SyncId")
+                        .IsUnique()
+                        .HasName("IX_Settings_SyncId");
+
+                    b.ToTable("Settings","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAccount", b =>

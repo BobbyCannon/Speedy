@@ -210,12 +210,17 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public int BulkRemove(Expression<Func<T, bool>> filter)
 		{
-			var count = 0;
+			var itemsToRemove = this.Where(filter).ToList();
 
-			foreach (var item in this.Where(filter))
+			if (itemsToRemove.Count == 0)
+			{
+				// no reason to move forward because nothing was removed
+				return 0;
+			}
+
+			foreach (var item in itemsToRemove)
 			{
 				Remove(item);
-				count++;
 			}
 
 			// Temporarily mark the permanently delete flag
@@ -226,7 +231,7 @@ namespace Speedy.Storage
 			// Restore the previous permanently delete flag
 			Database.Options.PermanentSyncEntityDeletions = value;
 
-			return count;
+			return itemsToRemove.Count;
 		}
 
 		/// <inheritdoc />
@@ -432,6 +437,12 @@ namespace Speedy.Storage
 			var changeCount = GetChanges().Count();
 			var added = Cache.Where(x => x.State == EntityStateType.Added).ToList();
 			var removed = Cache.Where(x => x.State == EntityStateType.Removed).ToList();
+
+			if (changeCount == 0 && added.Count == 0 && removed.Count == 0)
+			{
+				return 0;
+			}
+
 			var now = TimeService.UtcNow;
 
 			foreach (var item in removed)
@@ -813,7 +824,10 @@ namespace Speedy.Storage
 
 		private void UpdateCacheQuery()
 		{
-			_query = Cache.Where(x => x.State != EntityStateType.Added).Select(x => x.Entity).AsQueryable();
+			_query = Cache
+				.Where(x => x.State != EntityStateType.Added)
+				.Select(x => x.Entity)
+				.AsQueryable();
 		}
 
 		/// <summary>

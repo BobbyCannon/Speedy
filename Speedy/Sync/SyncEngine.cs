@@ -18,7 +18,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents the sync engine.
 	/// </summary>
-	public class SyncEngine
+	public class SyncEngine : IDisposable
 	{
 		#region Fields
 
@@ -102,6 +102,15 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
 		/// <summary>
 		/// Start to sync process.
@@ -195,6 +204,20 @@ namespace Speedy.Sync
 			{
 				Thread.Sleep(10);
 			}
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> True if disposing and false if otherwise. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
+				return;
+			}
+
+			CancellationSource?.Dispose();
 		}
 
 		private void OnSyncStateChanged(string message = null, SyncEngineStatus? status = null, int? count = null, int? total = null)

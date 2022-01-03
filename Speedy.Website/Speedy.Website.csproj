@@ -10,22 +10,22 @@
 		<Content Remove="compilerconfig.json" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Humanizer.Core" Version="2.11.10" />
-		<PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.319" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.21" />
-		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+		<PackageReference Include="Humanizer.Core" Version="2.13.14" />
+		<PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.344" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.22" />
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.21">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.22">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.21">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.22">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.113" />
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-		<PackageReference Include="System.Windows.Extensions" Version="4.7.0" />
+		<PackageReference Include="System.Windows.Extensions" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.Data\Speedy.Data.csproj" />

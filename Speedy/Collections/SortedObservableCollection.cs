@@ -11,7 +11,7 @@ namespace Speedy.Collections
 	/// Represents a sorted observable collection. The collection supports notification on clear and ability to be sorted.
 	/// </summary>
 	/// <typeparam name="T"> The type of the item stored in the collection. </typeparam>
-	public class SortedObservableCollection<T> : BaseObservableCollection<T>
+	public class SortedObservableCollection<T> : LimitedObservableCollection<T>
 	{
 		#region Fields
 

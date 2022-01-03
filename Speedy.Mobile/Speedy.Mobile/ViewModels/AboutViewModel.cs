@@ -12,7 +12,11 @@ namespace Speedy.Mobile.ViewModels
 	{
 		#region Constructors
 
-		public AboutViewModel()
+		public AboutViewModel() : base(new MobileDispatcher())
+		{
+		}
+
+		public AboutViewModel(IDispatcher dispatcher) : base(dispatcher)
 		{
 			Title = "About";
 			OpenWebCommand = new Command(async () => await Browser.OpenAsync("https://xamarin.com"));

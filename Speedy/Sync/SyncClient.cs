@@ -211,10 +211,12 @@ namespace Speedy.Sync
 					case SyncIssueType.Unknown:
 					case SyncIssueType.ConstraintException:
 					default:
+					{
 						// Do not process these issues
 						break;
-
+					}
 					case SyncIssueType.RelationshipConstraint:
+					{
 						var type = Type.GetType(issue.TypeName);
 
 						if (SyncOptions.ShouldExcludeRepository(type))
@@ -246,11 +248,12 @@ namespace Speedy.Sync
 							syncObject = OutgoingConverter.Convert(syncObject);
 						}
 
-						if (syncObject != null)
+						if (!syncObject.Equals(SyncObjectExtensions.Empty))
 						{
 							response.Collection.Add(syncObject);
 						}
 						break;
+					}
 				}
 			}
 
@@ -292,7 +295,7 @@ namespace Speedy.Sync
 				// The only issue is processing entities individually. If an entity is added to a context then
 				// something goes wrong we'll need to disconnect before processing them individually
 				var objects = (IncomingConverter?.Convert(changes.Collection) ?? changes.Collection).ToList();
-				var groups = objects.Where(x => x != null).GroupBy(x => x.TypeName).OrderBy(x => x.Key);
+				var groups = objects.Where(x => !x.Equals(SyncObjectExtensions.Empty)).GroupBy(x => x.TypeName).OrderBy(x => x.Key);
 
 				if (corrections)
 				{

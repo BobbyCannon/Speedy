@@ -23,9 +23,9 @@
 		<PackageId>Speedy.ServiceHosting</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.2.1.0</AssemblyVersion>
-		<FileVersion>8.2.1.0</FileVersion>
-		<Version>8.2.1.0</Version>
+		<AssemblyVersion>8.2.2.0</AssemblyVersion>
+		<FileVersion>8.2.2.0</FileVersion>
+		<Version>8.2.2.0</Version>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -35,7 +35,7 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="4.7.0" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

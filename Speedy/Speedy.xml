@@ -161,6 +161,63 @@
             PropertyChanged event (per <see cref="T:System.ComponentModel.INotifyPropertyChanged" />).
             </summary>
         </member>
+        <member name="T:Speedy.Collections.LimitedCollection`1">
+            <summary>
+            Limited collection to a maximum number of items.
+            </summary>
+            <typeparam name="T"> The type this collection is for. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.LimitedCollection`1.#ctor">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.LimitedCollection`1.#ctor(System.Int32)">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+            <param name="limit"> The maximum number of items for this collection. </param>
+        </member>
+        <member name="P:Speedy.Collections.LimitedCollection`1.Limit">
+            <summary>
+            The maximum limit for this collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.LimitedCollection`1.InsertItem(System.Int32,`0)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Collections.LimitedObservableCollection`1">
+            <summary>
+            Limited collection to a maximum number of items.
+            </summary>
+            <typeparam name="T"> The type this collection is for. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.LimitedObservableCollection`1.#ctor">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.LimitedObservableCollection`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+            <param name="dispatcher"> The dispatcher to update with. </param>
+        </member>
+        <member name="M:Speedy.Collections.LimitedObservableCollection`1.#ctor(System.Int32,Speedy.IDispatcher)">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+            <param name="limit"> The maximum number of items for this collection. </param>
+            <param name="dispatcher"> The dispatcher to update with. </param>
+        </member>
+        <member name="P:Speedy.Collections.LimitedObservableCollection`1.Limit">
+            <summary>
+            The maximum limit for this collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.LimitedObservableCollection`1.InsertItem(System.Int32,`0)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Collections.OrderBy`1">
             <summary>
             Represents an order by value.
@@ -235,6 +292,37 @@
             </summary>
         </member>
         <member name="M:Speedy.Collections.SortedObservableCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Commands.RelayCommand">
+            <summary>
+            A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default return value for the CanExecute method is 'true'.
+            </summary>
+        </member>
+        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Action{System.Object},System.Predicate{System.Object})">
+            <summary>
+            Creates a new command.
+            </summary>
+            <param name="execute"> The execution logic. </param>
+            <param name="canExecute"> The execution status logic. </param>
+        </member>
+        <member name="M:Speedy.Commands.RelayCommand.CanExecute(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Commands.RelayCommand.Execute(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Commands.RelayCommand.Refresh">
+            <summary>
+            Refresh the command state.
+            </summary>
+        </member>
+        <member name="M:Speedy.Commands.RelayCommand.OnCanExecuteChanged">
+            <summary>
+            Overridable can execute event.
+            </summary>
+        </member>
+        <member name="E:Speedy.Commands.RelayCommand.CanExecuteChanged">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Configuration.CommandLine.CommandLineArgument`1">
@@ -942,6 +1030,9 @@
             <summary>
             Gets or sets the list of entities to ignore during maintenance updates.
             </summary>
+        </member>
+        <member name="M:Speedy.DatabaseOptions.DeepClone(System.Nullable{System.Int32})">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.DatabaseOptions.UpdateWith(Speedy.DatabaseOptions,System.String[])">
             <summary>
@@ -2266,6 +2357,16 @@
             </summary>
             <param name="value"> a string, optionally with escape sequences in it </param>
             <returns> The unescape version of the provided value. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.SyncObjectExtensions">
+            <summary>
+            Extensions for sync object.
+            </summary>
+        </member>
+        <member name="P:Speedy.Extensions.SyncObjectExtensions.Empty">
+            <summary>
+            Represents an empty sync object.
+            </summary>
         </member>
         <member name="T:Speedy.Extensions.TaskExtensions">
             <summary>
@@ -3902,6 +4003,77 @@
             </summary>
             <param name="function"> The action to be timed. </param>
             <returns> The value return from the function. </returns>
+        </member>
+        <member name="T:Speedy.Profiling.DebounceService`1">
+            <summary>
+            A service for debouncing an action.
+            </summary>
+            <typeparam name="T"> The type to pass to the action. </typeparam>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Boolean)">
+            <summary>
+            Create an instance of the service for debouncing an action.
+            </summary>
+            <param name="timeSpan"> The amount of time before the action will trigger. </param>
+            <param name="enabled"> A flag to enable the service. Defaults to true. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService`1.Trigger(`0,System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan or immediately if force is true.
+            </summary>
+            <param name="value"> The value to trigger with. </param>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="T:Speedy.Profiling.DebounceService">
+            <summary>
+            A service for debouncing an action.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Boolean)">
+            <summary>
+            Create an instance of the service for debouncing an action.
+            </summary>
+            <param name="timeSpan"> The amount of time before the action will trigger. </param>
+            <param name="enabled"> A flag to enable the service. Defaults to true. </param>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceService.Data">
+            <summary>
+            The data to be store for the latest trigger.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceService.Enabled">
+            <summary>
+            A flag to enable the service. Defaults to true.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService.Trigger(System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan or immediately if force is true.
+            </summary>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService.Trigger(System.Object,System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan or immediately if force is true.
+            </summary>
+            <param name="value"> The value to trigger with. </param>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="E:Speedy.Profiling.DebounceService.Action">
+            <summary>
+            The action to be triggered.
+            </summary>
         </member>
         <member name="T:Speedy.Profiling.ITrackerPathRepository">
             <summary>
@@ -8743,6 +8915,11 @@
             Gets the list of issues that happened during syncing.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncEngine.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
         <member name="M:Speedy.Sync.SyncEngine.Run">
             <summary>
             Start to sync process.
@@ -8778,6 +8955,12 @@
             <summary>
             Stops the sync process.
             </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncEngine.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="M:Speedy.Sync.SyncEngine.Process(Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,System.DateTime,System.DateTime,System.Collections.Generic.IDictionary{System.Guid,System.DateTime})">
             <summary>
@@ -9325,6 +9508,18 @@
             Converts the sync object back into it's proper type.
             </summary>
             <returns> The deserialized sync object. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncObject.Equals(Speedy.Sync.SyncObject)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncObject.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncObject.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncObject.CompareTo(Speedy.Sync.SyncObject)">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.SyncObjectIncomingConverter`4">
             <summary>

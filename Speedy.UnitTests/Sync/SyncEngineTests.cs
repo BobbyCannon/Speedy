@@ -25,7 +25,8 @@ namespace Speedy.UnitTests.Sync
 			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
 
 			var options = new SyncOptions { SyncDirection = SyncDirection.PullDown };
-			var issues = SyncEngine.Run(client, server, options).SyncIssues;
+			using var engine = SyncEngine.Run(client, server, options);
+			var issues = engine.SyncIssues;
 			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
@@ -47,7 +48,8 @@ namespace Speedy.UnitTests.Sync
 			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Foo Bar"));
 
 			var options = new SyncOptions { SyncDirection = SyncDirection.PullDown };
-			var issues = SyncEngine.Run(client, server, options).SyncIssues;
+			using var engine = SyncEngine.Run(client, server, options);
+			var issues = engine.SyncIssues;
 			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
@@ -71,7 +73,8 @@ namespace Speedy.UnitTests.Sync
 			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
 
 			var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
-			var issues = SyncEngine.Run(client, server, options).SyncIssues;
+			using var engine = SyncEngine.Run(client, server, options);
+			var issues = engine.SyncIssues;
 			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
@@ -93,7 +96,8 @@ namespace Speedy.UnitTests.Sync
 			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Foo Bar"));
 
 			var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
-			var issues = SyncEngine.Run(client, server, options).SyncIssues;
+			using var engine = SyncEngine.Run(client, server, options);
+			var issues = engine.SyncIssues;
 			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
 			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
