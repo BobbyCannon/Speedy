@@ -23,9 +23,9 @@
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.2.3.0</AssemblyVersion>
-		<FileVersion>8.2.3.0</FileVersion>
-		<Version>8.2.3.0</Version>
+		<AssemblyVersion>8.2.4.0</AssemblyVersion>
+		<FileVersion>8.2.4.0</FileVersion>
+		<Version>8.2.4.0</Version>
 		<DocumentationFile>Speedy.EntityFramework.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

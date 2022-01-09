@@ -1,9 +1,12 @@
 ﻿#region References
 
+using System.Net;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Platform = Xamarin.Essentials.Platform;
@@ -37,10 +40,16 @@ namespace Speedy.Mobile.Droid
 
 			base.OnCreate(savedInstanceState);
 
+			// Accept SSL issues for our domain?
+			ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+
 			Platform.Init(this, savedInstanceState);
 			Forms.Init(this, savedInstanceState);
 
 			LoadApplication(new App());
+
+			var permissionsProvider = new PermissionProvider(this);
+			permissionsProvider.RequestPermission(PermissionType.All);
 			
 			CreateNotificationChannel();
 			ForegroundService = new MobileForegroundService();

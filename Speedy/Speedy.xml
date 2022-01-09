@@ -3275,11 +3275,6 @@
             The credentials for the connection.
             </summary>
         </member>
-        <member name="P:Speedy.Net.WebClient.Headers">
-            <summary>
-            The headers for the connection.
-            </summary>
-        </member>
         <member name="P:Speedy.Net.WebClient.IsAuthenticated">
             <summary>
             Determines if the connection is authenticated.
@@ -3310,6 +3305,11 @@
             <param name="result"> The result to deserialize. </param>
             <returns> The deserialized type. </returns>
         </member>
+        <member name="M:Speedy.Net.WebClient.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
         <member name="M:Speedy.Net.WebClient.Get``1(System.String)">
             <summary>
             Gets a response and deserialize it.
@@ -3324,6 +3324,9 @@
             </summary>
             <param name="uri"> The URI of the content to deserialize. </param>
             <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.WebClient.OnPropertyChanged(System.String)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebClient.Patch``1(System.String,``0)">
             <summary>
@@ -3377,6 +3380,22 @@
             <param name="uri"> The URI to post to. </param>
             <param name="content"> The content to update with. </param>
             <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.WebClient.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="M:Speedy.Net.WebClient.OnServerCertificateCustomValidationCallback(System.Net.Http.HttpRequestMessage,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Chain,System.Net.Security.SslPolicyErrors)">
+            <summary>
+            Validates a server certificate. Defaults to
+            </summary>
+            <param name="message"> </param>
+            <param name="certificate2"> </param>
+            <param name="arg3"> </param>
+            <param name="arg4"> </param>
+            <returns> </returns>
         </member>
         <member name="T:Speedy.Net.WebSyncClient">
             <summary>

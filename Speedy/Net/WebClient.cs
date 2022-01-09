@@ -1,10 +1,11 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Speedy.Exceptions;
@@ -18,8 +19,17 @@ namespace Speedy.Net
 	/// <summary>
 	/// This class is used for making GET and POST calls to an HTTP endpoint.
 	/// </summary>
-	public class WebClient
+	public class WebClient : Bindable, IDisposable
 	{
+		#region Fields
+
+		private AuthenticationHeaderValue _authenticationHeaderValue;
+		private NetworkCredential _credential;
+		private readonly HttpClientHandler _handler;
+		private readonly HttpClient _httpClient;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -31,12 +41,14 @@ namespace Speedy.Net
 		/// <param name="proxy"> The optional proxy to use. </param>
 		public WebClient(string baseUri, int timeout, NetworkCredential credential = null, WebProxy proxy = null)
 		{
-			BaseUri = baseUri;
-			Cookies = new CookieCollection();
+			BaseUri = new Uri(baseUri);
 			Credential = credential;
-			Headers = new Dictionary<string, string>();
 			Timeout = TimeSpan.FromMilliseconds(timeout);
 			Proxy = proxy;
+
+			_handler = new HttpClientHandler();
+			_handler.ServerCertificateCustomValidationCallback += OnServerCertificateCustomValidationCallback;
+			_httpClient = CreateHttpClient(_handler);
 		}
 
 		#endregion
@@ -46,22 +58,52 @@ namespace Speedy.Net
 		/// <summary>
 		/// Gets the base URI for connecting.
 		/// </summary>
-		public string BaseUri { get; set; }
+		public Uri BaseUri
+		{
+			get => _httpClient.BaseAddress;
+			set => _httpClient.BaseAddress = value;
+		}
 
 		/// <summary>
 		/// The cookies for this client.
 		/// </summary>
-		public CookieCollection Cookies { get; set; }
+		public CookieCollection Cookies
+		{
+			get => _handler.CookieContainer.GetCookies(BaseUri);
+			set
+			{
+				var cookieContainer = new CookieContainer();
+				cookieContainer.Add(value);
+				_handler.CookieContainer = cookieContainer;
+			}
+		}
 
 		/// <summary>
 		/// The credentials for the connection.
 		/// </summary>
-		public NetworkCredential Credential { get; set; }
+		public NetworkCredential Credential
+		{
+			get => _credential;
+			set
+			{
+				_credential = value;
 
-		/// <summary>
-		/// The headers for the connection.
-		/// </summary>
-		public IDictionary<string, string> Headers { get; set; }
+				if (_httpClient == null)
+				{
+					return;
+				}
+
+				if (_credential != null)
+				{
+					var headerValue = _authenticationHeaderValue ??= new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_credential.UserName}:{_credential.Password}")));
+					_httpClient.DefaultRequestHeaders.Authorization = headerValue;
+				}
+				else
+				{
+					_httpClient.DefaultRequestHeaders.Authorization = null;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Determines if the connection is authenticated.
@@ -103,10 +145,7 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public HttpResponseMessage Delete(string uri)
 		{
-			using var handler = new HttpClientHandler();
-			using var client = CreateHttpClient(handler);
-			var response = client.DeleteAsync(uri).Result;
-			return ProcessResponse(response, handler);
+			return _httpClient.DeleteAsync(uri).AwaitResults(Timeout);
 		}
 
 		/// <summary>
@@ -117,7 +156,19 @@ namespace Speedy.Net
 		/// <returns> The deserialized type. </returns>
 		public virtual T Deserialize<T>(HttpResponseMessage result)
 		{
-			return result.Content.ReadAsStringAsync().Result.FromJson<T>();
+			return result.Content
+				.ReadAsStringAsync()
+				.AwaitResults(Timeout)
+				.FromJson<T>();
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
@@ -145,10 +196,21 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public virtual HttpResponseMessage Get(string uri)
 		{
-			using var handler = new HttpClientHandler();
-			using var client = CreateHttpClient(handler);
-			var response = client.GetAsync(uri).Result;
-			return ProcessResponse(response, handler);
+			return _httpClient.GetAsync(uri).AwaitResults(Timeout);
+		}
+
+		/// <inheritdoc />
+		public override void OnPropertyChanged(string propertyName)
+		{
+			switch (propertyName)
+			{
+				case nameof(Credential):
+				{
+					_authenticationHeaderValue = null;
+					break;
+				}
+			}
+			base.OnPropertyChanged(propertyName);
 		}
 
 		/// <summary>
@@ -221,7 +283,10 @@ namespace Speedy.Net
 				throw new WebClientException(result);
 			}
 
-			return result.Content.ReadAsStringAsync().Result.FromJson<TResult>();
+			return result.Content
+				.ReadAsStringAsync()
+				.AwaitResults(Timeout)
+				.FromJson<TResult>();
 		}
 
 		/// <summary>
@@ -234,6 +299,34 @@ namespace Speedy.Net
 		public virtual HttpResponseMessage Put<TContent>(string uri, TContent content)
 		{
 			return InternalPut(uri, content);
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> True if disposing and false if otherwise. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
+				return;
+			}
+
+			_httpClient?.Dispose();
+			_handler?.Dispose();
+		}
+
+		/// <summary>
+		/// Validates a server certificate. Defaults to
+		/// </summary>
+		/// <param name="message"> </param>
+		/// <param name="certificate2"> </param>
+		/// <param name="arg3"> </param>
+		/// <param name="arg4"> </param>
+		/// <returns> </returns>
+		protected virtual bool OnServerCertificateCustomValidationCallback(HttpRequestMessage message, X509Certificate2 certificate2, X509Chain arg3, SslPolicyErrors arg4)
+		{
+			return true;
 		}
 
 		private HttpClient CreateHttpClient(HttpClientHandler handler)
@@ -250,18 +343,16 @@ namespace Speedy.Net
 
 			var client = new HttpClient(handler)
 			{
-				BaseAddress = new Uri(BaseUri),
+				BaseAddress = BaseUri,
 				Timeout = Timeout
 			};
 
 			if (Credential != null)
 			{
-				var value = $"{Credential.UserName}:{Credential.Password}";
-				var headerValue = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(value)));
+				var headerValue = _authenticationHeaderValue ??= new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{Credential.UserName}:{Credential.Password}")));
 				client.DefaultRequestHeaders.Authorization = headerValue;
 			}
 
-			Headers.ForEach(x => client.DefaultRequestHeaders.Add(x.Key, x.Value));
 			return client;
 		}
 
@@ -274,32 +365,23 @@ namespace Speedy.Net
 
 		private HttpResponseMessage InternalPatch<T>(string uri, T content)
 		{
-			using var handler = new HttpClientHandler();
-			using var client = CreateHttpClient(handler);
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json-patch+json");
-			var response = PatchAsync(client, uri, objectContent).Result;
-			return ProcessResponse(response, handler);
+			return PatchAsync(_httpClient, uri, objectContent).AwaitResults(Timeout);
 		}
 
 		private HttpResponseMessage InternalPost<T>(string uri, T content)
 		{
-			using var handler = new HttpClientHandler();
-			using var client = CreateHttpClient(handler);
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
-			var response = client.PostAsync(uri, objectContent).Result;
-			return ProcessResponse(response, handler);
+			return _httpClient.PostAsync(uri, objectContent).AwaitResults(Timeout);
 		}
 
 		private HttpResponseMessage InternalPut<T>(string uri, T content)
 		{
-			using var handler = new HttpClientHandler();
-			using var client = CreateHttpClient(handler);
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
-			var response = client.PutAsync(uri, objectContent).Result;
-			return ProcessResponse(response, handler);
+			return _httpClient.PutAsync(uri, objectContent).AwaitResults(Timeout);
 		}
 
 		private async Task<HttpResponseMessage> PatchAsync(HttpClient client, string uri, HttpContent content)
@@ -307,16 +389,6 @@ namespace Speedy.Net
 			var method = new HttpMethod("PATCH");
 			var request = new HttpRequestMessage(method, uri) { Content = content };
 			return await client.SendAsync(request);
-		}
-
-		private HttpResponseMessage ProcessResponse(HttpResponseMessage response, HttpClientHandler handler)
-		{
-			if ((handler.CookieContainer != null) && Uri.IsWellFormedUriString(BaseUri, UriKind.Absolute))
-			{
-				Cookies = handler.CookieContainer.GetCookies(new Uri(BaseUri));
-			}
-
-			return response;
 		}
 
 		#endregion

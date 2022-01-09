@@ -18,6 +18,7 @@ using Speedy.Data;
 using Speedy.Data.Client;
 using Speedy.EntityFramework;
 using Speedy.Mobile.Views;
+using Speedy.Net;
 using Speedy.Profiling;
 using Speedy.Sync;
 using Speedy.Website.Data;
@@ -62,10 +63,13 @@ namespace Speedy.Mobile.ViewModels
 			_debounceUpdate = new DebounceService(TimeSpan.FromSeconds(1), true);
 			_debounceUpdate.Action += DebounceUpdateOnAction;
 
+			Profiler = new ProfileService(new ProfilerRepository(), dispatcher);
+			Profiler.Initialize();
+			Profiler.Start();
+
 			Title = "Browse";
 			Items = new ObservableCollection<ClientLogEvent>();
 			LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
-			SyncProfile = new AverageTimer(10, dispatcher);
 
 			MessagingCenter.Subscribe<NewItemPage, ClientLogEvent>(this, "AddItem", async (obj, item) =>
 			{
@@ -95,13 +99,13 @@ namespace Speedy.Mobile.ViewModels
 
 		public Command LoadItemsCommand { get; set; }
 
+		public ProfileService Profiler { get; }
+
 		public ICommand StartSyncCommand { get; }
 
 		public string Status { get; set; }
 
 		public ICommand StopSyncCommand { get; }
-
-		public AverageTimer SyncProfile { get; }
 
 		#endregion
 
@@ -189,7 +193,7 @@ namespace Speedy.Mobile.ViewModels
 		{
 			Dispatcher.Run(() =>
 			{
-				Status = SyncProfile.Count + "/" + SyncProfile.Average;
+				Status = Profiler.RuntimeTimer.Elapsed.ToString();
 				Debug.WriteLine(Status);
 			});
 		}
@@ -221,6 +225,13 @@ namespace Speedy.Mobile.ViewModels
 
 		private static void InitializeDatabase(ContosoClientMemoryDatabase database, DatabaseKeyCache keyCache)
 		{
+
+		}
+
+		private void ManagerOnSyncCompleted(object sender, SyncResults<SyncType> e)
+		{
+			var manager = (ClientSyncManager) sender;
+			
 		}
 
 		private ClientAddress NewAddress(string address)
@@ -270,7 +281,7 @@ namespace Speedy.Mobile.ViewModels
 		{
 			try
 			{
-				SyncProfile.Start();
+				//SyncProfile.Start();
 
 				ResetDatabase(client);
 				ResetDatabase(server);
@@ -292,7 +303,7 @@ namespace Speedy.Mobile.ViewModels
 			}
 			finally
 			{
-				SyncProfile.Stop();
+				//SyncProfile.Stop();
 			}
 		}
 
@@ -321,61 +332,63 @@ namespace Speedy.Mobile.ViewModels
 			//var options = new SyncOptions();
 			//var client = new SyncClient("Client", GetClientDatabaseProvider($"Data Source={Path.Combine(path, "client.db")}", true));
 			//var server = new SyncClient("Server", GetClientDatabaseProvider($"Data Source={Path.Combine(path, "server.db")}", true));
-			var credential = new NetworkCredential();
+			var networkCredential = new NetworkCredential("admin@speedy.local", "Password");
 			var dispatcher = new DefaultDispatcher();
+
+			var ipAddress = "10.0.0.3";
 			var client = GetClientDatabaseProvider($"Data Source={Path.Combine(path, "client.db")}", true);
-			var server = GetEntityDatabaseProvider($"Data Source={Path.Combine(path, "server.db")}", true);
-			var serverSyncClient = new ServerSyncClient(new AccountEntity(), server);
-			var server2 = new SyncClientProvider((x, y) => serverSyncClient);
-			var manager = new ClientSyncManager(() => credential, client, server2, dispatcher);
+			var syncClientProvider = new SyncClientProvider((name, credential) =>
+			{
+				return new WebSyncClient(name, new SyncableDatabaseProvider((o, c) => null, null, null), $"https://{ipAddress}", "api/Sync", credential, null, 60000);
+			});
+
+			//var server = GetEntityDatabaseProvider($"Data Source={Path.Combine(path, "server.db")}", true);
+			//var serverSyncClient = new ServerSyncClient(new AccountEntity(), server);
+			//var server2 = new SyncClientProvider((x, y) => serverSyncClient);
+			var manager = new ClientSyncManager(() => networkCredential, client, syncClientProvider, Profiler, dispatcher);
 			manager.SyncCompleted += ManagerOnSyncCompleted;
+			manager.Initialize();
+
+			var watch = new Stopwatch();
 
 			while (!worker.CancellationPending)
 			{
-				//RunSyncLoop(options, client, server);
 				try
 				{
-					SyncProfile.Start();
-
+					using var trackerPath = Profiler.StartNewPath("/test");
 					using var d = client.GetDatabase();
-					d.Addresses.Add(NewAddress($"Address {SyncProfile.Count}"));
+					d.Addresses.Add(NewAddress($"Address {Profiler.AverageSyncTimeForAddresses.Count}"));
 					d.SaveChanges();
 
-					var result = manager.Sync();
+					var result = manager.SyncAddresses();
 
-					using var s = server.GetDatabase();
-					Debug.WriteLine("Count: "
-						+ d.Addresses.Count()
-						+ " / " + s.Addresses.Count()
-						+ " : " + result.Client.Statistics.AppliedChanges
-						+ " : " + result.Server.Statistics.AppliedChanges
-						+ " - " + result.SyncIssues.Count
-					);
+					//using var s = server.GetDatabase();
+					//Debug.WriteLine("Count: "
+					//	+ d.Addresses.Count()
+					//	+ " / " + s.Addresses.Count()
+					//	+ " : " + result.Client.Statistics.AppliedChanges
+					//	+ " : " + result.Server.Statistics.AppliedChanges
+					//	+ " - " + result.SyncIssues.Count
+					//	+ " - " + watch.Elapsed.TotalMilliseconds
+					//);
+
+					watch.Restart();
 				}
 				catch (Exception ex)
 				{
 					Debug.WriteLine(ex.Message);
 				}
-				finally
-				{
-					SyncProfile.Stop();
-				}
 
 				_progress++;
 
 				worker.ReportProgress(_progress);
-				Thread.Sleep(0);
+				Thread.Sleep(1);
 
-				if ((_progress % 100) == 0)
-				{
-					GC.Collect();
-				}
+				//if ((_progress % 100) == 0)
+				//{
+				//	GC.Collect();
+				//}
 			}
-		}
-
-		private void ManagerOnSyncCompleted(object sender, SyncResults<SyncType> e)
-		{
-			var manager = (ClientSyncManager) sender;
 		}
 
 		private void WorkerOnProgressChanged(object sender, ProgressChangedEventArgs e)

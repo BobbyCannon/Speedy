@@ -94,6 +94,8 @@
   <ItemGroup>
     <Compile Include="MobileForegroundService.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="PermissionProvider.cs" />
+    <Compile Include="PermissionType.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -129,6 +131,10 @@
     <ProjectReference Include="..\..\Speedy.Website.Data\Speedy.Website.Data.csproj">
       <Project>{a8716e62-358c-44f2-a18e-c5e585d097fd}</Project>
       <Name>Speedy.Website.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Speedy\Speedy.csproj">
+      <Project>{DE1FCAF6-D683-44B7-B8E3-FF6A19569C16}</Project>
+      <Name>Speedy</Name>
     </ProjectReference>
     <ProjectReference Include="..\Speedy.Mobile\Speedy.Mobile.csproj">
       <Project>{B89B8AA0-6028-40D3-BB92-E3EDDC888A89}</Project>

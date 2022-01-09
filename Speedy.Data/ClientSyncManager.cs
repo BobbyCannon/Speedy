@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Speedy.Data.Client;
 using Speedy.Data.WebApi;
+using Speedy.Extensions;
 using Speedy.Sync;
 
 #endregion
@@ -39,7 +40,9 @@ namespace Speedy.Data
 		/// <param name="databaseProvider"> The database provider. </param>
 		/// <param name="serverProvider"> The server provider to get a sync client. </param>
 		/// <param name="dispatcher"> An optional dispatcher to update with. </param>
-		public ClientSyncManager(Func<NetworkCredential> credentialProvider, ISyncableDatabaseProvider databaseProvider, SyncClientProvider serverProvider, IDispatcher dispatcher) : base(dispatcher)
+		public ClientSyncManager(Func<NetworkCredential> credentialProvider, ISyncableDatabaseProvider databaseProvider,
+			SyncClientProvider serverProvider, ProfileService profiler, IDispatcher dispatcher)
+			: base(dispatcher)
 		{
 			_credentialProvider = credentialProvider;
 			_databaseProvider = databaseProvider;
@@ -70,11 +73,31 @@ namespace Speedy.Data
 				new SyncObjectOutgoingConverter<ClientLogEvent, long, LogEvent, long>(),
 				new SyncObjectOutgoingConverter<ClientSetting, long, Setting, long>()
 			);
+
+			Profiler = profiler;
 		}
 
 		#endregion
 
+		#region Properties
+
+		public DateTime LastSyncedOn { get; set; }
+		
+		public ProfileService Profiler { get; }
+
+		#endregion
+
 		#region Methods
+
+		public virtual void Initialize()
+		{
+			Profiler.AverageSyncTimeForAll = GetOrAddSyncTimer(SyncType.All);
+			Profiler.AverageSyncTimeForAccounts = GetOrAddSyncTimer(SyncType.Accounts);
+			Profiler.AverageSyncTimeForAddress = GetOrAddSyncTimer(SyncType.Address);
+			Profiler.AverageSyncTimeForAddresses = GetOrAddSyncTimer(SyncType.Addresses);
+			Profiler.AverageSyncTimeForLogEvents = GetOrAddSyncTimer(SyncType.LogEvents);
+			Profiler.RuntimeTimer.Start();
+		}
 
 		public SyncResults<SyncType> Sync(TimeSpan? timeout = null, TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
@@ -150,12 +173,22 @@ namespace Speedy.Data
 				postAction);
 		}
 
+		public void UpdateLastSyncedOn(SyncType type, DateTime lastSyncedOnClient, DateTime lastSyncedOnServer)
+		{
+			var syncOptions = GetSyncOptions(type);
+			if (syncOptions != null)
+			{
+				syncOptions.LastSyncedOnClient = lastSyncedOnClient;
+				syncOptions.LastSyncedOnServer = lastSyncedOnServer;
+			}
+		}
+
 		/// <inheritdoc />
 		protected override ISyncClient GetSyncClientForClient()
 		{
 			return new SyncClient("Client (local)", _databaseProvider)
 			{
-				IncomingConverter = IncomingConverter, 
+				IncomingConverter = IncomingConverter,
 				OutgoingConverter = OutgoingConverter,
 				Options = { EnablePrimaryKeyCache = true, IsServerClient = false }
 			};
@@ -170,6 +203,29 @@ namespace Speedy.Data
 				client.Options.IsServerClient = true;
 			}
 			return client;
+		}
+
+		protected override SyncOptions GetSyncOptions(SyncType syncType)
+		{
+			var options = base.GetSyncOptions(syncType);
+			if (!options.Values.ContainsKey(AccountValueKey))
+			{
+				options.Values.AddOrUpdate(AccountValueKey, Guid.Empty.ToString());
+			}
+			return options;
+		}
+
+		protected override void OnSyncCompleted(SyncResults<SyncType> results)
+		{
+			// If no issues we'll store last synced on
+			if (results.SyncSuccessful)
+			{
+				// Update the last synced on times (client/server)
+				UpdateLastSyncedOn(results.SyncType, results.Options.LastSyncedOnClient, results.Options.LastSyncedOnServer);
+				LastSyncedOn = results.Options.LastSyncedOnClient;
+			}
+
+			base.OnSyncCompleted(results);
 		}
 
 		#endregion
