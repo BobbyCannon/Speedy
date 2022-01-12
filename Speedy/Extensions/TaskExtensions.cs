@@ -59,7 +59,7 @@ namespace Speedy.Extensions
 				|| (task.Status == TaskStatus.RanToCompletion);
 		}
 
-		private static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
+		internal static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
 		{
 			using var timeoutCancellationTokenSource = new CancellationTokenSource();
 			var completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));

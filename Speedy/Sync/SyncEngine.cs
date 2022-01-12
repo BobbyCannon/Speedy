@@ -132,7 +132,7 @@ namespace Speedy.Sync
 			if (!CancellationSource.IsCancellationRequested && Options.SyncDirection.HasFlag(SyncDirection.PullDown))
 			{
 				OnSyncStateChanged(status: SyncEngineStatus.Pulling);
-				incoming = Process(Server, Client, Options.LastSyncedOnServer, serverSession.StartedOn, incoming);
+				Process(Server, Client, Options.LastSyncedOnServer, serverSession.StartedOn, incoming);
 			}
 
 			if (!CancellationSource.IsCancellationRequested && Options.SyncDirection.HasFlag(SyncDirection.PushUp))
@@ -248,7 +248,7 @@ namespace Speedy.Sync
 		/// <param name="since"> The start date and time to get changes for. </param>
 		/// <param name="until"> The end date and time to get changes for. </param>
 		/// <param name="exclude"> The optional collection of items to exclude. </param>
-		private Dictionary<Guid, DateTime> Process(ISyncClient sourceClient, ISyncClient destinationClient, DateTime since, DateTime until, IDictionary<Guid, DateTime> exclude)
+		private void Process(ISyncClient sourceClient, ISyncClient destinationClient, DateTime since, DateTime until, IDictionary<Guid, DateTime> exclude)
 		{
 			var issues = new ServiceRequest<SyncIssue>();
 			var request = new SyncRequest { Since = since, Until = until, Skip = 0 };
@@ -321,8 +321,6 @@ namespace Speedy.Sync
 					throw;
 				}
 			}
-
-			return response;
 		}
 
 		private void RemoveIssues(ICollection<SyncIssue> syncIssues, IList<SyncObject> collection)

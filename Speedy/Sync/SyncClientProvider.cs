@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System;
-using System.Net;
+using Speedy.Net;
 
 #endregion
 
@@ -14,7 +14,7 @@ namespace Speedy.Sync
 	{
 		#region Fields
 
-		private readonly Func<string, NetworkCredential, ISyncClient> _getClient;
+		private readonly Func<string, ISyncClient> _getClient;
 
 		#endregion
 
@@ -23,7 +23,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates a provider to get a sync client.
 		/// </summary>
-		public SyncClientProvider(Func<string, NetworkCredential, ISyncClient> getClient)
+		public SyncClientProvider(Func<string, ISyncClient> getClient)
 		{
 			_getClient = getClient;
 		}
@@ -36,11 +36,10 @@ namespace Speedy.Sync
 		/// Return a client by the provided name and credential.
 		/// </summary>
 		/// <param name="name"> The name of the client. </param>
-		/// <param name="credential"> The credential for the client. </param>
 		/// <returns> The sync client. </returns>
-		public ISyncClient GetClient(string name, NetworkCredential credential)
+		public ISyncClient GetClient(string name)
 		{
-			return _getClient.Invoke(name, credential);
+			return _getClient.Invoke(name);
 		}
 
 		#endregion

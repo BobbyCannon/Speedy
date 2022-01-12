@@ -68,6 +68,29 @@ namespace Speedy.IntegrationTests
 
 		#region Methods
 
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> True if disposing and false if otherwise. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
+				return;
+			}
+
+			
+		}
+
 		public ServiceResult<SyncIssue> ApplyChanges(Guid sessionId, ServiceRequest<SyncObject> changes)
 		{
 			AppliedChanges.Add(changes);

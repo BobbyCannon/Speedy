@@ -24,6 +24,7 @@ namespace Speedy.Sync
 		#region Fields
 
 		private int _changeCount;
+		private SyncSession _syncSession;
 
 		#endregion
 
@@ -40,9 +41,6 @@ namespace Speedy.Sync
 			Profiler = new SyncClientProfiler(name);
 			Statistics = new SyncStatistics();
 			SyncOptions = new SyncOptions();
-
-			// do not initialize this, this is for the sync engine to setup
-			//SyncSession = new SyncSession();
 
 			_changeCount = -1;
 		}
@@ -75,9 +73,6 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public SyncOptions SyncOptions { get; protected set; }
 
-		/// <inheritdoc />
-		public SyncSession SyncSession { get; protected set; }
-
 		#endregion
 
 		#region Methods
@@ -97,23 +92,32 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public virtual SyncSession BeginSync(Guid sessionId, SyncOptions options)
 		{
-			if (SyncSession != null)
+			if (_syncSession != null)
 			{
 				throw new InvalidOperationException("An existing sync session is in progress.");
 			}
 
-			SyncSession = new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
+			_syncSession = new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
 			SyncOptions = options;
 			Statistics.Reset();
 
-			return SyncSession;
+			return _syncSession;
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		/// <inheritdoc />
 		public virtual SyncStatistics EndSync(Guid sessionId)
 		{
 			ValidateSession(sessionId);
-			SyncSession = null;
+			_syncSession = null;
 			return Statistics;
 		}
 
@@ -275,12 +279,23 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> True if disposing and false if otherwise. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
+			}
+		}
+
+		/// <summary>
 		/// Validates the sync session. The SyncSession will be set on BeginSync and cleared on EndSync.
 		/// </summary>
 		/// <param name="sessionId"> </param>
 		protected virtual void ValidateSession(Guid sessionId)
 		{
-			if (sessionId != SyncSession?.Id)
+			if (sessionId != _syncSession?.Id)
 			{
 				throw new InvalidOperationException("The sync session ID is invalid.");
 			}
@@ -382,7 +397,7 @@ namespace Speedy.Sync
 		{
 			Profiler.ProcessSyncObject.Time(() =>
 			{
-				Logger.Instance.Write(SyncSession.Id, correction
+				Logger.Instance.Write(_syncSession?.Id ?? Guid.Empty, correction
 						? $"Processing sync object {syncObject.TypeName} {syncObject.SyncId} correction."
 						: $"Processing sync object {syncObject.TypeName} {syncObject.SyncId}.",
 					EventLevel.Verbose);
@@ -397,7 +412,7 @@ namespace Speedy.Sync
 						TypeName = syncObject.TypeName
 					};
 					issues.Add(issue);
-					Logger.Instance.Write(SyncSession.Id, issue.Message, EventLevel.Verbose);
+					Logger.Instance.Write(_syncSession?.Id ?? Guid.Empty, issue.Message, EventLevel.Verbose);
 					return;
 				}
 
@@ -418,7 +433,7 @@ namespace Speedy.Sync
 						TypeName = syncObject.TypeName
 					};
 					issues.Add(issue);
-					Logger.Instance.Write(SyncSession.Id, issue.Message, EventLevel.Verbose);
+					Logger.Instance.Write(_syncSession?.Id ?? Guid.Empty, issue.Message, EventLevel.Verbose);
 					return;
 				}
 
@@ -594,7 +609,7 @@ namespace Speedy.Sync
 			catch
 			{
 				Statistics.IndividualProcessCount++;
-				Logger.Instance.Write(SyncSession.Id, "Failed to process sync objects in the batch.", EventLevel.Warning);
+				Logger.Instance.Write(_syncSession?.Id ?? Guid.Empty, "Failed to process sync objects in the batch.", EventLevel.Warning);
 				ProcessSyncObjectsIndividually(provider, objects, issues, corrections);
 			}
 		}

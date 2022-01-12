@@ -6,8 +6,8 @@
 		<AssemblyTitle>Speedy</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy</Product>
-		<Description>Small thread safe embedded key value pair persistent repository for .NET.</Description>
-		<Copyright>© Copyright 2014-2021</Copyright>
+		<Description>Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.</Description>
+		<Copyright>© Copyright 2014-2022</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -23,9 +23,9 @@
 		<PackageId>Speedy</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.2.4.0</AssemblyVersion>
-		<FileVersion>8.2.4.0</FileVersion>
-		<Version>8.2.4.0</Version>
+		<AssemblyVersion>8.2.5.0</AssemblyVersion>
+		<FileVersion>8.2.5.0</FileVersion>
+		<Version>8.2.5.0</Version>
 		<DocumentationFile>Speedy.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

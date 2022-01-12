@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Speedy.Data.Client;
 using Speedy.Data.WebApi;
 using Speedy.Extensions;
+using Speedy.Net;
 using Speedy.Sync;
 
 #endregion
@@ -25,7 +26,7 @@ namespace Speedy.Data
 
 		#region Fields
 
-		private readonly Func<NetworkCredential> _credentialProvider;
+		private readonly Func<WebCredential> _credentialProvider;
 		private readonly ISyncableDatabaseProvider _databaseProvider;
 		private readonly SyncClientProvider _serverProvider;
 
@@ -40,7 +41,7 @@ namespace Speedy.Data
 		/// <param name="databaseProvider"> The database provider. </param>
 		/// <param name="serverProvider"> The server provider to get a sync client. </param>
 		/// <param name="dispatcher"> An optional dispatcher to update with. </param>
-		public ClientSyncManager(Func<NetworkCredential> credentialProvider, ISyncableDatabaseProvider databaseProvider,
+		public ClientSyncManager(Func<WebCredential> credentialProvider, ISyncableDatabaseProvider databaseProvider,
 			SyncClientProvider serverProvider, ProfileService profiler, IDispatcher dispatcher)
 			: base(dispatcher)
 		{
@@ -128,11 +129,11 @@ namespace Speedy.Data
 
 		public Task<SyncResults<SyncType>> SyncAddressesAsync(TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
-			OnLogEvent("Starting to sync addresses...", EventLevel.Verbose);
+			//OnLogEvent("Starting to sync addresses...", EventLevel.Verbose);
 
 			return ProcessAsync(SyncType.Addresses, options =>
 				{
-					OnLogEvent("Sync addresses started", EventLevel.Verbose);
+					//OnLogEvent("Sync addresses started", EventLevel.Verbose);
 				},
 				waitFor,
 				postAction);
@@ -197,7 +198,7 @@ namespace Speedy.Data
 		/// <inheritdoc />
 		protected override ISyncClient GetSyncClientForServer()
 		{
-			var client = _serverProvider.GetClient("Server (remote)", _credentialProvider());
+			var client = _serverProvider.GetClient("Server (remote)");
 			if (client != null)
 			{
 				client.Options.IsServerClient = true;

@@ -51,7 +51,10 @@ namespace Speedy.Serialization
 		{
 			var typeIgnoredProperties = _initializeType(type.GetRealType());
 			var properties = base.CreateProperties(type, memberSerialization);
-			return properties.Where(x => !typeIgnoredProperties.Contains(x.PropertyName) && !_ignoreMember(x.PropertyName)).OrderBy(x => x.PropertyName).ToList();
+			var response = properties.Where(p => !typeIgnoredProperties.Contains(p.PropertyName) && !_ignoreMember(p.PropertyName))
+				.OrderBy(p => p.PropertyName)
+				.ToList();
+			return response;
 		}
 
 		#endregion

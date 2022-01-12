@@ -3,8 +3,6 @@
 using System;
 using System.Diagnostics.Tracing;
 using System.Linq;
-using System.Net;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Client.Data;
 using Speedy.Data;
@@ -75,7 +73,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(LogLevel.Debug, actual.Level);
 			}
 		}
-		
+
 		[TestMethod]
 		public void SettingsShouldDelete()
 		{
@@ -99,15 +97,15 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
-			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
 			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
 			syncManager.Sync();
-			
+
 			using (var database = clientProvider.GetDatabase())
 			{
 				var settings = database.Settings.ToList();
@@ -127,7 +125,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(true, settings[0].IsDeleted);
 			}
 		}
-		
+
 		[TestMethod]
 		public void SettingsShouldNotDelete()
 		{
@@ -152,15 +150,15 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
-			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
 			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
 			syncManager.Sync();
-			
+
 			using (var database = clientProvider.GetDatabase())
 			{
 				var settings = database.Settings.ToList();
@@ -204,9 +202,9 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
-			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = MemoryLogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			var result = syncManager.Sync();
@@ -258,9 +256,9 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
-			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = MemoryLogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			var result = syncManager.SyncAddresses();
@@ -307,9 +305,9 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new NetworkCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
-			var syncClientProvider = new SyncClientProvider((n, c) => server);
+			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = MemoryLogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			var result = syncManager.SyncLogEvents();

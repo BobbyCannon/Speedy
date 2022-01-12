@@ -1611,6 +1611,14 @@
             <param name="get"> The function to get the value. </param>
             <param name="update"> The function to update the value. </param>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate(System.Net.Http.Headers.HttpHeaders,System.String,System.String)">
+            <summary>
+            Add or update the value in the HTTP headers collection.
+            </summary>
+            <param name="headers"> The headers to be updated. </param>
+            <param name="key"> The key of the value. </param>
+            <param name="value"> The value of the entry. </param>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``1(System.Collections.Generic.ICollection{``0},System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Add multiple items to a collection
@@ -3149,6 +3157,139 @@
         <member name="P:Speedy.ModifiableEntity`1.ModifiedOn">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Net.IWebClient">
+            <summary>
+            Represents a web client contract.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.IWebClient.BaseUri">
+            <summary>
+            Gets the base URI for connecting.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.IWebClient.Credential">
+            <summary>
+            The credentials for the connection.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.IWebClient.Headers">
+            <summary>
+            Headers for this client.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.IWebClient.Proxy">
+            <summary>
+            Gets or sets an optional proxy for the connection.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.IWebClient.Timeout">
+            <summary>
+            Gets or sets the number of milliseconds to wait before the request times out. The default value is 100 seconds.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Delete(System.String,System.Nullable{System.TimeSpan})">
+            <summary>
+            Delete request
+            </summary>
+            <param name="uri"> The URI to use. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Deserialize``1(System.Net.Http.HttpResponseMessage,System.Nullable{System.TimeSpan})">
+            <summary>
+            Deserialize the response.
+            </summary>
+            <typeparam name="T"> The type to deserialize into. </typeparam>
+            <param name="result"> The result to deserialize. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The deserialized type. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Get``1(System.String,System.Nullable{System.TimeSpan})">
+            <summary>
+            Gets a response and deserialize it.
+            </summary>
+            <typeparam name="T"> The type to deserialize into. </typeparam>
+            <param name="uri"> The URI of the content to deserialize. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The deserialized type. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Get(System.String,System.Nullable{System.TimeSpan})">
+            <summary>
+            Gets a response and deserialize it.
+            </summary>
+            <param name="uri"> The URI of the content to deserialize. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Initialize">
+            <summary>
+            Initialize the web client.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Patch``1(System.String,``0,System.Nullable{System.TimeSpan})">
+            <summary>
+            Patch an item on the server with the provide content.
+            </summary>
+            <typeparam name="TContent"> The type to update with. </typeparam>
+            <param name="uri"> The URI to patch to. </param>
+            <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Post``2(System.String,``0,System.Nullable{System.TimeSpan})">
+            <summary>
+            Post an item on the server with the provide content.
+            </summary>
+            <typeparam name="TContent"> The type to update with. </typeparam>
+            <typeparam name="TResult"> The type to respond with. </typeparam>
+            <param name="uri"> The URI to post to. </param>
+            <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The server result. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Post``1(System.String,``0,System.Nullable{System.TimeSpan})">
+            <summary>
+            Post an item on the server with the provide content.
+            </summary>
+            <typeparam name="TContent"> The type to update with. </typeparam>
+            <param name="uri"> The URI to post to. </param>
+            <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Post(System.String,System.String,System.Nullable{System.TimeSpan})">
+            <summary>
+            Post an item on the server with the provide content.
+            </summary>
+            <param name="uri"> The URI to post to. </param>
+            <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Put``2(System.String,``0,System.Nullable{System.TimeSpan})">
+            <summary>
+            Put an item on the server with the provide content.
+            </summary>
+            <param name="uri"> The URI to put to. </param>
+            <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Put``1(System.String,``0,System.Nullable{System.TimeSpan})">
+            <summary>
+            Put (update) an item on the server with the provide content.
+            </summary>
+            <typeparam name="TContent"> The type to update with. </typeparam>
+            <param name="uri"> The URI to post to. </param>
+            <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
+            <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.IWebClient.Reset">
+            <summary>
+            Reset the web client.
+            </summary>
+        </member>
         <member name="T:Speedy.Net.ServiceRequest`1">
             <summary>
             Represents a service request containing a collection.
@@ -3251,7 +3392,7 @@
             This class is used for making GET and POST calls to an HTTP endpoint.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebClient.#ctor(System.String,System.Int32,System.Net.NetworkCredential,System.Net.WebProxy)">
+        <member name="M:Speedy.Net.WebClient.#ctor(System.String,System.Int32,Speedy.Net.WebCredential,System.Net.WebProxy,Speedy.IDispatcher)">
             <summary>
             Initializes a new HTTP helper to point at a specific URI, and with the specified session identifier.
             </summary>
@@ -3259,15 +3400,21 @@
             <param name="timeout"> The timeout in milliseconds. </param>
             <param name="credential"> The optional credential to authenticate with. </param>
             <param name="proxy"> The optional proxy to use. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Net.WebClient.#ctor(System.Uri,System.TimeSpan,Speedy.Net.WebCredential,System.Net.IWebProxy,Speedy.IDispatcher)">
+            <summary>
+            Initializes a new HTTP helper to point at a specific URI, and with the specified session identifier.
+            </summary>
+            <param name="baseUri"> The base URI. </param>
+            <param name="timeout"> The timeout in milliseconds. </param>
+            <param name="credential"> The optional credential to authenticate with. </param>
+            <param name="proxy"> The optional proxy to use. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="P:Speedy.Net.WebClient.BaseUri">
             <summary>
             Gets the base URI for connecting.
-            </summary>
-        </member>
-        <member name="P:Speedy.Net.WebClient.Cookies">
-            <summary>
-            The cookies for this client.
             </summary>
         </member>
         <member name="P:Speedy.Net.WebClient.Credential">
@@ -3275,9 +3422,9 @@
             The credentials for the connection.
             </summary>
         </member>
-        <member name="P:Speedy.Net.WebClient.IsAuthenticated">
+        <member name="P:Speedy.Net.WebClient.Headers">
             <summary>
-            Determines if the connection is authenticated.
+            Headers for this client.
             </summary>
         </member>
         <member name="P:Speedy.Net.WebClient.Proxy">
@@ -3290,19 +3437,24 @@
             Gets or sets the number of milliseconds to wait before the request times out. The default value is 100 seconds.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebClient.Delete(System.String)">
+        <member name="M:Speedy.Net.WebClient.DeepClone(System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.WebClient.Delete(System.String,System.Nullable{System.TimeSpan})">
             <summary>
             Delete request
             </summary>
             <param name="uri"> The URI to use. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The response from the server. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Deserialize``1(System.Net.Http.HttpResponseMessage)">
+        <member name="M:Speedy.Net.WebClient.Deserialize``1(System.Net.Http.HttpResponseMessage,System.Nullable{System.TimeSpan})">
             <summary>
             Deserialize the response.
             </summary>
             <typeparam name="T"> The type to deserialize into. </typeparam>
             <param name="result"> The result to deserialize. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The deserialized type. </returns>
         </member>
         <member name="M:Speedy.Net.WebClient.Dispose">
@@ -3310,34 +3462,46 @@
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebClient.Get``1(System.String)">
+        <member name="M:Speedy.Net.WebClient.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="M:Speedy.Net.WebClient.Get``1(System.String,System.Nullable{System.TimeSpan})">
             <summary>
             Gets a response and deserialize it.
             </summary>
             <typeparam name="T"> The type to deserialize into. </typeparam>
             <param name="uri"> The URI of the content to deserialize. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The deserialized type. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Get(System.String)">
+        <member name="M:Speedy.Net.WebClient.Get(System.String,System.Nullable{System.TimeSpan})">
             <summary>
             Gets a response and deserialize it.
             </summary>
             <param name="uri"> The URI of the content to deserialize. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The response from the server. </returns>
+        </member>
+        <member name="M:Speedy.Net.WebClient.Initialize">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebClient.OnPropertyChanged(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Net.WebClient.Patch``1(System.String,``0)">
+        <member name="M:Speedy.Net.WebClient.Patch``1(System.String,``0,System.Nullable{System.TimeSpan})">
             <summary>
             Patch an item on the server with the provide content.
             </summary>
             <typeparam name="TContent"> The type to update with. </typeparam>
             <param name="uri"> The URI to patch to. </param>
             <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The response from the server. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Post``2(System.String,``0)">
+        <member name="M:Speedy.Net.WebClient.Post``2(System.String,``0,System.Nullable{System.TimeSpan})">
             <summary>
             Post an item on the server with the provide content.
             </summary>
@@ -3345,47 +3509,61 @@
             <typeparam name="TResult"> The type to respond with. </typeparam>
             <param name="uri"> The URI to post to. </param>
             <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The server result. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Post``1(System.String,``0)">
+        <member name="M:Speedy.Net.WebClient.Post``1(System.String,``0,System.Nullable{System.TimeSpan})">
             <summary>
             Post an item on the server with the provide content.
             </summary>
             <typeparam name="TContent"> The type to update with. </typeparam>
             <param name="uri"> The URI to post to. </param>
             <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The response from the server. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Post(System.String,System.String)">
+        <member name="M:Speedy.Net.WebClient.Post(System.String,System.String,System.Nullable{System.TimeSpan})">
             <summary>
             Post an item on the server with the provide content.
             </summary>
             <param name="uri"> The URI to post to. </param>
             <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The response from the server. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Put``2(System.String,``0)">
+        <member name="M:Speedy.Net.WebClient.Put``2(System.String,``0,System.Nullable{System.TimeSpan})">
             <summary>
             Put an item on the server with the provide content.
             </summary>
             <param name="uri"> The URI to put to. </param>
             <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The response from the server. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Put``1(System.String,``0)">
+        <member name="M:Speedy.Net.WebClient.Put``1(System.String,``0,System.Nullable{System.TimeSpan})">
             <summary>
             Put (update) an item on the server with the provide content.
             </summary>
             <typeparam name="TContent"> The type to update with. </typeparam>
             <param name="uri"> The URI to post to. </param>
             <param name="content"> The content to update with. </param>
+            <param name="timeout"> An optional timeout to override the default Timeout value. </param>
             <returns> The response from the server. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.Dispose(System.Boolean)">
+        <member name="M:Speedy.Net.WebClient.Reset">
             <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            Reset the web client.
             </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="M:Speedy.Net.WebClient.ShallowClone">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.WebClient.GetJson(System.Object)">
+            <summary>
+            Get JSON for the provided object.
+            </summary>
+            <param name="content"> The content to be converted to JSON format. </param>
+            <returns> The JSON formatted content. </returns>
         </member>
         <member name="M:Speedy.Net.WebClient.OnServerCertificateCustomValidationCallback(System.Net.Http.HttpRequestMessage,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Chain,System.Net.Security.SslPolicyErrors)">
             <summary>
@@ -3397,22 +3575,52 @@
             <param name="arg4"> </param>
             <returns> </returns>
         </member>
+        <member name="T:Speedy.Net.WebCredential">
+            <summary>
+            Represents a credential for a web client.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.#ctor">
+            <summary>
+            Creates an instance of the web credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Creates an instance of the web credential.
+            </summary>
+            <param name="username"> The username of the credential. </param>
+            <param name="password"> The password of the credential. </param>
+            <param name="domain"> An optional domain value. </param>
+        </member>
+        <member name="P:Speedy.Net.WebCredential.AuthenticationHeaderValue">
+            <summary>
+            Gets the credential as an auth header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.Reset">
+            <summary>
+            Reset the web credential.
+            </summary>
+        </member>
+        <member name="T:Speedy.Net.WebHttpHeaders">
+            <summary>
+            Just a way to create your own headers collection.
+            </summary>
+        </member>
         <member name="T:Speedy.Net.WebSyncClient">
             <summary>
             Web client for a sync server implemented over Web API.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebSyncClient.#ctor(System.String,Speedy.ISyncableDatabaseProvider,System.String,System.String,System.Net.NetworkCredential,System.Net.WebProxy,System.Int32)">
+        <member name="M:Speedy.Net.WebSyncClient.#ctor(System.String,Speedy.ISyncableDatabaseProvider,Speedy.Net.IWebClient,System.String)">
             <summary>
             Instantiates an instance of the class.
             </summary>
             <param name="provider"> The database provider for the client </param>
             <param name="name"> The name of the client. </param>
-            <param name="serverUri"> The server to send data to. </param>
+            <param name="webClient"> The client to access the web. </param>
             <param name="syncUri"> The sync URI. Defaults to "api/Sync". </param>
-            <param name="credential"> The optional credential for the sync client. </param>
-            <param name="proxy"> The optional proxy to use. </param>
-            <param name="timeout"> The timeout in milliseconds for each transaction. </param>
         </member>
         <member name="P:Speedy.Net.WebSyncClient.DatabaseProvider">
             <inheritdoc />
@@ -3436,9 +3644,6 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.SyncOptions">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Net.WebSyncClient.SyncSession">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Net.WebSyncClient.WebClient">
@@ -3469,6 +3674,23 @@
         </member>
         <member name="M:Speedy.Net.WebSyncClient.GetDatabase``1">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Net.WebSyncClientProvider">
+            <summary>
+            Provides sync provider and some web interfaces.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.WebSyncClientProvider.#ctor(Speedy.Net.IWebClient,Speedy.ISyncableDatabaseProvider)">
+            <summary>
+            Create an instance of a provider for a web sync client.
+            </summary>
+            <param name="client"> The web client to use. </param>
+            <param name="provider"> The syncable database provider. </param>
+        </member>
+        <member name="P:Speedy.Net.WebSyncClientProvider.Client">
+            <summary>
+            The client for web access.
+            </summary>
         </member>
         <member name="T:Speedy.PagedRequest">
             <summary>
@@ -6337,6 +6559,14 @@
             <param name="settings"> The settings for the serializer. </param>
             <returns> The JSON string of the serialized object. </returns>
         </member>
+        <member name="M:Speedy.Serialization.Serializer.ToJson``1(``0)">
+            <summary>
+            Serialize an object into a JSON string.
+            </summary>
+            <typeparam name="T"> The type of the object to serialize. </typeparam>
+            <param name="item"> The object to serialize. </param>
+            <returns> The JSON string of the serialized object. </returns>
+        </member>
         <member name="M:Speedy.Serialization.Serializer.ToJson``1(``0,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Serialize an object into a JSON string.
@@ -6350,18 +6580,6 @@
             <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
             <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
             <returns> The JSON string of the serialized object. </returns>
-        </member>
-        <member name="M:Speedy.Serialization.Serializer.Unwrap``2(``0,System.Action{``1})">
-            <summary>
-            Unwraps a sync entity and disconnects it from the Entity Framework context. Check the value to see if the
-            IUnwrappable interface is implemented. If so the value's implementation is used instead.
-            The default behavior is to ignore read only and virtual properties.
-            </summary>
-            <typeparam name="T"> The type of the incoming object. </typeparam>
-            <typeparam name="T2"> The type of the outgoing object. </typeparam>
-            <param name="value"> The value to unwrap from the proxy. </param>
-            <param name="update"> An optional update method. </param>
-            <returns> The disconnected entity. </returns>
         </member>
         <member name="T:Speedy.Serialization.SerializerSettings">
             <summary>
@@ -8350,11 +8568,6 @@
             The options for the sync
             </summary>
         </member>
-        <member name="P:Speedy.Sync.ISyncClient.SyncSession">
-            <summary>
-            The active sync session. Will be null when a session is not started.
-            </summary>
-        </member>
         <member name="M:Speedy.Sync.ISyncClient.GetDatabase">
             <summary>
             Gets an instance of the database this sync client is for.
@@ -8604,9 +8817,6 @@
         <member name="P:Speedy.Sync.SyncClient.SyncOptions">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Sync.SyncClient.SyncSession">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Sync.SyncClient.ApplyChanges(System.Guid,Speedy.Net.ServiceRequest{Speedy.Sync.SyncObject})">
             <inheritdoc />
         </member>
@@ -8615,6 +8825,11 @@
         </member>
         <member name="M:Speedy.Sync.SyncClient.BeginSync(System.Guid,Speedy.Sync.SyncOptions)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncClient.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
         </member>
         <member name="M:Speedy.Sync.SyncClient.EndSync(System.Guid)">
             <inheritdoc />
@@ -8630,6 +8845,12 @@
         </member>
         <member name="M:Speedy.Sync.SyncClient.GetDatabase``1">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncClient.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="M:Speedy.Sync.SyncClient.ValidateSession(System.Guid)">
             <summary>
@@ -8842,17 +9063,16 @@
             Represents a provider to get a sync client.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncClientProvider.#ctor(System.Func{System.String,System.Net.NetworkCredential,Speedy.Sync.ISyncClient})">
+        <member name="M:Speedy.Sync.SyncClientProvider.#ctor(System.Func{System.String,Speedy.Sync.ISyncClient})">
             <summary>
             Instantiates a provider to get a sync client.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncClientProvider.GetClient(System.String,System.Net.NetworkCredential)">
+        <member name="M:Speedy.Sync.SyncClientProvider.GetClient(System.String)">
             <summary>
             Return a client by the provided name and credential.
             </summary>
             <param name="name"> The name of the client. </param>
-            <param name="credential"> The credential for the client. </param>
             <returns> The sync client. </returns>
         </member>
         <member name="T:Speedy.Sync.SyncDirection">

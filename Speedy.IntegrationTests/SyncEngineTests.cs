@@ -289,7 +289,7 @@ namespace Speedy.IntegrationTests
 				using var listener = MemoryLogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
-				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;
+				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 18;
 				Assert.AreEqual(expected, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
 
 				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
@@ -340,7 +340,7 @@ namespace Speedy.IntegrationTests
 				using var listener = MemoryLogListener.CreateSession(engine.SessionId, EventLevel.Verbose);
 				engine.Run();
 
-				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 16;
+				var expected = client.Name.Contains("WEB") ? 16 : server.Name.Contains("WEB") ? 12 : 18;
 				Assert.AreEqual(expected, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
 
 				using var clientDatabase = client.GetDatabase<IContosoDatabase>();

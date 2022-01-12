@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -225,13 +224,11 @@ namespace Speedy.Mobile.ViewModels
 
 		private static void InitializeDatabase(ContosoClientMemoryDatabase database, DatabaseKeyCache keyCache)
 		{
-
 		}
 
 		private void ManagerOnSyncCompleted(object sender, SyncResults<SyncType> e)
 		{
 			var manager = (ClientSyncManager) sender;
-			
 		}
 
 		private ClientAddress NewAddress(string address)
@@ -301,10 +298,6 @@ namespace Speedy.Mobile.ViewModels
 			{
 				Debug.WriteLine(ex.Message);
 			}
-			finally
-			{
-				//SyncProfile.Stop();
-			}
 		}
 
 		private void StartSync()
@@ -332,20 +325,20 @@ namespace Speedy.Mobile.ViewModels
 			//var options = new SyncOptions();
 			//var client = new SyncClient("Client", GetClientDatabaseProvider($"Data Source={Path.Combine(path, "client.db")}", true));
 			//var server = new SyncClient("Server", GetClientDatabaseProvider($"Data Source={Path.Combine(path, "server.db")}", true));
-			var networkCredential = new NetworkCredential("admin@speedy.local", "Password");
+			var credential = new WebCredential("admin@speedy.local", "Password");
 			var dispatcher = new DefaultDispatcher();
 
 			var ipAddress = "10.0.0.3";
 			var client = GetClientDatabaseProvider($"Data Source={Path.Combine(path, "client.db")}", true);
-			var syncClientProvider = new SyncClientProvider((name, credential) =>
-			{
-				return new WebSyncClient(name, new SyncableDatabaseProvider((o, c) => null, null, null), $"https://{ipAddress}", "api/Sync", credential, null, 60000);
-			});
+			var webClient = new WebClient($"https://{ipAddress}", 60000, credential, null, dispatcher);
+			var webSyncClientProvider = new WebSyncClientProvider(webClient, new SyncableDatabaseProvider((o, c) => null, null, null));
+			var manager = new ClientSyncManager(() => credential, client, webSyncClientProvider, Profiler, dispatcher);
 
-			//var server = GetEntityDatabaseProvider($"Data Source={Path.Combine(path, "server.db")}", true);
-			//var serverSyncClient = new ServerSyncClient(new AccountEntity(), server);
-			//var server2 = new SyncClientProvider((x, y) => serverSyncClient);
-			var manager = new ClientSyncManager(() => networkCredential, client, syncClientProvider, Profiler, dispatcher);
+			var server = GetEntityDatabaseProvider($"Data Source={Path.Combine(path, "server.db")}", true);
+			//var server = GetEntityDatabaseProvider("server=10.0.0.3;database=Speedy;integrated security=true;TrustServerCertificate=True", true);
+			var serverSyncClient = new ServerSyncClient(new AccountEntity(), server);
+			var syncClientProvider = new SyncClientProvider(x => serverSyncClient);
+			//var manager = new ClientSyncManager(() => credential, client, syncClientProvider, Profiler, dispatcher);
 			manager.SyncCompleted += ManagerOnSyncCompleted;
 			manager.Initialize();
 
@@ -362,15 +355,15 @@ namespace Speedy.Mobile.ViewModels
 
 					var result = manager.SyncAddresses();
 
-					//using var s = server.GetDatabase();
-					//Debug.WriteLine("Count: "
-					//	+ d.Addresses.Count()
-					//	+ " / " + s.Addresses.Count()
-					//	+ " : " + result.Client.Statistics.AppliedChanges
-					//	+ " : " + result.Server.Statistics.AppliedChanges
-					//	+ " - " + result.SyncIssues.Count
-					//	+ " - " + watch.Elapsed.TotalMilliseconds
-					//);
+					using var s = server.GetDatabase();
+					Debug.WriteLine("Success: " + result.SyncSuccessful
+						+ "Count: " + d.Addresses.Count()
+						//+ " / " + s.Addresses.Count()
+						+ " : " + result.Client.Statistics.AppliedChanges
+						+ " : " + result.Server.Statistics.AppliedChanges
+						+ " - " + result.SyncIssues.Count
+						+ " - " + watch.Elapsed.TotalMilliseconds
+					);
 
 					watch.Restart();
 				}

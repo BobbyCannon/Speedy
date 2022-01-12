@@ -406,7 +406,7 @@ namespace Speedy.Sync
 				{
 					throw new Exception("Sync client for client or server is null.");
 				}
-				
+
 				using var engine = new SyncEngine(results.Client, results.Server, results.Options, _cancellationToken);
 
 				try
@@ -436,11 +436,19 @@ namespace Speedy.Sync
 					TypeName = string.Empty
 				});
 
-				SyncState.Message = ex.Code switch
+				switch (ex.Code)
 				{
-					HttpStatusCode.Unauthorized => "Unauthorized: please update your credentials in settings or contact support.",
-					_ => ex.Message
-				};
+					case HttpStatusCode.Unauthorized:
+					{
+						SyncState.Message = "Unauthorized: please update your credentials in settings or contact support.";
+						break;
+					}
+					default:
+					{
+						SyncState.Message = ex.Message;
+						break;
+					}
+				}
 
 				OnSyncUpdated(SyncState);
 			}

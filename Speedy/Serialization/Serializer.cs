@@ -17,7 +17,7 @@ namespace Speedy.Serialization
 		#region Fields
 
 		private static readonly SerializerSettings _settingsForDeepClone1, _settingsForDeepClone2;
-		private static readonly SerializerSettings _settingsForDeserialization;
+		private static readonly SerializerSettings _settingsForDeserialization, _settingsForSerialization;
 
 		#endregion
 
@@ -26,6 +26,7 @@ namespace Speedy.Serialization
 		static Serializer()
 		{
 			_settingsForDeserialization = new SerializerSettings(false);
+			_settingsForSerialization = new SerializerSettings(false, false, false, false, false, false);
 			_settingsForDeepClone1 = new SerializerSettings(ignoreVirtuals: true);
 			_settingsForDeepClone2 = new SerializerSettings(ignoreVirtuals: false);
 		}
@@ -175,6 +176,17 @@ namespace Speedy.Serialization
 		/// </summary>
 		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
 		/// <param name="item"> The object to serialize. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToJson<T>(this T item)
+		{
+			return item.ToJson(_settingsForSerialization);
+		}
+
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
 		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
 		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
@@ -185,25 +197,6 @@ namespace Speedy.Serialization
 		public static string ToJson<T>(this T item, bool indented = false, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
 		{
 			return item.ToJson(new SerializerSettings(indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString));
-		}
-
-		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context. Check the value to see if the
-		/// IUnwrappable interface is implemented. If so the value's implementation is used instead.
-		/// The default behavior is to ignore read only and virtual properties.
-		/// </summary>
-		/// <typeparam name="T"> The type of the incoming object. </typeparam>
-		/// <typeparam name="T2"> The type of the outgoing object. </typeparam>
-		/// <param name="value"> The value to unwrap from the proxy. </param>
-		/// <param name="update"> An optional update method. </param>
-		/// <returns> The disconnected entity. </returns>
-		public static T2 Unwrap<T, T2>(this T value, Action<T2> update = null)
-		{
-			// notice: do not use Unwrappable until it can support to specific types
-
-			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
-			update?.Invoke(response);
-			return response;
 		}
 
 		#endregion

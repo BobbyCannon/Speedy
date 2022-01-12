@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -30,6 +29,7 @@ using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Services;
 using Timer = Speedy.Profiling.Timer;
+using WebClient = Speedy.Net.WebClient;
 
 #endregion
 
@@ -596,27 +596,30 @@ namespace Speedy.UnitTests
 					new SyncObjectIncomingConverter<Setting, long, SettingEntity, long>()
 				);
 
-				var credential = new NetworkCredential("admin@speedy.local", "Password");
 				const string serverUri = "https://speedy.local";
 				const int timeout = 60000;
 
+				var credential = new WebCredential("admin@speedy.local", "Password");
+				var webClient = new WebClient(serverUri, timeout, credential, null, null);
+
+
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (MEM, Cached)", GetSyncableMemoryProvider(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (SQL2)", GetSyncableSqlProvider2(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (SQL2, Cached)", GetSyncableSqlProvider2(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (Sqlite, Cached)", GetSyncableSqliteProvider(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 			}
 		}

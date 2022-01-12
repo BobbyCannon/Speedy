@@ -271,7 +271,7 @@ namespace Speedy.ServiceHosting
 			}
 			catch (Exception ex)
 			{
-				WriteLine(string.Empty);
+				WriteLine(string.Empty, EventLevel.Critical);
 				WriteLine(ex.ToDetailedString(false), EventLevel.Critical);
 				return -1;
 			}
@@ -289,7 +289,7 @@ namespace Speedy.ServiceHosting
 			}
 			catch (Exception ex)
 			{
-				WriteLine(string.Empty);
+				WriteLine(string.Empty, EventLevel.Critical);
 				WriteLine(ex.ToDetailedString(false), EventLevel.Critical);
 			}
 		}

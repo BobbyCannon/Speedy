@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http.Headers;
 using Speedy.Serialization;
 using Speedy.Storage;
 using ICloneable = Speedy.Serialization.ICloneable;
@@ -116,6 +117,22 @@ namespace Speedy.Extensions
 			}
 
 			dictionary.Add(key, get());
+		}
+
+		/// <summary>
+		/// Add or update the value in the HTTP headers collection.
+		/// </summary>
+		/// <param name="headers"> The headers to be updated. </param>
+		/// <param name="key"> The key of the value. </param>
+		/// <param name="value"> The value of the entry. </param>
+		public static void AddOrUpdate(this HttpHeaders headers, string key, string value)
+		{
+			if (headers.Contains(key))
+			{
+				headers.Remove(key);
+			}
+
+			headers.Add(key, value);
 		}
 
 		/// <summary>

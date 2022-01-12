@@ -47,11 +47,6 @@
 		/// </summary>
 		SyncOptions SyncOptions { get; }
 
-		/// <summary>
-		/// The active sync session. Will be null when a session is not started.
-		/// </summary>
-		SyncSession SyncSession { get; }
-
 		#endregion
 
 		#region Methods
