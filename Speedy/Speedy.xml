@@ -2411,6 +2411,16 @@
             <param name="task"> The task to check. </param>
             <returns> True if the task is Cancelled, Faulted, or RanToCompletion otherwise false. </returns>
         </member>
+        <member name="M:Speedy.Extensions.TaskExtensions.TimeoutAfter``1(System.Threading.Tasks.Task{``0},System.TimeSpan)">
+            <summary>
+            Timeout after some amount time.
+            </summary>
+            <typeparam name="TResult"> The type for the result. </typeparam>
+            <param name="task"> The task to wait for. </param>
+            <param name="timeout"> The maximum about of time to wait for. </param>
+            <returns> The task with the result after waiting. </returns>
+            <exception cref="T:System.TimeoutException"> </exception>
+        </member>
         <member name="T:Speedy.Extensions.TrackerExtensions">
             <summary>
             Extensions for tracker profiler
@@ -3392,7 +3402,7 @@
             This class is used for making GET and POST calls to an HTTP endpoint.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebClient.#ctor(System.String,System.Int32,Speedy.Net.WebCredential,System.Net.WebProxy,Speedy.IDispatcher)">
+        <member name="M:Speedy.Net.WebClient.#ctor(System.String,System.Int32,Speedy.Net.WebCredential,System.Net.IWebProxy,Speedy.IDispatcher)">
             <summary>
             Initializes a new HTTP helper to point at a specific URI, and with the specified session identifier.
             </summary>
@@ -8826,11 +8836,6 @@
         <member name="M:Speedy.Sync.SyncClient.BeginSync(System.Guid,Speedy.Sync.SyncOptions)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.SyncClient.Dispose">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-        </member>
         <member name="M:Speedy.Sync.SyncClient.EndSync(System.Guid)">
             <inheritdoc />
         </member>
@@ -8845,12 +8850,6 @@
         </member>
         <member name="M:Speedy.Sync.SyncClient.GetDatabase``1">
             <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncClient.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="M:Speedy.Sync.SyncClient.ValidateSession(System.Guid)">
             <summary>

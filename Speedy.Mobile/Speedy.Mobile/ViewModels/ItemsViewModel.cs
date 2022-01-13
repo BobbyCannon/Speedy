@@ -222,10 +222,6 @@ namespace Speedy.Mobile.ViewModels
 			}
 		}
 
-		private static void InitializeDatabase(ContosoClientMemoryDatabase database, DatabaseKeyCache keyCache)
-		{
-		}
-
 		private void ManagerOnSyncCompleted(object sender, SyncResults<SyncType> e)
 		{
 			var manager = (ClientSyncManager) sender;

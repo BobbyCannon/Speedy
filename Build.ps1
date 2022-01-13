@@ -11,8 +11,8 @@
 $ErrorActionPreference = "Stop"
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = $PSScriptRoot
-#$scriptPath = "C:\Workspaces\GitHub\Speedy"
 $productName = "Speedy"
+#$scriptPath = "C:\Workspaces\GitHub\$productName"
 
 if ($scriptPath.Length -le 0)
 {

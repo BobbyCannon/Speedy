@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Serialization;
@@ -38,7 +37,7 @@ namespace Speedy.Net
 		/// <param name="credential"> The optional credential to authenticate with. </param>
 		/// <param name="proxy"> The optional proxy to use. </param>
 		/// <param name="dispatcher"> The optional dispatcher to use. </param>
-		public WebClient(string baseUri, int timeout, WebCredential credential = null, WebProxy proxy = null, IDispatcher dispatcher = null)
+		public WebClient(string baseUri, int timeout, WebCredential credential = null, IWebProxy proxy = null, IDispatcher dispatcher = null)
 			: this(new Uri(baseUri), TimeSpan.FromMilliseconds(timeout), credential, proxy, dispatcher)
 		{
 		}
@@ -126,7 +125,8 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public HttpResponseMessage Delete(string uri, TimeSpan? timeout = null)
 		{
-			return _httpClient.DeleteAsync(uri)
+			return _httpClient
+				.DeleteAsync(uri)
 				.AwaitResults(timeout ?? Timeout);
 		}
 
@@ -196,9 +196,8 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public virtual HttpResponseMessage Get(string uri, TimeSpan? timeout = null)
 		{
-			return _httpClient
-				.GetAsync(uri)
-				.AwaitResults(timeout ?? Timeout);
+			using var task = _httpClient.GetAsync(uri);
+			return task.AwaitResults(timeout ?? Timeout);
 		}
 
 		/// <inheritdoc />
@@ -296,10 +295,8 @@ namespace Speedy.Net
 				throw new WebClientException(result);
 			}
 
-			return result.Content
-				.ReadAsStringAsync()
-				.AwaitResults(Timeout)
-				.FromJson<TResult>();
+			var task = result.Content.ReadAsStringAsync();
+			return task.AwaitResults(Timeout).FromJson<TResult>();
 		}
 
 		/// <summary>
@@ -358,8 +355,10 @@ namespace Speedy.Net
 		{
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json-patch+json");
-			return PatchAsync(_httpClient, uri, objectContent)
-				.AwaitResults(timeout ?? Timeout);
+			var method = new HttpMethod("PATCH");
+			using var request = new HttpRequestMessage(method, uri) { Content = objectContent };
+			using var task = _httpClient.SendAsync(request);
+			return task.AwaitResults(timeout ?? Timeout);
 		}
 
 		private HttpResponseMessage InternalPost<T>(string uri, T content, TimeSpan? timeout = null)
@@ -367,23 +366,15 @@ namespace Speedy.Net
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
 			using var task = _httpClient.PostAsync(uri, objectContent);
-			return task.Result;
+			return task.AwaitResults(timeout ?? Timeout);
 		}
 
 		private HttpResponseMessage InternalPut<T>(string uri, T content, TimeSpan? timeout = null)
 		{
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
-			return _httpClient.PutAsync(uri, objectContent)
-				.AwaitResults(timeout ?? Timeout);
-		}
-
-		private async Task<HttpResponseMessage> PatchAsync(HttpClient client, string uri, HttpContent content, TimeSpan? timeout = null)
-		{
-			var method = new HttpMethod("PATCH");
-			var request = new HttpRequestMessage(method, uri) { Content = content };
-			return await client.SendAsync(request)
-				.TimeoutAfter(timeout ?? Timeout);
+			using var task = _httpClient.PutAsync(uri, objectContent);
+			return task.AwaitResults(timeout ?? Timeout);
 		}
 
 		private void UpdateCredentials()

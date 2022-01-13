@@ -59,10 +59,20 @@ namespace Speedy.Extensions
 				|| (task.Status == TaskStatus.RanToCompletion);
 		}
 
-		internal static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
+		/// <summary>
+		/// Timeout after some amount time.
+		/// </summary>
+		/// <typeparam name="TResult"> The type for the result. </typeparam>
+		/// <param name="task"> The task to wait for. </param>
+		/// <param name="timeout"> The maximum about of time to wait for. </param>
+		/// <returns> The task with the result after waiting. </returns>
+		/// <exception cref="TimeoutException"> </exception>
+		public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
 		{
 			using var timeoutCancellationTokenSource = new CancellationTokenSource();
-			var completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
+			using var delay = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
+
+			var completedTask = await Task.WhenAny(task, delay);
 			if (completedTask != task)
 			{
 				throw new TimeoutException("The operation has timed out.");

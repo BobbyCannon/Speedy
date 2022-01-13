@@ -129,11 +129,11 @@ namespace Speedy.Data
 
 		public Task<SyncResults<SyncType>> SyncAddressesAsync(TimeSpan? waitFor = null, Action<SyncResults<SyncType>> postAction = null)
 		{
-			//OnLogEvent("Starting to sync addresses...", EventLevel.Verbose);
+			OnLogEvent("Starting to sync addresses...", EventLevel.Verbose);
 
 			return ProcessAsync(SyncType.Addresses, options =>
 				{
-					//OnLogEvent("Sync addresses started", EventLevel.Verbose);
+					OnLogEvent("Sync addresses started", EventLevel.Verbose);
 				},
 				waitFor,
 				postAction);

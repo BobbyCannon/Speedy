@@ -104,15 +104,6 @@ namespace Speedy.Sync
 			return _syncSession;
 		}
 
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
 		/// <inheritdoc />
 		public virtual SyncStatistics EndSync(Guid sessionId)
 		{
@@ -276,17 +267,6 @@ namespace Speedy.Sync
 		public T GetDatabase<T>() where T : class, ISyncableDatabase
 		{
 			return (T) DatabaseProvider.GetSyncableDatabase();
-		}
-
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		/// <param name="disposing"> True if disposing and false if otherwise. </param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing)
-			{
-			}
 		}
 
 		/// <summary>

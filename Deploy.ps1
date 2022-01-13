@@ -11,7 +11,8 @@ $ErrorActionPreference = "Stop"
 $siteName = "Speedy"
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path(Get-Variable MyInvocation).Value.MyCommand.Path
-#$scriptPath = "C:\Workspaces\GitHub\Speedy"
+$productName = "Speedy"
+#$scriptPath = "C:\Workspaces\GitHub\$productName"
 
 & nuget.exe restore "$scriptPath\Speedy.sln"
 
