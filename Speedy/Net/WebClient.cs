@@ -317,7 +317,6 @@ namespace Speedy.Net
 		/// </summary>
 		public virtual void Reset()
 		{
-			_handler.CookieContainer = new CookieContainer();
 		}
 
 		/// <inheritdoc />

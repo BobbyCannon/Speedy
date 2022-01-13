@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics.Tracing;
-using System.Net;
 using System.Threading.Tasks;
 using Speedy.Data.Client;
 using Speedy.Data.WebApi;
