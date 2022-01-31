@@ -65,6 +65,10 @@ foreach ($file in $files)
 	}
 	else
 	{
+		$data = $data.Replace($speedyR, $speedyNR)
+		$data = $data.Replace($speedyER, $speedyNER)
+		$data = $data.Replace($speedySR, $speedyNSR)
+		
 		$data = $data.Replace($speedyPR, $speedyNR)
 		$data = $data.Replace($speedyPR2, $speedyNR)
 		$data = $data.Replace($speedyPER, $speedyNER)

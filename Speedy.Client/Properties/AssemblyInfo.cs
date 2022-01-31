@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Speedy.Client")]
-[assembly: AssemblyCopyright("© Copyright 2014-2021")]
+[assembly: AssemblyCopyright("© Copyright 2014-2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

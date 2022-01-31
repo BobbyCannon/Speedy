@@ -7,7 +7,7 @@
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.ServiceHosting</Product>
 		<Description>Speedy is a simple easy to use service hosting framework.</Description>
-		<Copyright>© Copyright 2014-2021</Copyright>
+		<Copyright>© Copyright 2014-2022</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -23,9 +23,9 @@
 		<PackageId>Speedy.ServiceHosting</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.2.7.0</AssemblyVersion>
-		<FileVersion>8.2.7.0</FileVersion>
-		<Version>8.2.7.0</Version>
+		<AssemblyVersion>8.2.8.0</AssemblyVersion>
+		<FileVersion>8.2.8.0</FileVersion>
+		<Version>8.2.8.0</Version>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

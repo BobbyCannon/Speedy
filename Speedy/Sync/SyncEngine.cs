@@ -194,7 +194,7 @@ namespace Speedy.Sync
 		/// </summary>
 		public void Stop(TimeSpan? timeout = null)
 		{
-			CancellationSource.Cancel(true);
+			CancellationSource?.Cancel(true);
 
 			var timeOut = timeout != null ? TimeService.UtcNow.Add(timeout.Value) : TimeService.UtcNow.AddSeconds(30);
 

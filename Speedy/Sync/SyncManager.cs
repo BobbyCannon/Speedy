@@ -25,8 +25,8 @@ namespace Speedy.Sync
 		#region Fields
 
 		private CancellationTokenSource _cancellationToken;
+		private readonly object _processLock;
 		private readonly ConcurrentDictionary<T, SyncOptions> _syncOptions;
-		private SyncTimer _syncTimer;
 		private readonly ConcurrentDictionary<T, SyncTimer> _syncTimers;
 		private readonly Stopwatch _watch;
 
@@ -40,6 +40,7 @@ namespace Speedy.Sync
 		/// <param name="dispatcher"> The dispatcher to update with. </param>
 		protected SyncManager(IDispatcher dispatcher) : base(dispatcher)
 		{
+			_processLock = new object();
 			_watch = new Stopwatch();
 
 			IsEnabled = true;
@@ -75,7 +76,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a value indicating the running status of the sync manager.
 		/// </summary>
-		public bool IsRunning => ((_cancellationToken != null) && !_cancellationToken.IsCancellationRequested) || _watch.IsRunning;
+		public bool IsRunning => (_cancellationToken != null) || _watch.IsRunning;
 
 		/// <summary>
 		/// Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
@@ -350,26 +351,29 @@ namespace Speedy.Sync
 				OnLogEvent($"Waiting for Sync {SyncType} to complete...", EventLevel.Verbose);
 			}
 
-			// Lock the sync before we start, wait until 
-			var syncRunning = WaitForSyncAvailableThenStart(waitFor ?? TimeSpan.Zero);
-			if (!syncRunning)
+			lock (_processLock)
 			{
-				OnLogEvent($"Failed to Sync {syncType} because current Sync {SyncType} never completed while waiting.", EventLevel.Verbose);
-				postAction?.Invoke(null);
-				return Task.FromResult(new SyncResults<T>());
-			}
-
-			// Start the sync before we start the task
-			var result = new SyncResults<T> { SyncType = syncType };
-			result.Options = StartSync(result);
-
-			// Start the sync in a background thread.
-			return Task.Run(() => RunSync(result, updateOptions), _cancellationToken.Token)
-				.ContinueWith(x =>
+				// Lock the sync before we start, wait until 
+				var syncRunning = WaitForSyncAvailableThenStart(waitFor ?? TimeSpan.Zero);
+				if (!syncRunning)
 				{
-					result.SyncCancelled |= x.IsCanceled;
-					return StopSync(result, postAction);
-				});
+					OnLogEvent($"Failed to Sync {syncType} because current Sync {SyncType} never completed while waiting.", EventLevel.Verbose);
+					postAction?.Invoke(null);
+					return Task.FromResult(new SyncResults<T>());
+				}
+
+				// Start the sync before we start the task
+				var result = new SyncResults<T> { SyncType = syncType };
+				result.Options = StartSync(result);
+
+				// Start the sync in a background thread.
+				return Task.Run(() => RunSync(result, updateOptions), _cancellationToken.Token)
+					.ContinueWith(x =>
+					{
+						result.SyncCancelled |= x.IsCanceled;
+						return StopSync(result, postAction);
+					});
+			}
 		}
 
 		/// <summary>
@@ -384,6 +388,23 @@ namespace Speedy.Sync
 		{
 			Task.WaitAll(new Task[] { task }, timeout ?? ProcessTimeout);
 			return task.Result;
+		}
+
+		private async void OnEngineOnSyncStateChanged(object sender, SyncEngineState state)
+		{
+			SyncState.UpdateWith(state);
+
+			OnSyncUpdated(state);
+
+			if (Dispatcher != null)
+			{
+				await Dispatcher.RunAsync(() =>
+				{
+					OnPropertyChanged(nameof(IsCancellationPending));
+					OnPropertyChanged(nameof(IsRunning));
+					OnPropertyChanged(nameof(ShowProgress));
+				});
+			}
 		}
 
 		/// <summary>
@@ -420,8 +441,8 @@ namespace Speedy.Sync
 				}
 
 				results.SyncIssues.AddRange(engine.SyncIssues);
-				results.SyncSuccessful = !_cancellationToken.IsCancellationRequested && !results.SyncIssues.Any();
-				results.SyncCancelled = _cancellationToken.IsCancellationRequested;
+				results.SyncSuccessful = !IsCancellationPending && !results.SyncIssues.Any();
+				results.SyncCancelled = IsCancellationPending;
 				results.SyncCompleted = true;
 			}
 			catch (WebClientException ex)
@@ -471,36 +492,20 @@ namespace Speedy.Sync
 			return results;
 		}
 
-		private async void OnEngineOnSyncStateChanged(object sender, SyncEngineState state)
-		{
-			SyncState.UpdateWith(state);
-
-			OnSyncUpdated(state);
-
-			if (Dispatcher != null)
-			{
-				await Dispatcher.RunAsync(() =>
-				{
-					OnPropertyChanged(nameof(IsCancellationPending));
-					OnPropertyChanged(nameof(IsRunning));
-					OnPropertyChanged(nameof(ShowProgress));
-				});
-			}
-		}
-
 		private SyncOptions StartSync(SyncResults<T> results)
 		{
-			// See if we have a timer for this sync type
-			if (SyncTimers.TryGetValue(results.SyncType, out _syncTimer))
-			{
-				_syncTimer.Start();
-			}
+			_cancellationToken = new CancellationTokenSource();
+			_watch.Restart();
+
+			SyncType = results.SyncType;
 
 			OnLogEvent($"Sync {results.SyncType} started", EventLevel.Verbose);
 
-			SyncType = results.SyncType;
-			_cancellationToken = new CancellationTokenSource();
-			_watch.Restart();
+			// See if we have a timer for this sync type
+			if (SyncTimers.TryGetValue(results.SyncType, out var syncTimer))
+			{
+				syncTimer.Start();
+			}
 
 			var options = GetSyncOptions(results.SyncType);
 
@@ -513,29 +518,28 @@ namespace Speedy.Sync
 
 		private SyncResults<T> StopSync(SyncResults<T> results, Action<SyncResults<T>> postAction)
 		{
-			if (_syncTimer != null)
+			// See if we have a timer for this sync type
+			if (SyncTimers.TryGetValue(results.SyncType, out var syncTimer))
 			{
 				if (results.SyncCancelled)
 				{
-					_syncTimer.CancelledSyncs++;
-					_syncTimer.Reset();
+					syncTimer.CancelledSyncs++;
+					syncTimer.Reset();
 				}
 				else if (results.SyncSuccessful)
 				{
-					_syncTimer.SuccessfulSyncs++;
-					_syncTimer.Stop();
+					syncTimer.SuccessfulSyncs++;
+					syncTimer.Stop();
 				}
 				else
 				{
-					_syncTimer.FailedSyncs++;
-					_syncTimer.Stop();
+					syncTimer.FailedSyncs++;
+					syncTimer.Stop();
 				}
 
-				results.Elapsed = _syncTimer.Elapsed;
+				results.Elapsed = syncTimer.Elapsed;
 
-				OnLogEvent($"Sync {results.SyncType} stopped. {_syncTimer.Average:mm\\:ss\\.fff}", EventLevel.Verbose);
-
-				_syncTimer = null;
+				OnLogEvent($"Sync {results.SyncType} stopped. {syncTimer.Average:mm\\:ss\\.fff}", EventLevel.Verbose);
 			}
 			else
 			{
@@ -560,9 +564,9 @@ namespace Speedy.Sync
 				OnLogEvent(ex.Message, EventLevel.Error);
 			}
 
-			_watch.Stop();
 			_cancellationToken?.Dispose();
 			_cancellationToken = null;
+			_watch.Stop();
 
 			OnPropertyChanged(nameof(IsCancellationPending));
 			OnPropertyChanged(nameof(IsRunning));

@@ -128,6 +128,12 @@ namespace Speedy
 			}
 		}
 
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"{Type}, I:{ExcludeIncomingSync}, O:{ExcludeOutgoingSync}, U:{ExcludeSyncUpdate}";
+		}
+
 		#endregion
 	}
 }

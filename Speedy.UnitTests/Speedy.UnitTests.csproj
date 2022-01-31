@@ -8,9 +8,9 @@
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>8.2.7.0</AssemblyVersion>
-		<FileVersion>8.2.7.0</FileVersion>
-		<Version>8.2.7.0</Version>
+		<AssemblyVersion>8.2.8.0</AssemblyVersion>
+		<FileVersion>8.2.8.0</FileVersion>
+		<Version>8.2.8.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.74.0" />

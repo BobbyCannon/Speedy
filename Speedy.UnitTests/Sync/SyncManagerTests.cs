@@ -123,10 +123,10 @@ namespace Speedy.UnitTests.Sync
 
 			var expected = new[]
 			{
-				"4/23/2020 1:55:24 AM Verbose : Sync Accounts started",
+				"4/23/2020 1:55:23 AM Verbose : Sync Accounts started",
 				"4/23/2020 1:55:25 AM Verbose : Sync Accounts is already running so Sync All not started.",
 				"4/23/2020 1:55:26 AM Verbose : Syncing Accounts for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"4/23/2020 1:55:41 AM Verbose : Sync Accounts stopped. 00:17.000"
+				"4/23/2020 1:55:41 AM Verbose : Sync Accounts stopped. 00:16.000"
 			};
 
 			Assert.AreEqual(0, manager.SyncTimers[TestSyncType.All].Elapsed.Ticks);
@@ -175,11 +175,11 @@ namespace Speedy.UnitTests.Sync
 
 			var expected = new[]
 			{
-				"4/23/2020 1:55:24 AM Verbose : Sync All started",
+				"4/23/2020 1:55:23 AM Verbose : Sync All started",
 				"4/23/2020 1:55:25 AM Verbose : Sync All is already running so Sync Accounts not started.",
 				"4/23/2020 1:55:26 AM Verbose : Sync All is already running so Sync Addresses not started.",
 				"4/23/2020 1:55:27 AM Verbose : Syncing All for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"4/23/2020 1:55:42 AM Verbose : Sync All stopped. 00:18.000"
+				"4/23/2020 1:55:42 AM Verbose : Sync All stopped. 00:17.000"
 			};
 
 			var actual = logListener.Events.Select(x => x.GetDetailedMessage()).ToArray();
@@ -189,7 +189,7 @@ namespace Speedy.UnitTests.Sync
 			Assert.IsTrue(actualResult1.SyncSuccessful, "Sync should have been successful");
 			Assert.AreEqual(SyncResultStatus.Unknown, actualResult2.SyncStatus, "Sync should not have started");
 			Assert.AreEqual(SyncResultStatus.Unknown, actualResult3.SyncStatus, "Sync should not have started");
-			Assert.AreEqual(18000, manager.SyncTimers[TestSyncType.All].Average.TotalMilliseconds);
+			Assert.AreEqual(17000, manager.SyncTimers[TestSyncType.All].Average.TotalMilliseconds);
 		}
 
 		[TestMethod]
@@ -219,14 +219,14 @@ namespace Speedy.UnitTests.Sync
 
 			var expected = new[]
 			{
-				"4/23/2020 1:55:24 AM Verbose : Sync All started",
+				"4/23/2020 1:55:23 AM Verbose : Sync All started",
 				"4/23/2020 1:55:25 AM Verbose : Waiting for Sync All to complete...",
 				"4/23/2020 1:55:26 AM Verbose : Syncing All for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"4/23/2020 1:55:41 AM Verbose : Sync All stopped. 00:17.000",
-				"4/23/2020 1:55:43 AM Verbose : Sync Accounts started",
+				"4/23/2020 1:55:41 AM Verbose : Sync All stopped. 00:16.000",
+				"4/23/2020 1:55:42 AM Verbose : Sync Accounts started",
 				"4/23/2020 1:55:44 AM Verbose : Waiting for Sync Accounts to complete...",
 				"4/23/2020 1:55:45 AM Verbose : Syncing Accounts for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
-				"4/23/2020 1:56:00 AM Verbose : Sync Accounts stopped. 00:17.000",
+				"4/23/2020 1:56:00 AM Verbose : Sync Accounts stopped. 00:16.000",
 				"4/23/2020 1:56:01 AM Verbose : Sync Addresses started",
 				"4/23/2020 1:56:02 AM Verbose : Syncing Addresses for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
 				"4/23/2020 1:56:16 AM Verbose : Sync Addresses stopped"
@@ -236,7 +236,7 @@ namespace Speedy.UnitTests.Sync
 			actual.ForEach(x => Console.WriteLine($"\"{x}\","));
 
 			TestHelper.AreEqual(expected, actual);
-			Assert.AreEqual(17000, manager.SyncTimers[TestSyncType.All].Average.TotalMilliseconds);
+			Assert.AreEqual(16000, manager.SyncTimers[TestSyncType.All].Average.TotalMilliseconds);
 		}
 
 		#endregion

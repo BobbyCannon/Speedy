@@ -1575,6 +1575,9 @@
         <member name="M:Speedy.ExclusionKey.GetHashCode">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.ExclusionKey.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Extensions.CollectionExtensions">
             <summary>
             Extensions for collections.
