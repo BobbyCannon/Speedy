@@ -94,7 +94,8 @@ namespace Speedy.EntityFramework
 				return Set.FirstOrDefault(srf.LookupFilter.Invoke(entity));
 			}
 
-			return Set.FirstOrDefault(x => x.SyncId == syncEntity.SyncId);
+			var syncId = syncEntity.GetEntitySyncId();
+			return Set.FirstOrDefault(x => Equals(x.SyncId, syncId));
 		}
 
 		/// <inheritdoc />
@@ -114,12 +115,12 @@ namespace Speedy.EntityFramework
 		{
 			var query = Set
 				.AsNoTracking()
-				.Where(x => x.CreatedOn >= since && x.CreatedOn < until
-					|| x.ModifiedOn >= since && x.ModifiedOn < until);
+				.Where(x => ((x.CreatedOn >= since) && (x.CreatedOn < until))
+					|| ((x.ModifiedOn >= since) && (x.ModifiedOn < until)));
 
 			// Disable merge because merged expression is very hard to read
 			// ReSharper disable once MergeSequentialPatterns
-			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
+			if (filter is SyncRepositoryFilter<T> srf && (srf.OutgoingExpression != null))
 			{
 				query = query.Where(srf.OutgoingFilter);
 			}
@@ -130,7 +131,7 @@ namespace Speedy.EntityFramework
 			// but it still exist in the database. If an item is "soft deleted" we will normally
 			// still sync the item to allow the clients (non-server) to have the opportunity to
 			// hard delete the item on their end.
-			if (since == DateTime.MinValue && filter?.SkipDeletedItemsOnInitialSync == true)
+			if ((since == DateTime.MinValue) && (filter?.SkipDeletedItemsOnInitialSync == true))
 			{
 				// We can skip soft deleted items that we will hard deleted on clients anyways
 				query = query.Where(x => !x.IsDeleted);

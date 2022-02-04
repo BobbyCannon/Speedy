@@ -41,8 +41,9 @@ namespace Speedy.EntityFramework.Sql
 
 		public IReadOnlyList<IProperty> Properties { get; private set; }
 
-		public IDictionary<string, string> PropertyToColumnName => _propertyToColumnNames
-			??= Properties.ToDictionary(x => x.Name, x => x.GetColumnName());
+		public IDictionary<string, string> PropertyToColumnName =>
+			_propertyToColumnNames
+				??= Properties.ToDictionary(x => x.Name, x => x.GetColumnName());
 
 		public string ProviderPrefix { get; set; }
 
@@ -82,7 +83,7 @@ namespace Speedy.EntityFramework.Sql
 			var entityType = database.Model.FindEntityType(type);
 			var allProperties = entityType.GetProperties().OrderBy(x => x.Name).ToList();
 			var timestampDbTypeName = nameof(TimestampAttribute).Replace("Attribute", "").ToLower();
-			var timeStampProperties = allProperties.Where(a => a.IsConcurrencyToken && a.ValueGenerated == ValueGenerated.OnAddOrUpdate || a.GetColumnType() == timestampDbTypeName).ToList();
+			var timeStampProperties = allProperties.Where(a => (a.IsConcurrencyToken && (a.ValueGenerated == ValueGenerated.OnAddOrUpdate)) || (a.GetColumnType() == timestampDbTypeName)).ToList();
 			var allPropertiesExceptTimeStamp = allProperties.Except(timeStampProperties).ToList();
 
 			// Prepare for updates

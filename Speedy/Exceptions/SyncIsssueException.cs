@@ -22,7 +22,7 @@ namespace Speedy.Exceptions
 		/// </summary>
 		public SyncIssueException()
 		{
-			Issues = new SyncIssue[0];
+			Issues = Array.Empty<SyncIssue>();
 		}
 
 		/// <summary>

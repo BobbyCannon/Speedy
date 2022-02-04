@@ -253,7 +253,7 @@ namespace Speedy.Profiling
 		/// Occurs when the path is completed.
 		/// </summary>
 		internal event Action<TrackerPath> Completed;
-		
+
 		/// <summary>
 		/// Occurs when the path is disposed.
 		/// </summary>

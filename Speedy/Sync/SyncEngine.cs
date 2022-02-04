@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
@@ -22,6 +23,7 @@ namespace Speedy.Sync
 	{
 		#region Fields
 
+		private readonly CancellationTokenSource _cancellationSource;
 		private readonly List<SyncIssue> _syncIssues;
 
 		#endregion
@@ -31,33 +33,21 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiate an instance of the sync engine.
 		/// </summary>
-		/// <param name="client"> The client to sync from. </param>
-		/// <param name="server"> The server to sync to. </param>
-		/// <param name="options"> The options for the sync engine. </param>
-		/// <param name="source"> An optional cancellation token source. </param>
-		public SyncEngine(ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
-			: this(Guid.NewGuid(), client, server, options, source)
-		{
-		}
-
-		/// <summary>
-		/// Instantiate an instance of the sync engine.
-		/// </summary>
 		/// <param name="sessionId"> The ID of the session. </param>
 		/// <param name="client"> The client to sync from. </param>
 		/// <param name="server"> The server to sync to. </param>
 		/// <param name="options"> The options for the sync engine. </param>
-		/// <param name="source"> An optional cancellation token source. </param>
-		public SyncEngine(Guid sessionId, ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
+		public SyncEngine(Guid sessionId, ISyncClient client, ISyncClient server, SyncOptions options)
 		{
+			_cancellationSource = new CancellationTokenSource();
 			_syncIssues = new List<SyncIssue>();
 
+			IsRunning = false;
 			SessionId = sessionId;
 			Client = client;
 			Server = server;
 			State = new SyncEngineState();
 			Options = options;
-			CancellationSource = source ?? new CancellationTokenSource();
 		}
 
 		#endregion
@@ -65,19 +55,24 @@ namespace Speedy.Sync
 		#region Properties
 
 		/// <summary>
-		/// An optional cancellation token.
-		/// </summary>
-		public CancellationTokenSource CancellationSource { get; }
-
-		/// <summary>
 		/// The client.
 		/// </summary>
 		public ISyncClient Client { get; }
 
 		/// <summary>
+		/// Gets a value indicating the running sync is requesting to be cancelled.
+		/// </summary>
+		public bool IsCancellationPending => _cancellationSource?.IsCancellationRequested ?? false;
+
+		/// <summary>
+		/// Gets a value indicating the running status of the sync engine.
+		/// </summary>
+		public bool IsRunning { get; private set; }
+
+		/// <summary>
 		/// Gets the options for the sync engine.
 		/// </summary>
-		public SyncOptions Options { get; set; }
+		public SyncOptions Options { get; }
 
 		/// <summary>
 		/// The server.
@@ -92,7 +87,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Current state of the sync engine.
 		/// </summary>
-		public SyncEngineState State { get; set; }
+		public SyncEngineState State { get; }
 
 		/// <summary>
 		/// Gets the list of issues that happened during syncing.
@@ -102,6 +97,14 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Cancels the sync process.
+		/// </summary>
+		public void Cancel()
+		{
+			_cancellationSource.Cancel(true);
+		}
 
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -117,39 +120,50 @@ namespace Speedy.Sync
 		/// </summary>
 		public void Run()
 		{
-			_syncIssues.Clear();
-
-			Server.Statistics.Reset();
-			Client.Statistics.Reset();
-
-			var serverSession = Server.BeginSync(SessionId, Options);
-			var clientSession = Client.BeginSync(SessionId, Options);
-
-			OnSyncStateChanged($"{clientSession.StartedOn:hh:mm:ss tt}.", SyncEngineStatus.Starting);
-
-			var incoming = new Dictionary<Guid, DateTime>();
-
-			if (!CancellationSource.IsCancellationRequested && Options.SyncDirection.HasFlag(SyncDirection.PullDown))
+			try
 			{
-				OnSyncStateChanged(status: SyncEngineStatus.Pulling);
-				Process(Server, Client, Options.LastSyncedOnServer, serverSession.StartedOn, incoming);
-			}
+				IsRunning = true;
+				_syncIssues.Clear();
 
-			if (!CancellationSource.IsCancellationRequested && Options.SyncDirection.HasFlag(SyncDirection.PushUp))
+				Server.Statistics.Reset();
+				Client.Statistics.Reset();
+
+				UpdateSyncState(status: SyncEngineStatus.Starting);
+
+				var serverSession = Server.BeginSync(SessionId, Options);
+				var clientSession = Client.BeginSync(SessionId, Options);
+				var incoming = new Dictionary<Guid, DateTime>();
+
+				if (!IsCancellationPending && Options.SyncDirection.HasFlag(SyncDirection.PullDown))
+				{
+					UpdateSyncState(status: SyncEngineStatus.Pulling);
+					Process(Server, Client, Options.LastSyncedOnServer, serverSession.StartedOn, incoming);
+				}
+
+				if (!IsCancellationPending && Options.SyncDirection.HasFlag(SyncDirection.PushUp))
+				{
+					UpdateSyncState(status: SyncEngineStatus.Pushing);
+					Process(Client, Server, Options.LastSyncedOnClient, clientSession.StartedOn, incoming);
+				}
+
+				Client.EndSync(SessionId);
+				Server.EndSync(SessionId);
+
+				SortLocalDatabases();
+
+				Options.LastSyncedOnClient = clientSession.StartedOn;
+				Options.LastSyncedOnServer = serverSession.StartedOn;
+
+				UpdateSyncState(status: IsCancellationPending ? SyncEngineStatus.Cancelled : SyncEngineStatus.Completed);
+			}
+			catch (Exception ex)
 			{
-				OnSyncStateChanged(status: SyncEngineStatus.Pushing);
-				Process(Client, Server, Options.LastSyncedOnClient, clientSession.StartedOn, incoming);
+				UpdateSyncState($"{TimeService.UtcNow:hh:mm:ss tt} {ex.Message}", SyncEngineStatus.Failed);
 			}
-
-			Client.EndSync(SessionId);
-			Server.EndSync(SessionId);
-
-			SortLocalDatabases();
-
-			Options.LastSyncedOnClient = clientSession.StartedOn;
-			Options.LastSyncedOnServer = serverSession.StartedOn;
-
-			OnSyncStateChanged($"{TimeService.UtcNow:hh:mm:ss tt}", CancellationSource.IsCancellationRequested ? SyncEngineStatus.Cancelled : SyncEngineStatus.Completed);
+			finally
+			{
+				IsRunning = false;
+			}
 		}
 
 		/// <summary>
@@ -158,11 +172,10 @@ namespace Speedy.Sync
 		/// <param name="client"> The client to sync from. </param>
 		/// <param name="server"> The server to sync to. </param>
 		/// <param name="options"> The options for the sync engine. </param>
-		/// <param name="source"> An optional cancellation token source. </param>
 		/// <returns> A list of issues that occurred during sync. </returns>
-		public static SyncEngine Run(ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
+		public static SyncEngine Run(ISyncClient client, ISyncClient server, SyncOptions options)
 		{
-			return Run(Guid.NewGuid(), client, server, options, source);
+			return Run(Guid.NewGuid(), client, server, options);
 		}
 
 		/// <summary>
@@ -172,11 +185,10 @@ namespace Speedy.Sync
 		/// <param name="client"> The client to sync from. </param>
 		/// <param name="server"> The server to sync to. </param>
 		/// <param name="options"> The options for the sync engine. </param>
-		/// <param name="source"> An optional cancellation token source. </param>
 		/// <returns> A list of issues that occurred during sync. </returns>
-		public static SyncEngine Run(Guid sessionId, ISyncClient client, ISyncClient server, SyncOptions options, CancellationTokenSource source = null)
+		public static SyncEngine Run(Guid sessionId, ISyncClient client, ISyncClient server, SyncOptions options)
 		{
-			var engine = new SyncEngine(sessionId, client, server, options, source);
+			var engine = new SyncEngine(sessionId, client, server, options);
 			engine.Run();
 			return engine;
 		}
@@ -186,24 +198,16 @@ namespace Speedy.Sync
 		/// </summary>
 		public async Task RunAsync()
 		{
-			await Task.Factory.StartNew(Run, CancellationSource.Token);
+			await Task.Factory.StartNew(Run, _cancellationSource?.Token ?? CancellationToken.None);
 		}
 
 		/// <summary>
-		/// Stops the sync process.
+		/// Cancels the sync process and waits for it to stop.
 		/// </summary>
 		public void Stop(TimeSpan? timeout = null)
 		{
-			CancellationSource?.Cancel(true);
-
-			var timeOut = timeout != null ? TimeService.UtcNow.Add(timeout.Value) : TimeService.UtcNow.AddSeconds(30);
-
-			while ((TimeService.UtcNow <= timeOut)
-					&& (State.Status != SyncEngineStatus.Stopped)
-					&& (State.Status != SyncEngineStatus.Cancelled))
-			{
-				Thread.Sleep(10);
-			}
+			Cancel();
+			WaitForRunToStop(timeout);
 		}
 
 		/// <summary>
@@ -217,27 +221,9 @@ namespace Speedy.Sync
 				return;
 			}
 
-			CancellationSource?.Dispose();
-		}
+			// bug: what happens if a sync engine is disposed while running?
 
-		private void OnSyncStateChanged(string message = null, SyncEngineStatus? status = null, int? count = null, int? total = null)
-		{
-			if (message != null)
-			{
-				Logger.Instance.Write(SessionId, message, EventLevel.Verbose);
-			}
-
-			if (status.HasValue)
-			{
-				Logger.Instance.Write(SessionId, $"Changing status to {status.Value}.", EventLevel.Verbose);
-				State.Status = status.Value;
-			}
-
-			State.Message = message;
-			State.Count = count ?? 0;
-			State.Total = total ?? 0;
-
-			SyncStateChanged?.Invoke(this, (SyncEngineState) State.DeepClone());
+			_cancellationSource?.Dispose();
 		}
 
 		/// <summary>
@@ -255,7 +241,7 @@ namespace Speedy.Sync
 			var response = new Dictionary<Guid, DateTime>();
 			bool hasMore;
 
-			OnSyncStateChanged($"{sourceClient.Name} to {destinationClient.Name}.");
+			UpdateSyncState($"{sourceClient.Name} to {destinationClient.Name}.");
 
 			do
 			{
@@ -265,7 +251,9 @@ namespace Speedy.Sync
 				hasMore = changes.HasMore;
 
 				// Filter out any existing items that have been synced already (must have been excluded with the same modified on date/time)
-				request.Collection = changes.Collection.Where(x => !exclude.ContainsKey(x.SyncId) || (exclude[x.SyncId] != x.ModifiedOn)).ToList();
+				request.Collection = changes.Collection
+					.Where(x => !exclude.ContainsKey(x.SyncId) || (exclude[x.SyncId] != x.ModifiedOn))
+					.ToList();
 
 				if (!request.Collection.Any())
 				{
@@ -281,19 +269,19 @@ namespace Speedy.Sync
 					response.AddOrUpdate(syncObject.SyncId, syncObject.ModifiedOn);
 				}
 
-				OnSyncStateChanged(count: request.Skip, total: changes.TotalCount);
-			} while (!CancellationSource.IsCancellationRequested && hasMore);
+				UpdateSyncState(count: request.Skip, total: changes.TotalCount);
+			} while (!IsCancellationPending && hasMore);
 
 			_syncIssues.AddRange(issues.Collection);
 
-			if (!CancellationSource.IsCancellationRequested && issues.Collection.Any())
+			if (!IsCancellationPending && issues.Collection.Any())
 			{
 				var issuesToProcess = new ServiceRequest<SyncIssue>
 				{
 					Collection = issues.Collection.Take(Options.ItemsPerSyncRequest).ToList()
 				};
 
-				OnSyncStateChanged($"Processing {issuesToProcess.Collection.Count} sync issues.");
+				UpdateSyncState($"Processing {issuesToProcess.Collection.Count} sync issues.");
 
 				try
 				{
@@ -317,7 +305,7 @@ namespace Speedy.Sync
 				}
 				catch (Exception ex)
 				{
-					OnSyncStateChanged($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+					UpdateSyncState($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
 					throw;
 				}
 			}
@@ -348,6 +336,44 @@ namespace Speedy.Sync
 						}
 					}
 				}
+			}
+		}
+
+		private void UpdateSyncState(string message = null, SyncEngineStatus? status = null, int? count = null, int? total = null)
+		{
+			if (message != null)
+			{
+				Logger.Instance.Write(SessionId, message, EventLevel.Verbose);
+				State.Message = message;
+			}
+
+			if (status != null)
+			{
+				Logger.Instance.Write(SessionId, $"Changing status to {status.Value}.", EventLevel.Verbose);
+				State.Status = status.Value;
+			}
+
+			if (count != null)
+			{
+				State.Count = count.Value;
+			}
+
+			if (total != null)
+			{
+				State.Total = total.Value;
+			}
+
+			SyncStateChanged?.Invoke(this, (SyncEngineState) State.DeepClone());
+		}
+
+		private void WaitForRunToStop(TimeSpan? timeout)
+		{
+			var watch = Stopwatch.StartNew();
+			timeout ??= TimeSpan.FromSeconds(1);
+
+			while ((watch.Elapsed < timeout) && IsRunning)
+			{
+				Thread.Sleep(10);
 			}
 		}
 

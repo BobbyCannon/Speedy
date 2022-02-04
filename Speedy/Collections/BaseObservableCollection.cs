@@ -86,21 +86,12 @@ namespace Speedy.Collections
 		#region Methods
 
 		/// <summary>
-		/// Indicates the property has changed on the collection object.
-		/// </summary>
-		/// <param name="propertyName"> The name of the property has changed. </param>
-		public virtual void OnPropertyChanged(string propertyName)
-		{
-			OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-		}
-
-		/// <summary>
 		/// Reset the collection to the provided values.
 		/// </summary>
 		/// <param name="values"> The values to be set to. </param>
 		public void Reset(params T[] values)
 		{
-			if ((Dispatcher != null) && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => Reset(values));
 				return;
@@ -131,7 +122,7 @@ namespace Speedy.Collections
 				return;
 			}
 
-			if ((Dispatcher != null) && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(ClearItems);
 				return;
@@ -148,7 +139,7 @@ namespace Speedy.Collections
 		/// <inheritdoc />
 		protected override void InsertItem(int index, T item)
 		{
-			if ((Dispatcher != null) && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => InsertItem(index, item));
 				return;
@@ -191,7 +182,7 @@ namespace Speedy.Collections
 		/// <inheritdoc />
 		protected sealed override void OnPropertyChanged(PropertyChangedEventArgs e)
 		{
-			if ((Dispatcher != null) && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(e));
 				return;

@@ -2,7 +2,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.UnitTests.Factories;

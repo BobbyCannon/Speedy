@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Speedy.Client.Data;
 using Speedy.Data.Client;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 
 #endregion
 

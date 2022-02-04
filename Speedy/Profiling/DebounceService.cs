@@ -165,7 +165,7 @@ namespace Speedy.Profiling
 
 			var timer = _timer;
 			_timer = null;
-			
+
 			if (timer != null)
 			{
 				timer.Elapsed -= TimerTick;

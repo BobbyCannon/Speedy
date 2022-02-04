@@ -6,13 +6,22 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.Data.WebApi
+namespace Speedy.Data.SyncApi
 {
 	/// <summary>
 	/// Represents the public account model.
 	/// </summary>
 	public class Account : SyncModel<int>
 	{
+		#region Constructors
+
+		public Account()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>

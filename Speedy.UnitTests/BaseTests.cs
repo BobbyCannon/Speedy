@@ -20,7 +20,17 @@ namespace Speedy.UnitTests
 
 		protected void ClipboardSetText(string value)
 		{
-			var thread = new Thread(() => Clipboard.SetText(value));
+			var thread = new Thread(() =>
+			{
+				try
+				{
+					Clipboard.SetText(value);
+				}
+				catch
+				{
+					// Ignore the clipboard set issue...
+				}
+			});
 			thread.SetApartmentState(ApartmentState.STA);
 			thread.Start();
 			thread.Join();

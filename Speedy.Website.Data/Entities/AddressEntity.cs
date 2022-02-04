@@ -3,14 +3,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Speedy.Data.SyncApi;
 using Speedy.Extensions;
-using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Website.Data.Entities
 {
-	public class AddressEntity : SyncEntity<long>
+	public class AddressEntity : Address
 	{
 		#region Constructors
 
@@ -19,6 +19,7 @@ namespace Speedy.Website.Data.Entities
 		{
 			Accounts = new List<AccountEntity>();
 			LinkedAddresses = new List<AddressEntity>();
+			ResetChangeTracking();
 		}
 
 		#endregion
@@ -36,37 +37,19 @@ namespace Speedy.Website.Data.Entities
 		public int? AccountId { get; set; }
 
 		/// <summary>
-		/// The sync ID for the account.
-		/// </summary>
-		public Guid? AccountSyncId { get; set; }
-
-		/// <summary>
 		/// The people associated with this address.
 		/// </summary>
 		public virtual ICollection<AccountEntity> Accounts { get; set; }
 
 		/// <summary>
-		/// The city for the address.
+		/// The sync ID for the account.
 		/// </summary>
-		public string City { get; set; }
+		public Guid? AccountSyncId { get; set; }
 
 		/// <summary>
 		/// Read only property
 		/// </summary>
 		public string FullAddress => $"{Line1}{Environment.NewLine}{City}, {State}  {Postal}";
-
-		/// <inheritdoc />
-		public override long Id { get; set; }
-
-		/// <summary>
-		/// The line 1 for the address.
-		/// </summary>
-		public string Line1 { get; set; }
-
-		/// <summary>
-		/// The line 2 for the address.
-		/// </summary>
-		public string Line2 { get; set; }
 
 		public virtual AddressEntity LinkedAddress { get; set; }
 
@@ -76,16 +59,6 @@ namespace Speedy.Website.Data.Entities
 
 		public Guid? LinkedAddressSyncId { get; set; }
 
-		/// <summary>
-		/// The postal for the address.
-		/// </summary>
-		public string Postal { get; set; }
-
-		/// <summary>
-		/// The state for the address.
-		/// </summary>
-		public string State { get; set; }
-
 		#endregion
 
 		#region Methods
@@ -93,7 +66,7 @@ namespace Speedy.Website.Data.Entities
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
 			return base.GetDefaultExclusionsForIncomingSync()
-				.Append(nameof(Accounts), nameof(LinkedAddress), nameof(LinkedAddressId), nameof(LinkedAddresses));
+				.Append(nameof(AccountId), nameof(Accounts), nameof(LinkedAddress), nameof(LinkedAddressId), nameof(LinkedAddresses));
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()

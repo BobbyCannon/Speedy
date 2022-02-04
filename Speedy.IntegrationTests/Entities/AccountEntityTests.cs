@@ -34,7 +34,7 @@ namespace Speedy.IntegrationTests.Entities
 				{ "Nickname", (false, false, false, false) },
 				{ "PasswordHash", (true, true, true, false) },
 				{ "Pets", (true, true, true, false) },
-				{ "Roles", (true, true, true, false) },
+				{ "Roles", (true, false, true, false) },
 				{ "CreatedOn", (false, false, false, false) },
 				{ "IsDeleted", (false, false, true, false) },
 				{ "ModifiedOn", (false, false, false, false) },

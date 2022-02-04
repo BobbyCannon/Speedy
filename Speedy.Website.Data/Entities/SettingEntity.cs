@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.Collections.Generic;
+using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.Sync;
 
@@ -8,15 +9,14 @@ using Speedy.Sync;
 
 namespace Speedy.Website.Data.Entities
 {
-	public class SettingEntity : SyncEntity<long>
+	public class SettingEntity : Setting
 	{
-		#region Properties
+		#region Constructors
 
-		public override long Id { get; set; }
-
-		public string Name { get; set; }
-
-		public string Value { get; set; }
+		public SettingEntity()
+		{
+			ResetChangeTracking();
+		}
 
 		#endregion
 

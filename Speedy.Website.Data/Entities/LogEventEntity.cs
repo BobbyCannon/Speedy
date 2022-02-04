@@ -1,15 +1,24 @@
 #region References
 
 using System;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Sync;
 
 #endregion
 
 namespace Speedy.Website.Data.Entities
 {
-	public class LogEventEntity : SyncEntity<long>, ILogEvent
+	public class LogEventEntity : LogEvent, ILogEvent
 	{
+		#region Constructors
+
+		public LogEventEntity()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
@@ -17,19 +26,10 @@ namespace Speedy.Website.Data.Entities
 		/// </summary>
 		public DateTime? AcknowledgedOn { get; set; }
 
-		/// <inheritdoc />
-		public override long Id { get; set; }
-
-		/// <inheritdoc />
-		public LogLevel Level { get; set; }
-
 		/// <summary>
 		/// The Date / Time of the log entry.
 		/// </summary>
 		public DateTime LoggedOn { get; set; }
-
-		/// <inheritdoc />
-		public string Message { get; set; }
 
 		#endregion
 

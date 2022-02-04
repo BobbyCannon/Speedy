@@ -405,7 +405,9 @@ namespace Speedy.EntityFramework
 			var baseType = typeof(IEntity);
 			var entityType = entity.GetRealType();
 			var entityProperties = entityType.GetCachedProperties();
-			var entityRelationships = entityType.GetCachedVirtualProperties().Where(x => baseType.IsAssignableFrom(x.PropertyType)).ToList();
+			var entityRelationships = entityType.GetCachedVirtualProperties()
+				.Where(x => baseType.IsAssignableFrom(x.PropertyType))
+				.ToList();
 
 			foreach (var entityRelationship in entityRelationships)
 			{
@@ -416,9 +418,9 @@ namespace Speedy.EntityFramework
 
 				var otherEntityProperties = otherEntity.GetRealType().GetCachedProperties();
 				var otherEntityIdProperty = otherEntityProperties.FirstOrDefault(x => x.Name == "Id");
-				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
-				
-				if (otherEntityIdProperty != null && entityRelationshipIdProperty != null)
+				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "Id"));
+
+				if ((otherEntityIdProperty != null) && (entityRelationshipIdProperty != null))
 				{
 					var entityId = entityRelationshipIdProperty.GetValue(entity, null);
 					var otherId = otherEntityIdProperty.GetValue(otherEntity);
@@ -431,9 +433,9 @@ namespace Speedy.EntityFramework
 				}
 
 				var otherEntitySyncIdProperty = otherEntityProperties.FirstOrDefault(x => x.Name == "SyncId");
-				var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
-				
-				if (otherEntitySyncIdProperty != null && entityRelationshipSyncIdProperty != null)
+				var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "SyncId"));
+
+				if ((otherEntitySyncIdProperty != null) && (entityRelationshipSyncIdProperty != null))
 				{
 					var entitySyncId = entityRelationshipSyncIdProperty.GetValue(entity, null);
 					var otherSyncId = otherEntitySyncIdProperty?.GetValue(otherEntity);

@@ -55,10 +55,10 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <summary>
-		/// A test to validate if an entity should be filtered.
+		/// A test to validate if an incoming entity should be filtered.
 		/// </summary>
 		/// <param name="entity"> The entity to be tested. </param>
-		/// <returns> True if the entity matches the filter or false if otherwise. </returns>
+		/// <returns> True if the entity matches the incoming filter or false if otherwise. </returns>
 		public bool ShouldFilterEntity(T entity)
 		{
 			// Only filter if the entity does not pass the test, default to passed if no incoming filter provided.
@@ -71,7 +71,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents a repository filter
 	/// </summary>
-	public class SyncRepositoryFilter
+	public abstract class SyncRepositoryFilter
 	{
 		#region Constructors
 
@@ -95,6 +95,11 @@ namespace Speedy.Sync
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// Returns true if incoming expression is not null otherwise false.
+		/// </summary>
+		public virtual bool HasIncomingFilter => IncomingExpression != null;
 
 		/// <summary>
 		/// Returns true if lookup expression is not null otherwise false.

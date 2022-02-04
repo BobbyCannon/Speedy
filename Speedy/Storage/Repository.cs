@@ -438,7 +438,7 @@ namespace Speedy.Storage
 			var added = Cache.Where(x => x.State == EntityStateType.Added).ToList();
 			var removed = Cache.Where(x => x.State == EntityStateType.Removed).ToList();
 
-			if (changeCount == 0 && added.Count == 0 && removed.Count == 0)
+			if ((changeCount == 0) && (added.Count == 0) && (removed.Count == 0))
 			{
 				return 0;
 			}
@@ -482,6 +482,7 @@ namespace Speedy.Storage
 				switch (entry.State)
 				{
 					case EntityStateType.Added:
+					{
 						if ((createdEntity != null) && maintainCreatedOnDate)
 						{
 							createdEntity.CreatedOn = now;
@@ -492,10 +493,16 @@ namespace Speedy.Storage
 							modifiableEntity.ModifiedOn = now;
 						}
 
+						if ((syncableEntity != null) && maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
+						{
+							syncableEntity.SyncId = Guid.NewGuid();
+						}
+
 						entity.EntityAdded();
 						break;
-
+					}
 					case EntityStateType.Modified:
+					{
 						if (!entity.CanBeModified())
 						{
 							UpdateEntity(entry.Entity, entry.OldEntity);
@@ -505,33 +512,33 @@ namespace Speedy.Storage
 							continue;
 						}
 
+						// If Speedy is maintaining the CreatedOn date then we will not allow modifications outside Speedy
 						if ((createdEntity != null) && maintainCreatedOnDate)
 						{
-							if (entry.OldEntity is ICreatedEntity oldCreatedEntity && (oldCreatedEntity.CreatedOn != createdEntity.CreatedOn))
+							if (entry.OldEntity is ICreatedEntity oldCreatedEntity
+								&& (oldCreatedEntity.CreatedOn != createdEntity.CreatedOn))
 							{
+								// Do not allow created on to change for entities.
 								createdEntity.CreatedOn = oldCreatedEntity.CreatedOn;
 							}
 						}
 
-						if (syncableEntity != null)
-						{
-							// Do not allow sync ID to change for entities.
-							if (maintainSyncId)
-							{
-								if (entry.OldEntity is ISyncEntity oldSyncableEntity)
-								{
-									syncableEntity.SyncId = oldSyncableEntity.SyncId;
-								}
-							}
-						}
-
+						// If Speedy is maintaining the ModifiedOn then we will set it to 'now'
 						if ((modifiableEntity != null) && maintainModifiedOnDate)
 						{
+							// Update modified to now for new entities.
 							modifiableEntity.ModifiedOn = now;
+						}
+
+						if ((syncableEntity != null) && maintainSyncId && entry.OldEntity is ISyncEntity oldSyncableEntity)
+						{
+							// Do not allow sync ID to change for entities.
+							syncableEntity.SetEntitySyncId(oldSyncableEntity.GetEntitySyncId());
 						}
 
 						entity.EntityModified();
 						break;
+					}
 				}
 
 				UpdateEntity(entry.OldEntity, entry.Entity);
@@ -797,12 +804,12 @@ namespace Speedy.Storage
 
 			if (entityState.Entity is ISyncEntity syncEntity)
 			{
-				Database.KeyCache.RemoveEntityId(syncEntity.GetType(), syncEntity.SyncId);
+				Database.KeyCache.RemoveEntityId(syncEntity.GetType(), syncEntity.GetEntitySyncId());
 			}
 
 			if (entityState.OldEntity is ISyncEntity oldSyncEntity)
 			{
-				Database.KeyCache.RemoveEntityId(oldSyncEntity.GetType(), oldSyncEntity.SyncId);
+				Database.KeyCache.RemoveEntityId(oldSyncEntity.GetType(), oldSyncEntity.GetEntitySyncId());
 			}
 		}
 
@@ -838,9 +845,16 @@ namespace Speedy.Storage
 		private void UpdateEntity(Entity<T2> entity, Entity<T2> updatedEntity)
 		{
 			var properties = GetPublicProperties();
+
 			foreach (var property in properties)
 			{
-				property.SetValue(entity, property.GetValue(updatedEntity, null), null);
+				var currentValue = property.GetValue(entity, null);
+				var updatedValue = property.GetValue(updatedEntity, null);
+
+				if (currentValue != updatedValue)
+				{
+					property.SetValue(entity, updatedValue, null);
+				}
 			}
 		}
 

@@ -297,7 +297,7 @@ namespace Speedy.EntityFramework.Sql
 					var parameter = new SqliteParameter(name, type) { Value = value };
 					Parameters.Add(parameter);
 
-					if (columnName != null && !ParametersByColumnName.ContainsKey(columnName))
+					if ((columnName != null) && !ParametersByColumnName.ContainsKey(columnName))
 					{
 						ParametersByColumnName.Add(columnName, parameter);
 						ParameterNameByColumnName.Add(columnName, parameter.ParameterName);
@@ -309,7 +309,7 @@ namespace Speedy.EntityFramework.Sql
 					var parameter = new SqlParameter(name, type) { Value = value };
 					Parameters.Add(parameter);
 
-					if (columnName != null && !ParametersByColumnName.ContainsKey(columnName))
+					if ((columnName != null) && !ParametersByColumnName.ContainsKey(columnName))
 					{
 						ParametersByColumnName.Add(columnName, parameter);
 						ParameterNameByColumnName.Add(columnName, parameter.ParameterName);
@@ -354,7 +354,7 @@ namespace Speedy.EntityFramework.Sql
 
 			TableInformation.Properties
 				.Where(x => !excludedColumns.Contains(x.GetColumnName())
-					&& (!x.IsPrimaryKey() || includePrimaryKeys && x.IsPrimaryKey()))
+					&& (!x.IsPrimaryKey() || (includePrimaryKeys && x.IsPrimaryKey())))
 				.ForEach(x =>
 				{
 					var dbType = GetSqlType(x.PropertyInfo.PropertyType);
@@ -387,6 +387,14 @@ namespace Speedy.EntityFramework.Sql
 			return SqlDbType.BigInt;
 		}
 
+		internal static object GetValue(MemberExpression member)
+		{
+			var objectMember = Expression.Convert(member, typeof(object));
+			var getterLambda = Expression.Lambda<Func<object>>(objectMember);
+			var getter = getterLambda.Compile();
+			return getter();
+		}
+
 		internal string GetWhereColumnList(IDictionary<string, string> columnsAndParameters)
 		{
 			return string.Join(" AND ", columnsAndParameters.Select(x => $"{TableInformation.ProviderPrefix}{x.Key}{TableInformation.ProviderSuffix} = @{x.Value}"));
@@ -395,14 +403,6 @@ namespace Speedy.EntityFramework.Sql
 		private string GetNextParameterName()
 		{
 			return $"{ParameterPrefix}{Parameters.Count}";
-		}
-
-		internal static object GetValue(MemberExpression member)
-		{
-			var objectMember = Expression.Convert(member, typeof(object));
-			var getterLambda = Expression.Lambda<Func<object>>(objectMember);
-			var getter = getterLambda.Compile();
-			return getter();
 		}
 
 		#endregion

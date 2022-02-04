@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
+using Speedy.Storage;
 
 #endregion
 
@@ -11,7 +12,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represents as issue that occurred during sync.
 	/// </summary>
-	public class SyncIssue : Bindable
+	public class SyncIssue : Bindable, IUpdatable<SyncIssue>
 	{
 		#region Properties
 

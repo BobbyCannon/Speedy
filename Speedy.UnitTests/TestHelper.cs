@@ -17,7 +17,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Speedy.Client.Data;
 using Speedy.Data;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Net;

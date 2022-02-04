@@ -52,6 +52,11 @@ namespace Speedy.Sync
 		public ISyncClient Server { get; set; }
 
 		/// <summary>
+		/// Gets the ID of the sync session.
+		/// </summary>
+		public Guid SessionId { get; set; }
+
+		/// <summary>
 		/// Gets a value indicating if the last sync was started.
 		/// </summary>
 		public bool SyncCancelled

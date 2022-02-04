@@ -10,10 +10,10 @@ namespace Speedy.Client.Data
 	{
 		#region Properties
 
-		IRepository<ClientAccount, int> Accounts { get; }
-		IRepository<ClientAddress, long> Addresses { get; }
-		IRepository<ClientLogEvent, long> LogEvents { get; }
-		IRepository<ClientSetting, long> Settings { get; }
+		ISyncableRepository<ClientAccount, int> Accounts { get; }
+		ISyncableRepository<ClientAddress, long> Addresses { get; }
+		ISyncableRepository<ClientLogEvent, long> LogEvents { get; }
+		ISyncableRepository<ClientSetting, long> Settings { get; }
 
 		#endregion
 	}

@@ -34,9 +34,7 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.IsChangeNotificationsPaused">
-            <summary>
-            Return true if the change notifications are paused or otherwise false.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.OnPropertyChanged(System.String)">
             <summary>
@@ -45,9 +43,7 @@
             <param name="propertyName"> The name of the property has changed. </param>
         </member>
         <member name="M:Speedy.Bindable.PausePropertyChangeNotifications(System.Boolean)">
-            <summary>
-            Pause / Un-pause the property change notifications
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
@@ -76,6 +72,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.CloneableBindable`1.ShallowClone">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.CloneableBindable`1.UpdateWith(`0,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Collections.BaseObservableCollection`1">
@@ -124,12 +123,6 @@
             <summary>
             Represents a thread dispatcher to help with cross threaded request.
             </summary>
-        </member>
-        <member name="M:Speedy.Collections.BaseObservableCollection`1.OnPropertyChanged(System.String)">
-            <summary>
-            Indicates the property has changed on the collection object.
-            </summary>
-            <param name="propertyName"> The name of the property has changed. </param>
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.Reset(`0[])">
             <summary>
@@ -1137,7 +1130,7 @@
             <summary>
             Represents a Speedy entity.
             </summary>
-            <typeparam name="T"> The type of the entity key. </typeparam>
+            <typeparam name="T"> The type of the entity primary ID. </typeparam>
         </member>
         <member name="P:Speedy.Entity`1.Id">
             <summary>
@@ -1760,6 +1753,21 @@
             <param name="time"> The time to be converted. </param>
             <returns> The DateTime in OscTimeTag format. </returns>
         </member>
+        <member name="T:Speedy.Extensions.DictionaryExtensions">
+            <summary>
+            Extensions for dictionary
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.AddOrUpdate``2(System.Collections.Generic.Dictionary{``0,``1},System.Collections.Generic.KeyValuePair{``0,``1})">
+            <summary>
+            Add or update an entry in a dictionary.
+            </summary>
+            <typeparam name="T1"> The key value type. </typeparam>
+            <typeparam name="T2"> The value value type. </typeparam>
+            <param name="dictionary"> The dictionary to add or update. </param>
+            <param name="value"> The value to add or update. </param>
+            <returns> The dictionary that was update. </returns>
+        </member>
         <member name="T:Speedy.Extensions.DirectoryInfoExtensions">
             <summary>
             Extensions for directory info
@@ -1960,6 +1968,13 @@
             </summary>
             <param name="value"> The value to be converted to a Guid. </param>
             <returns> The guid. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.GuidExtensions.ToShortGuid(System.Guid)">
+            <summary>
+            Converts a Guid to a Short Guid.
+            </summary>
+            <param name="guid"> The Guid to convert. </param>
+            <returns> The Guid in a Short Guid format. </returns>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -2203,6 +2218,14 @@
             </summary>
             <param name="type"> The type to get the property for. </param>
             <param name="name"> The name of the property to be queried. </param>
+            <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+            <returns> The list of properties for the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedPropertyDictionary(System.Type,System.Nullable{System.Reflection.BindingFlags})">
+            <summary>
+            Gets a list of property information for the provided type. The results are cached so the next query is much faster.
+            </summary>
+            <param name="type"> The type to get the properties for. </param>
             <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
             <returns> The list of properties for the type. </returns>
         </member>
@@ -2466,6 +2489,18 @@
             <param name="repository"> The repository to write to. </param>
             <param name="value"> The event to be written to the repository. </param>
         </member>
+        <member name="T:Speedy.Extensions.TypeExtensions">
+            <summary>
+            Extensions for the Type object.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.IsNullable(System.Type)">
+            <summary>
+            Determines if a type is nullable.
+            </summary>
+            <param name="type"> The type to be tested. </param>
+            <returns> True if the type is nullable otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Extensions.UpdatableExtensions">
             <summary>
             Extensions for the IUpdatable interface
@@ -2561,6 +2596,16 @@
             <returns>
             The dispatcher that is currently being used. Null if no dispatcher is assigned.
             </returns>
+        </member>
+        <member name="M:Speedy.IBindable.IsChangeNotificationsPaused">
+            <summary>
+            Return true if the change notifications are paused or otherwise false.
+            </summary>
+        </member>
+        <member name="M:Speedy.IBindable.PausePropertyChangeNotifications(System.Boolean)">
+            <summary>
+            Pause / Un-pause the property change notifications
+            </summary>
         </member>
         <member name="M:Speedy.IBindable.UpdateDispatcher(Speedy.IDispatcher)">
             <summary>
@@ -6594,6 +6639,14 @@
             <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
             <returns> The JSON string of the serialized object. </returns>
         </member>
+        <member name="M:Speedy.Serialization.Serializer.ToRawJson``1(``0)">
+            <summary>
+            Serialize an object into a JSON string.
+            </summary>
+            <typeparam name="T"> The type of the object to serialize. </typeparam>
+            <param name="item"> The object to serialize. </param>
+            <returns> The JSON string of the serialized object. </returns>
+        </member>
         <member name="T:Speedy.Serialization.SerializerSettings">
             <summary>
             Represents serialization settings
@@ -6751,11 +6804,7 @@
             </summary>
         </member>
         <member name="M:Speedy.ShortGuid.Equals(System.Object)">
-            <summary>
-            Returns a value indicating whether this instance and a specified Object represent the same type and value.
-            </summary>
-            <param name="obj"> The object to compare. </param>
-            <returns> </returns>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.ShortGuid.GetHashCode">
             <summary>
@@ -7037,6 +7086,19 @@
             </summary>
             <param name="update"> The source of the update. </param>
             <param name="excludeVirtuals"> An optional value to exclude virtual members. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+        </member>
+        <member name="T:Speedy.Storage.IUpdatable`1">
+            <summary>
+            Represents an updatable item
+            </summary>
+            <typeparam name="T"> The type that is update is for. </typeparam>
+        </member>
+        <member name="M:Speedy.Storage.IUpdatable`1.UpdateWith(`0,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the update. </param>
             <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
         <member name="T:Speedy.Storage.KeyValue.IKeyValueRepository`1">
@@ -8645,6 +8707,13 @@
             <param name="propertyName"> The property name to be tested. </param>
             <returns> True if the property can be written during an update or false if otherwise. </returns>
         </member>
+        <member name="M:Speedy.Sync.ISyncEntity.SetEntitySyncId(System.Guid)">
+            <summary>
+            Gets the sync key (ID) of the sync entity. Defaults to SyncId.
+            This can be overriden by setting the LookupFilter for a sync repository filter.
+            </summary>
+            <param name="syncId"> The sync key value for the sync entity. </param>
+        </member>
         <member name="M:Speedy.Sync.ISyncEntity.ToSyncObject">
             <summary>
             Converts the entity into an object to transmit.
@@ -9102,16 +9171,7 @@
             Represents the sync engine.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncEngine.#ctor(Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,Speedy.Sync.SyncOptions,System.Threading.CancellationTokenSource)">
-            <summary>
-            Instantiate an instance of the sync engine.
-            </summary>
-            <param name="client"> The client to sync from. </param>
-            <param name="server"> The server to sync to. </param>
-            <param name="options"> The options for the sync engine. </param>
-            <param name="source"> An optional cancellation token source. </param>
-        </member>
-        <member name="M:Speedy.Sync.SyncEngine.#ctor(System.Guid,Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,Speedy.Sync.SyncOptions,System.Threading.CancellationTokenSource)">
+        <member name="M:Speedy.Sync.SyncEngine.#ctor(System.Guid,Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,Speedy.Sync.SyncOptions)">
             <summary>
             Instantiate an instance of the sync engine.
             </summary>
@@ -9119,16 +9179,20 @@
             <param name="client"> The client to sync from. </param>
             <param name="server"> The server to sync to. </param>
             <param name="options"> The options for the sync engine. </param>
-            <param name="source"> An optional cancellation token source. </param>
-        </member>
-        <member name="P:Speedy.Sync.SyncEngine.CancellationSource">
-            <summary>
-            An optional cancellation token.
-            </summary>
         </member>
         <member name="P:Speedy.Sync.SyncEngine.Client">
             <summary>
             The client.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEngine.IsCancellationPending">
+            <summary>
+            Gets a value indicating the running sync is requesting to be cancelled.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEngine.IsRunning">
+            <summary>
+            Gets a value indicating the running status of the sync engine.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncEngine.Options">
@@ -9156,6 +9220,11 @@
             Gets the list of issues that happened during syncing.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncEngine.Cancel">
+            <summary>
+            Cancels the sync process.
+            </summary>
+        </member>
         <member name="M:Speedy.Sync.SyncEngine.Dispose">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -9166,17 +9235,16 @@
             Start to sync process.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncEngine.Run(Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,Speedy.Sync.SyncOptions,System.Threading.CancellationTokenSource)">
+        <member name="M:Speedy.Sync.SyncEngine.Run(Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,Speedy.Sync.SyncOptions)">
             <summary>
             Instantiate and run an instance of the sync engine.
             </summary>
             <param name="client"> The client to sync from. </param>
             <param name="server"> The server to sync to. </param>
             <param name="options"> The options for the sync engine. </param>
-            <param name="source"> An optional cancellation token source. </param>
             <returns> A list of issues that occurred during sync. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncEngine.Run(System.Guid,Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,Speedy.Sync.SyncOptions,System.Threading.CancellationTokenSource)">
+        <member name="M:Speedy.Sync.SyncEngine.Run(System.Guid,Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,Speedy.Sync.SyncOptions)">
             <summary>
             Instantiate and run an instance of the sync engine.
             </summary>
@@ -9184,7 +9252,6 @@
             <param name="client"> The client to sync from. </param>
             <param name="server"> The server to sync to. </param>
             <param name="options"> The options for the sync engine. </param>
-            <param name="source"> An optional cancellation token source. </param>
             <returns> A list of issues that occurred during sync. </returns>
         </member>
         <member name="M:Speedy.Sync.SyncEngine.RunAsync">
@@ -9194,7 +9261,7 @@
         </member>
         <member name="M:Speedy.Sync.SyncEngine.Stop(System.Nullable{System.TimeSpan})">
             <summary>
-            Stops the sync process.
+            Cancels the sync process and waits for it to stop.
             </summary>
         </member>
         <member name="M:Speedy.Sync.SyncEngine.Dispose(System.Boolean)">
@@ -9320,10 +9387,16 @@
             The sync engine was cancelled.
             </summary>
         </member>
+        <member name="F:Speedy.Sync.SyncEngineStatus.Failed">
+            <summary>
+            The sync engine experienced an exception while running.
+            </summary>
+        </member>
         <member name="T:Speedy.Sync.SyncEntity`1">
             <summary>
             Represent an entity that can be synced.
             </summary>
+            <typeparam name="T"> The type of the entity primary ID. </typeparam>
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.#ctor">
             <summary>
@@ -9355,6 +9428,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.IsPropertyExcludedForSyncUpdate(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncEntity`1.SetEntitySyncId(System.Guid)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.ToSyncObject">
@@ -9504,6 +9580,11 @@
             Gets a value indicating the running status of the sync manager.
             </summary>
         </member>
+        <member name="P:Speedy.Sync.SyncManager`1.IsStarted">
+            <summary>
+            Gets a value indicating the running status of the sync manager.
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.SyncManager`1.OutgoingConverter">
             <summary>
             Gets an optional outgoing converter to convert incoming sync data. The converter is applied to the local sync client.
@@ -9565,6 +9646,11 @@
             <param name="lastSyncedOnClient"> The last time when synced on the client. </param>
             <param name="lastSyncedOnServer"> The last time when synced on the server. </param>
         </member>
+        <member name="M:Speedy.Sync.SyncManager`1.StopSync(System.Nullable{System.TimeSpan})">
+            <summary>
+            Cancel the current running sync and wait for it to stop.
+            </summary>
+        </member>
         <member name="M:Speedy.Sync.SyncManager`1.WaitForSyncToComplete(System.Nullable{System.TimeSpan})">
             <summary>
             Wait for the sync to complete.
@@ -9578,6 +9664,13 @@
             </summary>
             <param name="timeout"> An optional max amount of time to wait. ProcessTimeout will be used it no timeout provided. </param>
             <returns> True if the sync was started otherwise false if timed out waiting. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncManager`1.WaitForSyncToStartRunning(System.Nullable{System.TimeSpan})">
+            <summary>
+            Wait for the sync to start running.
+            </summary>
+            <param name="timeout"> An optional max amount of time to wait. ProcessTimeout will be used it no timeout provided. </param>
+            <returns> True if the sync was started to process otherwise false if timed out waiting. </returns>
         </member>
         <member name="M:Speedy.Sync.SyncManager`1.GetOrAddSyncOptions(`0,System.Action{Speedy.Sync.SyncOptions})">
             <summary>
@@ -9632,6 +9725,11 @@
             Indicate the sync is complete.
             </summary>
             <param name="results"> The results of the completed sync. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncManager`1.OnSyncRunning(Speedy.Sync.SyncResults{`0})">
+            <summary>
+            Indicate the sync is running
+            </summary>
         </member>
         <member name="M:Speedy.Sync.SyncManager`1.OnSyncUpdated(Speedy.Sync.SyncEngineState)">
             <summary>
@@ -9699,11 +9797,17 @@
         <member name="M:Speedy.Sync.SyncModel`1.GetDispatcher">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Sync.SyncModel`1.IsChangeNotificationsPaused">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncModel`1.OnPropertyChanged(System.String)">
             <summary>
             Indicates the property has changed on the bindable object.
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncModel`1.PausePropertyChangeNotifications(System.Boolean)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncModel`1.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
@@ -9736,6 +9840,11 @@
         <member name="P:Speedy.Sync.SyncObject.TypeName">
             <summary>
             Gets or sets the type name of the object. The data contains the serialized data.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncObject.CachedSerializerSettings">
+            <summary>
+            Cached serializer settings.
             </summary>
         </member>
         <member name="M:Speedy.Sync.SyncObject.ToSyncEntity``2">
@@ -10114,10 +10223,10 @@
         </member>
         <member name="M:Speedy.Sync.SyncRepositoryFilter`1.ShouldFilterEntity(`0)">
             <summary>
-            A test to validate if an entity should be filtered.
+            A test to validate if an incoming entity should be filtered.
             </summary>
             <param name="entity"> The entity to be tested. </param>
-            <returns> True if the entity matches the filter or false if otherwise. </returns>
+            <returns> True if the entity matches the incoming filter or false if otherwise. </returns>
         </member>
         <member name="T:Speedy.Sync.SyncRepositoryFilter">
             <summary>
@@ -10133,6 +10242,11 @@
             <param name="incomingFilter"> The incoming filter for the type. </param>
             <param name="lookupFilter"> The lookup filter for the type. </param>
             <param name="skipDeletedItemsOnInitialSync"> The option to skipped SyncEntity.IsDeleted on initial sync. </param>
+        </member>
+        <member name="P:Speedy.Sync.SyncRepositoryFilter.HasIncomingFilter">
+            <summary>
+            Returns true if incoming expression is not null otherwise false.
+            </summary>
         </member>
         <member name="P:Speedy.Sync.SyncRepositoryFilter.HasLookupFilter">
             <summary>
@@ -10227,6 +10341,11 @@
         <member name="P:Speedy.Sync.SyncResults`1.Server">
             <summary>
             The sync client for the server.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncResults`1.SessionId">
+            <summary>
+            Gets the ID of the sync session.
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncResults`1.SyncCancelled">

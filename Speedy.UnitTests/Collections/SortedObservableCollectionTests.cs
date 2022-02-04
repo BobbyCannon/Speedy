@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Collections;
 using Speedy.Data.Client;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 
 #endregion

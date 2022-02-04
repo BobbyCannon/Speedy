@@ -92,7 +92,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="update"> </param>
 		/// <param name="exclusions"> </param>
-		public void UpdateWith(DatabaseOptions update, params string[] exclusions)
+		public override void UpdateWith(DatabaseOptions update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)

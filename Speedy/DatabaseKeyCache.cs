@@ -197,7 +197,7 @@ namespace Speedy
 				return;
 			}
 
-			RemoveEntityId(entity.GetRealType(), entity.SyncId);
+			RemoveEntityId(entity.GetRealType(), entity.GetEntitySyncId());
 		}
 
 		/// <summary>

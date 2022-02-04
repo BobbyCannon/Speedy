@@ -36,13 +36,13 @@ namespace Speedy.Client.Data
 
 		#region Properties
 
-		public IRepository<ClientAccount, int> Accounts => GetSyncableRepository<ClientAccount, int>();
+		public ISyncableRepository<ClientAccount, int> Accounts => GetSyncableRepository<ClientAccount, int>();
 
-		public IRepository<ClientAddress, long> Addresses => GetSyncableRepository<ClientAddress, long>();
+		public ISyncableRepository<ClientAddress, long> Addresses => GetSyncableRepository<ClientAddress, long>();
 
-		public IRepository<ClientLogEvent, long> LogEvents => GetSyncableRepository<ClientLogEvent, long>();
+		public ISyncableRepository<ClientLogEvent, long> LogEvents => GetSyncableRepository<ClientLogEvent, long>();
 
-		public IRepository<ClientSetting, long> Settings => GetSyncableRepository<ClientSetting, long>();
+		public ISyncableRepository<ClientSetting, long> Settings => GetSyncableRepository<ClientSetting, long>();
 
 		#endregion
 

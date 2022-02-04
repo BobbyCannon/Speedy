@@ -13,6 +13,12 @@ namespace Speedy.Sync
 	/// <typeparam name="T"> The type for the key. </typeparam>
 	public abstract class SyncModel<T> : SyncEntity<T>, IBindable
 	{
+		#region Fields
+
+		private bool _pausePropertyChanged;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
@@ -45,19 +51,38 @@ namespace Speedy.Sync
 			return Dispatcher;
 		}
 
+		/// <inheritdoc />
+		public bool IsChangeNotificationsPaused()
+		{
+			return _pausePropertyChanged;
+		}
+
 		/// <summary>
 		/// Indicates the property has changed on the bindable object.
 		/// </summary>
 		/// <param name="propertyName"> The name of the property has changed. </param>
 		public override void OnPropertyChanged(string propertyName)
 		{
-			if ((Dispatcher != null) && !Dispatcher.HasThreadAccess)
+			// Ensure we have not paused property notifications
+			if (_pausePropertyChanged)
+			{
+				// Property change notifications have been paused so bounce
+				return;
+			}
+
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(propertyName));
 				return;
 			}
 
 			base.OnPropertyChanged(propertyName);
+		}
+
+		/// <inheritdoc />
+		public void PausePropertyChangeNotifications(bool pause = true)
+		{
+			_pausePropertyChanged = pause;
 		}
 
 		/// <inheritdoc />

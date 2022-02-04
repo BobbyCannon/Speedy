@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 
 #endregion
 

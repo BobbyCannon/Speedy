@@ -67,7 +67,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="update"> The update to be applied. </param>
 		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public void UpdateWith(SyncStatistics update, params string[] exclusions)
+		public override void UpdateWith(SyncStatistics update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)

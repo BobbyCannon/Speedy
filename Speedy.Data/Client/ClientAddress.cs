@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.Sync;
 
@@ -13,7 +14,7 @@ namespace Speedy.Data.Client
 	/// <summary>
 	/// Represents the client private address model.
 	/// </summary>
-	public class ClientAddress : SyncModel<long>
+	public class ClientAddress : Address
 	{
 		#region Constructors
 
@@ -21,6 +22,7 @@ namespace Speedy.Data.Client
 		public ClientAddress()
 		{
 			Accounts = new List<ClientAccount>();
+			ResetChangeTracking();
 		}
 
 		#endregion
@@ -33,37 +35,9 @@ namespace Speedy.Data.Client
 		public virtual ICollection<ClientAccount> Accounts { get; set; }
 
 		/// <summary>
-		/// The city for the address.
-		/// </summary>
-		public string City { get; set; }
-
-		/// <inheritdoc />
-		public override long Id { get; set; }
-
-		/// <summary>
 		/// Represents the last time this account was update on the client
 		/// </summary>
 		public DateTime LastClientUpdate { get; set; }
-
-		/// <summary>
-		/// The line 1 for the address.
-		/// </summary>
-		public string Line1 { get; set; }
-
-		/// <summary>
-		/// The line 2 for the address.
-		/// </summary>
-		public string Line2 { get; set; }
-
-		/// <summary>
-		/// The postal for the address.
-		/// </summary>
-		public string Postal { get; set; }
-
-		/// <summary>
-		/// The state for the address.
-		/// </summary>
-		public string State { get; set; }
 
 		#endregion
 
@@ -80,7 +54,10 @@ namespace Speedy.Data.Client
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
 		{
 			// Update defaults are the same as incoming sync defaults
-			return GetDefaultExclusionsForIncomingSync();
+			var response = base.GetDefaultExclusionsForOutgoingSync()
+				.Append(GetDefaultExclusionsForIncomingSync());
+
+			return response;
 		}
 
 		/// <inheritdoc />

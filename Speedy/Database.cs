@@ -837,10 +837,11 @@ namespace Speedy
 					if (entityRelationship.GetValue(entity, null) is ISyncEntity syncEntity && (entityRelationshipSyncIdProperty != null))
 					{
 						var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(entity, null);
-						if (otherEntitySyncId != syncEntity.SyncId)
+						var syncEntitySyncId = syncEntity.GetEntitySyncId();
+						if (otherEntitySyncId != syncEntitySyncId)
 						{
 							// resets entitySyncId to entity.SyncId if it does not match
-							entityRelationshipSyncIdProperty.SetValue(entity, syncEntity.SyncId, null);
+							entityRelationshipSyncIdProperty.SetValue(entity, syncEntitySyncId, null);
 						}
 					}
 				}

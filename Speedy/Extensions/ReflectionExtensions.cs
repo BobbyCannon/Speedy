@@ -35,6 +35,7 @@ namespace Speedy.Extensions
 		private static readonly ConcurrentDictionary<string, FieldInfo[]> _typeFieldInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _typeMethodInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _typeMethodsInfos;
+		private static readonly ConcurrentDictionary<string, Dictionary<string, PropertyInfo>> _typePropertyInfoDictionaries;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _typePropertyInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _typeVirtualPropertyInfos;
 
@@ -52,6 +53,7 @@ namespace Speedy.Extensions
 			_typeFieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
 			_typeMethodInfos = new ConcurrentDictionary<string, MethodInfo>();
 			_typeMethodsInfos = new ConcurrentDictionary<string, MethodInfo[]>();
+			_typePropertyInfoDictionaries = new ConcurrentDictionary<string, Dictionary<string, PropertyInfo>>();
 			_typePropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_typeVirtualPropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 		}
@@ -259,6 +261,19 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Gets a list of property information for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the properties for. </param>
+		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+		/// <returns> The list of properties for the type. </returns>
+		public static IDictionary<string, PropertyInfo> GetCachedPropertyDictionary(this Type type, BindingFlags? flags = null)
+		{
+			var typeFlags = flags ?? DefaultFlags;
+			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+			return _typePropertyInfoDictionaries.GetOrAdd(key, x => type.GetProperties(typeFlags).ToDictionary(p => p.Name, p => p, StringComparer.InvariantCultureIgnoreCase));
+		}
+
+		/// <summary>
 		/// Gets a list of virtual property types for the provided type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="type"> The type to get the properties for. </param>
@@ -335,16 +350,12 @@ namespace Speedy.Extensions
 				throw new InvalidOperationException();
 			}
 
-			switch (memberInfo)
+			return memberInfo switch
 			{
-				case PropertyInfo propertyInfo:
-					return propertyInfo.GetValue(value, null);
-
-				case FieldInfo fieldInfo:
-					return fieldInfo.GetValue(value);
-			}
-
-			throw new Exception();
+				PropertyInfo propertyInfo => propertyInfo.GetValue(value, null),
+				FieldInfo fieldInfo => fieldInfo.GetValue(value),
+				_ => throw new Exception()
+			};
 		}
 
 		/// <summary>
@@ -366,7 +377,9 @@ namespace Speedy.Extensions
 		/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
 		public static Type GetRealType(this Type type)
 		{
-			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true) || (type.FullName?.Contains("Castle.Proxies") == true);
+			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true)
+				|| (type.FullName?.Contains("Castle.Proxies") == true);
+
 			return isProxy ? type.BaseType : type;
 		}
 

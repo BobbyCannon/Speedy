@@ -18,6 +18,7 @@ namespace Speedy.Serialization
 
 		private static readonly SerializerSettings _settingsForDeepClone1, _settingsForDeepClone2;
 		private static readonly SerializerSettings _settingsForDeserialization, _settingsForSerialization;
+		private static readonly SerializerSettings _settingsForRawSerialization;
 
 		#endregion
 
@@ -25,6 +26,10 @@ namespace Speedy.Serialization
 
 		static Serializer()
 		{
+			_settingsForRawSerialization = new SerializerSettings(false, false, false, false, false, false)
+			{
+				JsonSettings = { PreserveReferencesHandling = PreserveReferencesHandling.None }
+			};
 			_settingsForDeserialization = new SerializerSettings(false);
 			_settingsForSerialization = new SerializerSettings(false, false, false, false, false, false);
 			_settingsForDeepClone1 = new SerializerSettings(ignoreVirtuals: true);
@@ -197,6 +202,17 @@ namespace Speedy.Serialization
 		public static string ToJson<T>(this T item, bool indented = false, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
 		{
 			return item.ToJson(new SerializerSettings(indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString));
+		}
+
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToRawJson<T>(this T item)
+		{
+			return item.ToJson(_settingsForRawSerialization);
 		}
 
 		#endregion

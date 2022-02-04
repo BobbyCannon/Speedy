@@ -1,4 +1,4 @@
-﻿namespace Speedy.Data.WebApi
+﻿namespace Speedy.Data.SyncApi
 {
 	public enum LogLevel
 	{

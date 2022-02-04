@@ -14,6 +14,15 @@ namespace Speedy.Data.Client
 	/// </summary>
 	public class ClientAccount : SyncModel<int>
 	{
+		#region Constructors
+
+		public ClientAccount()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
@@ -77,21 +86,26 @@ namespace Speedy.Data.Client
 		/// <returns> The array of roles. </returns>
 		public static IEnumerable<string> SplitRoles(string roles)
 		{
-			return roles != null ? roles.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
+			return roles != null ? roles.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries) : Array.Empty<string>();
 		}
 
 		/// <inheritdoc />
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
 			return base.GetDefaultExclusionsForIncomingSync()
-				.Append(nameof(Address), nameof(AddressId), nameof(LastClientUpdate));
+				.Append(nameof(Address), nameof(AddressId), nameof(LastClientUpdate), nameof(Roles));
 		}
 
 		/// <inheritdoc />
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
 		{
 			// Update defaults are the same as incoming sync defaults
-			return GetDefaultExclusionsForIncomingSync();
+			var response = base.GetDefaultExclusionsForOutgoingSync()
+				.Append(GetDefaultExclusionsForIncomingSync());
+
+			response.Remove(nameof(Roles));
+
+			return response;
 		}
 
 		/// <inheritdoc />

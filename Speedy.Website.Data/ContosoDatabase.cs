@@ -41,16 +41,16 @@ namespace Speedy.Website.Data
 
 		#region Properties
 
-		public IRepository<AccountEntity, int> Accounts => GetSyncableRepository<AccountEntity, int>();
-		public IRepository<AddressEntity, long> Addresses => GetSyncableRepository<AddressEntity, long>();
+		public ISyncableRepository<AccountEntity, int> Accounts => GetSyncableRepository<AccountEntity, int>();
+		public ISyncableRepository<AddressEntity, long> Addresses => GetSyncableRepository<AddressEntity, long>();
 		public IRepository<FoodEntity, int> Food => GetRepository<FoodEntity, int>();
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships => GetRepository<FoodRelationshipEntity, int>();
 		public IRepository<GroupMemberEntity, int> GroupMembers => GetRepository<GroupMemberEntity, int>();
 		public IRepository<GroupEntity, int> Groups => GetRepository<GroupEntity, int>();
-		public IRepository<LogEventEntity, long> LogEvents => GetSyncableRepository<LogEventEntity, long>();
+		public ISyncableRepository<LogEventEntity, long> LogEvents => GetSyncableRepository<LogEventEntity, long>();
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets => GetRepository<PetEntity, (string Name, int OwnerId)>();
 		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
-		public IRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
+		public ISyncableRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
 		public IRepository<TrackerPathEntity, long> TrackerPaths => GetRepository<TrackerPathEntity, long>();
 		public IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations => GetRepository<TrackerPathConfigurationEntity, int>();
 

@@ -1,7 +1,6 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Data.WebApi;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Storage;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using Speedy.Data.SyncApi;
 using Speedy.UnitTests;
 
 #endregion
@@ -1837,7 +1837,7 @@ namespace Speedy.IntegrationTests
 						entity.ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03);
 
 						var actual = entity.ToSyncObject();
-						var expect = "{\"$id\":\"1\",\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":1,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
+						var expect = "{\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":1,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
 
 						actual.Data.Dump();
 

@@ -185,7 +185,7 @@ namespace Speedy.EntityFramework
 		{
 			var assemblyName = type.ToAssemblyName();
 
-			if (Options.SyncOrder.Length > 0 && !Options.SyncOrder.Contains(assemblyName))
+			if ((Options.SyncOrder.Length > 0) && !Options.SyncOrder.Contains(assemblyName))
 			{
 				return null;
 			}
@@ -197,7 +197,7 @@ namespace Speedy.EntityFramework
 
 			var idType = type.GetCachedProperties(BindingFlags.Public | BindingFlags.Instance).First(x => x.Name == "Id").PropertyType;
 			var methods = GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
-			var setMethod = methods.First(x => x.Name == "Set" && x.IsGenericMethodDefinition);
+			var setMethod = methods.First(x => (x.Name == "Set") && x.IsGenericMethodDefinition);
 			var method = setMethod.MakeGenericMethod(type);
 			var entitySet = method.Invoke(this, null);
 			var repositoryType = typeof(EntityFrameworkSyncableRepository<,>).MakeGenericType(type, idType);
@@ -244,7 +244,7 @@ namespace Speedy.EntityFramework
 				entries.ForEach(x => (x.Entity as ISyncEntity)?.UpdateLocalSyncIds());
 
 				var response = base.SaveChanges();
-				var needsMoreSaving = entries.Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged);
+				var needsMoreSaving = entries.Any(x => (x.State != EntityState.Detached) && (x.State != EntityState.Unchanged));
 				if (needsMoreSaving)
 				{
 					response += SaveChanges();
@@ -266,38 +266,6 @@ namespace Speedy.EntityFramework
 			finally
 			{
 				_saveChangeCount = 0;
-			}
-		}
-
-		private void UpdateCache()
-		{
-			if (KeyCache == null)
-			{
-				return;
-			}
-
-			foreach (var item in _collectionChangeTracker.Added)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.AddEntity(syncEntity);
-				}
-			}
-			
-			foreach (var item in _collectionChangeTracker.Updated)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.AddEntity(syncEntity);
-				}
-			}
-			
-			foreach (var item in _collectionChangeTracker.Removed)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.RemoveEntity(syncEntity);
-				}
 			}
 		}
 
@@ -371,7 +339,7 @@ namespace Speedy.EntityFramework
 		protected virtual void ProcessModelTypes(ModelBuilder modelBuilder)
 		{
 			var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
-				x => x.Ticks == DateTimeExtensions.MinDateTimeTicks || x.Ticks == DateTimeExtensions.MaxDateTimeTicks
+				x => (x.Ticks == DateTimeExtensions.MinDateTimeTicks) || (x.Ticks == DateTimeExtensions.MaxDateTimeTicks)
 					? DateTime.SpecifyKind(x, DateTimeKind.Utc)
 					: x.ToUniversalTime(),
 				x => DateTime.SpecifyKind(x, DateTimeKind.Utc)
@@ -379,7 +347,7 @@ namespace Speedy.EntityFramework
 
 			var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
 				x => x.HasValue
-					? x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks || x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks
+					? (x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks) || (x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks)
 						? DateTime.SpecifyKind(x.Value, DateTimeKind.Utc)
 						: x.Value.ToUniversalTime()
 					: x.Value.ToUniversalTime(),
@@ -421,7 +389,7 @@ namespace Speedy.EntityFramework
 			var type = GetType();
 			var syncEntityType = typeof(ISyncEntity);
 			var cachedProperties = type.GetCachedProperties();
-			var properties = cachedProperties.Where(x => x.PropertyType.Name == typeof(IRepository<,>).Name || x.PropertyType.Name == typeof(ISyncableRepository<,>).Name).ToList();
+			var properties = cachedProperties.Where(x => (x.PropertyType.Name == typeof(IRepository<,>).Name) || (x.PropertyType.Name == typeof(ISyncableRepository<,>).Name)).ToList();
 
 			_syncableRepositories.Clear();
 
@@ -454,7 +422,7 @@ namespace Speedy.EntityFramework
 
 			NotifyCollectionChangedEventArgs eventArgs = null;
 
-			if (added.Count > 0 && removed.Count > 0)
+			if ((added.Count > 0) && (removed.Count > 0))
 			{
 				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, added, removed);
 			}
@@ -505,31 +473,29 @@ namespace Speedy.EntityFramework
 			switch (entry.State)
 			{
 				case EntityState.Added:
+				{
 					_collectionChangeTracker.AddAddedEntity(entity);
 
-					if (createdEntity != null && maintainCreatedOnDate)
+					if ((createdEntity != null) && maintainCreatedOnDate)
 					{
-						// Make sure the modified on value matches created on for new items.
 						createdEntity.CreatedOn = now;
 					}
 
-					if (modifiableEntity != null && maintainModifiedOnDate)
+					if ((modifiableEntity != null) && maintainModifiedOnDate)
 					{
 						modifiableEntity.ModifiedOn = now;
 					}
 
-					if (syncableEntity != null)
+					if ((syncableEntity != null) && maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
 					{
-						if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
-						{
-							syncableEntity.SyncId = Guid.NewGuid();
-						}
+						syncableEntity.SyncId = Guid.NewGuid();
 					}
 
 					entity.EntityAdded();
 					break;
-
+				}
 				case EntityState.Modified:
+				{
 					if (!entity.CanBeModified())
 					{
 						// Tell entity framework to not update the entity.
@@ -540,33 +506,31 @@ namespace Speedy.EntityFramework
 					_collectionChangeTracker.AddUpdatedEntity(entity);
 
 					// If Speedy is maintaining the CreatedOn date then we will not allow modifications outside Speedy
-					if (createdEntity != null && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
+					if ((createdEntity != null) && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
 					{
 						// Do not allow created on to change for entities.
-						createdEntity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
+						createdEntity.CreatedOn = (DateTime) entry.OriginalValues[nameof(ICreatedEntity.CreatedOn)];
 					}
 
 					// If Speedy is maintaining the ModifiedOn then we will set it to 'now'
-					if (modifiableEntity != null && maintainModifiedOnDate)
+					if ((modifiableEntity != null) && maintainModifiedOnDate)
 					{
 						// Update modified to now for new entities.
 						modifiableEntity.ModifiedOn = now;
 					}
 
-					if (syncableEntity != null)
+					if ((syncableEntity != null) && maintainSyncId && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ISyncEntity.SyncId)))
 					{
 						// Do not allow sync ID to change for entities.
-						if (Options.MaintainSyncId && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ISyncEntity.SyncId)))
-						{
-							syncableEntity.SyncId = (Guid) entry.OriginalValues["SyncId"];
-						}
+						syncableEntity.SetEntitySyncId((Guid) entry.OriginalValues[nameof(ISyncEntity.SyncId)]);
 					}
 
 					entity.EntityModified();
 					break;
-
+				}
 				case EntityState.Deleted:
-					if (syncableEntity != null && !Options.PermanentSyncEntityDeletions)
+				{
+					if ((syncableEntity != null) && !Options.PermanentSyncEntityDeletions)
 					{
 						syncableEntity.IsDeleted = true;
 						syncableEntity.ModifiedOn = now;
@@ -579,6 +543,39 @@ namespace Speedy.EntityFramework
 
 					entity.EntityDeleted();
 					break;
+				}
+			}
+		}
+
+		private void UpdateCache()
+		{
+			if (KeyCache == null)
+			{
+				return;
+			}
+
+			foreach (var item in _collectionChangeTracker.Added)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					KeyCache.AddEntity(syncEntity);
+				}
+			}
+
+			foreach (var item in _collectionChangeTracker.Updated)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					KeyCache.AddEntity(syncEntity);
+				}
+			}
+
+			foreach (var item in _collectionChangeTracker.Removed)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					KeyCache.RemoveEntity(syncEntity);
+				}
 			}
 		}
 

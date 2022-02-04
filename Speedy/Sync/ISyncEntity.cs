@@ -41,7 +41,7 @@ namespace Speedy.Sync
 		/// This can be overriden by setting the LookupFilter for a sync repository filter.
 		/// </summary>
 		/// <returns> The sync key value for the sync entity. </returns>
-		object GetEntitySyncId();
+		Guid GetEntitySyncId();
 
 		/// <summary>
 		/// Checks a property to see if it can be synced in incoming data.
@@ -63,6 +63,13 @@ namespace Speedy.Sync
 		/// <param name="propertyName"> The property name to be tested. </param>
 		/// <returns> True if the property can be written during an update or false if otherwise. </returns>
 		bool IsPropertyExcludedForSyncUpdate(string propertyName);
+
+		/// <summary>
+		/// Gets the sync key (ID) of the sync entity. Defaults to SyncId.
+		/// This can be overriden by setting the LookupFilter for a sync repository filter.
+		/// </summary>
+		/// <param name="syncId"> The sync key value for the sync entity. </param>
+		void SetEntitySyncId(Guid syncId);
 
 		/// <summary>
 		/// Converts the entity into an object to transmit.

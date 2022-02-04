@@ -72,11 +72,7 @@ namespace Speedy
 
 		#region Methods
 
-		/// <summary>
-		/// Returns a value indicating whether this instance and a specified Object represent the same type and value.
-		/// </summary>
-		/// <param name="obj"> The object to compare. </param>
-		/// <returns> </returns>
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			return obj switch

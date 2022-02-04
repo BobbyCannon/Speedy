@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Security.Authentication;
 using Speedy.Data;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Net;
@@ -212,7 +212,6 @@ namespace Speedy.Website.Data.Sync
 							case SyncObjectStatus.Added:
 							{
 								processUpdate();
-								entity.SyncId = update.SyncId == Guid.Empty ? Guid.NewGuid() : update.SyncId;
 								return true;
 							}
 							case SyncObjectStatus.Modified:
@@ -223,6 +222,11 @@ namespace Speedy.Website.Data.Sync
 							case SyncObjectStatus.Deleted:
 							default:
 							{
+								if (entity.Id == 0)
+								{
+									// Server is building a deleted item, so process all values.
+									processUpdate();
+								}
 								return true;
 							}
 						}
@@ -235,7 +239,6 @@ namespace Speedy.Website.Data.Sync
 							case SyncObjectStatus.Added:
 							{
 								processUpdate();
-								entity.SyncId = update.SyncId == Guid.Empty ? Guid.NewGuid() : update.SyncId;
 								return true;
 							}
 							case SyncObjectStatus.Modified:

@@ -85,7 +85,7 @@ namespace Speedy.Sync
 			{
 				case nameof(Count):
 				case nameof(Total):
-					OnPropertyChanged(nameof(Percent));
+					base.OnPropertyChanged(nameof(Percent));
 					break;
 			}
 
@@ -112,7 +112,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="update"> The update to be applied. </param>
 		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public void UpdateWith(SyncEngineState update, params string[] exclusions)
+		public override void UpdateWith(SyncEngineState update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)

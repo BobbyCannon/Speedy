@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.UnitTests.Factories;
 
 #endregion

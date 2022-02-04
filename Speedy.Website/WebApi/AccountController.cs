@@ -2,8 +2,8 @@
 
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Speedy.Data.SyncApi;
 using Speedy.Data.Updates;
-using Speedy.Data.WebApi;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 

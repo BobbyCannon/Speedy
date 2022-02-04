@@ -15,7 +15,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class Bindable : INotifyPropertyChanged, IBindable, IUpdatable
+	public abstract class Bindable : IBindable, IUpdatable
 	{
 		#region Fields
 
@@ -68,9 +68,7 @@ namespace Speedy
 			return Dispatcher;
 		}
 
-		/// <summary>
-		/// Return true if the change notifications are paused or otherwise false.
-		/// </summary>
+		/// <inheritdoc />
 		public virtual bool IsChangeNotificationsPaused()
 		{
 			return _pausePropertyChanged;
@@ -106,9 +104,7 @@ namespace Speedy
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		/// <summary>
-		/// Pause / Un-pause the property change notifications
-		/// </summary>
+		/// <inheritdoc />
 		public virtual void PausePropertyChangeNotifications(bool pause = true)
 		{
 			_pausePropertyChanged = pause;

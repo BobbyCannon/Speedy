@@ -423,7 +423,7 @@ DELETE FROM [Addresses];
 			using var test = LogListener.CreateSession(Guid.Empty, view.UseVerboseLogging ? EventLevel.Verbose : EventLevel.Informational);
 			test.EventWritten += (sender, args) => _worker.ReportProgress((int) MainViewWorkerStatus.Log, args.GetDetailedMessage());
 
-			using var engine = new SyncEngine(client, server, options);
+			using var engine = new SyncEngine(Guid.NewGuid(), client, server, options);
 			var watch = Stopwatch.StartNew();
 
 			engine.SyncStateChanged += (sender, state) =>

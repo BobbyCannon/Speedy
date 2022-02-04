@@ -2,7 +2,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -32,6 +32,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -41,20 +42,21 @@ namespace Speedy.UnitTests.Factories
 			var time = TimeService.UtcNow;
 			var result = new AddressEntity
 			{
-				City = Guid.NewGuid().ToString(),
+				City = "City",
 				Id = default,
-				Line1 = line1 ?? Guid.NewGuid().ToString(),
-				Line2 = Guid.NewGuid().ToString(),
+				Line1 = line1 ?? "Line1",
+				Line2 = "Line2",
 				LinkedAddressId = null,
 				LinkedAddressSyncId = null,
-				Postal = postal ?? Guid.NewGuid().ToString(),
-				State = state ?? Guid.NewGuid().ToString(),
+				Postal = postal ?? "12345",
+				State = state ?? "SC",
 				SyncId = Guid.NewGuid(),
 				CreatedOn = time,
 				ModifiedOn = time
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -68,6 +70,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -83,6 +86,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -100,6 +104,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -121,6 +126,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -140,6 +146,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -159,6 +166,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -172,6 +180,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}

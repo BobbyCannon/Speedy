@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using Newtonsoft.Json;
 using Speedy.Extensions;
 using Speedy.Serialization;
 
@@ -14,17 +15,17 @@ namespace Speedy.Sync
 	/// </summary>
 	public struct SyncObject : IComparable<SyncObject>, IEquatable<SyncObject>
 	{
-		#region Fields
-
-		private static readonly SerializerSettings _cachedSettings;
-
-		#endregion
-
 		#region Constructors
 
 		static SyncObject()
 		{
-			_cachedSettings = new SerializerSettings(false, false, false, true, true, false);
+			CachedSerializerSettings = new SerializerSettings(false, false, false, true, true)
+			{
+				JsonSettings =
+				{
+					PreserveReferencesHandling = PreserveReferencesHandling.None
+				}
+			};
 		}
 
 		#endregion
@@ -56,6 +57,11 @@ namespace Speedy.Sync
 		/// </summary>
 		public string TypeName { get; set; }
 
+		/// <summary>
+		/// Cached serializer settings.
+		/// </summary>
+		internal static SerializerSettings CachedSerializerSettings { get; }
+
 		#endregion
 
 		#region Methods
@@ -82,18 +88,18 @@ namespace Speedy.Sync
 				throw new InvalidDataException("The sync object has an invalid type name.");
 			}
 
-			return Data.FromJson(type, _cachedSettings) as ISyncEntity;
+			return Data.FromJson(type, CachedSerializerSettings) as ISyncEntity;
 		}
 
 		internal static SyncObject ToSyncObject<T>(SyncEntity<T> syncEntity)
 		{
-			var json = syncEntity.ToJson(_cachedSettings);
+			var json = syncEntity.ToJson(CachedSerializerSettings);
 
 			return new SyncObject
 			{
 				Data = json,
 				ModifiedOn = syncEntity.ModifiedOn,
-				SyncId = syncEntity.SyncId,
+				SyncId = syncEntity.GetEntitySyncId(),
 				TypeName = syncEntity.RealType.ToAssemblyName(),
 				Status = syncEntity.IsDeleted
 					? SyncObjectStatus.Deleted
@@ -108,7 +114,11 @@ namespace Speedy.Sync
 		/// <inheritdoc />
 		public bool Equals(SyncObject other)
 		{
-			return (Data == other.Data) && ModifiedOn.Equals(other.ModifiedOn) && (Status == other.Status) && SyncId.Equals(other.SyncId) && (TypeName == other.TypeName);
+			return (Data == other.Data)
+				&& ModifiedOn.Equals(other.ModifiedOn)
+				&& (Status == other.Status)
+				&& SyncId.Equals(other.SyncId)
+				&& (TypeName == other.TypeName);
 		}
 
 		/// <inheritdoc />

@@ -3,7 +3,9 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Speedy.Data.SyncApi;
 using Speedy.Data.Updates;
+using Speedy.Serialization.Converters;
 
 #endregion
 
@@ -17,7 +19,7 @@ namespace Speedy.UnitTests.Data.Updates
 		[TestMethod]
 		public void ExcludedPropertiesShouldNotBeAcceptedFromJson()
 		{
-			var data = "{ \"Id\": 1, \"Name\": \"Testing\", \"SyncId\": \"52BE31A3-EA29-45A3-90C6-2F80392BCFBC\" }";
+			var data = "{ \"Name\": \"Testing\", \"SyncId\": \"52BE31A3-EA29-45A3-90C6-2F80392BCFBC\" }";
 			var settings = new JsonSerializerSettings();
 			settings.Converters.Add(new PartialUpdateConverter());
 
@@ -25,7 +27,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
 
-			var actual = update.GetInstance();
+			var actual = (Account) update.GetInstance();
 			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Empty, actual.SyncId);

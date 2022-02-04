@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 
 #endregion
@@ -11,6 +11,15 @@ namespace Speedy.Data.Client
 {
 	public class ClientLogEvent : LogEvent
 	{
+		#region Constructors
+
+		public ClientLogEvent()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>

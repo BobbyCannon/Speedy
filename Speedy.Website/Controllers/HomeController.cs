@@ -41,9 +41,15 @@ namespace Speedy.Website.Controllers
 		}
 		
 		[AllowAnonymous]
-		public IActionResult Login()
+		public IActionResult LogIn()
 		{
 			return View();
+		}
+		
+		[AllowAnonymous]
+		public IActionResult LogOut()
+		{
+			return RedirectToAction(nameof(LogIn));
 		}
 
 		[AllowAnonymous]

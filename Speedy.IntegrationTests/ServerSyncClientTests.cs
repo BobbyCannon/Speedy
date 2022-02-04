@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Client.Data;
 using Speedy.Data;
 using Speedy.Data.Client;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;

@@ -30,10 +30,10 @@ namespace Speedy.EntityFramework
 		public static void ConfigureModelViaMapping(this Database database)
 		{
 			var methods = database.GetCachedMethods(BindingFlags.Instance | BindingFlags.Public);
-			var databasePropertyMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.Property) && x.ReturnType.Name == "PropertyConfiguration`2")
+			var databasePropertyMethod = methods.FirstOrDefault(x => x.IsGenericMethod && (x.Name == nameof(Database.Property)) && (x.ReturnType.Name == "PropertyConfiguration`2"))
 				?? throw new SpeedyException($"Failed to find the '{nameof(Database.Property)}' method on the '{nameof(Database)}' class.");
 
-			var databaseHasRequiredMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.HasRequired))
+			var databaseHasRequiredMethod = methods.FirstOrDefault(x => x.IsGenericMethod && (x.Name == nameof(Database.HasRequired)))
 				?? throw new SpeedyException($"Failed to find the '{nameof(Database.HasRequired)}' method on the '{nameof(Database)}' class.");
 
 			var assembly = database.GetMappingAssembly();

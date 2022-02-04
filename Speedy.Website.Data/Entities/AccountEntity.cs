@@ -24,6 +24,7 @@ namespace Speedy.Website.Data.Entities
 		{
 			Groups = new List<GroupMemberEntity>();
 			Pets = new List<PetEntity>();
+			ResetChangeTracking();
 		}
 
 		#endregion
@@ -99,14 +100,16 @@ namespace Speedy.Website.Data.Entities
 		/// <returns> The array of roles. </returns>
 		public static IEnumerable<string> SplitRoles(string roles)
 		{
-			return roles?.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+			return roles?.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries) 
+				?? Array.Empty<string>();
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
 			return base.GetDefaultExclusionsForIncomingSync()
 				.Append(nameof(Address), nameof(AddressId), nameof(Groups),
-					nameof(LastLoginDate), nameof(PasswordHash), nameof(Pets), nameof(Roles)
+					nameof(LastLoginDate), nameof(PasswordHash), nameof(Pets),
+					nameof(Roles)
 				);
 		}
 
@@ -115,8 +118,8 @@ namespace Speedy.Website.Data.Entities
 			// Update defaults are the same as incoming sync defaults
 			var response = base.GetDefaultExclusionsForOutgoingSync()
 				.Append(GetDefaultExclusionsForIncomingSync());
-
 			response.Remove(nameof(LastLoginDate));
+			response.Remove(nameof(Roles));
 			return response;
 		}
 

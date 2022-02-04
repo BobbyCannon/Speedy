@@ -18,7 +18,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	/// <typeparam name="T"> The type of the entity key. </typeparam>
+	/// <typeparam name="T"> The type of the entity primary ID. </typeparam>
 	public abstract class Entity<T> : Entity
 	{
 		#region Properties

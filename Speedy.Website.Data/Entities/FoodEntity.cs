@@ -17,6 +17,7 @@ namespace Speedy.Website.Data.Entities
 		{
 			ChildRelationships = new List<FoodRelationshipEntity>();
 			ParentRelationships = new List<FoodRelationshipEntity>();
+			ResetChangeTracking();
 		}
 
 		#endregion

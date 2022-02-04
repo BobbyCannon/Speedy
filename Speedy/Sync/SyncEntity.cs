@@ -12,6 +12,7 @@ namespace Speedy.Sync
 	/// <summary>
 	/// Represent an entity that can be synced.
 	/// </summary>
+	/// <typeparam name="T"> The type of the entity primary ID. </typeparam>
 	public abstract class SyncEntity<T> : Entity<T>, ISyncEntity
 	{
 		#region Constructors
@@ -53,7 +54,7 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public object GetEntitySyncId()
+		public Guid GetEntitySyncId()
 		{
 			return SyncId;
 		}
@@ -74,6 +75,12 @@ namespace Speedy.Sync
 		public bool IsPropertyExcludedForSyncUpdate(string propertyName)
 		{
 			return ExclusionCacheForSyncUpdate[RealType].Contains(propertyName);
+		}
+
+		/// <inheritdoc />
+		public void SetEntitySyncId(Guid syncId)
+		{
+			SyncId = syncId;
 		}
 
 		/// <inheritdoc />
@@ -99,10 +106,11 @@ namespace Speedy.Sync
 				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && (entityRelationshipSyncIdProperty != null))
 				{
 					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
-					if (otherEntitySyncId != syncEntity.SyncId)
+					var syncEntitySyncId = syncEntity.GetEntitySyncId();
+					if (otherEntitySyncId != syncEntitySyncId)
 					{
 						// resets entitySyncId to entity.SyncId if it does not match
-						entityRelationshipSyncIdProperty.SetValue(this, syncEntity.SyncId, null);
+						entityRelationshipSyncIdProperty.SetValue(this, syncEntitySyncId, null);
 					}
 				}
 

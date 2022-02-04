@@ -4,13 +4,22 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.Data.WebApi
+namespace Speedy.Data.SyncApi
 {
 	/// <summary>
 	/// Represents the public address model.
 	/// </summary>
 	public class Address : SyncModel<long>
 	{
+		#region Constructors
+
+		public Address()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>

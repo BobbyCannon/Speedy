@@ -17,6 +17,7 @@ namespace Speedy.Website.Data.Entities
 		public TrackerPathConfigurationEntity()
 		{
 			Paths = new List<TrackerPathEntity>();
+			ResetChangeTracking();
 		}
 
 		#endregion

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using Speedy.Net;
+using Speedy.Serialization;
 using Speedy.Sync;
 
 #endregion
@@ -49,7 +50,7 @@ namespace Speedy.UnitTests
 
 		public Task<SyncResults<TestSyncType>> SyncAccountsAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
-			return ProcessAsync(TestSyncType.Accounts, options => DoTestDelay(testDelay), waitFor, postAction);
+			return ProcessAsync(TestSyncType.Accounts, options => options.Values.Add("TestDelay", testDelay.ToJson()), waitFor, postAction);
 		}
 
 		public SyncResults<TestSyncType> SyncAddresses(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
@@ -59,12 +60,12 @@ namespace Speedy.UnitTests
 
 		public Task<SyncResults<TestSyncType>> SyncAddressesAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
-			return ProcessAsync(TestSyncType.Addresses, options => DoTestDelay(testDelay), waitFor, postAction);
+			return ProcessAsync(TestSyncType.Addresses, options => options.Values.Add("TestDelay", testDelay.ToJson()), waitFor, postAction);
 		}
 
 		public Task<SyncResults<TestSyncType>> SyncAsync(TimeSpan? testDelay = null, TimeSpan? waitFor = null, Action<SyncResults<TestSyncType>> postAction = null)
 		{
-			return ProcessAsync(TestSyncType.All, options => DoTestDelay(testDelay), waitFor, postAction);
+			return ProcessAsync(TestSyncType.All, options => options.Values.Add("TestDelay", testDelay.ToJson()), waitFor, postAction);
 		}
 
 		protected override ISyncClient GetSyncClientForClient()
@@ -73,6 +74,7 @@ namespace Speedy.UnitTests
 			var client = new Mock<ISyncClient>();
 			var statistics = new SyncStatistics();
 
+			client.Setup(x => x.Name).Returns(() => "Client");
 			client.Setup(x => x.Statistics).Returns(() => statistics);
 
 			client.Setup(x => x.BeginSync(It.IsAny<Guid>(), It.IsAny<SyncOptions>()))
@@ -100,6 +102,7 @@ namespace Speedy.UnitTests
 			var client = new Mock<ISyncClient>();
 			var statistics = new SyncStatistics();
 
+			client.Setup(x => x.Name).Returns(() => "Server");
 			client.Setup(x => x.Statistics).Returns(() => statistics);
 
 			client.Setup(x => x.BeginSync(It.IsAny<Guid>(), It.IsAny<SyncOptions>()))
@@ -121,20 +124,29 @@ namespace Speedy.UnitTests
 			return client.Object;
 		}
 
-		private void DoTestDelay(TimeSpan? testDelay)
+		protected override void OnSyncRunning(SyncResults<TestSyncType> results)
 		{
-			if (testDelay == null)
+			if (results.Options.Values.TryGetValue("TestDelay", out var delayString)
+				&& TimeSpan.TryParse(delayString, out var delay))
 			{
-				return;
+				DoTestDelay(delay);
 			}
 
+			base.OnSyncRunning(results);
+		}
+
+		private void DoTestDelay(TimeSpan? testDelay)
+		{
+			var timeout = testDelay ?? TimeSpan.FromMilliseconds(100);
 			var watch = Stopwatch.StartNew();
 
-			while ((watch.Elapsed <= testDelay.Value) && !IsCancellationPending)
+			while ((watch.Elapsed <= timeout) && !IsCancellationPending)
 			{
 				// Delay while getting options
 				Thread.Sleep(10);
 			}
+
+			Thread.Sleep(100);
 		}
 
 		#endregion
