@@ -18,7 +18,7 @@ namespace Speedy.Configuration
 	{
 		#region Fields
 
-		private readonly string _combinedPropertyNames;
+		private string _combinedPropertyNames;
 		private bool _isUnique;
 		private readonly string _name;
 		private readonly List<IPropertyConfiguration> _properties;
@@ -58,6 +58,7 @@ namespace Speedy.Configuration
 		public void AddProperty(IPropertyConfiguration property)
 		{
 			_properties.Add(property);
+			_combinedPropertyNames = string.Join("", _properties.Select(x => x.MemberName));
 		}
 
 		/// <summary>
