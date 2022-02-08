@@ -132,6 +132,20 @@ namespace Speedy.UnitTests
 		/// <param name="membersToIgnore"> Optional members to ignore. </param>
 		public static void AreEqual<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
 		{
+			var result = Compare(expected, actual, includeChildren, membersToIgnore);
+			Assert.IsTrue(result.AreEqual, result.DifferencesString);
+		}
+		
+		/// <summary>
+		/// Compares two objects to see if they are equal.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object. </typeparam>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The item that is to be tested. </param>
+		/// <param name="includeChildren"> True to include child complex types. </param>
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static ComparisonResult Compare<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
+		{
 			var compareObjects = new CompareLogic
 			{
 				Config =
@@ -148,8 +162,7 @@ namespace Speedy.UnitTests
 				compareObjects.Config.MembersToIgnore = membersToIgnore.ToList();
 			}
 
-			var result = compareObjects.Compare(expected, actual);
-			Assert.IsTrue(result.AreEqual, result.DifferencesString);
+			return compareObjects.Compare(expected, actual);
 		}
 
 		/// <summary>

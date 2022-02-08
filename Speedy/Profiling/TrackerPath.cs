@@ -200,14 +200,13 @@ namespace Speedy.Profiling
 		/// <param name="disposing"> True if disposing and false if otherwise. </param>
 		protected virtual void Dispose(bool disposing)
 		{
-			Disposed?.Invoke(this);
-
 			if (!disposing)
 			{
 				return;
 			}
 
 			Complete();
+			Disposed?.Invoke(this);
 		}
 
 		/// <summary>
