@@ -6,8 +6,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
@@ -156,8 +158,20 @@ namespace Speedy.Sync
 
 				UpdateSyncState(status: IsCancellationPending ? SyncEngineStatus.Cancelled : SyncEngineStatus.Completed);
 			}
+			catch (WebClientException ex)
+			{
+				_syncIssues.Add(new SyncIssue
+				{
+					IssueType = ex.Code == HttpStatusCode.Unauthorized ? SyncIssueType.Unauthorized : SyncIssueType.Unknown,
+					Message = ex.Message
+				});
+
+				UpdateSyncState($"{TimeService.UtcNow:hh:mm:ss tt} {ex.Message}", SyncEngineStatus.Failed);
+			}
 			catch (Exception ex)
 			{
+				_syncIssues.Add(new SyncIssue { IssueType = SyncIssueType.Unknown, Message = ex.Message });
+
 				UpdateSyncState($"{TimeService.UtcNow:hh:mm:ss tt} {ex.Message}", SyncEngineStatus.Failed);
 			}
 			finally

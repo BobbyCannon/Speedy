@@ -2509,6 +2509,14 @@
             <param name="type"> The type to be tested. </param>
             <returns> True if the type is nullable otherwise false. </returns>
         </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.IsSubClassOfGeneric(System.Type,System.Type)">
+            <summary>
+            Determines if the child is a subclass of the parent.
+            </summary>
+            <param name="child"> The type to be tested. </param>
+            <param name="parent"> The type of the parent. </param>
+            <returns> True if the child implements the parent otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Extensions.UpdatableExtensions">
             <summary>
             Extensions for the IUpdatable interface
@@ -9555,6 +9563,11 @@
         <member name="F:Speedy.Sync.SyncIssueType.ClientException">
             <summary>
             There was an exception with one of the sync clients.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncIssueType.Unauthorized">
+            <summary>
+            The sync client was not authorized to access the server.
             </summary>
         </member>
         <member name="T:Speedy.Sync.SyncManager`1">

@@ -40,6 +40,11 @@
 		/// <summary>
 		/// There was an exception with one of the sync clients.
 		/// </summary>
-		ClientException = 6
+		ClientException = 6,
+
+		/// <summary>
+		/// The sync client was not authorized to access the server.
+		/// </summary>
+		Unauthorized = 7
 	}
 }

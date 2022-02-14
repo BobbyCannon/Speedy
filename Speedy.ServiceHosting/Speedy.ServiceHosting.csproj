@@ -23,9 +23,9 @@
 		<PackageId>Speedy.ServiceHosting</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>8.3.3.0</AssemblyVersion>
-		<FileVersion>8.3.3.0</FileVersion>
-		<Version>8.3.3.0</Version>
+		<AssemblyVersion>8.3.4.0</AssemblyVersion>
+		<FileVersion>8.3.4.0</FileVersion>
+		<Version>8.3.4.0</Version>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

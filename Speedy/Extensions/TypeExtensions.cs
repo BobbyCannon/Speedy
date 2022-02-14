@@ -57,6 +57,12 @@ namespace Speedy.Extensions
 				|| (Nullable.GetUnderlyingType(type) != null);
 		}
 
+		/// <summary>
+		/// Determines if the child is a subclass of the parent.
+		/// </summary>
+		/// <param name="child"> The type to be tested. </param>
+		/// <param name="parent"> The type of the parent. </param>
+		/// <returns> True if the child implements the parent otherwise false. </returns>
 		public static bool IsSubClassOfGeneric(this Type child, Type parent)
 		{
 			if (child == parent)

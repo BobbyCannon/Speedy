@@ -471,14 +471,17 @@ namespace Speedy.Sync
 				}
 
 				results.SyncIssues.AddRange(_engine.SyncIssues);
-				results.SyncSuccessful = !IsCancellationPending && !results.SyncIssues.Any();
 				results.SyncCancelled = IsCancellationPending;
-				results.SyncCompleted = true;
+				results.SyncCompleted = _engine.State.Status == SyncEngineStatus.Completed;
+				results.SyncSuccessful = results.SyncCompleted
+					&& !results.SyncCancelled
+					&& !results.SyncIssues.Any();
 			}
 			catch (WebClientException ex)
 			{
 				results.SyncSuccessful = false;
 				results.SyncCancelled = false;
+				results.SyncCompleted = false;
 				results.SyncIssues.Add(new SyncIssue
 				{
 					Id = Guid.Empty,
@@ -507,6 +510,7 @@ namespace Speedy.Sync
 			{
 				results.SyncSuccessful = false;
 				results.SyncCancelled = false;
+				results.SyncCompleted = false;
 				results.SyncIssues.Add(new SyncIssue
 				{
 					Id = Guid.Empty,
