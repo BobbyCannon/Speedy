@@ -26,12 +26,12 @@ namespace Speedy.Serialization
 
 		static Serializer()
 		{
-			_settingsForRawSerialization = new SerializerSettings(false, false, false, false, false, false)
+			_settingsForRawSerialization = new SerializerSettings(false)
 			{
 				JsonSettings = { PreserveReferencesHandling = PreserveReferencesHandling.None }
 			};
 			_settingsForDeserialization = new SerializerSettings(false);
-			_settingsForSerialization = new SerializerSettings(false, false, false, false, false, false);
+			_settingsForSerialization = new SerializerSettings(false);
 			_settingsForDeepClone1 = new SerializerSettings(ignoreVirtuals: true);
 			_settingsForDeepClone2 = new SerializerSettings(ignoreVirtuals: false);
 		}

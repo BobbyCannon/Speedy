@@ -45,40 +45,18 @@ namespace Speedy
 		/// <returns> The new key to be used in. </returns>
 		public virtual T NewId(ref T currentKey)
 		{
-			switch (currentKey)
+			currentKey = currentKey switch
 			{
-				case sbyte sbKey:
-					currentKey = (T) (object) (sbKey + 1);
-					break;
-
-				case byte bKey:
-					currentKey = (T) (object) (bKey + 1);
-					break;
-
-				case short sKey:
-					currentKey = (T) (object) (sKey + 1);
-					break;
-
-				case ushort usKey:
-					currentKey = (T) (object) (usKey + 1);
-					break;
-
-				case int iKey:
-					currentKey = (T) (object) (iKey + 1);
-					break;
-
-				case uint uiKey:
-					currentKey = (T) (object) (uiKey + 1);
-					break;
-
-				case long lKey:
-					currentKey = (T) (object) (lKey + 1);
-					break;
-
-				case ulong ulKey:
-					currentKey = (T) (object) (ulKey + 1);
-					break;
-			}
+				sbyte sbKey => (T) (object) (sbKey + 1),
+				byte bKey => (T) (object) (bKey + 1),
+				short sKey => (T) (object) (sKey + 1),
+				ushort usKey => (T) (object) (usKey + 1),
+				int iKey => (T) (object) (iKey + 1),
+				uint uiKey => (T) (object) (uiKey + 1),
+				long lKey => (T) (object) (lKey + 1),
+				ulong ulKey => (T) (object) (ulKey + 1),
+				_ => currentKey
+			};
 
 			return currentKey;
 		}
@@ -143,11 +121,6 @@ namespace Speedy
 		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionCacheForChangeTracking;
 
 		/// <summary>
-		/// Represents if the entity has had changes or not.
-		/// </summary>
-		private bool _hasChanges;
-
-		/// <summary>
 		/// Cached version of the "real" type, meaning not EF proxy but rather root type
 		/// </summary>
 		private Type _realType;
@@ -161,6 +134,8 @@ namespace Speedy
 		/// </summary>
 		protected Entity()
 		{
+			ChangedProperties = new HashSet<string>();
+
 			_exclusionCacheForChangeTracking.GetOrAdd(RealType, x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
 		}
 
@@ -179,6 +154,11 @@ namespace Speedy
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// The properties that has changed since last <see cref="ResetChangeTracking" /> event.
+		/// </summary>
+		protected HashSet<string> ChangedProperties { get; }
 
 		/// <summary>
 		/// All hash sets for types, this is for optimization
@@ -236,7 +216,7 @@ namespace Speedy
 		/// </summary>
 		public virtual bool HasChanges()
 		{
-			return _hasChanges;
+			return ChangedProperties.Count > 0;
 		}
 
 		/// <inheritdoc />
@@ -252,11 +232,13 @@ namespace Speedy
 		/// Notify that a property has changed
 		/// </summary>
 		/// <param name="propertyName"> The name of the property that changed. </param>
-		public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		public virtual void OnPropertyChanged(string propertyName)
 		{
-			if (!_exclusionCacheForChangeTracking[RealType].Contains(propertyName))
+			if ((propertyName != null)
+					&& !_exclusionCacheForChangeTracking[RealType].Contains(propertyName)
+					&& !ChangedProperties.Contains(propertyName))
 			{
-				_hasChanges = true;
+				ChangedProperties.Add(propertyName);
 			}
 
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -265,9 +247,9 @@ namespace Speedy
 		/// <summary>
 		/// Reset the change tracking flag.
 		/// </summary>
-		public void ResetChangeTracking()
+		public virtual void ResetChangeTracking()
 		{
-			_hasChanges = false;
+			ChangedProperties.Clear();
 		}
 
 		/// <inheritdoc />

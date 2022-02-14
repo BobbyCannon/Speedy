@@ -139,7 +139,8 @@ namespace Speedy.Storage
 				return Cache.Select(x => x.Entity).AsQueryable().FirstOrDefault(srf.LookupFilter.Invoke(entity));
 			}
 
-			var state = Cache.FirstOrDefault(x => x.Entity.SyncId == syncEntity.SyncId);
+			var syncId = syncEntity.GetEntitySyncId();
+			var state = Cache.FirstOrDefault(x => Equals(x.Entity.SyncId, syncId));
 			return state?.Entity;
 		}
 

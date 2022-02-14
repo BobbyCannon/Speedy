@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,7 +19,7 @@ namespace Speedy.Net
 		/// <summary>
 		/// Instantiates an instance of a request result.
 		/// </summary>
-		public ServiceResult() : this(new T[0])
+		public ServiceResult() : this(Array.Empty<T>())
 		{
 		}
 

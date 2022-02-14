@@ -105,20 +105,24 @@ namespace Speedy.EntityFramework
 				switch (entry.State)
 				{
 					case EntityState.Modified:
+					{
 						entry.CurrentValues.SetValues(entry.OriginalValues);
 						entry.State = EntityState.Unchanged;
 						count++;
 						break;
-
+					}
 					case EntityState.Deleted:
+					{
 						entry.State = EntityState.Unchanged;
 						count++;
 						break;
-
+					}
 					case EntityState.Added:
+					{
 						entry.State = EntityState.Detached;
 						count++;
 						break;
+					}
 				}
 			}
 
@@ -319,11 +323,14 @@ namespace Speedy.EntityFramework
 			switch (exception)
 			{
 				case ValidationException ve:
+				{
 					throw new Exceptions.ValidationException(ve.Message);
-
+				}
 				case DbUpdateException ue:
+				{
 					// Wrap in a Speedy exception for consistency
 					throw new UpdateException(ue.Message, ue);
+				}
 			}
 		}
 

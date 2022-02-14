@@ -1174,11 +1174,6 @@
             All hash sets for types, this is for optimization
             </summary>
         </member>
-        <member name="F:Speedy.Entity._hasChanges">
-            <summary>
-            Represents if the entity has had changes or not.
-            </summary>
-        </member>
         <member name="F:Speedy.Entity._realType">
             <summary>
             Cached version of the "real" type, meaning not EF proxy but rather root type
@@ -1192,6 +1187,11 @@
         <member name="M:Speedy.Entity.#cctor">
             <summary>
             Instantiates an entity
+            </summary>
+        </member>
+        <member name="P:Speedy.Entity.ChangedProperties">
+            <summary>
+            The properties that has changed since last <see cref="M:Speedy.Entity.ResetChangeTracking" /> event.
             </summary>
         </member>
         <member name="P:Speedy.Entity.ExclusionCacheForIncomingSync">
@@ -2493,6 +2493,14 @@
             <summary>
             Extensions for the Type object.
             </summary>
+        </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.IsEnumerable(System.Type)">
+            <summary>
+            Determine if the provided type is an IEnumerable type.
+            </summary>
+            <param name="type"> The type to be checked. </param>
+            <returns> Returns true if the type is an IEnumerable false otherwise. </returns>
+            <remarks> Ignores the following types "string". </remarks>
         </member>
         <member name="M:Speedy.Extensions.TypeExtensions.IsNullable(System.Type)">
             <summary>

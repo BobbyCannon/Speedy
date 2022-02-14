@@ -78,7 +78,7 @@ namespace Speedy.EntityFramework
 		/// <inheritdoc />
 		public ISyncEntity Read(Guid syncId)
 		{
-			return Set.FirstOrDefault(x => x.SyncId == syncId);
+			return Set.FirstOrDefault(x => Equals(x.SyncId, syncId));
 		}
 
 		/// <inheritdoc />

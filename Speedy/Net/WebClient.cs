@@ -196,8 +196,9 @@ namespace Speedy.Net
 		/// <returns> The response from the server. </returns>
 		public virtual HttpResponseMessage Get(string uri, TimeSpan? timeout = null)
 		{
-			using var task = _httpClient.GetAsync(uri);
-			return task.AwaitResults(timeout ?? Timeout);
+			return _httpClient
+				.GetAsync(uri)
+				.AwaitResults(timeout ?? Timeout);
 		}
 
 		/// <inheritdoc />
@@ -295,8 +296,10 @@ namespace Speedy.Net
 				throw new WebClientException(result);
 			}
 
-			var task = result.Content.ReadAsStringAsync();
-			return task.AwaitResults(Timeout).FromJson<TResult>();
+			return result.Content
+				.ReadAsStringAsync()
+				.AwaitResults(Timeout)
+				.FromJson<TResult>();
 		}
 
 		/// <summary>
@@ -355,25 +358,28 @@ namespace Speedy.Net
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json-patch+json");
 			var method = new HttpMethod("PATCH");
-			using var request = new HttpRequestMessage(method, uri) { Content = objectContent };
-			using var task = _httpClient.SendAsync(request);
-			return task.AwaitResults(timeout ?? Timeout);
+			var request = new HttpRequestMessage(method, uri) { Content = objectContent };
+			return _httpClient
+				.SendAsync(request)
+				.AwaitResults(timeout ?? Timeout);
 		}
 
 		private HttpResponseMessage InternalPost<T>(string uri, T content, TimeSpan? timeout = null)
 		{
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
-			using var task = _httpClient.PostAsync(uri, objectContent);
-			return task.AwaitResults(timeout ?? Timeout);
+			return _httpClient
+				.PostAsync(uri, objectContent)
+				.AwaitResults(timeout ?? Timeout);
 		}
 
 		private HttpResponseMessage InternalPut<T>(string uri, T content, TimeSpan? timeout = null)
 		{
 			var json = GetJson(content);
 			using var objectContent = new StringContent(json, Encoding.UTF8, "application/json");
-			using var task = _httpClient.PutAsync(uri, objectContent);
-			return task.AwaitResults(timeout ?? Timeout);
+			return _httpClient
+				.PutAsync(uri, objectContent)
+				.AwaitResults(timeout ?? Timeout);
 		}
 
 		private void UpdateCredentials()
