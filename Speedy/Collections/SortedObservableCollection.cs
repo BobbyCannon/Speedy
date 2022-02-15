@@ -84,10 +84,7 @@ namespace Speedy.Collections
 						var index = IndexOf(sorted[i]);
 						if (index != i)
 						{
-							var item = this[index];
-							RemoveAt(index);
-							Insert(i, item);
-							//Move(index, i);
+							Move(index, i);
 						}
 					}
 				}
@@ -104,7 +101,10 @@ namespace Speedy.Collections
 		{
 			base.OnCollectionChanged(e);
 
-			if ((OrderBy == null) || (e.Action == NotifyCollectionChangedAction.Move) || (e.Action == NotifyCollectionChangedAction.Remove) || (e.Action == NotifyCollectionChangedAction.Reset))
+			if ((OrderBy == null)
+				|| (e.Action == NotifyCollectionChangedAction.Move)
+				|| (e.Action == NotifyCollectionChangedAction.Remove)
+				|| (e.Action == NotifyCollectionChangedAction.Reset))
 			{
 				// No need to sort on these actions
 				return;

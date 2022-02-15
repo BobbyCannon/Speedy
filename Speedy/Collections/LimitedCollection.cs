@@ -14,7 +14,7 @@ namespace Speedy.Collections
 	{
 		#region Fields
 
-		private readonly object _lock;
+		private readonly object _insertLock;
 
 		#endregion
 
@@ -33,7 +33,7 @@ namespace Speedy.Collections
 		/// <param name="limit"> The maximum number of items for this collection. </param>
 		public LimitedCollection(int limit)
 		{
-			_lock = new object();
+			_insertLock = new object();
 
 			Limit = limit;
 		}
@@ -54,7 +54,7 @@ namespace Speedy.Collections
 		/// <inheritdoc />
 		protected override void InsertItem(int index, T item)
 		{
-			lock (_lock)
+			lock (_insertLock)
 			{
 				if (index > Count)
 				{

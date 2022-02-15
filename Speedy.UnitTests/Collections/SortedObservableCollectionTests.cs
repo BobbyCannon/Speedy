@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Collections;
 using Speedy.Data.Client;
@@ -33,19 +34,16 @@ namespace Speedy.UnitTests.Collections
 			collection.Add(new ClientAccount { IsDeleted = true, CreatedOn = new DateTime(2019, 8, 28, 9, 36, 43) });
 			collection.Add(new ClientAccount { IsDeleted = false, CreatedOn = new DateTime(2019, 8, 28, 9, 36, 43) });
 
-			Assert.AreEqual(4, actual.Count);
+			Assert.AreEqual(3, actual.Count);
 			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[0].Action);
 			Assert.AreEqual(0, actual[0].NewStartingIndex);
 			Assert.AreEqual(-1, actual[0].OldStartingIndex);
 			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[1].Action);
 			Assert.AreEqual(1, actual[1].NewStartingIndex);
 			Assert.AreEqual(-1, actual[1].OldStartingIndex);
-			Assert.AreEqual(NotifyCollectionChangedAction.Remove, actual[2].Action);
-			Assert.AreEqual(-1, actual[2].NewStartingIndex);
+			Assert.AreEqual(NotifyCollectionChangedAction.Move, actual[2].Action);
+			Assert.AreEqual(0, actual[2].NewStartingIndex);
 			Assert.AreEqual(1, actual[2].OldStartingIndex);
-			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[3].Action);
-			Assert.AreEqual(0, actual[3].NewStartingIndex);
-			Assert.AreEqual(-1, actual[3].OldStartingIndex);
 		}
 
 		[TestMethod]
@@ -68,6 +66,35 @@ namespace Speedy.UnitTests.Collections
 			collection.Add(account1);
 			collection.Add(account2);
 			Assert.AreEqual(1, collection.Count);
+		}
+
+		[TestMethod]
+		public void LimitedCollectionShouldSortFirstThenLimit()
+		{
+			var collection = new SortedObservableCollection<int>(new OrderBy<int>(x => x)) { Limit = 3 };
+			var actual = new List<NotifyCollectionChangedEventArgs>();
+			collection.CollectionChanged += (sender, args) => actual.Add(args);
+
+			collection.Add(5);
+			collection.Add(1);
+			collection.Add(2);
+
+			var expected = new[] { 1, 2, 5 };
+			TestHelper.AreEqual(expected, collection.ToArray());
+
+			expected = new[] { 2, 3, 5 };
+			collection.Add(3);
+			TestHelper.AreEqual(expected, collection.ToArray());
+
+			Assert.AreEqual(8, actual.Count);
+			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[0].Action); // Add 5
+			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[1].Action); // Add 1
+			Assert.AreEqual(NotifyCollectionChangedAction.Move, actual[2].Action); // Move 1
+			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[3].Action); // Add 2
+			Assert.AreEqual(NotifyCollectionChangedAction.Move, actual[4].Action); // Move 2
+			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[5].Action); // Add 3
+			Assert.AreEqual(NotifyCollectionChangedAction.Move, actual[6].Action); // Move 3
+			Assert.AreEqual(NotifyCollectionChangedAction.Remove, actual[7].Action); // Remove 1
 		}
 
 		[TestMethod]
@@ -101,9 +128,8 @@ namespace Speedy.UnitTests.Collections
 			collection.Sort();
 
 			// Should be a single move event
-			Assert.AreEqual(2, actual.Count);
+			Assert.AreEqual(1, actual.Count);
 			Assert.AreEqual(2, collection[0].Id);
-			Assert.AreEqual(1, collection[1].Id);
 		}
 
 		[TestMethod]
@@ -131,7 +157,7 @@ namespace Speedy.UnitTests.Collections
 
 			Console.WriteLine(string.Join("", collection.SelectMany(x => x.Name)));
 
-			Assert.AreEqual(6, actual.Count);
+			Assert.AreEqual(3, actual.Count);
 		}
 
 		[TestMethod]
@@ -170,7 +196,7 @@ namespace Speedy.UnitTests.Collections
 			Console.WriteLine(displayNames);
 			Console.WriteLine(ids);
 
-			Assert.AreEqual(8, actual.Count);
+			Assert.AreEqual(4, actual.Count);
 			Assert.AreEqual("ab2b3b4c", displayNames);
 			Assert.AreEqual("12340", ids);
 		}
@@ -184,6 +210,18 @@ namespace Speedy.UnitTests.Collections
 			collection.Add(account1);
 			collection.Add(account2);
 			Assert.AreEqual(2, collection.Count);
+		}
+
+		[TestMethod]
+		public void ThreadSafeSortedCollection()
+		{
+			var count = 1000;
+			var collection = new SortedObservableCollection<int>(new OrderBy<int>(x => x)) { Limit = count };
+
+			Parallel.For(0, count, (x, s) => { collection.Add(x); });
+
+			var expected = Enumerable.Range(0, count).ToArray();
+			TestHelper.AreEqual(expected, collection.ToArray());
 		}
 
 		#endregion

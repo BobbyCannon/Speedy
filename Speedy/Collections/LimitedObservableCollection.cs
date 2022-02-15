@@ -8,7 +8,7 @@
 	{
 		#region Fields
 
-		private readonly object _lock;
+		private readonly object _insertLock;
 
 		#endregion
 
@@ -27,9 +27,6 @@
 		/// <param name="dispatcher"> The dispatcher to update with. </param>
 		public LimitedObservableCollection(IDispatcher dispatcher) : this(int.MaxValue, dispatcher)
 		{
-			_lock = new object();
-
-			Limit = int.MaxValue;
 		}
 
 		/// <summary>
@@ -37,9 +34,9 @@
 		/// </summary>
 		/// <param name="limit"> The maximum number of items for this collection. </param>
 		/// <param name="dispatcher"> The dispatcher to update with. </param>
-		public LimitedObservableCollection(int limit, IDispatcher dispatcher) : base(dispatcher)
+		public LimitedObservableCollection(int limit, IDispatcher dispatcher = null) : base(dispatcher)
 		{
-			_lock = new object();
+			_insertLock = new object();
 
 			Limit = limit;
 		}
@@ -66,7 +63,7 @@
 				return;
 			}
 
-			lock (_lock)
+			lock (_insertLock)
 			{
 				if (index > Count)
 				{
