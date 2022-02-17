@@ -39,7 +39,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(null, actual.OptionValues);
 			Assert.AreEqual(null, actual.Order);
 
-			actual.Cleanup(10);
+			actual.Cleanup();
 
 			var expected = new PagedRequest
 			{

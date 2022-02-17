@@ -100,7 +100,7 @@ namespace Speedy.Website.Data.Entities
 		/// <returns> The array of roles. </returns>
 		public static IEnumerable<string> SplitRoles(string roles)
 		{
-			return roles?.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries) 
+			return roles?.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
 				?? Array.Empty<string>();
 		}
 

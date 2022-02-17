@@ -12,11 +12,11 @@ using Speedy.UnitTests;
 
 namespace Speedy.IntegrationTests.Entities
 {
-	public class BaseEntityTests : BaseTests
+	public class BaseEntityTests<T> : BaseModelTests<T> where T : ISyncEntity, new()
 	{
 		#region Methods
 
-		protected void ValidateExclusions<T>(SyncEntity<T> entity, Dictionary<string, (bool incoming, bool outgoing, bool syncUpdate, bool changeTracking)> expected, bool printOutput)
+		protected void ValidateExclusions(ISyncEntity entity, Dictionary<string, (bool incoming, bool outgoing, bool syncUpdate, bool changeTracking)> expected, bool printOutput)
 		{
 			var properties = entity.GetType().GetProperties();
 			var builder = new StringBuilder();

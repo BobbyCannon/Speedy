@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Storage;
@@ -235,8 +234,8 @@ namespace Speedy
 		public virtual void OnPropertyChanged(string propertyName)
 		{
 			if ((propertyName != null)
-					&& !_exclusionCacheForChangeTracking[RealType].Contains(propertyName)
-					&& !ChangedProperties.Contains(propertyName))
+				&& !_exclusionCacheForChangeTracking[RealType].Contains(propertyName)
+				&& !ChangedProperties.Contains(propertyName))
 			{
 				ChangedProperties.Add(propertyName);
 			}

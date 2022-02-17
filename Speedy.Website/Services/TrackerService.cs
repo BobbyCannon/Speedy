@@ -142,7 +142,7 @@ namespace Speedy.Website.Services
 				_cache.Set(item.Name, configuration, TimeService.UtcNow.Add(_timeout));
 			}
 
-			if (entity.Configuration == null && entity.ConfigurationId == 0)
+			if ((entity.Configuration == null) && (entity.ConfigurationId == 0))
 			{
 				entity.ConfigurationId = configuration.Id;
 			}
@@ -154,7 +154,7 @@ namespace Speedy.Website.Services
 
 				if (configurationProperty.Key == null)
 				{
-					configurationProperty = configurationValues.FirstOrDefault(x => x.Value == null || x.Value.Length <= 0);
+					configurationProperty = configurationValues.FirstOrDefault(x => (x.Value == null) || (x.Value.Length <= 0));
 					if (configurationProperty.Key == null)
 					{
 						continue;

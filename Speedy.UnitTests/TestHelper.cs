@@ -29,7 +29,6 @@ using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Services;
 using Timer = Speedy.Profiling.Timer;
-using WebClient = Speedy.Net.WebClient;
 
 #endregion
 
@@ -135,35 +134,6 @@ namespace Speedy.UnitTests
 			var result = Compare(expected, actual, includeChildren, membersToIgnore);
 			Assert.IsTrue(result.AreEqual, result.DifferencesString);
 		}
-		
-		/// <summary>
-		/// Compares two objects to see if they are equal.
-		/// </summary>
-		/// <typeparam name="T"> The type of the object. </typeparam>
-		/// <param name="expected"> The item that is expected. </param>
-		/// <param name="actual"> The item that is to be tested. </param>
-		/// <param name="includeChildren"> True to include child complex types. </param>
-		/// <param name="membersToIgnore"> Optional members to ignore. </param>
-		public static ComparisonResult Compare<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
-		{
-			var compareObjects = new CompareLogic
-			{
-				Config =
-				{
-					CompareChildren = includeChildren,
-					IgnoreObjectTypes = true,
-					MaxDifferences = int.MaxValue,
-					MaxStructDepth = 3
-				}
-			};
-
-			if (membersToIgnore.Any())
-			{
-				compareObjects.Config.MembersToIgnore = membersToIgnore.ToList();
-			}
-
-			return compareObjects.Compare(expected, actual);
-		}
 
 		/// <summary>
 		/// Compares two objects to see if they are equal.
@@ -194,6 +164,35 @@ namespace Speedy.UnitTests
 		{
 			database.Database.ExecuteSqlRaw(ClearDatabaseScript);
 			return database;
+		}
+
+		/// <summary>
+		/// Compares two objects to see if they are equal.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object. </typeparam>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The item that is to be tested. </param>
+		/// <param name="includeChildren"> True to include child complex types. </param>
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static ComparisonResult Compare<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
+		{
+			var compareObjects = new CompareLogic
+			{
+				Config =
+				{
+					CompareChildren = includeChildren,
+					IgnoreObjectTypes = true,
+					MaxDifferences = int.MaxValue,
+					MaxStructDepth = 3
+				}
+			};
+
+			if (membersToIgnore.Any())
+			{
+				compareObjects.Config.MembersToIgnore = membersToIgnore.ToList();
+			}
+
+			return compareObjects.Compare(expected, actual);
 		}
 
 		public static void Dump(this object item)
@@ -614,7 +613,6 @@ namespace Speedy.UnitTests
 
 				var credential = new WebCredential("admin@speedy.local", "Password");
 				var webClient = new WebClient(serverUri, timeout, credential, null, null);
-
 
 				yield return Process(Timer.StartNew(),
 					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),

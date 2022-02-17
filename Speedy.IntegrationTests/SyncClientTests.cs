@@ -41,7 +41,7 @@ namespace Speedy.IntegrationTests
 				addressId = client.DatabaseProvider.KeyCache.GetEntityId(address);
 				Assert.IsNotNull(addressId);
 				Assert.AreEqual(address.Id, (long) addressId);
-				
+
 				// Cache should be updated automatically
 				client.GetDatabase<IContosoDatabase>().RemoveSaveAndCleanup<AddressEntity, long>(address);
 				addressId = client.DatabaseProvider.KeyCache.GetEntityId(address);

@@ -57,7 +57,7 @@ namespace Speedy.UnitTests.Sync
 			manager.WaitForSyncToComplete();
 			Assert.IsFalse(manager.IsRunning, "The sync manager should not be running because it was cancelled");
 			Assert.IsTrue(resultsForSync.Result.SyncCancelled, "The sync manager should have been cancelled");
-			
+
 			Assert.IsNotNull(firstSyncOptions, "First sync options should not be null");
 			Assert.IsNull(secondSyncOptions, "Second sync options should be null");
 
@@ -81,7 +81,7 @@ namespace Speedy.UnitTests.Sync
 					$"4/23/2020 1:55:27 AM - {manager.SessionId} Verbose : Sync All is already running so Sync Accounts not started.",
 					$"4/23/2020 1:55:28 AM - {manager.SessionId} Verbose : Cancelling running Sync All...",
 					$"4/23/2020 1:55:31 AM - {manager.SessionId} Verbose : Changing status to Cancelled.",
-					$"4/23/2020 1:55:32 AM - {manager.SessionId} Verbose : Sync All stopped. 00:00.000",
+					$"4/23/2020 1:55:32 AM - {manager.SessionId} Verbose : Sync All stopped. 00:00.000"
 				}
 			};
 
@@ -209,7 +209,7 @@ namespace Speedy.UnitTests.Sync
 					$"4/23/2020 1:55:37 AM - {manager.SessionId} Verbose : Changing status to Completed.",
 					$"4/23/2020 1:55:39 AM - {manager.SessionId} Verbose : Sync All stopped. 00:14.000"
 				},
-				new []
+				new[]
 				{
 					$"4/23/2020 1:55:23 AM - {manager.SessionId} Verbose : Sync All started",
 					$"4/23/2020 1:55:25 AM - {manager.SessionId} Verbose : Sync All is already running so Sync Accounts not started.",

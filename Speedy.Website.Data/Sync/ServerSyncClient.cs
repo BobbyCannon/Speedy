@@ -174,7 +174,7 @@ namespace Speedy.Website.Data.Sync
 
 		private SyncClientIncomingConverter GetIncomingFilter()
 		{
-			return new(
+			return new SyncClientIncomingConverter(
 				new SyncObjectIncomingConverter<Account, int, AccountEntity, int>(null,
 					(update, entity, processUpdate, type) =>
 					{

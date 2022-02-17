@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace Speedy
+namespace Speedy.Serialization.Converters
 {
 	/// <summary>
 	/// Converter used to deserialize JSON string to partial updates.
@@ -25,13 +25,16 @@ namespace Speedy
 		/// <inheritdoc />
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			return PartialUpdate.FromJson(reader, objectType, serializer);
+			return PartialUpdate.FromJson(reader, serializer, objectType);
 		}
 
 		/// <inheritdoc />
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			throw new NotImplementedException();
+			if (value is PartialUpdate update)
+			{
+				writer.WriteRaw(update.ToJson());
+			}
 		}
 
 		#endregion

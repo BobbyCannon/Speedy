@@ -1,18 +1,18 @@
 ﻿#region References
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.EntityFramework;
-using Speedy.Extensions;
-using Speedy.Storage;
-using Speedy.UnitTests.Factories;
-using Speedy.Website.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.SyncApi;
+using Speedy.EntityFramework;
+using Speedy.Extensions;
+using Speedy.Storage;
 using Speedy.UnitTests;
+using Speedy.UnitTests.Factories;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
@@ -490,14 +490,14 @@ namespace Speedy.IntegrationTests
 						{
 							x => x.SyncId != Guid.Empty,
 							x => !x.IsDeleted,
-							x => !x.IsDeleted || x.SyncId != Guid.Empty,
-							x => x.CreatedOn > DateTime.MinValue && x.ModifiedOn < DateTime.MaxValue,
-							x => x.Id >= byte.MinValue && x.Id <= byte.MaxValue,
-							x => x.Id >= ushort.MinValue && x.Id <= ushort.MaxValue,
-							x => x.Id >= short.MinValue && x.Id <= short.MaxValue,
-							x => x.Id >= int.MinValue && x.Id <= int.MaxValue,
-							x => x.Id >= uint.MinValue && x.Id <= uint.MaxValue,
-							x => x.Id >= long.MinValue && x.Id <= long.MaxValue
+							x => !x.IsDeleted || (x.SyncId != Guid.Empty),
+							x => (x.CreatedOn > DateTime.MinValue) && (x.ModifiedOn < DateTime.MaxValue),
+							x => (x.Id >= byte.MinValue) && (x.Id <= byte.MaxValue),
+							x => (x.Id >= ushort.MinValue) && (x.Id <= ushort.MaxValue),
+							x => (x.Id >= short.MinValue) && (x.Id <= short.MaxValue),
+							x => (x.Id >= int.MinValue) && (x.Id <= int.MaxValue),
+							x => (x.Id >= uint.MinValue) && (x.Id <= uint.MaxValue),
+							x => (x.Id >= long.MinValue) && (x.Id <= long.MaxValue)
 						};
 
 						filters.ForEach(filter =>
@@ -539,7 +539,7 @@ namespace Speedy.IntegrationTests
 						var filters = new List<Expression<Func<AddressEntity, bool>>>
 						{
 							x => x.IsDeleted,
-							x => x.IsDeleted && x.ModifiedOn <= deletedOn
+							x => x.IsDeleted && (x.ModifiedOn <= deletedOn)
 						};
 
 						filters.ForEach(filter =>
@@ -556,7 +556,7 @@ namespace Speedy.IntegrationTests
 								}
 
 								database.SaveChanges();
-								
+
 								Assert.AreEqual(10, database.Addresses.Count());
 								Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
 
@@ -660,7 +660,7 @@ namespace Speedy.IntegrationTests
 						Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
 						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
 
-						count = database.Addresses.BulkUpdate(x => x.Id < 5 && x.Id >= 2, x => new AddressEntity { City = "city" });
+						count = database.Addresses.BulkUpdate(x => (x.Id < 5) && (x.Id >= 2), x => new AddressEntity { City = "city" });
 						Assert.AreEqual(3, count);
 						Assert.AreEqual(3, database.Addresses.Count(x => x.City == "city"));
 						Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
@@ -679,9 +679,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Local),
-						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Unspecified),
-						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Utc)
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Local),
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Unspecified),
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -729,9 +729,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Local),
-						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Unspecified),
-						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Utc)
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Local),
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Unspecified),
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -779,9 +779,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
-						new(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
-						new(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
+						new DateTime(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -1418,7 +1418,7 @@ namespace Speedy.IntegrationTests
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address),
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable."
 					);
-					
+
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address.Id),
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable."
@@ -1848,7 +1848,7 @@ namespace Speedy.IntegrationTests
 
 		private static AddressEntity NewAddress(string line1, string line2 = "")
 		{
-			return new() { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
+			return new AddressEntity { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
 		}
 
 		#endregion

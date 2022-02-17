@@ -26,7 +26,7 @@ namespace Speedy.Sync
 
 		#region Fields
 
-		private readonly Dictionary<string, SyncRepositoryFilter> _filterLookup;
+		private readonly Dictionary<string, SyncRepositoryFilter> _filters;
 
 		#endregion
 
@@ -51,7 +51,7 @@ namespace Speedy.Sync
 			SyncDirection = SyncDirection.PullDownThenPushUp;
 			Values = new Dictionary<string, string>();
 
-			_filterLookup = new Dictionary<string, SyncRepositoryFilter>();
+			_filters = new Dictionary<string, SyncRepositoryFilter>();
 		}
 
 		#endregion
@@ -103,15 +103,15 @@ namespace Speedy.Sync
 		/// <param name="filter"> The syncable filter to be added. </param>
 		public void AddSyncableFilter(SyncRepositoryFilter filter)
 		{
-			if (_filterLookup.ContainsKey(filter.RepositoryType))
+			if (_filters.ContainsKey(filter.RepositoryType))
 			{
 				// Update an existing filter
-				_filterLookup[filter.RepositoryType] = filter;
+				_filters[filter.RepositoryType] = filter;
 				return;
 			}
 
 			// Add a new filter.
-			_filterLookup.Add(filter.RepositoryType, filter);
+			_filters.Add(filter.RepositoryType, filter);
 		}
 
 		/// <inheritdoc />
@@ -145,7 +145,7 @@ namespace Speedy.Sync
 		/// </summary>
 		public void ResetFilters()
 		{
-			_filterLookup.Clear();
+			_filters.Clear();
 		}
 
 		/// <inheritdoc />
@@ -162,7 +162,7 @@ namespace Speedy.Sync
 				Values = Values.DeepClone()
 			};
 
-			foreach (var lookup in _filterLookup)
+			foreach (var lookup in _filters)
 			{
 				response.AddSyncableFilter(lookup.Value);
 			}
@@ -187,7 +187,7 @@ namespace Speedy.Sync
 		/// <returns> True if the type is filter or false if otherwise. </returns>
 		public bool ShouldExcludeRepository(string typeAssemblyName)
 		{
-			return (_filterLookup.Count > 0) && !_filterLookup.ContainsKey(typeAssemblyName);
+			return (_filters.Count > 0) && !_filters.ContainsKey(typeAssemblyName);
 		}
 
 		/// <summary>
@@ -226,7 +226,7 @@ namespace Speedy.Sync
 				this.IfThen(x => !exclusions.Contains(nameof(Values)), x => x.Values = update.Values.DeepClone());
 			}
 
-			foreach (var lookup in update._filterLookup)
+			foreach (var lookup in update._filters)
 			{
 				AddSyncableFilter(lookup.Value);
 			}
@@ -255,9 +255,9 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="repository"> The repository to process. </param>
 		/// <returns> The filter if found or null otherwise. </returns>
-		internal SyncRepositoryFilter GetRepositoryLookupFilter(ISyncableRepository repository)
+		internal SyncRepositoryFilter GetFilter(ISyncableRepository repository)
 		{
-			return GetRepositoryLookupFilter(repository?.TypeName);
+			return GetFilter(repository?.TypeName);
 		}
 
 		/// <summary>
@@ -265,18 +265,18 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="typeAssemblyName"> The type of the entity in assembly format. </param>
 		/// <param name="entity"> The entity to be tested. </param>
-		/// <returns> True if the entity should be filter or false if otherwise. </returns>
-		internal bool ShouldFilterEntity(string typeAssemblyName, ISyncEntity entity)
+		/// <returns> True if the sync entity should be filter or false if otherwise. </returns>
+		internal bool ShouldFilterIncomingEntity(string typeAssemblyName, ISyncEntity entity)
 		{
-			var filter = GetRepositoryLookupFilter(typeAssemblyName);
-			if (filter == null)
+			var filter = GetFilter(typeAssemblyName);
+			if ((filter == null) || !filter.HasIncomingFilter)
 			{
 				return false;
 			}
 
 			// Find the "ShouldFilterEntity" method so we can invoke it
 			var methods = filter.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
-			var method = methods.First(x => x.Name == nameof(ShouldFilterEntity));
+			var method = methods.First(x => x.Name == nameof(ShouldFilterIncomingEntity));
 			return (bool) method.Invoke(filter, new object[] { entity });
 		}
 
@@ -285,9 +285,9 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="typeAssemblyName"> The repository type assembly name to process. </param>
 		/// <returns> The filter if found or null otherwise. </returns>
-		private SyncRepositoryFilter GetRepositoryLookupFilter(string typeAssemblyName)
+		private SyncRepositoryFilter GetFilter(string typeAssemblyName)
 		{
-			return _filterLookup.ContainsKey(typeAssemblyName) ? _filterLookup[typeAssemblyName] : null;
+			return _filters.ContainsKey(typeAssemblyName) ? _filters[typeAssemblyName] : null;
 		}
 
 		#endregion

@@ -45,9 +45,9 @@ namespace Speedy.IntegrationTests
 				{ x => x.IsDeleted == false, ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0", "AccountIsDeleted:p0", new[] { new SqlParameter("p0", false) }) },
 				{ x => x.IsDeleted && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 1 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
 				// ReSharper disable once RedundantBoolCompare
-				{ x => x.IsDeleted == true && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0 AND [AccountModifiedOn] <= @p1", "AccountIsDeleted:p0, AccountModifiedOn:p1", new[] { new SqlParameter("p0", SqlDbType.Bit) { Value = true }, new SqlParameter("p1", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
+				{ x => (x.IsDeleted == true) && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0 AND [AccountModifiedOn] <= @p1", "AccountIsDeleted:p0, AccountModifiedOn:p1", new[] { new SqlParameter("p0", SqlDbType.Bit) { Value = true }, new SqlParameter("p1", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
 				{ x => !x.IsDeleted && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = 0 AND [AccountModifiedOn] <= @p0", "AccountModifiedOn:p0", new[] { new SqlParameter("p0", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) },
-				{ x => x.IsDeleted == false && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0 AND [AccountModifiedOn] <= @p1", "AccountIsDeleted:p0, AccountModifiedOn:p1", new[] { new SqlParameter("p0", SqlDbType.Bit) { Value = false }, new SqlParameter("p1", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) }
+				{ x => (x.IsDeleted == false) && (x.ModifiedOn <= deletedOn), ("DELETE FROM [dbo].[Accounts] WHERE [AccountIsDeleted] = @p0 AND [AccountModifiedOn] <= @p1", "AccountIsDeleted:p0, AccountModifiedOn:p1", new[] { new SqlParameter("p0", SqlDbType.Bit) { Value = false }, new SqlParameter("p1", SqlDbType.DateTime2) { DbType = DbType.DateTime2, Value = deletedOn } }) }
 			};
 
 			accountFilters.ForEach(filter =>

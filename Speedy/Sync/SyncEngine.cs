@@ -8,7 +8,6 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Logging;
@@ -64,7 +63,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Gets a value indicating the running sync is requesting to be cancelled.
 		/// </summary>
-		public bool IsCancellationPending => _cancellationSource?.IsCancellationRequested ?? false;
+		public bool IsCancellationPending => _cancellationSource.IsCancellationRequested;
 
 		/// <summary>
 		/// Gets a value indicating the running status of the sync engine.
@@ -125,6 +124,7 @@ namespace Speedy.Sync
 			try
 			{
 				IsRunning = true;
+
 				_syncIssues.Clear();
 
 				Server.Statistics.Reset();
@@ -170,7 +170,11 @@ namespace Speedy.Sync
 			}
 			catch (Exception ex)
 			{
-				_syncIssues.Add(new SyncIssue { IssueType = SyncIssueType.Unknown, Message = ex.Message });
+				_syncIssues.Add(new SyncIssue
+				{
+					IssueType = SyncIssueType.Unknown,
+					Message = ex.Message
+				});
 
 				UpdateSyncState($"{TimeService.UtcNow:hh:mm:ss tt} {ex.Message}", SyncEngineStatus.Failed);
 			}
@@ -208,14 +212,6 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
-		/// Start to sync process.
-		/// </summary>
-		public async Task RunAsync()
-		{
-			await Task.Factory.StartNew(Run, _cancellationSource?.Token ?? CancellationToken.None);
-		}
-
-		/// <summary>
 		/// Cancels the sync process and waits for it to stop.
 		/// </summary>
 		public void Stop(TimeSpan? timeout = null)
@@ -237,7 +233,7 @@ namespace Speedy.Sync
 
 			// bug: what happens if a sync engine is disposed while running?
 
-			_cancellationSource?.Dispose();
+			_cancellationSource.Dispose();
 		}
 
 		/// <summary>

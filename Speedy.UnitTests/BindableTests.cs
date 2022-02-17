@@ -1,7 +1,6 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Data.SyncApi;
 using Speedy.Profiling;
 
 #endregion

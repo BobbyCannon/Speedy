@@ -100,7 +100,7 @@ namespace Speedy.IntegrationTests
 
 		private static ContosoClientMemoryDatabase GetDatabase(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
 		{
-			return new(options, keyCache);
+			return new ContosoClientMemoryDatabase(options, keyCache);
 		}
 
 		private static IDatabaseProvider<IContosoDatabase> GetDatabaseProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)

@@ -14,6 +14,14 @@ namespace Speedy.UnitTests
 		#region Methods
 
 		[TestMethod]
+		public void CreateInstance()
+		{
+			var options = new PartialUpdateOptions<MyClass>();
+			var actual = options.GetInstance();
+			Assert.AreEqual(typeof(MyClass), actual.GetType());
+		}
+
+		[TestMethod]
 		public void PropertyValidationForMinMaxRangeForNumber()
 		{
 			var options = new PartialUpdateOptions<MyClass>();
@@ -32,12 +40,12 @@ namespace Speedy.UnitTests
 			var update = PartialUpdate.FromJson("{ \"age\": 10 }", options);
 			Assert.AreEqual(options, update.Options);
 			update.Validate();
-			var actual = update.GetInstance();
+			var actual = (MyClass) update.GetInstance();
 			Assert.AreEqual(10, actual.Age);
 
 			update = PartialUpdate.FromJson("{ \"age\": 20 }", options);
 			update.Validate();
-			actual = update.GetInstance();
+			actual = (MyClass) update.GetInstance();
 			Assert.AreEqual(20, actual.Age);
 
 			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson("{ \"age\": 21 }", options).Validate(), "Age must be between 10 and 20.");
@@ -60,12 +68,12 @@ namespace Speedy.UnitTests
 
 			var update = PartialUpdate.FromJson("{ \"name\": \"1234567890\" }", options);
 			update.Validate();
-			var actual = update.GetInstance();
+			var actual = (MyClass) update.GetInstance();
 			Assert.AreEqual("1234567890", actual.Name);
 
 			update = PartialUpdate.FromJson("{ \"name\": \"123456789012\" }", options);
 			update.Validate();
-			actual = update.GetInstance();
+			actual = (MyClass) update.GetInstance();
 			Assert.AreEqual("123456789012", actual.Name);
 
 			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson("{ \"name\": \"123456789\" }", options).Validate(), "Name must be between 10 and 12.");

@@ -2,7 +2,6 @@
 
 using Speedy.Data.Client;
 using Speedy.EntityFramework;
-using Speedy.Extensions;
 
 #endregion
 
@@ -26,7 +25,7 @@ namespace Speedy.Client.Data
 			Addresses = GetSyncableRepository<ClientAddress, long>();
 			LogEvents = GetSyncableRepository<ClientLogEvent, long>();
 			Settings = GetSyncableRepository<ClientSetting, long>();
-			
+
 			this.ConfigureModelViaMapping();
 		}
 

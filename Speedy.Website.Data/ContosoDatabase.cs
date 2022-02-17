@@ -51,8 +51,8 @@ namespace Speedy.Website.Data
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets => GetRepository<PetEntity, (string Name, int OwnerId)>();
 		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
 		public ISyncableRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
-		public IRepository<TrackerPathEntity, long> TrackerPaths => GetRepository<TrackerPathEntity, long>();
 		public IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations => GetRepository<TrackerPathConfigurationEntity, int>();
+		public IRepository<TrackerPathEntity, long> TrackerPaths => GetRepository<TrackerPathEntity, long>();
 
 		#endregion
 
@@ -61,7 +61,7 @@ namespace Speedy.Website.Data
 		public static string GetConnectionString()
 		{
 			var connection = ConfigurationManager.ConnectionStrings["DefaultConnection"];
-			if (connection != null && !string.IsNullOrWhiteSpace(connection.ConnectionString))
+			if ((connection != null) && !string.IsNullOrWhiteSpace(connection.ConnectionString))
 			{
 				return connection.ConnectionString;
 			}

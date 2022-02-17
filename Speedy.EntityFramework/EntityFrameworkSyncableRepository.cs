@@ -71,7 +71,10 @@ namespace Speedy.EntityFramework
 			}
 
 			var entities = query.Take(take).ToList();
-			var objects = entities.Select(x => x.ToSyncObject()).ToList();
+			var objects = entities
+				.Select(x => x.ToSyncObject())
+				.ToList();
+
 			return objects;
 		}
 

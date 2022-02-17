@@ -107,7 +107,7 @@ namespace Speedy.UnitTests.Extensions
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 
 			expected = "{\r\n  \"$id\": \"1\",\r\n  \"Age\": 21,\r\n  \"Name\": \"John\"\r\n}";
-			actual = test.ToJson(indented: true);
+			actual = test.ToJson(true);
 			Assert.AreEqual(expected, actual, GetMessageAndCopy(actual));
 		}
 

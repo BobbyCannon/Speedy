@@ -115,7 +115,7 @@ namespace Speedy.ServiceHosting
 			builder.AppendLine($"{ServiceDisplayName} {ServiceVersion}");
 			return base.BuildHelpInformation(builder, shouldIncludeCheck);
 		}
-		
+
 		/// <inheritdoc />
 		public override string BuildIssueInformation(StringBuilder builder = null)
 		{

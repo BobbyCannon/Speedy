@@ -5,6 +5,7 @@ using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
+using Debug = System.Diagnostics.Debug;
 
 #endregion
 
@@ -83,7 +84,7 @@ namespace Speedy.Mobile.Droid
 			}
 			catch (Exception ex)
 			{
-				System.Diagnostics.Debug.WriteLine(ex.Message);
+				Debug.WriteLine(ex.Message);
 			}
 
 			// This tells Android not to restart the service if it is killed to reclaim resources.

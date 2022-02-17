@@ -2,7 +2,6 @@
 
 using System;
 using Speedy.Data.SyncApi;
-using Speedy.Sync;
 
 #endregion
 

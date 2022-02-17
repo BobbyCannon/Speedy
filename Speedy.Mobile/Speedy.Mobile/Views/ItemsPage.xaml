@@ -28,7 +28,7 @@
 			<Label Text="{Binding Profiler.AverageSyncTimeForAccounts.Count, Mode=OneWay}" HorizontalTextAlignment="Center" />
 			<Label Text="{Binding Profiler.AverageSyncTimeForAddresses.Count, Mode=OneWay}" HorizontalTextAlignment="Center" />
 			<Label Text="{Binding Profiler.AverageSyncTimeForLogEvents.Count, Mode=OneWay}" HorizontalTextAlignment="Center" />
-			
+
 			<CollectionView x:Name="ItemsCollectionView" ItemsSource="{Binding Items}">
 				<CollectionView.ItemTemplate>
 					<DataTemplate>
@@ -43,6 +43,6 @@
 				</CollectionView.ItemTemplate>
 			</CollectionView>
 		</StackLayout>
-		
+
 	</RefreshView>
 </ContentPage>

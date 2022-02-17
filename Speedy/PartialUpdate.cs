@@ -1,16 +1,17 @@
 ﻿#region References
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using Speedy.Exceptions;
-using static Speedy.PartialUpdateOptions;
+using Speedy.Extensions;
+using Speedy.Serialization;
+using Speedy.Serialization.Converters;
 
 #endregion
 
@@ -37,7 +38,7 @@ namespace Speedy
 		/// </summary>
 		public PartialUpdate(PartialUpdateOptions<T> options)
 		{
-			Options = options;
+			Options = options ?? new PartialUpdateOptions<T>();
 		}
 
 		#endregion
@@ -57,16 +58,26 @@ namespace Speedy
 		/// Applies the updates to the entity.
 		/// </summary>
 		/// <param name="entity"> Entity to be updated. </param>
-		public override void Apply(object entity)
+		public void Apply(T entity)
 		{
-			Apply((T) entity);
+			Apply(entity, Options);
 		}
 
 		/// <summary>
 		/// Applies the updates to the entity.
 		/// </summary>
 		/// <param name="entity"> Entity to be updated. </param>
-		public void Apply(T entity)
+		public override void Apply(object entity)
+		{
+			Apply(entity, Options);
+		}
+
+		/// <summary>
+		/// Applies the updates to the entity.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		/// <param name="options"> The optional set of options for apply the updates. </param>
+		public override void Apply(object entity, PartialUpdateOptions options)
 		{
 			if (entity == null)
 			{
@@ -78,33 +89,58 @@ namespace Speedy
 				return;
 			}
 
+			var propertyInfos = entity.GetType().GetCachedPropertyDictionary();
+
 			foreach (var update in Updates)
 			{
-				if ((Options.IncludedProperties != null) && !Options.IncludedProperties.Contains(update.Key, StringComparer.OrdinalIgnoreCase))
+				if (options.IncludedProperties.Any()
+					&& !options.IncludedProperties.Contains(update.Key))
 				{
 					// Ignore this property because we only want to include it
 					continue;
 				}
 
-				if ((Options.ExcludedProperties != null) && Options.ExcludedProperties.Contains(update.Key, StringComparer.OrdinalIgnoreCase))
+				if (options.ExcludedProperties.Contains(update.Key))
 				{
 					// Ignore this property because we only want to exclude it
 					continue;
 				}
 
+				if (!propertyInfos.ContainsKey(update.Key))
+				{
+					continue;
+				}
+
+				var propertyInfo = propertyInfos[update.Key];
+				if (!propertyInfo.CanWrite)
+				{
+					continue;
+				}
+
+				if ((update.Value == null) && propertyInfo.PropertyType.IsNullable())
+				{
+					propertyInfo.SetValue(entity, null);
+					continue;
+				}
+
 				try
 				{
-					update.Value.Update.DynamicInvoke(entity);
+					var value = Convert.ChangeType(update.Value?.Value, propertyInfo.PropertyType);
+					propertyInfo.SetValue(entity, value);
+					continue;
 				}
-				catch (TargetInvocationException tie)
+				catch (Exception)
 				{
-					if (tie.InnerException is NullReferenceException)
-					{
-						throw new SpeedyException("Failed to apply the patch.", tie.InnerException);
-					}
-
-					throw;
+					// Ignore changing of type
 				}
+
+				if ((update.Value?.Type != propertyInfo.PropertyType)
+					|| (update.Value?.Value?.GetType() != propertyInfo.PropertyType))
+				{
+					continue;
+				}
+
+				propertyInfo.SetValue(entity, update.Value.Value);
 			}
 		}
 
@@ -123,11 +159,51 @@ namespace Speedy
 		/// Creates an instance of the type and applies the partial update.
 		/// </summary>
 		/// <returns> </returns>
-		public T GetInstance()
+		public override object GetInstance()
 		{
 			var response = Activator.CreateInstance<T>();
 			Apply(response);
 			return response;
+		}
+
+		/// <inheritdoc />
+		public override void Set(string name, object value)
+		{
+			var properties = typeof(T).GetCachedPropertyDictionary();
+			if (!properties.ContainsKey(name))
+			{
+				throw new SpeedyException("The property does not exist by the provided name.");
+			}
+
+			var property = properties[name];
+			if (!property.CanWrite)
+			{
+				throw new SpeedyException("The property cannot be set because it's not writable.");
+			}
+
+			if (property.PropertyType.IsNullable() && (value == null))
+			{
+				Updates.AddOrUpdate(name, new PartialUpdateValue
+				{
+					Name = name,
+					Type = property.PropertyType,
+					Value = null
+				});
+				return;
+			}
+
+			if (property.PropertyType != value.GetType())
+			{
+				throw new SpeedyException("The property type does not match the values type.");
+			}
+
+			var response = new PartialUpdateValue
+			{
+				Name = name,
+				Type = property.PropertyType,
+				Value = value
+			};
+			Updates.AddOrUpdate(name, response);
 		}
 
 		/// <summary>
@@ -157,19 +233,19 @@ namespace Speedy
 					continue;
 				}
 
-				var u = Updates[uKey].TypeValue;
+				var u = Updates[uKey].Value;
 				value.Process(u);
 			}
-		}
-
-		internal override Type GetGenericType()
-		{
-			return typeof(T);
 		}
 
 		internal override PartialUpdateOptions GetOptions()
 		{
 			return Options;
+		}
+
+		internal override string ToAssemblyName()
+		{
+			return typeof(T).ToAssemblyName();
 		}
 
 		#endregion
@@ -197,7 +273,7 @@ namespace Speedy
 		/// <summary>
 		/// A list of updates for this partial update.
 		/// </summary>
-		public Dictionary<string, PartialUpdateValue> Updates { get; private set; }
+		public Dictionary<string, PartialUpdateValue> Updates { get; }
 
 		#endregion
 
@@ -208,6 +284,30 @@ namespace Speedy
 		/// </summary>
 		/// <param name="entity"> Entity to be updated. </param>
 		public abstract void Apply(object entity);
+
+		/// <summary>
+		/// Applies the updates to the entity.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		/// <param name="options"> The options for the apply. </param>
+		public abstract void Apply(object entity, PartialUpdateOptions options);
+
+		/// <summary>
+		/// Create an instance of a partial update for a specific type.
+		/// </summary>
+		/// <param name="genericType"> The type the partial update is for. </param>
+		/// <param name="options"> An optional set of options to use during parsing. </param>
+		/// <returns> The partial update. </returns>
+		public static PartialUpdate Create(Type genericType, PartialUpdateOptions options = null)
+		{
+			var isAlreadyPartialUpdate = typeof(PartialUpdate).IsAssignableFrom(genericType);
+			var typeToCreate = isAlreadyPartialUpdate ? genericType : typeof(PartialUpdate<>).MakeGenericType(genericType);
+			var response = isAlreadyPartialUpdate
+				? (PartialUpdate) Activator.CreateInstance(typeToCreate)
+				: (PartialUpdate) Activator.CreateInstance(typeToCreate, options);
+
+			return response;
+		}
 
 		/// <summary>
 		/// Gets a partial update from a JSON string.
@@ -229,18 +329,6 @@ namespace Speedy
 		/// <summary>
 		/// Gets a partial update from a JSON string.
 		/// </summary>
-		/// <typeparam name="T"> The type the partial update is for. </typeparam>
-		/// <param name="reader"> The JSON reader containing the partial update. </param>
-		/// <param name="options"> An optional set of options to use during parsing. </param>
-		/// <returns> The partial update. </returns>
-		public static PartialUpdate<T> FromJson<T>(JsonReader reader, PartialUpdateOptions options = null)
-		{
-			return (PartialUpdate<T>) FromJson(reader, typeof(T), options);
-		}
-
-		/// <summary>
-		/// Gets a partial update from a JSON string.
-		/// </summary>
 		/// <param name="json"> The JSON containing the partial update. </param>
 		/// <param name="type"> The type the partial update is for. </param>
 		/// <param name="options"> An optional set of options to use during parsing. </param>
@@ -249,44 +337,68 @@ namespace Speedy
 		{
 			if (string.IsNullOrWhiteSpace(json))
 			{
-				var partialType = typeof(PartialUpdate<>);
-				var typeWithGeneric = partialType.MakeGenericType(type);
-				var response = (PartialUpdate) Activator.CreateInstance(typeWithGeneric, options);
+				var response = Create(type, options);
 				return response;
 			}
 
 			var serializer = new JsonSerializer();
 			using var reader = new JsonTextReader(new StringReader(json));
 			reader.Read();
-			return FromJson(reader, type, serializer, options);
-		}
-
-		/// <summary>
-		/// Gets a partial update from a JSON string.
-		/// </summary>
-		/// <param name="reader"> The JSON reader containing the partial update. </param>
-		/// <param name="type"> The type the partial update is for. </param>
-		/// <param name="options"> An optional set of options to use during parsing. </param>
-		/// <returns> The partial update. </returns>
-		public static PartialUpdate FromJson(JsonReader reader, Type type, PartialUpdateOptions options = null)
-		{
-			var serializer = new JsonSerializer();
-			return FromJson(reader, type, serializer, options);
+			return FromJson(reader, serializer, type, options);
 		}
 
 		/// <summary>
 		/// Get the property value.
 		/// </summary>
-		/// <typeparam name="T"> </typeparam>
-		/// <param name="name"> </param>
-		/// <returns> </returns>
-		public T GetPropertyValue<T>(string name)
+		/// <param name="name"> The name of the update. </param>
+		/// <returns> The value if it was found otherwise null. </returns>
+		public object Get(string name)
 		{
-			return (T) Updates
-				.First(u => u.Key == name)
-				.Value
-				.Update
-				.DynamicInvoke(this);
+			var update = Updates.ContainsKey(name) ? Updates[name] : null;
+			return update?.Value;
+		}
+
+		/// <summary>
+		/// Get the property value.
+		/// </summary>
+		/// <typeparam name="T"> The type to cast the value to. </typeparam>
+		/// <param name="name"> The name of the update. </param>
+		/// <returns> The value if it was found otherwise default(T). </returns>
+		public T Get<T>(string name)
+		{
+			var update = Updates.ContainsKey(name) ? Updates[name] : null;
+			return (T) update?.Value ?? default;
+		}
+
+		/// <summary>
+		/// Creates an instance of the type and applies the partial update.
+		/// </summary>
+		/// <returns> </returns>
+		public abstract object GetInstance();
+
+		/// <summary>
+		/// Set a property for the update.
+		/// </summary>
+		/// <param name="name"> The name of the member to set. </param>
+		/// <param name="value"> The value of the member. </param>
+		public abstract void Set(string name, object value);
+
+		/// <summary>
+		/// Get the JSON for the partial update.
+		/// </summary>
+		/// <returns> The JSON for the partial update. </returns>
+		public string ToJson(SerializerSettings settings = null)
+		{
+			var expando = new ExpandoObject();
+
+			foreach (var updates in Updates)
+			{
+				expando.AddOrUpdate(updates.Key, updates.Value.Value);
+			}
+
+			return settings != null
+				? expando.ToJson(settings)
+				: expando.ToRawJson();
 		}
 
 		/// <summary>
@@ -294,148 +406,111 @@ namespace Speedy
 		/// </summary>
 		public abstract void Validate();
 
-		internal static PartialUpdate FromJson(JsonReader reader, Type genericType, JsonSerializer serializer, PartialUpdateOptions options = null)
+		internal static PartialUpdate FromJson(JsonReader reader, JsonSerializer serializer, Type objectType, PartialUpdateOptions options = null)
 		{
-			var partialType = typeof(PartialUpdate<>);
-			var isPartialType = typeof(PartialUpdate).IsAssignableFrom(genericType);
-			var typeWithGeneric = isPartialType ? genericType : partialType.MakeGenericType(genericType);
-			var response = isPartialType
-				? (PartialUpdate) Activator.CreateInstance(typeWithGeneric)
-				: (PartialUpdate) Activator.CreateInstance(typeWithGeneric, options ?? Create(genericType));
+			bool TryGetValue(JToken token, Type type, out object value)
+			{
+				if (token is not JValue jValue)
+				{
+					value = null;
+					return false;
+				}
+
+				if ((jValue.Type == JTokenType.Null) && (jValue.Value == null))
+				{
+					value = null;
+					return true;
+				}
+
+				try
+				{
+					value = Convert.ChangeType(jValue, type);
+					return true;
+				}
+				catch
+				{
+					value = null;
+					return false;
+				}
+			}
+
+			var response = Create(objectType, options);
 
 			if (reader.TokenType == JsonToken.StartArray)
 			{
 				return response;
 			}
 
-			var root = JObject.Load(reader);
-			var leafs = GetMembers(root);
+			var jObject = JObject.Load(reader);
+			var jProperties = jObject.Properties();
+			var propertyDictionary = objectType.GetCachedPropertyDictionary();
+			var responseOptions = response.GetOptions();
 
-			return LoadOptions(response, leafs, serializer);
-		}
-
-		internal abstract Type GetGenericType();
-
-		internal abstract PartialUpdateOptions GetOptions();
-
-		private static IList<PartialUpdateValue> GetMembers(JToken token)
-		{
-			if (!token.HasValues)
+			foreach (var jProperty in jProperties)
 			{
-				if (token.Type is JTokenType.Object or JTokenType.Array)
+				if (responseOptions.IncludedProperties.Any()
+					&& !responseOptions.IncludedProperties.Contains(jProperty.Name))
 				{
-					return new List<PartialUpdateValue>();
+					// Ignore this property because we only want to include it
+					continue;
 				}
 
-				return new List<PartialUpdateValue>
+				if (responseOptions.ExcludedProperties.Contains(jProperty.Name))
 				{
-					new PartialUpdateValue
-					{
-						Path = token.Path,
-						Value = token.Value<IConvertible>()
-					}
-				};
-			}
-
-			var children = token.Children();
-			var retVal = new List<PartialUpdateValue>();
-
-			foreach (var child in children)
-			{
-				retVal.AddRange(GetMembers(child));
-			}
-
-			return retVal.Where(x => x != null).ToList();
-		}
-
-		private static PartialUpdate LoadOptions(PartialUpdate partialUpdate, IList<PartialUpdateValue> leafs, JsonSerializer serializer)
-		{
-			var options = partialUpdate.GetOptions();
-			var genericType = partialUpdate.GetGenericType();
-
-			if (options.ExcludedProperties?.Any() == true)
-			{
-				leafs = leafs.Where(x => !options.ExcludedProperties.Contains(x.Path, StringComparer.OrdinalIgnoreCase)).ToList();
-			}
-
-			if (options.IncludedProperties?.Any() == true)
-			{
-				leafs = leafs.Where(x => options.IncludedProperties.Contains(x.Path, StringComparer.OrdinalIgnoreCase)).ToList();
-			}
-
-			var lambdas = leafs
-				.Select(x =>
-				{
-					UpdateMember(x, genericType, serializer);
-					return x;
-				})
-				.Where(x => x.Update != null)
-				.ToList();
-
-			partialUpdate.Updates = lambdas.ToDictionary(x => x.Path, x => x);
-			return partialUpdate;
-		}
-
-		private static void UpdateMember(PartialUpdateValue memberValue, Type type, JsonSerializer serializer)
-		{
-			if (memberValue == null)
-			{
-				throw new ArgumentNullException(nameof(memberValue));
-			}
-			if (type == null)
-			{
-				throw new ArgumentNullException(nameof(type));
-			}
-			if (serializer == null)
-			{
-				throw new ArgumentNullException(nameof(serializer));
-			}
-
-			var param = Expression.Parameter(type, "x");
-			Expression left = param;
-			var pathTokens = memberValue.Path.Split('.');
-			var currentType = type;
-
-			foreach (var pathToken in pathTokens)
-			{
-				if (currentType == null)
-				{
-					break;
+					// Ignore this property because we only want to exclude it
+					continue;
 				}
 
-				var contract = serializer.ContractResolver.ResolveContract(currentType) as JsonObjectContract;
-				if (contract == null)
-				{
-					throw new InvalidOperationException("Only object types can be partially updated");
-				}
+				var property = propertyDictionary.ContainsKey(jProperty.Name)
+					? propertyDictionary[jProperty.Name]
+					: null;
 
-				var matchingProperty = contract.Properties.GetClosestMatchProperty(pathToken);
-				if (matchingProperty?.UnderlyingName == null)
+				if (property == null)
 				{
 					continue;
 				}
 
-				left = Expression.Property(left, matchingProperty.UnderlyingName);
-				currentType = matchingProperty.PropertyType;
+				var propertyName = property.Name;
+				if (jProperty.Type == JTokenType.Null)
+				{
+					var nullValue = new PartialUpdateValue(propertyName, property.PropertyType, null);
+					response.Updates.Add(propertyName, nullValue);
+					continue;
+				}
+
+				// Property of array must be IEnumerable (ignoring some types like string)
+				if (jProperty.Value is JArray jArray && property.PropertyType.IsEnumerable())
+				{
+					var genericType = property.PropertyType.GenericTypeArguments.FirstOrDefault();
+					var genericListType = typeof(List<>).MakeGenericType(genericType);
+					var genericList = (IList) Activator.CreateInstance(genericListType);
+
+					foreach (var jArrayValue in jArray.Values())
+					{
+						if (TryGetValue(jArrayValue, genericType, out var arrayValue))
+						{
+							genericList.Add(arrayValue);
+						}
+					}
+
+					var update2 = new PartialUpdateValue(propertyName, property.PropertyType, genericList);
+					response.Updates.Add(propertyName, update2);
+					continue;
+				}
+
+				if (TryGetValue(jProperty.Value, property.PropertyType, out var value2))
+				{
+					var update = new PartialUpdateValue(propertyName, property.PropertyType, value2);
+					response.Updates.Add(propertyName, update);
+				}
 			}
 
-			if (currentType == null)
-			{
-				return;
-			}
-
-			try
-			{
-				memberValue.TypeValue = Convert.ChangeType(memberValue.Value, currentType);
-				Expression right = Expression.Constant(memberValue.TypeValue);
-				var myExpression = Expression.Assign(left, right);
-				memberValue.Update = Expression.Lambda(myExpression, param).Compile();
-			}
-			catch (Exception)
-			{
-				// Ignore exception?
-			}
+			return response;
 		}
+
+		internal abstract PartialUpdateOptions GetOptions();
+
+		internal abstract string ToAssemblyName();
 
 		#endregion
 	}

@@ -50,7 +50,7 @@ namespace Speedy.UnitTests.Collections
 		public void CollectionShouldSort()
 		{
 			var collection = new SortedObservableCollection<string>(new OrderBy<string>(x => x));
-			collection.AddRange(new[] { "b", "d", "c", "a" });
+			collection.AddRange("b", "d", "c", "a");
 			TestHelper.AreEqual(new[] { "a", "b", "c", "d" }, collection.ToArray());
 		}
 

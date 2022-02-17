@@ -9,7 +9,7 @@ using Speedy.Profiling;
 namespace Speedy.UnitTests.Profiling
 {
 	[TestClass]
-	public class PathValueTests
+	public class TrackerPathValueTests
 	{
 		#region Methods
 

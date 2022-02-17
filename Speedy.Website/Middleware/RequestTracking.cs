@@ -55,7 +55,7 @@ namespace Speedy.Website.Middleware
 			var userAgent = context.Request.Headers[HeaderNames.UserAgent].ToString();
 			var referrer = context.Request.Headers[HeaderNames.Referer].ToString();
 
-			if (userAgent == "AlwaysOn" && referrer == "::1")
+			if ((userAgent == "AlwaysOn") && (referrer == "::1"))
 			{
 				// This is Azure keeping the website running, we should ignore these
 				return true;

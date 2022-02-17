@@ -150,6 +150,20 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Add multiple items to a collection
+		/// </summary>
+		/// <param name="set"> The set to add items to. </param>
+		/// <param name="items"> The items to add. </param>
+		/// <typeparam name="T"> The type of the items in the collection. </typeparam>
+		public static void AddRange<T>(this ICollection<T> set, params T[] items)
+		{
+			foreach (var item in items)
+			{
+				set.Add(item);
+			}
+		}
+
+		/// <summary>
 		/// Appends new values to an existing HashSet.
 		/// </summary>
 		/// <typeparam name="T"> The type of value in the set. </typeparam>

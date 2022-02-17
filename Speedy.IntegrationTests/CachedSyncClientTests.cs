@@ -83,7 +83,7 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(1, keyCache.Count);
 			keyCache.Initialize(server.DatabaseProvider, typeof(AddressEntity));
 			Assert.AreEqual(0, keyCache.Count);
-			
+
 			// Initialize with database
 			keyCache.AddEntityId(typeof(AddressEntity), Guid.Parse("4B6E7980-3715-4C2C-9DC6-F9A5F2A40351"), 1);
 			Assert.AreEqual(1, keyCache.Count);

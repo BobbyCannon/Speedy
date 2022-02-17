@@ -20,8 +20,8 @@ namespace Speedy.Website.Data
 		IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		IRepository<PetTypeEntity, string> PetTypes { get; }
 		ISyncableRepository<SettingEntity, long> Settings { get; }
-		IRepository<TrackerPathEntity, long> TrackerPaths { get; }
 		IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations { get; }
+		IRepository<TrackerPathEntity, long> TrackerPaths { get; }
 
 		#endregion
 	}

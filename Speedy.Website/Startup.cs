@@ -1,18 +1,6 @@
 #region References
 
 using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Net.Http.Headers;
-using Speedy.Profiling;
-using Speedy.Storage.KeyValue;
-using Speedy.Website.Data.Sql;
-using Speedy.Website.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -20,23 +8,35 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Newtonsoft.Json;
-using Speedy.Extensions;
-using Speedy.Serialization;
-using Speedy.Website.Middleware;
-using Speedy.Website.Services;
-using AuthenticationService = Speedy.Website.Services.AuthenticationService;
-using IAuthenticationService = Speedy.Website.Services.IAuthenticationService;
-using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
-using Speedy.Data;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using NUglify;
 using NUglify.Css;
 using NUglify.JavaScript;
+using Speedy.Data;
+using Speedy.Extensions;
+using Speedy.Profiling;
+using Speedy.Serialization;
+using Speedy.Storage.KeyValue;
 using Speedy.Sync;
 using Speedy.Website.Data;
+using Speedy.Website.Data.Sql;
+using Speedy.Website.Middleware;
+using Speedy.Website.Models;
+using Speedy.Website.Services;
 using Speedy.Website.WebApi;
+using AuthenticationService = Speedy.Website.Services.AuthenticationService;
+using IAuthenticationService = Speedy.Website.Services.IAuthenticationService;
+using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 #endregion
 
@@ -75,11 +75,11 @@ namespace Speedy.Website
 
 		public static IWebHostEnvironment Environment { get; private set; }
 
-		public static Tracker Tracker { get; private set; }
-
 		public static bool IndentModelJson => true;
 
 		public static SerializerSettings SerializerSettings { get; private set; }
+
+		public static Tracker Tracker { get; private set; }
 
 		#endregion
 
@@ -103,11 +103,10 @@ namespace Speedy.Website
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
-
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-				app.UseHsts();
 			}
 
+			app.UseHttpsRedirection();
+			app.UseHsts();
 			app.UseWebOptimizer();
 			app.UseStaticFiles(new StaticFileOptions
 			{
@@ -137,8 +136,8 @@ namespace Speedy.Website
 
 			app.UseMiddleware<RequestTracking>();
 			app.UseSession();
+			app.UseStaticFiles();
 			app.UseRouting();
-			app.UseHttpsRedirection();
 			app.UseAuthentication();
 			app.UseAuthorization();
 
@@ -147,7 +146,7 @@ namespace Speedy.Website
 				// Routes
 				endpoints.MapControllerRoute("LogIn", "LogIn", new { controller = "Home", action = "LogIn" });
 				endpoints.MapControllerRoute("LogOut", "LogOut", new { controller = "Home", action = "LogOut" });
-				
+
 				// Defaults
 				endpoints.MapControllerRoute("Speedy", "{controller=Home}/{action=Index}/{id?}");
 			});
@@ -158,6 +157,17 @@ namespace Speedy.Website
 		/// </summary>
 		public void ConfigureServices(IServiceCollection services)
 		{
+			var isDevelopment = Environment.IsDevelopment();
+
+			if (isDevelopment)
+			{
+				services.AddHttpsRedirection(options =>
+				{
+					options.RedirectStatusCode = (int) HttpStatusCode.PermanentRedirect;
+					options.HttpsPort = 443;
+				});
+			}
+
 			services.AddMvc(options =>
 				{
 					var policy = new AuthorizationPolicyBuilder()
@@ -184,7 +194,6 @@ namespace Speedy.Website
 			services.AddControllersWithViews(options => options.Filters.Add(new HttpResponseExceptionFilter()))
 				.AddNewtonsoftJson(options => UpdateSettings(options.SerializerSettings));
 
-			var isDevelopment = Environment.IsDevelopment();
 			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, null), ContosoDatabase.GetDefaultOptions());
 			var syncDatabaseProvider = new SyncableDatabaseProvider<IContosoDatabase>((o, c) => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, c), ContosoDatabase.GetDefaultOptions(), SyncController.KeyCache);
 
@@ -240,7 +249,7 @@ namespace Speedy.Website
 					};
 					options.Events.OnRedirectToAccessDenied = async context =>
 					{
-						if (context.Request.Path.Value != null
+						if ((context.Request.Path.Value != null)
 							&& context.Request.Path.Value.Contains("/api/", StringComparison.OrdinalIgnoreCase))
 						{
 							// This will ignore all web api that are not authorized
@@ -256,7 +265,7 @@ namespace Speedy.Website
 					};
 					options.Events.OnRedirectToLogin = async context =>
 					{
-						if (context.Request.Path.Value != null 
+						if ((context.Request.Path.Value != null)
 							&& context.Request.Path.Value.Contains("/api/", StringComparison.OrdinalIgnoreCase))
 						{
 							// This will ignore all web api that are not authorized

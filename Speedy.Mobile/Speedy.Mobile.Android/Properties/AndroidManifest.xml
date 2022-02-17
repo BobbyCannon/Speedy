@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.companyname.speedy.mobile" android:installLocation="auto" xmlns:tools="http://schemas.android.com/tools">
 	<uses-sdk android:minSdkVersion="28" android:targetSdkVersion="31" />
 	<application android:label="Speedy.Mobile.Android" android:icon="@drawable/icon" android:roundIcon="@drawable/icon" tools:replace="android:label,android:icon,android:roundIcon">

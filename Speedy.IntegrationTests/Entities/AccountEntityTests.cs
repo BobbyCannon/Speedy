@@ -9,9 +9,15 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.IntegrationTests.Entities
 {
 	[TestClass]
-	public class AccountEntityTests : BaseEntityTests
+	public class AccountEntityTests : BaseEntityTests<AccountEntity>
 	{
 		#region Methods
+
+		[TestMethod]
+		public void AllPropertiesSet()
+		{
+			ValidateModel(GetModelWithNonDefaultValues());
+		}
 
 		/// <summary>
 		/// We want to make sure these never change, when they do it should be very deliberate
@@ -19,7 +25,7 @@ namespace Speedy.IntegrationTests.Entities
 		[TestMethod]
 		public void SyncExclusions()
 		{
-			var entity = new AccountEntity();
+			var entity = GetModelWithNonDefaultValues();
 			var expected = new Dictionary<string, (bool incoming, bool outgoing, bool syncUpdate, bool changeTracking)>
 			{
 				{ "Address", (true, true, true, false) },

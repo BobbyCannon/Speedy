@@ -1,6 +1,5 @@
 ﻿#region References
 
-using SQLitePCL;
 using UIKit;
 
 #endregion

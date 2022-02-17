@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Profiling;
 using Speedy.Storage.KeyValue;
@@ -12,6 +13,24 @@ namespace Speedy.UnitTests.Profiling
 	public class TrackerPathTests
 	{
 		#region Methods
+
+		[TestMethod]
+		public void CompleteShouldWork()
+		{
+			var currentTime = new DateTime(2020, 12, 15, 01, 02, 03, 999, DateTimeKind.Utc);
+
+			TimeService.UtcNowProvider = () => currentTime;
+
+			var path = new TrackerPath();
+			Assert.AreEqual(false, path.IsCompleted);
+			Assert.AreEqual(0, path.ElapsedTime.Ticks);
+
+			currentTime = currentTime.AddMilliseconds(1);
+
+			path.Complete();
+			Assert.AreEqual(true, path.IsCompleted);
+			Assert.AreEqual(1, path.ElapsedTime.TotalMilliseconds);
+		}
 
 		[TestMethod]
 		public void DisposeShouldComplete()

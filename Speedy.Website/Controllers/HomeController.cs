@@ -39,13 +39,13 @@ namespace Speedy.Website.Controllers
 		{
 			return View();
 		}
-		
+
 		[AllowAnonymous]
 		public IActionResult LogIn()
 		{
 			return View();
 		}
-		
+
 		[AllowAnonymous]
 		public IActionResult LogOut()
 		{

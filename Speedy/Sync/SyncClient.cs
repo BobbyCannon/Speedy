@@ -151,7 +151,7 @@ namespace Speedy.Sync
 						continue;
 					}
 
-					var syncRepositoryFilter = SyncOptions.GetRepositoryLookupFilter(repository);
+					var syncRepositoryFilter = SyncOptions.GetFilter(repository);
 
 					// Check to see if this repository should be skipped
 					var changeCount = repository.GetChangeCount(request.Since, request.Until, syncRepositoryFilter);
@@ -334,7 +334,7 @@ namespace Speedy.Sync
 					return 0;
 				}
 
-				var syncRepositoryFilter = SyncOptions.GetRepositoryLookupFilter(repository);
+				var syncRepositoryFilter = SyncOptions.GetFilter(repository);
 				return repository.GetChangeCount(request.Since, request.Until, syncRepositoryFilter);
 			});
 
@@ -403,7 +403,7 @@ namespace Speedy.Sync
 					return;
 				}
 
-				if (SyncOptions.ShouldFilterEntity(syncObject.TypeName, syncEntity))
+				if (SyncOptions.ShouldFilterIncomingEntity(syncObject.TypeName, syncEntity))
 				{
 					var issue = new SyncIssue
 					{
@@ -425,7 +425,7 @@ namespace Speedy.Sync
 					throw new InvalidDataException("Failed to find a syncable repository for the entity.");
 				}
 
-				var syncRepositoryFilter = SyncOptions.GetRepositoryLookupFilter(repository);
+				var syncRepositoryFilter = SyncOptions.GetFilter(repository);
 				var foundEntity = Profiler.ProcessSyncObjectReadEntity.Time(() =>
 				{
 					// Check to see if primary key caching is enabled and is never expiring for a client
@@ -476,6 +476,7 @@ namespace Speedy.Sync
 				switch (syncStatus)
 				{
 					case SyncObjectStatus.Added:
+					{
 						Profiler.ProcessSyncObjectAdded.Time(() =>
 						{
 							// Instantiate a new instance of the sync entity to update, also use the provided sync ID
@@ -490,8 +491,9 @@ namespace Speedy.Sync
 							}
 						});
 						break;
-
+					}
 					case SyncObjectStatus.Modified:
+					{
 						Profiler.ProcessSyncObjectModified.Time(() =>
 						{
 							if ((foundEntity == null) || ((foundEntity.ModifiedOn >= syncEntity.ModifiedOn) && !correction))
@@ -506,8 +508,9 @@ namespace Speedy.Sync
 							}
 						});
 						break;
-
+					}
 					case SyncObjectStatus.Deleted:
+					{
 						Profiler.ProcessSyncObjectDeleted.Time(() =>
 						{
 							if (foundEntity == null)
@@ -544,9 +547,11 @@ namespace Speedy.Sync
 							}
 						});
 						break;
-
+					}
 					default:
+					{
 						throw new ArgumentOutOfRangeException();
+					}
 				}
 			});
 		}

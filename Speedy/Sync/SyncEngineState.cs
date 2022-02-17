@@ -43,9 +43,9 @@ namespace Speedy.Sync
 		/// Indicates if the sync engine is running.
 		/// </summary>
 		public bool IsRunning =>
-			(Status != SyncEngineStatus.Cancelled)
-			&& (Status != SyncEngineStatus.Completed)
-			&& (Status != SyncEngineStatus.Stopped);
+			Status is SyncEngineStatus.Starting
+				or SyncEngineStatus.Pulling
+				or SyncEngineStatus.Pushing;
 
 		/// <summary>
 		/// Gets or set the message for the state.
@@ -85,8 +85,10 @@ namespace Speedy.Sync
 			{
 				case nameof(Count):
 				case nameof(Total):
+				{
 					base.OnPropertyChanged(nameof(Percent));
 					break;
+				}
 			}
 
 			base.OnPropertyChanged(propertyName);

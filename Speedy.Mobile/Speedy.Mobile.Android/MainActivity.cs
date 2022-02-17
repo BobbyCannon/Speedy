@@ -2,11 +2,9 @@
 
 using System.Net;
 using Android.App;
-using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Platform = Xamarin.Essentials.Platform;
@@ -33,6 +31,12 @@ namespace Speedy.Mobile.Droid
 			base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
 
+		protected override void Dispose(bool disposing)
+		{
+			ForegroundService.StopService();
+			base.Dispose(disposing);
+		}
+
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			TabLayoutResource = Resource.Layout.Tabbar;
@@ -50,16 +54,10 @@ namespace Speedy.Mobile.Droid
 
 			var permissionsProvider = new PermissionProvider(this);
 			permissionsProvider.RequestPermission(PermissionType.All);
-			
+
 			CreateNotificationChannel();
 			ForegroundService = new MobileForegroundService();
 			ForegroundService.StartService();
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			ForegroundService.StopService();
-			base.Dispose(disposing);
 		}
 
 		private void CreateNotificationChannel()

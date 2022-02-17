@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Speedy.Data.SyncApi;
+using Speedy.Data.Updates;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Serialization;
@@ -24,50 +26,89 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void AgeTest()
 		{
-			var json = "{ \"Age\":21 }";
-			var update = PartialUpdate.FromJson<MyClass>(json);
-			var actual = new MyClass();
-			Assert.IsNull(actual.Name);
-			update.Apply(actual);
-			Assert.IsNull(actual.Name);
-			Assert.AreEqual(21, actual.Age);
-			Assert.AreEqual(0, actual.Id);
-			Assert.AreEqual(Guid.Empty, actual.SyncId);
+			var scenarios = new (string data, Action<MyClass> before, Action<MyClass, PartialUpdate<MyClass>> after)[]
+			{
+				(
+					"{ \"Age\":21 }",
+					before =>
+					{
+						Assert.IsNull(before.Name);
+						Assert.AreEqual(0, before.Age);
+					},
+					(after, update) =>
+					{
+						Assert.AreEqual(1, update.Updates.Count);
+						Assert.IsNull(after.Name);
+						Assert.AreEqual(21, after.Age);
+						Assert.AreEqual(0, after.Id);
+						Assert.AreEqual(Guid.Empty, after.SyncId);
+					}
+				),
+				(
+					"{ \"age\":21 }",
+					before =>
+					{
+						Assert.IsNull(before.Name);
+						Assert.AreEqual(0, before.Age);
+					},
+					(after, update) =>
+					{
+						Assert.AreEqual(1, update.Updates.Count);
+						Assert.IsNull(after.Name);
+						Assert.AreEqual(21, after.Age);
+						Assert.AreEqual(0, after.Id);
+						Assert.AreEqual(Guid.Empty, after.SyncId);
+					}
+				),
+				(
+					"{ \"age\":\"aoeu\" }",
+					before =>
+					{
+						Assert.IsNull(before.Name);
+						Assert.AreEqual(0, before.Age);
+					},
+					(after, update) =>
+					{
+						Assert.AreEqual(0, update.Updates.Count);
+						Assert.IsNull(after.Name);
+						Assert.AreEqual(0, after.Age);
+						Assert.AreEqual(0, after.Id);
+						Assert.AreEqual(Guid.Empty, after.SyncId);
+					}
+				)
+			};
 
-			json = "{ \"age\":21 }";
-			update = PartialUpdate.FromJson<MyClass>(json);
-			actual = new MyClass();
-			Assert.IsNull(actual.Name);
-			update.Apply(actual);
-			Assert.IsNull(actual.Name);
-			Assert.AreEqual(21, actual.Age);
-
-			json = "{ \"age\":\"aoeu\" }";
-			update = PartialUpdate.FromJson<MyClass>(json);
-			Assert.AreEqual(0, update.Updates.Count);
-			actual = new MyClass();
-			Assert.IsNull(actual.Name);
-			update.Apply(actual);
-			Assert.IsNull(actual.Name);
-			Assert.AreEqual(0, actual.Age);
+			foreach (var scenario in scenarios)
+			{
+				var update = PartialUpdate.FromJson<MyClass>(scenario.data);
+				var actual = new MyClass();
+				scenario.before(actual);
+				update.Apply(actual);
+				scenario.after(actual, update);
+			}
 		}
 
 		[TestMethod]
 		public void EmptyJson()
 		{
-			var json = "{}";
-			var update = PartialUpdate.FromJson<MyClass>(json);
-			var actual = new MyClass();
-			Assert.IsNull(actual.Name);
-			update.Apply(actual);
-			Assert.IsNull(actual.Name);
+			var scenarios = new[] { "{}", "[]", null, "", " ", "[{}]" };
 
-			json = "[]";
-			update = PartialUpdate.FromJson<MyClass>(json);
-			actual = new MyClass();
-			Assert.IsNull(actual.Name);
-			update.Apply(actual);
-			Assert.IsNull(actual.Name);
+			foreach (var scenario in scenarios)
+			{
+				$"\"{scenario.Escape()}\"".Dump();
+
+				var update = (PartialUpdate) PartialUpdate.FromJson<MyClass>(scenario);
+				var actual = new MyClass();
+				Assert.IsNull(actual.Name);
+				update.Apply(actual);
+				Assert.IsNull(actual.Name);
+
+				update = PartialUpdate.FromJson(scenario, typeof(MyClass));
+				actual = new MyClass();
+				Assert.IsNull(actual.Name);
+				update.Apply(actual);
+				Assert.IsNull(actual.Name);
+			}
 		}
 
 		[TestMethod]
@@ -138,7 +179,7 @@ namespace Speedy.UnitTests
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			var options = new PartialUpdateOptions<MyClass>();
-			options.ExcludeProperties(nameof(MyClass.Id), nameof(MyClass.ModifiedOn));
+			options.ExcludedProperties.AddRange(nameof(MyClass.Id), nameof(MyClass.ModifiedOn));
 			var update = PartialUpdate.FromJson(json, options);
 			Assert.AreEqual(2, update.Updates.Count);
 
@@ -164,7 +205,7 @@ namespace Speedy.UnitTests
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			var options = new PartialUpdateOptions<MyClass>();
-			options.IncludeProperties(nameof(MyClass.Age), nameof(MyClass.Name));
+			options.IncludedProperties.AddRange(nameof(MyClass.Age), nameof(MyClass.Name));
 			var update = PartialUpdate.FromJson(json, options);
 			Assert.AreEqual(2, update.Updates.Count);
 
@@ -190,7 +231,7 @@ namespace Speedy.UnitTests
 		{
 			var json = "{ \"DoesNotExistOnMyClass\": true }";
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>(json).Updates.Count);
-			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>((string) null).Updates.Count);
+			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>(null).Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>("").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>(" ").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>("\t").Updates.Count);
@@ -199,7 +240,7 @@ namespace Speedy.UnitTests
 
 			var type = typeof(MyClass);
 			Assert.AreEqual(0, PartialUpdate.FromJson(json, type).Updates.Count);
-			Assert.AreEqual(0, PartialUpdate.FromJson((string) null, type).Updates.Count);
+			Assert.AreEqual(0, PartialUpdate.FromJson(null, type).Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson("", type).Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson(" ", type).Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson("\t", type).Updates.Count);
@@ -223,6 +264,73 @@ namespace Speedy.UnitTests
 			Assert.IsNull(actual.Name);
 			update.Apply(actual);
 			Assert.AreEqual("foobar", actual.Name);
+		}
+
+		[TestMethod]
+		public void PartialUpdateAdd()
+		{
+			var update = new PartialUpdate<Account>();
+			update.Set(nameof(Account.Name), "Fred");
+			Assert.AreEqual("{\"Name\":\"Fred\"}", update.ToJson());
+			Assert.AreEqual("{\"Name\":\"Fred\"}", Serializer.ToJson(update));
+
+			update = new PartialUpdate<Account>();
+			TestHelper.ExpectedException<SpeedyException>(
+				() => update.Set(nameof(Account.Name), 21)
+				, "The property type does not match the values type."
+			);
+
+			var accountUpdate = new AccountUpdate();
+			Assert.AreEqual(0, accountUpdate.Updates.Count);
+
+			accountUpdate.Name = "Fred";
+			Assert.AreEqual(1, accountUpdate.Updates.Count);
+			Assert.AreEqual("Name", accountUpdate.Updates["Name"].Name);
+			Assert.AreEqual("Fred", accountUpdate.Updates["Name"].Value);
+			Assert.AreEqual("Fred", accountUpdate.Get<string>(nameof(Account.Name)));
+		}
+
+		[TestMethod]
+		public void PartialUpdateApply()
+		{
+			var update = new PartialUpdate<Account>();
+			update.Set(nameof(Account.Name), "Fred");
+			var account = new Account();
+			Assert.AreEqual(null, account.Name);
+
+			update.Apply(account);
+			Assert.AreEqual("Fred", account.Name);
+
+			var accountUpdate = new AccountUpdate();
+			Assert.AreEqual(0, accountUpdate.Updates.Count);
+
+			accountUpdate.Name = "Fred";
+			Assert.AreEqual(1, accountUpdate.Updates.Count);
+			Assert.AreEqual("Name", accountUpdate.Updates["Name"].Name);
+			Assert.AreEqual("Fred", accountUpdate.Updates["Name"].Value);
+		}
+
+		[TestMethod]
+		public void PartialUpdateFromJson()
+		{
+			var account = new AccountEntity();
+			var json = @"{""Name"":""Bob""}";
+			var update = PartialUpdate<AccountEntity>.FromJson(json);
+			Assert.AreEqual(false, account.HasChanges());
+
+			update.Apply(account);
+			Assert.AreEqual(true, account.HasChanges());
+			Assert.AreEqual(json, update.ToJson());
+		}
+
+		[TestMethod]
+		public void PartialUpdateGetInstance()
+		{
+			var update = new PartialUpdate<Account>();
+			update.Set(nameof(Account.Name), "Fred");
+			var account = (Account) update.GetInstance();
+			Assert.AreEqual("Fred", account.Name);
+			Assert.AreEqual("{\"Name\":\"Fred\"}", update.ToJson());
 		}
 
 		[TestMethod]

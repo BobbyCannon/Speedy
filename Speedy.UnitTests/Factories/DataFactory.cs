@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using Speedy.Data.SyncApi;
 
 #endregion
@@ -20,7 +19,7 @@ namespace Speedy.UnitTests.Factories
 				Id = default,
 				EmailAddress = "john@domain.com",
 				Name = "John Doe",
-				Roles = new [] { "Administrator" },
+				Roles = new[] { "Administrator" },
 				SyncId = Guid.NewGuid(),
 				CreatedOn = time,
 				ModifiedOn = time

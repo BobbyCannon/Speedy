@@ -8,10 +8,16 @@
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>8.3.5.0</AssemblyVersion>
-		<FileVersion>8.3.5.0</FileVersion>
-		<Version>8.3.5.0</Version>
+		<AssemblyVersion>8.3.6.0</AssemblyVersion>
+		<FileVersion>8.3.6.0</FileVersion>
+		<Version>8.3.6.0</Version>
 	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Data\Reader\**" />
+		<EmbeddedResource Remove="Data\Reader\**" />
+		<None Remove="Data\Reader\**" />
+		<Page Remove="Data\Reader\**" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.74.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
@@ -31,8 +37,5 @@
 		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
 		<ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Data\Reader\" />
 	</ItemGroup>
 </Project>

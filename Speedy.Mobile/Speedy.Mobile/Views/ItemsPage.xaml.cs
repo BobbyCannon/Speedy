@@ -31,6 +31,10 @@ namespace Speedy.Mobile.Views
 			BindingContext = _viewModel = new ItemsViewModel(MobileDispatcher);
 		}
 
+		#endregion
+
+		#region Properties
+
 		public MobileDispatcher MobileDispatcher { get; }
 
 		#endregion

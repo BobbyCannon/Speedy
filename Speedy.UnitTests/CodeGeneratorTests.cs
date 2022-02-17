@@ -93,7 +93,7 @@ namespace Speedy.UnitTests
 				.ToList();
 
 			builder.AppendLine($@"/// <summary>
-/// Update the SyncStatistics with an update.
+/// Update the {type.Name} with an update.
 /// </summary>
 /// <param name=""update""> The update to be applied. </param>
 /// <param name=""exclusions""> An optional set of properties to exclude. </param>

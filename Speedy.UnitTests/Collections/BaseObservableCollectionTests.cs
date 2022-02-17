@@ -53,7 +53,7 @@ namespace Speedy.UnitTests.Collections
 		public void DistinctCollection()
 		{
 			var collection = new BaseObservableCollection<string> { DistinctCheck = Equals };
-			collection.AddRange(new[] { "test", "test", "test", "test" });
+			collection.AddRange("test", "test", "test", "test");
 			Assert.AreEqual(1, collection.Count);
 			Assert.AreEqual("test", collection[0]);
 		}

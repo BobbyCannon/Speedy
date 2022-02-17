@@ -49,7 +49,7 @@ namespace Speedy.Website.Services
 		{
 			return $",{string.Join(",", tags.Select(x => (x?.ToString() ?? string.Empty).Trim()).Distinct().OrderBy(x => x))},";
 		}
-		
+
 		/// <summary>
 		/// Combines a list of tags into a single string. Stores only distinct tags and joins them with a comma ",".
 		/// </summary>

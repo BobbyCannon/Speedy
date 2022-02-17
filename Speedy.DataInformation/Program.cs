@@ -13,8 +13,8 @@ namespace Speedy.DataInformation
 
 		private static void Main(string[] args)
 		{
-			ShowSqliteDataTypes(byte.MinValue, 
-				short.MinValue, ushort.MinValue, 
+			ShowSqliteDataTypes(byte.MinValue,
+				short.MinValue, ushort.MinValue,
 				int.MinValue, uint.MinValue,
 				long.MinValue, ulong.MinValue,
 				DateTime.MinValue, "string.Empty",

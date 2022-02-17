@@ -59,7 +59,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="entity"> The entity to be tested. </param>
 		/// <returns> True if the entity matches the incoming filter or false if otherwise. </returns>
-		public bool ShouldFilterEntity(T entity)
+		public bool ShouldFilterIncomingEntity(T entity)
 		{
 			// Only filter if the entity does not pass the test, default to passed if no incoming filter provided.
 			return !(IncomingFilter?.Compile().Invoke(entity) ?? true);
