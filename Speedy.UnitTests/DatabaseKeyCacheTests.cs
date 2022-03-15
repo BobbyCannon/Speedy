@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Sync;
 using Speedy.UnitTests.Factories;
@@ -56,6 +57,25 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void HasKeysBeenLoadedIntoCache()
+		{
+			var memoryDatabase = new ContosoMemoryDatabase();
+			var cache = new DatabaseKeyCache();
+			cache.Initialize(typeof(AccountEntity), typeof(AddressEntity));
+
+			Assert.IsFalse(cache.HasKeysBeenLoadedIntoCache(typeof(AccountEntity)));
+			Assert.IsFalse(cache.HasKeysBeenLoadedIntoCache(typeof(AddressEntity)));
+
+			cache.LoadKeysIntoCache(memoryDatabase, typeof(AccountEntity));
+
+			Assert.IsTrue(cache.HasKeysBeenLoadedIntoCache(typeof(AccountEntity)));
+			Assert.IsFalse(cache.HasKeysBeenLoadedIntoCache(typeof(AddressEntity)));
+
+			var accountKeys = cache[typeof(AccountEntity)];
+			Assert.AreEqual(0, accountKeys.Count);
+		}
+
+		[TestMethod]
 		public void InitializeWithDatabase()
 		{
 			var memoryDatabase = new ContosoMemoryDatabase();
@@ -65,8 +85,9 @@ namespace Speedy.UnitTests
 			memoryDatabase.Accounts.Add(EntityFactory.GetAccount(address: address));
 			memoryDatabase.SaveChanges();
 			var cache = new DatabaseKeyCache();
-			cache.Initialize(memoryDatabase);
-			Assert.AreEqual(2, cache.Count);
+			var syncableTypes = memoryDatabase.GetSyncableRepositories(new SyncOptions()).Select(x => x.RealType).ToArray();
+			cache.InitializeAndLoad(memoryDatabase, syncableTypes);
+			Assert.AreEqual(4, cache.Count);
 			Assert.AreEqual(3, cache.TotalCachedItems);
 
 			memoryDatabase = new ContosoMemoryDatabase();
@@ -76,8 +97,8 @@ namespace Speedy.UnitTests
 			memoryDatabase.SaveChanges();
 			var memoryProvider = new SyncableDatabaseProvider((o, c) => memoryDatabase, ContosoDatabase.GetDefaultOptions(), null, null);
 			cache = new DatabaseKeyCache();
-			cache.Initialize(memoryProvider);
-			Assert.AreEqual(2, cache.Count);
+			cache.InitializeAndLoad(memoryProvider.GetSyncableDatabase(), syncableTypes);
+			Assert.AreEqual(4, cache.Count);
 			Assert.AreEqual(3, cache.TotalCachedItems);
 		}
 
@@ -86,13 +107,13 @@ namespace Speedy.UnitTests
 		{
 			var memoryDatabase = new ContosoMemoryDatabase();
 			var cache = new DatabaseKeyCache();
-			cache.Initialize(memoryDatabase);
+			cache.InitializeAndLoad(memoryDatabase);
 			Assert.AreEqual(0, cache.TotalCachedItems);
 
 			memoryDatabase = new ContosoMemoryDatabase();
 			var memoryProvider = new SyncableDatabaseProvider((o, c) => memoryDatabase, ContosoDatabase.GetDefaultOptions(), null, null);
 			cache = new DatabaseKeyCache();
-			cache.Initialize(memoryProvider);
+			cache.InitializeAndLoad(memoryProvider);
 			Assert.AreEqual(0, cache.TotalCachedItems);
 		}
 

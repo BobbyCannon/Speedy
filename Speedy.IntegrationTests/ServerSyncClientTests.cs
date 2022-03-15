@@ -381,7 +381,7 @@ namespace Speedy.IntegrationTests
 			memoryDatabase.LogEvents.AddOrUpdate(logEvent6);
 
 			memoryDatabase.SaveChanges();
-			keyCache?.Initialize(memoryDatabase);
+			keyCache?.InitializeAndLoad(memoryDatabase);
 
 			Assert.AreNotEqual(0, memoryDatabase.Accounts.Count());
 			Assert.AreNotEqual(0, memoryDatabase.Addresses.Count());

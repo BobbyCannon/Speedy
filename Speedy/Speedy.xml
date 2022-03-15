@@ -877,6 +877,13 @@
             The total types tracked.
             </summary>
         </member>
+        <member name="P:Speedy.DatabaseKeyCache.Item(System.Type)">
+            <summary>
+            Return the cache for the type. If the type has not been cached then null will be returned.
+            </summary>
+            <param name="type"> The type for the key cache. </param>
+            <returns> The memory cache for the type if found otherwise null if not. </returns>
+        </member>
         <member name="P:Speedy.DatabaseKeyCache.SyncEntitiesToCache">
             <summary>
             Gets or sets the list of entities to cache the keys (ID, Sync ID). If the collection is empty
@@ -927,25 +934,43 @@
             <param name="syncId"> The sync ID of the entity. </param>
             <returns> The ID of the entity. </returns>
         </member>
+        <member name="M:Speedy.DatabaseKeyCache.HasKeysBeenLoadedIntoCache(System.Type)">
+            <summary>
+            Returns true if they keys have been loaded.
+            </summary>
+        </member>
         <member name="M:Speedy.DatabaseKeyCache.Initialize(System.Type[])">
             <summary>
             Initializes the default key cache.
             </summary>
             <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabaseProvider,System.Type[])">
+        <member name="M:Speedy.DatabaseKeyCache.InitializeAndLoad(Speedy.ISyncableDatabaseProvider,System.Type[])">
             <summary>
-            Initializes the default key cache.
+            Initializes the default key cache and load the keys.
             </summary>
             <param name="provider"> The syncable database provider. </param>
             <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.Initialize(Speedy.ISyncableDatabase,System.Type[])">
+        <member name="M:Speedy.DatabaseKeyCache.InitializeAndLoad(Speedy.ISyncableDatabase,System.Type[])">
             <summary>
-            Initializes the default key cache.
+            Initializes the default key cache and load the keys.
             </summary>
             <param name="database"> The syncable database. </param>
             <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.LoadKeysIntoCache(Speedy.ISyncableDatabase)">
+            <summary>
+            Loads all keys for the sync entities to be cached.
+            </summary>
+            <param name="database"> The database to use for loading. </param>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.LoadKeysIntoCache(Speedy.ISyncableDatabase,System.Type[])">
+            <summary>
+            Allows for caching of individual sync types.
+            </summary>
+            <param name="database"> The database to use for loading. </param>
+            <param name="types"> The types to be loaded. </param>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.RemoveEntity(Speedy.Sync.ISyncEntity)">
             <summary>
@@ -953,7 +978,7 @@
             </summary>
             <param name="entity"> The entity to be un-cached. </param>
         </member>
-        <member name="M:Speedy.DatabaseKeyCache.RemoveEntityId(System.Type,System.Guid)">
+        <member name="M:Speedy.DatabaseKeyCache.RemoveEntityId(System.Type,System.Object)">
             <summary>
             Remove an entity ID for the entity Sync ID.
             </summary>
@@ -972,6 +997,14 @@
             Get a detailed string of cached entities
             </summary>
             <returns> A detailed string. </returns>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.AddEntityId(Speedy.Storage.MemoryCache,System.Object,System.Object)">
+            <summary>
+            Cache an entity ID for the entity Sync ID.
+            </summary>
+            <param name="cache"> The cache to add the keys to. </param>
+            <param name="syncId"> The sync ID of the entity. </param>
+            <param name="id"> The ID of the entity. </param>
         </member>
         <member name="T:Speedy.DatabaseOptions">
             <summary>
@@ -3017,6 +3050,13 @@
             <typeparam name="T"> The type of the entity of the collection. </typeparam>
             <typeparam name="T2"> The type of the entity key. </typeparam>
         </member>
+        <member name="M:Speedy.ISyncableRepository`2.ReadByPrimaryId(`1)">
+            <summary>
+            Gets the sync entity by the primary ID.
+            </summary>
+            <param name="primaryId"> The primary ID of the sync entity. </param>
+            <returns> The sync entity or null. </returns>
+        </member>
         <member name="T:Speedy.ISyncableRepository">
             <summary>
             Represents a syncable repository.
@@ -3078,6 +3118,13 @@
             Read all keys for the repository.
             </summary>
             <returns> </returns>
+        </member>
+        <member name="M:Speedy.ISyncableRepository.ReadByPrimaryId(System.Object)">
+            <summary>
+            Gets the sync entity by the primary ID.
+            </summary>
+            <param name="primaryId"> The primary ID of the sync entity. </param>
+            <returns> The sync entity or null. </returns>
         </member>
         <member name="M:Speedy.ISyncableRepository.Remove(Speedy.Sync.ISyncEntity)">
             <summary>
@@ -8587,6 +8634,12 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.SyncableRepository`2.ReadAllKeys">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.SyncableRepository`2.ReadByPrimaryId(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.SyncableRepository`2.ReadByPrimaryId(`1)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.SyncableRepository`2.Remove(Speedy.Sync.ISyncEntity)">

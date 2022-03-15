@@ -84,6 +84,20 @@ namespace Speedy.Storage
 		}
 
 		/// <inheritdoc />
+		public ISyncEntity ReadByPrimaryId(object primaryId)
+		{
+			var state = Cache.FirstOrDefault(x => Equals(x.Entity.Id, primaryId));
+			return state?.Entity;
+		}
+
+		/// <inheritdoc />
+		public ISyncEntity ReadByPrimaryId(T2 primaryId)
+		{
+			var state = Cache.FirstOrDefault(x => Equals(x.Entity.Id, primaryId));
+			return state?.Entity;
+		}
+
+		/// <inheritdoc />
 		public void Remove(ISyncEntity entity)
 		{
 			base.Remove((T) entity);

@@ -318,6 +318,12 @@
         <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.ReadAllKeys">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.ReadByPrimaryId(`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.ReadByPrimaryId(System.Object)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkSyncableRepository`2.Remove(Speedy.Sync.ISyncEntity)">
             <inheritdoc />
         </member>

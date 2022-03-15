@@ -49,7 +49,7 @@ namespace Speedy.Extensions
 					continue;
 				}
 
-				var isPropertyExcluded = exclusions.Contains(thisProperty.Name);
+				var isPropertyExcluded = exclusions?.Contains(thisProperty.Name) == true;
 				if (isPropertyExcluded)
 				{
 					continue;

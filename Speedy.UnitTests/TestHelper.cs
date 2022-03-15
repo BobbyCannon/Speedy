@@ -668,7 +668,7 @@ namespace Speedy.UnitTests
 
 			database.SaveChanges();
 
-			keyCache?.Initialize(database);
+			keyCache?.InitializeAndLoad(database);
 		}
 
 		/// <summary>

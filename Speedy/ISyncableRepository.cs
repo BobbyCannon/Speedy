@@ -15,6 +15,16 @@ namespace Speedy
 	/// <typeparam name="T2"> The type of the entity key. </typeparam>
 	public interface ISyncableRepository<T, in T2> : ISyncableRepository, IRepository<T, T2> where T : SyncEntity<T2>
 	{
+		#region Methods
+
+		/// <summary>
+		/// Gets the sync entity by the primary ID.
+		/// </summary>
+		/// <param name="primaryId"> The primary ID of the sync entity. </param>
+		/// <returns> The sync entity or null. </returns>
+		ISyncEntity ReadByPrimaryId(T2 primaryId);
+
+		#endregion
 	}
 
 	/// <summary>
@@ -84,6 +94,13 @@ namespace Speedy
 		/// </summary>
 		/// <returns> </returns>
 		IDictionary<Guid, object> ReadAllKeys();
+
+		/// <summary>
+		/// Gets the sync entity by the primary ID.
+		/// </summary>
+		/// <param name="primaryId"> The primary ID of the sync entity. </param>
+		/// <returns> The sync entity or null. </returns>
+		ISyncEntity ReadByPrimaryId(object primaryId);
 
 		/// <summary>
 		/// Removes a sync entity to the repository.

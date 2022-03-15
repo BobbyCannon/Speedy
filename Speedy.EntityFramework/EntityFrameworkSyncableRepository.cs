@@ -109,6 +109,18 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <inheritdoc />
+		public ISyncEntity ReadByPrimaryId(T2 primaryId)
+		{
+			return Set.FirstOrDefault(x => x.Id.Equals(primaryId));
+		}
+
+		/// <inheritdoc />
+		public ISyncEntity ReadByPrimaryId(object primaryId)
+		{
+			return ReadByPrimaryId((T2) primaryId);
+		}
+
+		/// <inheritdoc />
 		public void Remove(ISyncEntity entity)
 		{
 			base.Remove((T) entity);

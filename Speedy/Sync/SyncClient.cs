@@ -328,7 +328,7 @@ namespace Speedy.Sync
 			{
 				// Skip this type if it's being filters or if the outgoing converter cannot convert
 				if (SyncOptions.ShouldExcludeRepository(repository.TypeName)
-					|| ((OutgoingConverter != null) && !OutgoingConverter.CanConvert(repository.TypeName)))
+					|| (OutgoingConverter?.CanConvert(repository.TypeName) == false))
 				{
 					// Do not count this repository because we have filters and the repository is not in the filters.
 					return 0;
@@ -451,6 +451,14 @@ namespace Speedy.Sync
 						{
 							// The ID was not found so the entity is to believed to not exist.
 							return null;
+						}
+
+						// Id was found so let's read the entity by the primary key
+						var readEntity = repository.ReadByPrimaryId(id);
+						if ((readEntity != null) && (readEntity.GetEntitySyncId() == syncEntity.SyncId))
+						{
+							// The entity was found so return it by ID.
+							return readEntity;
 						}
 					}
 

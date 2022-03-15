@@ -113,7 +113,7 @@ namespace Speedy.Benchmark
 			if (view.UseBulkProcessing)
 			{
 				database.Accounts.BulkAddOrUpdate(entities);
-				client.DatabaseProvider.KeyCache.Initialize(database);
+				client.DatabaseProvider.KeyCache.InitializeAndLoad(database);
 			}
 			else
 			{
@@ -178,7 +178,7 @@ namespace Speedy.Benchmark
 			if (view.UseBulkProcessing)
 			{
 				database.Addresses.BulkAddOrUpdate(entities);
-				client.DatabaseProvider.KeyCache.Initialize(database);
+				client.DatabaseProvider.KeyCache.InitializeAndLoad(database);
 			}
 			else
 			{

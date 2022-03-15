@@ -75,21 +75,30 @@ namespace Speedy.IntegrationTests
 			// Initialize with no parameters
 			keyCache.AddEntityId(typeof(AddressEntity), Guid.Parse("4B6E7980-3715-4C2C-9DC6-F9A5F2A40351"), 1);
 			Assert.AreEqual(1, keyCache.Count);
+			Assert.AreEqual(1, keyCache.TotalCachedItems);
+
 			keyCache.Initialize();
 			Assert.AreEqual(0, keyCache.Count);
+			Assert.AreEqual(0, keyCache.TotalCachedItems);
 
 			// Initialize with database provider
 			keyCache.AddEntityId(typeof(AddressEntity), Guid.Parse("4B6E7980-3715-4C2C-9DC6-F9A5F2A40351"), 1);
 			Assert.AreEqual(1, keyCache.Count);
-			keyCache.Initialize(server.DatabaseProvider, typeof(AddressEntity));
-			Assert.AreEqual(0, keyCache.Count);
+			Assert.AreEqual(1, keyCache.TotalCachedItems);
+
+			keyCache.InitializeAndLoad(server.DatabaseProvider, typeof(AddressEntity));
+			Assert.AreEqual(1, keyCache.Count);
+			Assert.AreEqual(0, keyCache.TotalCachedItems);
 
 			// Initialize with database
 			keyCache.AddEntityId(typeof(AddressEntity), Guid.Parse("4B6E7980-3715-4C2C-9DC6-F9A5F2A40351"), 1);
 			Assert.AreEqual(1, keyCache.Count);
+			Assert.AreEqual(1, keyCache.TotalCachedItems);
+
 			using var database = server.DatabaseProvider.GetSyncableDatabase();
-			keyCache.Initialize(database, typeof(AddressEntity));
-			Assert.AreEqual(0, keyCache.Count);
+			keyCache.InitializeAndLoad(database, typeof(AddressEntity));
+			Assert.AreEqual(1, keyCache.Count);
+			Assert.AreEqual(0, keyCache.TotalCachedItems);
 		}
 
 		[TestMethod]
