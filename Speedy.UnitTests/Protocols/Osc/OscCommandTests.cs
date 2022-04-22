@@ -22,7 +22,8 @@ namespace Speedy.UnitTests.Protocols.Osc
 		{
 			var message = new OscMessage(TestOscCommand.Command, 1, (ulong) 23, "John", 20, new DateTime(2000, 01, 15, 0, 0, 0, DateTimeKind.Utc), 5.11f, 164.32,
 				(byte) 4, new byte[] { 0, 1, 1, 2, 3, 5, 8, 13 }, true, Guid.Parse("E3966202-40FA-443D-B21F-E1528A1E6DFE"),
-				uint.MaxValue, long.MaxValue, TimeSpan.Parse("12:34:56"), SerialError.Overrun
+				uint.MaxValue, long.MaxValue, TimeSpan.Parse("12:34:56"), SerialError.Overrun, 123.4567890123m,
+				decimal.MinValue, decimal.MaxValue, (sbyte) 5
 			);
 
 			var command = new TestOscCommand();
@@ -43,6 +44,10 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(long.MaxValue, command.GetArgument<long>());
 			Assert.AreEqual(new TimeSpan(12, 34, 56), command.GetArgument<TimeSpan>());
 			Assert.AreEqual(SerialError.Overrun, command.GetArgument<SerialError>());
+			Assert.AreEqual(123.4567890123m, command.GetArgument<decimal>());
+			Assert.AreEqual(decimal.MinValue, command.GetArgument<decimal>());
+			Assert.AreEqual(decimal.MaxValue, command.GetArgument<decimal>());
+			Assert.AreEqual((sbyte) 5, command.GetArgument<sbyte>());
 		}
 
 		[TestMethod]

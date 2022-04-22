@@ -13,10 +13,9 @@ namespace Speedy.Data.Updates
 
 		public AccountUpdate()
 		{
-			Options.Property(x => x.Name)
-				.HasMinMaxRange(1, 450)
-				.Throws("Name must be between 1 and 450 characters in length.")
-				.IsRequired();
+			//Options.Property(x => x.Name)
+			//	.ValidateRangeForString(1, 450, "Name must be between 1 and 450 characters in length.")
+			//	.IsRequired();
 		}
 
 		#endregion

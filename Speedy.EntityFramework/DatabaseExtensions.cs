@@ -163,6 +163,11 @@ namespace Speedy.EntityFramework
 			return DatabaseProviderType.Unknown;
 		}
 
+		/// <summary>
+		/// Get the type of the primary key.
+		/// </summary>
+		/// <param name="type"> The type to be tested. </param>
+		/// <returns> The type for the primary key. </returns>
 		private static Type GetPrimaryKeyType(this Type type)
 		{
 			while (true)

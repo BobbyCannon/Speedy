@@ -140,7 +140,10 @@ namespace Speedy
 					continue;
 				}
 
-				propertyInfo.SetValue(entity, update.Value.Value);
+				if (update.Value != null)
+				{
+					propertyInfo.SetValue(entity, update.Value.Value);
+				}
 			}
 		}
 
@@ -211,31 +214,7 @@ namespace Speedy
 		/// </summary>
 		public override void Validate()
 		{
-			if (Options.Validations == null)
-			{
-				return;
-			}
-
-			foreach (var validation in Options.Validations)
-			{
-				var key = validation.Key;
-				var value = validation.Value;
-				var uKey = Updates.Keys.FirstOrDefault(x => x.Equals(key, StringComparison.OrdinalIgnoreCase));
-
-				if (uKey == null)
-				{
-					if (value.Required)
-					{
-						throw new ValidationException($"Update for {key} is required.");
-					}
-
-					// The update is not required so just go to the next validation.
-					continue;
-				}
-
-				var u = Updates[uKey].Value;
-				value.Process(u);
-			}
+			Options.Validator?.Validate(GetInstance());
 		}
 
 		internal override PartialUpdateOptions GetOptions()

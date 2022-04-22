@@ -221,11 +221,15 @@ namespace Speedy.Extensions
 		/// Converts a byte array to a hex string format. Ex. [41],[42] = "4142"
 		/// </summary>
 		/// <param name="data"> The byte array to convert. </param>
+		/// <param name="startIndex"> The starting position within value. </param>
+		/// <param name="length"> The number of array elements in value to convert. </param>
+		/// <param name="delimiter"> An optional delimited to put between bytes of the data. </param>
+		/// <param name="prefix"> An optional prefix to put before each byte of the data. </param>
 		/// <returns> The byte array in a hex string format. </returns>
-		public static string ToHexString(this byte[] data)
+		public static string ToHexString(this byte[] data, int? startIndex = null, int? length = null, string delimiter = null, string prefix = null)
 		{
-			var hexString = BitConverter.ToString(data);
-			hexString = hexString.Replace("-", "");
+			var hexString = BitConverter.ToString(data, startIndex ?? 0, length ?? data.Length);
+			hexString = (prefix ?? "") + hexString.Replace("-", (delimiter ?? "") + (prefix ?? ""));
 			return hexString;
 		}
 

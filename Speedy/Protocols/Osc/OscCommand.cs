@@ -135,6 +135,7 @@ namespace Speedy.Protocols.Osc
 				ulong dValue => (T) (object) GetArgumentAsUnsignedLong(index, dValue),
 				float dValue => (T) (object) GetArgumentAsFloat(index, dValue),
 				double dValue => (T) (object) GetArgumentAsDouble(index, dValue),
+				decimal dValue => (T) (object) GetArgumentAsDecimal(index, dValue),
 				DateTime dValue => (T) (object) GetArgumentAsDateTime(index, dValue),
 				TimeSpan dValue => (T) (object) GetArgumentAsTimeSpan(index, dValue),
 				OscTimeTag dValue => (T) (object) GetArgumentAsOscTimeTag(index, dValue),
@@ -271,6 +272,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => (byte) ulValue,
 				float fValue => (byte) fValue,
 				double dValue => (byte) dValue,
+				decimal dValue => (byte) dValue,
 				_ => byte.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -310,6 +312,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => new DateTime((long) ulValue),
 				float fValue => new DateTime((long) fValue),
 				double dValue => new DateTime((long) dValue),
+				decimal dValue => new DateTime((long) dValue),
 				OscTimeTag time => time <= OscTimeTag.MinValue
 					? DateTime.MinValue
 					: time >= OscTimeTag.MaxValue
@@ -328,6 +331,37 @@ namespace Speedy.Protocols.Osc
 			return GetArgumentAsDouble(_argumentIndex++);
 		}
 
+		/// <summary>
+		/// Gets the argument or returns the default value if the index is not found.
+		/// </summary>
+		/// <param name="index"> The index of the argument. </param>
+		/// <param name="defaultValue"> The default value to return if not found. </param>
+		/// <returns> The argument if found or default value if not. </returns>
+		public decimal GetArgumentAsDecimal(int index, decimal defaultValue = default)
+		{
+			if (OscMessage.Arguments.Count <= index)
+			{
+				return defaultValue;
+			}
+
+			var value = OscMessage.Arguments[index];
+			return value switch
+			{
+				decimal dValue => dValue,
+				DateTime time => time.Ticks,
+				OscTimeTag time => time.Value,
+				byte bValue => bValue,
+				char cValue => cValue,
+				int iValue => iValue,
+				uint uiValue => uiValue,
+				long lValue => lValue,
+				ulong ulValue => ulValue,
+				float fValue => (decimal) fValue,
+				double dValue => (decimal) dValue,
+				_ => decimal.TryParse(value.ToString(), out var result) ? result : defaultValue
+			};
+		}
+		
 		/// <summary>
 		/// Gets the argument or returns the default value if the index is not found.
 		/// </summary>
@@ -369,6 +403,7 @@ namespace Speedy.Protocols.Osc
 				long lValue => lValue,
 				ulong ulValue => ulValue,
 				float fValue => fValue,
+				decimal dValue => (double) dValue,
 				_ => double.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -423,6 +458,7 @@ namespace Speedy.Protocols.Osc
 				long lValue => lValue,
 				ulong ulValue => ulValue,
 				double dValue => (float) dValue,
+				decimal dValue => (float) dValue,
 				_ => float.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -493,6 +529,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => (int) ulValue,
 				float fValue => (int) fValue,
 				double dValue => (int) dValue,
+				decimal dValue => (int) dValue,
 				_ => int.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -537,6 +574,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => (long) ulValue,
 				float fValue => (long) fValue,
 				double dValue => (long) dValue,
+				decimal dValue => (long) dValue,
 				_ => long.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -577,6 +615,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => new OscTimeTag(ulValue),
 				float fValue => new OscTimeTag((ulong) fValue),
 				double dValue => new OscTimeTag((ulong) dValue),
+				decimal dValue => new OscTimeTag((ulong) dValue),
 				_ => OscTimeTag.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -611,6 +650,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => (sbyte) ulValue,
 				float fValue => (sbyte) fValue,
 				double dValue => (sbyte) dValue,
+				decimal dValue => (sbyte) dValue,
 				_ => sbyte.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -645,6 +685,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => (short) ulValue,
 				float fValue => (short) fValue,
 				double dValue => (short) dValue,
+				decimal dValue => (short) dValue,
 				_ => short.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -714,6 +755,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => new TimeSpan((long) ulValue),
 				float fValue => new TimeSpan((long) fValue),
 				double dValue => new TimeSpan((long) dValue),
+				decimal dValue => new TimeSpan((long) dValue),
 				_ => TimeSpan.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -758,6 +800,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => (uint) ulValue,
 				float fValue => (uint) fValue,
 				double dValue => (uint) dValue,
+				decimal dValue => (uint) dValue,
 				_ => uint.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -802,6 +845,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => ulValue,
 				float fValue => (ulong) fValue,
 				double dValue => (ulong) dValue,
+				decimal dValue => (ulong) dValue,
 				_ => ulong.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
@@ -836,6 +880,7 @@ namespace Speedy.Protocols.Osc
 				ulong ulValue => (ushort) ulValue,
 				float fValue => (ushort) fValue,
 				double dValue => (ushort) dValue,
+				decimal dValue => (ushort) dValue,
 				_ => ushort.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}

@@ -1,13 +1,13 @@
 ﻿#region References
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Storage;
+using Speedy.Sync;
 using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
@@ -95,7 +95,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public sealed override void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 		{
-			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+			var exclusions = SyncEntity.GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
 			UpdateWith(update, exclusions.ToArray());
 		}
 
@@ -108,16 +108,6 @@ namespace Speedy
 	public abstract class Entity : IEntity, IUnwrappable
 	{
 		#region Fields
-
-		/// <summary>
-		/// Cache of combination of exclusions.
-		/// </summary>
-		private static readonly ConcurrentDictionary<ExclusionKey, HashSet<string>> _excludedProperties;
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionCacheForChangeTracking;
 
 		/// <summary>
 		/// Cached version of the "real" type, meaning not EF proxy but rather root type
@@ -134,20 +124,8 @@ namespace Speedy
 		protected Entity()
 		{
 			ChangedProperties = new HashSet<string>();
-
-			_exclusionCacheForChangeTracking.GetOrAdd(RealType, x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
-		}
-
-		/// <summary>
-		/// Instantiates an entity
-		/// </summary>
-		static Entity()
-		{
-			_exclusionCacheForChangeTracking = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExclusionCacheForIncomingSync = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExclusionCacheForOutgoingSync = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExclusionCacheForSyncUpdate = new ConcurrentDictionary<Type, HashSet<string>>();
-			_excludedProperties = new ConcurrentDictionary<ExclusionKey, HashSet<string>>();
+			SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(RealType,
+				x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
 		}
 
 		#endregion
@@ -157,22 +135,7 @@ namespace Speedy
 		/// <summary>
 		/// The properties that has changed since last <see cref="ResetChangeTracking" /> event.
 		/// </summary>
-		protected HashSet<string> ChangedProperties { get; }
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForIncomingSync { get; }
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForOutgoingSync { get; }
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForSyncUpdate { get; }
+		internal HashSet<string> ChangedProperties { get; }
 
 		/// <summary>
 		/// Cached version of the "real" type, meaning not EF proxy but rather root type
@@ -224,7 +187,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public bool IsPropertyExcludedForChangeTracking(string propertyName)
 		{
-			return _exclusionCacheForChangeTracking[RealType].Contains(propertyName);
+			return SyncEntity.ExclusionCacheForChangeTracking[RealType].Contains(propertyName);
 		}
 
 		/// <summary>
@@ -233,11 +196,19 @@ namespace Speedy
 		/// <param name="propertyName"> The name of the property that changed. </param>
 		public virtual void OnPropertyChanged(string propertyName)
 		{
-			if ((propertyName != null)
-				&& !_exclusionCacheForChangeTracking[RealType].Contains(propertyName)
-				&& !ChangedProperties.Contains(propertyName))
+			if (propertyName != null)
 			{
-				ChangedProperties.Add(propertyName);
+				if (!ChangedProperties.Contains(propertyName))
+				{
+					if (!SyncEntity.ExclusionCacheForChangeTracking[RealType].Contains(propertyName))
+					{
+						ChangedProperties.Add(propertyName);
+					}
+				}
+				else if (!ChangedProperties.Contains(propertyName))
+				{
+					ChangedProperties.Add(propertyName);
+				}
 			}
 
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -312,42 +283,6 @@ namespace Speedy
 		protected virtual HashSet<string> GetDefaultExclusionsForChangeTracking()
 		{
 			return new HashSet<string>();
-		}
-
-		/// <summary>
-		/// Get exclusions for the provided type.
-		/// </summary>
-		/// <param name="type"> The type to get exclusions for. </param>
-		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
-		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
-		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-		/// <returns> The list of members to be excluded. </returns>
-		protected static HashSet<string> GetExclusions(Type type, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
-		{
-			var key = new ExclusionKey(type, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
-
-			return _excludedProperties.GetOrAdd(key, x =>
-			{
-				var exclusions = new HashSet<string>();
-				exclusions.AddRange(type.GetVirtualPropertyNames());
-
-				if (excludePropertiesForIncomingSync)
-				{
-					exclusions.AddRange(ExclusionCacheForIncomingSync[type]);
-				}
-
-				if (excludePropertiesForOutgoingSync)
-				{
-					exclusions.AddRange(ExclusionCacheForOutgoingSync[type]);
-				}
-
-				if (excludePropertiesForSyncUpdate)
-				{
-					exclusions.AddRange(ExclusionCacheForSyncUpdate[type]);
-				}
-
-				return exclusions;
-			});
 		}
 
 		#endregion

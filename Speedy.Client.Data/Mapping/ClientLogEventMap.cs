@@ -22,6 +22,7 @@ namespace Speedy.Client.Data.Mapping
 
 			b.Property(x => x.CreatedOn).IsRequired();
 			b.Property(x => x.Id).IsRequired();
+			b.Property(x => x.IsDeleted).IsRequired();
 			b.Property(x => x.LastClientUpdate).IsRequired();
 			b.Property(x => x.Level).IsRequired();
 			b.Property(x => x.Message).HasMaxLength(256).IsRequired();

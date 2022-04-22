@@ -328,7 +328,7 @@ namespace Speedy.Sync
 			{
 				// Skip this type if it's being filters or if the outgoing converter cannot convert
 				if (SyncOptions.ShouldExcludeRepository(repository.TypeName)
-					|| (OutgoingConverter?.CanConvert(repository.TypeName) == false))
+					|| ((OutgoingConverter != null) && !OutgoingConverter.CanConvert(repository.TypeName)))
 				{
 					// Do not count this repository because we have filters and the repository is not in the filters.
 					return 0;
@@ -440,7 +440,8 @@ namespace Speedy.Sync
 					// Disable caching if the repository is using a different lookup filter because matching could be using a different "sync lookup key"
 					//  - todo: change key cache to add a "GetEntitySyncId" (see GetEntityId) method, this way we could cache on any lookup key
 					// Disable caching if the cache does not support the sync entity type
-					if ((syncRepositoryFilter?.HasLookupFilter != true)
+					var doesNotHaveLookupFilter = syncRepositoryFilter?.HasLookupFilter != true;
+					if (doesNotHaveLookupFilter
 						&& !isIndividualProcess
 						&& Options.EnablePrimaryKeyCache
 						&& !Options.IsServerClient
@@ -462,7 +463,9 @@ namespace Speedy.Sync
 						}
 					}
 
-					return repository.Read(syncEntity, syncRepositoryFilter);
+					return doesNotHaveLookupFilter
+						? repository.Read(syncObject.SyncId)
+						: repository.Read(syncEntity, syncRepositoryFilter);
 				});
 
 				var syncStatus = syncObject.Status;
@@ -513,6 +516,7 @@ namespace Speedy.Sync
 							if (!UpdateEntity(database, syncObject, syncEntity, foundEntity, syncStatus, issues))
 							{
 								// todo: roll back any possible changes
+								//database.RevertChanges(foundEntity);
 							}
 						});
 						break;

@@ -14,48 +14,36 @@ namespace Speedy.UnitTests.Extensions
 		#region Methods
 
 		[TestMethod]
-		public void MyEnumByteType()
-		{
-			var status = MyEnumByte.Unknown;
-			status = status.SetFlag(MyEnumByte.One);
-
-			Assert.IsTrue((status & MyEnumByte.One) == MyEnumByte.One, "Flag was not set");
-		}
-
-		[TestMethod]
-		public void MyEnumLongType()
-		{
-			var status = MyEnumLong.Unknown;
-			status = status.SetFlag(MyEnumLong.One);
-
-			Assert.IsTrue((status & MyEnumLong.One) == MyEnumLong.One, "Flag was not set");
-		}
-
-		[TestMethod]
-		public void MyEnumLongUnsignedType()
-		{
-			var status = MyEnumLongUnsigned.Unknown;
-			status = status.SetFlag(MyEnumLongUnsigned.One);
-
-			Assert.IsTrue((status & MyEnumLongUnsigned.One) == MyEnumLongUnsigned.One, "Flag was not set");
-		}
-
-		[TestMethod]
-		public void MyEnumType()
+		public void SetClearHasFlag()
 		{
 			var status = MyEnum.Unknown;
+			Assert.IsFalse(status.HasFlag(MyEnum.One), "Flag was set");
 			status = status.SetFlag(MyEnum.One);
+			Assert.IsTrue(status.HasFlag(MyEnum.One), "Flag was not set");
+			status = status.ClearFlag(MyEnum.One);
+			Assert.IsFalse(status.HasFlag(MyEnum.One), "Flag was set");
 
-			Assert.IsTrue((status & MyEnum.One) == MyEnum.One, "Flag was not set");
-		}
+			var status2 = MyEnumUnsigned.Unknown;
+			Assert.IsFalse(status2.HasFlag(MyEnumUnsigned.One), "Flag was set");
+			status2 = status2.SetFlag(MyEnumUnsigned.One);
+			Assert.IsTrue(status2.HasFlag(MyEnumUnsigned.One), "Flag was not set");
+			status2 = status2.ClearFlag(MyEnumUnsigned.One);
+			Assert.IsFalse(status2.HasFlag(MyEnumUnsigned.One), "Flag was set");
 
-		[TestMethod]
-		public void MyEnumUnsignedType()
-		{
-			var status = MyEnumUnsigned.Unknown;
-			status = status.SetFlag(MyEnumUnsigned.One);
+			var status3 = MyEnumLongUnsigned.Unknown;
+			Assert.IsFalse(status3.HasFlag(MyEnumLongUnsigned.One), "Flag was set");
+			status3 = status3.SetFlag(MyEnumLongUnsigned.One);
+			Assert.IsTrue(status3.HasFlag(MyEnumLongUnsigned.One), "Flag was not set");
+			status3 = status3.ClearFlag(MyEnumLongUnsigned.One);
+			Assert.IsFalse(status3.HasFlag(MyEnumLongUnsigned.One), "Flag was set");
 
-			Assert.IsTrue((status & MyEnumUnsigned.One) == MyEnumUnsigned.One, "Flag was not set");
+			var status4 = MyEnumByte.Unknown;
+			Assert.IsFalse(status4.HasFlag(MyEnumByte.One), "Flag was set");
+			status4 = status4.SetFlag(MyEnumByte.One);
+			Assert.IsTrue(status4.HasFlag(MyEnumByte.One), "Flag was not set");
+			status4 = status4.ClearFlag(MyEnumByte.One);
+			Assert.IsFalse(status4.HasFlag(MyEnumByte.One), "Flag was set");
+
 		}
 
 		#endregion

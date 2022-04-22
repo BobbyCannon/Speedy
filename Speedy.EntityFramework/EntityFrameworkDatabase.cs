@@ -10,6 +10,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Speedy.Collections;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Storage;
@@ -207,7 +208,7 @@ namespace Speedy.EntityFramework
 			var repositoryType = typeof(EntityFrameworkSyncableRepository<,>).MakeGenericType(type, idType);
 			repository = Activator.CreateInstance(repositoryType, this, entitySet) as ISyncableRepository;
 
-			_syncableRepositories.AddOrUpdate(type.ToAssemblyName(), repository, (k, v) => repository);
+			_syncableRepositories.AddOrUpdate(type.ToAssemblyName(), repository, (_, _) => repository);
 
 			return repository;
 		}
@@ -244,6 +245,21 @@ namespace Speedy.EntityFramework
 				var entries = ChangeTracker.Entries().ToList();
 				entries.ForEach(ProcessEntity);
 
+				var comparer = new GenericComparer<EntityEntry>(
+					(x, y) => x.Entity == y.Entity ? 0 : -1,
+					x => x.Entity.GetHashCode()
+				);
+				var newEntries = ChangeTracker
+					.Entries()
+					.Except(entries, comparer)
+					.ToList();
+
+				if (newEntries.Any())
+				{
+					newEntries.ForEach(ProcessEntity);
+					entries.AddRange(newEntries);
+				}
+
 				// The local relationships may have changed. We need keep our sync IDs in sync with any relationships that may have changed.
 				entries.ForEach(x => (x.Entity as ISyncEntity)?.UpdateLocalSyncIds());
 
@@ -257,7 +273,11 @@ namespace Speedy.EntityFramework
 				if (first)
 				{
 					UpdateCache();
-					OnCollectionChanged(_collectionChangeTracker.Added, _collectionChangeTracker.Removed);
+
+					if ((_collectionChangeTracker.Added.Count > 0) || (_collectionChangeTracker.Removed.Count > 0))
+					{
+						OnCollectionChanged(_collectionChangeTracker.Added, _collectionChangeTracker.Removed);
+					}
 				}
 
 				return response;
@@ -271,6 +291,30 @@ namespace Speedy.EntityFramework
 			{
 				_saveChangeCount = 0;
 			}
+		}
+
+		/// <summary>
+		/// Called when an entity is added.
+		/// </summary>
+		/// <param name="entity"> The entity added. </param>
+		protected virtual void EntityAdded(IEntity entity)
+		{
+		}
+
+		/// <summary>
+		/// Called when an entity is deleted.
+		/// </summary>
+		/// <param name="entity"> The entity deleted. </param>
+		protected virtual void EntityDeleted(IEntity entity)
+		{
+		}
+
+		/// <summary>
+		/// Called when an entity is modified.
+		/// </summary>
+		/// <param name="entity"> The entity modified. </param>
+		protected virtual void EntityModified(IEntity entity)
+		{
 		}
 
 		/// <summary>
@@ -370,19 +414,28 @@ namespace Speedy.EntityFramework
 					switch (p.ClrType)
 					{
 						case Type _ when p.ClrType == typeof(DateTime):
-						case Type _ when p.ClrType == typeof(DateTime?):
+						{
 							p.SetColumnType("datetime2");
 							p.SetValueConverter(dateTimeConverter);
 							break;
-
+						}
+						case Type _ when p.ClrType == typeof(DateTime?):
+						{
+							p.SetColumnType("datetime2");
+							p.SetValueConverter(nullableDateTimeConverter);
+							break;
+						}
 						case Type _ when p.ClrType == typeof(Guid):
 						case Type _ when p.ClrType == typeof(Guid?):
+						{
 							p.SetColumnType("uniqueidentifier");
 							break;
-
+						}
 						case Type _ when p.ClrType == typeof(string):
+						{
 							p.SetIsUnicode(false);
 							break;
+						}
 					}
 				}
 			}
@@ -499,6 +552,7 @@ namespace Speedy.EntityFramework
 					}
 
 					entity.EntityAdded();
+					EntityAdded(entity);
 					break;
 				}
 				case EntityState.Modified:
@@ -533,6 +587,7 @@ namespace Speedy.EntityFramework
 					}
 
 					entity.EntityModified();
+					EntityModified(entity);
 					break;
 				}
 				case EntityState.Deleted:
@@ -549,6 +604,7 @@ namespace Speedy.EntityFramework
 					}
 
 					entity.EntityDeleted();
+					EntityDeleted(entity);
 					break;
 				}
 			}

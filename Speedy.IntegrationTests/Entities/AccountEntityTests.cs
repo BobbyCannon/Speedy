@@ -16,7 +16,10 @@ namespace Speedy.IntegrationTests.Entities
 		[TestMethod]
 		public void AllPropertiesSet()
 		{
-			ValidateModel(GetModelWithNonDefaultValues());
+			ValidateModel(GetModelWithNonDefaultValues(),
+				nameof(AccountEntity.Address),
+				nameof(AccountEntity.Groups)
+			);
 		}
 
 		/// <summary>

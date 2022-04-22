@@ -46,19 +46,14 @@ namespace Speedy.Website.Data.Sync
 			// Allows allow primary key caching on the server.
 			Options.EnablePrimaryKeyCache = true;
 
-			IncomingConverter = GetIncomingFilter();
+			IncomingConverter = GetIncomingConverter(account);
 			OutgoingConverter = _outgoingConverter;
 		}
 
 		static ServerSyncClient()
 		{
 			_accountAssemblyName = typeof(Account).ToAssemblyName();
-			_outgoingConverter = new SyncClientOutgoingConverter(
-				new SyncObjectOutgoingConverter<AccountEntity, int, Account, int>(),
-				new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>(),
-				new SyncObjectOutgoingConverter<LogEventEntity, long, LogEvent, long>(),
-				new SyncObjectOutgoingConverter<SettingEntity, long, Setting, long>()
-			);
+			_outgoingConverter = GetOutgoingConverter();
 		}
 
 		#endregion
@@ -164,15 +159,7 @@ namespace Speedy.Website.Data.Sync
 			return base.BeginSync(id, syncOptions);
 		}
 
-		public void ValidateAccount(AccountEntity accountEntity)
-		{
-			if (accountEntity.SyncId != _account.SyncId)
-			{
-				throw new AuthenticationException(Constants.Unauthorized);
-			}
-		}
-
-		private SyncClientIncomingConverter GetIncomingFilter()
+		public static SyncClientIncomingConverter GetIncomingConverter(AccountEntity account)
 		{
 			return new SyncClientIncomingConverter(
 				new SyncObjectIncomingConverter<Account, int, AccountEntity, int>(null,
@@ -188,7 +175,7 @@ namespace Speedy.Website.Data.Sync
 							case SyncObjectStatus.Deleted:
 							{
 								// Do not allow deletes unless you are administrator
-								var canDelete = _account.InRole(AccountRole.Administrator);
+								var canDelete = account.InRole(AccountRole.Administrator);
 								if (!canDelete)
 								{
 									// force an update to roll back client changes
@@ -285,6 +272,24 @@ namespace Speedy.Website.Data.Sync
 						}
 					})
 			);
+		}
+
+		public static SyncClientOutgoingConverter GetOutgoingConverter()
+		{
+			return new SyncClientOutgoingConverter(
+				new SyncObjectOutgoingConverter<AccountEntity, int, Account, int>((x, y) => { y.Roles = x.Roles == null ? null : AccountEntity.SplitRoles(x.Roles); }),
+				new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>(),
+				new SyncObjectOutgoingConverter<LogEventEntity, long, LogEvent, long>(),
+				new SyncObjectOutgoingConverter<SettingEntity, long, Setting, long>()
+			);
+		}
+
+		public void ValidateAccount(AccountEntity accountEntity)
+		{
+			if (accountEntity.SyncId != _account.SyncId)
+			{
+				throw new AuthenticationException(Constants.Unauthorized);
+			}
 		}
 
 		#endregion

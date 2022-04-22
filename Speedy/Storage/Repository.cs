@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Sync;
@@ -90,7 +89,7 @@ namespace Speedy.Storage
 				throw new InvalidOperationException($"The instance of entity type '{typeof(T).Name}' cannot be tracked because another instance with the same key value is already being tracked.");
 			}
 
-			Cache.Add(new EntityState<T, T2>(entity, CloneEntity(entity), EntityStateType.Added));
+			Cache.Add(new EntityState<T, T2>(this, entity, CloneEntity(entity), EntityStateType.Added));
 			OnUpdateEntityRelationships(entity);
 		}
 
@@ -106,12 +105,12 @@ namespace Speedy.Storage
 			var foundItem = Cache.FirstOrDefault(x => Equals(x.Entity.Id, entity.Id));
 			if (foundItem == null)
 			{
-				Cache.Add(new EntityState<T, T2>(entity, CloneEntity(entity), EntityStateType.Unmodified));
+				Cache.Add(new EntityState<T, T2>(this, entity, CloneEntity(entity), EntityStateType.Unmodified));
 				OnUpdateEntityRelationships(entity);
 				return;
 			}
 
-			UpdateEntity(foundItem.Entity, entity);
+			foundItem.UpdateEntity(foundItem.Entity, entity);
 		}
 
 		/// <summary>
@@ -372,7 +371,7 @@ namespace Speedy.Storage
 				throw new ArgumentException("Could not find the target entity", nameof(targetEntity));
 			}
 
-			Cache.Insert(indexOf, new EntityState<T, T2>(entity, CloneEntity(entity), EntityStateType.Added));
+			Cache.Insert(indexOf, new EntityState<T, T2>(this, entity, CloneEntity(entity), EntityStateType.Added));
 		}
 
 		/// <inheritdoc />
@@ -401,7 +400,7 @@ namespace Speedy.Storage
 			{
 				var instance = Activator.CreateInstance<T>();
 				instance.Id = id;
-				state = new EntityState<T, T2>(instance, CloneEntity(instance), EntityStateType.Removed);
+				state = new EntityState<T, T2>(this, instance, CloneEntity(instance), EntityStateType.Removed);
 				Cache.Add(state);
 			}
 
@@ -505,9 +504,7 @@ namespace Speedy.Storage
 					{
 						if (!entity.CanBeModified())
 						{
-							UpdateEntity(entry.Entity, entry.OldEntity);
-							entry.ResetChangeTracking();
-
+							entry.Reset();
 							changeCount--;
 							continue;
 						}
@@ -541,8 +538,7 @@ namespace Speedy.Storage
 					}
 				}
 
-				UpdateEntity(entry.OldEntity, entry.Entity);
-				entry.State = EntityStateType.Unmodified;
+				entry.SaveChanges();
 			}
 
 			OnCollectionChanged(added.Select(x => x.Entity).ToList(), removed.Where(x => x.State == EntityStateType.Removed).Select(x => x.Entity).ToList());
@@ -659,7 +655,7 @@ namespace Speedy.Storage
 			}
 
 			var response = (T) constructorInfo.Invoke(null);
-			var properties = GetPublicProperties().ToList();
+			var properties = EntityState.GetStateProperties(_type).ToList();
 
 			foreach (var property in properties)
 			{
@@ -692,75 +688,23 @@ namespace Speedy.Storage
 			return response;
 		}
 
-		private bool CompareEntity(T entity1, T entity2)
-		{
-			if ((entity1 == null) && (entity2 == null))
-			{
-				return true;
-			}
-
-			if ((entity1 == null) || (entity2 == null))
-			{
-				return false;
-			}
-
-			var properties = GetPublicProperties();
-			foreach (var property in properties)
-			{
-				var value1 = property.GetValue(entity1, null);
-				var value2 = property.GetValue(entity2, null);
-				if (!Equals(value1, value2))
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
 		private IEnumerable<EntityState<T, T2>> GetChanges()
 		{
+			// Make sure we are not missing anything...
 			foreach (var item in Cache.Where(x => x.State == EntityStateType.Unmodified))
 			{
-				if (!CompareEntity(item.Entity, item.OldEntity))
-				{
-					item.State = EntityStateType.Modified;
-				}
+				item.RefreshState();
 			}
 
-			return Cache.Where(x => x.State != EntityStateType.Unmodified).ToList();
+			return Cache
+				.Where(x => x.State != EntityStateType.Unmodified)
+				.ToList();
 		}
 
 		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
-		}
-
-		private IEnumerable<PropertyInfo> GetPublicProperties()
-		{
-			return _type.GetCachedProperties()
-				.Where(x =>
-				{
-					if (x.Name == "Id")
-					{
-						return true;
-					}
-
-					var accessors = x.GetAccessors();
-					if (accessors.Length < 2)
-					{
-						return false;
-					}
-
-					if (accessors.Any(a => (a.IsVirtual || !a.IsPublic) && !a.IsFinal))
-					{
-						return false;
-					}
-
-					return true;
-				})
-				.ToList();
 		}
 
 		private void OnCollectionChanged(IList added, IList removed)
@@ -822,11 +766,7 @@ namespace Speedy.Storage
 
 			Cache?
 				.ToList()
-				.ForEach(x =>
-				{
-					UpdateEntity(x.Entity, x.OldEntity);
-					x.ResetChangeTracking();
-				});
+				.ForEach(x => { x.Reset(); });
 		}
 
 		private void UpdateCacheQuery()
@@ -835,27 +775,6 @@ namespace Speedy.Storage
 				.Where(x => x.State != EntityStateType.Added)
 				.Select(x => x.Entity)
 				.AsQueryable();
-		}
-
-		/// <summary>
-		/// Update the entity with the new values.
-		/// </summary>
-		/// <param name="entity"> The entity to update. </param>
-		/// <param name="updatedEntity"> The new values to update the entity with. </param>
-		private void UpdateEntity(Entity<T2> entity, Entity<T2> updatedEntity)
-		{
-			var properties = GetPublicProperties();
-
-			foreach (var property in properties)
-			{
-				var currentValue = property.GetValue(entity, null);
-				var updatedValue = property.GetValue(updatedEntity, null);
-
-				if (currentValue != updatedValue)
-				{
-					property.SetValue(entity, updatedValue, null);
-				}
-			}
 		}
 
 		#endregion

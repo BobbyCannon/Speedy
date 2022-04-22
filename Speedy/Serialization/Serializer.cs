@@ -215,6 +215,23 @@ namespace Speedy.Serialization
 			return item.ToJson(_settingsForRawSerialization);
 		}
 
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
+		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
+		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
+		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToRawJson<T>(this T item, bool indented = false, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
+		{
+			return item.ToJson(new SerializerSettings(indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString) { JsonSettings = { PreserveReferencesHandling = PreserveReferencesHandling.None } });
+		}
+
 		#endregion
 	}
 }

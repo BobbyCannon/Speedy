@@ -154,6 +154,31 @@
             PropertyChanged event (per <see cref="T:System.ComponentModel.INotifyPropertyChanged" />).
             </summary>
         </member>
+        <member name="T:Speedy.Collections.GenericComparer`1">
+            <summary>
+            Exposes a method that compares two objects.
+            </summary>
+            <typeparam name="T"> The type of the object to compare. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.GenericComparer`1.#ctor(System.Func{`0,`0,System.Int32},System.Func{`0,System.Int32})">
+            <summary>
+            Create an instance of the comparer.
+            </summary>
+            <param name="compare"> The function to compare two objects. </param>
+            <param name="getHashCode"> An optional override for GetHashCode. If not provided then use the T.GetHashCode. </param>
+        </member>
+        <member name="M:Speedy.Collections.GenericComparer`1.Compare(`0,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.GenericComparer`1.Compare(System.Object,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.GenericComparer`1.Equals(`0,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.GenericComparer`1.GetHashCode(`0)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Collections.LimitedCollection`1">
             <summary>
             Limited collection to a maximum number of items.
@@ -719,6 +744,165 @@
             The values of foreign key properties in dependent entities are set to null.
             </summary>
         </member>
+        <member name="T:Speedy.Converters.Parsers.IStringConverterParser">
+            <summary>
+            Represents a string converter parser.
+            </summary>
+        </member>
+        <member name="M:Speedy.Converters.Parsers.IStringConverterParser.SupportsType(System.Type)">
+            <summary>
+            Determines if the target type is supported by the parser.
+            </summary>
+            <param name="targetType"> The target type to parse to. </param>
+            <returns> Returns true if the type is support otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Converters.Parsers.IStringConverterParser.TryParse(System.Type,System.String,System.Object@)">
+            <summary>
+            Tries to parse the provided value into the target type.
+            </summary>
+            <param name="targetType"> The target type to parse to. </param>
+            <param name="value"> The value to be parsed. </param>
+            <param name="result"> The result of the parse. </param>
+            <returns> Returns true if the type was parsed otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Converters.Parsers.ReflectionStringConverterParser.SupportsType(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.ReflectionStringConverterParser.TryParse(System.Type,System.String,System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.StringConverterParser.SupportsType(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.StringConverterParser.TryParse(System.Type,System.String,System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.UriStringConverterParser.SupportsType(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.UriStringConverterParser.TryParse(System.Type,System.String,System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Converters.StringConverter">
+            <summary>
+            Represents a string version of a typed value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter.#ctor(System.String,System.Type)">
+            <summary>
+            Creates an instance of the string converter for the type.
+            </summary>
+            <param name="targetString"> The target in string format. </param>
+            <param name="targetType"> The type of the target result. </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            $"Unable to create type '{typeof(T).Name}' from value '{value}'."
+            </exception>
+        </member>
+        <member name="P:Speedy.Converters.StringConverter.Parsers">
+            <summary>
+            The parsers for the String Converter to use for parsing.
+            </summary>
+        </member>
+        <member name="P:Speedy.Converters.StringConverter.TargetString">
+            <summary>
+            The target in a string format.
+            </summary>
+        </member>
+        <member name="P:Speedy.Converters.StringConverter.TargetType">
+            <summary>
+            The target in the typed format.
+            </summary>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter.Create(System.Type,System.String)">
+            <summary>
+            Creates an instance of the StringConverter.
+            </summary>
+            <param name="targetType"> The target type. </param>
+            <param name="value"> </param>
+            <returns></returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter.Parse">
+            <summary>
+            Parse the value from the initially constructed value.
+            </summary>
+            <returns> The object version of the string. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter.Parse(System.String)">
+            <summary>
+            Parse the value from the provided value.
+            </summary>
+            <param name="value"> The type value in string format. </param>
+            <returns> The object version of the string. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter.Parse(System.Type,System.String)">
+            <summary>
+            Parse the value from the provided value.
+            </summary>
+            <param name="targetType"> The type of the object to parse. </param>
+            <param name="value"> The type value in string format. </param>
+            <returns> The object version of the string. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter.TryParse(System.String,System.Object@)">
+            <summary>
+            Try to parse the value from the provided value.
+            </summary>
+            <param name="value"> The type value in string format. </param>
+            <param name="result"> The object version of the string. </param>
+            <returns> True if the parse succeeded otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter.TryParse(System.Type,System.String,System.Object@)">
+            <summary>
+            Try to parse the value from the provided value.
+            </summary>
+            <param name="targetType"> The type of the object to parse. </param>
+            <param name="value"> The type value in string format. </param>
+            <param name="result"> The object version of the string. </param>
+            <returns> True if the parse succeeded otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.Converters.StringConverter`1">
+            <summary>
+            Represents a string version of a typed value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter`1.#ctor(System.String)">
+            <summary>
+            Creates an instance of the stringed type.
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            $"Unable to create type '{typeof(T).Name}' from value '{value}'."
+            </exception>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter`1.op_Implicit(System.String)~Speedy.Converters.StringConverter{`0}">
+            <summary>
+            Cast the string value to the string converter for the type.
+            </summary>
+            <param name="value"> The type value in string format. </param>
+            <returns> The string converter for the type provided. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter`1.op_Implicit(`0)~Speedy.Converters.StringConverter{`0}">
+            <summary>
+            Cast the typed value to the string converter.
+            </summary>
+            <param name="value"> The value in the typed format. </param>
+            <returns> The string converter for the type provided. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter`1.op_Implicit(Speedy.Converters.StringConverter{`0})~`0">
+            <summary>
+            Cast the string converter to the target type.
+            </summary>
+            <param name="value"> The string converter for the provided type. </param>
+            <returns> The value in the typed format. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter`1.op_Implicit(Speedy.Converters.StringConverter{`0})~System.String">
+            <summary>
+            Cast the string converter to the target string value.
+            </summary>
+            <param name="value"> The string converter for the provided string value. </param>
+            <returns> The string converter in target string format. </returns>
+        </member>
+        <member name="M:Speedy.Converters.StringConverter`1.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.CreatedEntity`1">
             <summary>
             Represents a created entity.
@@ -839,6 +1023,24 @@
             Clean up any resources being used.
             </summary>
             <param name="disposing"> true if managed resources should be disposed; otherwise, false. </param>
+        </member>
+        <member name="M:Speedy.Database.EntityAdded(Speedy.IEntity)">
+            <summary>
+            Called when an entity is added.
+            </summary>
+            <param name="entity"> The entity added. </param>
+        </member>
+        <member name="M:Speedy.Database.EntityDeleted(Speedy.IEntity)">
+            <summary>
+            Called when an entity is deleted.
+            </summary>
+            <param name="entity"> The entity deleted. </param>
+        </member>
+        <member name="M:Speedy.Database.EntityModified(Speedy.IEntity)">
+            <summary>
+            Called when an entity is modified.
+            </summary>
+            <param name="entity"> The entity modified. </param>
         </member>
         <member name="M:Speedy.Database.BuildRelationship``4(``0,System.Collections.IEnumerable,System.String)">
             <summary>
@@ -1197,16 +1399,6 @@
             Represents a Speedy entity.
             </summary>
         </member>
-        <member name="F:Speedy.Entity._excludedProperties">
-            <summary>
-            Cache of combination of exclusions.
-            </summary>
-        </member>
-        <member name="F:Speedy.Entity._exclusionCacheForChangeTracking">
-            <summary>
-            All hash sets for types, this is for optimization
-            </summary>
-        </member>
         <member name="F:Speedy.Entity._realType">
             <summary>
             Cached version of the "real" type, meaning not EF proxy but rather root type
@@ -1217,29 +1409,9 @@
             Instantiates an entity
             </summary>
         </member>
-        <member name="M:Speedy.Entity.#cctor">
-            <summary>
-            Instantiates an entity
-            </summary>
-        </member>
         <member name="P:Speedy.Entity.ChangedProperties">
             <summary>
             The properties that has changed since last <see cref="M:Speedy.Entity.ResetChangeTracking" /> event.
-            </summary>
-        </member>
-        <member name="P:Speedy.Entity.ExclusionCacheForIncomingSync">
-            <summary>
-            All hash sets for types, this is for optimization
-            </summary>
-        </member>
-        <member name="P:Speedy.Entity.ExclusionCacheForOutgoingSync">
-            <summary>
-            All hash sets for types, this is for optimization
-            </summary>
-        </member>
-        <member name="P:Speedy.Entity.ExclusionCacheForSyncUpdate">
-            <summary>
-            All hash sets for types, this is for optimization
             </summary>
         </member>
         <member name="P:Speedy.Entity.RealType">
@@ -1319,16 +1491,6 @@
             sure to only return static values as to not cause issues.
             </summary>
             <returns> The values to exclude during change tracking. </returns>
-        </member>
-        <member name="M:Speedy.Entity.GetExclusions(System.Type,System.Boolean,System.Boolean,System.Boolean)">
-            <summary>
-            Get exclusions for the provided type.
-            </summary>
-            <param name="type"> The type to get exclusions for. </param>
-            <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
-            <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
-            <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-            <returns> The list of members to be excluded. </returns>
         </member>
         <member name="E:Speedy.Entity.PropertyChanged">
             <inheritdoc />
@@ -1609,6 +1771,17 @@
             Extensions for collections.
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.ExcludeSequentialDuplicates``2(System.Collections.Generic.IEnumerable{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Func{``0,``0,System.Boolean})">
+            <summary>
+            Exclude duplicates that are sequential. Ex. 1,2,2,3,3,4 -> 1,2,3,4
+            </summary>
+            <typeparam name="T"> The type of the collection entries. </typeparam>
+            <typeparam name="T2"> The type of the property to be validated. </typeparam>
+            <param name="collection"> The collection to be processed. </param>
+            <param name="propertyExpression"> The expression of the property to be tested. </param>
+            <param name="additionalCheck"> An optional additional check for testing for duplicates. </param>
+            <returns> The processed collections with sequential duplicates removed. </returns>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddIfMissing``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
             <summary>
             Add a dictionary entry if the key is not found.
@@ -1744,6 +1917,35 @@
             <param name="collection"> The collection to sort. </param>
             <param name="cultureInfo"> The culture information to use during sort. </param>
             <returns> The sorted collection. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.Reconcile``3(Speedy.IRepository{``0,``1},System.Func{``0,System.Boolean},System.Collections.Generic.IEnumerable{``2},System.Func{``0,``2,System.Boolean},System.Func{``0,``2,System.Boolean},System.Func{``2,``0},System.Action{``0,``2},System.String[])">
+            <summary>
+            Reconcile one collection with another.
+            </summary>
+            <typeparam name="TLeft"> The type of the left collection. </typeparam>
+            <typeparam name="TLeftKey"> The type of the left collection key. </typeparam>
+            <typeparam name="TRight"> The type of the right collection. </typeparam>
+            <param name="collection"> The left collection. </param>
+            <param name="filter"> The filter for the collection. </param>
+            <param name="updates"> The right collection. </param>
+            <param name="compare"> The logic for comparison. </param>
+            <param name="locate"> The logic to locate matching entity. </param>
+            <param name="convert"> The function to convert from TLeft to TRight. </param>
+            <param name="optionalUpdates"> A set of optional updates. </param>
+            <param name="optionalExclusions"> A set of optional excluded properties </param>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.Reconcile``2(System.Collections.Generic.ICollection{``0},System.Collections.Generic.IEnumerable{``1},System.Func{``0,``1,System.Boolean},System.Func{``1,``0},System.Action{``0,``1},System.String[])">
+            <summary>
+            Reconcile one collection with another.
+            </summary>
+            <typeparam name="TLeft"> The type of the left collection. </typeparam>
+            <typeparam name="TRight"> The type of the right collection. </typeparam>
+            <param name="collection"> The left collection. </param>
+            <param name="updates"> The right collection. </param>
+            <param name="compare"> The logic for comparison. </param>
+            <param name="convert"> The function to convert from TLeft to TRight. </param>
+            <param name="optionalUpdates"> A set of optional updates. </param>
+            <param name="optionalExclusions"> A set of optional excluded properties </param>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.SubArray``1(``0[],System.Int32,System.Int32)">
             <summary>
@@ -2054,6 +2256,12 @@
             Extensions for the string type.
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.GetDefaultValue(System.Type)">
+            <summary>
+            </summary>
+            <param name="propertyType"> </param>
+            <returns> </returns>
+        </member>
         <member name="M:Speedy.Extensions.ObjectExtensions.IfThenElse(System.Func{System.Boolean},System.Action,System.Action)">
             <summary>
             Executes a provided action if the test is successful.
@@ -2062,31 +2270,28 @@
             <param name="action1"> The action to perform if the test is true. </param>
             <param name="action2"> The action to perform if the test is false. </param>
         </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateBoolean(System.Object,System.Boolean)">
+        <member name="M:Speedy.Extensions.ObjectExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Reflection.PropertyInfo,System.Object})">
             <summary>
-            Validate an object as a string with in a range.
+            Update the provided object with non default values.
             </summary>
-            <param name="value"> The string as an object. </param>
-            <param name="expected"> The expected value. </param>
-            <returns> True if the value is a boolean and matches the expected value. </returns>
+            <typeparam name="T"> The type of the value. </typeparam>
+            <param name="value"> The value to update all properties for. </param>
+            <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
+            <returns> </returns>
         </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateIntRange(System.Object,System.Int32,System.Int32)">
+        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateAllValuesAreNotDefault``1(``0,System.String[])">
             <summary>
-            Validate an object as a string with in a range.
+            Validates that all values are not default value.
             </summary>
-            <param name="value"> The string as an object. </param>
-            <param name="minimum"> The inclusive minimum value. </param>
-            <param name="maximum"> The inclusive maximum value. </param>
-            <returns> True if the value is a string and within the provided range. </returns>
+            <typeparam name="T"> The type of the model. </typeparam>
+            <param name="model"> The model to be validated. </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
         </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateStringRange(System.Object,System.Int32,System.Int32)">
+        <member name="M:Speedy.Extensions.ObjectExtensions.NextInt32(System.Random)">
             <summary>
-            Validate an object as a string with in a range.
+            Returns an Int32 with a random value across the entire range of
+            possible values.
             </summary>
-            <param name="value"> The string as an object. </param>
-            <param name="minimum"> The inclusive minimum value. </param>
-            <param name="maximum"> The inclusive maximum value. </param>
-            <returns> True if the value is a string and within the provided range. </returns>
         </member>
         <member name="T:Speedy.Extensions.QueryableExtensions">
             <summary>
@@ -2147,6 +2352,15 @@
             <param name="info"> The property information to get the generic arguments for. </param>
             <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
             <returns> The method information with generics. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateNewGenericInstance(System.Type,System.Type[],System.Object[])">
+            <summary>
+            Quickly create a new type of a generic.
+            </summary>
+            <param name="type"> The base type that requires generics. </param>
+            <param name="genericTypes"> The types for the generic. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedAccessors(System.Reflection.PropertyInfo)">
             <summary>
@@ -2300,6 +2514,15 @@
             <param name="memberName"> The name of the field or property to get the value of. </param>
             <returns> The value of member. </returns>
         </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetMemberValue(System.Reflection.MemberInfo,System.Object)">
+            <summary>
+            Gets the member value of an object using the provider info.
+            </summary>
+            <param name="memberInfo"> The info for the member. </param>
+            <param name="value"> </param>
+            <returns> The value of the value member. </returns>
+            <exception cref="T:System.NotImplementedException"> The member info is not a field or property. </exception>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetRealType(System.Object)">
             <summary>
             Gets the real type of the entity. For use with proxy entities.
@@ -2419,11 +2642,15 @@
             <param name="data"> The byte array to convert. </param>
             <returns> The byte array in a hex string format. </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.Byte[])">
+        <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.Byte[],System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.String)">
             <summary>
             Converts a byte array to a hex string format. Ex. [41],[42] = "4142"
             </summary>
             <param name="data"> The byte array to convert. </param>
+            <param name="startIndex"> The starting position within value. </param>
+            <param name="length"> The number of array elements in value to convert. </param>
+            <param name="delimiter"> An optional delimited to put between bytes of the data. </param>
+            <param name="prefix"> An optional prefix to put before each byte of the data. </param>
             <returns> The byte array in a hex string format. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.Unescape(System.String)">
@@ -4163,15 +4390,20 @@
             Options for Partial Update
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdateOptions`1.#ctor">
+            <summary>
+            Create an instance of the partial update options.
+            </summary>
+        </member>
         <member name="M:Speedy.PartialUpdateOptions`1.GetInstance">
             <summary>
             Creates an instance of the type.
             </summary>
             <returns> </returns>
         </member>
-        <member name="M:Speedy.PartialUpdateOptions`1.Property``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+        <member name="P:Speedy.PartialUpdateOptions`1.Validator">
             <summary>
-            Configure a validation for a property.
+            Validator for validating the options for the type.
             </summary>
         </member>
         <member name="T:Speedy.PartialUpdateOptions">
@@ -4194,10 +4426,12 @@
             Properties to be included.
             </summary>
         </member>
-        <member name="P:Speedy.PartialUpdateOptions.Validations">
+        <member name="M:Speedy.PartialUpdateOptions.Create(System.Type)">
             <summary>
-            The validations for a partial update.
+            Create options for the provided type.
             </summary>
+            <param name="type"> </param>
+            <returns> The partial update options for the provided type. </returns>
         </member>
         <member name="M:Speedy.PartialUpdateOptions.GetInstance">
             <summary>
@@ -4237,82 +4471,6 @@
             <summary>
             The value being apply.
             </summary>
-        </member>
-        <member name="T:Speedy.PartialValidation`1">
-            <summary>
-            Validation for Partial Update
-            </summary>
-        </member>
-        <member name="M:Speedy.PartialValidation`1.#ctor(System.String)">
-            <summary>
-            Instantiates a validation for a partial update.
-            </summary>
-            <param name="name"> The name of the partial update. </param>
-        </member>
-        <member name="M:Speedy.PartialValidation`1.HasMinMaxRange(System.Int32,System.Int32)">
-            <summary>
-            Set a minimum and maximum for the value.
-            </summary>
-            <param name="minimum"> The inclusive minimal value. </param>
-            <param name="maximum"> The inclusive maximum value. </param>
-            <returns> The validation for method chaining. </returns>
-        </member>
-        <member name="M:Speedy.PartialValidation`1.IsRequired(System.Boolean)">
-            <summary>
-            Sets the flag to clear / set a required requirement.
-            </summary>
-            <param name="required"> </param>
-            <returns> The validation for method chaining. </returns>
-        </member>
-        <member name="M:Speedy.PartialValidation`1.Process(System.Object)">
-            <summary>
-            Process a validation against an object.
-            </summary>
-            <param name="value"> The object to validate against. Must be of type T. </param>
-        </member>
-        <member name="M:Speedy.PartialValidation`1.Process(`0)">
-            <summary>
-            Process a validation against an object.
-            </summary>
-            <param name="value"> The value to validate against. </param>
-        </member>
-        <member name="M:Speedy.PartialValidation`1.Throws(System.String)">
-            <summary>
-            The message to throw if the validation fails.
-            </summary>
-            <param name="message"> The text of the message that will be thrown if the validation fails. </param>
-            <returns> The validation for method chaining. </returns>
-        </member>
-        <member name="T:Speedy.PartialValidation">
-            <summary>
-            Validation for Partial Update
-            </summary>
-        </member>
-        <member name="M:Speedy.PartialValidation.#ctor(System.String)">
-            <summary>
-            Instantiates a validation for a partial update.
-            </summary>
-        </member>
-        <member name="P:Speedy.PartialValidation.Message">
-            <summary>
-            The text of the message that will be thrown if the validation fails.
-            </summary>
-        </member>
-        <member name="P:Speedy.PartialValidation.Name">
-            <summary>
-            The name of the validation.
-            </summary>
-        </member>
-        <member name="P:Speedy.PartialValidation.Required">
-            <summary>
-            Gets or sets the flag to clear / set a required requirement.
-            </summary>
-        </member>
-        <member name="M:Speedy.PartialValidation.Process(System.Object)">
-            <summary>
-            Process a value through an update validation.
-            </summary>
-            <param name="value"> The value to test against a validation. </param>
         </member>
         <member name="T:Speedy.Profiling.AverageTimer">
             <summary>
@@ -5891,6 +6049,14 @@
             </summary>
             <returns> The argument if found or default value if not. </returns>
         </member>
+        <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsDecimal(System.Int32,System.Decimal)">
+            <summary>
+            Gets the argument or returns the default value if the index is not found.
+            </summary>
+            <param name="index"> The index of the argument. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The argument if found or default value if not. </returns>
+        </member>
         <member name="M:Speedy.Protocols.Osc.OscCommand.GetArgumentAsDouble(System.Int32,System.Double)">
             <summary>
             Gets the argument or returns the default value if the index is not found.
@@ -6759,6 +6925,20 @@
             <param name="item"> The object to serialize. </param>
             <returns> The JSON string of the serialized object. </returns>
         </member>
+        <member name="M:Speedy.Serialization.Serializer.ToRawJson``1(``0,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Serialize an object into a JSON string.
+            </summary>
+            <typeparam name="T"> The type of the object to serialize. </typeparam>
+            <param name="item"> The object to serialize. </param>
+            <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
+            <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
+            <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+            <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
+            <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+            <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
+            <returns> The JSON string of the serialized object. </returns>
+        </member>
         <member name="T:Speedy.Serialization.SerializerSettings">
             <summary>
             Represents serialization settings
@@ -7100,6 +7280,20 @@
             The type of <paramref name="obj" /> is a reference type and
             <paramref name="obj" /> is null.
             </exception>
+        </member>
+        <member name="M:Speedy.Storage.EntityState.GetStateProperties(System.Type)">
+            <summary>
+            Represents properties we want to "track" changes for.
+            </summary>
+            <param name="type"> The type of the entity. </param>
+            <returns> The properties for state tracking. </returns>
+        </member>
+        <member name="M:Speedy.Storage.EntityState`2.UpdateEntity(Speedy.Entity{`1},Speedy.Entity{`1})">
+            <summary>
+            Update the entity with the new values.
+            </summary>
+            <param name="entity"> The entity to update. </param>
+            <param name="updatedEntity"> The new values to update the entity with. </param>
         </member>
         <member name="T:Speedy.Storage.IDatabaseRepository">
             <summary>
@@ -8575,13 +8769,6 @@
         <member name="M:Speedy.Storage.Repository`2.System#Collections#IEnumerable#GetEnumerator">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Storage.Repository`2.UpdateEntity(Speedy.Entity{`1},Speedy.Entity{`1})">
-            <summary>
-            Update the entity with the new values.
-            </summary>
-            <param name="entity"> The entity to update. </param>
-            <param name="updatedEntity"> The new values to update the entity with. </param>
-        </member>
         <member name="E:Speedy.Storage.Repository`2.CollectionChanged">
             <inheritdoc />
         </member>
@@ -8803,6 +8990,15 @@
             This can be overriden by setting the LookupFilter for a sync repository filter.
             </summary>
             <returns> The sync key value for the sync entity. </returns>
+        </member>
+        <member name="M:Speedy.Sync.ISyncEntity.GetExclusions(System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Get exclusions for the provided type.
+            </summary>
+            <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+            <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+            <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+            <returns> The list of members to be excluded. </returns>
         </member>
         <member name="M:Speedy.Sync.ISyncEntity.IsPropertyExcludedForIncomingSync(System.String)">
             <summary>
@@ -9534,6 +9730,15 @@
         <member name="M:Speedy.Sync.SyncEntity`1.GetEntitySyncId">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Sync.SyncEntity`1.GetExclusions(System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Get exclusions for the provided type.
+            </summary>
+            <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+            <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+            <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+            <returns> The list of members to be excluded. </returns>
+        </member>
         <member name="M:Speedy.Sync.SyncEntity`1.IsPropertyExcludedForIncomingSync(System.String)">
             <inheritdoc />
         </member>
@@ -9575,6 +9780,58 @@
             sure to only return static values as to not cause issues.
             </summary>
             <returns> The values to exclude during update. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncEntity`1.GetPartialJson(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Gets the default properties for partial tracking sync . Warning: this is called during constructor, overrides need to be
+            sure to only return static values as to not cause issues.
+            </summary>
+            <returns> The values to for partial tracking. </returns>
+        </member>
+        <member name="T:Speedy.Sync.SyncEntity">
+            <summary>
+            Internal static class for internal collections
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEntity.ExclusionCacheForChangeTracking">
+            <summary>
+            All hash sets for types, this is for optimization
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEntity.ExclusionCacheForIncomingSync">
+            <summary>
+            All hash sets for types, this is for optimization
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEntity.ExclusionCacheForOutgoingSync">
+            <summary>
+            All hash sets for types, this is for optimization
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEntity.ExclusionCacheForSyncUpdate">
+            <summary>
+            All hash sets for types, this is for optimization
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEntity.ExcludedPropertiesForUpdateWith">
+            <summary>
+            All hash sets for types, this is for optimization
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncEntity.PropertyDictionaryForSyncObject">
+            <summary>
+            Property dictionary for a sync object, this is for optimization
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncEntity.GetExclusions(System.Type,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Get exclusions for the provided type.
+            </summary>
+            <param name="type"> The type to get exclusions for. </param>
+            <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+            <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+            <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+            <returns> The list of members to be excluded. </returns>
         </member>
         <member name="T:Speedy.Sync.SyncIssue">
             <summary>
@@ -10658,6 +10915,216 @@
         <member name="M:Speedy.TimeService.Reset">
             <summary>
             Resets the providers to the default values.
+            </summary>
+        </member>
+        <member name="T:Speedy.Validation.IValidation">
+            <summary>
+            Represents a validation for an object.
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.IValidation.Message">
+            <summary>
+            The message for failed validation.
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.IValidation.Name">
+            <summary>
+            The name for failed validation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.IValidation.TryValidate(System.Object)">
+            <summary>
+            Tries to validate
+            </summary>
+            <returns> Returns true if the validation passes otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.Validation.MemberValidator`1">
+            <summary>
+            Validation for an object member.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.#ctor(System.Reflection.MemberInfo)">
+            <summary>
+            Creates an instance of a member validator.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.HasMinMaxRange(System.Int32,System.Int32,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsRequired(System.Boolean,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.TryValidate(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Validation.MemberValidator">
+            <summary>
+            Validation for an object member.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.#ctor(System.Reflection.MemberInfo)">
+            <summary>
+            Creates an instance of a member validator.
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.MemberValidator.Name">
+            <summary>
+            The name of the validator
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.MemberValidator.Validations">
+            <summary>
+            The validations for the validator.
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.MemberValidator.Info">
+            <summary>
+            The info for the member.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.HasMinMaxRange(System.Int32,System.Int32,System.String)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.IsRequired(System.String)">
+            <summary>
+            Configure this member as not required.
+            </summary>
+            <param name="message"> The message for failed validation. </param>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.IsNotRequired">
+            <summary>
+            Configure this member as not required.
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.MemberValidator.MemberRequired">
+            <summary>
+            Get the required status
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.IsRequired(System.Boolean,System.String)">
+            <summary>
+            Validate a member to determine if it is required.
+            </summary>
+            <param name="required"> The flag to determine if it is required. </param>
+            <param name="message"> The message for failed validation. </param>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.TryValidate(System.Object)">
+            <summary>
+            Tries to validate the property.
+            </summary>
+            <returns> Returns true if the validations pass otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.ProcessValidations(System.Object,System.Collections.Generic.ICollection{Speedy.Validation.IValidation})">
+            <summary>
+            Process the validations.
+            </summary>
+            <param name="propertyValue"> The property value. </param>
+            <param name="failedValidation"> The list of failed validations. </param>
+        </member>
+        <member name="T:Speedy.Validation.Validation`1">
+            <summary>
+            Represents a validation for an object.
+            </summary>
+            <typeparam name="T"> The type of the object to validate. </typeparam>
+        </member>
+        <member name="M:Speedy.Validation.Validation`1.#ctor(Speedy.Validation.MemberValidator,System.String,System.Func{`0,System.Boolean})">
+            <summary>
+            Instantiates an instance of a validator.
+            </summary>
+            <param name="validator"> The parent validator. </param>
+            <param name="message"> The message for failed validation. </param>
+            <param name="validate"> The function to validate an object. </param>
+        </member>
+        <member name="P:Speedy.Validation.Validation`1.Message">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Validation.Validation`1.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Validation.Validation`1.Validator">
+            <summary>
+            The parent validator.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.Validation`1.TryValidate(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Validation.Validation`1.TryValidate(`0)">
+            <summary>
+            Tries to validate
+            </summary>
+            <returns> Returns true if the validation passes otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.Validation.Validator`1">
+            <summary>
+            Validation for a typed object.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.Validator`1.#ctor">
+            <summary>
+            Creates an instance of a Validator.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.Validator`1.#ctor(System.String)">
+            <summary>
+            Creates an instance of a Validator.
+            </summary>
+            <param name="name"> The name of the validator. </param>
+        </member>
+        <member name="M:Speedy.Validation.Validator`1.Property``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Configure a validation for a property.
+            </summary>
+        </member>
+        <member name="T:Speedy.Validation.Validator">
+            <summary>
+            Validation for an object.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.Validator.#ctor(System.String)">
+            <summary>
+            Creates an instance of a Validator.
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.Validator.Name">
+            <summary>
+            The name of the validator
+            </summary>
+        </member>
+        <member name="P:Speedy.Validation.Validator.PropertyValidators">
+            <summary>
+            The validations for the validator.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.Validator.Process(System.Object)">
+            <summary>
+            Runs the validator to check the value.
+            </summary>
+            <returns> A list of failed validations. </returns>
+        </member>
+        <member name="M:Speedy.Validation.Validator.ThrowException``1(System.String)">
+            <summary>
+            Throws a new exception.
+            </summary>
+            <typeparam name="T"> The type of exception to throw. </typeparam>
+            <param name="message"> The message of the exception. </param>
+        </member>
+        <member name="M:Speedy.Validation.Validator.TryValidate(System.Object)">
+            <summary>
+            Tries to validate
+            </summary>
+            <returns> Returns true if the validation passes otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Validation.Validator.Validate(System.Object)">
+            <summary>
+            Runs the validator to check the parameter.
             </summary>
         </member>
     </members>

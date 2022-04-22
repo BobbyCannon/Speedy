@@ -26,6 +26,7 @@ namespace Speedy.Website.Data.Mappings
 			//  - Custom SQL works
 			//
 
+			b.Property(x => x.AccountSyncId).IsRequired(false);
 			b.Property(x => x.City).HasColumnName("AddressCity").HasMaxLength(256).IsRequired();
 			b.Property(x => x.CreatedOn).HasColumnName("AddressCreatedOn").IsRequired();
 			b.Property(x => x.Id).HasColumnName("AddressId").IsRequired();

@@ -73,7 +73,20 @@ namespace Speedy.Extensions
 		{
 			var fullName = info.ReflectedType?.FullName + "." + info.Name;
 			var key = info.ToString().Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
-			return _genericMethods.GetOrAdd(key, x => info.MakeGenericMethod(arguments));
+			return _genericMethods.GetOrAdd(key, _ => info.MakeGenericMethod(arguments));
+		}
+
+		/// <summary>
+		/// Quickly create a new type of a generic.
+		/// </summary>
+		/// <param name="type"> The base type that requires generics. </param>
+		/// <param name="genericTypes"> The types for the generic. </param>
+		/// <param name="arguments"> The value of the arguments. </param>
+		/// <returns> The new instances of the type. </returns>
+		public static object CreateNewGenericInstance(this Type type, Type[] genericTypes, params object[] arguments)
+		{
+			var genericType = type.MakeGenericType(genericTypes);
+			return Activator.CreateInstance(genericType, arguments);
 		}
 
 		/// <summary>
@@ -89,7 +102,7 @@ namespace Speedy.Extensions
 			}
 
 			var key = $"{info.ReflectedType?.FullName}.{info.Name}";
-			return _propertyGetAccessors.GetOrAdd(key, x => info.GetAccessors());
+			return _propertyGetAccessors.GetOrAdd(key, _ => info.GetAccessors());
 		}
 
 		/// <summary>
@@ -125,7 +138,7 @@ namespace Speedy.Extensions
 		{
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-			return _typeFieldInfos.GetOrAdd(key, x => type.GetFields(typeFlags));
+			return _typeFieldInfos.GetOrAdd(key, _ => type.GetFields(typeFlags));
 		}
 
 		/// <summary>
@@ -137,7 +150,7 @@ namespace Speedy.Extensions
 		{
 			var fullName = $"{info.ReflectedType?.FullName}.{info.Name}";
 			var key = info.ToString().Replace(info.Name, fullName);
-			return _methodsGenericArgumentInfos.GetOrAdd(key, x => info.GetGenericArguments());
+			return _methodsGenericArgumentInfos.GetOrAdd(key, _ => info.GetGenericArguments());
 		}
 
 		/// <summary>
@@ -147,7 +160,8 @@ namespace Speedy.Extensions
 		/// <returns> The list of generic arguments for the type of the value. </returns>
 		public static IList<Type> GetCachedGenericArguments(this Type type)
 		{
-			return _methodsGenericArgumentInfos.GetOrAdd(type.FullName ?? throw new InvalidOperationException(), x => type.GetGenericArguments());
+			return _methodsGenericArgumentInfos.GetOrAdd(type.FullName ?? throw new InvalidOperationException(),
+				_ => type.GetGenericArguments());
 		}
 
 		/// <summary>
@@ -162,7 +176,7 @@ namespace Speedy.Extensions
 		{
 			var typeKey = GetCacheKey(type, DefaultFlags);
 			var methodKey = typeKey + name;
-			return _typeMethodInfos.GetOrAdd(methodKey, x => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
+			return _typeMethodInfos.GetOrAdd(methodKey, _ => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
 		}
 
 		/// <summary>
@@ -221,7 +235,7 @@ namespace Speedy.Extensions
 			var fullName = reflectedName != null ? $"{reflectedName}.{info.Name}" : info.Name;
 			var key = info.ToString().Replace(info.Name, fullName);
 
-			return _methodParameters.GetOrAdd(key, x => info.GetParameters());
+			return _methodParameters.GetOrAdd(key, _ => info.GetParameters());
 		}
 
 		/// <summary>
@@ -245,7 +259,7 @@ namespace Speedy.Extensions
 		{
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-			return _typePropertyInfos.GetOrAdd(key, x => type.GetProperties(typeFlags));
+			return _typePropertyInfos.GetOrAdd(key, _ => type.GetProperties(typeFlags));
 		}
 
 		/// <summary>
@@ -270,7 +284,7 @@ namespace Speedy.Extensions
 		{
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-			return _typePropertyInfoDictionaries.GetOrAdd(key, x => type.GetProperties(typeFlags).ToDictionary(p => p.Name, p => p, StringComparer.InvariantCultureIgnoreCase));
+			return _typePropertyInfoDictionaries.GetOrAdd(key, _ => type.GetProperties(typeFlags).ToDictionary(p => p.Name, p => p, StringComparer.InvariantCultureIgnoreCase));
 		}
 
 		/// <summary>
@@ -284,9 +298,10 @@ namespace Speedy.Extensions
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
 
-			return _typeVirtualPropertyInfos.GetOrAdd(key, x =>
+			return _typeVirtualPropertyInfos.GetOrAdd(key, _ =>
 			{
-				return type.GetCachedProperties(typeFlags)
+				return type
+					.GetCachedProperties(typeFlags)
 					.Where(p => p.GetMethod.IsVirtual && !p.GetMethod.IsAbstract && !p.GetMethod.IsFinal && p.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
 					.OrderBy(p => p.Name)
 					.ToArray();
@@ -359,6 +374,23 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Gets the member value of an object using the provider info.
+		/// </summary>
+		/// <param name="memberInfo"> The info for the member. </param>
+		/// <param name="value"> </param>
+		/// <returns> The value of the value member. </returns>
+		/// <exception cref="NotImplementedException"> The member info is not a field or property. </exception>
+		public static object GetMemberValue(this MemberInfo memberInfo, object value)
+		{
+			return memberInfo.MemberType switch
+			{
+				MemberTypes.Field => ((FieldInfo) memberInfo).GetValue(value),
+				MemberTypes.Property => ((PropertyInfo) memberInfo).GetValue(value),
+				_ => throw new NotImplementedException()
+			};
+		}
+
+		/// <summary>
 		/// Gets the real type of the entity. For use with proxy entities.
 		/// </summary>
 		/// <param name="item"> The object to process. </param>
@@ -366,7 +398,8 @@ namespace Speedy.Extensions
 		public static Type GetRealType(this object item)
 		{
 			var type = item.GetType();
-			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true) || (type.FullName?.Contains("Castle.Proxies") == true);
+			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true)
+				|| (type.FullName?.Contains("Castle.Proxies") == true);
 			return isProxy ? type.BaseType : type;
 		}
 
@@ -414,15 +447,19 @@ namespace Speedy.Extensions
 			switch (memInf)
 			{
 				case PropertyInfo propertyInfo:
+				{
 					propertyInfo.SetValue(obj, newValue, null);
 					break;
-
+				}
 				case FieldInfo fieldInfo:
+				{
 					fieldInfo.SetValue(obj, newValue);
 					break;
-
+				}
 				default:
+				{
 					throw new Exception();
+				}
 			}
 
 			return oldValue;

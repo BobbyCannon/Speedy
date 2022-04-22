@@ -91,7 +91,7 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void EmptyJson()
 		{
-			var scenarios = new[] { "{}", "[]", null, "", " ", "[{}]" };
+			var scenarios = new[] { "{}", "[]", " { } ", " [ ] ", null, "", " ", "[{}]" };
 
 			foreach (var scenario in scenarios)
 			{
@@ -287,6 +287,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(1, accountUpdate.Updates.Count);
 			Assert.AreEqual("Name", accountUpdate.Updates["Name"].Name);
 			Assert.AreEqual("Fred", accountUpdate.Updates["Name"].Value);
+			Assert.AreEqual("Fred", accountUpdate.Get(nameof(Account.Name)));
 			Assert.AreEqual("Fred", accountUpdate.Get<string>(nameof(Account.Name)));
 		}
 
@@ -338,10 +339,21 @@ namespace Speedy.UnitTests
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			var options = new PartialUpdateOptions<MyClass>();
-			var message = "Name must be between 1 to 5 characters.";
-			options.Property(x => x.Name).HasMinMaxRange(1, 5).IsRequired().Throws(message);
+			var rangeMessage = "Name must be between 1 to 5 characters.";
+			var requiredMessage = "Name is required";
+			options.Validator
+				.Property(x => x.Name)
+				.HasMinMaxRange(1, 5, rangeMessage)
+				.IsRequired(requiredMessage);
+			
 			var update = PartialUpdate.FromJson(json, options);
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), message);
+			
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
+
+			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
+			update = PartialUpdate.FromJson(json, options);
+			
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), requiredMessage);
 		}
 
 		[TestMethod]
@@ -351,8 +363,11 @@ namespace Speedy.UnitTests
 			foreach (var json in scenarios)
 			{
 				var options = new PartialUpdateOptions<MyClass>();
-				var message = "Name must be between 1 to 5 characters.";
-				options.Property(x => x.Name).HasMinMaxRange(1, 5).IsRequired(false).Throws(message);
+				options.Validator
+					.Property(x => x.Name)
+					.IsNotRequired()
+					.HasMinMaxRange(1, 5, "Name must be between 1 to 5 characters.");
+
 				var update = PartialUpdate.FromJson(json, options);
 				update.Validate();
 			}

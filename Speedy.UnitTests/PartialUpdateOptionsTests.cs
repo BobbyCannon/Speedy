@@ -14,26 +14,25 @@ namespace Speedy.UnitTests
 		#region Methods
 
 		[TestMethod]
-		public void CreateInstance()
+		public void Create()
 		{
-			var options = new PartialUpdateOptions<MyClass>();
-			var actual = options.GetInstance();
-			Assert.AreEqual(typeof(MyClass), actual.GetType());
+			var expected = new PartialUpdateOptions<MyClass>();
+			var actual = PartialUpdateOptions.Create(typeof(MyClass));
+			TestHelper.AreEqual(expected, actual);
+
+			var instance1 = expected.GetInstance();
+			var instance2 = actual.GetInstance();
+			TestHelper.AreEqual(instance1, instance2);
+			TestHelper.AreEqual(instance1.GetType(), instance2.GetType());
 		}
 
 		[TestMethod]
 		public void PropertyValidationForMinMaxRangeForNumber()
 		{
 			var options = new PartialUpdateOptions<MyClass>();
-			var property = options
+			options.Validator
 				.Property(x => x.Age)
-				.HasMinMaxRange(10, 20)
-				.Throws("Age must be between 10 and 20.");
-
-			Assert.AreEqual(1, options.Validations.Count);
-			Assert.AreEqual("Age must be between 10 and 20.", property.Message);
-			Assert.AreEqual(nameof(MyClass.Age), property.Name);
-			Assert.AreEqual(false, property.Required);
+				.HasMinMaxRange(10, 20, "Age must be between 10 and 20.");
 
 			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson("{ \"age\": 9 }", options).Validate(), "Age must be between 10 and 20.");
 
@@ -55,14 +54,9 @@ namespace Speedy.UnitTests
 		public void PropertyValidationForMinMaxRangeForString()
 		{
 			var options = new PartialUpdateOptions<MyClass>();
-			var property = options
+			options.Validator
 				.Property(x => x.Name)
-				.HasMinMaxRange(10, 12)
-				.Throws("Name must be between 10 and 12.");
-
-			Assert.AreEqual("Name must be between 10 and 12.", property.Message);
-			Assert.AreEqual(nameof(MyClass.Name), property.Name);
-			Assert.AreEqual(false, property.Required);
+				.HasMinMaxRange(10, 12, "Name must be between 10 and 12.");
 
 			TestHelper.ExpectedException<ValidationException>(() => PartialUpdate.FromJson("{ \"name\": \"123456789\" }", options).Validate(), "Name must be between 10 and 12.");
 

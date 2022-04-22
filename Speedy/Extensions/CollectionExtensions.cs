@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using Speedy.Serialization;
 using Speedy.Storage;
@@ -60,6 +61,48 @@ namespace Speedy.Extensions
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Exclude duplicates that are sequential. Ex. 1,2,2,3,3,4 -> 1,2,3,4
+		/// </summary>
+		/// <typeparam name="T"> The type of the collection entries. </typeparam>
+		/// <typeparam name="T2"> The type of the property to be validated. </typeparam>
+		/// <param name="collection"> The collection to be processed. </param>
+		/// <param name="propertyExpression"> The expression of the property to be tested. </param>
+		/// <param name="additionalCheck"> An optional additional check for testing for duplicates. </param>
+		/// <returns> The processed collections with sequential duplicates removed. </returns>
+		public static IEnumerable<T> ExcludeSequentialDuplicates<T,T2>(this IEnumerable<T> collection,
+			Expression<Func<T, T2>> propertyExpression, Func<T, T, bool> additionalCheck = null)
+		{
+			var list = collection.ToList();
+			if (list.Count == 0)
+			{
+				return Array.Empty<T>();
+			}
+
+			var current = list[0];
+			var response = new List<T> { current };
+			var test = propertyExpression.Compile();
+			
+			for (var index = 1; index < list.Count; index++)
+			{
+				var next = list[index];
+				var currentValue = test.Invoke(current);
+				var nextValue = test.Invoke(next);
+
+				if (Equals(currentValue, nextValue)
+					&& ((additionalCheck == null)
+						|| additionalCheck.Invoke(current, next)))
+				{
+					continue;
+				}
+
+				current = next;
+				response.Add(current);
+			}
+
+			return response;
+		}
 
 		/// <summary>
 		/// Add a dictionary entry if the key is not found.
@@ -313,6 +356,137 @@ namespace Speedy.Extensions
 		public static IEnumerable<string> NaturalSort(this IEnumerable<string> collection, CultureInfo cultureInfo)
 		{
 			return collection.OrderBy(s => s, new SyncKeyComparer(cultureInfo));
+		}
+
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="TLeft"> The type of the left collection. </typeparam>
+		/// <typeparam name="TLeftKey"> The type of the left collection key. </typeparam>
+		/// <typeparam name="TRight"> The type of the right collection. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="filter"> The filter for the collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		/// <param name="compare"> The logic for comparison. </param>
+		/// <param name="locate"> The logic to locate matching entity. </param>
+		/// <param name="convert"> The function to convert from TLeft to TRight. </param>
+		/// <param name="optionalUpdates"> A set of optional updates. </param>
+		/// <param name="optionalExclusions"> A set of optional excluded properties </param>
+		public static void Reconcile<TLeft, TLeftKey, TRight>(this IRepository<TLeft, TLeftKey> collection,
+			Func<TLeft, bool> filter,
+			IEnumerable<TRight> updates,
+			Func<TLeft, TRight, bool> compare,
+			Func<TLeft, TRight, bool> locate,
+			Func<TRight, TLeft> convert,
+			Action<TLeft, TRight> optionalUpdates = null,
+			string[] optionalExclusions = null
+		)
+			where TLeft : Entity<TLeftKey>
+			where TRight : IUpdatable
+		{
+			var filteredCollection = collection.Where(filter).ToList();
+			var updateList = updates.ToList();
+
+			// Reconcile two collections
+			var updatesToBeAdded = updateList
+				.Where(update => filteredCollection.All(item => !locate(item, update)))
+				.ToList();
+			var updateToBeApplied = updateList
+				.Select(update => new { item = filteredCollection.FirstOrDefault(item => locate(item, update)), update })
+				.Where(x => x.item != null)
+				.ToList();
+			var itemsToRemove = filteredCollection
+				.Where(item => updateList.All(update => !locate(item, update)))
+				.ToList();
+
+			foreach (var addedUpdates in updatesToBeAdded)
+			{
+				var newItem = convert(addedUpdates);
+				if (newItem == null)
+				{
+					continue;
+				}
+
+				newItem.UpdateWith(addedUpdates, optionalExclusions);
+				optionalUpdates?.Invoke(newItem, addedUpdates);
+				collection.Add(newItem);
+			}
+
+			foreach (var updateToApply in updateToBeApplied)
+			{
+				if (compare(updateToApply.item, updateToApply.update))
+				{
+					continue;
+				}
+
+				updateToApply.item.UpdateWith(updateToApply.update, optionalExclusions);
+				optionalUpdates?.Invoke(updateToApply.item, updateToApply.update);
+			}
+
+			foreach (var deviceToRemove in itemsToRemove)
+			{
+				collection.Remove(deviceToRemove);
+			}
+		}
+		
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="TLeft"> The type of the left collection. </typeparam>
+		/// <typeparam name="TRight"> The type of the right collection. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		/// <param name="compare"> The logic for comparison. </param>
+		/// <param name="convert"> The function to convert from TLeft to TRight. </param>
+		/// <param name="optionalUpdates"> A set of optional updates. </param>
+		/// <param name="optionalExclusions"> A set of optional excluded properties </param>
+		public static void Reconcile<TLeft, TRight>(this ICollection<TLeft> collection,
+			IEnumerable<TRight> updates,
+			Func<TLeft, TRight, bool> compare,
+			Func<TRight, TLeft> convert,
+			Action<TLeft, TRight> optionalUpdates = null,
+			string[] optionalExclusions = null
+		)
+			where TLeft : IUpdatable
+			where TRight : IUpdatable
+		{
+			var updateList = updates.ToList();
+
+			// Reconcile two collections
+			var updatesToBeAdded = updateList
+				.Where(update => collection.All(item => !compare(item, update)))
+				.ToList();
+			var updateToBeApplied = updateList
+				.Select(update => new { item = collection.FirstOrDefault(item => compare(item, update)), update })
+				.Where(x => x.item != null)
+				.ToList();
+			var itemsToRemove = collection
+				.Where(item => updateList.All(update => !compare(item, update)))
+				.ToList();
+
+			foreach (var addedUpdates in updatesToBeAdded)
+			{
+				var newItem = convert(addedUpdates);
+				if (newItem == null)
+				{
+					continue;
+				}
+
+				newItem.UpdateWith(addedUpdates, optionalExclusions);
+				optionalUpdates?.Invoke(newItem, addedUpdates);
+				collection.Add(newItem);
+			}
+
+			foreach (var updateToApply in updateToBeApplied)
+			{
+				updateToApply.item.UpdateWith(updateToApply.update, optionalExclusions);
+				optionalUpdates?.Invoke(updateToApply.item, updateToApply.update);
+			}
+
+			foreach (var deviceToRemove in itemsToRemove)
+			{
+				collection.Remove(deviceToRemove);
+			}
 		}
 
 		/// <summary>

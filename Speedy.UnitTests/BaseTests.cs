@@ -1,7 +1,5 @@
 ﻿#region References
 
-using System.Threading;
-using System.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #endregion
@@ -18,27 +16,9 @@ namespace Speedy.UnitTests
 			TestHelper.Initialize();
 		}
 
-		protected void ClipboardSetText(string value)
-		{
-			var thread = new Thread(() =>
-			{
-				try
-				{
-					Clipboard.SetText(value);
-				}
-				catch
-				{
-					// Ignore the clipboard set issue...
-				}
-			});
-			thread.SetApartmentState(ApartmentState.STA);
-			thread.Start();
-			thread.Join();
-		}
-
 		protected string GetMessageAndCopy(string actual)
 		{
-			ClipboardSetText(actual);
+			TestHelper.SetClipboardText(actual);
 			return actual;
 		}
 

@@ -100,14 +100,14 @@ namespace Speedy.Protocols
 
 		public static ushort CalculateCrc16(this byte[] data)
 		{
-			return CalculateCrc16(data, data.Length);
+			return CalculateCrc16(data, 0, data.Length);
 		}
 
-		public static ushort CalculateCrc16(this byte[] data, int length)
+		public static ushort CalculateCrc16(this byte[] data, int offset, int length)
 		{
 			// CRC-16/KERMIT
 			ushort crc = 0;
-			var index = 0;
+			var index = offset;
 
 			while (length-- > 0)
 			{
@@ -282,6 +282,15 @@ namespace Speedy.Protocols
 					if (double.TryParse(argument, out valueDouble))
 					{
 						return valueDouble;
+					}
+					break;
+				}
+				case 'm':
+				{
+					var argument = argString.Substring(0, argString.Length - 1);
+					if (decimal.TryParse(argument, out var value))
+					{
+						return value;
 					}
 					break;
 				}

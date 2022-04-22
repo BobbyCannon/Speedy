@@ -22,6 +22,7 @@ namespace Speedy.Website.Data.Mappings
 
 			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").IsRequired();
+			b.Property(x => x.IsDeleted).HasColumnName("IsDeleted").IsRequired();
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
 			b.Property(x => x.Value).HasColumnName("Value").IsRequired();

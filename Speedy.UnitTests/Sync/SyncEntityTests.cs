@@ -23,11 +23,11 @@ namespace Speedy.UnitTests.Sync
 			var address = new AddressEntity
 			{
 				City = "City",
-				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03),
+				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03, DateTimeKind.Utc),
 				Id = 2,
 				Line1 = "Line1",
 				Line2 = "Line2",
-				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03),
+				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03, DateTimeKind.Utc),
 				SyncId = Guid.Parse("513B9CF1-7596-4E2E-888D-835622A3FB2B"),
 				Postal = "29640",
 				State = "SC",
@@ -40,11 +40,11 @@ namespace Speedy.UnitTests.Sync
 			var expected = new AddressEntity
 			{
 				City = "City",
-				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03),
+				CreatedOn = new DateTime(2017, 01, 01, 01, 02, 03, DateTimeKind.Utc),
 				Id = 2,
 				Line1 = "Line1",
 				Line2 = "Line2",
-				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03),
+				ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03, DateTimeKind.Utc),
 				SyncId = Guid.Parse("513B9CF1-7596-4E2E-888D-835622A3FB2B"),
 				Postal = "29640",
 				State = "SC",

@@ -1,3 +1,5 @@
+$ErrorActionPreference = 'Stop'
+
 This should not be ran as a file
 
 Import-Module WebAdministration

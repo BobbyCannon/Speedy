@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Speedy.Extensions;
+using Speedy.Validation;
 
 #endregion
 
@@ -13,6 +15,14 @@ namespace Speedy
 	/// </summary>
 	public class PartialUpdateOptions<T> : PartialUpdateOptions
 	{
+		/// <summary>
+		/// Create an instance of the partial update options.
+		/// </summary>
+		public PartialUpdateOptions()
+		{
+			Validator = new Validator<T>();
+		}
+
 		#region Methods
 
 		/// <summary>
@@ -26,16 +36,9 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Configure a validation for a property.
+		/// Validator for validating the options for the type.
 		/// </summary>
-		public PartialValidation<TProperty> Property<TProperty>(Expression<Func<T, TProperty>> expression)
-		{
-			var propertyExpression = (MemberExpression) expression.Body;
-			var name = propertyExpression.Member.Name;
-			var response = new PartialValidation<TProperty>(name);
-			Validations.Add(name, response);
-			return response;
-		}
+		public Validator<T> Validator { get; }
 
 		#endregion
 	}
@@ -54,7 +57,6 @@ namespace Speedy
 		{
 			ExcludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 			IncludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			Validations = new Dictionary<string, PartialValidation>(StringComparer.OrdinalIgnoreCase);
 		}
 
 		#endregion
@@ -71,14 +73,19 @@ namespace Speedy
 		/// </summary>
 		public HashSet<string> IncludedProperties { get; }
 
-		/// <summary>
-		/// The validations for a partial update.
-		/// </summary>
-		public Dictionary<string, PartialValidation> Validations { get; }
-
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Create options for the provided type.
+		/// </summary>
+		/// <param name="type"> </param>
+		/// <returns> The partial update options for the provided type. </returns>
+		public static PartialUpdateOptions Create(Type type)
+		{
+			return (PartialUpdateOptions) typeof(PartialUpdateOptions<>).CreateNewGenericInstance(new[] { type });
+		}
 
 		/// <summary>
 		/// Creates an instance of the type.

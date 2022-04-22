@@ -30,8 +30,11 @@ namespace Speedy.UnitTests.Extensions
 
 			var nonNullableTypes = new[]
 			{
+				typeof(bool),
 				typeof(ConsoleKey),
 				typeof(DateTime),
+				typeof(int),
+				typeof(double),
 				typeof(SyncObject)
 			};
 

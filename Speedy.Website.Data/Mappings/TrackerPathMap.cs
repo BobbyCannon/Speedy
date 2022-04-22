@@ -26,6 +26,7 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.Data).IsRequired(false);
 			b.Property(x => x.ElapsedTicks).IsRequired();
 			b.Property(x => x.Id).IsRequired();
+			b.Property(x => x.IsDeleted).IsRequired();
 			b.Property(x => x.ModifiedOn).IsRequired();
 			b.Property(x => x.ParentId).IsRequired(false);
 			b.Property(x => x.StartedOn).IsRequired();

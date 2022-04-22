@@ -368,6 +368,30 @@ namespace Speedy
 			}
 		}
 
+		/// <summary>
+		/// Called when an entity is added.
+		/// </summary>
+		/// <param name="entity"> The entity added. </param>
+		protected virtual void EntityAdded(IEntity entity)
+		{
+		}
+
+		/// <summary>
+		/// Called when an entity is deleted.
+		/// </summary>
+		/// <param name="entity"> The entity deleted. </param>
+		protected virtual void EntityDeleted(IEntity entity)
+		{
+		}
+
+		/// <summary>
+		/// Called when an entity is modified.
+		/// </summary>
+		/// <param name="entity"> The entity modified. </param>
+		protected virtual void EntityModified(IEntity entity)
+		{
+		}
+
 		internal void OnCollectionChanged(IList added, IList removed)
 		{
 			if (CollectionChanged == null)
@@ -396,7 +420,7 @@ namespace Speedy
 			}
 		}
 
-		internal void UpdateDependantIds(IEntity entity, List<IEntity> processed)
+		internal void UpdateDependentIds(IEntity entity, List<IEntity> processed)
 		{
 			if (processed.Contains(entity))
 			{
@@ -408,7 +432,7 @@ namespace Speedy
 
 			processed.Add(entity);
 
-			UpdateDependantIds(entity, properties, processed);
+			UpdateDependentIds(entity, properties, processed);
 			UpdateDependentCollectionIds(entity, properties, processed);
 		}
 
@@ -638,35 +662,6 @@ namespace Speedy
 			_collectionChangeTracker.Remove(e.OldItems);
 		}
 
-		private void UpdateDependantIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
-		{
-			var entityRelationships = properties
-				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
-				.ToList();
-
-			foreach (var entityRelationship in entityRelationships)
-			{
-				if (!(entityRelationship.GetValue(entity, null) is IEntity expectedEntity))
-				{
-					continue;
-				}
-
-				if (processed.Contains(expectedEntity))
-				{
-					continue;
-				}
-
-				var collectionType = expectedEntity.GetType();
-				if (!Repositories.ContainsKey(collectionType.ToAssemblyName()))
-				{
-					continue;
-				}
-
-				var repository = Repositories[collectionType.ToAssemblyName()];
-				repository.AssignKey(expectedEntity, processed);
-			}
-		}
-
 		private void UpdateDependentCollectionIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
 		{
 			var enumerableType = typeof(IEnumerable);
@@ -694,6 +689,35 @@ namespace Speedy
 				{
 					repository.AssignKey(item, processed);
 				}
+			}
+		}
+
+		private void UpdateDependentIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
+		{
+			var entityRelationships = properties
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				if (!(entityRelationship.GetValue(entity, null) is IEntity expectedEntity))
+				{
+					continue;
+				}
+
+				if (processed.Contains(expectedEntity))
+				{
+					continue;
+				}
+
+				var collectionType = expectedEntity.GetType();
+				if (!Repositories.ContainsKey(collectionType.ToAssemblyName()))
+				{
+					continue;
+				}
+
+				var repository = Repositories[collectionType.ToAssemblyName()];
+				repository.AssignKey(expectedEntity, processed);
 			}
 		}
 

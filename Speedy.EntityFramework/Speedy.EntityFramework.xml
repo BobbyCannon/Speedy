@@ -22,6 +22,13 @@
             <param name="database"> The database to be tested. </param>
             <returns> The provider type for the database. </returns>
         </member>
+        <member name="M:Speedy.EntityFramework.DatabaseExtensions.GetPrimaryKeyType(System.Type)">
+            <summary>
+            Get the type of the primary key.
+            </summary>
+            <param name="type"> The type to be tested. </param>
+            <returns> The type for the primary key. </returns>
+        </member>
         <member name="T:Speedy.EntityFramework.DatabaseProviderType">
             <summary>
             The database provider type
@@ -110,6 +117,24 @@
             The number of objects written to the underlying database.
             </returns>
             <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityAdded(Speedy.IEntity)">
+            <summary>
+            Called when an entity is added.
+            </summary>
+            <param name="entity"> The entity added. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityDeleted(Speedy.IEntity)">
+            <summary>
+            Called when an entity is deleted.
+            </summary>
+            <param name="entity"> The entity deleted. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityModified(Speedy.IEntity)">
+            <summary>
+            Called when an entity is modified.
+            </summary>
+            <param name="entity"> The entity modified. </param>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetMappingAssembly">
             <summary>

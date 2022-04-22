@@ -185,36 +185,43 @@ namespace Speedy.Protocols.Osc
 				switch (arg)
 				{
 					case short sArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(sArg));
 						break;
-
+					}
 					case ushort usArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(usArg));
 						break;
-
+					}
 					case int iArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(iArg));
 						break;
-
+					}
 					case uint uiArg:
+					{
 						typeString += "u";
 						parts.Add(OscBitConverter.GetBytes(uiArg));
 						break;
-
+					}
 					case long i64:
+					{
 						typeString += "h";
 						parts.Add(OscBitConverter.GetBytes(i64));
 						break;
-
+					}
 					case ulong ui64:
+					{
 						typeString += "H";
 						parts.Add(OscBitConverter.GetBytes(ui64));
 						break;
-
+					}
 					case float sArg:
+					{
 						if (float.IsPositiveInfinity(sArg) || float.IsNegativeInfinity(sArg))
 						{
 							typeString += "I";
@@ -225,8 +232,9 @@ namespace Speedy.Protocols.Osc
 							parts.Add(OscBitConverter.GetBytes(sArg));
 						}
 						break;
-
+					}
 					case double dValue:
+					{
 						if (double.IsPositiveInfinity(dValue) || double.IsNegativeInfinity(dValue))
 						{
 							typeString += "I";
@@ -237,81 +245,102 @@ namespace Speedy.Protocols.Osc
 							parts.Add(OscBitConverter.GetBytes(dValue));
 						}
 						break;
-
+					}
+					case decimal dValue:
+					{
+						typeString += "M";
+						parts.Add(OscBitConverter.GetBytes(dValue));
+						break;
+					}
 					case byte bValue:
+					{
 						typeString += "c";
 						parts.Add(OscBitConverter.GetBytes((char) bValue));
 						break;
-
+					}
 					case sbyte bValue:
+					{
 						typeString += "c";
 						parts.Add(OscBitConverter.GetBytes((char) bValue));
 						break;
-
+					}
 					case char character:
+					{
 						typeString += "c";
 						parts.Add(OscBitConverter.GetBytes(character));
 						break;
-
+					}
 					case bool boolean:
+					{
 						typeString += boolean ? "T" : "F";
 						break;
-
+					}
 					case null:
+					{
 						typeString += "N";
 						break;
-
+					}
 					case string s:
+					{
 						typeString += "s";
 						parts.Add(OscBitConverter.GetBytes(s));
 						break;
-
+					}
 					case IOscArgument oscType:
+					{
 						typeString += oscType.GetOscBinaryType();
 						parts.Add(oscType.GetOscValueBytes());
 						break;
-
+					}
 					case DateTime time:
+					{
 						typeString += "t";
 						var oscTime = new OscTimeTag(time);
 						parts.Add(OscBitConverter.GetBytes(oscTime.Value));
 						break;
-
+					}
 					case TimeSpan timeSpan:
+					{
 						typeString += "p";
 						parts.Add(OscBitConverter.GetBytes(timeSpan.Ticks));
 						break;
-
+					}
 					case OscSymbol s2Value:
+					{
 						typeString += "S";
 						parts.Add(OscBitConverter.GetBytes(s2Value.Value));
 						break;
-
+					}
 					case OscCrc crc:
+					{
 						typeString += "C";
 						parts.Add(OscBitConverter.GetBytes(crc));
 						break;
-
+					}
 					case byte[] b:
+					{
 						typeString += "b";
 						parts.Add(OscBitConverter.GetBytes(b));
 						break;
-
+					}
 					// Guid types that are just converted to strings and back.
 					case Guid value:
+					{
 						typeString += "s";
 						parts.Add(OscBitConverter.GetBytes(value.ToString()));
 						break;
-
+					}
 					case Enum eArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(Convert.ToInt32(eArg)));
 						break;
-
+					}
 					// This part handles arrays. It points currentList to the array and reSets i
 					// The array is processed like normal and when it is finished we replace  
 					// currentList back with Arguments and continue from where we left off
 					case IEnumerable<object> objects:
+					{
 						if (Arguments != currentList)
 						{
 							throw new Exception("Nested Arrays are not supported");
@@ -321,9 +350,11 @@ namespace Speedy.Protocols.Osc
 						argumentsIndex = i;
 						i = 0;
 						continue;
-
+					}
 					default:
+					{
 						throw new Exception("Unable to transmit values of type " + arg.GetType());
+					}
 				}
 
 				i++;
@@ -416,21 +447,25 @@ namespace Speedy.Protocols.Osc
 				switch (obj)
 				{
 					case int i:
+					{
 						sb.Append(hex ? $"0x{i.ToString("X8", provider)}" : i.ToString(provider));
 						break;
-
+					}
 					case uint u:
+					{
 						sb.Append(hex ? $"0x{u.ToString("X8", provider)}u" : $"{u.ToString(provider)}u");
 						break;
-
+					}
 					case long l:
+					{
 						sb.Append(hex ? $"0x{l.ToString("X16", provider)}L" : $"{l.ToString(provider)}L");
 						break;
-
+					}
 					case ulong ul:
+					{
 						sb.Append(hex ? $"0x{ul.ToString("X16", provider)}U" : $"{ul.ToString(provider)}U");
 						break;
-
+					}
 					case float f:
 					{
 						var value = f;
@@ -445,69 +480,89 @@ namespace Speedy.Protocols.Osc
 						}
 						break;
 					}
-
 					case double d:
+					{
 						sb.Append(d.ToString(provider) + "d");
 						break;
-
+					}
+					case decimal d:
+					{
+						sb.Append(d.ToString(provider) + "m");
+						break;
+					}
 					case byte b:
+					{
 						sb.Append($"'{(char) b}'");
 						break;
-
+					}
 					case char c:
+					{
 						sb.Append($"'{c}'");
 						break;
-
+					}
 					case bool b:
+					{
 						sb.Append(b.ToString());
 						break;
-
+					}
 					case null:
+					{
 						sb.Append("null");
 						break;
-
+					}
 					case string value:
+					{
 						sb.Append($"\"{value.Escape()}\"");
 						break;
-
+					}
 					case IOscArgument oscType:
+					{
 						sb.Append($"{{ {oscType.GetOscStringType()}: {oscType.GetOscValueString()} }}");
 						break;
-
+					}
 					case DateTime dateTime:
+					{
 						var oscTime = dateTime.ToOscTimeTag();
 						sb.Append($"{{ Time: {oscTime} }}");
 						break;
-
+					}
 					case TimeSpan timeSpan:
+					{
 						sb.Append($"{{ TimeSpan: {timeSpan} }}");
 						break;
-
+					}
 					case OscSymbol symbol:
+					{
 						sb.Append(symbol.Value.Escape());
 						break;
-
+					}
 					case byte[] bytes:
+					{
 						sb.Append($"{{ Blob: {bytes.ToStringBlob()} }}");
 						break;
-
+					}
 					case Guid value:
+					{
 						sb.Append($"\"{value}\"");
 						break;
-
+					}
 					case Enum eValue:
+					{
 						sb.Append(Convert.ToInt32(eValue));
 						break;
-
+					}
 					case IEnumerable<object> objects:
+					{
 						sb.Append('[');
 						ArgumentsToString(sb, hex, provider, objects);
 						sb.Append(']');
 						break;
-
+					}
 					default:
+					{
 						sb.Append(obj.ToString().Escape());
 						break;
+					}
 				}
 			}
 		}
@@ -545,6 +600,15 @@ namespace Speedy.Protocols.Osc
 			}
 
 			var commaParsed = false;
+
+			//
+			// Use type 'char' values
+			//
+			//	\0, i (int32), u (uint32), f (float), s (string), b (blob), h (int64), H (uint64),
+			//	t (OscTime), p (TimeSpan), d (double), S (symbol), c (char), r (rgba), m (midi),
+			//	T (true), F (false), N (null), I (positive infinity), C (crc), M (decimal)
+			//	[ (start array), ] (end array)
+			//
 
 			foreach (var type in types)
 			{
@@ -614,11 +678,19 @@ namespace Speedy.Protocols.Osc
 						break;
 
 					case 'd':
+					{
 						var dValue = OscBitConverter.ToDouble(data, index);
 						arguments.Add(dValue);
 						index += 8;
 						break;
-
+					}
+					case 'M':
+					{
+						var dValue = OscBitConverter.ToDecimal(data, index);
+						arguments.Add(dValue);
+						index += 16;
+						break;
+					}
 					case 'S':
 						var s2Value = OscBitConverter.ToString(data, ref index);
 						arguments.Add(new OscSymbol(s2Value));

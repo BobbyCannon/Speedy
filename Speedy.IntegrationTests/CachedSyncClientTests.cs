@@ -20,7 +20,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void CacheOnlyCertainEntities()
 		{
-			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false);
+			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false, null, null);
 			var keyCache = server.DatabaseProvider.KeyCache;
 			keyCache.Initialize();
 
@@ -40,7 +40,7 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(1L, keyCache.GetEntityId(address));
 			Assert.AreEqual(1, keyCache.GetEntityId(account));
 
-			server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false);
+			server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false, null, null);
 			keyCache = server.DatabaseProvider.KeyCache;
 			keyCache.Initialize(typeof(AddressEntity));
 
@@ -69,7 +69,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void InitializeShouldResetCache()
 		{
-			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false);
+			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false, null, null);
 			var keyCache = server.DatabaseProvider.KeyCache;
 
 			// Initialize with no parameters
@@ -104,8 +104,8 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void InvalidCacheShouldNotPreventSync()
 		{
-			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false);
-			var client = TestHelper.GetSyncClient("Client", DatabaseType.Sql, false, true, true);
+			var server = TestHelper.GetSyncClient("Server", DatabaseType.Sql, false, true, false, null, null);
+			var client = TestHelper.GetSyncClient("Client", DatabaseType.Sql, false, true, true, null, null);
 			client.Options.EnablePrimaryKeyCache = true;
 
 			// Creating an address like normal, cache should not contain the ID yet

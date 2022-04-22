@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
 using Speedy.Sync;
@@ -66,7 +65,7 @@ namespace Speedy.UnitTests
 			builder.AppendLine("\t};");
 			builder.AppendLine("}");
 
-			Clipboard.SetText(builder.ToString());
+			TestHelper.SetClipboardText(builder.ToString());
 			Console.Write(builder.ToString());
 		}
 
@@ -76,7 +75,7 @@ namespace Speedy.UnitTests
 			var type = typeof(SyncEngineState);
 			var builder = new StringBuilder();
 			builder.AppendLine($"/// <inheritdoc />\r\npublic override void UpdateWith(object update, params string[] exclusions)\r\n{{\r\n\tswitch (update)\r\n\t{{\r\n\t\tcase {type.FullName} options:\r\n\t\t{{\r\n\t\t\tUpdateWith(options, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t\tdefault:\r\n\t\t{{\r\n\t\t\tbase.UpdateWith(update, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t}}\r\n}}");
-			Clipboard.SetText(builder.ToString());
+			TestHelper.SetClipboardText(builder.ToString());
 			Console.Write(builder.ToString());
 		}
 
@@ -125,7 +124,7 @@ public void UpdateWith({type.Name} update, params string[] exclusions)
 			builder.AppendLine("}\r\n");
 			builder.AppendLine($"/// <inheritdoc />\r\npublic override void UpdateWith(object update, params string[] exclusions)\r\n{{\r\n\tswitch (update)\r\n\t{{\r\n\t\tcase {type.Name} options:\r\n\t\t{{\r\n\t\t\tUpdateWith(options, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t\tdefault:\r\n\t\t{{\r\n\t\t\tbase.UpdateWith(update, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t}}\r\n}}");
 
-			Clipboard.SetText(builder.ToString());
+			TestHelper.SetClipboardText(builder.ToString());
 			Console.Write(builder.ToString());
 		}
 
