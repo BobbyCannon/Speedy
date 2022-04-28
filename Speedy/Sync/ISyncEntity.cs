@@ -88,11 +88,6 @@ namespace Speedy.Sync
 		SyncObject ToSyncObject();
 
 		/// <summary>
-		/// Update all local sync IDs.
-		/// </summary>
-		void UpdateLocalSyncIds();
-
-		/// <summary>
 		/// Updates the entity with the provided entity. Virtual properties will be ignored.
 		/// </summary>
 		/// <param name="update"> The source of the update. </param>

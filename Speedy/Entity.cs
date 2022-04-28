@@ -260,6 +260,37 @@ namespace Speedy
 			return test;
 		}
 
+		/// <summary>
+		/// Update all local sync IDs.
+		/// </summary>
+		public void UpdateLocalSyncIds()
+		{
+			var syncEntityInterface = typeof(ISyncEntity);
+			var properties = RealType.GetCachedProperties().ToList();
+			var entityRelationships = properties
+				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => syncEntityInterface.IsAssignableFrom(x.PropertyType))
+				.ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == $"{entityRelationship.Name}SyncId");
+
+				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && (entityRelationshipSyncIdProperty != null))
+				{
+					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
+					var syncEntitySyncId = syncEntity.GetEntitySyncId();
+					if (otherEntitySyncId != syncEntitySyncId)
+					{
+						// resets entitySyncId to entity.SyncId if it does not match
+						entityRelationshipSyncIdProperty.SetValue(this, syncEntitySyncId, null);
+					}
+				}
+
+				// todo: maybe?, support setting EntityId would then query the entity sync id and set it?
+			}
+		}
+
 		/// <inheritdoc />
 		public abstract void UpdateWith(object update, params string[] exclusions);
 

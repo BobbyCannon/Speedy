@@ -177,7 +177,7 @@ namespace Speedy.Validation
 				var propertyValidator = validator.PropertyValidators[i];
 				var propertyValue = propertyValidator.Info.GetMemberValue(value);
 
-				if (propertyValue == null && !propertyValidator.MemberRequired)
+				if ((propertyValue == null) && !propertyValidator.MemberRequired)
 				{
 					continue;
 				}

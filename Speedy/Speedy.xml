@@ -1470,6 +1470,11 @@
             The real entity unwrapped from the Entity Framework proxy.
             </returns>
         </member>
+        <member name="M:Speedy.Entity.UpdateLocalSyncIds">
+            <summary>
+            Update all local sync IDs.
+            </summary>
+        </member>
         <member name="M:Speedy.Entity.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
@@ -2237,6 +2242,21 @@
             </summary>
             <param name="args"> The item to process. </param>
             <returns> The formatted message. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.NameValueCollectionExtensions">
+            <summary>
+            Extensions for the NameCollectionValue type.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.NameValueCollectionExtensions.TryGet(System.Collections.Specialized.NameValueCollection,System.String,System.String@)">
+            <summary>
+            Tries to get the values associated with the specified key from the <see cref='T:System.Collections.Specialized.NameValueCollection' />
+            combined into one comma-separated list.
+            </summary>
+            <param name="collection"> The collection to use. </param>
+            <param name="name"> The name of the values to read. </param>
+            <param name="value"> The value read. Will be null if the value don't exist. </param>
+            <returns> True if the value was read otherwise false. </returns>
         </member>
         <member name="T:Speedy.Extensions.NewtonsoftExtensions">
             <summary>
@@ -4108,7 +4128,7 @@
             <summary>
             Add values of options for the request.
             </summary>
-            <param name="key"> The key for the option. </param>
+            <param name="name"> The key for the option. </param>
             <param name="value"> The value for the option. </param>
         </member>
         <member name="M:Speedy.PagedRequest.Cleanup(System.Int32,System.Int32)">
@@ -4116,11 +4136,18 @@
             Cleanup the request. Set default values.
             </summary>
         </member>
+        <member name="M:Speedy.PagedRequest.FromQueryString(System.String)">
+            <summary>
+            Parse a paged request from the query string.
+            </summary>
+            <param name="queryString"> The query string to process. </param>
+            <returns> The paged request value represented by the query string. </returns>
+        </member>
         <member name="M:Speedy.PagedRequest.GetOptionValue(System.String)">
             <summary>
             Get the option value indexed at the key in the option index.
             </summary>
-            <param name="option"> The option name. </param>
+            <param name="name"> The option name. </param>
             <returns> The value in the same index of the key value in the option collection. </returns>
         </member>
         <member name="M:Speedy.PagedRequest.HasOption(System.String)">
@@ -4135,6 +4162,12 @@
             Returns a processed including values. This method separates the key from the filter.
             </summary>
             <returns> The dictionary of includes. </returns>
+        </member>
+        <member name="M:Speedy.PagedRequest.RemoveOption(System.String)">
+            <summary>
+            Removes value of an option for the request.
+            </summary>
+            <param name="name"> The name of the option. </param>
         </member>
         <member name="M:Speedy.PagedRequest.ToQueryString">
             <summary>
@@ -9034,11 +9067,6 @@
             </summary>
             <returns> The sync object for this entity. </returns>
         </member>
-        <member name="M:Speedy.Sync.ISyncEntity.UpdateLocalSyncIds">
-            <summary>
-            Update all local sync IDs.
-            </summary>
-        </member>
         <member name="M:Speedy.Sync.ISyncEntity.UpdateWith(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Updates the entity with the provided entity. Virtual properties will be ignored.
@@ -9752,9 +9780,6 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.ToSyncObject">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Sync.SyncEntity`1.UpdateLocalSyncIds">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.UpdateWith(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
@@ -10948,6 +10973,9 @@
             Creates an instance of a member validator.
             </summary>
         </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.AreEqual(System.Object,System.String)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Validation.MemberValidator`1.HasMinMaxRange(System.Int32,System.Int32,System.String)">
             <inheritdoc />
         </member>
@@ -10982,6 +11010,35 @@
             The info for the member.
             </summary>
         </member>
+        <member name="P:Speedy.Validation.MemberValidator.MemberRequired">
+            <summary>
+            Get the required status
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.AreEqual(System.Object)">
+            <summary>
+            Validates that a member matches the provided value.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.AreEqual(System.Object,System.String)">
+            <summary>
+            Validates that a member matches the provided value.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.HasMinMaxRange(System.Int32,System.Int32)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
         <member name="M:Speedy.Validation.MemberValidator.HasMinMaxRange(System.Int32,System.Int32,System.String)">
             <summary>
             Validate an object within a range.
@@ -10991,22 +11048,21 @@
             <param name="message"> The message for failed validation. </param>
             <returns> True if the value is and within the provided range. </returns>
         </member>
-        <member name="M:Speedy.Validation.MemberValidator.IsRequired(System.String)">
-            <summary>
-            Configure this member as not required.
-            </summary>
-            <param name="message"> The message for failed validation. </param>
-        </member>
         <member name="M:Speedy.Validation.MemberValidator.IsNotRequired">
             <summary>
             Configure this member as not required.
             </summary>
         </member>
-        <member name="P:Speedy.Validation.MemberValidator.MemberRequired">
+        <member name="M:Speedy.Validation.MemberValidator.IsRequired">
             <summary>
-            Get the required status
+            Configure this member as not required.
             </summary>
-            <returns></returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator.IsRequired(System.String)">
+            <summary>
+            Configure this member as not required.
+            </summary>
+            <param name="message"> The message for failed validation. </param>
         </member>
         <member name="M:Speedy.Validation.MemberValidator.IsRequired(System.Boolean,System.String)">
             <summary>

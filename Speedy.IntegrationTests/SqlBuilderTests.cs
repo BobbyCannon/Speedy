@@ -68,7 +68,7 @@ namespace Speedy.IntegrationTests
 				},
 				{
 					x => !x.IsDeleted, ("DELETE FROM [dbo].[Addresses] WHERE [AddressIsDeleted] = 0",
-						new SqlParameter[0])
+						Array.Empty<SqlParameter>())
 				},
 				{
 					x => (x.CreatedOn > DateTime.MinValue) && (x.ModifiedOn < DateTime.MaxValue), ("DELETE FROM [dbo].[Addresses] WHERE [AddressCreatedOn] > @p0 AND [AddressModifiedOn] < @p1",
@@ -120,6 +120,7 @@ namespace Speedy.IntegrationTests
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlInsert<AddressEntity>(database);
 			timer.Elapsed.Dump();
+			actual.Query.ToString().Dump();
 			Assert.AreEqual(expectedQuery, actual.Query.ToString());
 			Assert.AreEqual(expectedParametersToColumnNames, string.Join(", ", actual.ParametersByColumnName.Select(x => x.Key + ":" + ((SqlParameter) x.Value).ParameterName)));
 			Assert.AreEqual(expectedParametersTypes, string.Join(", ", actual.ParametersByColumnName.Select(x => x.Key + ":" + ((SqlParameter) x.Value).SqlDbType)));
@@ -142,6 +143,7 @@ namespace Speedy.IntegrationTests
 			var timer = Stopwatch.StartNew();
 			var actual = SqlBuilder.GetSqlInsertOrUpdate<AddressEntity>(database);
 			timer.Elapsed.Dump();
+			actual.Query.ToString().Escape().Dump();
 			Assert.AreEqual(expectedQuery, actual.Query.ToString());
 			Assert.AreEqual(expectedParametersToColumnNames, string.Join(", ", actual.ParametersByColumnName.Select(x => x.Key + ":" + ((SqlParameter) x.Value).ParameterName)));
 			Assert.AreEqual(expectedParametersTypes, string.Join(", ", actual.ParametersByColumnName.Select(x => x.Key + ":" + ((SqlParameter) x.Value).SqlDbType)));

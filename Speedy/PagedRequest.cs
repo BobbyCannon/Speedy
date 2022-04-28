@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
+using Speedy.Extensions;
 
 #endregion
 
@@ -92,20 +94,20 @@ namespace Speedy
 		/// <summary>
 		/// Add values of options for the request.
 		/// </summary>
-		/// <param name="key"> The key for the option. </param>
+		/// <param name="name"> The key for the option. </param>
 		/// <param name="value"> The value for the option. </param>
-		public void AddOptions(string key, string value)
+		public void AddOptions(string name, string value)
 		{
-			var index = Options.IndexOf(key);
+			var index = Options.IndexOf(name);
 
 			if (index >= 0)
 			{
-				Options[index] = key;
+				Options[index] = name;
 				OptionValues[index] = value;
 			}
 			else
 			{
-				Options.Add(key);
+				Options.Add(name);
 				OptionValues.Add(value);
 			}
 		}
@@ -113,7 +115,7 @@ namespace Speedy
 		/// <summary>
 		/// Cleanup the request. Set default values.
 		/// </summary>
-		public void Cleanup(int perPage = 10, int maxPerPage = 100)
+		public PagedRequest Cleanup(int perPage = 10, int maxPerPage = 100)
 		{
 			Cleanup(Filter, x => x == null, () => Filter = string.Empty);
 			Cleanup(FilterValues, x => x == null, () => FilterValues = new List<string>());
@@ -124,18 +126,62 @@ namespace Speedy
 			Cleanup(Page, x => x <= 0, () => Page = 1);
 			Cleanup(PerPage, x => x <= 0, () => PerPage = perPage);
 			Cleanup(PerPage, x => x > maxPerPage, () => PerPage = maxPerPage);
+			return this;
+		}
+
+		/// <summary>
+		/// Parse a paged request from the query string.
+		/// </summary>
+		/// <param name="queryString"> The query string to process. </param>
+		/// <returns> The paged request value represented by the query string. </returns>
+		public static PagedRequest FromQueryString(string queryString)
+		{
+			var collection = HttpUtility.ParseQueryString(queryString);
+			var response = new PagedRequest();
+
+			if (collection.TryGet(nameof(Page), out var pageValue))
+			{
+				response.Page = int.TryParse(pageValue, out var pValue) ? pValue : 1;
+			}
+
+			if (collection.TryGet(nameof(PerPage), out var perPageValue))
+			{
+				response.PerPage = int.TryParse(perPageValue, out var pValue) ? pValue : 1;
+			}
+
+			if (collection.TryGet(nameof(Options), out var optionsValue))
+			{
+				response.Options = optionsValue?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+			}
+
+			if (collection.TryGet(nameof(OptionValues), out var optionValuesValue))
+			{
+				response.OptionValues = optionValuesValue?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+			}
+
+			if (collection.TryGet(nameof(Filter), out var filterValue))
+			{
+				response.Filter = filterValue;
+			}
+			
+			if (collection.TryGet(nameof(FilterValues), out var filterValuesValue))
+			{
+				response.FilterValues = filterValuesValue?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+			}
+
+			return response;
 		}
 
 		/// <summary>
 		/// Get the option value indexed at the key in the option index.
 		/// </summary>
-		/// <param name="option"> The option name. </param>
+		/// <param name="name"> The option name. </param>
 		/// <returns> The value in the same index of the key value in the option collection. </returns>
-		public string GetOptionValue(string option)
+		public string GetOptionValue(string name)
 		{
 			var options = Options.ToList();
 			var values = OptionValues.ToList();
-			var i = options.IndexOf(option);
+			var i = options.FindIndex(0, x => x.Equals(name, StringComparison.OrdinalIgnoreCase));
 			return (i < 0) || (i >= values.Count) ? null : values[i];
 		}
 
@@ -161,6 +207,30 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Removes value of an option for the request.
+		/// </summary>
+		/// <param name="name"> The name of the option. </param>
+		public void RemoveOption(string name)
+		{
+			var options = Options.ToList();
+			var i = options.FindIndex(0, x => x.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+			if (i < 0)
+			{
+				return;
+			}
+
+			Options.RemoveAt(i);
+
+			if (i >= OptionValues.Count)
+			{
+				return;
+			}
+
+			OptionValues.RemoveAt(i);
+		}
+
+		/// <summary>
 		/// Convert the request to the query string values.
 		/// </summary>
 		/// <returns> The request in a query string format. </returns>
@@ -173,6 +243,35 @@ namespace Speedy
 
 			builder.Append("&PerPage=");
 			builder.Append(PerPage);
+
+			if (Options.Count > 0)
+			{
+				foreach (var option in Options)
+				{
+					builder.Append($"&Options={string.Join(",", HttpUtility.UrlEncode(option))}");
+				}
+			}
+
+			if (OptionValues.Count > 0)
+			{
+				foreach (var optionValue in OptionValues)
+				{
+					builder.Append($"&OptionValues={string.Join(",", HttpUtility.UrlEncode(optionValue))}");
+				}
+			}
+
+			if (!string.IsNullOrWhiteSpace(Filter))
+			{
+				builder.Append($"&Filter={HttpUtility.UrlEncode(Filter)}");
+			}
+
+			if (FilterValues.Count > 0)
+			{
+				foreach (var filerValue in FilterValues)
+				{
+					builder.Append($"&FilterValues={string.Join(",", HttpUtility.UrlEncode(filerValue))}");
+				}
+			}
 
 			return builder.ToString();
 		}

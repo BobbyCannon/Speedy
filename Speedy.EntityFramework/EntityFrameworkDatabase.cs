@@ -261,7 +261,7 @@ namespace Speedy.EntityFramework
 				}
 
 				// The local relationships may have changed. We need keep our sync IDs in sync with any relationships that may have changed.
-				entries.ForEach(x => (x.Entity as ISyncEntity)?.UpdateLocalSyncIds());
+				entries.ForEach(x => (x.Entity as Entity)?.UpdateLocalSyncIds());
 
 				var response = base.SaveChanges();
 				var needsMoreSaving = entries.Any(x => (x.State != EntityState.Detached) && (x.State != EntityState.Unchanged));

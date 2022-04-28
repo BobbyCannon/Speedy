@@ -27,6 +27,14 @@ namespace Speedy.Validation
 		#region Methods
 
 		/// <inheritdoc />
+		public override MemberValidator AreEqual(object value, string message)
+		{
+			var validation = new Validation<object>(this, message, x => Equals(x, value));
+			Validations.Add(validation);
+			return this;
+		}
+
+		/// <inheritdoc />
 		public override MemberValidator HasMinMaxRange(int minimum, int maximum, string message)
 		{
 			if (typeof(T) == typeof(int))
@@ -43,13 +51,6 @@ namespace Speedy.Validation
 			}
 
 			throw new NotSupportedException($"The type is not supported for {nameof(HasMinMaxRange)}.");
-		}
-
-		private MemberValidator AddMinMaxRange<T1>(Func<T1, bool> validate, string message)
-		{
-			var validation = new Validation<T1>(this, message, validate);
-			Validations.Add(validation);
-			return this;
 		}
 
 		/// <inheritdoc />
@@ -97,6 +98,13 @@ namespace Speedy.Validation
 			return true;
 		}
 
+		private MemberValidator AddMinMaxRange<T1>(Func<T1, bool> validate, string message)
+		{
+			var validation = new Validation<T1>(this, message, validate);
+			Validations.Add(validation);
+			return this;
+		}
+
 		#endregion
 	}
 
@@ -135,9 +143,44 @@ namespace Speedy.Validation
 		/// </summary>
 		protected internal MemberInfo Info { get; }
 
+		/// <summary>
+		/// Get the required status
+		/// </summary>
+		/// <returns> </returns>
+		protected internal bool MemberRequired { get; protected set; }
+
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Validates that a member matches the provided value.
+		/// </summary>
+		/// <param name="value"> The value to compare with. </param>
+		/// <returns> True if the value is and within the provided range. </returns>
+		public MemberValidator AreEqual(object value)
+		{
+			return AreEqual(value, $"{Info.Name} does not equal the provided value.");
+		}
+
+		/// <summary>
+		/// Validates that a member matches the provided value.
+		/// </summary>
+		/// <param name="value"> The value to compare with. </param>
+		/// <param name="message"> The message for failed validation. </param>
+		/// <returns> True if the value is and within the provided range. </returns>
+		public abstract MemberValidator AreEqual(object value, string message);
+
+		/// <summary>
+		/// Validate an object within a range.
+		/// </summary>
+		/// <param name="minimum"> The inclusive minimum value. </param>
+		/// <param name="maximum"> The inclusive maximum value. </param>
+		/// <returns> True if the value is and within the provided range. </returns>
+		public MemberValidator HasMinMaxRange(int minimum, int maximum)
+		{
+			return HasMinMaxRange(minimum, maximum, $"{Info.Name} is not within the provided min max range values.");
+		}
 
 		/// <summary>
 		/// Validate an object within a range.
@@ -151,26 +194,27 @@ namespace Speedy.Validation
 		/// <summary>
 		/// Configure this member as not required.
 		/// </summary>
-		/// <param name="message"> The message for failed validation. </param>
-		public MemberValidator IsRequired(string message)
-		{
-			return IsRequired(true, message);
-		}
-
-		/// <summary>
-		/// Configure this member as not required.
-		/// </summary>
 		public MemberValidator IsNotRequired()
 		{
 			return IsRequired(false, string.Empty);
 		}
 
 		/// <summary>
-		/// Get the required status
+		/// Configure this member as not required.
 		/// </summary>
-		/// <returns></returns>
-		protected internal bool MemberRequired { get; protected set; }
+		public MemberValidator IsRequired()
+		{
+			return IsRequired(true, $"{Info.Name} is required but was not provided.");
+		}
 
+		/// <summary>
+		/// Configure this member as not required.
+		/// </summary>
+		/// <param name="message"> The message for failed validation. </param>
+		public MemberValidator IsRequired(string message)
+		{
+			return IsRequired(true, message);
+		}
 
 		/// <summary>
 		/// Validate a member to determine if it is required.
