@@ -1,6 +1,8 @@
 ﻿#region References
 
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Data.SyncApi;
 
 #endregion
 
@@ -43,6 +45,14 @@ namespace Speedy.UnitTests
 			actual = results.CalculatePaginationValues();
 			Assert.AreEqual(5, actual.start);
 			Assert.AreEqual(9, actual.end);
+		}
+
+		[TestMethod]
+		public void Constructor()
+		{
+			var collection = new[] { new Address(), new Address() };
+			var actual = new PagedResults<Address>(collection);
+			Assert.AreEqual(2, actual.Results.ToList().Count);
 		}
 
 		[TestMethod]
