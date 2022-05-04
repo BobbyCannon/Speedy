@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Serialization.Converters;
+using Speedy.Validation;
 
 #endregion
 
@@ -79,72 +82,7 @@ namespace Speedy
 		/// <param name="options"> The optional set of options for apply the updates. </param>
 		public override void Apply(object entity, PartialUpdateOptions options)
 		{
-			if (entity == null)
-			{
-				throw new ArgumentNullException(nameof(entity));
-			}
-
-			if (Updates == null)
-			{
-				return;
-			}
-
-			var propertyInfos = entity.GetType().GetCachedPropertyDictionary();
-
-			foreach (var update in Updates)
-			{
-				if (options.IncludedProperties.Any()
-					&& !options.IncludedProperties.Contains(update.Key))
-				{
-					// Ignore this property because we only want to include it
-					continue;
-				}
-
-				if (options.ExcludedProperties.Contains(update.Key))
-				{
-					// Ignore this property because we only want to exclude it
-					continue;
-				}
-
-				if (!propertyInfos.ContainsKey(update.Key))
-				{
-					continue;
-				}
-
-				var propertyInfo = propertyInfos[update.Key];
-				if (!propertyInfo.CanWrite)
-				{
-					continue;
-				}
-
-				if ((update.Value == null) && propertyInfo.PropertyType.IsNullable())
-				{
-					propertyInfo.SetValue(entity, null);
-					continue;
-				}
-
-				try
-				{
-					var value = Convert.ChangeType(update.Value?.Value, propertyInfo.PropertyType);
-					propertyInfo.SetValue(entity, value);
-					continue;
-				}
-				catch (Exception)
-				{
-					// Ignore changing of type
-				}
-
-				if ((update.Value?.Type != propertyInfo.PropertyType)
-					|| (update.Value?.Value?.GetType() != propertyInfo.PropertyType))
-				{
-					continue;
-				}
-
-				if (update.Value != null)
-				{
-					propertyInfo.SetValue(entity, update.Value.Value);
-				}
-			}
+			Apply(entity, options.IncludedProperties, options.ExcludedProperties);
 		}
 
 		/// <summary>
@@ -159,6 +97,31 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Get the property value.
+		/// </summary>
+		/// <typeparam name="TProperty"> The type to cast the value to. </typeparam>
+		/// <param name="expression"> The expression of the member to set. </param>
+		/// <returns> The value if it was found otherwise default(T). </returns>
+		public TProperty Get<TProperty>(Expression<Func<T, TProperty>> expression)
+		{
+			var propertyExpression = (MemberExpression) expression.Body;
+			return Get<TProperty>(propertyExpression.Member.Name);
+		}
+
+		/// <summary>
+		/// Get the property value.
+		/// </summary>
+		/// <typeparam name="TProperty"> The type to cast the value to. </typeparam>
+		/// <param name="expression"> The expression of the member to set. </param>
+		/// <param name="defaultValue"> A default value if update not available. </param>
+		/// <returns> The value if it was found otherwise default(T). </returns>
+		public TProperty Get<TProperty>(Expression<Func<T, TProperty>> expression, TProperty defaultValue)
+		{
+			var propertyExpression = (MemberExpression) expression.Body;
+			return Get(propertyExpression.Member.Name, defaultValue);
+		}
+
+		/// <summary>
 		/// Creates an instance of the type and applies the partial update.
 		/// </summary>
 		/// <returns> </returns>
@@ -167,6 +130,57 @@ namespace Speedy
 			var response = Activator.CreateInstance<T>();
 			Apply(response);
 			return response;
+		}
+
+		/// <summary>
+		/// Remove a property from the update.
+		/// </summary>
+		/// <param name="expression"> The expression of the member to set. </param>
+		public void Remove<TProperty>(Expression<Func<T, TProperty>> expression)
+		{
+			var propertyExpression = (MemberExpression) expression.Body;
+			Remove(propertyExpression.Member.Name);
+		}
+
+		/// <inheritdoc />
+		public override void Remove(string name)
+		{
+			if (Updates.ContainsKey(name))
+			{
+				Updates.Remove(name);
+			}
+		}
+
+		/// <summary>
+		/// Set a full set of updates.
+		/// </summary>
+		/// <param name="value"> The value that contains a full set of updates. </param>
+		public void Set(T value)
+		{
+			var properties = typeof(T).GetCachedProperties();
+
+			foreach (var property in properties)
+			{
+				var response = new PartialUpdateValue
+				{
+					Name = property.Name,
+					Type = property.PropertyType,
+					Value = property.GetValue(value)
+				};
+
+				Updates.AddOrUpdate(property.Name, response);
+			}
+		}
+
+		/// <summary>
+		/// Set a property for the update.
+		/// </summary>
+		/// <param name="expression"> The expression of the member to set. </param>
+		/// <param name="value"> The value of the member. </param>
+		public void Set<TProperty>(Expression<Func<T, TProperty>> expression, TProperty value)
+		{
+			var propertyExpression = (MemberExpression) expression.Body;
+			Set(propertyExpression.Member.Name, value);
 		}
 
 		/// <inheritdoc />
@@ -195,7 +209,8 @@ namespace Speedy
 				return;
 			}
 
-			if (property.PropertyType != value.GetType())
+			var valueType = value.GetType();
+			if (!property.PropertyType.IsAssignableFrom(valueType))
 			{
 				throw new SpeedyException("The property type does not match the values type.");
 			}
@@ -206,7 +221,20 @@ namespace Speedy
 				Type = property.PropertyType,
 				Value = value
 			};
+
 			Updates.AddOrUpdate(name, response);
+		}
+
+		/// <inheritdoc />
+		public override bool TryValidate(out IList<IValidation> failures)
+		{
+			if (Options.Validator == null)
+			{
+				failures = new List<IValidation>();
+				return true;
+			}
+
+			return Options.Validator.TryValidate(this, out failures);
 		}
 
 		/// <summary>
@@ -214,17 +242,18 @@ namespace Speedy
 		/// </summary>
 		public override void Validate()
 		{
-			Options.Validator?.Validate(GetInstance());
+			Options.Validator?.Validate(this);
+		}
+
+		/// <inheritdoc />
+		internal override IDictionary<string, PropertyInfo> GetCachedPropertyDictionary()
+		{
+			return typeof(T).GetCachedPropertyDictionary();
 		}
 
 		internal override PartialUpdateOptions GetOptions()
 		{
 			return Options;
-		}
-
-		internal override string ToAssemblyName()
-		{
-			return typeof(T).ToAssemblyName();
 		}
 
 		#endregion
@@ -333,8 +362,12 @@ namespace Speedy
 		/// <returns> The value if it was found otherwise null. </returns>
 		public object Get(string name)
 		{
-			var update = Updates.ContainsKey(name) ? Updates[name] : null;
-			return update?.Value;
+			if (!Updates.ContainsKey(name))
+			{
+				throw new KeyNotFoundException($"{name} update was not found.");
+			}
+
+			return Updates[name].Value;
 		}
 
 		/// <summary>
@@ -345,8 +378,29 @@ namespace Speedy
 		/// <returns> The value if it was found otherwise default(T). </returns>
 		public T Get<T>(string name)
 		{
-			var update = Updates.ContainsKey(name) ? Updates[name] : null;
-			return (T) update?.Value ?? default;
+			if (!Updates.ContainsKey(name))
+			{
+				throw new KeyNotFoundException($"{name} update was not found.");
+			}
+
+			return (T) Updates[name].Value;
+		}
+
+		/// <summary>
+		/// Get the property value with a fallback default.
+		/// </summary>
+		/// <typeparam name="T"> The type to cast the value to. </typeparam>
+		/// <param name="name"> The name of the update. </param>
+		/// <param name="defaultValue"> A default value if update not available. </param>
+		/// <returns> The value if it was found otherwise default(T). </returns>
+		public T Get<T>(string name, T defaultValue)
+		{
+			if (!Updates.ContainsKey(name))
+			{
+				return defaultValue;
+			}
+
+			return (T) Updates[name].Value;
 		}
 
 		/// <summary>
@@ -354,6 +408,12 @@ namespace Speedy
 		/// </summary>
 		/// <returns> </returns>
 		public abstract object GetInstance();
+
+		/// <summary>
+		/// Remove a property from the update.
+		/// </summary>
+		/// <param name="name"> The name of the member to set. </param>
+		public abstract void Remove(string name);
 
 		/// <summary>
 		/// Set a property for the update.
@@ -369,10 +429,16 @@ namespace Speedy
 		public string ToJson(SerializerSettings settings = null)
 		{
 			var expando = new ExpandoObject();
+			var options = GetOptions();
 
-			foreach (var updates in Updates)
+			foreach (var update in Updates)
 			{
-				expando.AddOrUpdate(updates.Key, updates.Value.Value);
+				if (!options.ShouldProcessProperty(update.Key))
+				{
+					continue;
+				}
+
+				expando.AddOrUpdate(update.Key, update.Value.Value);
 			}
 
 			return settings != null
@@ -381,9 +447,110 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Get the property value.
+		/// </summary>
+		/// <typeparam name="T"> The type to cast the value to. </typeparam>
+		/// <param name="name"> The name of the update. </param>
+		/// <param name="value"> The value that was retrieve or default value if not found. </param>
+		/// <returns> True if the update was found otherwise false. </returns>
+		public bool TryGet<T>(string name, out T value)
+		{
+			if (Updates.ContainsKey(name))
+			{
+				value = (T) (object) Updates[name];
+				return true;
+			}
+
+			value = default;
+			return false;
+		}
+
+		/// <summary>
+		/// Tries to validate an update.
+		/// </summary>
+		/// <param name="failures"> An optional set of failures if the validation fails. </param>
+		/// <returns> True if if validates or otherwise false. </returns>
+		public abstract bool TryValidate(out IList<IValidation> failures);
+
+		/// <summary>
 		/// Validate an update.
 		/// </summary>
 		public abstract void Validate();
+
+		/// <summary>
+		/// Applies the updates to the entity.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		/// <param name="including"> Properties to be included. </param>
+		/// <param name="excluding"> Properties to be excluded. </param>
+		protected void Apply(object entity, HashSet<string> including, HashSet<string> excluding)
+		{
+			if (entity == null)
+			{
+				throw new ArgumentNullException(nameof(entity));
+			}
+
+			if (Updates == null)
+			{
+				return;
+			}
+
+			var propertyInfos = entity.GetType().GetCachedPropertyDictionary();
+
+			foreach (var update in Updates)
+			{
+				if (including.Any() && !including.Contains(update.Key))
+				{
+					// Ignore this property because we only want to include it
+					continue;
+				}
+
+				if (excluding.Contains(update.Key))
+				{
+					// Ignore this property because we only want to exclude it
+					continue;
+				}
+
+				if (!propertyInfos.ContainsKey(update.Key))
+				{
+					continue;
+				}
+
+				var propertyInfo = propertyInfos[update.Key];
+				if (!propertyInfo.CanWrite)
+				{
+					continue;
+				}
+
+				if ((update.Value == null) && propertyInfo.PropertyType.IsNullable())
+				{
+					propertyInfo.SetValue(entity, null);
+					continue;
+				}
+
+				try
+				{
+					var value = Convert.ChangeType(update.Value?.Value, propertyInfo.PropertyType);
+					propertyInfo.SetValue(entity, value);
+					continue;
+				}
+				catch (Exception)
+				{
+					// Ignore changing of type
+				}
+
+				if ((update.Value?.Type != propertyInfo.PropertyType)
+					|| (update.Value?.Value?.GetType() != propertyInfo.PropertyType))
+				{
+					continue;
+				}
+
+				if (update.Value != null)
+				{
+					propertyInfo.SetValue(entity, update.Value.Value);
+				}
+			}
+		}
 
 		internal static PartialUpdate FromJson(JsonReader reader, JsonSerializer serializer, Type objectType, PartialUpdateOptions options = null)
 		{
@@ -422,21 +589,13 @@ namespace Speedy
 
 			var jObject = JObject.Load(reader);
 			var jProperties = jObject.Properties();
-			var propertyDictionary = objectType.GetCachedPropertyDictionary();
+			var propertyDictionary = response.GetCachedPropertyDictionary();
 			var responseOptions = response.GetOptions();
 
 			foreach (var jProperty in jProperties)
 			{
-				if (responseOptions.IncludedProperties.Any()
-					&& !responseOptions.IncludedProperties.Contains(jProperty.Name))
+				if (!responseOptions.ShouldProcessProperty(jProperty.Name))
 				{
-					// Ignore this property because we only want to include it
-					continue;
-				}
-
-				if (responseOptions.ExcludedProperties.Contains(jProperty.Name))
-				{
-					// Ignore this property because we only want to exclude it
 					continue;
 				}
 
@@ -487,9 +646,9 @@ namespace Speedy
 			return response;
 		}
 
-		internal abstract PartialUpdateOptions GetOptions();
+		internal abstract IDictionary<string, PropertyInfo> GetCachedPropertyDictionary();
 
-		internal abstract string ToAssemblyName();
+		internal abstract PartialUpdateOptions GetOptions();
 
 		#endregion
 	}

@@ -4311,19 +4311,64 @@
             <param name="options"> An optional set of options to use during parsing. </param>
             <returns> The partial update. </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate`1.Get``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Get the property value.
+            </summary>
+            <typeparam name="TProperty"> The type to cast the value to. </typeparam>
+            <param name="expression"> The expression of the member to set. </param>
+            <returns> The value if it was found otherwise default(T). </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.Get``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
+            <summary>
+            Get the property value.
+            </summary>
+            <typeparam name="TProperty"> The type to cast the value to. </typeparam>
+            <param name="expression"> The expression of the member to set. </param>
+            <param name="defaultValue"> A default value if update not available. </param>
+            <returns> The value if it was found otherwise default(T). </returns>
+        </member>
         <member name="M:Speedy.PartialUpdate`1.GetInstance">
             <summary>
             Creates an instance of the type and applies the partial update.
             </summary>
             <returns> </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate`1.Remove``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Remove a property from the update.
+            </summary>
+            <param name="expression"> The expression of the member to set. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.Remove(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.Set(`0)">
+            <summary>
+            Set a full set of updates.
+            </summary>
+            <param name="value"> The value that contains a full set of updates. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.Set``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},``0)">
+            <summary>
+            Set a property for the update.
+            </summary>
+            <param name="expression"> The expression of the member to set. </param>
+            <param name="value"> The value of the member. </param>
+        </member>
         <member name="M:Speedy.PartialUpdate`1.Set(System.String,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.TryValidate(System.Collections.Generic.IList{Speedy.Validation.IValidation}@)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.PartialUpdate`1.Validate">
             <summary>
             Validates the partial update is good.
             </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.GetCachedPropertyDictionary">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.PartialUpdate">
             <summary>
@@ -4394,11 +4439,26 @@
             <param name="name"> The name of the update. </param>
             <returns> The value if it was found otherwise default(T). </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate.Get``1(System.String,``0)">
+            <summary>
+            Get the property value with a fallback default.
+            </summary>
+            <typeparam name="T"> The type to cast the value to. </typeparam>
+            <param name="name"> The name of the update. </param>
+            <param name="defaultValue"> A default value if update not available. </param>
+            <returns> The value if it was found otherwise default(T). </returns>
+        </member>
         <member name="M:Speedy.PartialUpdate.GetInstance">
             <summary>
             Creates an instance of the type and applies the partial update.
             </summary>
             <returns> </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.Remove(System.String)">
+            <summary>
+            Remove a property from the update.
+            </summary>
+            <param name="name"> The name of the member to set. </param>
         </member>
         <member name="M:Speedy.PartialUpdate.Set(System.String,System.Object)">
             <summary>
@@ -4413,10 +4473,34 @@
             </summary>
             <returns> The JSON for the partial update. </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate.TryGet``1(System.String,``0@)">
+            <summary>
+            Get the property value.
+            </summary>
+            <typeparam name="T"> The type to cast the value to. </typeparam>
+            <param name="name"> The name of the update. </param>
+            <param name="value"> The value that was retrieve or default value if not found. </param>
+            <returns> True if the update was found otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.TryValidate(System.Collections.Generic.IList{Speedy.Validation.IValidation}@)">
+            <summary>
+            Tries to validate an update.
+            </summary>
+            <param name="failures"> An optional set of failures if the validation fails. </param>
+            <returns> True if if validates or otherwise false. </returns>
+        </member>
         <member name="M:Speedy.PartialUpdate.Validate">
             <summary>
             Validate an update.
             </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdate.Apply(System.Object,System.Collections.Generic.HashSet{System.String},System.Collections.Generic.HashSet{System.String})">
+            <summary>
+            Applies the updates to the entity.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+            <param name="including"> Properties to be included. </param>
+            <param name="excluding"> Properties to be excluded. </param>
         </member>
         <member name="T:Speedy.PartialUpdateOptions`1">
             <summary>
@@ -4428,16 +4512,16 @@
             Create an instance of the partial update options.
             </summary>
         </member>
+        <member name="P:Speedy.PartialUpdateOptions`1.Validator">
+            <summary>
+            Validator for validating the options for the type.
+            </summary>
+        </member>
         <member name="M:Speedy.PartialUpdateOptions`1.GetInstance">
             <summary>
             Creates an instance of the type.
             </summary>
             <returns> </returns>
-        </member>
-        <member name="P:Speedy.PartialUpdateOptions`1.Validator">
-            <summary>
-            Validator for validating the options for the type.
-            </summary>
         </member>
         <member name="T:Speedy.PartialUpdateOptions">
             <summary>
@@ -4471,6 +4555,13 @@
             Creates an instance of the type.
             </summary>
             <returns> </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.ShouldProcessProperty(System.String)">
+            <summary>
+            Check to see if a property should be processed.
+            </summary>
+            <param name="propertyName"> The name of the property to test. </param>
+            <returns> True if the property should be processed otherwise false. </returns>
         </member>
         <member name="T:Speedy.PartialUpdateValue">
             <summary>
@@ -10942,6 +11033,15 @@
             Resets the providers to the default values.
             </summary>
         </member>
+        <member name="P:Speedy.Validation.FailedValidation.Message">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Validation.FailedValidation.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Validation.FailedValidation.TryValidate(System.Object)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Validation.IValidation">
             <summary>
             Represents a validation for an object.
@@ -10973,17 +11073,155 @@
             Creates an instance of a member validator.
             </summary>
         </member>
-        <member name="M:Speedy.Validation.MemberValidator`1.AreEqual(System.Object,System.String)">
-            <inheritdoc />
+        <member name="M:Speedy.Validation.MemberValidator`1.HasMinMaxRange(`0,`0,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The minimum value. </param>
+            <param name="maximum"> The maximum value. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
         </member>
-        <member name="M:Speedy.Validation.MemberValidator`1.HasMinMaxRange(System.Int32,System.Int32,System.String)">
-            <inheritdoc />
+        <member name="M:Speedy.Validation.MemberValidator`1.HasMinMaxRange(`0,`0,System.String,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The minimum value. </param>
+            <param name="maximum"> The maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
         </member>
-        <member name="M:Speedy.Validation.MemberValidator`1.IsRequired(System.Boolean,System.String)">
-            <inheritdoc />
+        <member name="M:Speedy.Validation.MemberValidator`1.HasMinMaxRange(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The minimum value. </param>
+            <param name="maximum"> The maximum value. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.HasMinMaxRange(System.Int32,System.Int32,System.String,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The minimum value. </param>
+            <param name="maximum"> The maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.HasValidValue">
+            <summary>
+            Validates that a member has a valid value.
+            </summary>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.HasValidValue(System.String)">
+            <summary>
+            Validates that a member has a valid value.
+            </summary>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsNotNull">
+            <summary>
+            Validate a member to ensure it is not null.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsNotNull(System.String)">
+            <summary>
+            Validate a member to ensure it is not null.
+            </summary>
+            <param name="message"> The message for failed validation. </param>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsOptional">
+            <summary>
+            Configure this member as optional.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsOptional(System.String)">
+            <summary>
+            Configure this member as optional.
+            </summary>
+            <param name="message"> The message for failed validation. </param>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsRequired">
+            <summary>
+            Configure this member as required.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsRequired(System.String)">
+            <summary>
+            Configure this member as required.
+            </summary>
+            <param name="message"> The message for failed validation. </param>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.NoLessThan(`0)">
+            <summary>
+            Validate an object is equal to or greater than provided minimum value.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <returns> True if the value is equal to or greater than the provided value. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.NoLessThan(`0,System.String)">
+            <summary>
+            Validate an object is equal to or greater than provided minimum value.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is equal to or greater than the provided value. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.NoMoreThan(`0)">
+            <summary>
+            Validate an object is equal to or less than provided minimum value.
+            </summary>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <returns> True if the value is equal to or less than the provided value. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.NoMoreThan(`0,System.String)">
+            <summary>
+            Validate an object is equal to or less than provided minimum value.
+            </summary>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is equal to or less than the provided value. </returns>
         </member>
         <member name="M:Speedy.Validation.MemberValidator`1.TryValidate(System.Object)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.AddMinMaxRange(System.Object,System.Object,System.String,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.AddNoLessThan(System.Object,System.String)">
+            <summary>
+            Validate an object is equal to or greater than provided minimum value.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is equal to or greater than the provided value. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.AddNoMoreThan(System.Object,System.String)">
+            <summary>
+            Validate an object is equal to or less than provided minimum value.
+            </summary>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is equal to or less than the provided value. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidator`1.IsRequired(System.Boolean,System.String)">
+            <summary>
+            Validate a member to determine if it is required.
+            </summary>
+            <param name="required"> The flag to determine if it is required. </param>
+            <param name="message"> The message for failed validation. </param>
         </member>
         <member name="T:Speedy.Validation.MemberValidator">
             <summary>
@@ -11012,64 +11250,13 @@
         </member>
         <member name="P:Speedy.Validation.MemberValidator.MemberRequired">
             <summary>
-            Get the required status
-            </summary>
-            <returns> </returns>
-        </member>
-        <member name="M:Speedy.Validation.MemberValidator.AreEqual(System.Object)">
-            <summary>
-            Validates that a member matches the provided value.
-            </summary>
-            <param name="value"> The value to compare with. </param>
-            <returns> True if the value is and within the provided range. </returns>
-        </member>
-        <member name="M:Speedy.Validation.MemberValidator.AreEqual(System.Object,System.String)">
-            <summary>
-            Validates that a member matches the provided value.
-            </summary>
-            <param name="value"> The value to compare with. </param>
-            <param name="message"> The message for failed validation. </param>
-            <returns> True if the value is and within the provided range. </returns>
-        </member>
-        <member name="M:Speedy.Validation.MemberValidator.HasMinMaxRange(System.Int32,System.Int32)">
-            <summary>
-            Validate an object within a range.
-            </summary>
-            <param name="minimum"> The inclusive minimum value. </param>
-            <param name="maximum"> The inclusive maximum value. </param>
-            <returns> True if the value is and within the provided range. </returns>
-        </member>
-        <member name="M:Speedy.Validation.MemberValidator.HasMinMaxRange(System.Int32,System.Int32,System.String)">
-            <summary>
-            Validate an object within a range.
-            </summary>
-            <param name="minimum"> The inclusive minimum value. </param>
-            <param name="maximum"> The inclusive maximum value. </param>
-            <param name="message"> The message for failed validation. </param>
-            <returns> True if the value is and within the provided range. </returns>
-        </member>
-        <member name="M:Speedy.Validation.MemberValidator.IsNotRequired">
-            <summary>
-            Configure this member as not required.
+            Get the required status.
             </summary>
         </member>
-        <member name="M:Speedy.Validation.MemberValidator.IsRequired">
+        <member name="P:Speedy.Validation.MemberValidator.MemberRequiredMessage">
             <summary>
-            Configure this member as not required.
+            Get the required validation.
             </summary>
-        </member>
-        <member name="M:Speedy.Validation.MemberValidator.IsRequired(System.String)">
-            <summary>
-            Configure this member as not required.
-            </summary>
-            <param name="message"> The message for failed validation. </param>
-        </member>
-        <member name="M:Speedy.Validation.MemberValidator.IsRequired(System.Boolean,System.String)">
-            <summary>
-            Validate a member to determine if it is required.
-            </summary>
-            <param name="required"> The flag to determine if it is required. </param>
-            <param name="message"> The message for failed validation. </param>
         </member>
         <member name="M:Speedy.Validation.MemberValidator.TryValidate(System.Object)">
             <summary>
@@ -11083,6 +11270,26 @@
             </summary>
             <param name="propertyValue"> The property value. </param>
             <param name="failedValidation"> The list of failed validations. </param>
+        </member>
+        <member name="T:Speedy.Validation.MemberValidatorExtensions">
+            <summary>
+            Extensions for member validators.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidatorExtensions.IsNotNullOrWhitespace(Speedy.Validation.MemberValidator{System.String})">
+            <summary>
+            Validates that a member is not null or whitespace.
+            </summary>
+            <param name="validator"> The validator to be extended. </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.MemberValidatorExtensions.IsNotNullOrWhitespace(Speedy.Validation.MemberValidator{System.String},System.String)">
+            <summary>
+            Validates that a member is not null or whitespace.
+            </summary>
+            <param name="validator"> The validator to be extended. </param>
+            <param name="message"> The message for failed validation. </param>
+            <returns> True if the value is and within the provided range. </returns>
         </member>
         <member name="T:Speedy.Validation.Validation`1">
             <summary>
@@ -11128,12 +11335,6 @@
             Creates an instance of a Validator.
             </summary>
         </member>
-        <member name="M:Speedy.Validation.Validator`1.#ctor(System.String)">
-            <summary>
-            Creates an instance of a Validator.
-            </summary>
-            <param name="name"> The name of the validator. </param>
-        </member>
         <member name="M:Speedy.Validation.Validator`1.Property``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
             Configure a validation for a property.
@@ -11172,13 +11373,22 @@
             <typeparam name="T"> The type of exception to throw. </typeparam>
             <param name="message"> The message of the exception. </param>
         </member>
-        <member name="M:Speedy.Validation.Validator.TryValidate(System.Object)">
+        <member name="M:Speedy.Validation.Validator.TryValidate(System.Object,System.Collections.Generic.IList{Speedy.Validation.IValidation}@)">
             <summary>
-            Tries to validate
+            Runs the validator to check the parameter.
             </summary>
-            <returns> Returns true if the validation passes otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Validation.Validator.TryValidate(Speedy.PartialUpdate,System.Collections.Generic.IList{Speedy.Validation.IValidation}@)">
+            <summary>
+            Runs the validator to check the parameter.
+            </summary>
         </member>
         <member name="M:Speedy.Validation.Validator.Validate(System.Object)">
+            <summary>
+            Runs the validator to check the parameter.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.Validator.Validate(Speedy.PartialUpdate)">
             <summary>
             Runs the validator to check the parameter.
             </summary>

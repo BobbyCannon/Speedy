@@ -1,11 +1,11 @@
 ﻿#region References
 
 using System;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Data.SyncApi;
 using Speedy.Exceptions;
+using Speedy.Protocols.Osc;
 using Speedy.Validation;
-using Speedy.Website.Data.Entities;
 
 #endregion
 
@@ -17,53 +17,199 @@ namespace Speedy.UnitTests.Validation
 		#region Methods
 
 		[TestMethod]
-		public void EntityValidations()
+		public void HasMinMaxRange()
 		{
-			var address = new AccountEntity();
-			var validator = new Validator<AccountEntity>();
+			var sample = new Sample { Date1 = DateTime.MinValue };
+			var validator = new Validator<Sample>();
+			validator.Property(x => x.Date1).HasMinMaxRange(DateTime.MinValue, DateTime.MaxValue, true);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is not within the provided range values.");
+			sample.Date1 = DateTime.MaxValue;
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is not within the provided range values.");
 
-			validator.Property(x => x.Name)
-				.HasMinMaxRange(1, 5, "The name must be between a minimum of 1 and a maximum length of 5.")
-				.IsRequired("The name must be provided.");
+			sample = new Sample { Date2 = DateTimeOffset.MinValue };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.Date2).HasMinMaxRange(DateTimeOffset.MinValue, DateTimeOffset.MaxValue, true);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is not within the provided range values.");
+			sample.Date2 = DateTimeOffset.MaxValue;
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is not within the provided range values.");
 
-			validator.Property(x => x.Id).HasMinMaxRange(1, int.MaxValue, "The Id must be set.");
-			validator.Property(x => x.CreatedOn).IsRequired("The CreatedOn value must be provided.");
-			validator.Property(x => x.AddressSyncId).IsRequired("The address sync ID is required.");
+			sample = new Sample { TimeTag1 = OscTimeTag.MinValue };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.TimeTag1).HasMinMaxRange(OscTimeTag.MinValue, OscTimeTag.MaxValue, true);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is not within the provided range values.");
+			sample.TimeTag1 = OscTimeTag.MaxValue;
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is not within the provided range values.");
 
-			var failedValidations = validator.Process(address).ToList();
-			Assert.AreEqual(5, failedValidations.Count);
-			Assert.AreEqual("The name must be between a minimum of 1 and a maximum length of 5.", failedValidations[0].Message);
-			Assert.AreEqual("Name", failedValidations[0].Name);
-			Assert.AreEqual("The name must be provided.", failedValidations[1].Message);
-			Assert.AreEqual("Name", failedValidations[1].Name);
-			Assert.AreEqual("The Id must be set.", failedValidations[2].Message);
-			Assert.AreEqual("Id", failedValidations[2].Name);
-			Assert.AreEqual("The CreatedOn value must be provided.", failedValidations[3].Message);
-			Assert.AreEqual("CreatedOn", failedValidations[3].Name);
-			Assert.AreEqual("The address sync ID is required.", failedValidations[4].Message);
-			Assert.AreEqual("AddressSyncId", failedValidations[4].Name);
+			sample = new Sample { Elapsed = TimeSpan.MinValue };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.Elapsed).HasMinMaxRange(TimeSpan.MinValue, TimeSpan.MaxValue, true);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is not within the provided range values.");
+			sample.Elapsed = TimeSpan.MaxValue;
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is not within the provided range values.");
+		}
 
-			// Run validate methods
-			Assert.AreEqual(false, validator.TryValidate(address));
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(address),
-				"The name must be provided.",
-				"The name must be between a minimum of 1 and a maximum length of 5.",
-				"The Id must be set.",
-				"The CreatedOn value must be provided.",
-				"The address sync ID is required."
-			);
+		[TestMethod]
+		public void HasValidValue()
+		{
+			var update = new PartialUpdate<Sample>();
+			var validator = update.Options.Validator;
+			validator.Property(x => x.LogLevel).HasValidValue();
+			update.Validate();
+			update.Set(x => x.LogLevel, (LogLevel) 99);
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
+			
+			update = new PartialUpdate<Sample>();
+			validator = update.Options.Validator;
+			validator.Property(x => x.OptionalLogLevel).HasValidValue();
+			update.Validate();
+			update.Set(x => x.OptionalLogLevel, (LogLevel?) 99);
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
+			
+			update = new PartialUpdate<Sample>();
+			validator = update.Options.Validator;
+			validator.Property(x => x.OptionalLogLevel).HasValidValue();
+			update.Validate();
+			update.Set(nameof(Sample.OptionalLogLevel), (LogLevel) 99);
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
+		}
 
-			address.Id = 1;
-			address.Name = "A";
-			address.CreatedOn = DateTime.MinValue.AddTicks(1);
-			address.AddressSyncId = Guid.NewGuid();
+		[TestMethod]
+		public void IsNotNull()
+		{
+			var sample = new Sample { Name = null };
+			var validator = new Validator<Sample>();
+			validator.Property(x => x.Name).IsNotNull();
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Name is null.");
+			validator.Property(x => x.Name).IsNotNull("FooBar");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "FooBar");
+		}
 
-			failedValidations = validator.Process(address).ToList();
-			Assert.AreEqual(0, failedValidations.Count);
+		[TestMethod]
+		public void IsNotNullOrWhitespace()
+		{
+			var scenarios = new[] { null, string.Empty, "", " ", "   " };
 
-			// Run validate methods, validate should not throw exception
-			Assert.AreEqual(true, validator.TryValidate(address));
-			validator.Validate(address);
+			foreach (var scenario in scenarios)
+			{
+				var sample = new Sample { Name = scenario };
+				var validator = new Validator<Sample>();
+				validator.Property(x => x.Name).IsNotNullOrWhitespace();
+				TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Name is null or whitespace.");
+			}
+		}
+
+		[TestMethod]
+		public void IsOptional()
+		{
+			var update = new PartialUpdate<Sample>();
+			var validator = update.Options.Validator;
+			validator.Property(x => x.Name).IsOptional();
+			var actual = update.TryValidate(out _);
+			Assert.AreEqual(true, actual);
+		}
+
+		[TestMethod]
+		public void IsRequired()
+		{
+			var update = new PartialUpdate<Sample>();
+			var validator = update.Options.Validator;
+			validator.Property(x => x.Name).IsRequired();
+			var actual = update.TryValidate(out _);
+			Assert.AreEqual(false, actual);
+			update.Set(x => x.Name, null);
+			actual = update.TryValidate(out _);
+			Assert.AreEqual(true, actual);
+		}
+
+		[TestMethod]
+		public void NoLessThan()
+		{
+			var sample = new Sample { Date1 = DateTime.Today };
+			var validator = new Validator<Sample>();
+			validator.Property(x => x.Date1).NoLessThan(DateTime.Today);
+			validator.Validate(sample);
+			sample.Date1 -= TimeSpan.FromTicks(1);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is less than the provided minimum value.");
+
+			sample = new Sample { Date2 = DateTime.Today };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.Date2).NoLessThan(DateTime.Today);
+			validator.Validate(sample);
+			sample.Date2 -= TimeSpan.FromTicks(1);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is less than the provided minimum value.");
+
+			sample = new Sample { TimeTag1 = new OscTimeTag(new DateTime(2022, 05, 03, 12, 00, 00, DateTimeKind.Utc)) };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.TimeTag1).NoLessThan(sample.TimeTag1);
+			validator.Validate(sample);
+			sample.TimeTag1 -= TimeSpan.FromTicks(5);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is less than the provided minimum value.");
+
+			sample = new Sample { Elapsed = TimeSpan.FromSeconds(10) };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.Elapsed).NoLessThan(sample.Elapsed);
+			validator.Validate(sample);
+			sample.Elapsed -= TimeSpan.FromTicks(1);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is less than the provided minimum value.");
+		}
+
+		[TestMethod]
+		public void NoMoreThan()
+		{
+			var sample = new Sample { Date1 = DateTime.Today };
+			var validator = new Validator<Sample>();
+			validator.Property(x => x.Date1).NoMoreThan(DateTime.Today);
+			validator.Validate(sample);
+			sample.Date1 += TimeSpan.FromTicks(1);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is greater than the provided maximum value.");
+
+			sample = new Sample { Date2 = DateTime.Today };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.Date2).NoMoreThan(DateTime.Today);
+			validator.Validate(sample);
+			sample.Date2 += TimeSpan.FromTicks(1);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is greater than the provided maximum value.");
+
+			sample = new Sample { TimeTag1 = new OscTimeTag(new DateTime(2022, 05, 03, 12, 00, 00, DateTimeKind.Utc)) };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.TimeTag1).NoMoreThan(sample.TimeTag1);
+			validator.Validate(sample);
+			sample.TimeTag1 += TimeSpan.FromTicks(5);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is greater than the provided maximum value.");
+
+			sample = new Sample { Elapsed = TimeSpan.FromSeconds(10) };
+			validator = new Validator<Sample>();
+			validator.Property(x => x.Elapsed).NoMoreThan(sample.Elapsed);
+			validator.Validate(sample);
+			sample.Elapsed += TimeSpan.FromTicks(1);
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is greater than the provided maximum value.");
+		}
+
+		#endregion
+
+		#region Classes
+
+		public class Sample
+		{
+			#region Properties
+
+			public int Age { get; set; }
+
+			public DateTime Date1 { get; set; }
+
+			public DateTimeOffset Date2 { get; set; }
+
+			public TimeSpan Elapsed { get; set; }
+
+			public LogLevel LogLevel { get; set; }
+
+			public LogLevel? OptionalLogLevel { get; set; }
+
+			public string Name { get; set; }
+
+			public OscTimeTag TimeTag1 { get; set; }
+
+			#endregion
 		}
 
 		#endregion

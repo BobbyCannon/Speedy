@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Linq;
 using Speedy.Extensions;
 using Speedy.Validation;
 
@@ -15,6 +15,8 @@ namespace Speedy
 	/// </summary>
 	public class PartialUpdateOptions<T> : PartialUpdateOptions
 	{
+		#region Constructors
+
 		/// <summary>
 		/// Create an instance of the partial update options.
 		/// </summary>
@@ -22,6 +24,17 @@ namespace Speedy
 		{
 			Validator = new Validator<T>();
 		}
+
+		#endregion
+
+		#region Properties
+
+		/// <summary>
+		/// Validator for validating the options for the type.
+		/// </summary>
+		public Validator<T> Validator { get; }
+
+		#endregion
 
 		#region Methods
 
@@ -34,11 +47,6 @@ namespace Speedy
 			var response = Activator.CreateInstance<T>();
 			return response;
 		}
-
-		/// <summary>
-		/// Validator for validating the options for the type.
-		/// </summary>
-		public Validator<T> Validator { get; }
 
 		#endregion
 	}
@@ -92,6 +100,29 @@ namespace Speedy
 		/// </summary>
 		/// <returns> </returns>
 		public abstract object GetInstance();
+
+		/// <summary>
+		/// Check to see if a property should be processed.
+		/// </summary>
+		/// <param name="propertyName"> The name of the property to test. </param>
+		/// <returns> True if the property should be processed otherwise false. </returns>
+		public bool ShouldProcessProperty(string propertyName)
+		{
+			if (IncludedProperties.Any()
+				&& !IncludedProperties.Contains(propertyName))
+			{
+				// Ignore this property because we only want to include it
+				return false;
+			}
+
+			if (ExcludedProperties.Contains(propertyName))
+			{
+				// Ignore this property because we only want to exclude it
+				return false;
+			}
+
+			return true;
+		}
 
 		#endregion
 	}

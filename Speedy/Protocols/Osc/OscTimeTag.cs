@@ -216,7 +216,8 @@ namespace Speedy.Protocols.Osc
 			var secondsUInt = (uint) seconds;
 			var milliseconds = span.TotalMilliseconds - ((double) secondsUInt * 1000);
 			var fraction = (milliseconds / 1000.0) * uint.MaxValue;
-			return new OscTimeTag(((ulong) (secondsUInt & 0xFFFFFFFF) << 32) | ((ulong) fraction & 0xFFFFFFFF));
+			return new OscTimeTag(((ulong) (secondsUInt & 0xFFFFFFFF) << 32)
+				| ((ulong) fraction & 0xFFFFFFFF));
 		}
 
 		public static OscTimeTag FromTicks(long value)

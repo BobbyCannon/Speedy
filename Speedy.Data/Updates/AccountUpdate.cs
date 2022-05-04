@@ -13,9 +13,12 @@ namespace Speedy.Data.Updates
 
 		public AccountUpdate()
 		{
-			//Options.Property(x => x.Name)
-			//	.ValidateRangeForString(1, 450, "Name must be between 1 and 450 characters in length.")
-			//	.IsRequired();
+			var v = Options.Validator;
+
+			v.Property(x => x.Name)
+				.HasMinMaxRange(1, 5, "Name must be between 1 and 5 characters in length.")
+				.IsNotNull()
+				.IsRequired();
 		}
 
 		#endregion
@@ -24,19 +27,13 @@ namespace Speedy.Data.Updates
 
 		public long Id
 		{
-			get => Get<long>(nameof(Account.Id));
+			get => Get<long>(nameof(Id));
 			set => Set(nameof(Id), value);
-		}
-
-		public string Name
-		{
-			get => Get<string>(nameof(Account.Name));
-			set => Set(nameof(Name), value);
 		}
 
 		public Guid SyncId
 		{
-			get => Get<Guid>(nameof(Account.SyncId));
+			get => Get<Guid>(nameof(SyncId));
 			set => Set(nameof(SyncId), value);
 		}
 

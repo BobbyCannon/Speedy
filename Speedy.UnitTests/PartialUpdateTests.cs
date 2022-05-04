@@ -12,6 +12,7 @@ using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Sync;
+using Speedy.Validation;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -175,6 +176,26 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void EnumTest()
+		{
+			var json = "{ \"Level\": 42 }";
+			var update = PartialUpdate<MyClass>.FromJson(json);
+			update.Options.Validator
+				.Property(x => x.Level)
+				.HasValidValue();
+
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Level does not contain a valid value.");
+
+			json = "{ \"Level\": 0 }";
+			update = PartialUpdate<MyClass>.FromJson(json);
+			update.Validate();
+
+			json = "{ \"Level\": 5 }";
+			update = PartialUpdate<MyClass>.FromJson(json);
+			update.Validate();
+		}
+
+		[TestMethod]
 		public void ExcludedProperties()
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
@@ -198,6 +219,16 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual(DateTime.MinValue, actual.ModifiedOn);
 			Assert.AreEqual("foo bar", actual.Name);
+		}
+
+		[TestMethod]
+		public void ExtraPropertiesIgnored()
+		{
+			var json = "{ \"foo\": \"bar\", \"Id\": 42 }";
+			var options = new PartialUpdateOptions<MyClass>();
+			var update = PartialUpdate.FromJson(json, options);
+			Assert.AreEqual(1, update.Updates.Count);
+			Assert.AreEqual(true, update.Updates.ContainsKey("Id"));
 		}
 
 		[TestMethod]
@@ -270,20 +301,27 @@ namespace Speedy.UnitTests
 		public void PartialUpdateAdd()
 		{
 			var update = new PartialUpdate<Account>();
+			Assert.AreEqual(0, update.Updates.Count);
 			update.Set(nameof(Account.Name), "Fred");
 			Assert.AreEqual("{\"Name\":\"Fred\"}", update.ToJson());
 			Assert.AreEqual("{\"Name\":\"Fred\"}", Serializer.ToJson(update));
 
 			update = new PartialUpdate<Account>();
+			Assert.AreEqual(0, update.Updates.Count);
+			update.Set(x => x.Name, "Fred");
+			Assert.AreEqual("{\"Name\":\"Fred\"}", update.ToJson());
+			Assert.AreEqual("{\"Name\":\"Fred\"}", Serializer.ToJson(update));
+
+			update = new PartialUpdate<Account>();
 			TestHelper.ExpectedException<SpeedyException>(
-				() => update.Set(nameof(Account.Name), 21)
-				, "The property type does not match the values type."
+				() => update.Set(nameof(Account.Name), 21),
+				"The property type does not match the values type."
 			);
 
 			var accountUpdate = new AccountUpdate();
 			Assert.AreEqual(0, accountUpdate.Updates.Count);
 
-			accountUpdate.Name = "Fred";
+			accountUpdate.Set(nameof(Account.Name), "Fred");
 			Assert.AreEqual(1, accountUpdate.Updates.Count);
 			Assert.AreEqual("Name", accountUpdate.Updates["Name"].Name);
 			Assert.AreEqual("Fred", accountUpdate.Updates["Name"].Value);
@@ -295,7 +333,7 @@ namespace Speedy.UnitTests
 		public void PartialUpdateApply()
 		{
 			var update = new PartialUpdate<Account>();
-			update.Set(nameof(Account.Name), "Fred");
+			update.Set(x => x.Name, "Fred");
 			var account = new Account();
 			Assert.AreEqual(null, account.Name);
 
@@ -305,7 +343,7 @@ namespace Speedy.UnitTests
 			var accountUpdate = new AccountUpdate();
 			Assert.AreEqual(0, accountUpdate.Updates.Count);
 
-			accountUpdate.Name = "Fred";
+			accountUpdate.Set(nameof(Account.Name), "Fred");
 			Assert.AreEqual(1, accountUpdate.Updates.Count);
 			Assert.AreEqual("Name", accountUpdate.Updates["Name"].Name);
 			Assert.AreEqual("Fred", accountUpdate.Updates["Name"].Value);
@@ -335,6 +373,47 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void Remove()
+		{
+			var update = new PartialUpdate<Account>();
+			update.Set(nameof(Account.Name), "Fred");
+			Assert.AreEqual(1, update.Updates.Count);
+			Assert.AreEqual("Name", update.Updates["Name"].Name);
+
+			update.Remove(x => x.Name);
+			Assert.AreEqual(0, update.Updates.Count);
+		}
+
+		[TestMethod]
+		public void SetUsingObject()
+		{
+			var expected = new MyClass
+			{
+				Age = 21,
+				Name = "John Doe",
+				Level = LogLevel.Error,
+				Id = 4,
+				IsDeleted = true,
+				CreatedOn = new DateTime(2022, 05, 03, 09, 06, 12, DateTimeKind.Utc),
+				ModifiedOn = new DateTime(2022, 05, 03, 09, 06, 13, DateTimeKind.Utc),
+				SyncId = Guid.Parse("EDFA8A18-B693-4B61-BDE2-EEB727398556")
+			};
+
+			var partialUpdate = new PartialUpdate<MyClass>();
+			Assert.AreEqual(0, partialUpdate.Updates.Count);
+			partialUpdate.Set(expected);
+			Assert.AreEqual(8, partialUpdate.Updates.Count);
+			Assert.AreEqual(expected.Age, partialUpdate.Get(x => x.Age));
+			Assert.AreEqual(expected.Name, partialUpdate.Get(x => x.Name));
+			Assert.AreEqual(expected.Level, partialUpdate.Get(x => x.Level));
+			Assert.AreEqual(expected.Id, partialUpdate.Get(x => x.Id));
+			Assert.AreEqual(expected.IsDeleted, partialUpdate.Get(x => x.IsDeleted));
+			Assert.AreEqual(expected.CreatedOn, partialUpdate.Get(x => x.CreatedOn));
+			Assert.AreEqual(expected.ModifiedOn, partialUpdate.Get(x => x.ModifiedOn));
+			Assert.AreEqual(expected.SyncId, partialUpdate.Get(x => x.SyncId));
+		}
+
+		[TestMethod]
 		public void Validate()
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
@@ -344,16 +423,17 @@ namespace Speedy.UnitTests
 			options.Validator
 				.Property(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
+				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
-			
+
 			var update = PartialUpdate.FromJson(json, options);
-			
+
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
 
 			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			update = PartialUpdate.FromJson(json, options);
-			
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), requiredMessage);
+
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
 		}
 
 		[TestMethod]
@@ -365,7 +445,7 @@ namespace Speedy.UnitTests
 				var options = new PartialUpdateOptions<MyClass>();
 				options.Validator
 					.Property(x => x.Name)
-					.IsNotRequired()
+					.IsOptional()
 					.HasMinMaxRange(1, 5, "Name must be between 1 to 5 characters.");
 
 				var update = PartialUpdate.FromJson(json, options);
@@ -384,6 +464,8 @@ namespace Speedy.UnitTests
 			public int Age { get; set; }
 
 			public override long Id { get; set; }
+
+			public LogLevel Level { get; set; }
 
 			public string Name { get; set; }
 

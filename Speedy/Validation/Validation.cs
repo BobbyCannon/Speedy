@@ -56,8 +56,7 @@ namespace Speedy.Validation
 		/// <inheritdoc />
 		public bool TryValidate(object value)
 		{
-			return value is T tValue
-				&& TryValidate(tValue);
+			return _validate?.Invoke((T) value) ?? false;
 		}
 
 		/// <summary>

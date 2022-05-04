@@ -25,14 +25,6 @@ namespace Speedy.Validation
 		{
 		}
 
-		/// <summary>
-		/// Creates an instance of a Validator.
-		/// </summary>
-		/// <param name="name"> The name of the validator. </param>
-		public Validator(string name) : base(name)
-		{
-		}
-
 		#endregion
 
 		#region Methods
@@ -112,33 +104,23 @@ namespace Speedy.Validation
 		}
 
 		/// <summary>
-		/// Tries to validate
+		/// Runs the validator to check the parameter.
 		/// </summary>
-		/// <returns> Returns true if the validation passes otherwise false. </returns>
-		public bool TryValidate(object value)
+		public bool TryValidate(object update, out IList<IValidation> failures)
 		{
-			if (PropertyValidators.Count == 0)
-			{
-				return true;
-			}
+			failures = new List<IValidation>();
+			ProcessValidator(this, update, failures);
+			return failures.Count <= 0;
+		}
 
-			for (var i = 0; i < PropertyValidators.Count; i++)
-			{
-				if (i >= PropertyValidators.Count)
-				{
-					return true;
-				}
-
-				var validator = PropertyValidators[i];
-				var memberValue = validator.Info.GetMemberValue(value);
-
-				if (!validator.TryValidate(memberValue))
-				{
-					return false;
-				}
-			}
-
-			return true;
+		/// <summary>
+		/// Runs the validator to check the parameter.
+		/// </summary>
+		public bool TryValidate(PartialUpdate update, out IList<IValidation> failures)
+		{
+			failures = new List<IValidation>();
+			ProcessValidator(this, update, failures);
+			return failures.Count <= 0;
 		}
 
 		/// <summary>
@@ -146,18 +128,40 @@ namespace Speedy.Validation
 		/// </summary>
 		public void Validate(object value)
 		{
-			var failedValidations = new List<IValidation>();
+			if (value is PartialUpdate update)
+			{
+				Validate(update);
+				return;
+			}
 
-			ProcessValidator(this, value, failedValidations);
-
-			if (failedValidations.Count <= 0)
+			if (TryValidate(value, out var failures))
 			{
 				return;
 			}
 
 			var builder = new StringBuilder();
 
-			foreach (var validation in failedValidations)
+			foreach (var validation in failures)
+			{
+				builder.AppendLine(validation.Message);
+			}
+
+			ThrowException<ValidationException>(builder.ToString());
+		}
+
+		/// <summary>
+		/// Runs the validator to check the parameter.
+		/// </summary>
+		public void Validate(PartialUpdate update)
+		{
+			if (TryValidate(update, out var failures))
+			{
+				return;
+			}
+
+			var builder = new StringBuilder();
+
+			foreach (var validation in failures)
 			{
 				builder.AppendLine(validation.Message);
 			}
@@ -177,12 +181,34 @@ namespace Speedy.Validation
 				var propertyValidator = validator.PropertyValidators[i];
 				var propertyValue = propertyValidator.Info.GetMemberValue(value);
 
-				if ((propertyValue == null) && !propertyValidator.MemberRequired)
+				propertyValidator.ProcessValidations(propertyValue, failedValidation);
+			}
+		}
+
+		private static void ProcessValidator(Validator validator, PartialUpdate update, ICollection<IValidation> failedValidation)
+		{
+			for (var i = 0; i < validator.PropertyValidators.Count; i++)
+			{
+				if (i >= validator.PropertyValidators.Count)
 				{
+					break;
+				}
+
+				var propertyValidator = validator.PropertyValidators[i];
+				var foundUpdate = update.Updates.TryGetValue(propertyValidator.Info.Name, out var updateValue);
+
+				if (!foundUpdate)
+				{
+					if (!propertyValidator.MemberRequired)
+					{
+						continue;
+					}
+				
+					failedValidation.Add(new FailedValidation(propertyValidator.Name, propertyValidator.MemberRequiredMessage));
 					continue;
 				}
 
-				propertyValidator.ProcessValidations(propertyValue, failedValidation);
+				propertyValidator.ProcessValidations(updateValue?.Value, failedValidation);
 			}
 		}
 

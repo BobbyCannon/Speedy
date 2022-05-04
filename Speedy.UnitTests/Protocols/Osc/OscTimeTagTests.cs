@@ -145,6 +145,23 @@ namespace Speedy.UnitTests.Protocols.Osc
 		}
 
 		[TestMethod]
+		public void MinPreciseValue()
+		{
+			var expected1 = new OscTimeTag(1);
+			Assert.AreEqual(0.0000000002328306437080797375m, expected1.PreciseValue);
+			Assert.AreEqual(1m, expected1.Value);
+			Assert.AreEqual(599266080000000000, expected1.ToDateTime().Ticks);
+
+			var expected2 = new OscTimeTag(2);
+			Assert.AreEqual(0.0000000004656612874161594751m, expected2.PreciseValue);
+			Assert.AreEqual(2u, expected2.Value);
+			Assert.AreEqual(599266080000000000, expected2.ToDateTime().Ticks);
+
+			var expected = expected2 - expected1;
+			Assert.AreEqual(0, expected.Ticks);
+		}
+
+		[TestMethod]
 		public void MinValue()
 		{
 			var expected = new OscTimeTag(0);
