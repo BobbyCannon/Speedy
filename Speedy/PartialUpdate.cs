@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Speedy.Converters;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Serialization;
@@ -21,9 +22,9 @@ using Speedy.Validation;
 namespace Speedy
 {
 	/// <summary>
-	/// This class contains updates for an entity. JSON is deserialized into this type.
+	/// This class contains updates for an object. JSON is deserialized into this type.
 	/// </summary>
-	/// <typeparam name="T"> The type of entity to be updated. </typeparam>
+	/// <typeparam name="T"> The type of object to be updated. </typeparam>
 	[JsonConverter(typeof(PartialUpdateConverter))]
 	public class PartialUpdate<T> : PartialUpdate
 	{
@@ -32,26 +33,17 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates a partial update.
 		/// </summary>
-		public PartialUpdate() : this(new PartialUpdateOptions<T>())
+		public PartialUpdate() : this(null)
 		{
 		}
 
 		/// <summary>
-		/// Instantiates a paged request.
+		/// Instantiates a partial update.
 		/// </summary>
-		public PartialUpdate(PartialUpdateOptions<T> options)
+		/// <param name="dispatcher"> An optional dispatcher. </param>
+		public PartialUpdate(IDispatcher dispatcher) : base(dispatcher)
 		{
-			Options = options ?? new PartialUpdateOptions<T>();
 		}
-
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// The options for the partial update.
-		/// </summary>
-		public PartialUpdateOptions<T> Options { get; }
 
 		#endregion
 
@@ -63,37 +55,7 @@ namespace Speedy
 		/// <param name="entity"> Entity to be updated. </param>
 		public void Apply(T entity)
 		{
-			Apply(entity, Options);
-		}
-
-		/// <summary>
-		/// Applies the updates to the entity.
-		/// </summary>
-		/// <param name="entity"> Entity to be updated. </param>
-		public override void Apply(object entity)
-		{
-			Apply(entity, Options);
-		}
-
-		/// <summary>
-		/// Applies the updates to the entity.
-		/// </summary>
-		/// <param name="entity"> Entity to be updated. </param>
-		/// <param name="options"> The optional set of options for apply the updates. </param>
-		public override void Apply(object entity, PartialUpdateOptions options)
-		{
-			Apply(entity, options.IncludedProperties, options.ExcludedProperties);
-		}
-
-		/// <summary>
-		/// Gets a partial update from a JSON string.
-		/// </summary>
-		/// <param name="json"> The JSON containing the partial update. </param>
-		/// <param name="options"> An optional set of options to use during parsing. </param>
-		/// <returns> The partial update. </returns>
-		public static PartialUpdate<T> FromJson(string json, PartialUpdateOptions options = null)
-		{
-			return (PartialUpdate<T>) FromJson(json, typeof(T), options);
+			Apply(entity, IncludedProperties, ExcludedProperties);
 		}
 
 		/// <summary>
@@ -125,7 +87,7 @@ namespace Speedy
 		/// Creates an instance of the type and applies the partial update.
 		/// </summary>
 		/// <returns> </returns>
-		public override object GetInstance()
+		public T GetInstance()
 		{
 			var response = Activator.CreateInstance<T>();
 			Apply(response);
@@ -142,13 +104,15 @@ namespace Speedy
 			Remove(propertyExpression.Member.Name);
 		}
 
-		/// <inheritdoc />
-		public override void Remove(string name)
+		/// <summary>
+		/// Set a property for the update. The name must be available of the target value.
+		/// </summary>
+		/// <param name="name"> The name of the member to set. </param>
+		/// <param name="value"> The value of the member. </param>
+		public override void Set(string name, object value)
 		{
-			if (Updates.ContainsKey(name))
-			{
-				Updates.Remove(name);
-			}
+			var properties = typeof(T).GetCachedPropertyDictionary();
+			Set(name, value, properties);
 		}
 
 		/// <summary>
@@ -157,9 +121,9 @@ namespace Speedy
 		/// <param name="value"> The value that contains a full set of updates. </param>
 		public void Set(T value)
 		{
-			var properties = typeof(T).GetCachedProperties();
+			var properties = GetCachedPropertyDictionary();
 
-			foreach (var property in properties)
+			foreach (var property in properties.Values)
 			{
 				var response = new PartialUpdateValue
 				{
@@ -183,66 +147,36 @@ namespace Speedy
 			Set(propertyExpression.Member.Name, value);
 		}
 
-		/// <inheritdoc />
-		public override void Set(string name, object value)
+		/// <summary>
+		/// Runs the validator to check the parameter.
+		/// </summary>
+		public bool TryValidate(out IList<IValidation> failures)
 		{
-			var properties = typeof(T).GetCachedPropertyDictionary();
-			if (!properties.ContainsKey(name))
-			{
-				throw new SpeedyException("The property does not exist by the provided name.");
-			}
-
-			var property = properties[name];
-			if (!property.CanWrite)
-			{
-				throw new SpeedyException("The property cannot be set because it's not writable.");
-			}
-
-			if (property.PropertyType.IsNullable() && (value == null))
-			{
-				Updates.AddOrUpdate(name, new PartialUpdateValue
-				{
-					Name = name,
-					Type = property.PropertyType,
-					Value = null
-				});
-				return;
-			}
-
-			var valueType = value.GetType();
-			if (!property.PropertyType.IsAssignableFrom(valueType))
-			{
-				throw new SpeedyException("The property type does not match the values type.");
-			}
-
-			var response = new PartialUpdateValue
-			{
-				Name = name,
-				Type = property.PropertyType,
-				Value = value
-			};
-
-			Updates.AddOrUpdate(name, response);
-		}
-
-		/// <inheritdoc />
-		public override bool TryValidate(out IList<IValidation> failures)
-		{
-			if (Options.Validator == null)
-			{
-				failures = new List<IValidation>();
-				return true;
-			}
-
-			return Options.Validator.TryValidate(this, out failures);
+			failures = new List<IValidation>();
+			ProcessValidator(this, failures);
+			return failures.Count <= 0;
 		}
 
 		/// <summary>
-		/// Validates the partial update is good.
+		/// Runs the validator to check the partial update.
 		/// </summary>
-		public override void Validate()
+		public void Validate()
 		{
-			Options.Validator?.Validate(this);
+			Validate(this);
+		}
+
+		/// <summary>
+		/// Configure a validation for a property.
+		/// </summary>
+		/// <remarks>
+		/// If this is updated, also update <seealso cref="Validator{T}.Property" />
+		/// </remarks>
+		public MemberValidator<TProperty> Validate<TProperty>(Expression<Func<T, TProperty>> expression)
+		{
+			var propertyExpression = (MemberExpression) expression.Body;
+			var response = new MemberValidator<TProperty>(propertyExpression.Member);
+			PropertyValidators.Add(response);
+			return response;
 		}
 
 		/// <inheritdoc />
@@ -251,27 +185,33 @@ namespace Speedy
 			return typeof(T).GetCachedPropertyDictionary();
 		}
 
-		internal override PartialUpdateOptions GetOptions()
-		{
-			return Options;
-		}
-
 		#endregion
 	}
 
 	/// <summary>
-	/// This class contains updates for an entity. JSON is deserialized into this type.
+	/// This class contains updates for an object. JSON is deserialized into this type.
 	/// </summary>
-	public abstract class PartialUpdate
+	[JsonConverter(typeof(PartialUpdateConverter))]
+	public class PartialUpdate : Validator
 	{
 		#region Constructors
 
 		/// <summary>
-		/// Instantiate an instance of the partial update.
+		/// Instantiates a partial update.
 		/// </summary>
-		protected PartialUpdate()
+		public PartialUpdate() : this(null)
 		{
-			Updates = new Dictionary<string, PartialUpdateValue>(StringComparer.InvariantCultureIgnoreCase);
+		}
+
+		/// <summary>
+		/// Instantiates a partial update.
+		/// </summary>
+		/// <param name="dispatcher"> An optional dispatcher. </param>
+		public PartialUpdate(IDispatcher dispatcher) : base(dispatcher)
+		{
+			ExcludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			IncludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			Updates = new SortedDictionary<string, PartialUpdateValue>(StringComparer.OrdinalIgnoreCase);
 		}
 
 		#endregion
@@ -279,41 +219,76 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
+		/// Properties to be excluded.
+		/// </summary>
+		[JsonIgnore]
+		public HashSet<string> ExcludedProperties { get; }
+
+		/// <summary>
+		/// Properties to be included.
+		/// </summary>
+		[JsonIgnore]
+		public HashSet<string> IncludedProperties { get; }
+
+		/// <summary>
 		/// A list of updates for this partial update.
 		/// </summary>
-		public Dictionary<string, PartialUpdateValue> Updates { get; }
+		[JsonIgnore]
+		public IDictionary<string, PartialUpdateValue> Updates { get; }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Applies the updates to the entity.
+		/// Add an update value
 		/// </summary>
-		/// <param name="entity"> Entity to be updated. </param>
-		public abstract void Apply(object entity);
+		/// <param name="name"> The name of the update to add. </param>
+		/// <param name="value"> The value of the update. </param>
+		public void AddOrUpdate(string name, object value)
+		{
+			var properties = GetType().GetCachedPropertyDictionary();
+			var property = properties.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+			var type = value == null ? property?.PropertyType ?? typeof(object) : value.GetType();
+
+			if (Updates.ContainsKey(name))
+			{
+				var update = Updates[name];
+
+				if (!string.Equals(update.Name, name, StringComparison.Ordinal))
+				{
+					// Rename the key...
+					Updates.Remove(update.Name);
+					update.Name = name;
+					Updates.Add(update.Name, update);
+				}
+
+				update.Value = value;
+				return;
+			}
+
+			Updates.Add(name, new PartialUpdateValue(name, type, value));
+		}
 
 		/// <summary>
 		/// Applies the updates to the entity.
 		/// </summary>
 		/// <param name="entity"> Entity to be updated. </param>
-		/// <param name="options"> The options for the apply. </param>
-		public abstract void Apply(object entity, PartialUpdateOptions options);
+		public void Apply(object entity)
+		{
+			Apply(entity, IncludedProperties, ExcludedProperties);
+		}
 
 		/// <summary>
 		/// Create an instance of a partial update for a specific type.
 		/// </summary>
 		/// <param name="genericType"> The type the partial update is for. </param>
-		/// <param name="options"> An optional set of options to use during parsing. </param>
 		/// <returns> The partial update. </returns>
-		public static PartialUpdate Create(Type genericType, PartialUpdateOptions options = null)
+		public static PartialUpdate CreateGeneric(Type genericType)
 		{
 			var isAlreadyPartialUpdate = typeof(PartialUpdate).IsAssignableFrom(genericType);
 			var typeToCreate = isAlreadyPartialUpdate ? genericType : typeof(PartialUpdate<>).MakeGenericType(genericType);
-			var response = isAlreadyPartialUpdate
-				? (PartialUpdate) Activator.CreateInstance(typeToCreate)
-				: (PartialUpdate) Activator.CreateInstance(typeToCreate, options);
-
+			var response = (PartialUpdate) Activator.CreateInstance(typeToCreate);
 			return response;
 		}
 
@@ -322,16 +297,15 @@ namespace Speedy
 		/// </summary>
 		/// <typeparam name="T"> The type the partial update is for. </typeparam>
 		/// <param name="json"> The JSON containing the partial update. </param>
-		/// <param name="options"> An optional set of options to use during parsing. </param>
 		/// <returns> The partial update. </returns>
-		public static PartialUpdate<T> FromJson<T>(string json, PartialUpdateOptions<T> options = null)
+		public static PartialUpdate<T> FromJson<T>(string json)
 		{
 			if (string.IsNullOrWhiteSpace(json))
 			{
 				return new PartialUpdate<T>();
 			}
 
-			return (PartialUpdate<T>) FromJson(json, typeof(T), options);
+			return (PartialUpdate<T>) FromJson(json, typeof(T));
 		}
 
 		/// <summary>
@@ -339,24 +313,41 @@ namespace Speedy
 		/// </summary>
 		/// <param name="json"> The JSON containing the partial update. </param>
 		/// <param name="type"> The type the partial update is for. </param>
-		/// <param name="options"> An optional set of options to use during parsing. </param>
 		/// <returns> The partial update. </returns>
-		public static PartialUpdate FromJson(string json, Type type, PartialUpdateOptions options = null)
+		public static PartialUpdate FromJson(string json, Type type)
 		{
 			if (string.IsNullOrWhiteSpace(json))
 			{
-				var response = Create(type, options);
+				var response = CreateGeneric(type);
 				return response;
 			}
 
 			var serializer = new JsonSerializer();
 			using var reader = new JsonTextReader(new StringReader(json));
 			reader.Read();
-			return FromJson(reader, serializer, type, options);
+			return FromJson(reader, serializer, type);
 		}
 
 		/// <summary>
-		/// Get the property value.
+		/// Gets a partial update from a JSON string.
+		/// </summary>
+		/// <param name="json"> The JSON containing the partial update. </param>
+		/// <returns> The partial update. </returns>
+		public static PartialUpdate FromJson(string json)
+		{
+			if (string.IsNullOrWhiteSpace(json))
+			{
+				var response = new PartialUpdate();
+				return response;
+			}
+
+			using var reader = new JsonTextReader(new StringReader(json));
+			reader.Read();
+			return FromJson(reader);
+		}
+
+		/// <summary>
+		/// Get the update for the provided name.
 		/// </summary>
 		/// <param name="name"> The name of the update. </param>
 		/// <returns> The value if it was found otherwise null. </returns>
@@ -371,7 +362,7 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Get the property value.
+		/// Get the update for the provided name.
 		/// </summary>
 		/// <typeparam name="T"> The type to cast the value to. </typeparam>
 		/// <param name="name"> The name of the update. </param>
@@ -383,11 +374,12 @@ namespace Speedy
 				throw new KeyNotFoundException($"{name} update was not found.");
 			}
 
-			return (T) Updates[name].Value;
+			var update = Updates[name];
+			return ConvertUpdate<T>(update);
 		}
 
 		/// <summary>
-		/// Get the property value with a fallback default.
+		/// Get the update for the provided name with a fallback default value if not found.
 		/// </summary>
 		/// <typeparam name="T"> The type to cast the value to. </typeparam>
 		/// <param name="name"> The name of the update. </param>
@@ -400,46 +392,70 @@ namespace Speedy
 				return defaultValue;
 			}
 
-			return (T) Updates[name].Value;
+			var update = Updates[name];
+			return ConvertUpdate<T>(update);
 		}
 
 		/// <summary>
-		/// Creates an instance of the type and applies the partial update.
+		/// Refresh the results partial updates.
 		/// </summary>
-		/// <returns> </returns>
-		public abstract object GetInstance();
+		public virtual void Refresh()
+		{
+		}
 
 		/// <summary>
 		/// Remove a property from the update.
 		/// </summary>
 		/// <param name="name"> The name of the member to set. </param>
-		public abstract void Remove(string name);
+		public void Remove(string name)
+		{
+			if (Updates.ContainsKey(name))
+			{
+				Updates.Remove(name);
+			}
+		}
 
 		/// <summary>
-		/// Set a property for the update.
+		/// Set a property for the update. The name must be available of the target value.
 		/// </summary>
 		/// <param name="name"> The name of the member to set. </param>
 		/// <param name="value"> The value of the member. </param>
-		public abstract void Set(string name, object value);
+		public virtual void Set(string name, object value)
+		{
+			var properties = GetType().GetCachedPropertyDictionary();
+			Set(name, value, properties);
+		}
+
+		/// <summary>
+		/// Check to see if a property should be processed.
+		/// </summary>
+		/// <param name="propertyName"> The name of the property to test. </param>
+		/// <returns> True if the property should be processed otherwise false. </returns>
+		public bool ShouldProcessProperty(string propertyName)
+		{
+			if (IncludedProperties.Any()
+				&& !IncludedProperties.Contains(propertyName))
+			{
+				// Ignore this property because we only want to include it
+				return false;
+			}
+
+			if (ExcludedProperties.Contains(propertyName))
+			{
+				// Ignore this property because we only want to exclude it
+				return false;
+			}
+
+			return true;
+		}
 
 		/// <summary>
 		/// Get the JSON for the partial update.
 		/// </summary>
 		/// <returns> The JSON for the partial update. </returns>
-		public string ToJson(SerializerSettings settings = null)
+		public virtual string ToJson(SerializerSettings settings = null)
 		{
-			var expando = new ExpandoObject();
-			var options = GetOptions();
-
-			foreach (var update in Updates)
-			{
-				if (!options.ShouldProcessProperty(update.Key))
-				{
-					continue;
-				}
-
-				expando.AddOrUpdate(update.Key, update.Value.Value);
-			}
+			var expando = GetExpandoObject();
 
 			return settings != null
 				? expando.ToJson(settings)
@@ -457,25 +473,13 @@ namespace Speedy
 		{
 			if (Updates.ContainsKey(name))
 			{
-				value = (T) (object) Updates[name];
+				value = ConvertUpdate<T>(Updates[name]);
 				return true;
 			}
 
 			value = default;
 			return false;
 		}
-
-		/// <summary>
-		/// Tries to validate an update.
-		/// </summary>
-		/// <param name="failures"> An optional set of failures if the validation fails. </param>
-		/// <returns> True if if validates or otherwise false. </returns>
-		public abstract bool TryValidate(out IList<IValidation> failures);
-
-		/// <summary>
-		/// Validate an update.
-		/// </summary>
-		public abstract void Validate();
 
 		/// <summary>
 		/// Applies the updates to the entity.
@@ -552,7 +556,76 @@ namespace Speedy
 			}
 		}
 
-		internal static PartialUpdate FromJson(JsonReader reader, JsonSerializer serializer, Type objectType, PartialUpdateOptions options = null)
+		/// <summary>
+		/// Create a dynamic object of the partial update.
+		/// </summary>
+		/// <returns> The dynamic version of the partial update. </returns>
+		protected virtual ExpandoObject GetExpandoObject()
+		{
+			var expando = new ExpandoObject();
+
+			Refresh();
+
+			foreach (var update in Updates)
+			{
+				if (!ShouldProcessProperty(update.Key))
+				{
+					continue;
+				}
+
+				expando.AddOrUpdate(update.Key, update.Value.Value);
+			}
+
+			return expando;
+		}
+
+		/// <summary>
+		/// Set a property for the update. The name must be available of the target value.
+		/// </summary>
+		/// <param name="name"> The name of the member to set. </param>
+		/// <param name="value"> The value of the member. </param>
+		/// <param name="properties"> The properties for the set. </param>
+		protected void Set(string name, object value, IDictionary<string, PropertyInfo> properties)
+		{
+			if (!properties.ContainsKey(name))
+			{
+				throw new SpeedyException("The property does not exist by the provided name.");
+			}
+
+			var property = properties[name];
+			if (!property.CanWrite)
+			{
+				throw new SpeedyException("The property cannot be set because it's not writable.");
+			}
+
+			if (property.PropertyType.IsNullable() && (value == null))
+			{
+				Updates.AddOrUpdate(name, new PartialUpdateValue
+				{
+					Name = name,
+					Type = property.PropertyType,
+					Value = null
+				});
+				return;
+			}
+
+			var valueType = value.GetType();
+			if (!property.PropertyType.IsAssignableFrom(valueType))
+			{
+				throw new SpeedyException("The property type does not match the values type.");
+			}
+
+			var response = new PartialUpdateValue
+			{
+				Name = name,
+				Type = property.PropertyType,
+				Value = value
+			};
+
+			Updates.AddOrUpdate(name, response);
+		}
+
+		internal static PartialUpdate FromJson(JsonReader reader)
 		{
 			bool TryGetValue(JToken token, Type type, out object value)
 			{
@@ -580,7 +653,88 @@ namespace Speedy
 				}
 			}
 
-			var response = Create(objectType, options);
+			var response = new PartialUpdate();
+
+			if (reader.TokenType == JsonToken.StartArray)
+			{
+				return response;
+			}
+
+			var jObject = JObject.Load(reader);
+			var jProperties = jObject.Properties();
+
+			foreach (var jProperty in jProperties)
+			{
+				if (!response.ShouldProcessProperty(jProperty.Name))
+				{
+					continue;
+				}
+
+				var propertyName = jProperty.Name;
+				if (jProperty.Type == JTokenType.Null)
+				{
+					var nullValue = new PartialUpdateValue(propertyName, typeof(string), null);
+					response.Updates.Add(propertyName, nullValue);
+					continue;
+				}
+
+				// Property of array must be IEnumerable (ignoring some types like string)
+				if (jProperty.Value is JArray jArray)
+				{
+					var genericList = new List<object>(jArray.Count);
+
+					foreach (var jArrayValue in jArray.Values())
+					{
+						if (TryGetValue(jArrayValue, typeof(object), out var arrayValue))
+						{
+							genericList.Add(arrayValue);
+						}
+					}
+
+					var update2 = new PartialUpdateValue(propertyName, typeof(object), genericList);
+					response.Updates.Add(propertyName, update2);
+					continue;
+				}
+
+				if (TryGetValue(jProperty.Value, typeof(object), out var value2))
+				{
+					var update = new PartialUpdateValue(propertyName, typeof(object), value2);
+					response.Updates.Add(propertyName, update);
+				}
+			}
+
+			return response;
+		}
+
+		internal static PartialUpdate FromJson(JsonReader reader, JsonSerializer serializer, Type objectType)
+		{
+			bool TryGetValue(JToken token, Type type, out object value)
+			{
+				if (token is not JValue jValue)
+				{
+					value = null;
+					return false;
+				}
+
+				if ((jValue.Type == JTokenType.Null) && (jValue.Value == null))
+				{
+					value = null;
+					return true;
+				}
+
+				try
+				{
+					value = Convert.ChangeType(jValue, type);
+					return true;
+				}
+				catch
+				{
+					value = null;
+					return false;
+				}
+			}
+
+			var response = CreateGeneric(objectType);
 
 			if (reader.TokenType == JsonToken.StartArray)
 			{
@@ -590,11 +744,10 @@ namespace Speedy
 			var jObject = JObject.Load(reader);
 			var jProperties = jObject.Properties();
 			var propertyDictionary = response.GetCachedPropertyDictionary();
-			var responseOptions = response.GetOptions();
 
 			foreach (var jProperty in jProperties)
 			{
-				if (!responseOptions.ShouldProcessProperty(jProperty.Name))
+				if (!response.ShouldProcessProperty(jProperty.Name))
 				{
 					continue;
 				}
@@ -646,9 +799,36 @@ namespace Speedy
 			return response;
 		}
 
-		internal abstract IDictionary<string, PropertyInfo> GetCachedPropertyDictionary();
+		internal virtual IDictionary<string, PropertyInfo> GetCachedPropertyDictionary()
+		{
+			return GetType().GetCachedPropertyDictionary();
+		}
 
-		internal abstract PartialUpdateOptions GetOptions();
+		internal void WriteJson(JsonWriter writer, JsonSerializer serializer)
+		{
+			var expando = GetExpandoObject();
+			serializer.Serialize(writer, expando);
+		}
+
+		private static T ConvertUpdate<T>(PartialUpdateValue update)
+		{
+			var desiredType = typeof(T);
+
+			if (update.Type == desiredType)
+			{
+				return (T) update.Value;
+			}
+
+			if (update.Value is string sValue)
+			{
+				if (StringConverter.TryParse<T>(sValue, out var value))
+				{
+					return value;
+				}
+			}
+
+			return (T) Convert.ChangeType(update.Value, desiredType);
+		}
 
 		#endregion
 	}

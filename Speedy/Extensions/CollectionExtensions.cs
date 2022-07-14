@@ -488,7 +488,31 @@ namespace Speedy.Extensions
 				collection.Remove(deviceToRemove);
 			}
 		}
-
+		
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="T"> The type of the collections. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		public static void Reconcile<T>(this IList<T> collection, IEnumerable<T> updates)
+		{
+			collection.Clear();
+			collection.AddRange(updates);
+		}
+		
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="T"> The type of the collections. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		public static void Reconcile<T>(this HashSet<T> collection, IEnumerable<T> updates)
+		{
+			collection.Clear();
+			collection.AddRange(updates);
+		}
+		
 		/// <summary>
 		/// Gets a sub array from an existing array.
 		/// </summary>

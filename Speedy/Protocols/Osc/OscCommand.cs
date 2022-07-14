@@ -325,15 +325,6 @@ namespace Speedy.Protocols.Osc
 		/// <summary>
 		/// Gets the argument or returns the default value if the index is not found.
 		/// </summary>
-		/// <returns> The argument if found or default value if not. </returns>
-		public double GetArgumentAsDouble()
-		{
-			return GetArgumentAsDouble(_argumentIndex++);
-		}
-
-		/// <summary>
-		/// Gets the argument or returns the default value if the index is not found.
-		/// </summary>
 		/// <param name="index"> The index of the argument. </param>
 		/// <param name="defaultValue"> The default value to return if not found. </param>
 		/// <returns> The argument if found or default value if not. </returns>
@@ -361,7 +352,16 @@ namespace Speedy.Protocols.Osc
 				_ => decimal.TryParse(value.ToString(), out var result) ? result : defaultValue
 			};
 		}
-		
+
+		/// <summary>
+		/// Gets the argument or returns the default value if the index is not found.
+		/// </summary>
+		/// <returns> The argument if found or default value if not. </returns>
+		public double GetArgumentAsDouble()
+		{
+			return GetArgumentAsDouble(_argumentIndex++);
+		}
+
 		/// <summary>
 		/// Gets the argument or returns the default value if the index is not found.
 		/// </summary>

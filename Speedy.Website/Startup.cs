@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,9 +24,9 @@ using NUglify;
 using NUglify.Css;
 using NUglify.JavaScript;
 using Speedy.Data;
-using Speedy.Extensions;
 using Speedy.Profiling;
 using Speedy.Serialization;
+using Speedy.Serialization.Converters;
 using Speedy.Storage.KeyValue;
 using Speedy.Sync;
 using Speedy.Website.Data;
@@ -58,6 +59,7 @@ namespace Speedy.Website
 
 			AppDataPath = new DirectoryInfo(appDataPath);
 			SerializerSettings = new SerializerSettings(false, true, false, false, true, false);
+			PartialUpdateConverter = new PartialUpdateConverter();
 
 			// Load settings
 			ConnectionStrings = Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
@@ -76,6 +78,8 @@ namespace Speedy.Website
 		public static IWebHostEnvironment Environment { get; private set; }
 
 		public static bool IndentModelJson => true;
+
+		public PartialUpdateConverter PartialUpdateConverter { get; }
 
 		public static SerializerSettings SerializerSettings { get; private set; }
 
@@ -190,9 +194,11 @@ namespace Speedy.Website
 				options.Cookie.IsEssential = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 			});
-
-			services.AddControllersWithViews(options => options.Filters.Add(new HttpResponseExceptionFilter()))
-				.AddNewtonsoftJson(options => UpdateSettings(options.SerializerSettings));
+			services.AddControllersWithViews(options =>
+			{
+				options.Filters.Add(new HttpResponseExceptionFilter());
+				options.ModelBinderProviders.Insert(0, new PagedRequestModelBinderProvider());
+			});
 
 			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, null), ContosoDatabase.GetDefaultOptions());
 			var syncDatabaseProvider = new SyncableDatabaseProvider<IContosoDatabase>((o, c) => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, c), ContosoDatabase.GetDefaultOptions(), SyncController.KeyCache);
@@ -298,12 +304,64 @@ namespace Speedy.Website
 		private void UpdateSettings(JsonSerializerSettings destination)
 		{
 			var settings = SerializerSettings.JsonSettings;
+
 			destination.ContractResolver = settings.ContractResolver;
-			destination.Converters.AddRange(settings.Converters);
 			destination.DateTimeZoneHandling = settings.DateTimeZoneHandling;
 			destination.DateFormatHandling = settings.DateFormatHandling;
 			destination.ReferenceLoopHandling = settings.ReferenceLoopHandling;
 			destination.NullValueHandling = settings.NullValueHandling;
+
+			foreach (var converter in settings.Converters)
+			{
+				if (!destination.Converters.Contains(converter))
+				{
+					destination.Converters.Add(converter);
+				}
+			}
+		}
+
+		#endregion
+	}
+
+	public class PagedRequestModelBinder : IModelBinder
+	{
+		#region Methods
+
+		public Task BindModelAsync(ModelBindingContext bindingContext)
+		{
+			if (bindingContext == null)
+			{
+				throw new ArgumentNullException(nameof(bindingContext));
+			}
+
+			if (Activator.CreateInstance(bindingContext.ModelType) is not PagedRequest pagedRequest)
+			{
+				bindingContext.Result = ModelBindingResult.Failed();
+				return Task.CompletedTask;
+			}
+			
+			pagedRequest.ParseQueryString(bindingContext.HttpContext.Request.QueryString.ToString());
+			bindingContext.Result = ModelBindingResult.Success(pagedRequest);
+			return Task.CompletedTask;
+		}
+
+		#endregion
+	}
+
+	public class PagedRequestModelBinderProvider : IModelBinderProvider
+	{
+		#region Methods
+
+		public IModelBinder GetBinder(ModelBinderProviderContext context)
+		{
+			if (context == null)
+			{
+				throw new ArgumentNullException(nameof(context));
+			}
+
+			return typeof(PagedRequest).IsAssignableFrom(context.Metadata.ModelType)
+				? new PagedRequestModelBinder()
+				: null;
 		}
 
 		#endregion

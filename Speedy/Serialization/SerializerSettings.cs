@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Speedy.Extensions;
+using Speedy.Serialization.Converters;
 
 #endregion
 
@@ -129,6 +130,16 @@ namespace Speedy.Serialization
 		#region Methods
 
 		/// <summary>
+		/// Add or update converter to the JsonSettings.
+		/// </summary>
+		/// <param name="converter"> The converter to add or update. </param>
+		public void AddOrUpdateConverter(JsonConverter converter)
+		{
+			RemoveConverter(converter.GetType());
+			JsonSettings.Converters.Add(converter);
+		}
+
+		/// <summary>
 		/// Explicitly ignore the given property(s) for the given type
 		/// </summary>
 		/// <param name="type"> The type to ignore some properties on. </param>
@@ -162,6 +173,31 @@ namespace Speedy.Serialization
 			_globalIgnoredMembers.AddRange(propertyNames);
 
 			HasChanges = true;
+		}
+
+		/// <summary>
+		/// Remove a converter of the provided type
+		/// </summary>
+		public void RemoveConverter<T>()
+		{
+			RemoveConverter(typeof(T));
+		}
+
+		/// <summary>
+		/// Remove a converter of the provided type
+		/// </summary>
+		/// <param name="converterType"> </param>
+		public void RemoveConverter(Type converterType)
+		{
+			// Try to find the converter of provided type
+			var existingConverter = JsonSettings.Converters.FirstOrDefault(x => x.GetType() == converterType);
+
+			// Continue to remove until we have removed them all
+			while (existingConverter != null)
+			{
+				JsonSettings.Converters.Remove(existingConverter);
+				existingConverter = JsonSettings.Converters.FirstOrDefault(x => x.GetType() == converterType);
+			}
 		}
 
 		/// <summary>
@@ -245,18 +281,12 @@ namespace Speedy.Serialization
 			}
 		}
 
-		private static void AddOrUpdateConverter(ICollection<JsonConverter> converters, JsonConverter converter)
-		{
-			RemoveConvertersOfTypes(converters, converter.GetType());
-			converters.Add(converter);
-		}
-
 		private bool IgnoreMember(string member)
 		{
 			return _globalIgnoredMembers.Contains(member);
 		}
 
-		private HashSet<string> InitializeType(Type type)
+		private HashSet<string> GetIgnoredProperties(Type type)
 		{
 			if (_cachedIgnoredProperties.ContainsKey(type))
 			{
@@ -281,21 +311,8 @@ namespace Speedy.Serialization
 			return _cachedIgnoredProperties[type];
 		}
 
-		private static void RemoveConvertersOfTypes(ICollection<JsonConverter> converters, Type jsonConverterType)
-		{
-			// Try to find the converter of provided type
-			var existingStringEnumConverter = converters.FirstOrDefault(x => x.GetType() == jsonConverterType);
-
-			// Continue to remove until we have removed them all
-			while (existingStringEnumConverter != null)
-			{
-				converters.Remove(existingStringEnumConverter);
-				existingStringEnumConverter = converters.FirstOrDefault(x => x.GetType() == jsonConverterType);
-			}
-		}
-
 		/// <summary>
-		/// Get the JSON serialization settings.
+		/// Configure the JsonSettings using our SerializerSettings values.
 		/// </summary>
 		/// <returns> The serialization settings. </returns>
 		private void UpdateJsonSerializerSettings()
@@ -304,29 +321,31 @@ namespace Speedy.Serialization
 
 			if (ConvertEnumsToString)
 			{
-				AddOrUpdateConverter(JsonSettings.Converters, new StringEnumConverter { NamingStrategy = namingStrategy });
+				AddOrUpdateConverter(new StringEnumConverter { NamingStrategy = namingStrategy });
 			}
 			else
 			{
-				RemoveConvertersOfTypes(JsonSettings.Converters, typeof(StringEnumConverter));
+				RemoveConverter(typeof(StringEnumConverter));
 			}
 
-			AddOrUpdateConverter(JsonSettings.Converters, new IsoDateTimeConverter());
+			AddOrUpdateConverter(new IsoDateTimeConverter());
+			AddOrUpdateConverter(new PartialUpdateConverter());
 
 			JsonSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
 			JsonSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
 			JsonSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
 			JsonSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
 			JsonSettings.NullValueHandling = IgnoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
-			JsonSettings.ContractResolver = new JsonContractResolver(CamelCase, InitializeType, IgnoreMember);
+			JsonSettings.ContractResolver = new JsonContractResolver(CamelCase, GetIgnoredProperties, IgnoreMember);
 		}
 
 		/// <summary>
-		/// Get the JSON serialization settings.
+		/// Restore the state of this SerializerSettings with the JsonSettings values. The serializer settings
+		/// was created with an instance fo JsonSettings so we need to try and restore our state.
 		/// </summary>
 		private void UpdateWithJsonSerializerSettings()
 		{
-			// These values cannot be determined by JsonSettings: Indented, IgnoreReadOnly, IgnoreVirtuals
+			// These values cannot be determined by JsonSettings: IgnoreReadOnly, IgnoreVirtuals
 			var camelCaseNamingStrategyType = typeof(CamelCaseNamingStrategy);
 			var stringEnumConverter = JsonSettings.GetConverter<StringEnumConverter>();
 			var contractResolver = JsonSettings.ContractResolver as JsonContractResolver;
@@ -334,8 +353,11 @@ namespace Speedy.Serialization
 			CamelCase = (stringEnumConverter?.NamingStrategy?.GetType() == camelCaseNamingStrategyType)
 				&& (contractResolver?.NamingStrategy?.GetType() == camelCaseNamingStrategyType);
 
+			Indented = JsonSettings.Formatting == Formatting.Indented;
 			IgnoreNullValues = JsonSettings.NullValueHandling == NullValueHandling.Ignore;
 			ConvertEnumsToString = stringEnumConverter != null;
+
+			AddOrUpdateConverter(new PartialUpdateConverter());
 		}
 
 		#endregion

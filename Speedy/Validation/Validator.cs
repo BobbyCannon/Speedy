@@ -21,7 +21,14 @@ namespace Speedy.Validation
 		/// <summary>
 		/// Creates an instance of a Validator.
 		/// </summary>
-		public Validator() : base(typeof(T).Name)
+		public Validator() : this(null)
+		{
+		}
+		
+		/// <summary>
+		/// Creates an instance of a Validator.
+		/// </summary>
+		public Validator(IDispatcher dispatcher) : base(dispatcher)
 		{
 		}
 
@@ -32,6 +39,9 @@ namespace Speedy.Validation
 		/// <summary>
 		/// Configure a validation for a property.
 		/// </summary>
+		/// <remarks>
+		/// If this is updated, also update <seealso cref="PartialUpdate{T}.Validate{TProperty}" />
+		/// </remarks>
 		public MemberValidator<TProperty> Property<TProperty>(Expression<Func<T, TProperty>> expression)
 		{
 			var propertyExpression = (MemberExpression) expression.Body;
@@ -46,27 +56,21 @@ namespace Speedy.Validation
 	/// <summary>
 	/// Validation for an object.
 	/// </summary>
-	public abstract class Validator
+	public abstract class Validator : Bindable
 	{
 		#region Constructors
 
 		/// <summary>
 		/// Creates an instance of a Validator.
 		/// </summary>
-		protected Validator(string name)
+		protected Validator(IDispatcher dispatcher) : base(dispatcher)
 		{
-			Name = name;
 			PropertyValidators = new List<MemberValidator>();
 		}
 
 		#endregion
 
 		#region Properties
-
-		/// <summary>
-		/// The name of the validator
-		/// </summary>
-		public string Name { get; }
 
 		/// <summary>
 		/// The validations for the validator.
@@ -150,7 +154,7 @@ namespace Speedy.Validation
 		}
 
 		/// <summary>
-		/// Runs the validator to check the parameter.
+		/// Runs the validator to check the partial update.
 		/// </summary>
 		public void Validate(PartialUpdate update)
 		{
@@ -171,6 +175,12 @@ namespace Speedy.Validation
 
 		private static void ProcessValidator(Validator validator, object value, ICollection<IValidation> failedValidation)
 		{
+			if (value is PartialUpdate partialUpdate)
+			{
+				ProcessValidator(partialUpdate, failedValidation);
+				return;
+			}
+
 			for (var i = 0; i < validator.PropertyValidators.Count; i++)
 			{
 				if (i >= validator.PropertyValidators.Count)
@@ -185,16 +195,16 @@ namespace Speedy.Validation
 			}
 		}
 
-		private static void ProcessValidator(Validator validator, PartialUpdate update, ICollection<IValidation> failedValidation)
+		internal static void ProcessValidator(PartialUpdate update, ICollection<IValidation> failedValidation)
 		{
-			for (var i = 0; i < validator.PropertyValidators.Count; i++)
+			for (var i = 0; i < update.PropertyValidators.Count; i++)
 			{
-				if (i >= validator.PropertyValidators.Count)
+				if (i >= update.PropertyValidators.Count)
 				{
 					break;
 				}
 
-				var propertyValidator = validator.PropertyValidators[i];
+				var propertyValidator = update.PropertyValidators[i];
 				var foundUpdate = update.Updates.TryGetValue(propertyValidator.Info.Name, out var updateValue);
 
 				if (!foundUpdate)

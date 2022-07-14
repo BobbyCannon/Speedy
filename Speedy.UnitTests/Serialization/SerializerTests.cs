@@ -15,6 +15,15 @@ namespace Speedy.UnitTests.Serialization
 		#region Methods
 
 		[TestMethod]
+		public void ToJson()
+		{
+			var data = GetTestClass();
+			var expected = "{\r\n  \"age\": 21,\r\n  \"createdOn\": \"2020-02-17T12:12:45Z\",\r\n  \"id\": 42,\r\n  \"isDeleted\": false,\r\n  \"modifiedOn\": \"2020-02-17T12:12:45Z\",\r\n  \"name\": \"John Doe\",\r\n  \"percent\": 1.23,\r\n  \"syncId\": \"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\r\n  \"testEnum\": \"second\"\r\n}";
+			var actual = data.ToRawJson(true, true, convertEnumsToString: true);
+			Assert.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
 		public void SerializationCamelCase()
 		{
 			var data = GetTestClass();

@@ -229,7 +229,7 @@ namespace Speedy.Protocols.Osc
 				BitConverter.ToInt32(bytes, 0),
 				BitConverter.ToInt32(bytes, 4),
 				BitConverter.ToInt32(bytes, 8),
-				BitConverter.ToInt32(bytes, 12),
+				BitConverter.ToInt32(bytes, 12)
 			};
 
 			return new decimal(intValues);

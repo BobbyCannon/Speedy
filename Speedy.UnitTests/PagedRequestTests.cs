@@ -1,11 +1,12 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.SyncApi;
+using Speedy.Extensions;
+using Speedy.Serialization;
 using Speedy.UnitTests.Factories;
+using Speedy.Website.Models;
 
 #endregion
 
@@ -22,59 +23,60 @@ namespace Speedy.UnitTests
 			var actual = new PagedRequest
 			{
 				Page = 0,
-				PerPage = 1000,
-				Filter = null,
-				FilterValues = null,
-				Including = null,
-				Options = null,
-				OptionValues = null,
-				Order = null
+				PerPage = 1001
 			};
 
 			Assert.AreEqual(0, actual.Page);
-			Assert.AreEqual(1000, actual.PerPage);
-			Assert.AreEqual(null, actual.Filter);
-			Assert.AreEqual(null, actual.FilterValues);
-			Assert.AreEqual(null, actual.Including);
-			Assert.AreEqual(null, actual.Options);
-			Assert.AreEqual(null, actual.OptionValues);
-			Assert.AreEqual(null, actual.Order);
+			Assert.AreEqual(1001, actual.PerPage);
 
 			actual.Cleanup();
 
 			var expected = new PagedRequest
 			{
 				Page = 1,
-				PerPage = 100,
-				Filter = string.Empty,
-				FilterValues = new List<string>(),
-				Including = new List<string>(),
-				Options = new List<string>(),
-				OptionValues = new List<string>(),
-				Order = string.Empty
+				PerPage = 1000
 			};
 
-			TestHelper.AreEqual(expected, actual);
+			TestHelper.AreEqual(expected, actual, nameof(PagedRequest.Updates));
 		}
 
 		[TestMethod]
-		public void GetOption()
+		public void CustomPagedRequest()
 		{
-			var actual = new PagedRequest().Cleanup();
-			Assert.AreEqual(null, actual.GetOptionValue("Foo"));
-			actual.AddOptions("Foo", "Bar");
-			Assert.AreEqual("Bar", actual.GetOptionValue("Foo"));
-			Assert.AreEqual("Bar", actual.GetOptionValue("fOO"));
+			var request = new CustomPagedRequest { Precision = 2.123, Page = 12, PerPage = 2 };
+			var actual = request.ToJson();
+			var expected = "{\"Page\":12,\"PerPage\":2,\"Precision\":2.123}";
+			Assert.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
-		public void HasOption()
+		public void FromQueryString()
 		{
-			var actual = new PagedRequest().Cleanup();
-			Assert.IsFalse(actual.HasOption("Foo"));
-			actual.Options.Add("fOO");
-			Assert.IsTrue(actual.HasOption("Foo"));
-			Assert.IsTrue(actual.HasOption("fOO"));
+			var request = new PagedRequest();
+			request.ParseQueryString("?filter=test&page=23");
+		}
+
+		[TestMethod]
+		public void ToJson()
+		{
+			var request = new PagedRequest();
+			var actual = request.ToRawJson();
+			var expected = "{}";
+			actual.Escape().Dump();
+			Assert.AreEqual(expected, actual);
+
+			request = new PagedRequest { Page = 2, PerPage = 11 };
+			actual = request.ToRawJson();
+			expected = "{\"Page\":2,\"PerPage\":11}";
+			actual.Escape().Dump();
+			Assert.AreEqual(expected, actual);
+
+			request.AddOrUpdate("Filter", "frogs");
+
+			actual = request.ToRawJson();
+			expected = "{\"Filter\":\"frogs\",\"Page\":2,\"PerPage\":11}";
+			actual.Escape().Dump();
+			Assert.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -83,27 +85,38 @@ namespace Speedy.UnitTests
 			// Scenarios are cumulative so expect the next scenario to have the previous state
 			(Action<PagedRequest> update, string expected)[] scenarios =
 			{
-				(x => x.Page = 2, "Page=2&PerPage=10"),
+				(_ => { }, ""),
+				(x => x.Page = 2, "Page=2"),
 				(x => x.PerPage = 1, "Page=2&PerPage=1"),
 				(x => x.PerPage = 98, "Page=2&PerPage=98"),
-				(x => x.AddOptions("foo", "bar"), "Page=2&PerPage=98&Options=foo&OptionValues=bar"),
-				(x => x.AddOptions("hello", "world"), "Page=2&PerPage=98&Options=foo&Options=hello&OptionValues=bar&OptionValues=world"),
-				(x => x.AddOptions("hello", "again"), "Page=2&PerPage=98&Options=foo&Options=hello&OptionValues=bar&OptionValues=again"),
-				(x => x.RemoveOption("hello"), "Page=2&PerPage=98&Options=foo&OptionValues=bar"),
-				(x => x.RemoveOption("foo"), "Page=2&PerPage=98"),
-				(x => x.Filter = "testing", "Page=2&PerPage=98&Filter=testing"),
-				(x => x.FilterValues.Add("aoeu"), "Page=2&PerPage=98&Filter=testing&FilterValues=aoeu"),
-				(x => x.FilterValues.Add("htns"), "Page=2&PerPage=98&Filter=testing&FilterValues=aoeu&FilterValues=htns"),
+				(x => x.AddOrUpdate("foo", "bar"), "foo=bar&Page=2&PerPage=98"),
+				(x => x.AddOrUpdate("Foo", "Bar"), "Foo=Bar&Page=2&PerPage=98"),
+				(x => x.AddOrUpdate("hello", "world"), "Foo=Bar&hello=world&Page=2&PerPage=98"),
+				(x => x.AddOrUpdate("hello", "again"), "Foo=Bar&hello=again&Page=2&PerPage=98"),
+				// Remove should not be case sensitive
+				(x => x.Remove("HELLO"), "Foo=Bar&Page=2&PerPage=98"),
+				(x => x.Remove("FOO"), "Page=2&PerPage=98"),
+				// Should be able to handle special (reserved, delimiters, etc) characters
+				(x => x.AddOrUpdate("filter", ";/?:@&=+$,"), "filter=%3b%2f%3f%3a%40%26%3d%2b%24%2c&Page=2&PerPage=98"),
+				(x => x.AddOrUpdate("filter", "<>#%\""), "filter=%3c%3e%23%25%22&Page=2&PerPage=98"),
+				(x => x.AddOrUpdate("filter", "{}|\"^[]`"), "filter=%7b%7d%7c%22%5e%5b%5d%60&Page=2&PerPage=98"),
+				(x => x.Remove("FILTER"), "Page=2&PerPage=98"),
+				// Should be able to handle special (reserved, delimiters, etc) characters as key
+				(x => x.AddOrUpdate(";/?:@&=+$,<>#%\"{}|\"^[]`", "wow..."), "%3b%2f%3f%3a%40%26%3d%2b%24%2c%3c%3e%23%25%22%7b%7d%7c%22%5e%5b%5d%60=wow...&Page=2&PerPage=98")
 			};
 
-			var actual = new PagedRequest().Cleanup();
+			var expected = new PagedRequest();
 
 			foreach (var scenario in scenarios)
 			{
 				scenario.expected.Dump();
-				scenario.update(actual);
-				Assert.AreEqual(scenario.expected, actual.ToQueryString());
-				TestHelper.AreEqual(actual, PagedRequest.FromQueryString(scenario.expected));
+				scenario.update(expected);
+				Assert.AreEqual(scenario.expected, expected.ToQueryString());
+
+				var actual = new PagedRequest();
+				actual.ParseQueryString(scenario.expected);
+
+				TestHelper.AreEqual(expected, actual, nameof(Bindable.HasChanges));
 			}
 		}
 
@@ -114,7 +127,7 @@ namespace Speedy.UnitTests
 			{
 				Results = new[] { DataFactory.GetAddress() }
 			};
-			Assert.AreEqual(1, actual.Results.Count());
+			Assert.AreEqual(1, actual.Results.Count);
 		}
 
 		#endregion

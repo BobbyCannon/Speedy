@@ -52,22 +52,19 @@ namespace Speedy.UnitTests.Validation
 		public void HasValidValue()
 		{
 			var update = new PartialUpdate<Sample>();
-			var validator = update.Options.Validator;
-			validator.Property(x => x.LogLevel).HasValidValue();
+			update.Validate(x => x.LogLevel).HasValidValue();
 			update.Validate();
 			update.Set(x => x.LogLevel, (LogLevel) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
 			
 			update = new PartialUpdate<Sample>();
-			validator = update.Options.Validator;
-			validator.Property(x => x.OptionalLogLevel).HasValidValue();
+			update.Validate(x => x.OptionalLogLevel).HasValidValue();
 			update.Validate();
 			update.Set(x => x.OptionalLogLevel, (LogLevel?) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
 			
 			update = new PartialUpdate<Sample>();
-			validator = update.Options.Validator;
-			validator.Property(x => x.OptionalLogLevel).HasValidValue();
+			update.Validate(x => x.OptionalLogLevel).HasValidValue();
 			update.Validate();
 			update.Set(nameof(Sample.OptionalLogLevel), (LogLevel) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
@@ -102,23 +99,26 @@ namespace Speedy.UnitTests.Validation
 		public void IsOptional()
 		{
 			var update = new PartialUpdate<Sample>();
-			var validator = update.Options.Validator;
-			validator.Property(x => x.Name).IsOptional();
-			var actual = update.TryValidate(out _);
+			update.Validate(x => x.Name).IsOptional();
+			var actual = update.TryValidate(out var failures);
 			Assert.AreEqual(true, actual);
+			Assert.AreEqual(0, failures.Count);
 		}
 
 		[TestMethod]
 		public void IsRequired()
 		{
 			var update = new PartialUpdate<Sample>();
-			var validator = update.Options.Validator;
-			validator.Property(x => x.Name).IsRequired();
-			var actual = update.TryValidate(out _);
+			update.Validate(x => x.Name).IsRequired();
+			var actual = update.TryValidate(out var failures);
 			Assert.AreEqual(false, actual);
+			Assert.AreEqual(1, failures.Count);
+			Assert.AreEqual("Name", failures[0].Name);
+
 			update.Set(x => x.Name, null);
-			actual = update.TryValidate(out _);
+			actual = update.TryValidate(out failures);
 			Assert.AreEqual(true, actual);
+			Assert.AreEqual(0, failures.Count);
 		}
 
 		[TestMethod]

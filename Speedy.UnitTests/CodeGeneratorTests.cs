@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
 using Speedy.Sync;
+using Speedy.Website.Models;
 
 #endregion
 
@@ -82,11 +83,11 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void GenerateUpdateWith()
 		{
-			var type = typeof(SyncEngineState);
+			var type = typeof(CustomPagedRequest);
 			var builder = new StringBuilder();
 			var properties = type
-				//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
 				.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+				//.GetCachedProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Instance)
 				.Where(x => x.CanWrite)
 				.OrderBy(x => x.Name)
 				.ToList();
@@ -116,7 +117,7 @@ public void UpdateWith({type.Name} update, params string[] exclusions)
 
 			foreach (var p in properties)
 			{
-				builder.AppendLine($"\t\tthis.IfThen(x => !exclusions.Contains(nameof({p.Name})), x => x.{p.Name} = update.{p.Name});");
+				builder.AppendLine($"\t\tthis.IfThen(_ => !exclusions.Contains(nameof({p.Name})), x => x.{p.Name} = update.{p.Name});");
 			}
 
 			builder.AppendLine("\t}\r\n");

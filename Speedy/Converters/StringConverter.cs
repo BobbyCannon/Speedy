@@ -34,6 +34,7 @@ namespace Speedy.Converters
 		{
 			Parsers = new List<IStringConverterParser>
 			{
+				new EnumConverterParser(),
 				new StringConverterParser(),
 				new ReflectionStringConverterParser(),
 				new UriStringConverterParser()
@@ -68,7 +69,7 @@ namespace Speedy.Converters
 		/// </summary>
 		/// <param name="targetType"> The target type. </param>
 		/// <param name="value"> </param>
-		/// <returns></returns>
+		/// <returns> </returns>
 		public static StringConverter Create(Type targetType, string value)
 		{
 			return (StringConverter) typeof(StringConverter<>).CreateNewGenericInstance(new[] { targetType }, value);
@@ -121,6 +122,24 @@ namespace Speedy.Converters
 		{
 			TargetString = value;
 			return TryParse(TargetType, value, out result);
+		}
+
+		/// <summary>
+		/// Try to parse the value from the provided value.
+		/// </summary>
+		/// <param name="value"> The type value in string format. </param>
+		/// <param name="result"> The object version of the string. </param>
+		/// <returns> True if the parse succeeded otherwise false. </returns>
+		public static bool TryParse<T>(string value, out T result)
+		{
+			if (TryParse(typeof(T), value, out var response))
+			{
+				result = (T) response;
+				return true;
+			}
+
+			result = default;
+			return false;
 		}
 
 		/// <summary>

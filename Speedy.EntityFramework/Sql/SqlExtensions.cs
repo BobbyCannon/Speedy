@@ -39,12 +39,12 @@ namespace Speedy.EntityFramework.Sql
 
 		private static object Private(this object obj, string privateField)
 		{
-			return obj?.GetType().GetCachedField(privateField, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
+			return obj?.GetType().GetCachedField(privateField, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(obj);
 		}
 
 		private static T Private<T>(this object obj, string privateField)
 		{
-			return (T) obj?.GetType().GetCachedField(privateField, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
+			return (T) obj?.GetType().GetCachedField(privateField, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(obj);
 		}
 
 		#endregion

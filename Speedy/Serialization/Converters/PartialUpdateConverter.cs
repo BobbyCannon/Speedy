@@ -17,7 +17,7 @@ namespace Speedy.Serialization.Converters
 		/// <inheritdoc />
 		public override bool CanConvert(Type objectType)
 		{
-			var partialType = typeof(PartialUpdate<>);
+			var partialType = typeof(PartialUpdate);
 			var isPartialType = objectType.IsSubclassOf(partialType);
 			return isPartialType;
 		}
@@ -33,7 +33,7 @@ namespace Speedy.Serialization.Converters
 		{
 			if (value is PartialUpdate update)
 			{
-				writer.WriteRaw(update.ToJson());
+				update.WriteJson(writer, serializer);
 			}
 		}
 

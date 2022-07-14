@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,20 @@ namespace Speedy.Website.Controllers
 		public IActionResult LogOut()
 		{
 			return RedirectToAction(nameof(LogIn));
+		}
+
+		[AllowAnonymous]
+		public IActionResult PagedRequest(CustomPagedRequest request = null)
+		{
+			request ??= new CustomPagedRequest();
+			request.Cleanup();
+			var result = new CustomPagedResults<object>(request, 156324,
+				2,
+				"foo",
+				TimeService.UtcNow,
+				TimeSpan.FromMilliseconds(123456)
+			);
+			return View(result);
 		}
 
 		[AllowAnonymous]

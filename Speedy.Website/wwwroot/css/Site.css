@@ -875,6 +875,14 @@ input[type=text] .text-left {
   text-align: right;
 }
 
+.align-center {
+  margin: auto;
+}
+
+.collapsed {
+  width: fit-content;
+}
+
 textarea,
 datalist,
 select,

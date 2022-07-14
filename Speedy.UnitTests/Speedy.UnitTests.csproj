@@ -19,12 +19,12 @@
 		<Page Remove="Data\Reader\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CompareNETObjects" Version="4.74.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-		<PackageReference Include="Moq" Version="4.16.1" />
-		<PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
-		<PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
-		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
+		<PackageReference Include="CompareNETObjects" Version="4.77.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+		<PackageReference Include="Moq" Version="4.18.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
 		<PackageReference Include="System.IO.Ports" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup>

@@ -30,8 +30,8 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual("Id,Name,SyncId", string.Join(",", update.Updates.Keys));
 			Assert.AreEqual("{\"Id\":1,\"Name\":\"Testing\",\"SyncId\":\"52be31a3-ea29-45a3-90c6-2f80392bcfbc\"}", update.ToJson());
 
-			update.Options.ExcludedProperties.Add(nameof(Account.SyncId));
-			var actual = (Account) update.GetInstance();
+			update.ExcludedProperties.Add(nameof(Account.SyncId));
+			var actual = (Account)update.GetInstance();
 			Assert.AreEqual(1, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Empty, actual.SyncId);
@@ -50,7 +50,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual(3, update.Updates.Count);
 			Assert.AreEqual("Id,Name,SyncId", string.Join(",", update.Updates.Keys));
 
-			var actual = (Account) update.GetInstance();
+			var actual = (Account)update.GetInstance();
 			Assert.AreEqual(1, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Parse("52BE31A3-EA29-45A3-90C6-2F80392BCFBC"), actual.SyncId);
@@ -68,7 +68,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual(3, update.Updates.Count);
 			Assert.AreEqual("Id,Name,SyncId", string.Join(",", update.Updates.Keys));
 
-			var actual = (Account) update.GetInstance();
+			var actual = (Account)update.GetInstance();
 			Assert.AreEqual(1, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Parse("52BE31A3-EA29-45A3-90C6-2F80392BCFBC"), actual.SyncId);
@@ -83,8 +83,8 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Parse("52BE31A3-EA29-45A3-90C6-2F80392BCFBC"), actual.SyncId);
 
-			update.Options.IncludedProperties.Add(nameof(Account.Name));
-			actual = (Account) update.GetInstance();
+			update.IncludedProperties.Add(nameof(Account.Name));
+			actual = (Account)update.GetInstance();
 			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Empty, actual.SyncId);
@@ -120,13 +120,13 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
 			update.Validate();
-			
+
 			update = JsonConvert.DeserializeObject<AccountUpdate>("{ \"Name\": null }", settings);
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null.");
-			
+
 			update = JsonConvert.DeserializeObject<AccountUpdate>("{ \"Name\": \"\" }", settings);
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
@@ -134,7 +134,7 @@ namespace Speedy.UnitTests.Data.Updates
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
 				"Name must be between 1 and 5 characters in length."
 			);
-			
+
 			update = JsonConvert.DeserializeObject<AccountUpdate>("{ \"Name\": \"123456\" }", settings);
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
