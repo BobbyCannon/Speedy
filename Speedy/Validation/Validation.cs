@@ -23,14 +23,14 @@ namespace Speedy.Validation
 		/// <summary>
 		/// Instantiates an instance of a validator.
 		/// </summary>
-		/// <param name="validator"> The parent validator. </param>
+		/// <param name="name"> The name of the validator. </param>
 		/// <param name="message"> The message for failed validation. </param>
 		/// <param name="validate"> The function to validate an object. </param>
-		internal Validation(MemberValidator validator, string message, Func<T, bool> validate)
+		internal Validation(string name, string message, Func<T, bool> validate)
 		{
 			_validate = validate;
 
-			Validator = validator;
+			Name = name;
 			Message = message;
 		}
 
@@ -42,12 +42,7 @@ namespace Speedy.Validation
 		public string Message { get; }
 
 		/// <inheritdoc />
-		public string Name => Validator.Name;
-
-		/// <summary>
-		/// The parent validator.
-		/// </summary>
-		private MemberValidator Validator { get; }
+		public string Name { get; }
 
 		#endregion
 
@@ -56,7 +51,12 @@ namespace Speedy.Validation
 		/// <inheritdoc />
 		public bool TryValidate(object value)
 		{
-			return _validate?.Invoke((T) value) ?? false;
+			if (value is not T tValue)
+			{
+				return false;
+			}
+
+			return _validate?.Invoke(tValue) ?? false;
 		}
 
 		/// <summary>

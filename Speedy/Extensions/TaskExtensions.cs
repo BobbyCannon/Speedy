@@ -21,7 +21,7 @@ namespace Speedy.Extensions
 		/// <param name="task"> The task to run. </param>
 		public static void AwaitResults(this Task task)
 		{
-			task.GetAwaiter().GetResult();
+			task.ConfigureAwait(false).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
@@ -32,7 +32,7 @@ namespace Speedy.Extensions
 		/// <returns> The result of the task. </returns>
 		public static T AwaitResults<T>(this Task<T> task)
 		{
-			return task.GetAwaiter().GetResult();
+			return task.ConfigureAwait(false).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
@@ -44,7 +44,7 @@ namespace Speedy.Extensions
 		/// <returns> The result of the task. </returns>
 		public static T AwaitResults<T>(this Task<T> task, TimeSpan timeout)
 		{
-			return task.TimeoutAfter(timeout).GetAwaiter().GetResult();
+			return task.TimeoutAfter(timeout).AwaitResults();
 		}
 
 		/// <summary>

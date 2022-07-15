@@ -306,7 +306,7 @@ namespace Speedy.Extensions
 			{
 				return type
 					.GetCachedProperties(typeFlags)
-					.Where(p => p.GetMethod.IsVirtual && !p.GetMethod.IsAbstract && !p.GetMethod.IsFinal && p.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
+					.Where(p => p.IsVirtual())
 					.OrderBy(p => p.Name)
 					.ToArray();
 			});
@@ -428,6 +428,25 @@ namespace Speedy.Extensions
 		public static IEnumerable<string> GetVirtualPropertyNames(this Type type)
 		{
 			return GetCachedVirtualProperties(type).Select(x => x.Name).ToArray();
+		}
+
+		/// <summary>
+		/// Determine if the property is a virtual method.
+		/// </summary>
+		/// <param name="info"> The info to process. </param>
+		/// <returns> True if the accessor is virtual. </returns>
+		public static bool IsVirtual(this PropertyInfo info)
+		{
+			return (info.CanRead
+					&& info.GetMethod.IsVirtual
+					&& !info.GetMethod.IsAbstract
+					&& !info.GetMethod.IsFinal
+					&& info.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
+				|| (info.CanWrite
+					&& info.SetMethod.IsVirtual
+					&& !info.SetMethod.IsAbstract
+					&& !info.SetMethod.IsFinal
+					&& info.SetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask));
 		}
 
 		/// <summary>

@@ -31,13 +31,13 @@ namespace Speedy.Storage
 						return true;
 					}
 
-					var accessors = x.GetAccessors();
-					if (accessors.Length < 2)
+					if (x.IsVirtual())
 					{
 						return false;
 					}
 
-					if (accessors.Any(a => (a.IsVirtual || !a.IsPublic) && !a.IsFinal))
+					var accessors = x.GetAccessors();
+					if (accessors.Length < 2)
 					{
 						return false;
 					}

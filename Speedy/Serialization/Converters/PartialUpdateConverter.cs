@@ -33,7 +33,8 @@ namespace Speedy.Serialization.Converters
 		{
 			if (value is PartialUpdate update)
 			{
-				update.WriteJson(writer, serializer);
+				var expando = update.GetExpandoObject();
+				serializer.Serialize(writer, expando);
 			}
 		}
 

@@ -56,18 +56,31 @@ namespace Speedy.UnitTests.Validation
 			update.Validate();
 			update.Set(x => x.LogLevel, (LogLevel) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
-			
+
 			update = new PartialUpdate<Sample>();
 			update.Validate(x => x.OptionalLogLevel).HasValidValue();
 			update.Validate();
 			update.Set(x => x.OptionalLogLevel, (LogLevel?) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
-			
+
 			update = new PartialUpdate<Sample>();
 			update.Validate(x => x.OptionalLogLevel).HasValidValue();
 			update.Validate();
 			update.Set(nameof(Sample.OptionalLogLevel), (LogLevel) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
+		}
+
+		[TestMethod]
+		public void IsFalse()
+		{
+			var validator = new Validator<Sample>();
+			var sample = new Sample { Age = 20 };
+			var expectedMessage = "Age must be less than 21.";
+			validator.IsTrue(x => x.Age < 21, expectedMessage);
+			validator.Validate(sample);
+
+			sample.Age = 21;
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), expectedMessage);
 		}
 
 		[TestMethod]
@@ -119,6 +132,19 @@ namespace Speedy.UnitTests.Validation
 			actual = update.TryValidate(out failures);
 			Assert.AreEqual(true, actual);
 			Assert.AreEqual(0, failures.Count);
+		}
+
+		[TestMethod]
+		public void IsTrue()
+		{
+			var validator = new Validator<Sample>();
+			var sample = new Sample { Age = 21 };
+			var expectedMessage = "Age must be 21 or older.";
+			validator.IsTrue(x => x.Age >= 21, expectedMessage);
+			validator.Validate(sample);
+
+			sample.Age = 20;
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), expectedMessage);
 		}
 
 		[TestMethod]
@@ -203,9 +229,9 @@ namespace Speedy.UnitTests.Validation
 
 			public LogLevel LogLevel { get; set; }
 
-			public LogLevel? OptionalLogLevel { get; set; }
-
 			public string Name { get; set; }
+
+			public LogLevel? OptionalLogLevel { get; set; }
 
 			public OscTimeTag TimeTag1 { get; set; }
 

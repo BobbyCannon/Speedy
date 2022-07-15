@@ -20,23 +20,13 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void Cleanup()
 		{
-			var actual = new PagedRequest
-			{
-				Page = 0,
-				PerPage = 1001
-			};
-
+			var actual = new PagedRequest { Page = 0, PerPage = 1001 };
 			Assert.AreEqual(0, actual.Page);
 			Assert.AreEqual(1001, actual.PerPage);
 
 			actual.Cleanup();
 
-			var expected = new PagedRequest
-			{
-				Page = 1,
-				PerPage = 1000
-			};
-
+			var expected = new PagedRequest { Page = 1, PerPage = 1000 };
 			TestHelper.AreEqual(expected, actual, nameof(PagedRequest.Updates));
 		}
 
@@ -50,10 +40,22 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void DefaultEmptyJson()
+		{
+			var request = new PagedRequest();
+			var actual = request.ToJson();
+			actual.Escape().Dump();
+			var expected = "{\"Page\":1,\"PerPage\":10}";
+			TestHelper.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
 		public void FromQueryString()
 		{
 			var request = new PagedRequest();
 			request.ParseQueryString("?filter=test&page=23");
+			Assert.AreEqual("test", request.Get("filter"));
+			Assert.AreEqual(23, request.Get("page"));
 		}
 
 		[TestMethod]
@@ -61,7 +63,7 @@ namespace Speedy.UnitTests
 		{
 			var request = new PagedRequest();
 			var actual = request.ToRawJson();
-			var expected = "{}";
+			var expected = "{\"Page\":1,\"PerPage\":10}";
 			actual.Escape().Dump();
 			Assert.AreEqual(expected, actual);
 

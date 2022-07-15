@@ -268,7 +268,7 @@ namespace Speedy
 			var syncEntityInterface = typeof(ISyncEntity);
 			var properties = RealType.GetCachedProperties().ToList();
 			var entityRelationships = properties
-				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => x.IsVirtual())
 				.Where(x => syncEntityInterface.IsAssignableFrom(x.PropertyType))
 				.ToList();
 

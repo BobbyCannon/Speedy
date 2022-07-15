@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Extensions for member validators.
 	/// </summary>
-	public static class MemberValidatorExtensions
+	public static class PropertyValidatorExtensions
 	{
 		#region Methods
 
@@ -12,7 +12,7 @@
 		/// </summary>
 		/// <param name="validator"> The validator to be extended. </param>
 		/// <returns> True if the value is and within the provided range. </returns>
-		public static MemberValidator<string> IsNotNullOrWhitespace(this MemberValidator<string> validator)
+		public static PropertyValidator<string> IsNotNullOrWhitespace(this PropertyValidator<string> validator)
 		{
 			return IsNotNullOrWhitespace(validator, $"{validator.Info.Name} is null or whitespace.");
 		}
@@ -23,9 +23,9 @@
 		/// <param name="validator"> The validator to be extended. </param>
 		/// <param name="message"> The message for failed validation. </param>
 		/// <returns> True if the value is and within the provided range. </returns>
-		public static MemberValidator<string> IsNotNullOrWhitespace(this MemberValidator<string> validator, string message)
+		public static PropertyValidator<string> IsNotNullOrWhitespace(this PropertyValidator<string> validator, string message)
 		{
-			var validation = new Validation<string>(validator, message, x => !string.IsNullOrWhiteSpace(x));
+			var validation = new Validation<string>(validator.Name, message, x => !string.IsNullOrWhiteSpace(x));
 			validator.Validations.Add(validation);
 			return validator;
 		}

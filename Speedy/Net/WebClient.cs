@@ -107,6 +107,11 @@ namespace Speedy.Net
 		/// </summary>
 		public TimeSpan Timeout { get; set; }
 
+		/// <summary>
+		/// Use raw json with out tracking references.
+		/// </summary>
+		public bool UseRawJson { get; set; }
+
 		#endregion
 
 		#region Methods
@@ -335,9 +340,14 @@ namespace Speedy.Net
 		/// <returns> The JSON formatted content. </returns>
 		protected virtual string GetJson(object content)
 		{
-			var s = content as string;
-			var json = s?.IsJson() == true ? s : content.ToJson();
-			return json;
+			if (content is string sValue && sValue.IsJson())
+			{
+				return sValue;
+			}
+
+			return UseRawJson
+				? content.ToRawJson()
+				: content.ToJson();
 		}
 
 		/// <summary>

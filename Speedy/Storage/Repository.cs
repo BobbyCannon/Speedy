@@ -664,8 +664,9 @@ namespace Speedy.Storage
 			}
 
 			var enumerableType = typeof(IEnumerable);
-			var collectionRelationships = _type.GetCachedProperties()
-				.Where(x => x.GetAccessors()[0].IsVirtual)
+			var collectionRelationships = _type
+				.GetCachedProperties()
+				.Where(x => x.IsVirtual())
 				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
 				.Where(x => x.PropertyType.IsGenericType)
 				.ToList();

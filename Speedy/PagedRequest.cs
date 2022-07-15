@@ -190,14 +190,12 @@ namespace Speedy
 			}
 		}
 
-		/// <summary>
-		/// Refresh the results partial updates.
-		/// </summary>
-		public override void Refresh()
+		/// <inheritdoc />
+		protected internal override void RefreshUpdates()
 		{
 			AddOrUpdate(nameof(Page), Page);
 			AddOrUpdate(nameof(PerPage), PerPage);
-			base.Refresh();
+			base.RefreshUpdates();
 		}
 
 		/// <summary>

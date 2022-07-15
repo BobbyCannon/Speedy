@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Serialization;
 using Speedy.Storage;
 
 #endregion
@@ -143,33 +142,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Refresh the results partial updates.
-		/// </summary>
-		public override void Refresh()
-		{
-			// Setting values here
-			AddOrUpdate(nameof(Page), Page);
-			AddOrUpdate(nameof(PerPage), PerPage);
-			AddOrUpdate(nameof(TotalCount), TotalCount);
-
-			// Calculated properties here
-			AddOrUpdate(nameof(TotalPages), TotalPages);
-			AddOrUpdate(nameof(HasMore), HasMore);
-
-			base.Refresh();
-		}
-
-		/// <inheritdoc />
-		public override string ToJson(SerializerSettings settings = null)
-		{
-			var expando = GetExpandoObject();
-
-			return settings != null
-				? expando.ToJson(settings)
-				: expando.ToRawJson();
-		}
-
-		/// <summary>
 		/// Update the PagedResults with an PagedRequest.
 		/// </summary>
 		/// <param name="update"> The paged request to be applied. </param>
@@ -229,12 +201,12 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		protected override ExpandoObject GetExpandoObject()
+		protected internal override ExpandoObject GetExpandoObject()
 		{
 			var expando = new ExpandoObject();
 
-			Request.Refresh();
-			Refresh();
+			Request.RefreshUpdates();
+			RefreshUpdates();
 
 			foreach (var update in Request.Updates)
 			{
@@ -258,6 +230,21 @@ namespace Speedy
 
 			expando.AddOrUpdate(nameof(Results), Results);
 			return expando;
+		}
+
+		/// <inheritdoc />
+		protected internal override void RefreshUpdates()
+		{
+			// Setting values here
+			AddOrUpdate(nameof(Page), Page);
+			AddOrUpdate(nameof(PerPage), PerPage);
+			AddOrUpdate(nameof(TotalCount), TotalCount);
+
+			// Calculated properties here
+			AddOrUpdate(nameof(TotalPages), TotalPages);
+			AddOrUpdate(nameof(HasMore), HasMore);
+
+			base.RefreshUpdates();
 		}
 
 		#endregion

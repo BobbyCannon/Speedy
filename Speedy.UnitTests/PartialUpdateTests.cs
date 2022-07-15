@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -87,6 +88,25 @@ namespace Speedy.UnitTests
 				update.Apply(actual);
 				scenario.after(actual, update);
 			}
+		}
+
+		[TestMethod]
+		public void ApplyShouldNotChangeExactObject()
+		{
+			var count = 0;
+			var test = new NonBindable { Name = "Fred" };
+			test.PropertyChanged += (_, _) => count++;
+			Assert.AreEqual(0, count);
+
+			var update = new PartialUpdate<NonBindable>();
+			update.Set(test);
+
+			Assert.AreEqual(1, update.Updates.Count);
+			Assert.AreEqual(0, count);
+
+			update.Apply(test);
+			Assert.AreEqual("Fred", test.Name);
+			Assert.AreEqual(0, count);
 		}
 
 		[TestMethod]
@@ -438,6 +458,31 @@ namespace Speedy.UnitTests
 			var rangeMessage = "Name must be between 1 to 5 characters.";
 			var requiredMessage = "Name is required";
 
+			var update = PartialUpdate.FromJson(json);
+			update.Validate<MyClass, string>(x => x.Name)
+				.HasMinMaxRange(1, 5, rangeMessage)
+				.IsNotNullOrWhitespace()
+				.IsRequired(requiredMessage);
+
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
+
+			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
+			update = PartialUpdate.FromJson(json);
+			update.Validate<MyClass, string>(x => x.Name)
+				.HasMinMaxRange(1, 5, rangeMessage)
+				.IsNotNullOrWhitespace()
+				.IsRequired(requiredMessage);
+
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
+		}
+
+		[TestMethod]
+		public void ValidateWithGeneric()
+		{
+			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
+			var rangeMessage = "Name must be between 1 to 5 characters.";
+			var requiredMessage = "Name is required";
+
 			var update = PartialUpdate.FromJson<MyClass>(json);
 			update.Validate(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
@@ -486,6 +531,44 @@ namespace Speedy.UnitTests
 			public LogLevel Level { get; set; }
 
 			public string Name { get; set; }
+
+			#endregion
+		}
+
+		public class NonBindable : INotifyPropertyChanged
+		{
+			#region Fields
+
+			private string _name;
+
+			#endregion
+
+			#region Properties
+
+			public string Name
+			{
+				get => _name;
+				set
+				{
+					_name = value;
+					OnPropertyChanged(nameof(Name));
+				}
+			}
+
+			#endregion
+
+			#region Methods
+
+			protected virtual void OnPropertyChanged(string propertyName = null)
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			}
+
+			#endregion
+
+			#region Events
+
+			public event PropertyChangedEventHandler PropertyChanged;
 
 			#endregion
 		}

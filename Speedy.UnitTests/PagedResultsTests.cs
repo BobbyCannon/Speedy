@@ -76,8 +76,19 @@ namespace Speedy.UnitTests
 			request.ParseQueryString("?precision=321.41");
 			var results = new CustomPagedResults<object>(request, 1234, 2, 546, "aoeu", false);
 			var actual = results.ToJson();
-			var expected = "{\"Precision\":321.41,\"HasMore\":true,\"Page\":1,\"PerPage\":11,\"TotalCount\":1234,\"TotalPages\":113,\"Results\":[2,546,\"aoeu\",false]}";
+			var expected = "{\"Page\":1,\"PerPage\":11,\"Precision\":321.41,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":113,\"Results\":[2,546,\"aoeu\",false]}";
 			Assert.AreEqual(expected, actual);
+		}
+
+		[TestMethod]
+		public void DefaultEmptyJson()
+		{
+			var request = new PagedRequest();
+			var response = new PagedResults<object>(request, 0);
+			var actual = response.ToJson();
+			actual.Escape().Dump();
+			var expected = "{\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":0,\"TotalPages\":1,\"Results\":[]}";
+			TestHelper.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -118,7 +129,7 @@ namespace Speedy.UnitTests
 			var expected = "{\"Page\":2,\"PerPage\":11,\"HasMore\":false,\"TotalCount\":12,\"TotalPages\":2,\"Results\":[1,\"foo\",true]}";
 			actual.Escape().Dump();
 			Assert.AreEqual(expected, actual);
-			
+
 			actual = results.ToRawJson(true, true);
 			expected = "{\r\n  \"page\": 2,\r\n  \"perPage\": 11,\r\n  \"hasMore\": false,\r\n  \"totalCount\": 12,\r\n  \"totalPages\": 2,\r\n  \"results\": [\r\n    1,\r\n    \"foo\",\r\n    true\r\n  ]\r\n}";
 			actual.Escape().Dump();

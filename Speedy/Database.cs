@@ -666,7 +666,7 @@ namespace Speedy
 		{
 			var enumerableType = typeof(IEnumerable);
 			var collectionRelationships = properties
-				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => x.IsVirtual())
 				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
 				.Where(x => x.PropertyType.IsGenericType)
 				.ToList();
@@ -695,7 +695,7 @@ namespace Speedy
 		private void UpdateDependentIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
 		{
 			var entityRelationships = properties
-				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => x.IsVirtual())
 				.ToList();
 
 			foreach (var entityRelationship in entityRelationships)

@@ -42,6 +42,11 @@ namespace Speedy.Net
 		/// </summary>
 		TimeSpan Timeout { get; set; }
 
+		/// <summary>
+		/// Use raw json with out tracking references.
+		/// </summary>
+		bool UseRawJson { get; set; }
+
 		#endregion
 
 		#region Methods
