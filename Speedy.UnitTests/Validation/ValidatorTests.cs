@@ -19,33 +19,53 @@ namespace Speedy.UnitTests.Validation
 		[TestMethod]
 		public void HasMinMaxRange()
 		{
-			var sample = new Sample { Date1 = DateTime.MinValue };
-			var validator = new Validator<Sample>();
-			validator.Property(x => x.Date1).HasMinMaxRange(DateTime.MinValue, DateTime.MaxValue, true);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is not within the provided range values.");
-			sample.Date1 = DateTime.MaxValue;
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is not within the provided range values.");
+			(Func<Validator, PropertyValidator> setup, object min, object max)[] scenarios =
+			{
+				(x => x.Property<Sample, DateTime>(p => p.Date1), min: DateTime.MinValue, max: DateTime.MaxValue),
+				(x => x.Property<Sample, OscTimeTag>(p => p.TimeTag1), min: OscTimeTag.MinValue, max: OscTimeTag.MaxValue),
+				(x => x.Property<Sample, TimeSpan>(p => p.Elapsed),TimeSpan.MinValue, TimeSpan.MaxValue),
+				(x => x.Property<Sample, double>(p => p.Total), -123.456, 123.456),
+				(x => x.Property<Sample, float>(p => p.Precision), -654.321f, 654.321f),
+				(x => x.Property<Sample, decimal>(p => p.Price), -789.35m, 789.35m),
+			};
 
-			sample = new Sample { Date2 = DateTimeOffset.MinValue };
-			validator = new Validator<Sample>();
-			validator.Property(x => x.Date2).HasMinMaxRange(DateTimeOffset.MinValue, DateTimeOffset.MaxValue, true);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is not within the provided range values.");
-			sample.Date2 = DateTimeOffset.MaxValue;
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is not within the provided range values.");
+			foreach (var scenario in scenarios)
+			{
+				var sample = new Sample();
+				var validator = new Validator<Sample>();
+				var p = scenario.setup(validator);
+				var message = $"{p.Info.Name} is not within the provided range values.";
 
-			sample = new Sample { TimeTag1 = OscTimeTag.MinValue };
-			validator = new Validator<Sample>();
-			validator.Property(x => x.TimeTag1).HasMinMaxRange(OscTimeTag.MinValue, OscTimeTag.MaxValue, true);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is not within the provided range values.");
-			sample.TimeTag1 = OscTimeTag.MaxValue;
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is not within the provided range values.");
+				// We will exclude the ranges so the min and max should NOT be valid
+				p.HasMinMaxRange(scenario.min, scenario.max, true);
 
-			sample = new Sample { Elapsed = TimeSpan.MinValue };
-			validator = new Validator<Sample>();
-			validator.Property(x => x.Elapsed).HasMinMaxRange(TimeSpan.MinValue, TimeSpan.MaxValue, true);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is not within the provided range values.");
-			sample.Elapsed = TimeSpan.MaxValue;
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is not within the provided range values.");
+				TestHelper.ExpectedException<ValidationException>(() =>
+				{
+					p.SetValue(sample, scenario.min);
+					Assert.AreEqual(scenario.min, p.GetValue(sample));
+					validator.Validate(sample);
+				}, message);
+
+				TestHelper.ExpectedException<ValidationException>(() =>
+				{
+					p.SetValue(sample, scenario.max);
+					Assert.AreEqual(scenario.max, p.GetValue(sample));
+					validator.Validate(sample);
+				}, message);
+
+				// We will no longer exclude the ranges so the min and max should be valid
+				validator = new Validator<Sample>();
+				p = scenario.setup(validator);
+				p.HasMinMaxRange(scenario.min, scenario.max, false);
+
+				p.SetValue(sample, scenario.min);
+				Assert.AreEqual(scenario.min, p.GetValue(sample));
+				validator.Validate(sample);
+
+				p.SetValue(sample, scenario.max);
+				Assert.AreEqual(scenario.max, p.GetValue(sample));
+				validator.Validate(sample);
+			}
 		}
 
 		[TestMethod]
@@ -233,7 +253,13 @@ namespace Speedy.UnitTests.Validation
 
 			public LogLevel? OptionalLogLevel { get; set; }
 
+			public float Precision { get; set; }
+
+			public decimal Price { get; set; }
+
 			public OscTimeTag TimeTag1 { get; set; }
+
+			public double Total { get; set; }
 
 			#endregion
 		}

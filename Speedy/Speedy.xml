@@ -2078,6 +2078,27 @@
             </summary>
             <param name="info"> The information of the directory to delete. </param>
         </member>
+        <member name="T:Speedy.Extensions.DoubleExtensions">
+            <summary>
+            Extensions for double
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.Decrement(System.Double,System.Double)">
+            <summary>
+            Decrement an double by a value or double.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be decremented. </param>
+            <param name="decrease"> An optional value to decrement. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.Increment(System.Double,System.Double)">
+            <summary>
+            Increment an double by a value or double.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be incremented. </param>
+            <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
         <member name="T:Speedy.Extensions.EnumExtensions">
             <summary>
             Extensions for enumerations
@@ -2230,6 +2251,27 @@
             <param name="info"> The information for the file. </param>
             <returns> The stream for the file. </returns>
         </member>
+        <member name="T:Speedy.Extensions.FloatExtensions">
+            <summary>
+            Extensions for float
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.FloatExtensions.Decrement(System.Single,System.Single)">
+            <summary>
+            Decrement an float by a value or float.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be decremented. </param>
+            <param name="decrease"> An optional value to decrement. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.FloatExtensions.Increment(System.Single,System.Single)">
+            <summary>
+            Increment an float by a value or float.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be incremented. </param>
+            <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
         <member name="T:Speedy.Extensions.GuidExtensions">
             <summary>
             Extensions for Guids.
@@ -2315,12 +2357,6 @@
             Extensions for the string type.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.GetDefaultValue(System.Type)">
-            <summary>
-            </summary>
-            <param name="propertyType"> </param>
-            <returns> </returns>
-        </member>
         <member name="M:Speedy.Extensions.ObjectExtensions.IfThenElse(System.Func{System.Boolean},System.Action,System.Action)">
             <summary>
             Executes a provided action if the test is successful.
@@ -2328,29 +2364,6 @@
             <param name="test"> The test to determine action to take. </param>
             <param name="action1"> The action to perform if the test is true. </param>
             <param name="action2"> The action to perform if the test is false. </param>
-        </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Reflection.PropertyInfo,System.Object})">
-            <summary>
-            Update the provided object with non default values.
-            </summary>
-            <typeparam name="T"> The type of the value. </typeparam>
-            <param name="value"> The value to update all properties for. </param>
-            <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
-            <returns> </returns>
-        </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.ValidateAllValuesAreNotDefault``1(``0,System.String[])">
-            <summary>
-            Validates that all values are not default value.
-            </summary>
-            <typeparam name="T"> The type of the model. </typeparam>
-            <param name="model"> The model to be validated. </param>
-            <param name="exclusions"> An optional set of exclusions. </param>
-        </member>
-        <member name="M:Speedy.Extensions.ObjectExtensions.NextInt32(System.Random)">
-            <summary>
-            Returns an Int32 with a random value across the entire range of
-            possible values.
-            </summary>
         </member>
         <member name="T:Speedy.Extensions.QueryableExtensions">
             <summary>
@@ -2429,7 +2442,15 @@
             <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
             <returns> The method information with generics. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateNewGenericInstance(System.Type,System.Type[],System.Object[])">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstance(System.Type,System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstance(System.Type,System.Type[],System.Object[])">
             <summary>
             Quickly create a new type of a generic.
             </summary>
@@ -2568,6 +2589,18 @@
             <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
             <returns> The list of properties for the type. </returns>
         </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValue(System.Type)">
+            <summary>
+            Retrieves the default value for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get the default value </param>
+            <returns> The default value for <paramref name="type" /> </returns>
+            <remarks>
+            If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
+            is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
+            exception.
+            </remarks>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetExpressionName(System.Linq.Expressions.LambdaExpression)">
             <summary>
             Get the name of the expression.
@@ -2643,17 +2676,28 @@
             <param name="type"> The type to get the assembly name for. </param>
             <returns> The assembly name for the provided type. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefault(System.Type)">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Reflection.PropertyInfo,System.Object})">
             <summary>
-            Retrieves the default value for a given Type
+            Update the provided object with non default values.
             </summary>
-            <param name="type"> The Type for which to get the default value </param>
-            <returns> The default value for <paramref name="type" /> </returns>
-            <remarks>
-            If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
-            is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
-            exception.
-            </remarks>
+            <typeparam name="T"> The type of the value. </typeparam>
+            <param name="value"> The value to update all properties for. </param>
+            <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.ValidateAllValuesAreNotDefault``1(``0,System.String[])">
+            <summary>
+            Validates that all values are not default value.
+            </summary>
+            <typeparam name="T"> The type of the model. </typeparam>
+            <param name="model"> The model to be validated. </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.NextInt32(System.Random)">
+            <summary>
+            Returns an Int32 with a random value across the entire range of
+            possible values.
+            </summary>
         </member>
         <member name="T:Speedy.Extensions.StringExtensions">
             <summary>
@@ -11102,6 +11146,81 @@
             Tracks the number of successful syncs.
             </summary>
         </member>
+        <member name="T:Speedy.ThreadSafe`1">
+            <summary>
+            Making any call to an objects members thread safe.
+            </summary>
+        </member>
+        <member name="M:Speedy.ThreadSafe`1.#ctor(`0)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.ThreadSafe">
+            <summary>
+            Making any call to an objects members thread safe.
+            </summary>
+        </member>
+        <member name="M:Speedy.ThreadSafe.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.ThreadSafe" /> class.
+            </summary>
+            <param name="instance"> The wrapped object whose operations will be made thread-safe. </param>
+        </member>
+        <member name="M:Speedy.ThreadSafe.Decrement(System.Single@,System.Single)">
+            <summary>
+            Decrement an float by a value or float.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be decremented. </param>
+            <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.ThreadSafe.Decrement(System.Double@,System.Double)">
+            <summary>
+            Decrement an double by a value or double.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be decremented. </param>
+            <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.ThreadSafe.Increment(System.Double@,System.Double)">
+            <summary>
+            Increment an double by a value or double.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be incremented. </param>
+            <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.ThreadSafe.Increment(System.Single@,System.Single)">
+            <summary>
+            Increment an float by a value or float.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be incremented. </param>
+            <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.ThreadSafe.TryGetIndex(System.Dynamic.GetIndexBinder,System.Object[],System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ThreadSafe.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ThreadSafe.TryInvokeMember(System.Dynamic.InvokeMemberBinder,System.Object[],System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ThreadSafe.TrySetIndex(System.Dynamic.SetIndexBinder,System.Object[],System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ThreadSafe.TrySetMember(System.Dynamic.SetMemberBinder,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ThreadSafe.GetIndexedProperty">
+            <summary>
+            Attempts to find the indexer property.
+            </summary>
+            <returns>
+            The <see cref="T:System.Reflection.PropertyInfo" /> for the indexer property, if found;
+            otherwise, <see langword="null" />.
+            </returns>
+        </member>
         <member name="T:Speedy.TimeService">
             <summary>
             Represents the service to provide time. Allows control for when the system is being tested.
@@ -11205,6 +11324,19 @@
             <param name="maximum"> The maximum value. </param>
             <param name="message"> The message for failed validation. </param>
             <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator`1.HasMinMaxRange(System.Object,System.Object,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator`1.HasMinMaxRange(System.Object,System.Object,System.String,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator`1.HasValidValue">
             <summary>
@@ -11340,6 +11472,11 @@
             Creates an instance of a property validator.
             </summary>
         </member>
+        <member name="P:Speedy.Validation.PropertyValidator.Info">
+            <summary>
+            The info for the property.
+            </summary>
+        </member>
         <member name="P:Speedy.Validation.PropertyValidator.Name">
             <summary>
             The name of the validator
@@ -11348,11 +11485,6 @@
         <member name="P:Speedy.Validation.PropertyValidator.Validations">
             <summary>
             The validations for the validator.
-            </summary>
-        </member>
-        <member name="P:Speedy.Validation.PropertyValidator.Info">
-            <summary>
-            The info for the property.
             </summary>
         </member>
         <member name="P:Speedy.Validation.PropertyValidator.MemberRequired">
@@ -11364,6 +11496,40 @@
             <summary>
             Get the required validation.
             </summary>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator.GetValue(System.Object)">
+            <summary>
+            Tries to set the property using the provided value.
+            </summary>
+            <param name="obj"> </param>
+            <returns> The value of the property or default value. </returns>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator.HasMinMaxRange(System.Object,System.Object,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator.HasMinMaxRange(System.Object,System.Object,System.String,System.Boolean)">
+            <summary>
+            Validate an object within a range.
+            </summary>
+            <param name="minimum"> The inclusive minimum value. </param>
+            <param name="maximum"> The inclusive maximum value. </param>
+            <param name="message"> The message for failed validation. </param>
+            <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator.SetValue(System.Object,System.Object)">
+            <summary>
+            Tries to set the property using the provided value.
+            </summary>
+            <param name="obj"> </param>
+            <param name="value"> </param>
+            <returns> </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.TryValidate(System.Object)">
             <summary>

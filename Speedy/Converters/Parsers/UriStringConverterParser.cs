@@ -22,12 +22,12 @@ namespace Speedy.Converters.Parsers
 		{
 			if (!SupportsType(targetType))
 			{
-				result = targetType.GetDefault();
+				result = targetType.GetDefaultValue();
 				return false;
 			}
 
 			var response = Uri.TryCreate(value, UriKind.Absolute, out var pResult);
-			result = response ? pResult : targetType.GetDefault();
+			result = response ? pResult : targetType.GetDefaultValue();
 			return response;
 		}
 

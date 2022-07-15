@@ -42,7 +42,7 @@ namespace Speedy.Converters.Parsers
 			try
 			{
 				var method = GetTryParseMethod(targetType);
-				result = targetType.GetDefault();
+				result = targetType.GetDefaultValue();
 
 				if (method == null)
 				{
@@ -62,7 +62,7 @@ namespace Speedy.Converters.Parsers
 			}
 			catch (Exception)
 			{
-				result = targetType.GetDefault();
+				result = targetType.GetDefaultValue();
 				return false;
 			}
 		}

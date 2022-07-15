@@ -3,9 +3,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography;
 
 #endregion
 
@@ -77,16 +79,78 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Create an instance for a given Type.
+		/// </summary>
+		/// <param name="type"> The Type for which to get an instance of. </param>
+		/// <param name="arguments"> The value of the arguments. </param>
+		/// <returns> The new instances of the type. </returns>
+		public static object CreateInstance(this Type type, params object[] arguments)
+		{
+			// If no type was supplied, return null.
+			if (type == null)
+			{
+				return null;
+			}
+
+			var isGeneric = type.IsGenericType && type.GenericTypeArguments.Any();
+			if (isGeneric)
+			{
+				return Activator.CreateInstance(type, arguments);
+			}
+			
+			// If the supplied Type has generic parameters, its default value cannot be determined
+			if (type.ContainsGenericParameters)
+			{
+				throw new ArgumentException(
+					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+					"> contains generic parameters, so the default value cannot be retrieved");
+			}
+
+			// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
+			//  default instance of the value type
+			if (type.IsPrimitive || !type.IsNotPublic)
+			{
+				try
+				{
+					if (type == typeof(string))
+					{
+						return string.Empty;
+					}
+
+					return arguments.Any()
+						? Activator.CreateInstance(type, arguments)
+						: Activator.CreateInstance(type);
+				}
+				catch (Exception e)
+				{
+					throw new ArgumentException(
+						"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
+						"create a default instance of the supplied value type <" + type +
+						"> (Inner Exception message: \"" + e.Message + "\")", e);
+				}
+			}
+
+			// Fail with exception
+			throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+				"> is not a publicly-visible type, so the default value cannot be retrieved");
+		}
+
+		/// <summary>
 		/// Quickly create a new type of a generic.
 		/// </summary>
 		/// <param name="type"> The base type that requires generics. </param>
 		/// <param name="genericTypes"> The types for the generic. </param>
 		/// <param name="arguments"> The value of the arguments. </param>
 		/// <returns> The new instances of the type. </returns>
-		public static object CreateNewGenericInstance(this Type type, Type[] genericTypes, params object[] arguments)
+		public static object CreateInstance(this Type type, Type[] genericTypes, params object[] arguments)
 		{
-			var genericType = type.MakeGenericType(genericTypes);
-			return Activator.CreateInstance(genericType, arguments);
+			if (!type.GenericTypeArguments.Any())
+			{
+				var genericType = type.MakeGenericType(genericTypes);
+				return CreateInstance(genericType, arguments);
+			}
+
+			return Activator.CreateInstance(type, arguments);
 		}
 
 		/// <summary>
@@ -313,6 +377,62 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Retrieves the default value for a given Type.
+		/// </summary>
+		/// <param name="type"> The Type for which to get the default value </param>
+		/// <returns> The default value for <paramref name="type" /> </returns>
+		/// <remarks>
+		/// If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
+		/// is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
+		/// exception.
+		/// </remarks>
+		public static object GetDefaultValue(this Type type)
+		{
+			// If no type was supplied, if the type is nullable, or if the type was a Void / String, return null
+			if ((type == null) || type.IsNullable() || (type == typeof(void)) || (type == typeof(string)))
+			{
+				return null;
+			}
+
+			var isCollection = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(ICollection<>));
+			if (isCollection)
+			{
+				var collectionType = typeof(Collection<>);
+				var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
+				return Activator.CreateInstance(constructedListType);
+			}
+
+			// If the supplied Type has generic parameters, its default value cannot be determined
+			if (type.ContainsGenericParameters)
+			{
+				throw new ArgumentException(
+					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+					"> contains generic parameters, so the default value cannot be retrieved");
+			}
+
+			// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
+			//  default instance of the value type
+			if (type.IsPrimitive || !type.IsNotPublic)
+			{
+				try
+				{
+					return Activator.CreateInstance(type);
+				}
+				catch (Exception e)
+				{
+					throw new ArgumentException(
+						"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
+						"create a default instance of the supplied value type <" + type +
+						"> (Inner Exception message: \"" + e.Message + "\")", e);
+				}
+			}
+
+			// Fail with exception
+			throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+				"> is not a publicly-visible type, so the default value cannot be retrieved");
+		}
+
+		/// <summary>
 		/// Get the name of the expression.
 		/// </summary>
 		/// <param name="expression"> The expression to process. </param>
@@ -499,51 +619,136 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
-		/// Retrieves the default value for a given Type
+		/// Update the provided object with non default values.
 		/// </summary>
-		/// <param name="type"> The Type for which to get the default value </param>
-		/// <returns> The default value for <paramref name="type" /> </returns>
-		/// <remarks>
-		/// If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
-		/// is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
-		/// exception.
-		/// </remarks>
-		internal static object GetDefault(this Type type)
+		/// <typeparam name="T"> The type of the value. </typeparam>
+		/// <param name="value"> The value to update all properties for. </param>
+		/// <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
+		/// <returns> </returns>
+		public static T UpdateWithNonDefaultValues<T>(this T value, Func<PropertyInfo, object> nonSupportedType = null)
 		{
-			// If no Type was supplied, if the Type was a reference type, or if the Type was a System.Void, return null
-			if ((type == null) || !type.IsValueType || (type == typeof(void)))
-			{
-				return null;
-			}
+			var random = RandomNumberGenerator.Create();
+			var buffer = new byte[16];
+			var properties = value
+				.GetCachedProperties()
+				.Where(x => x.CanWrite)
+				.ToList();
 
-			// If the supplied Type has generic parameters, its default value cannot be determined
-			if (type.ContainsGenericParameters)
+			foreach (var property in properties)
 			{
-				throw new ArgumentException(
-					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-					"> contains generic parameters, so the default value cannot be retrieved");
-			}
+				var type = property.PropertyType;
 
-			// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
-			//  default instance of the value type
-			if (type.IsPrimitive || !type.IsNotPublic)
-			{
-				try
+				if (type.IsEnum)
 				{
-					return Activator.CreateInstance(type);
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToInt32(buffer, 0));
 				}
-				catch (Exception e)
+				else if (type == typeof(bool))
 				{
-					throw new ArgumentException(
-						"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
-						"create a default instance of the supplied value type <" + type +
-						"> (Inner Exception message: \"" + e.Message + "\")", e);
+					property.SetValue(value, true);
+				}
+				else if (type == typeof(DateTime))
+				{
+					property.SetValue(value, DateTime.UtcNow);
+				}
+				else if (type == typeof(byte))
+				{
+					random.GetBytes(buffer, 0, 1);
+					property.SetValue(value, buffer[0]);
+				}
+				else if (type == typeof(short))
+				{
+					random.GetBytes(buffer, 0, 2);
+					property.SetValue(value, BitConverter.ToInt16(buffer, 0));
+				}
+				else if (type == typeof(ushort))
+				{
+					random.GetBytes(buffer, 0, 2);
+					property.SetValue(value, BitConverter.ToUInt16(buffer, 0));
+				}
+				else if (type == typeof(decimal))
+				{
+					var r = new Random();
+					var dValue = NextDecimal(r);
+					property.SetValue(value, dValue);
+				}
+				else if (type == typeof(double))
+				{
+					random.GetBytes(buffer, 0, 8);
+					property.SetValue(value, BitConverter.ToDouble(buffer, 0));
+				}
+				else if (type == typeof(float))
+				{
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToSingle(buffer, 0));
+				}
+				else if ((type == typeof(Guid)) || (type == typeof(Guid?)))
+				{
+					property.SetValue(value, Guid.NewGuid());
+				}
+				else if ((type == typeof(int)) || (type == typeof(int?)))
+				{
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToInt32(buffer, 0));
+				}
+				else if ((type == typeof(uint)) || (type == typeof(uint?)))
+				{
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToUInt32(buffer, 0));
+				}
+				else if ((type == typeof(long)) || (type == typeof(long?)))
+				{
+					random.GetBytes(buffer, 0, 8);
+					property.SetValue(value, BitConverter.ToInt64(buffer, 0));
+				}
+				else if (type == typeof(string))
+				{
+					property.SetValue(value, Guid.NewGuid().ToString());
+				}
+				else if (type == typeof(TimeSpan))
+				{
+					property.SetValue(value, TimeSpan.FromSeconds(1));
+				}
+				else
+				{
+					if (nonSupportedType != null)
+					{
+						property.SetValue(value, nonSupportedType.Invoke(property));
+					}
 				}
 			}
 
-			// Fail with exception
-			throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-				"> is not a publicly-visible type, so the default value cannot be retrieved");
+			return value;
+		}
+
+		/// <summary>
+		/// Validates that all values are not default value.
+		/// </summary>
+		/// <typeparam name="T"> The type of the model. </typeparam>
+		/// <param name="model"> The model to be validated. </param>
+		/// <param name="exclusions"> An optional set of exclusions. </param>
+		public static void ValidateAllValuesAreNotDefault<T>(this T model, params string[] exclusions)
+		{
+			var properties = model
+				.GetCachedProperties()
+				.Where(x => x.CanWrite)
+				.ToList();
+
+			foreach (var property in properties)
+			{
+				if ((exclusions.Length > 0) && exclusions.Contains(property.Name))
+				{
+					continue;
+				}
+
+				var value = property.GetValue(model);
+				var defaultValue = property.PropertyType.GetDefaultValue();
+
+				if (Equals(value, defaultValue))
+				{
+					throw new Exception($"Property {property.Name} should have been set but was not.");
+				}
+			}
 		}
 
 		private static MemberInfo GetCachedMember(object obj, string memberName)
@@ -556,6 +761,29 @@ namespace Speedy.Extensions
 		private static string GetCacheKey(Type type, BindingFlags flags)
 		{
 			return type.FullName + flags;
+		}
+
+		private static decimal NextDecimal(this Random rng)
+		{
+			var scale = (byte) rng.Next(29);
+			var sign = rng.Next(2) == 1;
+			return new decimal(
+				rng.NextInt32(),
+				rng.NextInt32(),
+				rng.NextInt32(),
+				sign,
+				scale);
+		}
+
+		/// <summary>
+		/// Returns an Int32 with a random value across the entire range of
+		/// possible values.
+		/// </summary>
+		private static int NextInt32(this Random rng)
+		{
+			var firstBits = rng.Next(0, 1 << 4) << 28;
+			var lastBits = rng.Next(0, 1 << 28);
+			return firstBits | lastBits;
 		}
 
 		#endregion

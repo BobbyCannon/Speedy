@@ -72,7 +72,7 @@ namespace Speedy.Converters
 		/// <returns> </returns>
 		public static StringConverter Create(Type targetType, string value)
 		{
-			return (StringConverter) typeof(StringConverter<>).CreateNewGenericInstance(new[] { targetType }, value);
+			return (StringConverter) typeof(StringConverter<>).CreateInstance(new[] { targetType }, value);
 		}
 
 		/// <summary>
@@ -83,7 +83,7 @@ namespace Speedy.Converters
 		{
 			return TryParse(TargetType, TargetString, out var result)
 				? result
-				: TargetType.GetDefault();
+				: TargetType.GetDefaultValue();
 		}
 
 		/// <summary>
@@ -96,7 +96,7 @@ namespace Speedy.Converters
 			TargetString = value;
 			return TryParse(TargetType, value, out var result)
 				? result
-				: TargetType.GetDefault();
+				: TargetType.GetDefaultValue();
 		}
 
 		/// <summary>
@@ -109,7 +109,7 @@ namespace Speedy.Converters
 		{
 			return TryParse(targetType, value, out var result)
 				? result
-				: targetType.GetDefault();
+				: targetType.GetDefaultValue();
 		}
 
 		/// <summary>
@@ -167,7 +167,7 @@ namespace Speedy.Converters
 				return parser.TryParse(targetType, value, out result);
 			}
 
-			result = targetType.GetDefault();
+			result = targetType.GetDefaultValue();
 			return false;
 		}
 

@@ -22,7 +22,7 @@ namespace Speedy.Converters.Parsers
 		{
 			if (!SupportsType(targetType))
 			{
-				result = targetType.GetDefault();
+				result = targetType.GetDefaultValue();
 				return false;
 			}
 

@@ -808,7 +808,7 @@ namespace Speedy
 				if ((otherEntity == null) && (entityRelationshipIdProperty != null))
 				{
 					var otherEntityId = entityRelationshipIdProperty.GetValue(entity, null);
-					var defaultValue = entityRelationshipIdProperty.PropertyType.GetDefault();
+					var defaultValue = entityRelationshipIdProperty.PropertyType.GetDefaultValue();
 
 					if (!Equals(otherEntityId, defaultValue) && Repositories.ContainsKey(entityRelationship.PropertyType.ToAssemblyName()))
 					{

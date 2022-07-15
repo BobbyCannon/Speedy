@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Speedy.Extensions;
 using Speedy.Protocols.Osc;
 
 #endregion
@@ -35,7 +36,7 @@ namespace Speedy.Validation
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
 		public PropertyValidator<T> HasMinMaxRange(T minimum, T maximum, bool excludeRangeValues = false)
 		{
-			return AddMinMaxRange(minimum, maximum, $"{Info.Name} is not within the provided range values.", excludeRangeValues);
+			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum, $"{Info.Name} is not within the provided range values.", excludeRangeValues);
 		}
 
 		/// <summary>
@@ -47,7 +48,7 @@ namespace Speedy.Validation
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
 		public PropertyValidator<T> HasMinMaxRange(T minimum, T maximum, string message, bool excludeRangeValues = false)
 		{
-			return AddMinMaxRange(minimum, maximum, message, excludeRangeValues);
+			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum, message, excludeRangeValues);
 		}
 
 		/// <summary>
@@ -58,7 +59,7 @@ namespace Speedy.Validation
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
 		public PropertyValidator<T> HasMinMaxRange(int minimum, int maximum, bool excludeRangeValues = false)
 		{
-			return AddMinMaxRange(minimum, maximum, $"{Info.Name} is not within the provided range values.", excludeRangeValues);
+			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum, $"{Info.Name} is not within the provided range values.", excludeRangeValues);
 		}
 
 		/// <summary>
@@ -69,6 +70,25 @@ namespace Speedy.Validation
 		/// <param name="message"> The message for failed validation. </param>
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
 		public PropertyValidator<T> HasMinMaxRange(int minimum, int maximum, string message, bool excludeRangeValues = false)
+		{
+			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum, message, excludeRangeValues);
+		}
+
+		/// <inheritdoc />
+		public override PropertyValidator HasMinMaxRange(object minimum, object maximum, bool excludeRangeValues)
+		{
+			return HasMinMaxRange((T) minimum, (T) maximum, excludeRangeValues);
+		}
+
+		/// <summary>
+		/// Validate an object within a range.
+		/// </summary>
+		/// <param name="minimum"> The inclusive minimum value. </param>
+		/// <param name="maximum"> The inclusive maximum value. </param>
+		/// <param name="message"> The message for failed validation. </param>
+		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+		/// <returns> True if the value is and within the provided range. </returns>
+		public override PropertyValidator HasMinMaxRange(object minimum, object maximum, string message, bool excludeRangeValues)
 		{
 			return AddMinMaxRange(minimum, maximum, message, excludeRangeValues);
 		}
@@ -267,7 +287,7 @@ namespace Speedy.Validation
 		/// <param name="message"> The message for failed validation. </param>
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
 		/// <returns> True if the value is and within the provided range. </returns>
-		private PropertyValidator<T> AddMinMaxRange(object minimum, object maximum, string message, bool excludeRangeValues)
+		private PropertyValidator AddMinMaxRange(object minimum, object maximum, string message, bool excludeRangeValues)
 		{
 			if (typeof(T) == typeof(short))
 			{
@@ -303,7 +323,10 @@ namespace Speedy.Validation
 			}
 			if (typeof(T) == typeof(decimal))
 			{
-				return AddMinMaxRange<decimal>(minimum, maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange<decimal>(minimum, maximum, (min, max) => excludeRangeValues
+						? x => (x > min) && (x < max)
+						: x => (x >= min) && (x <= max)
+					, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(byte))
 			{
@@ -321,8 +344,8 @@ namespace Speedy.Validation
 			{
 				return AddMinMaxRange<string, int>(minimum, maximum, (min, max) => excludeRangeValues
 						? x => (x != null) && (x.Length > min) && (x.Length < max)
-						: x => (x != null) && (x.Length >= min) && (x.Length <= max),
-					message) as PropertyValidator<T>;
+						: x => (x != null) && (x.Length >= min) && (x.Length <= max)
+					, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(DateTime))
 			{
@@ -577,6 +600,11 @@ namespace Speedy.Validation
 		#region Properties
 
 		/// <summary>
+		/// The info for the property.
+		/// </summary>
+		public PropertyInfo Info { get; }
+
+		/// <summary>
 		/// The name of the validator
 		/// </summary>
 		public string Name => Info.Name;
@@ -585,11 +613,6 @@ namespace Speedy.Validation
 		/// The validations for the validator.
 		/// </summary>
 		public IList<IValidation> Validations { get; }
-
-		/// <summary>
-		/// The info for the property.
-		/// </summary>
-		protected internal PropertyInfo Info { get; }
 
 		/// <summary>
 		/// Get the required status.
@@ -604,6 +627,56 @@ namespace Speedy.Validation
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Tries to set the property using the provided value.
+		/// </summary>
+		/// <param name="obj"> </param>
+		/// <returns> The value of the property or default value. </returns>
+		public object GetValue(object obj)
+		{
+			if (Info.CanRead)
+			{
+				return Info.GetValue(obj);
+			}
+
+			return Info.PropertyType.GetDefaultValue();
+		}
+
+		/// <summary>
+		/// Validate an object within a range.
+		/// </summary>
+		/// <param name="minimum"> The inclusive minimum value. </param>
+		/// <param name="maximum"> The inclusive maximum value. </param>
+		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+		/// <returns> True if the value is and within the provided range. </returns>
+		public abstract PropertyValidator HasMinMaxRange(object minimum, object maximum, bool excludeRangeValues);
+
+		/// <summary>
+		/// Validate an object within a range.
+		/// </summary>
+		/// <param name="minimum"> The inclusive minimum value. </param>
+		/// <param name="maximum"> The inclusive maximum value. </param>
+		/// <param name="message"> The message for failed validation. </param>
+		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
+		/// <returns> True if the value is and within the provided range. </returns>
+		public abstract PropertyValidator HasMinMaxRange(object minimum, object maximum, string message, bool excludeRangeValues);
+
+		/// <summary>
+		/// Tries to set the property using the provided value.
+		/// </summary>
+		/// <param name="obj"> </param>
+		/// <param name="value"> </param>
+		/// <returns> </returns>
+		public PropertyValidator SetValue(object obj, object value)
+		{
+			if (Info.CanWrite)
+			{
+				Info.SetValue(obj, value);
+			}
+
+			return this;
+		}
 
 		/// <summary>
 		/// Tries to validate the property.

@@ -17,27 +17,6 @@ namespace Speedy.UnitTests.Extensions
 		#region Methods
 
 		[TestMethod]
-		public void GetDefault()
-		{
-			var scenarios = new Dictionary<Type, object>
-			{
-				{ typeof(byte), (byte) 0 },
-				{ typeof(short), (short) 0 },
-				{ typeof(ushort), (ushort) 0 },
-				{ typeof(int), 0 },
-				{ typeof(uint), (uint) 0 },
-				{ typeof(long), (long) 0 },
-				{ typeof(ulong), (ulong) 0 },
-				{ typeof(string), null }
-			};
-
-			foreach (var scenario in scenarios)
-			{
-				Assert.AreEqual(scenario.Value, scenario.Key.GetDefaultValue());
-			}
-		}
-
-		[TestMethod]
 		public void ToModel()
 		{
 			var defaultEntity = new Address();
