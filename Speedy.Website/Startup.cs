@@ -306,18 +306,11 @@ namespace Speedy.Website
 			var settings = SerializerSettings.JsonSettings;
 
 			destination.ContractResolver = settings.ContractResolver;
+			destination.Converters.AddRange(settings.Converters);
 			destination.DateTimeZoneHandling = settings.DateTimeZoneHandling;
 			destination.DateFormatHandling = settings.DateFormatHandling;
 			destination.ReferenceLoopHandling = settings.ReferenceLoopHandling;
 			destination.NullValueHandling = settings.NullValueHandling;
-
-			foreach (var converter in settings.Converters)
-			{
-				if (!destination.Converters.Contains(converter))
-				{
-					destination.Converters.Add(converter);
-				}
-			}
 		}
 
 		#endregion

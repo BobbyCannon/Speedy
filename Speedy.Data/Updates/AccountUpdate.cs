@@ -29,6 +29,12 @@ namespace Speedy.Data.Updates
 			set => Set(nameof(Id), value);
 		}
 
+		public string Name
+		{
+			get => Get<string>(nameof(Name));
+			set => Set(nameof(Name), value);
+		}
+
 		public Guid SyncId
 		{
 			get => Get<Guid>(nameof(SyncId));

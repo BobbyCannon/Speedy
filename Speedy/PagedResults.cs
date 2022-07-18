@@ -76,7 +76,13 @@ namespace Speedy
 		#region Properties
 
 		/// <inheritdoc />
+		public string Filter { get; set; }
+
+		/// <inheritdoc />
 		public bool HasMore => (Request.Page > 0) && (Request.Page < TotalPages);
+
+		/// <inheritdoc />
+		public string Order { get; set; }
 
 		/// <inheritdoc />
 		public int Page
@@ -168,15 +174,13 @@ namespace Speedy
 
 			if (exclusions.Length <= 0)
 			{
-				ExcludedProperties.Reconcile(update.ExcludedProperties);
-				IncludedProperties.Reconcile(update.IncludedProperties);
+				Options.UpdateWith(update.Options);
 				Results.Reconcile(update.Results);
 				Request.UpdateWith(update.Request);
 			}
 			else
 			{
-				this.IfThen(_ => !exclusions.Contains(nameof(ExcludedProperties)), x => x.ExcludedProperties.Reconcile(update.ExcludedProperties));
-				this.IfThen(_ => !exclusions.Contains(nameof(IncludedProperties)), x => x.IncludedProperties.Reconcile(update.IncludedProperties));
+				this.IfThen(_ => !exclusions.Contains(nameof(Options)), x => x.Options.UpdateWith(update.Options));
 				this.IfThen(_ => !exclusions.Contains(nameof(Results)), x => x.Results.Reconcile(update.Results));
 				this.IfThen(_ => !exclusions.Contains(nameof(Request)), x => x.Request.UpdateWith(update.Request));
 			}
@@ -253,7 +257,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a page of results for a paged request to a service.
 	/// </summary>
-	public interface IPagedResults
+	public interface IPagedResults : IPagedRequest
 	{
 		#region Properties
 
@@ -261,16 +265,6 @@ namespace Speedy
 		/// The value to determine if the request has more pages.
 		/// </summary>
 		bool HasMore { get; }
-
-		/// <summary>
-		/// The page to start the request on.
-		/// </summary>
-		int Page { get; set; }
-
-		/// <summary>
-		/// The number of items per page.
-		/// </summary>
-		int PerPage { get; set; }
 
 		/// <summary>
 		/// The total count of items for the request.

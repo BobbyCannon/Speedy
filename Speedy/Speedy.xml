@@ -88,13 +88,6 @@
             Instantiates an instance of the collection.
             </summary>
         </member>
-        <member name="M:Speedy.Collections.BaseObservableCollection`1.#ctor(Speedy.IDispatcher,`0[])">
-            <summary>
-            Instantiates an instance of the collection.
-            </summary>
-            <param name="dispatcher"> The dispatcher to update with. </param>
-            <param name="items"> An optional set of initial items. </param>
-        </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.#ctor(`0[])">
             <summary>
             Instantiates an instance of the collection.
@@ -112,6 +105,13 @@
             <summary>
             Instantiates an instance of the collection.
             </summary>
+            <param name="items"> An optional set of initial items. </param>
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.#ctor(Speedy.IDispatcher,`0[])">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+            <param name="dispatcher"> The dispatcher to update with. </param>
             <param name="items"> An optional set of initial items. </param>
         </member>
         <member name="P:Speedy.Collections.BaseObservableCollection`1.DistinctCheck">

@@ -88,6 +88,11 @@
             Discard all changes made in this context to the underlying database.
             </summary>
         </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetMappingAssembly">
+            <summary>
+            Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+            </summary>
+        </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetReadOnlyRepository``2">
             <inheritdoc />
         </member>
@@ -135,11 +140,6 @@
             Called when an entity is modified.
             </summary>
             <param name="entity"> The entity modified. </param>
-        </member>
-        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetMappingAssembly">
-            <summary>
-            Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
-            </summary>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <summary>

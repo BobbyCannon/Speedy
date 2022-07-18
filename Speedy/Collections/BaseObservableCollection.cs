@@ -23,7 +23,32 @@ namespace Speedy.Collections
 		/// <summary>
 		/// Instantiates an instance of the collection.
 		/// </summary>
-		public BaseObservableCollection()
+		public BaseObservableCollection() : this(null, Array.Empty<T>())
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="items"> An optional set of initial items. </param>
+		public BaseObservableCollection(params T[] items) : this(null, items)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <param name="items"> An optional set of initial items. </param>
+		public BaseObservableCollection(IDispatcher dispatcher, IEnumerable<T> items) : this(dispatcher, items?.ToArray())
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="items"> An optional set of initial items. </param>
+		public BaseObservableCollection(IEnumerable<T> items) : this(null, items?.ToArray())
 		{
 		}
 
@@ -35,32 +60,6 @@ namespace Speedy.Collections
 		public BaseObservableCollection(IDispatcher dispatcher, params T[] items) : base(items)
 		{
 			Dispatcher = dispatcher;
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		/// <param name="items"> An optional set of initial items. </param>
-		public BaseObservableCollection(params T[] items) : base(items)
-		{
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
-		/// <param name="items"> An optional set of initial items. </param>
-		public BaseObservableCollection(IDispatcher dispatcher, IEnumerable<T> items) : base(items)
-		{
-			Dispatcher = dispatcher;
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		/// <param name="items"> An optional set of initial items. </param>
-		public BaseObservableCollection(IEnumerable<T> items) : base(items)
-		{
 		}
 
 		#endregion

@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Speedy.Configuration;
 using Speedy.Exceptions;
 using Speedy.Extensions;
+using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 #endregion
 
@@ -164,6 +166,28 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
+		/// Validate mappings for the provided database.
+		/// </summary>
+		/// <param name="database"> The database to validate mappings for. </param>
+		/// <returns> The list of entities with their missing properties. </returns>
+		public static IDictionary<string, ICollection<string>> ValidateMappings(this Database database)
+		{
+			var assembly = database.GetMappingAssembly();
+			return ValidateMappings(assembly);
+		}
+
+		/// <summary>
+		/// Validate mappings for the provided database.
+		/// </summary>
+		/// <param name="database"> The database to validate mappings for. </param>
+		/// <returns> The list of entities with their missing properties. </returns>
+		public static IDictionary<string, ICollection<string>> ValidateMappings(this EntityFrameworkDatabase database)
+		{
+			var assembly = database.GetMappingAssembly();
+			return ValidateMappings(assembly);
+		}
+
+		/// <summary>
 		/// Get the type of the primary key.
 		/// </summary>
 		/// <param name="type"> The type to be tested. </param>
@@ -204,6 +228,37 @@ namespace Speedy.EntityFramework
 			var convert = Expression.Convert(memberExpression, typeof(object));
 			var lambdaExpression = Expression.Lambda(convert, parameter);
 			return lambdaExpression;
+		}
+
+		private static IDictionary<string, ICollection<string>> ValidateMappings(Assembly assembly)
+		{
+			var types = assembly.GetTypes();
+			var mappingTypes = types.Where(x => !x.IsAbstract && x.GetInterfaces().Any(y => y == typeof(IEntityMappingConfiguration)));
+			var builder = new ModelBuilder(new ConventionSet());
+			var response = new Dictionary<string, ICollection<string>>();
+
+			foreach (var config in mappingTypes.Select(Activator.CreateInstance).Cast<IEntityMappingConfiguration>())
+			{
+				var entityBuilder = (EntityTypeBuilder) config.Map(builder);
+				var mapProperties = entityBuilder.Metadata.GetProperties();
+				var ignoreProperties = entityBuilder.Metadata.GetIgnoredMembers().ToList();
+				var virtualProperties = entityBuilder.Metadata.ClrType.GetVirtualPropertyNames().ToList();
+				var entityProperties = entityBuilder.Metadata.ClrType.GetCachedProperties().ToList();
+				var missingProperties = entityProperties
+					.Where(x => ignoreProperties.All(v => v != x.Name))
+					.Where(x => virtualProperties.All(v => v != x.Name))
+					.Where(x => x.CanWrite)
+					.Where(x => mapProperties.All(m => m.Name != x.Name))
+					.OrderBy(x => x.Name)
+					.ToList();
+
+				if (missingProperties.Count > 0)
+				{
+					response.Add(entityBuilder.Metadata.Name, missingProperties.Select(x => x.Name).ToList());
+				}
+			}
+
+			return response;
 		}
 
 		#endregion

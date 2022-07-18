@@ -30,8 +30,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj" />
 		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
-		<ProjectReference Include="..\Speedy.ServiceHosting.Example\Speedy.ServiceHosting.Example.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />
+		<ProjectReference Include="..\Speedy.ServiceHosting.Example\Speedy.ServiceHosting.Example.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />

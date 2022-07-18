@@ -93,6 +93,11 @@ namespace Speedy.Website.Data
 			return response;
 		}
 
+		public override Assembly GetMappingAssembly()
+		{
+			return typeof(AddressEntity).Assembly;
+		}
+
 		public static void SetRequiredOptions(DatabaseOptions options)
 		{
 			options.SyncOrder = new[]
@@ -130,11 +135,6 @@ namespace Speedy.Website.Data
 		protected static void ConfigureGlobalOptions(DbContextOptionsBuilder options)
 		{
 			options.UseLazyLoadingProxies();
-		}
-
-		protected override Assembly GetMappingAssembly()
-		{
-			return typeof(AddressEntity).Assembly;
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

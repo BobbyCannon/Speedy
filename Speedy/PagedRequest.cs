@@ -1,6 +1,8 @@
 ﻿#region References
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -14,14 +16,14 @@ namespace Speedy
 	/// <summary>
 	/// Represents a paged request to a service.
 	/// </summary>
-	public class PagedRequest : PartialUpdate
+	public class PagedRequest : PartialUpdate, IPagedRequest
 	{
 		#region Constructors
 
 		/// <summary>
 		/// Instantiates a paged request to a service.
 		/// </summary>
-		public PagedRequest() : this(null)
+		public PagedRequest() : this((IDispatcher) null)
 		{
 		}
 
@@ -33,9 +35,43 @@ namespace Speedy
 		{
 		}
 
+		/// <summary>
+		/// Instantiates a paged request to a service.
+		/// </summary>
+		/// <param name="values"> A set of values to set. </param>
+		public PagedRequest(Dictionary<string, object> values) : this(values, null)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates a paged request to a service.
+		/// </summary>
+		/// <param name="values"> A set of values to set. </param>
+		/// <param name="dispatcher"> An optional dispatcher. </param>
+		public PagedRequest(Dictionary<string, object> values, IDispatcher dispatcher) : base(dispatcher)
+		{
+			values.ForEach(x => AddOrUpdate(x.Key, x.Value));
+		}
+
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// An optional filter value.
+		/// </summary>
+		public string Filter
+		{
+			get => Get(nameof(Filter), string.Empty);
+			set => Set(nameof(Filter), value);
+		}
+
+		/// <inheritdoc />
+		public string Order
+		{
+			get => Get(nameof(Order), string.Empty);
+			set => Set(nameof(Order), value);
+		}
 
 		/// <summary>
 		/// The page to start the request on.
@@ -79,6 +115,8 @@ namespace Speedy
 		/// </summary>
 		public virtual PagedRequest Cleanup()
 		{
+			Cleanup(Filter, x => x == null, () => Filter = string.Empty);
+			Cleanup(Order, x => x == null, () => Order = string.Empty);
 			Cleanup(Page, x => x <= 0, () => Page = PageDefault);
 			Cleanup(PerPage, x => x <= 0, () => PerPage = PerPageDefault);
 			Cleanup(PerPage, x => x > PerPageMaxDefault, () => PerPage = PerPageMaxDefault);
@@ -110,6 +148,14 @@ namespace Speedy
 					}
 				}
 
+				if (key.EndsWith("[]"))
+				{
+					var newKey = key.Substring(0, key.Length - 2);
+					var newValue = collection.Get(key).Split(",");
+					Updates.AddOrUpdate(newKey, new PartialUpdateValue(newKey, typeof(string[]), newValue));
+					continue;
+				}
+
 				Updates.AddOrUpdate(key, new PartialUpdateValue(key, typeof(string), collection.Get(key)));
 			}
 		}
@@ -129,6 +175,17 @@ namespace Speedy
 			{
 				// https://www.ietf.org/rfc/rfc2396.txt
 				var name = HttpUtility.UrlEncode(update.Key);
+
+				if (update.Value.Value is not string
+					&& update.Value.Value is IEnumerable e)
+				{
+					foreach (var item in e)
+					{
+						builder.Append($"&{name}[]={HttpUtility.UrlEncode(item.ToString())}");
+					}
+					continue;
+				}
+
 				var value = HttpUtility.UrlEncode(update.Value.Value.ToString());
 				builder.Append($"&{name}={value}");
 			}
@@ -212,6 +269,36 @@ namespace Speedy
 				action();
 			}
 		}
+
+		#endregion
+	}
+
+	/// <summary>
+	/// Represents a request for paged results from a service.
+	/// </summary>
+	public interface IPagedRequest
+	{
+		#region Properties
+
+		/// <summary>
+		/// The filter to limit the request to. Defaults to an empty filter.
+		/// </summary>
+		string Filter { get; set; }
+
+		/// <summary>
+		/// The value to order the request by.
+		/// </summary>
+		public string Order { get; set; }
+
+		/// <summary>
+		/// The page to start the request on.
+		/// </summary>
+		int Page { get; set; }
+
+		/// <summary>
+		/// The number of items per page.
+		/// </summary>
+		int PerPage { get; set; }
 
 		#endregion
 	}

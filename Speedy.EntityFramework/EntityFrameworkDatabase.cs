@@ -130,6 +130,14 @@ namespace Speedy.EntityFramework
 			return count;
 		}
 
+		/// <summary>
+		/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+		/// </summary>
+		public virtual Assembly GetMappingAssembly()
+		{
+			return GetType().Assembly;
+		}
+
 		/// <inheritdoc />
 		public IRepository<T, T2> GetReadOnlyRepository<T, T2>() where T : Entity<T2>
 		{
@@ -315,14 +323,6 @@ namespace Speedy.EntityFramework
 		/// <param name="entity"> The entity modified. </param>
 		protected virtual void EntityModified(IEntity entity)
 		{
-		}
-
-		/// <summary>
-		/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
-		/// </summary>
-		protected virtual Assembly GetMappingAssembly()
-		{
-			return GetType().Assembly;
 		}
 
 		/// <summary>
@@ -558,6 +558,22 @@ namespace Speedy.EntityFramework
 				case EntityState.Modified:
 				{
 					if (!entity.CanBeModified())
+					{
+						// Tell entity framework to not update the entity.
+						entry.State = EntityState.Unchanged;
+						break;
+					}
+
+					var changedProperties = entry.Properties.Where(x => x.IsModified).ToList();
+					var hasAnyChanges = changedProperties
+						.Any(x => !(
+							((x.Metadata.Name == nameof(ICreatedEntity.CreatedOn)) && maintainCreatedOnDate)
+							|| ((x.Metadata.Name == nameof(IModifiableEntity.ModifiedOn)) && maintainModifiedOnDate)
+							|| ((x.Metadata.Name == nameof(ISyncEntity.SyncId)) && maintainSyncId)
+						));
+
+					// Check to see if there are no changes
+					if (!hasAnyChanges)
 					{
 						// Tell entity framework to not update the entity.
 						entry.State = EntityState.Unchanged;

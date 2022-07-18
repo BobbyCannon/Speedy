@@ -64,7 +64,7 @@ namespace Speedy
 		/// <param name="entity"> Entity to be updated. </param>
 		public void Apply(T entity)
 		{
-			Apply(entity, IncludedProperties, ExcludedProperties);
+			Apply(entity, Options);
 		}
 
 		/// <summary>
@@ -204,6 +204,11 @@ namespace Speedy
 			return _validator;
 		}
 
+		internal override string ToAssemblyName()
+		{
+			return typeof(T).ToAssemblyName();
+		}
+
 		#endregion
 	}
 
@@ -226,7 +231,7 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates a partial update.
 		/// </summary>
-		public PartialUpdate() : this(null)
+		public PartialUpdate() : this(null, null)
 		{
 		}
 
@@ -234,12 +239,28 @@ namespace Speedy
 		/// Instantiates a partial update.
 		/// </summary>
 		/// <param name="dispatcher"> An optional dispatcher. </param>
-		public PartialUpdate(IDispatcher dispatcher) : base(dispatcher)
+		public PartialUpdate(IDispatcher dispatcher) : this(null, dispatcher)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates a partial update.
+		/// </summary>
+		/// <param name="options"> The options for the partial update. </param>
+		public PartialUpdate(PartialUpdateOptions options) : this(options, null)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates a partial update.
+		/// </summary>
+		/// <param name="options"> The options for the partial update. </param>
+		/// <param name="dispatcher"> An optional dispatcher. </param>
+		public PartialUpdate(PartialUpdateOptions options, IDispatcher dispatcher) : base(dispatcher)
 		{
 			_validator = new Validator<PartialUpdate>();
 
-			ExcludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			IncludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			Options = options ?? new PartialUpdateOptions();
 			Updates = new SortedDictionary<string, PartialUpdateValue>(StringComparer.OrdinalIgnoreCase);
 		}
 
@@ -248,16 +269,10 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
-		/// Properties to be excluded.
+		/// The options for the partial update.
 		/// </summary>
 		[JsonIgnore]
-		public HashSet<string> ExcludedProperties { get; }
-
-		/// <summary>
-		/// Properties to be included.
-		/// </summary>
-		[JsonIgnore]
-		public HashSet<string> IncludedProperties { get; }
+		public PartialUpdateOptions Options { get; }
 
 		/// <summary>
 		/// A list of updates for this partial update.
@@ -305,7 +320,81 @@ namespace Speedy
 		/// <param name="entity"> Entity to be updated. </param>
 		public void Apply(object entity)
 		{
-			Apply(entity, IncludedProperties, ExcludedProperties);
+			Apply(entity, Options);
+		}
+
+		/// <summary>
+		/// Applies the updates to the entity.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		/// <param name="options"> Options for the partial update. </param>
+		public void Apply(object entity, PartialUpdateOptions options)
+		{
+			if (entity == null)
+			{
+				throw new ArgumentNullException(nameof(entity));
+			}
+
+			if (Updates == null)
+			{
+				return;
+			}
+
+			var propertyInfos = entity.GetType().GetCachedPropertyDictionary();
+
+			foreach (var update in Updates)
+			{
+				if (options.IncludedProperties.Any() && !options.IncludedProperties.Contains(update.Key))
+				{
+					// Ignore this property because we only want to include it
+					continue;
+				}
+
+				if (options.ExcludedProperties.Contains(update.Key))
+				{
+					// Ignore this property because we only want to exclude it
+					continue;
+				}
+
+				if (!propertyInfos.ContainsKey(update.Key))
+				{
+					continue;
+				}
+
+				var propertyInfo = propertyInfos[update.Key];
+				if (!propertyInfo.CanWrite)
+				{
+					continue;
+				}
+
+				if ((update.Value == null) && propertyInfo.PropertyType.IsNullable())
+				{
+					propertyInfo.SetValue(entity, null);
+					continue;
+				}
+
+				try
+				{
+					var value = Convert.ChangeType(update.Value?.Value, propertyInfo.PropertyType);
+					propertyInfo.SetValue(entity, value);
+					continue;
+				}
+				catch (Exception)
+				{
+					// Ignore changing of type
+				}
+
+				if ((update.Value?.Type != propertyInfo.PropertyType)
+					|| (update.Value?.Value?.GetType() != propertyInfo.PropertyType))
+				{
+					continue;
+				}
+
+				if (update.Value != null)
+				{
+					propertyInfo.SetValue(entity, update.Value.Value);
+				}
+			}
 		}
 
 		/// <summary>
@@ -326,15 +415,16 @@ namespace Speedy
 		/// </summary>
 		/// <typeparam name="T"> The type the partial update is for. </typeparam>
 		/// <param name="json"> The JSON containing the partial update. </param>
+		/// <param name="options"> The options for the partial update. </param>
 		/// <returns> The partial update. </returns>
-		public static PartialUpdate<T> FromJson<T>(string json)
+		public static PartialUpdate<T> FromJson<T>(string json, PartialUpdateOptions options = null)
 		{
 			if (string.IsNullOrWhiteSpace(json))
 			{
 				return new PartialUpdate<T>();
 			}
 
-			return (PartialUpdate<T>) FromJson(json, typeof(T));
+			return (PartialUpdate<T>) FromJson(json, typeof(T), options);
 		}
 
 		/// <summary>
@@ -342,8 +432,9 @@ namespace Speedy
 		/// </summary>
 		/// <param name="json"> The JSON containing the partial update. </param>
 		/// <param name="type"> The type the partial update is for. </param>
+		/// <param name="options"> The options for the partial update. </param>
 		/// <returns> The partial update. </returns>
-		public static PartialUpdate FromJson(string json, Type type)
+		public static PartialUpdate FromJson(string json, Type type, PartialUpdateOptions options = null)
 		{
 			if (string.IsNullOrWhiteSpace(json))
 			{
@@ -351,10 +442,9 @@ namespace Speedy
 				return response;
 			}
 
-			var serializer = new JsonSerializer();
 			using var reader = new JsonTextReader(new StringReader(json));
 			reader.Read();
-			return FromJson(reader, serializer, type);
+			return FromJson(reader, type, options);
 		}
 
 		/// <summary>
@@ -426,6 +516,26 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Creates an instance of the type and applies the partial update.
+		/// </summary>
+		/// <returns> </returns>
+		public T GetInstance<T>()
+		{
+			return (T) GetInstance(typeof(T));
+		}
+
+		/// <summary>
+		/// Creates an instance of the type and applies the partial update.
+		/// </summary>
+		/// <returns> </returns>
+		public object GetInstance(Type type)
+		{
+			var response = Activator.CreateInstance(type);
+			Apply(response);
+			return response;
+		}
+
+		/// <summary>
 		/// Remove a property from the update.
 		/// </summary>
 		/// <param name="name"> The name of the member to set. </param>
@@ -455,14 +565,14 @@ namespace Speedy
 		/// <returns> True if the property should be processed otherwise false. </returns>
 		public bool ShouldProcessProperty(string propertyName)
 		{
-			if (IncludedProperties.Any()
-				&& !IncludedProperties.Contains(propertyName))
+			if (Options.IncludedProperties.Any()
+				&& !Options.IncludedProperties.Contains(propertyName))
 			{
 				// Ignore this property because we only want to include it
 				return false;
 			}
 
-			if (ExcludedProperties.Contains(propertyName))
+			if (Options.ExcludedProperties.Contains(propertyName))
 			{
 				// Ignore this property because we only want to exclude it
 				return false;
@@ -716,8 +826,10 @@ namespace Speedy
 			Updates.AddOrUpdate(name, response);
 		}
 
-		internal static PartialUpdate FromJson(JsonReader reader, JsonSerializer serializer, Type objectType)
+		internal static PartialUpdate FromJson(JsonReader reader, Type objectType, PartialUpdateOptions options)
 		{
+			options ??= new PartialUpdateOptions();
+
 			bool TryGetValue(JToken token, Type type, out object value)
 			{
 				if (token is not JValue jValue)
@@ -812,6 +924,11 @@ namespace Speedy
 		internal virtual Validator GetValidator()
 		{
 			return _validator;
+		}
+
+		internal virtual string ToAssemblyName()
+		{
+			return GetType().ToAssemblyName();
 		}
 
 		private static object ConvertUpdate(PartialUpdateValue update, Type type)
