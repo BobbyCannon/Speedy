@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
+using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Speedy.Converters;
@@ -18,6 +20,8 @@ using Speedy.Serialization.Converters;
 using Speedy.Validation;
 
 #endregion
+
+// ReSharper disable IntroduceOptionalParameters.Global
 
 namespace Speedy
 {
@@ -41,7 +45,15 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates a partial update.
 		/// </summary>
-		public PartialUpdate() : this(null)
+		public PartialUpdate() : this(null, null)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates a partial update.
+		/// </summary>
+		/// <param name="options"> An optional set of options for the update. </param>
+		public PartialUpdate(PartialUpdateOptions options) : this(options, null)
 		{
 		}
 
@@ -49,7 +61,16 @@ namespace Speedy
 		/// Instantiates a partial update.
 		/// </summary>
 		/// <param name="dispatcher"> An optional dispatcher. </param>
-		public PartialUpdate(IDispatcher dispatcher) : base(dispatcher)
+		public PartialUpdate(IDispatcher dispatcher) : this(null, dispatcher)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates a partial update.
+		/// </summary>
+		/// <param name="options"> An optional set of options for the update. </param>
+		/// <param name="dispatcher"> An optional dispatcher. </param>
+		public PartialUpdate(PartialUpdateOptions options, IDispatcher dispatcher) : base(options, dispatcher)
 		{
 			_validator = new Validator<PartialUpdate<T>>(dispatcher);
 		}
@@ -120,7 +141,7 @@ namespace Speedy
 		/// <param name="value"> The value of the member. </param>
 		public override void Set(string name, object value)
 		{
-			var properties = GetCachedPropertyDictionary();
+			var properties = GetTargetProperties();
 			Set(name, value, properties);
 		}
 
@@ -130,7 +151,7 @@ namespace Speedy
 		/// <param name="value"> The value that contains a full set of updates. </param>
 		public void Set(T value)
 		{
-			var properties = GetCachedPropertyDictionary();
+			var properties = GetTargetProperties();
 
 			foreach (var property in properties.Values)
 			{
@@ -194,7 +215,7 @@ namespace Speedy
 		/// The results are cached so the next query is much faster.
 		/// </summary>
 		/// <returns> The list of properties for the provided type. </returns>
-		protected override IDictionary<string, PropertyInfo> GetCachedPropertyDictionary()
+		protected override IDictionary<string, PropertyInfo> GetTargetProperties()
 		{
 			return typeof(T).GetCachedPropertyDictionary();
 		}
@@ -238,16 +259,16 @@ namespace Speedy
 		/// <summary>
 		/// Instantiates a partial update.
 		/// </summary>
-		/// <param name="dispatcher"> An optional dispatcher. </param>
-		public PartialUpdate(IDispatcher dispatcher) : this(null, dispatcher)
+		/// <param name="options"> The options for the partial update. </param>
+		public PartialUpdate(PartialUpdateOptions options) : this(options, null)
 		{
 		}
 
 		/// <summary>
 		/// Instantiates a partial update.
 		/// </summary>
-		/// <param name="options"> The options for the partial update. </param>
-		public PartialUpdate(PartialUpdateOptions options) : this(options, null)
+		/// <param name="dispatcher"> An optional dispatcher. </param>
+		public PartialUpdate(IDispatcher dispatcher) : this(null, dispatcher)
 		{
 		}
 
@@ -401,13 +422,52 @@ namespace Speedy
 		/// Create an instance of a partial update for a specific type.
 		/// </summary>
 		/// <param name="genericType"> The type the partial update is for. </param>
+		/// <param name="options"> An optional set of options for the update. </param>
 		/// <returns> The partial update. </returns>
-		public static PartialUpdate CreateGeneric(Type genericType)
+		public static PartialUpdate CreateGeneric(Type genericType, PartialUpdateOptions options)
 		{
-			var isAlreadyPartialUpdate = typeof(PartialUpdate).IsAssignableFrom(genericType);
-			var typeToCreate = isAlreadyPartialUpdate ? genericType : typeof(PartialUpdate<>).MakeGenericType(genericType);
-			var response = (PartialUpdate) Activator.CreateInstance(typeToCreate);
+			return CreateGeneric(genericType, options, out _);
+		}
+
+		/// <summary>
+		/// Create an instance of a partial update for a specific type.
+		/// </summary>
+		/// <param name="genericType"> The type the partial update is for. </param>
+		/// <param name="options"> An optional set of options for the update. </param>
+		/// <param name="isPartialObject"> True if the generic type is already a partial update. </param>
+		/// <returns> The partial update. </returns>
+		public static PartialUpdate CreateGeneric(Type genericType, PartialUpdateOptions options, out bool isPartialObject)
+		{
+			isPartialObject = typeof(PartialUpdate).IsAssignableFrom(genericType);
+			var typeToCreate = isPartialObject ? genericType : typeof(PartialUpdate<>).MakeGenericType(genericType);
+			var constructor = typeToCreate.GetConstructor(new[] { typeof(PartialUpdateOptions) });
+			if (constructor != null)
+			{
+				return (PartialUpdate) constructor.Invoke(new[] { options });
+			}
+
+			constructor = typeToCreate.GetConstructor(Array.Empty<Type>());
+			var response = (PartialUpdate) constructor?.Invoke(Array.Empty<object>()) ?? new PartialUpdate();
 			return response;
+		}
+
+		/// <summary>
+		/// Gets a partial update from a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type the partial update is for. </typeparam>
+		/// <param name="json"> The JSON containing the partial update. </param>
+		/// <param name="options"> The options for the partial update. </param>
+		/// <returns> The partial update. </returns>
+		public static PartialUpdate FromJson(string json, PartialUpdateOptions options = null)
+		{
+			if (string.IsNullOrWhiteSpace(json))
+			{
+				return new PartialUpdate();
+			}
+
+			using var reader = new JsonTextReader(new StringReader(json));
+			reader.Read();
+			return FromJson(reader, options);
 		}
 
 		/// <summary>
@@ -438,31 +498,13 @@ namespace Speedy
 		{
 			if (string.IsNullOrWhiteSpace(json))
 			{
-				var response = CreateGeneric(type);
+				var response = CreateGeneric(type, options);
 				return response;
 			}
 
 			using var reader = new JsonTextReader(new StringReader(json));
 			reader.Read();
 			return FromJson(reader, type, options);
-		}
-
-		/// <summary>
-		/// Gets a partial update from a JSON string.
-		/// </summary>
-		/// <param name="json"> The JSON containing the partial update. </param>
-		/// <returns> The partial update. </returns>
-		public static PartialUpdate FromJson(string json)
-		{
-			if (string.IsNullOrWhiteSpace(json))
-			{
-				var response = new PartialUpdate();
-				return response;
-			}
-
-			using var reader = new JsonTextReader(new StringReader(json));
-			reader.Read();
-			return FromJson(reader);
 		}
 
 		/// <summary>
@@ -495,6 +537,23 @@ namespace Speedy
 
 			var update = Updates[name];
 			return ConvertUpdate<T>(update);
+		}
+
+		/// <summary>
+		/// Get the update for the provided name.
+		/// </summary>
+		/// <param name="name"> The name of the update. </param>
+		/// <param name="type"> The type to cast the value to. </param>
+		/// <returns> The value if it was found otherwise default(T). </returns>
+		public object Get(string name, Type type)
+		{
+			if (!Updates.ContainsKey(name))
+			{
+				throw new KeyNotFoundException($"{name} update was not found.");
+			}
+
+			var update = Updates[name];
+			return ConvertUpdate(update, type);
 		}
 
 		/// <summary>
@@ -533,6 +592,43 @@ namespace Speedy
 			var response = Activator.CreateInstance(type);
 			Apply(response);
 			return response;
+		}
+
+		/// <summary>
+		/// Parse the paged request values from the query string.
+		/// </summary>
+		/// <param name="queryString"> The query string to process. </param>
+		/// <remarks>
+		/// see https://www.ietf.org/rfc/rfc2396.txt for details on url decoding
+		/// </remarks>
+		public void ParseQueryString(string queryString)
+		{
+			var collection = HttpUtility.ParseQueryString(queryString);
+			var properties = GetType().GetCachedPropertyDictionary();
+
+			foreach (var key in collection.AllKeys)
+			{
+				if (properties.ContainsKey(key))
+				{
+					var property = properties[key];
+
+					if (StringConverter.TryParse(property.PropertyType, collection.Get(key), out var result))
+					{
+						Updates.AddOrUpdate(property.Name, new PartialUpdateValue(property.Name, property.PropertyType, result));
+						continue;
+					}
+				}
+
+				if (key.EndsWith("[]"))
+				{
+					var newKey = key.Substring(0, key.Length - 2);
+					var newValue = collection.Get(key).Split(',');
+					Updates.AddOrUpdate(newKey, new PartialUpdateValue(newKey, typeof(string[]), newValue));
+					continue;
+				}
+
+				Updates.AddOrUpdate(key, new PartialUpdateValue(key, typeof(string), collection.Get(key)));
+			}
 		}
 
 		/// <summary>
@@ -592,6 +688,44 @@ namespace Speedy
 			return settings != null
 				? expando.ToJson(settings)
 				: expando.ToRawJson();
+		}
+
+		/// <summary>
+		/// Convert the request to the query string values.
+		/// </summary>
+		/// <returns> The request in a query string format. </returns>
+		/// <remarks>
+		/// see https://www.ietf.org/rfc/rfc2396.txt for details on url encoding
+		/// </remarks>
+		public string ToQueryString()
+		{
+			var builder = new StringBuilder();
+
+			foreach (var update in Updates)
+			{
+				// https://www.ietf.org/rfc/rfc2396.txt
+				var name = HttpUtility.UrlEncode(update.Key);
+
+				if (update.Value.Value is not string
+					&& update.Value.Value is IEnumerable e)
+				{
+					foreach (var item in e)
+					{
+						builder.Append($"&{name}[]={HttpUtility.UrlEncode(item.ToString())}");
+					}
+					continue;
+				}
+
+				var value = HttpUtility.UrlEncode(update.Value.Value.ToString());
+				builder.Append($"&{name}={value}");
+			}
+
+			if ((builder.Length > 0) && (builder[0] == '&'))
+			{
+				builder.Remove(0, 1);
+			}
+
+			return builder.ToString();
 		}
 
 		/// <summary>
@@ -775,7 +909,7 @@ namespace Speedy
 		/// The results are cached so the next query is much faster.
 		/// </summary>
 		/// <returns> The list of properties for this type. </returns>
-		protected virtual IDictionary<string, PropertyInfo> GetCachedPropertyDictionary()
+		protected virtual IDictionary<string, PropertyInfo> GetTargetProperties()
 		{
 			return GetType().GetCachedPropertyDictionary();
 		}
@@ -828,6 +962,11 @@ namespace Speedy
 
 		internal static PartialUpdate FromJson(JsonReader reader, Type objectType, PartialUpdateOptions options)
 		{
+			if (objectType == typeof(PartialUpdate))
+			{
+				return FromJson(reader, options);
+			}
+
 			options ??= new PartialUpdateOptions();
 
 			bool TryGetValue(JToken token, Type type, out object value)
@@ -856,7 +995,7 @@ namespace Speedy
 				}
 			}
 
-			var response = CreateGeneric(objectType);
+			var response = CreateGeneric(objectType, options, out var isPartialObject);
 
 			if (reader.TokenType == JsonToken.StartArray)
 			{
@@ -865,7 +1004,10 @@ namespace Speedy
 
 			var jObject = JObject.Load(reader);
 			var jProperties = jObject.Properties();
-			var propertyDictionary = response.GetCachedPropertyDictionary();
+
+			var propertyDictionary = isPartialObject
+				? response.GetType().GetCachedPropertyDictionary()
+				: response.GetTargetProperties();
 
 			foreach (var jProperty in jProperties)
 			{
@@ -883,18 +1025,149 @@ namespace Speedy
 					continue;
 				}
 
-				var propertyName = property.Name;
-				if (jProperty.Type == JTokenType.Null)
+				void ProcessForPartialUpdate()
 				{
-					var nullValue = new PartialUpdateValue(propertyName, property.PropertyType, null);
-					response.Updates.Add(propertyName, nullValue);
+					if (jProperty.Type == JTokenType.Null)
+					{
+						var nullValue = new PartialUpdateValue(property.Name, property.PropertyType, null);
+						response.Updates.Add(property.Name, nullValue);
+						return;
+					}
+
+					// Property of array must be IEnumerable (ignoring some types like string)
+					if (jProperty.Value is JArray jArray && property.PropertyType.IsEnumerable())
+					{
+						var genericType = property.PropertyType.GenericTypeArguments.FirstOrDefault();
+						var genericListType = typeof(List<>).MakeGenericType(genericType);
+						var genericList = (IList) Activator.CreateInstance(genericListType);
+
+						foreach (var jArrayValue in jArray.Values())
+						{
+							if (TryGetValue(jArrayValue, genericType, out var arrayValue))
+							{
+								genericList.Add(arrayValue);
+							}
+						}
+
+						var update2 = new PartialUpdateValue(property.Name, property.PropertyType, genericList);
+						response.Updates.Add(property.Name, update2);
+						return;
+					}
+
+					if (TryGetValue(jProperty.Value, property.PropertyType, out var value2))
+					{
+						var update = new PartialUpdateValue(property.Name, property.PropertyType, value2);
+						response.Updates.Add(property.Name, update);
+					}
+				}
+
+				void ProcessForObject()
+				{
+					// Property of array must be IEnumerable (ignoring some types like string)
+					if (jProperty.Value is JArray jArray && property.PropertyType.IsEnumerable())
+					{
+						var genericType = property.PropertyType.GenericTypeArguments.FirstOrDefault();
+						var genericListType = typeof(List<>).MakeGenericType(genericType);
+						var genericList = (IList) Activator.CreateInstance(genericListType);
+
+						foreach (var jArrayValue in jArray.Values())
+						{
+							if (TryGetValue(jArrayValue, genericType, out var arrayValue))
+							{
+								genericList.Add(arrayValue);
+							}
+						}
+
+						property.SetValue(response, genericList);
+						return;
+					}
+
+					if (TryGetValue(jProperty.Value, property.PropertyType, out var value2)
+						&& property.CanWrite)
+					{
+						property.SetValue(response, value2);
+					}
+				}
+
+				if (isPartialObject)
+				{
+					ProcessForObject();
+				}
+				else
+				{
+					ProcessForPartialUpdate();
+				}
+			}
+
+			if (!isPartialObject)
+			{
+				// Ensure the updates are there
+				response.RefreshUpdates();
+			}
+
+			return response;
+		}
+
+		internal static PartialUpdate FromJson(JsonReader reader, PartialUpdateOptions options)
+		{
+			options ??= new PartialUpdateOptions();
+
+			bool TryGetValue(JToken token, Type type, out object value)
+			{
+				if (token is not JValue jValue)
+				{
+					value = null;
+					return false;
+				}
+
+				if ((jValue.Type == JTokenType.Null) && (jValue.Value == null))
+				{
+					value = null;
+					return true;
+				}
+
+				try
+				{
+					value = Convert.ChangeType(jValue, type);
+					return true;
+				}
+				catch
+				{
+					value = null;
+					return false;
+				}
+			}
+
+			var response = new PartialUpdate(options);
+
+			if (reader.TokenType == JsonToken.StartArray)
+			{
+				return response;
+			}
+
+			var jObject = JObject.Load(reader);
+			var jProperties = jObject.Properties();
+
+			foreach (var property in jProperties)
+			{
+				if (!response.ShouldProcessProperty(property.Name))
+				{
+					continue;
+				}
+
+				var type = PartialUpdateConverter.ConvertType(property.Type);
+
+				if (property.Type == JTokenType.Null)
+				{
+					var nullValue = new PartialUpdateValue(property.Name, type, null);
+					response.Updates.Add(property.Name, nullValue);
 					continue;
 				}
 
 				// Property of array must be IEnumerable (ignoring some types like string)
-				if (jProperty.Value is JArray jArray && property.PropertyType.IsEnumerable())
+				if (property.Value is JArray jArray && type.IsEnumerable())
 				{
-					var genericType = property.PropertyType.GenericTypeArguments.FirstOrDefault();
+					var genericType = type.GenericTypeArguments.FirstOrDefault();
 					var genericListType = typeof(List<>).MakeGenericType(genericType);
 					var genericList = (IList) Activator.CreateInstance(genericListType);
 
@@ -906,15 +1179,15 @@ namespace Speedy
 						}
 					}
 
-					var update2 = new PartialUpdateValue(propertyName, property.PropertyType, genericList);
-					response.Updates.Add(propertyName, update2);
+					var update2 = new PartialUpdateValue(property.Name, type, genericList);
+					response.Updates.Add(property.Name, update2);
 					continue;
 				}
 
-				if (TryGetValue(jProperty.Value, property.PropertyType, out var value2))
+				if (TryGetValue(property.Value, type, out var value2))
 				{
-					var update = new PartialUpdateValue(propertyName, property.PropertyType, value2);
-					response.Updates.Add(propertyName, update);
+					var update = new PartialUpdateValue(property.Name, type, value2);
+					response.Updates.Add(property.Name, update);
 				}
 			}
 
@@ -960,87 +1233,6 @@ namespace Speedy
 		private static T ConvertUpdate<T>(PartialUpdateValue update)
 		{
 			return (T) ConvertUpdate(update, typeof(T));
-		}
-
-		private static PartialUpdate FromJson(JsonReader reader)
-		{
-			bool TryGetValue(JToken token, Type type, out object value)
-			{
-				if (token is not JValue jValue)
-				{
-					value = null;
-					return false;
-				}
-
-				if ((jValue.Type == JTokenType.Null) && (jValue.Value == null))
-				{
-					value = null;
-					return true;
-				}
-
-				try
-				{
-					value = Convert.ChangeType(jValue, type);
-					return true;
-				}
-				catch
-				{
-					value = null;
-					return false;
-				}
-			}
-
-			var response = new PartialUpdate();
-
-			if (reader.TokenType == JsonToken.StartArray)
-			{
-				return response;
-			}
-
-			var jObject = JObject.Load(reader);
-			var jProperties = jObject.Properties();
-
-			foreach (var jProperty in jProperties)
-			{
-				if (!response.ShouldProcessProperty(jProperty.Name))
-				{
-					continue;
-				}
-
-				var propertyName = jProperty.Name;
-				if (jProperty.Type == JTokenType.Null)
-				{
-					var nullValue = new PartialUpdateValue(propertyName, typeof(string), null);
-					response.Updates.Add(propertyName, nullValue);
-					continue;
-				}
-
-				// Property of array must be IEnumerable (ignoring some types like string)
-				if (jProperty.Value is JArray jArray)
-				{
-					var genericList = new List<object>(jArray.Count);
-
-					foreach (var jArrayValue in jArray.Values())
-					{
-						if (TryGetValue(jArrayValue, typeof(object), out var arrayValue))
-						{
-							genericList.Add(arrayValue);
-						}
-					}
-
-					var update2 = new PartialUpdateValue(propertyName, typeof(object), genericList);
-					response.Updates.Add(propertyName, update2);
-					continue;
-				}
-
-				if (TryGetValue(jProperty.Value, typeof(object), out var value2))
-				{
-					var update = new PartialUpdateValue(propertyName, typeof(object), value2);
-					response.Updates.Add(propertyName, update);
-				}
-			}
-
-			return response;
 		}
 
 		#endregion

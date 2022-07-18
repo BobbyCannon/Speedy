@@ -1,12 +1,8 @@
 ﻿#region References
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Web;
-using Speedy.Converters;
 using Speedy.Extensions;
 
 #endregion
@@ -124,81 +120,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Parse the paged request values from the query string.
-		/// </summary>
-		/// <param name="queryString"> The query string to process. </param>
-		/// <remarks>
-		/// see https://www.ietf.org/rfc/rfc2396.txt for details on url decoding
-		/// </remarks>
-		public void ParseQueryString(string queryString)
-		{
-			var collection = HttpUtility.ParseQueryString(queryString);
-			var properties = GetType().GetCachedPropertyDictionary();
-
-			foreach (var key in collection.AllKeys)
-			{
-				if (properties.ContainsKey(key))
-				{
-					var property = properties[key];
-
-					if (StringConverter.TryParse(property.PropertyType, collection.Get(key), out var result))
-					{
-						Updates.AddOrUpdate(property.Name, new PartialUpdateValue(property.Name, property.PropertyType, result));
-						continue;
-					}
-				}
-
-				if (key.EndsWith("[]"))
-				{
-					var newKey = key.Substring(0, key.Length - 2);
-					var newValue = collection.Get(key).Split(",");
-					Updates.AddOrUpdate(newKey, new PartialUpdateValue(newKey, typeof(string[]), newValue));
-					continue;
-				}
-
-				Updates.AddOrUpdate(key, new PartialUpdateValue(key, typeof(string), collection.Get(key)));
-			}
-		}
-
-		/// <summary>
-		/// Convert the request to the query string values.
-		/// </summary>
-		/// <returns> The request in a query string format. </returns>
-		/// <remarks>
-		/// see https://www.ietf.org/rfc/rfc2396.txt for details on url encoding
-		/// </remarks>
-		public string ToQueryString()
-		{
-			var builder = new StringBuilder();
-
-			foreach (var update in Updates)
-			{
-				// https://www.ietf.org/rfc/rfc2396.txt
-				var name = HttpUtility.UrlEncode(update.Key);
-
-				if (update.Value.Value is not string
-					&& update.Value.Value is IEnumerable e)
-				{
-					foreach (var item in e)
-					{
-						builder.Append($"&{name}[]={HttpUtility.UrlEncode(item.ToString())}");
-					}
-					continue;
-				}
-
-				var value = HttpUtility.UrlEncode(update.Value.Value.ToString());
-				builder.Append($"&{name}={value}");
-			}
-
-			if ((builder.Length > 0) && (builder[0] == '&'))
-			{
-				builder.Remove(0, 1);
-			}
-
-			return builder.ToString();
-		}
-
-		/// <summary>
 		/// Update the PagedRequest with an update.
 		/// </summary>
 		/// <param name="update"> The update to be applied. </param>
@@ -215,14 +136,10 @@ namespace Speedy
 
 			if (exclusions.Length <= 0)
 			{
-				Page = update.Page;
-				PerPage = update.PerPage;
 				Updates.Reconcile(update.Updates);
 			}
 			else
 			{
-				this.IfThen(_ => !exclusions.Contains(nameof(Page)), x => x.Page = update.Page);
-				this.IfThen(_ => !exclusions.Contains(nameof(PerPage)), x => x.PerPage = update.PerPage);
 				this.IfThen(_ => !exclusions.Contains(nameof(Updates)), x => x.Updates.Reconcile(update.Updates));
 			}
 
@@ -250,6 +167,8 @@ namespace Speedy
 		/// <inheritdoc />
 		protected internal override void RefreshUpdates()
 		{
+			AddOrUpdate(nameof(Filter), Filter);
+			AddOrUpdate(nameof(Order), Order);
 			AddOrUpdate(nameof(Page), Page);
 			AddOrUpdate(nameof(PerPage), PerPage);
 			base.RefreshUpdates();

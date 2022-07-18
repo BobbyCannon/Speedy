@@ -1,7 +1,9 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -24,47 +26,27 @@ namespace Speedy.UnitTests.Extensions
 		public void EnsureAllPropertiesAreMappedForClientDatabase()
 		{
 			var database = new ContosoClientMemoryDatabase();
-			ValidateMappings(database);
+			var missingProperties = database.ValidateMappings();
+			Validate(missingProperties);
 		}
 
 		[TestMethod]
 		public void EnsureAllPropertiesAreMappedForEntityDatabase()
 		{
 			var database = new ContosoMemoryDatabase();
-			ValidateMappings(database);
+			var missingProperties = database.ValidateMappings();
+			Validate(missingProperties);
 		}
 
-		private static void ValidateMappings(Database database)
+		private void Validate(IDictionary<string, ICollection<string>> missingProperties)
 		{
-			var assembly = database.GetMappingAssembly();
-			var types = assembly.GetTypes();
-			var mappingTypes = types.Where(x => !x.IsAbstract && x.GetInterfaces().Any(y => y == typeof(IEntityMappingConfiguration)));
-			var builder = new ModelBuilder(new ConventionSet());
-			var throwException = false;
-
-			foreach (var config in mappingTypes.Select(Activator.CreateInstance).Cast<IEntityMappingConfiguration>())
+			missingProperties.ForEach(x =>
 			{
-				var entityBuilder = (EntityTypeBuilder) config.Map(builder);
-				var mapProperties = entityBuilder.Metadata.GetProperties();
-				var ignoreProperties = entityBuilder.Metadata.GetIgnoredMembers().ToList();
-				var virtualProperties = entityBuilder.Metadata.ClrType.GetVirtualPropertyNames().ToList();
-				var entityProperties = entityBuilder.Metadata.ClrType.GetCachedProperties().ToList();
-				var missingProperties = entityProperties
-					.Where(x => ignoreProperties.All(v => v != x.Name))
-					.Where(x => virtualProperties.All(v => v != x.Name))
-					.Where(x => x.CanWrite)
-					.Where(x => mapProperties.All(m => m.Name != x.Name))
-					.ToList();
+				x.Key.Dump();
+				x.Value.ForEach(v => $"\tb.Property(x => x.{v}).IsRequired();".Dump());
+			});
 
-				if (missingProperties.Count > 0)
-				{
-					throwException = true;
-					entityBuilder.Metadata.Name.Dump();
-					missingProperties.Select(x => "\t" + x.Name).Dump();
-				}
-			}
-
-			if (throwException)
+			if (missingProperties.Any())
 			{
 				throw new Exception("An entity mapping is missing members.");
 			}

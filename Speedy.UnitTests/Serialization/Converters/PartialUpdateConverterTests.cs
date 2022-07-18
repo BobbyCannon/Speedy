@@ -29,13 +29,13 @@ namespace Speedy.UnitTests.Serialization.Converters
 				Precision = 321.45
 			};
 
-			var expected = "{\"$id\":\"1\",\"page\":3,\"perPage\":12,\"precision\":321.45}";
+			var expected = "{\"$id\":\"1\",\"filter\":\"\",\"order\":\"\",\"page\":3,\"perPage\":12,\"precision\":321.45}";
 			var actual = update.ToJson(false, true);
 
 			Assert.AreEqual(expected, actual);
 
 			update.Page = 4;
-			expected = "{\"page\":4,\"perPage\":12,\"precision\":321.45}";
+			expected = "{\"filter\":\"\",\"order\":\"\",\"page\":4,\"perPage\":12,\"precision\":321.45}";
 			actual = update.ToRawJson(false, true);
 
 			Assert.AreEqual(expected, actual);

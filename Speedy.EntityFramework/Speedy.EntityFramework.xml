@@ -22,6 +22,20 @@
             <param name="database"> The database to be tested. </param>
             <returns> The provider type for the database. </returns>
         </member>
+        <member name="M:Speedy.EntityFramework.DatabaseExtensions.ValidateMappings(Speedy.Database)">
+            <summary>
+            Validate mappings for the provided database.
+            </summary>
+            <param name="database"> The database to validate mappings for. </param>
+            <returns> The list of entities with their missing properties. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.DatabaseExtensions.ValidateMappings(Speedy.EntityFramework.EntityFrameworkDatabase)">
+            <summary>
+            Validate mappings for the provided database.
+            </summary>
+            <param name="database"> The database to validate mappings for. </param>
+            <returns> The list of entities with their missing properties. </returns>
+        </member>
         <member name="M:Speedy.EntityFramework.DatabaseExtensions.GetPrimaryKeyType(System.Type)">
             <summary>
             Get the type of the primary key.

@@ -564,22 +564,6 @@ namespace Speedy.EntityFramework
 						break;
 					}
 
-					var changedProperties = entry.Properties.Where(x => x.IsModified).ToList();
-					var hasAnyChanges = changedProperties
-						.Any(x => !(
-							((x.Metadata.Name == nameof(ICreatedEntity.CreatedOn)) && maintainCreatedOnDate)
-							|| ((x.Metadata.Name == nameof(IModifiableEntity.ModifiedOn)) && maintainModifiedOnDate)
-							|| ((x.Metadata.Name == nameof(ISyncEntity.SyncId)) && maintainSyncId)
-						));
-
-					// Check to see if there are no changes
-					if (!hasAnyChanges)
-					{
-						// Tell entity framework to not update the entity.
-						entry.State = EntityState.Unchanged;
-						break;
-					}
-
 					_collectionChangeTracker.AddUpdatedEntity(entity);
 
 					// If Speedy is maintaining the CreatedOn date then we will not allow modifications outside Speedy

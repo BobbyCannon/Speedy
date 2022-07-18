@@ -1,5 +1,4 @@
-﻿@using Speedy.Serialization
-@model CustomPagedResults<object>
+﻿@model CustomPagedResults<object>
 
 <div>
 	<table class="collapsed align-center">
@@ -22,11 +21,11 @@
 			</tr>
 			<tr>
 				<td colspan="2" class="text-center">
-					<h6 class="margin-top-20">Request Values (@Model.Request.Updates.Count)</h6>
+					<h6 class="margin-top-20">Request Values (@Model.Updates.Count)</h6>
 				</td>
 			</tr>
 			@{
-				foreach (var item in Model.Request.Updates)
+				foreach (var item in Model.Updates)
 				{
 					<text>
 						<tr>
@@ -55,7 +54,7 @@
 	</table>
 	<div class="text-center margin-top-20">
 		<h6>Query String</h6>
-		@Model.Request.ToQueryString()
+		@Model.ToQueryString()
 	</div>
 	<div class="text-center align-center collapsed margin-top-20">
 		<h6>JSON</h6>

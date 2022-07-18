@@ -45,10 +45,7 @@ namespace Speedy
 	/// </summary>
 	/// <typeparam name="T"> The type of the items in the results collection. </typeparam>
 	/// <typeparam name="T2"> The type of the paged request. </typeparam>
-	public abstract class PagedResults<T, T2>
-		: PartialUpdate<PagedResults<T, T2>>,
-			IUpdatable<PagedResults<T, T2>>,
-			IPagedResults
+	public abstract class PagedResults<T, T2> : PartialUpdate<PagedResults<T, T2>>, IPagedResults
 		where T2 : PagedRequest
 	{
 		#region Constructors
@@ -76,13 +73,21 @@ namespace Speedy
 		#region Properties
 
 		/// <inheritdoc />
-		public string Filter { get; set; }
+		public string Filter
+		{
+			get => Request.Filter;
+			set => Request.Filter = value;
+		}
 
 		/// <inheritdoc />
 		public bool HasMore => (Request.Page > 0) && (Request.Page < TotalPages);
 
 		/// <inheritdoc />
-		public string Order { get; set; }
+		public string Order
+		{
+			get => Request.Order;
+			set => Request.Order = value;
+		}
 
 		/// <inheritdoc />
 		public int Page
@@ -101,7 +106,7 @@ namespace Speedy
 		/// <summary>
 		/// The incoming request. This will be flattened in the JSON.
 		/// </summary>
-		public T2 Request { get; }
+		protected T2 Request { get; set; }
 
 		/// <summary>
 		/// The results for a paged request.
@@ -109,7 +114,11 @@ namespace Speedy
 		public IList<T> Results { get; set; }
 
 		/// <inheritdoc />
-		public int TotalCount { get; set; }
+		public int TotalCount
+		{
+			get => Get(nameof(TotalCount), 1);
+			set => Set(nameof(TotalCount), value);
+		}
 
 		/// <inheritdoc />
 		public int TotalPages => TotalCount > 0 ? (TotalCount / Request.PerPage) + ((TotalCount % Request.PerPage) > 0 ? 1 : 0) : 1;
@@ -118,10 +127,7 @@ namespace Speedy
 
 		#region Methods
 
-		/// <summary>
-		/// Calculate the start and end pagination values.
-		/// </summary>
-		/// <returns> </returns>
+		/// <inheritdoc />
 		public (int start, int end) CalculatePaginationValues()
 		{
 			var start = Request.Page - 2;
@@ -145,63 +151,6 @@ namespace Speedy
 			}
 
 			return (start, end);
-		}
-
-		/// <summary>
-		/// Update the PagedResults with an PagedRequest.
-		/// </summary>
-		/// <param name="update"> The paged request to be applied. </param>
-		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public void UpdateWith(T2 update, params string[] exclusions)
-		{
-			Request.UpdateWith(update, exclusions);
-		}
-
-		/// <summary>
-		/// Update the PagedResults with an update.
-		/// </summary>
-		/// <param name="update"> The update to be applied. </param>
-		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public void UpdateWith(PagedResults<T, T2> update, params string[] exclusions)
-		{
-			// If the update is null then there is nothing to do.
-			if (update == null)
-			{
-				return;
-			}
-
-			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
-
-			if (exclusions.Length <= 0)
-			{
-				Options.UpdateWith(update.Options);
-				Results.Reconcile(update.Results);
-				Request.UpdateWith(update.Request);
-			}
-			else
-			{
-				this.IfThen(_ => !exclusions.Contains(nameof(Options)), x => x.Options.UpdateWith(update.Options));
-				this.IfThen(_ => !exclusions.Contains(nameof(Results)), x => x.Results.Reconcile(update.Results));
-				this.IfThen(_ => !exclusions.Contains(nameof(Request)), x => x.Request.UpdateWith(update.Request));
-			}
-		}
-
-		/// <inheritdoc />
-		public override void UpdateWith(object update, params string[] exclusions)
-		{
-			switch (update)
-			{
-				case PagedResults<T, T2> result:
-				{
-					UpdateWith(result, exclusions);
-					return;
-				}
-				default:
-				{
-					base.UpdateWith(update, exclusions);
-					return;
-				}
-			}
 		}
 
 		/// <inheritdoc />
@@ -240,6 +189,8 @@ namespace Speedy
 		protected internal override void RefreshUpdates()
 		{
 			// Setting values here
+			AddOrUpdate(nameof(Filter), Filter);
+			AddOrUpdate(nameof(Order), Order);
 			AddOrUpdate(nameof(Page), Page);
 			AddOrUpdate(nameof(PerPage), PerPage);
 			AddOrUpdate(nameof(TotalCount), TotalCount);
@@ -275,6 +226,16 @@ namespace Speedy
 		/// The total count of pages for the request.
 		/// </summary>
 		int TotalPages { get; }
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// Calculate the start and end pagination values.
+		/// </summary>
+		/// <returns> </returns>
+		public (int start, int end) CalculatePaginationValues();
 
 		#endregion
 	}

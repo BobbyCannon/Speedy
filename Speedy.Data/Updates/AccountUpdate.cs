@@ -23,21 +23,21 @@ namespace Speedy.Data.Updates
 
 		#region Properties
 
-		public long Id
+		public int Id
 		{
-			get => Get<long>(nameof(Id));
+			get => Get<int>(nameof(Id), default);
 			set => Set(nameof(Id), value);
 		}
 
 		public string Name
 		{
-			get => Get<string>(nameof(Name));
+			get => Get<string>(nameof(Name), default);
 			set => Set(nameof(Name), value);
 		}
 
 		public Guid SyncId
 		{
-			get => Get<Guid>(nameof(SyncId));
+			get => Get<Guid>(nameof(SyncId), default);
 			set => Set(nameof(SyncId), value);
 		}
 

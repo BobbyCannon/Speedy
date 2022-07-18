@@ -2354,7 +2354,7 @@
         </member>
         <member name="T:Speedy.Extensions.ObjectExtensions">
             <summary>
-            Extensions for the string type.
+            Extensions for the object.
             </summary>
         </member>
         <member name="M:Speedy.Extensions.ObjectExtensions.IfThenElse(System.Func{System.Boolean},System.Action,System.Action)">
@@ -2370,13 +2370,49 @@
             Extensions for queryable
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1})">
+            <summary>
+            Gets paged results.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="transform"> The function to transfer the results. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+            <summary>
+            Gets paged results.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="transform"> The function to transfer the results. </param>
+            <param name="order"> An optional order of the collection. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
+            <summary>
+            Gets paged results.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="transform"> The function to transfer the results. </param>
+            <param name="order"> The order of the collection. </param>
+            <param name="thenBys"> An optional then bys to order the collection. </param>
+            <returns> The paged results. </returns>
+        </member>
         <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``3(System.Linq.IQueryable{``0},``2)">
             <summary>
             Gets paged results.
             </summary>
-            <typeparam name="T2"> The type of the item returned. </typeparam>
-            <typeparam name="T3"> The PagedResults type </typeparam>
-            <typeparam name="T4"> The PagedRequests for the PagedResults. </typeparam>
+            <typeparam name="T"> The type of the item returned. </typeparam>
+            <typeparam name="T2"> The PagedResults type </typeparam>
+            <typeparam name="T3"> The PagedRequests for the PagedResults. </typeparam>
             <param name="query"> The queryable collection. </param>
             <param name="request"> The request values. </param>
             <returns> The paged results. </returns>
@@ -2408,7 +2444,7 @@
             <param name="order"> An optional order of the collection. </param>
             <returns> The paged results. </returns>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Func{``0,``1},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
             <summary>
             Gets paged results.
             </summary>
@@ -4201,6 +4237,27 @@
             </summary>
             <param name="dispatcher"> An optional dispatcher. </param>
         </member>
+        <member name="M:Speedy.PagedRequest.#ctor(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Instantiates a paged request to a service.
+            </summary>
+            <param name="values"> A set of values to set. </param>
+        </member>
+        <member name="M:Speedy.PagedRequest.#ctor(System.Collections.Generic.Dictionary{System.String,System.Object},Speedy.IDispatcher)">
+            <summary>
+            Instantiates a paged request to a service.
+            </summary>
+            <param name="values"> A set of values to set. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.PagedRequest.Filter">
+            <summary>
+            An optional filter value.
+            </summary>
+        </member>
+        <member name="P:Speedy.PagedRequest.Order">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.PagedRequest.Page">
             <summary>
             The page to start the request on.
@@ -4231,24 +4288,6 @@
             Cleanup the request. Set default values.
             </summary>
         </member>
-        <member name="M:Speedy.PagedRequest.ParseQueryString(System.String)">
-            <summary>
-            Parse the paged request values from the query string.
-            </summary>
-            <param name="queryString"> The query string to process. </param>
-            <remarks>
-            see https://www.ietf.org/rfc/rfc2396.txt for details on url decoding
-            </remarks>
-        </member>
-        <member name="M:Speedy.PagedRequest.ToQueryString">
-            <summary>
-            Convert the request to the query string values.
-            </summary>
-            <returns> The request in a query string format. </returns>
-            <remarks>
-            see https://www.ietf.org/rfc/rfc2396.txt for details on url encoding
-            </remarks>
-        </member>
         <member name="M:Speedy.PagedRequest.UpdateWith(Speedy.PagedRequest,System.String[])">
             <summary>
             Update the PagedRequest with an update.
@@ -4270,6 +4309,31 @@
             <param name="item"> The item to test and clean up. </param>
             <param name="test"> The test for the time. </param>
             <param name="action"> The action to cleanup the item. </param>
+        </member>
+        <member name="T:Speedy.IPagedRequest">
+            <summary>
+            Represents a request for paged results from a service.
+            </summary>
+        </member>
+        <member name="P:Speedy.IPagedRequest.Filter">
+            <summary>
+            The filter to limit the request to. Defaults to an empty filter.
+            </summary>
+        </member>
+        <member name="P:Speedy.IPagedRequest.Order">
+            <summary>
+            The value to order the request by.
+            </summary>
+        </member>
+        <member name="P:Speedy.IPagedRequest.Page">
+            <summary>
+            The page to start the request on.
+            </summary>
+        </member>
+        <member name="P:Speedy.IPagedRequest.PerPage">
+            <summary>
+            The number of items per page.
+            </summary>
         </member>
         <member name="T:Speedy.PagedResults`1">
             <summary>
@@ -4305,7 +4369,13 @@
             <param name="totalCount"> The total amount of items for the request. </param>
             <param name="results"> The items in this set of results. </param>
         </member>
+        <member name="P:Speedy.PagedResults`2.Filter">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.PagedResults`2.HasMore">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.PagedResults`2.Order">
             <inheritdoc />
         </member>
         <member name="P:Speedy.PagedResults`2.Page">
@@ -4331,26 +4401,6 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.PagedResults`2.CalculatePaginationValues">
-            <summary>
-            Calculate the start and end pagination values.
-            </summary>
-            <returns> </returns>
-        </member>
-        <member name="M:Speedy.PagedResults`2.UpdateWith(`1,System.String[])">
-            <summary>
-            Update the PagedResults with an PagedRequest.
-            </summary>
-            <param name="update"> The paged request to be applied. </param>
-            <param name="exclusions"> An optional set of properties to exclude. </param>
-        </member>
-        <member name="M:Speedy.PagedResults`2.UpdateWith(Speedy.PagedResults{`0,`1},System.String[])">
-            <summary>
-            Update the PagedResults with an update.
-            </summary>
-            <param name="update"> The update to be applied. </param>
-            <param name="exclusions"> An optional set of properties to exclude. </param>
-        </member>
-        <member name="M:Speedy.PagedResults`2.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.PagedResults`2.GetExpandoObject">
@@ -4369,16 +4419,6 @@
             The value to determine if the request has more pages.
             </summary>
         </member>
-        <member name="P:Speedy.IPagedResults.Page">
-            <summary>
-            The page to start the request on.
-            </summary>
-        </member>
-        <member name="P:Speedy.IPagedResults.PerPage">
-            <summary>
-            The number of items per page.
-            </summary>
-        </member>
         <member name="P:Speedy.IPagedResults.TotalCount">
             <summary>
             The total count of items for the request.
@@ -4388,6 +4428,12 @@
             <summary>
             The total count of pages for the request.
             </summary>
+        </member>
+        <member name="M:Speedy.IPagedResults.CalculatePaginationValues">
+            <summary>
+            Calculate the start and end pagination values.
+            </summary>
+            <returns> </returns>
         </member>
         <member name="T:Speedy.PartialUpdate`1">
             <summary>
@@ -4402,10 +4448,23 @@
             Instantiates a partial update.
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdate`1.#ctor(Speedy.PartialUpdateOptions)">
+            <summary>
+            Instantiates a partial update.
+            </summary>
+            <param name="options"> An optional set of options for the update. </param>
+        </member>
         <member name="M:Speedy.PartialUpdate`1.#ctor(Speedy.IDispatcher)">
             <summary>
             Instantiates a partial update.
             </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.#ctor(Speedy.PartialUpdateOptions,Speedy.IDispatcher)">
+            <summary>
+            Instantiates a partial update.
+            </summary>
+            <param name="options"> An optional set of options for the update. </param>
             <param name="dispatcher"> An optional dispatcher. </param>
         </member>
         <member name="M:Speedy.PartialUpdate`1.Apply(`0)">
@@ -4483,7 +4542,7 @@
             Configure a validation for an update value.
             </summary>
         </member>
-        <member name="M:Speedy.PartialUpdate`1.GetCachedPropertyDictionary">
+        <member name="M:Speedy.PartialUpdate`1.GetTargetProperties">
             <summary>
             Gets a list of property information for provided type.
             The results are cached so the next query is much faster.
@@ -4502,20 +4561,28 @@
             Instantiates a partial update.
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdate.#ctor(Speedy.PartialUpdateOptions)">
+            <summary>
+            Instantiates a partial update.
+            </summary>
+            <param name="options"> The options for the partial update. </param>
+        </member>
         <member name="M:Speedy.PartialUpdate.#ctor(Speedy.IDispatcher)">
             <summary>
             Instantiates a partial update.
             </summary>
             <param name="dispatcher"> An optional dispatcher. </param>
         </member>
-        <member name="P:Speedy.PartialUpdate.ExcludedProperties">
+        <member name="M:Speedy.PartialUpdate.#ctor(Speedy.PartialUpdateOptions,Speedy.IDispatcher)">
             <summary>
-            Properties to be excluded.
+            Instantiates a partial update.
             </summary>
+            <param name="options"> The options for the partial update. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
         </member>
-        <member name="P:Speedy.PartialUpdate.IncludedProperties">
+        <member name="P:Speedy.PartialUpdate.Options">
             <summary>
-            Properties to be included.
+            The options for the partial update.
             </summary>
         </member>
         <member name="P:Speedy.PartialUpdate.Updates">
@@ -4536,34 +4603,55 @@
             </summary>
             <param name="entity"> Entity to be updated. </param>
         </member>
-        <member name="M:Speedy.PartialUpdate.CreateGeneric(System.Type)">
+        <member name="M:Speedy.PartialUpdate.Apply(System.Object,Speedy.PartialUpdateOptions)">
+            <summary>
+            Applies the updates to the entity.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+            <param name="options"> Options for the partial update. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate.CreateGeneric(System.Type,Speedy.PartialUpdateOptions)">
             <summary>
             Create an instance of a partial update for a specific type.
             </summary>
             <param name="genericType"> The type the partial update is for. </param>
+            <param name="options"> An optional set of options for the update. </param>
             <returns> The partial update. </returns>
         </member>
-        <member name="M:Speedy.PartialUpdate.FromJson``1(System.String)">
+        <member name="M:Speedy.PartialUpdate.CreateGeneric(System.Type,Speedy.PartialUpdateOptions,System.Boolean@)">
+            <summary>
+            Create an instance of a partial update for a specific type.
+            </summary>
+            <param name="genericType"> The type the partial update is for. </param>
+            <param name="options"> An optional set of options for the update. </param>
+            <param name="isPartialObject"> True if the generic type is already a partial update. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.FromJson(System.String,Speedy.PartialUpdateOptions)">
             <summary>
             Gets a partial update from a JSON string.
             </summary>
             <typeparam name="T"> The type the partial update is for. </typeparam>
             <param name="json"> The JSON containing the partial update. </param>
+            <param name="options"> The options for the partial update. </param>
             <returns> The partial update. </returns>
         </member>
-        <member name="M:Speedy.PartialUpdate.FromJson(System.String,System.Type)">
+        <member name="M:Speedy.PartialUpdate.FromJson``1(System.String,Speedy.PartialUpdateOptions)">
+            <summary>
+            Gets a partial update from a JSON string.
+            </summary>
+            <typeparam name="T"> The type the partial update is for. </typeparam>
+            <param name="json"> The JSON containing the partial update. </param>
+            <param name="options"> The options for the partial update. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.FromJson(System.String,System.Type,Speedy.PartialUpdateOptions)">
             <summary>
             Gets a partial update from a JSON string.
             </summary>
             <param name="json"> The JSON containing the partial update. </param>
             <param name="type"> The type the partial update is for. </param>
-            <returns> The partial update. </returns>
-        </member>
-        <member name="M:Speedy.PartialUpdate.FromJson(System.String)">
-            <summary>
-            Gets a partial update from a JSON string.
-            </summary>
-            <param name="json"> The JSON containing the partial update. </param>
+            <param name="options"> The options for the partial update. </param>
             <returns> The partial update. </returns>
         </member>
         <member name="M:Speedy.PartialUpdate.Get(System.String)">
@@ -4581,6 +4669,14 @@
             <param name="name"> The name of the update. </param>
             <returns> The value if it was found otherwise default(T). </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate.Get(System.String,System.Type)">
+            <summary>
+            Get the update for the provided name.
+            </summary>
+            <param name="name"> The name of the update. </param>
+            <param name="type"> The type to cast the value to. </param>
+            <returns> The value if it was found otherwise default(T). </returns>
+        </member>
         <member name="M:Speedy.PartialUpdate.Get``1(System.String,``0)">
             <summary>
             Get the update for the provided name with a fallback default value if not found.
@@ -4589,6 +4685,27 @@
             <param name="name"> The name of the update. </param>
             <param name="defaultValue"> A default value if update not available. </param>
             <returns> The value if it was found otherwise default(T). </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.GetInstance``1">
+            <summary>
+            Creates an instance of the type and applies the partial update.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.GetInstance(System.Type)">
+            <summary>
+            Creates an instance of the type and applies the partial update.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.ParseQueryString(System.String)">
+            <summary>
+            Parse the paged request values from the query string.
+            </summary>
+            <param name="queryString"> The query string to process. </param>
+            <remarks>
+            see https://www.ietf.org/rfc/rfc2396.txt for details on url decoding
+            </remarks>
         </member>
         <member name="M:Speedy.PartialUpdate.Remove(System.String)">
             <summary>
@@ -4615,6 +4732,15 @@
             Get the JSON for the partial update.
             </summary>
             <returns> The JSON for the partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.ToQueryString">
+            <summary>
+            Convert the request to the query string values.
+            </summary>
+            <returns> The request in a query string format. </returns>
+            <remarks>
+            see https://www.ietf.org/rfc/rfc2396.txt for details on url encoding
+            </remarks>
         </member>
         <member name="M:Speedy.PartialUpdate.TryGet``1(System.String,``0@)">
             <summary>
@@ -4673,7 +4799,7 @@
             <param name="including"> Properties to be included. </param>
             <param name="excluding"> Properties to be excluded. </param>
         </member>
-        <member name="M:Speedy.PartialUpdate.GetCachedPropertyDictionary">
+        <member name="M:Speedy.PartialUpdate.GetTargetProperties">
             <summary>
             Gets a list of property information for this type.
             The results are cached so the next query is much faster.
@@ -4687,6 +4813,26 @@
             <param name="name"> The name of the member to set. </param>
             <param name="value"> The value of the member. </param>
             <param name="properties"> The properties for the set. </param>
+        </member>
+        <member name="T:Speedy.PartialUpdateOptions">
+            <summary>
+            Options for Partial Update
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.#ctor">
+            <summary>
+            Instantiates options for validation for a partial update.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.ExcludedProperties">
+            <summary>
+            Properties to be excluded.
+            </summary>
+        </member>
+        <member name="P:Speedy.PartialUpdateOptions.IncludedProperties">
+            <summary>
+            Properties to be included.
+            </summary>
         </member>
         <member name="T:Speedy.PartialUpdateValue">
             <summary>
@@ -7003,6 +7149,13 @@
         </member>
         <member name="M:Speedy.Serialization.Converters.PartialUpdateConverter.CanConvert(System.Type)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Serialization.Converters.PartialUpdateConverter.ConvertType(Newtonsoft.Json.Linq.JTokenType)">
+            <summary>
+            Convert the JTokenType to a Type.
+            </summary>
+            <param name="type"> The type to be converted. </param>
+            <returns> The converted type value. </returns>
         </member>
         <member name="M:Speedy.Serialization.Converters.PartialUpdateConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
             <inheritdoc />

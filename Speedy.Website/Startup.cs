@@ -24,6 +24,7 @@ using NUglify;
 using NUglify.Css;
 using NUglify.JavaScript;
 using Speedy.Data;
+using Speedy.Extensions;
 using Speedy.Profiling;
 using Speedy.Serialization;
 using Speedy.Serialization.Converters;
@@ -95,7 +96,7 @@ namespace Speedy.Website
 		public void Configure(IApplicationBuilder app)
 		{
 			var analyticsPath = Path.Combine(AppDataPath.FullName, "Analytics");
-			var client = new TrackerService(new DatabaseProvider<IContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null)));
+			var client = new TrackerService(new DatabaseProvider<IContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, x, null)));
 			var provider = new KeyValueRepositoryProvider<TrackerPath>(analyticsPath);
 
 			Tracker = Tracker.Start(client, provider);
@@ -292,7 +293,7 @@ namespace Speedy.Website
 
 			services.AddScoped<AccountService, AccountService>();
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
-			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null));
+			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => (ContosoDatabase) databaseProvider.GetDatabase());
 			services.AddScoped<IDatabaseProvider<IContosoDatabase>, DatabaseProvider<IContosoDatabase>>(_ => databaseProvider);
 			services.AddScoped<ISyncableDatabaseProvider<IContosoDatabase>, SyncableDatabaseProvider<IContosoDatabase>>(_ => syncDatabaseProvider);
 

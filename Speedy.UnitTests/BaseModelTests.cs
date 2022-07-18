@@ -13,6 +13,12 @@ namespace Speedy.UnitTests
 	{
 		#region Methods
 
+		protected T GetModel()
+		{
+			var response = new T();
+			return response;
+		}
+
 		protected T GetModelWithNonDefaultValues()
 		{
 			var response = new T();

@@ -731,7 +731,7 @@ namespace Speedy.Extensions
 		{
 			var properties = model
 				.GetCachedProperties()
-				.Where(x => x.CanWrite)
+				.Where(x => x.CanWrite && !x.IsVirtual())
 				.ToList();
 
 			foreach (var property in properties)

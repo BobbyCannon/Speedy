@@ -110,6 +110,26 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void DataTypes()
+		{
+			(object expected, string value)[] scenarios = 
+			{
+				( new Version(1, 2, 3, 4), "1.2.3.4" ),
+				( new TimeSpan(1, 8, 23, 45, 999), "1.08:23:45.9990000"),
+				( new DateTime(2022, 07, 16, 05 ,19, 45), "07/16/2022 05:19:45 AM"),
+				( 42, "42"),
+				( 43L, "43"),
+			};
+
+			foreach (var scenario in scenarios)
+			{
+				var update = new PartialUpdate();
+				update.AddOrUpdate("t", scenario.value);
+				Assert.AreEqual(scenario.expected, update.Get("t", scenario.expected.GetType()));
+			}
+		}
+
+		[TestMethod]
 		public void EmptyJson()
 		{
 			var scenarios = new[] { "{}", "[]", " { } ", " [ ] ", null, "", " ", "[{}]" };
@@ -232,7 +252,7 @@ namespace Speedy.UnitTests
 			Assert.IsTrue(update.Updates.Any(x => x.Key == nameof(MyClass.Name)));
 
 			// Exclude two of the updates
-			update.ExcludedProperties.AddRange(nameof(MyClass.Id), nameof(MyClass.ModifiedOn));
+			update.Options.ExcludedProperties.AddRange(nameof(MyClass.Id), nameof(MyClass.ModifiedOn));
 
 			// Ensure these exclusions are ignored on "Apply"
 			var actual = new MyClass();
@@ -275,13 +295,13 @@ namespace Speedy.UnitTests
 		public void IncludeProperties()
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
-			var update = PartialUpdate.FromJson(json);
-			update.IncludedProperties.AddRange(nameof(MyClass.Age), nameof(MyClass.Name));
+			var options = new PartialUpdateOptions();
+			options.IncludedProperties.AddRange(nameof(MyClass.Age), nameof(MyClass.Name));
+
+			var update = PartialUpdate.FromJson(json, options);
 
 			// Ensure these updates do exists
-			Assert.AreEqual(4, update.Updates.Count);
-			Assert.IsTrue(update.Updates.Any(x => x.Key == nameof(MyClass.Id)));
-			Assert.IsTrue(update.Updates.Any(x => x.Key == nameof(MyClass.ModifiedOn)));
+			Assert.AreEqual(2, update.Updates.Count);
 			Assert.IsTrue(update.Updates.Any(x => x.Key == nameof(MyClass.Age)));
 			Assert.IsTrue(update.Updates.Any(x => x.Key == nameof(MyClass.Name)));
 
@@ -458,16 +478,15 @@ namespace Speedy.UnitTests
 			var rangeMessage = "Name must be between 1 to 5 characters.";
 			var requiredMessage = "Name is required";
 
-			var update = PartialUpdate.FromJson(json);
+			var update = json.FromJson<PartialUpdate>();
 			update.Validate<MyClass, string>(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
-				.IsNotNullOrWhitespace()
-				.IsRequired(requiredMessage);
+				.IsNotNullOrWhitespace();
 
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
 
 			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
-			update = PartialUpdate.FromJson(json);
+			update = json.FromJson<PartialUpdate>();
 			update.Validate<MyClass, string>(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
 				.IsNotNullOrWhitespace()

@@ -12,7 +12,7 @@ using Speedy.Website.Models;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class PagedResultsTests
+	public class PagedResultsTests : BaseModelTests<PagedResults<object>>
 	{
 		#region Methods
 
@@ -65,7 +65,7 @@ namespace Speedy.UnitTests
 			var request = new CustomPagedRequest { Precision = 2.123, Page = 12, PerPage = 2 };
 			var results = new CustomPagedResults<object>(request, 1234, 2, 546, "aoeu", false);
 			var actual = results.ToJson();
-			var expected = "{\"Page\":12,\"PerPage\":2,\"Precision\":2.123,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":617,\"Results\":[2,546,\"aoeu\",false]}";
+			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":12,\"PerPage\":2,\"Precision\":2.123,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":617,\"Results\":[2,546,\"aoeu\",false]}";
 			Assert.AreEqual(expected, actual);
 		}
 
@@ -76,7 +76,7 @@ namespace Speedy.UnitTests
 			request.ParseQueryString("?precision=321.41");
 			var results = new CustomPagedResults<object>(request, 1234, 2, 546, "aoeu", false);
 			var actual = results.ToJson();
-			var expected = "{\"Page\":1,\"PerPage\":11,\"Precision\":321.41,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":113,\"Results\":[2,546,\"aoeu\",false]}";
+			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":11,\"Precision\":321.41,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":113,\"Results\":[2,546,\"aoeu\",false]}";
 			Assert.AreEqual(expected, actual);
 		}
 
@@ -87,7 +87,7 @@ namespace Speedy.UnitTests
 			var response = new PagedResults<object>(request, 0);
 			var actual = response.ToJson();
 			actual.Escape().Dump();
-			var expected = "{\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":0,\"TotalPages\":1,\"Results\":[]}";
+			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":0,\"TotalPages\":1,\"Results\":[]}";
 			TestHelper.AreEqual(expected, actual);
 		}
 
@@ -121,19 +121,27 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
-		public void ToJson()
+		public void ToJsonThenFromJson()
 		{
 			var request = new PagedRequest { Page = 2, PerPage = 11 };
 			var results = new PagedResults<object>(request, 12, 1, "foo", true);
 			var actual = results.ToRawJson();
-			var expected = "{\"Page\":2,\"PerPage\":11,\"HasMore\":false,\"TotalCount\":12,\"TotalPages\":2,\"Results\":[1,\"foo\",true]}";
+			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":2,\"PerPage\":11,\"HasMore\":false,\"TotalCount\":12,\"TotalPages\":2,\"Results\":[1,\"foo\",true]}";
 			actual.Escape().Dump();
 			Assert.AreEqual(expected, actual);
 
+			// Options and Updates are not required to be equal after serialization
+			var update = expected.FromJson<PagedResults<object>>();
+			TestHelper.AreEqual(results, update, nameof(results.Options), nameof(results.Updates));
+
 			actual = results.ToRawJson(true, true);
-			expected = "{\r\n  \"page\": 2,\r\n  \"perPage\": 11,\r\n  \"hasMore\": false,\r\n  \"totalCount\": 12,\r\n  \"totalPages\": 2,\r\n  \"results\": [\r\n    1,\r\n    \"foo\",\r\n    true\r\n  ]\r\n}";
+			expected = "{\r\n  \"filter\": \"\",\r\n  \"order\": \"\",\r\n  \"page\": 2,\r\n  \"perPage\": 11,\r\n  \"hasMore\": false,\r\n  \"totalCount\": 12,\r\n  \"totalPages\": 2,\r\n  \"results\": [\r\n    1,\r\n    \"foo\",\r\n    true\r\n  ]\r\n}";
 			actual.Escape().Dump();
 			Assert.AreEqual(expected, actual);
+
+			// Options and Updates are not required to be equal after serialization
+			update = expected.FromJson<PagedResults<object>>();
+			TestHelper.AreEqual(results, update, nameof(results.Options), nameof(results.Updates));
 		}
 
 		[TestMethod]
@@ -150,6 +158,15 @@ namespace Speedy.UnitTests
 
 			actual = new PagedResults<object> { Page = 12, PerPage = 1, TotalCount = 10 };
 			Assert.AreEqual(10, actual.TotalPages);
+		}
+
+		[TestMethod]
+		public void UpdateWith()
+		{
+			var actual = GetModel();
+			var withValues = GetModelWithNonDefaultValues();
+			actual.UpdateWith(withValues);
+			TestHelper.AreEqual(withValues, actual, nameof(Bindable.HasChanges));
 		}
 
 		#endregion

@@ -909,48 +909,6 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestMethod]
-		public void MaintainModifiedOnShouldNotSaveIfThatIsAllThatChanged()
-		{
-
-			TestHelper.GetDataContexts(initialize: false)
-				.ForEach(provider =>
-				{
-					TimeService.UtcNowProvider = () => new DateTime(2022, 04, 22, 13, 54, 12, DateTimeKind.Utc);
-
-					using var database = provider.GetDatabase();
-					Console.WriteLine(database.GetType().Name);
-
-					database.Options.MaintainCreatedOn = false;
-					database.Options.MaintainModifiedOn = true;
-					database.Options.MaintainSyncId = false;
-
-					var tracker = new CollectionChangeTracker();
-					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					database.Addresses.Add(expected);
-					database.SaveChanges();
-
-					Assert.IsFalse(database.Options.MaintainCreatedOn);
-					Assert.IsTrue(database.Options.MaintainModifiedOn);
-					Assert.IsFalse(database.Options.MaintainSyncId);
-
-					TimeService.UtcNowProvider = () => new DateTime(2022, 04, 22, 13, 54, 13, DateTimeKind.Utc);
-
-					database.CollectionChanged += (_, args) => tracker.Update(args);
-					var address = database.Addresses.First(x => x.Id == expected.Id);
-					address.ModifiedOn = TimeService.UtcNow;
-
-					TimeService.UtcNowProvider = () => new DateTime(2022, 04, 22, 13, 54, 14, DateTimeKind.Utc);
-
-					database.SaveChanges();
-
-					Assert.AreEqual(new DateTime(2022, 04, 22, 13, 54, 14, DateTimeKind.Utc), address.ModifiedOn);
-					Assert.AreEqual(0, tracker.Added.Count);
-					Assert.AreEqual(0, tracker.Removed.Count);
-					Assert.AreEqual(0, tracker.Updated.Count);
-				});
-		}
-
-		[TestMethod]
 		public void MaintainSyncIdShouldNotSaveIfThatIsAllThatChanged()
 		{
 			TestHelper.GetDataContexts(initialize: false)

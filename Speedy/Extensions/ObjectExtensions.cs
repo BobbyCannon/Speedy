@@ -7,7 +7,7 @@ using System;
 namespace Speedy.Extensions
 {
 	/// <summary>
-	/// Extensions for the string type.
+	/// Extensions for the object.
 	/// </summary>
 	public static class ObjectExtensions
 	{
