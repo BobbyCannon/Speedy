@@ -5,6 +5,7 @@ This should not be ran as a file
 Import-Module WebAdministration
 iisreset
 
+Clear-Host
 Restart-WebAppPool -Name "Speedy"
 Get-Process vbcs* | Stop-Process
 

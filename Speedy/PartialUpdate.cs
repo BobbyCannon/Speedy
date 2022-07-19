@@ -454,7 +454,6 @@ namespace Speedy
 		/// <summary>
 		/// Gets a partial update from a JSON string.
 		/// </summary>
-		/// <typeparam name="T"> The type the partial update is for. </typeparam>
 		/// <param name="json"> The JSON containing the partial update. </param>
 		/// <param name="options"> The options for the partial update. </param>
 		/// <returns> The partial update. </returns>
@@ -962,6 +961,11 @@ namespace Speedy
 
 		internal static PartialUpdate FromJson(JsonReader reader, Type objectType, PartialUpdateOptions options)
 		{
+			if ((reader.TokenType == JsonToken.Null) && (reader.Value == null))
+			{
+				return null;
+			}
+
 			if (objectType == typeof(PartialUpdate))
 			{
 				return FromJson(reader, options);
