@@ -18,7 +18,7 @@ namespace Speedy.UnitTests
 
 		protected string GetMessageAndCopy(string actual)
 		{
-			TestHelper.SetClipboardText(actual);
+			TestHelper.CopyToClipboard(actual);
 			return actual;
 		}
 

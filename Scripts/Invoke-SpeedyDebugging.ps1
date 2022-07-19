@@ -3,7 +3,9 @@ param
 	[Parameter()]
 	[string] $ProjectPath,
 	[Parameter()]
-	[switch] $Rollback
+	[switch] $Rollback,
+	[Parameter()]
+	[string] $Version
 )
 
 $ErrorActionPreference = "STOP"
@@ -14,8 +16,14 @@ Clear-Host
 
 $file = ([System.IO.FileInfo] "$scriptPath\Speedy\Speedy.csproj")
 $fileXml = [xml](Get-Content $file.FullName -Raw)
-$versionFull = $fileXml.Project.PropertyGroup.AssemblyVersion.ToString()
-$version = $versionFull.Substring(0, $versionFull.LastIndexOf("."))
+
+if ($Version.IsPresent) {
+	$versionFull = $Version
+	$version = $versionFull.Substring(0, $versionFull.LastIndexOf("."))
+} else {
+	$versionFull = $fileXml.Project.PropertyGroup.AssemblyVersion.ToString()
+	$version = $versionFull.Substring(0, $versionFull.LastIndexOf("."))
+}
 
 $files = Get-ChildItem $ProjectPath *.csproj -Recurse | Select-Object Fullname
 

@@ -229,6 +229,26 @@ namespace Speedy.UnitTests
 			return compareObjects.Compare(expected, actual);
 		}
 
+		public static object CopyToClipboard(this object value)
+		{
+			var thread = new Thread(() =>
+			{
+				try
+				{
+					Clipboard.SetText(value?.ToString() ?? "null");
+				}
+				catch
+				{
+					// Ignore the clipboard set issue...
+				}
+			});
+			thread.SetApartmentState(ApartmentState.STA);
+			thread.Start();
+			thread.Join();
+
+			return value;
+		}
+
 		public static string Dump(this object item)
 		{
 			Console.WriteLine(item);
@@ -589,24 +609,6 @@ namespace Speedy.UnitTests
 				directory.Refresh();
 				return directory.Exists;
 			});
-		}
-
-		public static void SetClipboardText(string value)
-		{
-			var thread = new Thread(() =>
-			{
-				try
-				{
-					Clipboard.SetText(value);
-				}
-				catch
-				{
-					// Ignore the clipboard set issue...
-				}
-			});
-			thread.SetApartmentState(ApartmentState.STA);
-			thread.Start();
-			thread.Join();
 		}
 
 		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action, bool includeWeb = true, bool initializeDatabase = true)

@@ -317,7 +317,9 @@ namespace Speedy.Serialization
 		/// <returns> The serialization settings. </returns>
 		private void UpdateJsonSerializerSettings()
 		{
-			var namingStrategy = CamelCase ? (NamingStrategy) new CamelCaseNamingStrategy() : new DefaultNamingStrategy();
+			var namingStrategy = CamelCase
+				? (NamingStrategy) new CamelCaseNamingStrategy()
+				: new DefaultNamingStrategy();
 
 			if (ConvertEnumsToString)
 			{

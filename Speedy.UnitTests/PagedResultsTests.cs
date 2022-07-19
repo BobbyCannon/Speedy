@@ -1,5 +1,7 @@
 ﻿#region References
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.SyncApi;
@@ -167,6 +169,27 @@ namespace Speedy.UnitTests
 			var withValues = GetModelWithNonDefaultValues();
 			actual.UpdateWith(withValues);
 			TestHelper.AreEqual(withValues, actual, nameof(Bindable.HasChanges));
+		}
+
+		[TestMethod]
+		public void VersionsResults()
+		{
+			var results = new PagedResults<Version>
+			{
+				Results = new List<Version>
+				{
+					new Version(1, 2, 3, 4),
+					new Version(5, 6, 7, 8),
+					new Version(9, 10, 11),
+					new Version(12, 13)
+				},
+				TotalCount = 4
+			};
+
+			var actual = results.ToJson();
+			actual.Escape().CopyToClipboard().Dump();
+			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":4,\"TotalPages\":1,\"Results\":[\"1.2.3.4\",\"5.6.7.8\",\"9.10.11\",\"12.13\"]}";
+			Assert.AreEqual(expected, actual);
 		}
 
 		#endregion
