@@ -21,6 +21,7 @@ using Speedy.Data;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Net;
+using Speedy.Serialization;
 using Speedy.Sync;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
@@ -229,7 +230,7 @@ namespace Speedy.UnitTests
 			return compareObjects.Compare(expected, actual);
 		}
 
-		public static object CopyToClipboard(this object value)
+		public static T CopyToClipboard<T>(this T value)
 		{
 			var thread = new Thread(() =>
 			{
@@ -549,6 +550,7 @@ namespace Speedy.UnitTests
 
 		public static void Initialize()
 		{
+			Serializer.ResetDefaultSettings();
 			TimeService.Reset();
 
 			Wait(() =>

@@ -35,7 +35,7 @@ namespace Speedy.UnitTests
 		{
 			var request = new CustomPagedRequest { Precision = 2.123, Page = 12, PerPage = 2 };
 			var actual = request.ToJson();
-			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":12,\"PerPage\":2,\"Precision\":2.123}";
+			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":12,\"PerPage\":2,\"Precision\":2.123}";
 			Assert.AreEqual(expected, actual);
 		}
 
@@ -45,7 +45,7 @@ namespace Speedy.UnitTests
 			var request = new PagedRequest();
 			var actual = request.ToJson();
 			actual.Escape().Dump();
-			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10}";
+			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10}";
 			TestHelper.AreEqual(expected, actual);
 		}
 
@@ -66,8 +66,8 @@ namespace Speedy.UnitTests
 		public void ToJson()
 		{
 			var request = new PagedRequest();
-			var actual = request.ToRawJson();
-			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10}";
+			var actual = request.ToJson();
+			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10}";
 			actual.Escape().Dump();
 			Assert.AreEqual(expected, actual);
 

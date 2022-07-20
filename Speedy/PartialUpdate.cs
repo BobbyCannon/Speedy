@@ -686,7 +686,7 @@ namespace Speedy
 
 			return settings != null
 				? expando.ToJson(settings)
-				: expando.ToRawJson();
+				: expando.ToJson();
 		}
 
 		/// <summary>
@@ -725,6 +725,17 @@ namespace Speedy
 			}
 
 			return builder.ToString();
+		}
+
+		/// <summary>
+		/// Get the JSON for the partial update.
+		/// </summary>
+		/// <returns> The JSON for the partial update. </returns>
+		public string ToRawJson()
+		{
+			var expando = GetExpandoObject();
+
+			return expando.ToRawJson();
 		}
 
 		/// <summary>

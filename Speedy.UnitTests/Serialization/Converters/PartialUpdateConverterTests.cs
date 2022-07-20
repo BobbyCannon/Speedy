@@ -18,7 +18,7 @@ namespace Speedy.UnitTests.Serialization.Converters
 		[TestMethod]
 		public void CamelcaseShouldWork()
 		{
-			var settings = SerializerSettings.DefaultSettings;
+			var settings = Serializer.DefaultSettings;
 
 			Assert.AreEqual(1, settings.JsonSettings.Converters.Count(x => x is PartialUpdateConverter));
 

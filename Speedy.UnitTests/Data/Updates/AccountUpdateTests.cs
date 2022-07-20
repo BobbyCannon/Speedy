@@ -28,14 +28,14 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.IsNotNull(update);
 			Assert.AreEqual(3, update.Updates.Count);
 			Assert.AreEqual("Id,Name,SyncId", string.Join(",", update.Updates.Keys));
-			Assert.AreEqual("{\"Id\":1,\"Name\":\"Testing\",\"SyncId\":\"52be31a3-ea29-45a3-90c6-2f80392bcfbc\"}", update.ToJson());
+			Assert.AreEqual("{\"$id\":\"1\",\"Id\":1,\"Name\":\"Testing\",\"SyncId\":\"52be31a3-ea29-45a3-90c6-2f80392bcfbc\"}", update.ToJson());
 
 			update.Options.ExcludedProperties.Add(nameof(Account.SyncId));
 			var actual = update.GetInstance();
 			Assert.AreEqual(1, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Empty, actual.SyncId);
-			Assert.AreEqual("{\"Id\":1,\"Name\":\"Testing\"}", update.ToJson());
+			Assert.AreEqual("{\"$id\":\"1\",\"Id\":1,\"Name\":\"Testing\"}", update.ToJson());
 		}
 
 		[TestMethod]

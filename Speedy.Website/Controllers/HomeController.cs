@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -62,7 +63,8 @@ namespace Speedy.Website.Controllers
 				2,
 				"foo",
 				TimeService.UtcNow,
-				TimeSpan.FromMilliseconds(123456)
+				TimeSpan.FromMilliseconds(123456),
+				Assembly.GetAssembly(typeof(Entity))?.GetName().Version ?? new Version(1, 2, 3, 4)
 			);
 			return View(result);
 		}

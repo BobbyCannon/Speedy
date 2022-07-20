@@ -29,6 +29,26 @@ namespace Speedy.Validation
 		#region Methods
 
 		/// <summary>
+		/// Validates that a property matches the provided value.
+		/// </summary>
+		/// <param name="value"> The value to compare with. </param>
+		/// <param name="message"> The message for failed validation. </param>
+		public PropertyValidator<T> AreEqual(T value, string message)
+		{
+			var validation = new Validation<T>(Name, message, x => Equals(x, value));
+			Validations.Add(validation);
+			return this;
+		}
+
+		/// <inheritdoc />
+		public override PropertyValidator AreEqual(object value, string message)
+		{
+			var validation = new Validation<T>(Name, message, x => Equals(x, value));
+			Validations.Add(validation);
+			return this;
+		}
+
+		/// <summary>
 		/// Validate a property is within a range.
 		/// </summary>
 		/// <param name="minimum"> The minimum value. </param>
@@ -627,6 +647,23 @@ namespace Speedy.Validation
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Validates that a property matches the provided value.
+		/// </summary>
+		/// <param name="value"> The value to compare with. </param>
+		/// <returns> True if the value is and within the provided range. </returns>
+		public PropertyValidator AreEqual(object value)
+		{
+			return AreEqual(value, $"{Info.Name} does not equal the provided value.");
+		}
+
+		/// <summary>
+		/// Validates that a property matches the provided value.
+		/// </summary>
+		/// <param name="value"> The value to compare with. </param>
+		/// <param name="message"> The message for failed validation. </param>
+		public abstract PropertyValidator AreEqual(object value, string message);
 
 		/// <summary>
 		/// Tries to set the property using the provided value.

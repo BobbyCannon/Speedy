@@ -18,6 +18,19 @@ namespace Speedy.Serialization
 	/// </summary>
 	public class SerializerSettings : Bindable
 	{
+		private readonly Action<SerializerSettings> _beginReset, _endReset;
+
+		#region Constants
+
+		internal const bool DefaultForCamelCase = false;
+		internal const bool DefaultForConvertEnumsToString = false;
+		internal const bool DefaultForIgnoreNullValues = false;
+		internal const bool DefaultForIgnoreReadOnly = false;
+		internal const bool DefaultForIgnoreVirtuals = false;
+		internal const bool DefaultForIndented = false;
+
+		#endregion
+
 		#region Fields
 
 		private readonly Dictionary<Type, HashSet<string>> _cachedIgnoredProperties;
@@ -30,7 +43,7 @@ namespace Speedy.Serialization
 		/// <summary>
 		/// Instantiates a set of settings for the serializer.
 		/// </summary>
-		public SerializerSettings() : this(false)
+		public SerializerSettings() : this(null)
 		{
 		}
 
@@ -43,31 +56,19 @@ namespace Speedy.Serialization
 		/// <param name="ignoreReadOnly"> The flag to determine to ignore members that are readonly else include them. </param>
 		/// <param name="ignoreVirtuals"> The flag to determine to ignore members that are virtual members else include them. </param>
 		/// <param name="convertEnumsToString"> The flag to determine convert enums to string rather than number. </param>
-		public SerializerSettings(bool indented = false, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
-			: this(new JsonSerializerSettings(), indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString)
+		/// <param name="beginReset"> An optional beginning initializer for when resetting. </param>
+		/// <param name="endReset"> An optional ending initializer for when resetting. </param>
+		public SerializerSettings(bool indented = DefaultForIndented, bool camelCase = DefaultForCamelCase,
+			bool ignoreNullValues = DefaultForIgnoreNullValues, bool ignoreReadOnly = DefaultForIgnoreReadOnly,
+			bool ignoreVirtuals = DefaultForIgnoreVirtuals, bool convertEnumsToString = DefaultForConvertEnumsToString,
+			Action<SerializerSettings> beginReset = null, Action<SerializerSettings> endReset = null)
+			: this(new JsonSerializerSettings(), indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString, beginReset, endReset)
 		{
-			UpdateJsonSerializerSettings();
 		}
 
-		/// <summary>
-		/// Instantiates a set of settings for the serializer.
-		/// </summary>
-		/// <param name="settings"> The initial settings. </param>
-		public SerializerSettings(JsonSerializerSettings settings)
-			: this(settings, false, false, false, false, false, false)
-		{
-			UpdateWithJsonSerializerSettings();
-		}
-
-		/// <summary>
-		/// Defaults are set to the initial default state of the class.
-		/// </summary>
-		static SerializerSettings()
-		{
-			ResetDefaultSettings();
-		}
-
-		private SerializerSettings(JsonSerializerSettings settings, bool indented, bool camelCase, bool ignoreNullValues, bool ignoreReadOnly, bool ignoreVirtuals, bool convertEnumsToString)
+		private SerializerSettings(JsonSerializerSettings settings, bool indented = DefaultForIndented, bool camelCase = DefaultForCamelCase,
+			bool ignoreNullValues = DefaultForIgnoreNullValues, bool ignoreReadOnly = DefaultForIgnoreReadOnly, bool ignoreVirtuals = DefaultForIgnoreVirtuals,
+			bool convertEnumsToString = DefaultForConvertEnumsToString, Action<SerializerSettings> beginReset = null, Action<SerializerSettings> endReset = null)
 		{
 			Indented = indented;
 			CamelCase = camelCase;
@@ -75,10 +76,17 @@ namespace Speedy.Serialization
 			IgnoreReadOnly = ignoreReadOnly;
 			IgnoreVirtuals = ignoreVirtuals;
 			ConvertEnumsToString = convertEnumsToString;
-			JsonSettings = settings;
+			JsonSettings = settings ?? new JsonSerializerSettings();
 
 			_cachedIgnoredProperties = new Dictionary<Type, HashSet<string>>();
 			_globalIgnoredMembers = new HashSet<string>();
+			_beginReset = beginReset;
+			_beginReset?.Invoke(this);
+			
+			UpdateJsonSerializerSettings();
+
+			_endReset = endReset;
+			_endReset?.Invoke(this);
 		}
 
 		#endregion
@@ -98,7 +106,8 @@ namespace Speedy.Serialization
 		/// <summary>
 		/// Represents default values to set when <see cref="Reset" /> is invoked.
 		/// </summary>
-		public static SerializerSettings DefaultSettings { get; private set; }
+		[Obsolete("Use Serializer.DefaultSettings instead.")]
+		public static SerializerSettings DefaultSettings => Serializer.DefaultSettings;
 
 		/// <summary>
 		/// The flag to determine to ignore members that are null else include them.
@@ -135,6 +144,11 @@ namespace Speedy.Serialization
 		/// <param name="converter"> The converter to add or update. </param>
 		public void AddOrUpdateConverter(JsonConverter converter)
 		{
+			if (JsonSettings == null)
+			{
+				return;
+			}
+
 			RemoveConverter(converter.GetType());
 			JsonSettings.Converters.Add(converter);
 		}
@@ -175,6 +189,26 @@ namespace Speedy.Serialization
 			HasChanges = true;
 		}
 
+		/// <inheritdoc />
+		public override void OnPropertyChanged(string propertyName)
+		{
+			switch (propertyName)
+			{
+				case nameof(CamelCase):
+				case nameof(ConvertEnumsToString):
+				case nameof(IgnoreNullValues):
+				case nameof(IgnoreReadOnly):
+				case nameof(IgnoreVirtuals):
+				case nameof(Indented):
+				{
+					UpdateJsonSerializerSettings();
+					break;
+				}
+			}
+
+			base.OnPropertyChanged(propertyName);
+		}
+
 		/// <summary>
 		/// Remove a converter of the provided type
 		/// </summary>
@@ -189,6 +223,11 @@ namespace Speedy.Serialization
 		/// <param name="converterType"> </param>
 		public void RemoveConverter(Type converterType)
 		{
+			if (JsonSettings == null)
+			{
+				return;
+			}
+
 			// Try to find the converter of provided type
 			var existingConverter = JsonSettings.Converters.FirstOrDefault(x => x.GetType() == converterType);
 
@@ -205,25 +244,40 @@ namespace Speedy.Serialization
 		/// </summary>
 		public void Reset()
 		{
+			UpdateWith(Serializer.DefaultSettings);
+			HasChanges = false;
+		}
+		
+		/// <summary>
+		/// Reset the state of the "DefaultSettings" back to initial state.
+		/// </summary>
+		internal void ResetForDefaultSettings()
+		{
 			// Reset
 			_cachedIgnoredProperties.Clear();
 			_globalIgnoredMembers.Clear();
 
-			// Reset the JSON settings
+			// Reset the settings
+			CamelCase = DefaultForCamelCase;
+			ConvertEnumsToString = DefaultForConvertEnumsToString;
+			IgnoreNullValues = DefaultForIgnoreNullValues;
+			IgnoreReadOnly = DefaultForIgnoreReadOnly;
+			IgnoreVirtuals = DefaultForIgnoreVirtuals;
+			Indented = DefaultForIndented;
 			JsonSettings = new JsonSerializerSettings();
 
-			// Update the new settings with defaults
-			UpdateWith(DefaultSettings);
+			UpdateJsonSerializerSettings();
 
 			HasChanges = false;
 		}
-
+		
 		/// <summary>
 		/// Reset the DefaultSettings back to default settings.
 		/// </summary>
+		[Obsolete("Use Serializer.ResetDefaultSettings instead.")]
 		public static void ResetDefaultSettings()
 		{
-			DefaultSettings = new SerializerSettings { HasChanges = false };
+			Serializer.ResetDefaultSettings();
 		}
 
 		/// <summary>
@@ -249,18 +303,20 @@ namespace Speedy.Serialization
 				IgnoreReadOnly = update.IgnoreReadOnly;
 				IgnoreVirtuals = update.IgnoreVirtuals;
 				Indented = update.Indented;
-				JsonSettings = update.JsonSettings;
+				JsonSettings = new JsonSerializerSettings();
 			}
 			else
 			{
-				this.IfThen(x => !exclusions.Contains(nameof(CamelCase)), x => x.CamelCase = update.CamelCase);
-				this.IfThen(x => !exclusions.Contains(nameof(ConvertEnumsToString)), x => x.ConvertEnumsToString = update.ConvertEnumsToString);
-				this.IfThen(x => !exclusions.Contains(nameof(IgnoreNullValues)), x => x.IgnoreNullValues = update.IgnoreNullValues);
-				this.IfThen(x => !exclusions.Contains(nameof(IgnoreReadOnly)), x => x.IgnoreReadOnly = update.IgnoreReadOnly);
-				this.IfThen(x => !exclusions.Contains(nameof(IgnoreVirtuals)), x => x.IgnoreVirtuals = update.IgnoreVirtuals);
-				this.IfThen(x => !exclusions.Contains(nameof(Indented)), x => x.Indented = update.Indented);
-				this.IfThen(x => !exclusions.Contains(nameof(JsonSettings)), x => x.JsonSettings = update.JsonSettings);
+				this.IfThen(_ => !exclusions.Contains(nameof(CamelCase)), x => x.CamelCase = update.CamelCase);
+				this.IfThen(_ => !exclusions.Contains(nameof(ConvertEnumsToString)), x => x.ConvertEnumsToString = update.ConvertEnumsToString);
+				this.IfThen(_ => !exclusions.Contains(nameof(IgnoreNullValues)), x => x.IgnoreNullValues = update.IgnoreNullValues);
+				this.IfThen(_ => !exclusions.Contains(nameof(IgnoreReadOnly)), x => x.IgnoreReadOnly = update.IgnoreReadOnly);
+				this.IfThen(_ => !exclusions.Contains(nameof(IgnoreVirtuals)), x => x.IgnoreVirtuals = update.IgnoreVirtuals);
+				this.IfThen(_ => !exclusions.Contains(nameof(Indented)), x => x.Indented = update.Indented);
+				this.IfThen(_ => !exclusions.Contains(nameof(JsonSettings)), x => x.JsonSettings = new JsonSerializerSettings());
 			}
+
+			UpdateJsonSerializerSettings();
 		}
 
 		/// <inheritdoc />
@@ -281,9 +337,51 @@ namespace Speedy.Serialization
 			}
 		}
 
-		private bool IgnoreMember(string member)
+		/// <summary>
+		/// Configure the JsonSettings using our SerializerSettings values.
+		/// </summary>
+		/// <returns> The serialization settings. </returns>
+		private void UpdateJsonSerializerSettings()
 		{
-			return _globalIgnoredMembers.Contains(member);
+			if (JsonSettings == null)
+			{
+				return;
+			}
+
+			_cachedIgnoredProperties.Clear();
+			_globalIgnoredMembers.Clear();
+
+			_beginReset?.Invoke(this);
+
+			try
+			{
+				var namingStrategy = CamelCase
+					? (NamingStrategy)new CamelCaseNamingStrategy()
+					: new DefaultNamingStrategy();
+
+				if (ConvertEnumsToString)
+				{
+					AddOrUpdateConverter(new StringEnumConverter { NamingStrategy = namingStrategy });
+				}
+				else
+				{
+					RemoveConverter(typeof(StringEnumConverter));
+				}
+
+				AddOrUpdateConverter(new IsoDateTimeConverter());
+				AddOrUpdateConverter(new PartialUpdateConverter());
+
+				JsonSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+				JsonSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+				JsonSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+				JsonSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+				JsonSettings.NullValueHandling = IgnoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
+				JsonSettings.ContractResolver = new JsonContractResolver(CamelCase, GetIgnoredProperties, IgnoreMember);
+			}
+			finally
+			{
+				_endReset?.Invoke(this);
+			}
 		}
 
 		private HashSet<string> GetIgnoredProperties(Type type)
@@ -311,55 +409,9 @@ namespace Speedy.Serialization
 			return _cachedIgnoredProperties[type];
 		}
 
-		/// <summary>
-		/// Configure the JsonSettings using our SerializerSettings values.
-		/// </summary>
-		/// <returns> The serialization settings. </returns>
-		private void UpdateJsonSerializerSettings()
+		private bool IgnoreMember(string member)
 		{
-			var namingStrategy = CamelCase
-				? (NamingStrategy) new CamelCaseNamingStrategy()
-				: new DefaultNamingStrategy();
-
-			if (ConvertEnumsToString)
-			{
-				AddOrUpdateConverter(new StringEnumConverter { NamingStrategy = namingStrategy });
-			}
-			else
-			{
-				RemoveConverter(typeof(StringEnumConverter));
-			}
-
-			AddOrUpdateConverter(new IsoDateTimeConverter());
-			AddOrUpdateConverter(new PartialUpdateConverter());
-
-			JsonSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-			JsonSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-			JsonSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-			JsonSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-			JsonSettings.NullValueHandling = IgnoreNullValues ? NullValueHandling.Ignore : NullValueHandling.Include;
-			JsonSettings.ContractResolver = new JsonContractResolver(CamelCase, GetIgnoredProperties, IgnoreMember);
-		}
-
-		/// <summary>
-		/// Restore the state of this SerializerSettings with the JsonSettings values. The serializer settings
-		/// was created with an instance fo JsonSettings so we need to try and restore our state.
-		/// </summary>
-		private void UpdateWithJsonSerializerSettings()
-		{
-			// These values cannot be determined by JsonSettings: IgnoreReadOnly, IgnoreVirtuals
-			var camelCaseNamingStrategyType = typeof(CamelCaseNamingStrategy);
-			var stringEnumConverter = JsonSettings.GetConverter<StringEnumConverter>();
-			var contractResolver = JsonSettings.ContractResolver as JsonContractResolver;
-
-			CamelCase = (stringEnumConverter?.NamingStrategy?.GetType() == camelCaseNamingStrategyType)
-				&& (contractResolver?.NamingStrategy?.GetType() == camelCaseNamingStrategyType);
-
-			Indented = JsonSettings.Formatting == Formatting.Indented;
-			IgnoreNullValues = JsonSettings.NullValueHandling == NullValueHandling.Ignore;
-			ConvertEnumsToString = stringEnumConverter != null;
-
-			AddOrUpdateConverter(new PartialUpdateConverter());
+			return _globalIgnoredMembers.Contains(member);
 		}
 
 		#endregion

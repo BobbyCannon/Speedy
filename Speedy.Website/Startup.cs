@@ -27,7 +27,6 @@ using Speedy.Data;
 using Speedy.Extensions;
 using Speedy.Profiling;
 using Speedy.Serialization;
-using Speedy.Serialization.Converters;
 using Speedy.Storage.KeyValue;
 using Speedy.Sync;
 using Speedy.Website.Data;
@@ -59,8 +58,9 @@ namespace Speedy.Website
 			var appDataPath = Path.Combine(rootSitePath, "SpeedyAppData");
 
 			AppDataPath = new DirectoryInfo(appDataPath);
-			SerializerSettings = new SerializerSettings(false, true, false, false, true, false);
-			PartialUpdateConverter = new PartialUpdateConverter();
+
+			Serializer.DefaultSettings.CamelCase = true;
+			Serializer.DefaultSettings.IgnoreVirtuals = true;
 
 			// Load settings
 			ConnectionStrings = Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
@@ -79,10 +79,6 @@ namespace Speedy.Website
 		public static IWebHostEnvironment Environment { get; private set; }
 
 		public static bool IndentModelJson => true;
-
-		public PartialUpdateConverter PartialUpdateConverter { get; }
-
-		public static SerializerSettings SerializerSettings { get; private set; }
 
 		public static Tracker Tracker { get; private set; }
 
@@ -304,7 +300,7 @@ namespace Speedy.Website
 
 		private void UpdateSettings(JsonSerializerSettings destination)
 		{
-			var settings = SerializerSettings.JsonSettings;
+			var settings = Serializer.DefaultSettings.JsonSettings;
 
 			destination.ContractResolver = settings.ContractResolver;
 			destination.Converters.AddRange(settings.Converters);

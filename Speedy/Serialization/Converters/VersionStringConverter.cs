@@ -35,10 +35,16 @@ namespace Speedy.Serialization.Converters
 			}
 
 			var item = JObject.Load(reader);
-			var major = int.TryParse(item["Major"]?.ToString() ?? item["major"]?.ToString(), out var m0) ? m0 : 0;
-			var minor = int.TryParse(item["Minor"]?.ToString() ?? item["minor"]?.ToString(), out var m1) ? m1 : 0;
-			var build = int.TryParse(item["Build"]?.ToString() ?? item["build"]?.ToString(), out var b) ? b : 0;
-			var revision = int.TryParse(item["Revision"]?.ToString() ?? item["revision"]?.ToString(), out var r) ? r : 0;
+
+			var majorValue = item.TryGetValue("major", StringComparison.OrdinalIgnoreCase, out var majorToken) ? majorToken.ToString() : "0";
+			var minorValue = item.TryGetValue("minor", StringComparison.OrdinalIgnoreCase, out var minorToken) ? minorToken.ToString() : "0";
+			var buildValue = item.TryGetValue("build", StringComparison.OrdinalIgnoreCase, out var buildToken) ? buildToken.ToString() : "0";
+			var revisionValue = item.TryGetValue("revision", StringComparison.OrdinalIgnoreCase, out var revisionToken) ? revisionToken.ToString() : "0";
+
+			var major = int.TryParse(majorValue, out var m0) ? m0 : 0;
+			var minor = int.TryParse(minorValue, out var m1) ? m1 : 0;
+			var build = int.TryParse(buildValue, out var b) ? b : 0;
+			var revision = int.TryParse(revisionValue, out var r) ? r : 0;
 
 			return new Version(major, minor, build, revision);
 		}

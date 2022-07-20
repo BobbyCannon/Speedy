@@ -67,7 +67,7 @@ namespace Speedy.UnitTests
 			var request = new CustomPagedRequest { Precision = 2.123, Page = 12, PerPage = 2 };
 			var results = new CustomPagedResults<object>(request, 1234, 2, 546, "aoeu", false);
 			var actual = results.ToJson();
-			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":12,\"PerPage\":2,\"Precision\":2.123,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":617,\"Results\":[2,546,\"aoeu\",false]}";
+			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":12,\"PerPage\":2,\"Precision\":2.123,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":617,\"Results\":[2,546,\"aoeu\",false]}";
 			Assert.AreEqual(expected, actual);
 		}
 
@@ -78,7 +78,7 @@ namespace Speedy.UnitTests
 			request.ParseQueryString("?precision=321.41");
 			var results = new CustomPagedResults<object>(request, 1234, 2, 546, "aoeu", false);
 			var actual = results.ToJson();
-			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":11,\"Precision\":321.41,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":113,\"Results\":[2,546,\"aoeu\",false]}";
+			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":11,\"Precision\":321.41,\"HasMore\":true,\"TotalCount\":1234,\"TotalPages\":113,\"Results\":[2,546,\"aoeu\",false]}";
 			Assert.AreEqual(expected, actual);
 		}
 
@@ -89,7 +89,7 @@ namespace Speedy.UnitTests
 			var response = new PagedResults<object>(request, 0);
 			var actual = response.ToJson();
 			actual.Escape().Dump();
-			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":0,\"TotalPages\":1,\"Results\":[]}";
+			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":0,\"TotalPages\":1,\"Results\":[]}";
 			TestHelper.AreEqual(expected, actual);
 		}
 
@@ -187,8 +187,8 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = results.ToJson();
-			actual.Escape().CopyToClipboard().Dump();
-			var expected = "{\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":4,\"TotalPages\":1,\"Results\":[\"1.2.3.4\",\"5.6.7.8\",\"9.10.11\",\"12.13\"]}";
+			//actual.Escape().CopyToClipboard().Dump();
+			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10,\"HasMore\":false,\"TotalCount\":4,\"TotalPages\":1,\"Results\":[\"1.2.3.4\",\"5.6.7.8\",\"9.10.11\",\"12.13\"]}";
 			Assert.AreEqual(expected, actual);
 		}
 

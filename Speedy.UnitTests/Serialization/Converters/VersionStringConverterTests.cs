@@ -36,10 +36,19 @@ namespace Speedy.UnitTests.Serialization.Converters
 			var version = new Version(1, 2, 3, 4);
 			var expected = "{\"Major\":1,\"Minor\":2,\"Build\":3,\"Revision\":4}";
 			var actual = version.ToJson(settings);
-			actual.Escape().CopyToClipboard().Dump();
+			//actual.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual(expected, actual);
 
 			var actualVersion = actual.FromJson<Version>(settings);
+			Assert.AreEqual(version, actualVersion);
+			
+			settings = new SerializerSettings();
+			expected = "\"1.2.3.4\"";
+			actual = version.ToJson(settings);
+			//actual.Escape().CopyToClipboard().Dump();
+			Assert.AreEqual(expected, actual);
+
+			actualVersion = actual.FromJson<Version>(settings);
 			Assert.AreEqual(version, actualVersion);
 		}
 		
@@ -52,7 +61,7 @@ namespace Speedy.UnitTests.Serialization.Converters
 			var expected = "{\"major\":1,\"minor\":2,\"build\":3,\"revision\":4}";
 			
 			var actual = version.ToJson(settings);
-			actual.Escape().CopyToClipboard().Dump();
+			//actual.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual(expected, actual);
 
 			var actualVersion = actual.FromJson<Version>(settings);

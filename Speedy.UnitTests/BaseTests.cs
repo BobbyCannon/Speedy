@@ -16,12 +16,6 @@ namespace Speedy.UnitTests
 			TestHelper.Initialize();
 		}
 
-		protected string GetMessageAndCopy(string actual)
-		{
-			TestHelper.CopyToClipboard(actual);
-			return actual;
-		}
-
 		#endregion
 	}
 }

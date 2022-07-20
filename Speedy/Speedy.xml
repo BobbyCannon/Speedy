@@ -4741,6 +4741,12 @@
             see https://www.ietf.org/rfc/rfc2396.txt for details on url encoding
             </remarks>
         </member>
+        <member name="M:Speedy.PartialUpdate.ToRawJson">
+            <summary>
+            Get the JSON for the partial update.
+            </summary>
+            <returns> The JSON for the partial update. </returns>
+        </member>
         <member name="M:Speedy.PartialUpdate.TryGet``1(System.String,``0@)">
             <summary>
             Get the property value.
@@ -7218,6 +7224,17 @@
             Represents a serializer
             </summary>
         </member>
+        <member name="P:Speedy.Serialization.Serializer.DefaultSettings">
+            <summary>
+            Represents default values to set when <see cref="M:Speedy.Serialization.SerializerSettings.Reset" /> is invoked.
+            </summary>
+        </member>
+        <member name="M:Speedy.Serialization.Serializer.AddOrUpdateConverter(Newtonsoft.Json.JsonConverter)">
+            <summary>
+            Add or update converter to the JsonSettings.
+            </summary>
+            <param name="converter"> The converter to add or update. </param>
+        </member>
         <member name="M:Speedy.Serialization.Serializer.DeepClone``1(``0,System.Nullable{System.Int32},System.Boolean)">
             <summary>
             Deep clone the item.
@@ -7287,6 +7304,11 @@
             <param name="input"> The value to validate. </param>
             <returns> True if the input is JSON or false if otherwise. </returns>
         </member>
+        <member name="M:Speedy.Serialization.Serializer.ResetDefaultSettings">
+            <summary>
+            Reset the DefaultSettings back to default settings.
+            </summary>
+        </member>
         <member name="M:Speedy.Serialization.Serializer.ToJson``1(``0,Speedy.Serialization.SerializerSettings)">
             <summary>
             Serialize an object into a JSON string.
@@ -7350,7 +7372,7 @@
             Instantiates a set of settings for the serializer.
             </summary>
         </member>
-        <member name="M:Speedy.Serialization.SerializerSettings.#ctor(System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Speedy.Serialization.SerializerSettings.#ctor(System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Action{Speedy.Serialization.SerializerSettings},System.Action{Speedy.Serialization.SerializerSettings})">
             <summary>
             Instantiates a set of settings for the serializer.
             </summary>
@@ -7360,17 +7382,8 @@
             <param name="ignoreReadOnly"> The flag to determine to ignore members that are readonly else include them. </param>
             <param name="ignoreVirtuals"> The flag to determine to ignore members that are virtual members else include them. </param>
             <param name="convertEnumsToString"> The flag to determine convert enums to string rather than number. </param>
-        </member>
-        <member name="M:Speedy.Serialization.SerializerSettings.#ctor(Newtonsoft.Json.JsonSerializerSettings)">
-            <summary>
-            Instantiates a set of settings for the serializer.
-            </summary>
-            <param name="settings"> The initial settings. </param>
-        </member>
-        <member name="M:Speedy.Serialization.SerializerSettings.#cctor">
-            <summary>
-            Defaults are set to the initial default state of the class.
-            </summary>
+            <param name="beginReset"> An optional beginning initializer for when resetting. </param>
+            <param name="endReset"> An optional ending initializer for when resetting. </param>
         </member>
         <member name="P:Speedy.Serialization.SerializerSettings.CamelCase">
             <summary>
@@ -7431,6 +7444,9 @@
             </summary>
             <param name="propertyNames"> One or more properties to ignore. Leave empty to ignore the type entirely. </param>
         </member>
+        <member name="M:Speedy.Serialization.SerializerSettings.OnPropertyChanged(System.String)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Serialization.SerializerSettings.RemoveConverter``1">
             <summary>
             Remove a converter of the provided type
@@ -7445,6 +7461,11 @@
         <member name="M:Speedy.Serialization.SerializerSettings.Reset">
             <summary>
             Reset the state of shared settings
+            </summary>
+        </member>
+        <member name="M:Speedy.Serialization.SerializerSettings.ResetForDefaultSettings">
+            <summary>
+            Reset the state of the "DefaultSettings" back to initial state.
             </summary>
         </member>
         <member name="M:Speedy.Serialization.SerializerSettings.ResetDefaultSettings">
@@ -7467,12 +7488,6 @@
             Configure the JsonSettings using our SerializerSettings values.
             </summary>
             <returns> The serialization settings. </returns>
-        </member>
-        <member name="M:Speedy.Serialization.SerializerSettings.UpdateWithJsonSerializerSettings">
-            <summary>
-            Restore the state of this SerializerSettings with the JsonSettings values. The serializer settings
-            was created with an instance fo JsonSettings so we need to try and restore our state.
-            </summary>
         </member>
         <member name="T:Speedy.ShortGuid">
             <summary>
@@ -11443,6 +11458,16 @@
             Creates an instance of a property validator.
             </summary>
         </member>
+        <member name="M:Speedy.Validation.PropertyValidator`1.AreEqual(`0,System.String)">
+            <summary>
+            Validates that a property matches the provided value.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <param name="message"> The message for failed validation. </param>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator`1.AreEqual(System.Object,System.String)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Validation.PropertyValidator`1.HasMinMaxRange(`0,`0,System.Boolean)">
             <summary>
             Validate a property is within a range.
@@ -11648,6 +11673,20 @@
             <summary>
             Get the required validation.
             </summary>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator.AreEqual(System.Object)">
+            <summary>
+            Validates that a property matches the provided value.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <returns> True if the value is and within the provided range. </returns>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator.AreEqual(System.Object,System.String)">
+            <summary>
+            Validates that a property matches the provided value.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <param name="message"> The message for failed validation. </param>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.GetValue(System.Object)">
             <summary>
