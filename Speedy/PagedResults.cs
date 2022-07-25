@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
@@ -35,6 +34,35 @@ namespace Speedy
 		public PagedResults(PagedRequest request, int totalCount, params T[] results)
 			: base(request, totalCount, results)
 		{
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// Convert the results of to a different type.
+		/// </summary>
+		/// <typeparam name="T2"> The type to convert into. </typeparam>
+		/// <param name="convert"> The function to convert from the current type into the requested type. </param>
+		/// <returns> The new paged results for the provided type. </returns>
+		public PagedResults<T2> ConvertResults<T2>(Func<T, T2> convert)
+		{
+			var response = new PagedResults<T2>
+			{
+				Results = Results.Select(convert).ToList(),
+				Filter = Filter,
+				Order = Order,
+				Page = Page,
+				PerPage = PerPage,
+				TotalCount = TotalCount,
+				Request = Request
+			};
+
+			response.Updates.Reconcile(Updates);
+			response.Options.UpdateWith(Options);
+
+			return response;
 		}
 
 		#endregion
@@ -104,11 +132,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// The incoming request. This will be flattened in the JSON.
-		/// </summary>
-		protected T2 Request { get; set; }
-
-		/// <summary>
 		/// The results for a paged request.
 		/// </summary>
 		public IList<T> Results { get; set; }
@@ -122,6 +145,11 @@ namespace Speedy
 
 		/// <inheritdoc />
 		public int TotalPages => TotalCount > 0 ? (TotalCount / Request.PerPage) + ((TotalCount % Request.PerPage) > 0 ? 1 : 0) : 1;
+
+		/// <summary>
+		/// The incoming request. This will be flattened in the JSON.
+		/// </summary>
+		protected T2 Request { get; set; }
 
 		#endregion
 

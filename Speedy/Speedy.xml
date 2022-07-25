@@ -1790,17 +1790,6 @@
             Extensions for collections.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.ExcludeSequentialDuplicates``2(System.Collections.Generic.IEnumerable{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Func{``0,``0,System.Boolean})">
-            <summary>
-            Exclude duplicates that are sequential. Ex. 1,2,2,3,3,4 -> 1,2,3,4
-            </summary>
-            <typeparam name="T"> The type of the collection entries. </typeparam>
-            <typeparam name="T2"> The type of the property to be validated. </typeparam>
-            <param name="collection"> The collection to be processed. </param>
-            <param name="propertyExpression"> The expression of the property to be tested. </param>
-            <param name="additionalCheck"> An optional additional check for testing for duplicates. </param>
-            <returns> The processed collections with sequential duplicates removed. </returns>
-        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddIfMissing``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
             <summary>
             Add a dictionary entry if the key is not found.
@@ -1907,6 +1896,17 @@
             <param name="dictionary"> The dictionary to clone. </param>
             <returns> The clone dictionary. </returns>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.ExcludeSequentialDuplicates``2(System.Collections.Generic.IEnumerable{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Func{``0,``0,System.Boolean})">
+            <summary>
+            Exclude duplicates that are sequential. Ex. 1,2,2,3,3,4 -> 1,2,3,4
+            </summary>
+            <typeparam name="T"> The type of the collection entries. </typeparam>
+            <typeparam name="T2"> The type of the property to be validated. </typeparam>
+            <param name="collection"> The collection to be processed. </param>
+            <param name="propertyExpression"> The expression of the property to be tested. </param>
+            <param name="additionalCheck"> An optional additional check for testing for duplicates. </param>
+            <returns> The processed collections with sequential duplicates removed. </returns>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.ForEach(System.Collections.IEnumerable,System.Action{System.Object})">
             <summary>
             Execute the action on each entity in the collection.
@@ -1991,6 +1991,15 @@
             <param name="index"> The index to start from. </param>
             <param name="length"> The amount of data to pull. </param>
             <returns> The sub array of data. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.ToHashSet``1(System.Collections.Generic.IEnumerable{``0},``0[])">
+            <summary>
+            Appends new values to an existing HashSet.
+            </summary>
+            <typeparam name="T"> The type of value in the set. </typeparam>
+            <param name="set"> The set to append to. </param>
+            <param name="values"> The values to add. </param>
+            <returns> A new HashSet containing the new values. </returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.ToListSafe``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
@@ -2113,13 +2122,122 @@
             <param name="flag"> The flag to be cleared. </param>
             <returns> The value with the flagged cleared. </returns>
         </member>
-        <member name="M:Speedy.Extensions.EnumExtensions.GetDescription``1(``0,System.Object[])">
+        <member name="M:Speedy.Extensions.EnumExtensions.Count``1">
             <summary>
-            Gets the display name of the enum value.
+            Returns the number of values for the provided enum.
             </summary>
-            <param name="enumerationValue"> The enum value to get the name for. </param>
-            <param name="arguments"> Any optional values for the description value. </param>
-            <returns> The description of the enum value. </returns>
+            <returns> The number of values in the enum. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.Count(System.Enum)">
+            <summary>
+            Returns the number of values for the provided enum.
+            </summary>
+            <param name="value"> The enum value to count. </param>
+            <returns> The number of values in the enum. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetAllEnumDetails``1">
+            <summary>
+            Gets the all details for an enum value.
+            </summary>
+            <returns> The all details for the enum value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetAllEnumDetailsExcept``1(``0[])">
+            <summary>
+            Gets the all details for an enum value except the excluded.
+            </summary>
+            <param name="exclusions"> The types to be excluded. </param>
+            <returns> The all details for the enum value except the exclusions. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetAllEnumDetails(System.Type)">
+            <summary>
+            Gets the all details for an enum value.
+            </summary>
+            <param name="type"> The type to process. </param>
+            <returns> The all details for the enum value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDescription(System.Enum)">
+            <summary>
+            Gets the description.
+            </summary>
+            <param name="value"> The enum value to get the description for. </param>
+            <returns> The description of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDescription``1(``0)">
+            <summary>
+            Gets the description.
+            </summary>
+            <param name="value"> The enum value to get the description for. </param>
+            <returns> The description of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDisplayName(System.Enum)">
+            <summary>
+            Gets the name.
+            </summary>
+            <param name="value"> The enum value to get the name for. </param>
+            <returns> The name of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDisplayName``1(``0)">
+            <summary>
+            Gets the name.
+            </summary>
+            <param name="value"> The enum value to get the name for. </param>
+            <returns> The name of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDisplayNames``1">
+            <summary>
+            Gets the display names.
+            </summary>
+            <returns> The display names of the enum type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDisplayNamesExcept``1(``0[])">
+            <summary>
+            Gets the display names excluding the provided values.
+            </summary>
+            <param name="exclusions"> An optional set of enums to exclude. </param>
+            <returns> The display names of the enum type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDisplayShortName(System.Enum)">
+            <summary>
+            Gets the display short name.
+            </summary>
+            <param name="value"> The enum value to get the short name for. </param>
+            <returns> The name of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetDisplayShortName``1(``0)">
+            <summary>
+            Gets the short name.
+            </summary>
+            <param name="value"> The enum value to get the short name for. </param>
+            <returns> The short name of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetEnumDetails(System.Enum)">
+            <summary>
+            Gets the details for an enum value.
+            </summary>
+            <param name="value"> The value to process. </param>
+            <returns> The details for the enum value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetFlaggedValues``1(``0)">
+            <summary>
+            Gets the type array of the values flagged (set) in the enum.
+            </summary>
+            <typeparam name="T"> The enum type. </typeparam>
+            <param name="value"> The enum value to get the flagged values for. </param>
+            <returns> The individual values for the enum. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetFlagValues``1">
+            <summary>
+            Gets the type array of the values in the enum.
+            </summary>
+            <typeparam name="T"> The enum type. </typeparam>
+            <returns> The individual values for the enum. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetValues``1">
+            <summary>
+            Gets the type array of the values in the enum.
+            </summary>
+            <typeparam name="T"> The enum type. </typeparam>
+            <returns> The individual values for the enum. </returns>
         </member>
         <member name="M:Speedy.Extensions.EnumExtensions.SetFlag``1(``0,``0)">
             <summary>
@@ -2130,26 +2248,39 @@
             <param name="flag"> The flag to be set. </param>
             <returns> The value with the flagged set. </returns>
         </member>
-        <member name="M:Speedy.Extensions.EnumExtensions.ToDisplayName(System.Enum)">
+        <member name="T:Speedy.Extensions.EnumExtensions.EnumDetails">
             <summary>
-            Gets the display name.
+            Represents the details for an enum value.
             </summary>
-            <param name="value"> The enum value to get the name for. </param>
-            <returns> The name of the value. </returns>
         </member>
-        <member name="M:Speedy.Extensions.EnumExtensions.ToDisplayNames``1">
+        <member name="P:Speedy.Extensions.EnumExtensions.EnumDetails.Description">
             <summary>
-            Gets the display names for an enum.
+            The description of the enum value.
             </summary>
-            <typeparam name="T"> The enum value to get the name for. </typeparam>
-            <returns> The name of the value. </returns>
+            <remarks>
+            Priority is [DisplayAttribute].Description, [DescriptionAttribute].Description, enum.ToString()
+            </remarks>
         </member>
-        <member name="M:Speedy.Extensions.EnumExtensions.ToDisplayShortName(System.Enum)">
+        <member name="P:Speedy.Extensions.EnumExtensions.EnumDetails.Name">
             <summary>
-            Gets the display short name.
+            The name of the enum value.
             </summary>
-            <param name="value"> The enum value to get the short name for. </param>
-            <returns> The short name of the value. </returns>
+            <remarks>
+            Priority is [DisplayAttribute].Name, enum.ToString()
+            </remarks>
+        </member>
+        <member name="P:Speedy.Extensions.EnumExtensions.EnumDetails.ShortName">
+            <summary>
+            The short name of the enum value.
+            </summary>
+            <remarks>
+            Priority is [DisplayAttribute].Short, enum.ToString()
+            </remarks>
+        </member>
+        <member name="P:Speedy.Extensions.EnumExtensions.EnumDetails.Value">
+            <summary>
+            The enum value.
+            </summary>
         </member>
         <member name="T:Speedy.Extensions.ExceptionExtensions">
             <summary>
@@ -2370,40 +2501,13 @@
             Extensions for queryable
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1})">
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``1(System.Linq.IQueryable{``0},Speedy.PagedRequest)">
             <summary>
             Gets paged results.
             </summary>
-            <typeparam name="T1"> The type of item in the query. </typeparam>
-            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <typeparam name="T"> The type of the item returned. </typeparam>
             <param name="query"> The queryable collection. </param>
             <param name="request"> The request values. </param>
-            <param name="transform"> The function to transfer the results. </param>
-            <returns> The paged results. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
-            <summary>
-            Gets paged results.
-            </summary>
-            <typeparam name="T1"> The type of item in the query. </typeparam>
-            <typeparam name="T2"> The type of the item returned. </typeparam>
-            <param name="query"> The queryable collection. </param>
-            <param name="request"> The request values. </param>
-            <param name="transform"> The function to transfer the results. </param>
-            <param name="order"> An optional order of the collection. </param>
-            <returns> The paged results. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
-            <summary>
-            Gets paged results.
-            </summary>
-            <typeparam name="T1"> The type of item in the query. </typeparam>
-            <typeparam name="T2"> The type of the item returned. </typeparam>
-            <param name="query"> The queryable collection. </param>
-            <param name="request"> The request values. </param>
-            <param name="transform"> The function to transfer the results. </param>
-            <param name="order"> The order of the collection. </param>
-            <param name="thenBys"> An optional then bys to order the collection. </param>
             <returns> The paged results. </returns>
         </member>
         <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``3(System.Linq.IQueryable{``0},``2)">
@@ -2417,9 +2521,45 @@
             <param name="request"> The request values. </param>
             <returns> The paged results. </returns>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Func{``0,``1})">
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
             <summary>
-            Gets paged results.
+            Gets paged results. Transform is executed as part of the query.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="tranform"> The function to transform the results. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+            <summary>
+            Gets paged results. Transform is executed as part of the query.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="tranform"> The function to transfer the results. </param>
+            <param name="order"> An optional order of the collection. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Linq.Expressions.Expression{System.Func{``0,``1}},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
+            <summary>
+            Gets paged results. Transform is executed as part of the query.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="transform"> The function to transfer the results. </param>
+            <param name="order"> The order of the collection. </param>
+            <param name="thenBys"> An optional then bys to order the collection. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Gets paged results. Transform is executed as part of the query.
             </summary>
             <typeparam name="T1"> The type of item in the query. </typeparam>
             <typeparam name="T2"> The type of the item returned. </typeparam>
@@ -2430,9 +2570,9 @@
             <param name="transform"> The function to transfer the results. </param>
             <returns> The paged results. </returns>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Func{``0,``1},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
             <summary>
-            Gets paged results.
+            Gets paged results. Transform is executed as part of the query.
             </summary>
             <typeparam name="T1"> The type of item in the query. </typeparam>
             <typeparam name="T2"> The type of the item returned. </typeparam>
@@ -2444,14 +2584,50 @@
             <param name="order"> An optional order of the collection. </param>
             <returns> The paged results. </returns>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Func{``0,``1},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Linq.Expressions.Expression{System.Func{``0,``1}},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
             <summary>
-            Gets paged results.
+            Gets paged results. Transform is executed as part of the query.
             </summary>
             <typeparam name="T1"> The type of item in the query. </typeparam>
             <typeparam name="T2"> The type of the item returned. </typeparam>
             <typeparam name="T3"> The PagedResults type </typeparam>
             <typeparam name="T4"> The PagedRequests for the PagedResults. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="transform"> The function to transfer the results. </param>
+            <param name="order"> The order of the collection. </param>
+            <param name="thenBys"> An optional then bys to order the collection. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResultsClientTransform``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1})">
+            <summary>
+            Gets paged results. Transform is executed on the client after the results are queried.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="transform"> The function to transfer the results. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResultsClientTransform``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+            <summary>
+            Gets paged results. Transform is executed on the client after the results are queried.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
+            <param name="query"> The queryable collection. </param>
+            <param name="request"> The request values. </param>
+            <param name="transform"> The function to transfer the results. </param>
+            <param name="order"> An optional order of the collection. </param>
+            <returns> The paged results. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResultsClientTransform``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
+            <summary>
+            Gets paged results. Transform is executed on the client after the results are queried.
+            </summary>
+            <typeparam name="T1"> The type of item in the query. </typeparam>
+            <typeparam name="T2"> The type of the item returned. </typeparam>
             <param name="query"> The queryable collection. </param>
             <param name="request"> The request values. </param>
             <param name="transform"> The function to transfer the results. </param>
@@ -4354,6 +4530,14 @@
             <param name="totalCount"> The total amount of items for the request. </param>
             <param name="results"> The items in this set of results. </param>
         </member>
+        <member name="M:Speedy.PagedResults`1.ConvertResults``1(System.Func{`0,``0})">
+            <summary>
+            Convert the results of to a different type.
+            </summary>
+            <typeparam name="T2"> The type to convert into. </typeparam>
+            <param name="convert"> The function to convert from the current type into the requested type. </param>
+            <returns> The new paged results for the provided type. </returns>
+        </member>
         <member name="T:Speedy.PagedResults`2">
             <summary>
             Represents a page of results for a paged request to a service.
@@ -4384,11 +4568,6 @@
         <member name="P:Speedy.PagedResults`2.PerPage">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.PagedResults`2.Request">
-            <summary>
-            The incoming request. This will be flattened in the JSON.
-            </summary>
-        </member>
         <member name="P:Speedy.PagedResults`2.Results">
             <summary>
             The results for a paged request.
@@ -4399,6 +4578,11 @@
         </member>
         <member name="P:Speedy.PagedResults`2.TotalPages">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.PagedResults`2.Request">
+            <summary>
+            The incoming request. This will be flattened in the JSON.
+            </summary>
         </member>
         <member name="M:Speedy.PagedResults`2.CalculatePaginationValues">
             <inheritdoc />
@@ -4697,6 +4881,12 @@
             </summary>
             <returns> </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate.op_Explicit(System.String)~Speedy.PartialUpdate">
+            <summary>
+            Explicit converter from string to PartialUpdate.
+            </summary>
+            <param name="value"> The string value to parse. </param>
+        </member>
         <member name="M:Speedy.PartialUpdate.ParseQueryString(System.String)">
             <summary>
             Parse the paged request values from the query string.
@@ -4848,6 +5038,13 @@
             <summary>
             Instantiates a partial update value.
             </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateValue.#ctor(System.String,System.Object)">
+            <summary>
+            Instantiates a partial update value.
+            </summary>
+            <param name="name"> The property name of the update. </param>
+            <param name="value"> The value to set the property to. </param>
         </member>
         <member name="M:Speedy.PartialUpdateValue.#ctor(System.String,System.Type,System.Object)">
             <summary>
@@ -7303,6 +7500,13 @@
             </summary>
             <param name="input"> The value to validate. </param>
             <returns> True if the input is JSON or false if otherwise. </returns>
+        </member>
+        <member name="M:Speedy.Serialization.Serializer.IsQueryString(System.String)">
+            <summary>
+            Determines if the string is a query string
+            </summary>
+            <param name="input"> The value to validate. </param>
+            <returns> True if the input is a query string or false if otherwise. </returns>
         </member>
         <member name="M:Speedy.Serialization.Serializer.ResetDefaultSettings">
             <summary>

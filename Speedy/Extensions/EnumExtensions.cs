@@ -19,7 +19,7 @@ namespace Speedy.Extensions
 	{
 		#region Fields
 
-		private static readonly ConcurrentDictionary<string, string> _enumErrorCache;
+		private static readonly ConcurrentDictionary<Type, IReadOnlyDictionary<Enum, EnumDetails>> _cache;
 
 		#endregion
 
@@ -27,7 +27,7 @@ namespace Speedy.Extensions
 
 		static EnumExtensions()
 		{
-			_enumErrorCache = new ConcurrentDictionary<string, string>();
+			_cache = new ConcurrentDictionary<Type, IReadOnlyDictionary<Enum, EnumDetails>>();
 		}
 
 		#endregion
@@ -47,41 +47,222 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
-		/// Gets the display name of the enum value.
+		/// Returns the number of values for the provided enum.
 		/// </summary>
-		/// <param name="enumerationValue"> The enum value to get the name for. </param>
-		/// <param name="arguments"> Any optional values for the description value. </param>
-		/// <returns> The description of the enum value. </returns>
-		public static string GetDescription<T>(this T enumerationValue, params object[] arguments) where T : struct
+		/// <returns> The number of values in the enum. </returns>
+		public static int Count<T>() where T : Enum
 		{
-			var type = enumerationValue.GetType();
-			if (!type.IsEnum)
-			{
-				throw new ArgumentException("EnumerationValue must be of Enum type", nameof(enumerationValue));
-			}
+			return GetAllEnumDetails(typeof(T)).Count;
+		}
 
-			var key = $"{type.FullName}+{enumerationValue}";
-			var value = _enumErrorCache.GetOrAdd(key, x =>
-			{
-				// Tries to find a DescriptionAttribute for a potential friendly name for the enum
-				var memberInfo = type.GetMember(enumerationValue.ToString());
+		/// <summary>
+		/// Returns the number of values for the provided enum.
+		/// </summary>
+		/// <param name="value"> The enum value to count. </param>
+		/// <returns> The number of values in the enum. </returns>
+		public static int Count(this Enum value)
+		{
+			return GetAllEnumDetails(value.GetType()).Count;
+		}
 
-				if (memberInfo.Length > 0)
+		/// <summary>
+		/// Gets the all details for an enum value.
+		/// </summary>
+		/// <returns> The all details for the enum value. </returns>
+		public static IReadOnlyDictionary<T, EnumDetails> GetAllEnumDetails<T>() where T : Enum
+		{
+			return GetAllEnumDetails(typeof(T)).ToDictionary(x => (T) x.Key, x => x.Value);
+		}
+		
+		/// <summary>
+		/// Gets the all details for an enum value except the excluded.
+		/// </summary>
+		/// <param name="exclusions"> The types to be excluded. </param>
+		/// <returns> The all details for the enum value except the exclusions. </returns>
+		public static IReadOnlyDictionary<T, EnumDetails> GetAllEnumDetailsExcept<T>(params T[] exclusions) where T : Enum
+		{
+			return GetAllEnumDetails(typeof(T))
+				.Where(x => !exclusions.Contains((T) x.Key))
+				.ToDictionary(x => (T) x.Key, x => x.Value);
+		}
+
+		/// <summary>
+		/// Gets the all details for an enum value.
+		/// </summary>
+		/// <param name="type"> The type to process. </param>
+		/// <returns> The all details for the enum value. </returns>
+		public static IReadOnlyDictionary<Enum, EnumDetails> GetAllEnumDetails(Type type)
+		{
+			return _cache.GetOrAdd(type, x =>
+			{
+				var enumValues = Enum.GetValues(type);
+				var response = new Dictionary<Enum, EnumDetails>();
+
+				foreach (Enum enumValue in enumValues)
 				{
-					var attrs = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-					if (attrs.Length > 0)
+					var memberInfo = x.GetMember(enumValue.ToString()).FirstOrDefault();
+					var descriptionAttribute = memberInfo?.GetCustomAttribute<DescriptionAttribute>();
+					var displayAttribute = memberInfo?.GetCustomAttribute<DisplayAttribute>();
+					var details = new EnumDetails
 					{
-						// Pull out the description value
-						return ((DescriptionAttribute) attrs[0]).Description;
-					}
+						Description = displayAttribute?.Description
+							?? descriptionAttribute?.Description
+							?? enumValue.ToString(),
+						Name = displayAttribute?.Name ?? enumValue.ToString(),
+						ShortName = displayAttribute?.ShortName ?? enumValue.ToString(),
+						Value = enumValue
+					};
+					response.Add(enumValue, details);
 				}
 
-				// If we have no description attribute, just return the ToString of the enum
-				return enumerationValue.ToString();
+				return response;
 			});
+		}
 
-			return arguments.Any() ? string.Format(value, arguments) : value;
+		/// <summary>
+		/// Gets the description.
+		/// </summary>
+		/// <param name="value"> The enum value to get the description for. </param>
+		/// <returns> The description of the value. </returns>
+		public static string GetDescription(this Enum value)
+		{
+			return GetEnumDetails(value).Description;
+		}
+
+		/// <summary>
+		/// Gets the description.
+		/// </summary>
+		/// <param name="value"> The enum value to get the description for. </param>
+		/// <returns> The description of the value. </returns>
+		public static string GetDescription<T>(this T value) where T : Enum
+		{
+			return GetEnumDetails(value).Description;
+		}
+
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <param name="value"> The enum value to get the name for. </param>
+		/// <returns> The name of the value. </returns>
+		public static string GetDisplayName(this Enum value)
+		{
+			return GetEnumDetails(value).Name;
+		}
+
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <param name="value"> The enum value to get the name for. </param>
+		/// <returns> The name of the value. </returns>
+		public static string GetDisplayName<T>(this T value) where T : Enum
+		{
+			return GetEnumDetails(value).Name;
+		}
+		
+		/// <summary>
+		/// Gets the display names.
+		/// </summary>
+		/// <returns> The display names of the enum type. </returns>
+		public static string[] GetDisplayNames<T>() where T : Enum
+		{
+			return GetAllEnumDetails<T>().Select(x => x.Value.Name).ToArray();
+		}
+		
+		/// <summary>
+		/// Gets the display names excluding the provided values.
+		/// </summary>
+		/// <param name="exclusions"> An optional set of enums to exclude. </param>
+		/// <returns> The display names of the enum type. </returns>
+		public static string[] GetDisplayNamesExcept<T>(params T[] exclusions) where T : Enum
+		{
+			return GetAllEnumDetails<T>()
+				.Where(x => !exclusions.Contains(x.Key))
+				.Select(x => x.Value.Name)
+				.ToArray();
+		}
+
+		/// <summary>
+		/// Gets the display short name.
+		/// </summary>
+		/// <param name="value"> The enum value to get the short name for. </param>
+		/// <returns> The name of the value. </returns>
+		public static string GetDisplayShortName(this Enum value)
+		{
+			return GetEnumDetails(value).ShortName;
+		}
+
+		/// <summary>
+		/// Gets the short name.
+		/// </summary>
+		/// <param name="value"> The enum value to get the short name for. </param>
+		/// <returns> The short name of the value. </returns>
+		public static string GetDisplayShortName<T>(this T value) where T : Enum
+		{
+			return GetEnumDetails(value).ShortName;
+		}
+
+		/// <summary>
+		/// Gets the details for an enum value.
+		/// </summary>
+		/// <param name="value"> The value to process. </param>
+		/// <returns> The details for the enum value. </returns>
+		public static EnumDetails GetEnumDetails(Enum value)
+		{
+			var allDetails = GetAllEnumDetails(value.GetType());
+			return allDetails.ContainsKey(value)
+				? allDetails[value]
+				: new EnumDetails
+				{
+					Description = value.ToString(),
+					Name = value.ToString(),
+					ShortName = value.ToString(),
+					Value = value
+				};
+		}
+
+		/// <summary>
+		/// Gets the type array of the values flagged (set) in the enum.
+		/// </summary>
+		/// <typeparam name="T"> The enum type. </typeparam>
+		/// <param name="value"> The enum value to get the flagged values for. </param>
+		/// <returns> The individual values for the enum. </returns>
+		public static T[] GetFlaggedValues<T>(this T value) where T : Enum
+		{
+			var values = GetValues<T>();
+			return values.Where(x => value?.HasFlag(x) == true).ToArray();
+		}
+
+		/// <summary>
+		/// Gets the type array of the values in the enum.
+		/// </summary>
+		/// <typeparam name="T"> The enum type. </typeparam>
+		/// <returns> The individual values for the enum. </returns>
+		public static T[] GetFlagValues<T>() where T : Enum
+		{
+			return Enum.GetValues(typeof(T))
+				.Cast<T>()
+				.Where(v =>
+				{
+					// because enums can be UInt64
+					var x = Convert.ToUInt64(v);
+					return (x != 0) && ((x & (x - 1)) == 0);
+					// Checks whether x is a power of 2
+					// Example: when x = 16, the binary values are:
+					// x:         10000
+					// x-1:       01111
+					// x & (x-1): 00000
+				})
+				.ToArray();
+		}
+
+		/// <summary>
+		/// Gets the type array of the values in the enum.
+		/// </summary>
+		/// <typeparam name="T"> The enum type. </typeparam>
+		/// <returns> The individual values for the enum. </returns>
+		public static T[] GetValues<T>() where T : Enum
+		{
+			return typeof(T).GetEnumValues().Cast<T>().ToArray();
 		}
 
 		/// <summary>
@@ -96,67 +277,55 @@ namespace Speedy.Extensions
 			return value.SetFlag(flag, true);
 		}
 
-		/// <summary>
-		/// Gets the display name.
-		/// </summary>
-		/// <param name="value"> The enum value to get the name for. </param>
-		/// <returns> The name of the value. </returns>
-		public static string ToDisplayName(this Enum value)
-		{
-			var type = value.GetType();
-			var attribute = type
-				.GetMember(value.ToString())
-				.FirstOrDefault()?
-				.GetCustomAttribute<DisplayAttribute>();
-
-			return attribute == null ? Enum.GetName(type, value) : attribute.Name;
-		}
-
-		/// <summary>
-		/// Gets the display names for an enum.
-		/// </summary>
-		/// <typeparam name="T"> The enum value to get the name for. </typeparam>
-		/// <returns> The name of the value. </returns>
-		public static Dictionary<string, string> ToDisplayNames<T>() where T : Enum
-		{
-			var type = typeof(T);
-			var names = Enum.GetNames(type);
-			var values = names
-				.Select(x =>
-				{
-					var attribute = type
-						.GetMember(x)
-						.FirstOrDefault()?
-						.GetCustomAttribute<DisplayAttribute>();
-
-					return new { Key = attribute?.Name ?? x, Value = attribute?.ShortName ?? x };
-				});
-
-			return values.ToDictionary(x => x.Key, x => x.Value);
-		}
-
-		/// <summary>
-		/// Gets the display short name.
-		/// </summary>
-		/// <param name="value"> The enum value to get the short name for. </param>
-		/// <returns> The short name of the value. </returns>
-		public static string ToDisplayShortName(this Enum value)
-		{
-			var type = value.GetType();
-			var attribute = type
-				.GetMember(value.ToString())
-				.FirstOrDefault()?
-				.GetCustomAttribute<DisplayAttribute>();
-
-			return attribute == null ? Enum.GetName(type, value) : attribute.ShortName;
-		}
-
 		private static T SetFlag<T>(this T value, T flag, bool set) where T : Enum
 		{
 			var eValue = Convert.ToUInt64(value);
 			var eFlag = Convert.ToUInt64(flag);
 			var fValue = set ? eValue | eFlag : eValue & ~eFlag;
 			return (T) Enum.ToObject(typeof(T), fValue);
+		}
+
+		#endregion
+
+		#region Structures
+
+		/// <summary>
+		/// Represents the details for an enum value.
+		/// </summary>
+		public struct EnumDetails
+		{
+			#region Properties
+
+			/// <summary>
+			/// The description of the enum value.
+			/// </summary>
+			/// <remarks>
+			/// Priority is [DisplayAttribute].Description, [DescriptionAttribute].Description, enum.ToString()
+			/// </remarks>
+			public string Description { get; set; }
+
+			/// <summary>
+			/// The name of the enum value.
+			/// </summary>
+			/// <remarks>
+			/// Priority is [DisplayAttribute].Name, enum.ToString()
+			/// </remarks>
+			public string Name { get; set; }
+
+			/// <summary>
+			/// The short name of the enum value.
+			/// </summary>
+			/// <remarks>
+			/// Priority is [DisplayAttribute].Short, enum.ToString()
+			/// </remarks>
+			public string ShortName { get; set; }
+
+			/// <summary>
+			/// The enum value.
+			/// </summary>
+			public Enum Value { get; set; }
+
+			#endregion
 		}
 
 		#endregion

@@ -185,6 +185,18 @@ namespace Speedy.Serialization
 		}
 
 		/// <summary>
+		/// Determines if the string is a query string
+		/// </summary>
+		/// <param name="input"> The value to validate. </param>
+		/// <returns> True if the input is a query string or false if otherwise. </returns>
+		public static bool IsQueryString(this string input)
+		{
+			return (input != null)
+				&& (input.Length >= 1)
+				&& (input[0] == '?');
+		}
+
+		/// <summary>
 		/// Reset the DefaultSettings back to default settings.
 		/// </summary>
 		public static void ResetDefaultSettings()

@@ -24,6 +24,18 @@ namespace Speedy
 		/// Instantiates a partial update value.
 		/// </summary>
 		/// <param name="name"> The property name of the update. </param>
+		/// <param name="value"> The value to set the property to. </param>
+		public PartialUpdateValue(string name, object value)
+		{
+			Name = name;
+			Type = value.GetType();
+			Value = value;
+		}
+
+		/// <summary>
+		/// Instantiates a partial update value.
+		/// </summary>
+		/// <param name="name"> The property name of the update. </param>
 		/// <param name="type"> The type for the property. </param>
 		/// <param name="value"> The value to set the property to. </param>
 		public PartialUpdateValue(string name, Type type, object value)

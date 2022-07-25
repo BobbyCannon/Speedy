@@ -24,7 +24,7 @@
 			{
 				return value;
 			}
-			
+
 			return value - decrease;
 		}
 

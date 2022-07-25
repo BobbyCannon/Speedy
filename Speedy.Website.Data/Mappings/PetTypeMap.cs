@@ -20,9 +20,9 @@ namespace Speedy.Website.Data.Mappings
 			b.ToTable("PetType", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CreatedOn).IsRequired();
-			b.Property(x => x.ModifiedOn).IsRequired();
+			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
 			b.Property(x => x.Id).HasColumnName("PetTypeId").HasMaxLength(25).IsRequired();
+			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Type).HasColumnName("Type").HasMaxLength(200).IsRequired(false);
 		}
 

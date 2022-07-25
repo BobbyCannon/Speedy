@@ -97,7 +97,7 @@ namespace Speedy.Extensions
 			{
 				return Activator.CreateInstance(type, arguments);
 			}
-			
+
 			// If the supplied Type has generic parameters, its default value cannot be determined
 			if (type.ContainsGenericParameters)
 			{

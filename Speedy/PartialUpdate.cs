@@ -594,6 +594,22 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Explicit converter from string to PartialUpdate.
+		/// </summary>
+		/// <param name="value"> The string value to parse. </param>
+		public static explicit operator PartialUpdate(string value)
+		{
+			if (value.IsQueryString())
+			{
+				var partialUpdate = new PartialUpdate();
+				partialUpdate.ParseQueryString(value);
+				return partialUpdate;
+			}
+
+			return FromJson(value);
+		}
+
+		/// <summary>
 		/// Parse the paged request values from the query string.
 		/// </summary>
 		/// <param name="queryString"> The query string to process. </param>
@@ -626,7 +642,8 @@ namespace Speedy
 					continue;
 				}
 
-				Updates.AddOrUpdate(key, new PartialUpdateValue(key, typeof(string), collection.Get(key)));
+				var value = collection.Get(key);
+				Updates.AddOrUpdate(key, new PartialUpdateValue(key, typeof(string), value));
 			}
 		}
 
@@ -734,7 +751,6 @@ namespace Speedy
 		public string ToRawJson()
 		{
 			var expando = GetExpandoObject();
-
 			return expando.ToRawJson();
 		}
 
@@ -1170,7 +1186,7 @@ namespace Speedy
 					continue;
 				}
 
-				var type = PartialUpdateConverter.ConvertType(property.Type);
+				var type = PartialUpdateConverter.ConvertType(property.Value.Type);
 
 				if (property.Type == JTokenType.Null)
 				{

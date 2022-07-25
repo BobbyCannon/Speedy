@@ -112,13 +112,13 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void DataTypes()
 		{
-			(object expected, string value)[] scenarios = 
+			(object expected, string value)[] scenarios =
 			{
-				( new Version(1, 2, 3, 4), "1.2.3.4" ),
-				( new TimeSpan(1, 8, 23, 45, 999), "1.08:23:45.9990000"),
-				( new DateTime(2022, 07, 16, 05 ,19, 45), "07/16/2022 05:19:45 AM"),
-				( 42, "42"),
-				( 43L, "43"),
+				(new Version(1, 2, 3, 4), "1.2.3.4"),
+				(new TimeSpan(1, 8, 23, 45, 999), "1.08:23:45.9990000"),
+				(new DateTime(2022, 07, 16, 05, 19, 45), "07/16/2022 05:19:45 AM"),
+				(42, "42"),
+				(43L, "43")
 			};
 
 			foreach (var scenario in scenarios)
@@ -261,6 +261,32 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual(DateTime.MinValue, actual.ModifiedOn);
 			Assert.AreEqual("foo bar", actual.Name);
+		}
+
+		[TestMethod]
+		public void ExplicitStringConversion()
+		{
+			var scenarios = new (string value, PartialUpdate expected)[]
+			{
+				("{\"foo\":\"bar\",\"age\":21}",
+					new PartialUpdate
+					{
+						Updates = { { "foo", new PartialUpdateValue("foo", "bar") }, { "age", new PartialUpdateValue("age", 21) } }
+					}
+				),
+				("?foo=bar&age=21",
+					new PartialUpdate
+					{
+						Updates = { { "foo", new PartialUpdateValue("foo", "bar") }, { "age", new PartialUpdateValue("age", "21") } }
+					}
+				),
+			};
+
+			foreach (var scenario in scenarios)
+			{
+				var actual = (PartialUpdate) scenario.value;
+				TestHelper.AreEqual(scenario.expected, actual);
+			}
 		}
 
 		[TestMethod]
@@ -472,6 +498,17 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void ToRawJson()
+		{
+			var update = new PartialUpdate();
+			update.AddOrUpdate("Name", "Bob");
+			update.AddOrUpdate("Age", 21);
+
+			var expected = "{\"Age\":21,\"Name\":\"Bob\"}";
+			Assert.AreEqual(expected, update.ToRawJson());
+		}
+
+		[TestMethod]
 		public void Validate()
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
@@ -493,6 +530,21 @@ namespace Speedy.UnitTests
 				.IsRequired(requiredMessage);
 
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
+		}
+
+		[TestMethod]
+		public void ValidateOptionalShouldNotThrow()
+		{
+			var scenarios = new[] { "{}", "[]", "" };
+			foreach (var json in scenarios)
+			{
+				var update = PartialUpdate.FromJson<MyClass>(json);
+				update.Validate(x => x.Name)
+					.IsOptional()
+					.HasMinMaxRange(1, 5, "Name must be between 1 to 5 characters.");
+
+				update.Validate();
+			}
 		}
 
 		[TestMethod]
@@ -518,21 +570,6 @@ namespace Speedy.UnitTests
 				.IsRequired(requiredMessage);
 
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
-		}
-
-		[TestMethod]
-		public void ValidateOptionalShouldNotThrow()
-		{
-			var scenarios = new[] { "{}", "[]", "" };
-			foreach (var json in scenarios)
-			{
-				var update = PartialUpdate.FromJson<MyClass>(json);
-				update.Validate(x => x.Name)
-					.IsOptional()
-					.HasMinMaxRange(1, 5, "Name must be between 1 to 5 characters.");
-
-				update.Validate();
-			}
 		}
 
 		#endregion

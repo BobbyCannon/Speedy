@@ -23,7 +23,7 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.AcknowledgedOn).IsRequired(false);
 			b.Property(x => x.CreatedOn).IsRequired();
 			b.Property(x => x.Id).HasMaxLength(250).IsRequired();
-			b.Property(x => x.IsDeleted).HasMaxLength(250).IsRequired();
+			b.Property(x => x.IsDeleted).IsRequired();
 			b.Property(x => x.Level).IsRequired();
 			b.Property(x => x.LoggedOn).IsRequired();
 			b.Property(x => x.Message).IsRequired(false);

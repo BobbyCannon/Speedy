@@ -63,48 +63,6 @@ namespace Speedy.Extensions
 		#region Methods
 
 		/// <summary>
-		/// Exclude duplicates that are sequential. Ex. 1,2,2,3,3,4 -> 1,2,3,4
-		/// </summary>
-		/// <typeparam name="T"> The type of the collection entries. </typeparam>
-		/// <typeparam name="T2"> The type of the property to be validated. </typeparam>
-		/// <param name="collection"> The collection to be processed. </param>
-		/// <param name="propertyExpression"> The expression of the property to be tested. </param>
-		/// <param name="additionalCheck"> An optional additional check for testing for duplicates. </param>
-		/// <returns> The processed collections with sequential duplicates removed. </returns>
-		public static IEnumerable<T> ExcludeSequentialDuplicates<T,T2>(this IEnumerable<T> collection,
-			Expression<Func<T, T2>> propertyExpression, Func<T, T, bool> additionalCheck = null)
-		{
-			var list = collection.ToList();
-			if (list.Count == 0)
-			{
-				return Array.Empty<T>();
-			}
-
-			var current = list[0];
-			var response = new List<T> { current };
-			var test = propertyExpression.Compile();
-			
-			for (var index = 1; index < list.Count; index++)
-			{
-				var next = list[index];
-				var currentValue = test.Invoke(current);
-				var nextValue = test.Invoke(next);
-
-				if (Equals(currentValue, nextValue)
-					&& ((additionalCheck == null)
-						|| additionalCheck.Invoke(current, next)))
-				{
-					continue;
-				}
-
-				current = next;
-				response.Add(current);
-			}
-
-			return response;
-		}
-
-		/// <summary>
 		/// Add a dictionary entry if the key is not found.
 		/// </summary>
 		/// <typeparam name="T1"> The type of the key. </typeparam>
@@ -311,6 +269,48 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Exclude duplicates that are sequential. Ex. 1,2,2,3,3,4 -> 1,2,3,4
+		/// </summary>
+		/// <typeparam name="T"> The type of the collection entries. </typeparam>
+		/// <typeparam name="T2"> The type of the property to be validated. </typeparam>
+		/// <param name="collection"> The collection to be processed. </param>
+		/// <param name="propertyExpression"> The expression of the property to be tested. </param>
+		/// <param name="additionalCheck"> An optional additional check for testing for duplicates. </param>
+		/// <returns> The processed collections with sequential duplicates removed. </returns>
+		public static IEnumerable<T> ExcludeSequentialDuplicates<T, T2>(this IEnumerable<T> collection,
+			Expression<Func<T, T2>> propertyExpression, Func<T, T, bool> additionalCheck = null)
+		{
+			var list = collection.ToList();
+			if (list.Count == 0)
+			{
+				return Array.Empty<T>();
+			}
+
+			var current = list[0];
+			var response = new List<T> { current };
+			var test = propertyExpression.Compile();
+
+			for (var index = 1; index < list.Count; index++)
+			{
+				var next = list[index];
+				var currentValue = test.Invoke(current);
+				var nextValue = test.Invoke(next);
+
+				if (Equals(currentValue, nextValue)
+					&& ((additionalCheck == null)
+						|| additionalCheck.Invoke(current, next)))
+				{
+					continue;
+				}
+
+				current = next;
+				response.Add(current);
+			}
+
+			return response;
+		}
+
+		/// <summary>
 		/// Execute the action on each entity in the collection.
 		/// </summary>
 		/// <param name="items"> The collection of items to process. </param>
@@ -428,7 +428,7 @@ namespace Speedy.Extensions
 				collection.Remove(deviceToRemove);
 			}
 		}
-		
+
 		/// <summary>
 		/// Reconcile one collection with another.
 		/// </summary>
@@ -488,7 +488,7 @@ namespace Speedy.Extensions
 				collection.Remove(deviceToRemove);
 			}
 		}
-		
+
 		/// <summary>
 		/// Reconcile one collection with another.
 		/// </summary>
@@ -500,7 +500,7 @@ namespace Speedy.Extensions
 			collection.Clear();
 			collection.AddRange(updates);
 		}
-		
+
 		/// <summary>
 		/// Reconcile one collection with another.
 		/// </summary>
@@ -512,7 +512,7 @@ namespace Speedy.Extensions
 			collection.Clear();
 			collection.AddRange(updates);
 		}
-		
+
 		/// <summary>
 		/// Gets a sub array from an existing array.
 		/// </summary>
@@ -526,6 +526,18 @@ namespace Speedy.Extensions
 			var result = new T[length];
 			Array.Copy(data, index, result, 0, length);
 			return result;
+		}
+
+		/// <summary>
+		/// Appends new values to an existing HashSet.
+		/// </summary>
+		/// <typeparam name="T"> The type of value in the set. </typeparam>
+		/// <param name="set"> The set to append to. </param>
+		/// <param name="values"> The values to add. </param>
+		/// <returns> A new HashSet containing the new values. </returns>
+		public static HashSet<T> ToHashSet<T>(this IEnumerable<T> set, params T[] values)
+		{
+			return new HashSet<T>(set.Union(values));
 		}
 
 		/// <summary>
