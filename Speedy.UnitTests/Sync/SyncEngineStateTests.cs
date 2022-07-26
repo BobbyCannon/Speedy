@@ -107,7 +107,6 @@ namespace Speedy.UnitTests.Sync
 			var expected = new SyncEngineState
 			{
 				Count = 1,
-				HasChanges = true,
 				Message = "123",
 				Status = SyncEngineStatus.Cancelled,
 				Total = 2

@@ -38,6 +38,34 @@ namespace Speedy.UnitTests.Extensions
 		}
 
 		[TestMethod]
+		public void GetDisplayName()
+		{
+			Assert.AreEqual("Unknown", FullValues.Unknown.GetDisplayName());
+			Assert.AreEqual("Value One", FullValues.Value1.GetDisplayName());
+			Assert.AreEqual("Value Two", FullValues.Value2.GetDisplayName());
+			Assert.AreEqual("Value3", FullValues.Value3.GetDisplayName());
+
+			Assert.AreEqual("Unknown", ((Enum) FullValues.Unknown).GetDisplayName());
+			Assert.AreEqual("Value One", ((Enum) FullValues.Value1).GetDisplayName());
+			Assert.AreEqual("Value Two", ((Enum) FullValues.Value2).GetDisplayName());
+			Assert.AreEqual("Value3", ((Enum) FullValues.Value3).GetDisplayName());
+		}
+
+		[TestMethod]
+		public void GetDisplayShortName()
+		{
+			Assert.AreEqual("U", FullValues.Unknown.GetDisplayShortName());
+			Assert.AreEqual("1", FullValues.Value1.GetDisplayShortName());
+			Assert.AreEqual("2", FullValues.Value2.GetDisplayShortName());
+			Assert.AreEqual("Value3", FullValues.Value3.GetDisplayShortName());
+
+			Assert.AreEqual("U", ((Enum) FullValues.Unknown).GetDisplayShortName());
+			Assert.AreEqual("1", ((Enum) FullValues.Value1).GetDisplayShortName());
+			Assert.AreEqual("2", ((Enum) FullValues.Value2).GetDisplayShortName());
+			Assert.AreEqual("Value3", ((Enum) FullValues.Value3).GetDisplayShortName());
+		}
+
+		[TestMethod]
 		public void GetFlaggedValues()
 		{
 			var valuesByte = EnumExtensions.GetFlagValues<MyEnumByte>();
@@ -47,7 +75,7 @@ namespace Speedy.UnitTests.Extensions
 			var valuesSByte = EnumExtensions.GetFlagValues<MyEnumSByte>();
 			var expectedSByte = new[] { MyEnumSByte.One, MyEnumSByte.Two };
 			TestHelper.AreEqual(expectedSByte, valuesSByte);
-			
+
 			var valuesShort = EnumExtensions.GetFlagValues<MyEnumShort>();
 			var expectedShort = new[] { MyEnumShort.One, MyEnumShort.Two };
 			TestHelper.AreEqual(expectedShort, valuesShort);
@@ -71,34 +99,6 @@ namespace Speedy.UnitTests.Extensions
 			var valuesLongUnsigned = EnumExtensions.GetFlagValues<MyEnumLongUnsigned>();
 			var expectedLongUnsigned = new[] { MyEnumLongUnsigned.One, MyEnumLongUnsigned.Two };
 			TestHelper.AreEqual(expectedLongUnsigned, valuesLongUnsigned);
-		}
-
-		[TestMethod]
-		public void GetName()
-		{
-			Assert.AreEqual("Unknown", FullValues.Unknown.GetDisplayName());
-			Assert.AreEqual("Value One", FullValues.Value1.GetDisplayName());
-			Assert.AreEqual("Value Two", FullValues.Value2.GetDisplayName());
-			Assert.AreEqual("Value3", FullValues.Value3.GetDisplayName());
-
-			Assert.AreEqual("Unknown", ((Enum) FullValues.Unknown).GetDisplayName());
-			Assert.AreEqual("Value One", ((Enum) FullValues.Value1).GetDisplayName());
-			Assert.AreEqual("Value Two", ((Enum) FullValues.Value2).GetDisplayName());
-			Assert.AreEqual("Value3", ((Enum) FullValues.Value3).GetDisplayName());
-		}
-
-		[TestMethod]
-		public void GetShortName()
-		{
-			Assert.AreEqual("U", FullValues.Unknown.GetDisplayShortName());
-			Assert.AreEqual("1", FullValues.Value1.GetDisplayShortName());
-			Assert.AreEqual("2", FullValues.Value2.GetDisplayShortName());
-			Assert.AreEqual("Value3", FullValues.Value3.GetDisplayShortName());
-
-			Assert.AreEqual("U", ((Enum) FullValues.Unknown).GetDisplayShortName());
-			Assert.AreEqual("1", ((Enum) FullValues.Value1).GetDisplayShortName());
-			Assert.AreEqual("2", ((Enum) FullValues.Value2).GetDisplayShortName());
-			Assert.AreEqual("Value3", ((Enum) FullValues.Value3).GetDisplayShortName());
 		}
 
 		[TestMethod]
@@ -173,7 +173,7 @@ namespace Speedy.UnitTests.Extensions
 				(MyEnum.Unknown, MyEnum.One),
 				(MyEnumUnsigned.Unknown, MyEnumUnsigned.One),
 				(MyEnumLong.Unknown, MyEnumLong.One),
-				(MyEnumLongUnsigned.Unknown, MyEnumLongUnsigned.One),
+				(MyEnumLongUnsigned.Unknown, MyEnumLongUnsigned.One)
 			};
 
 			var builder = new StringBuilder();

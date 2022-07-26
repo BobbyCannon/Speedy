@@ -71,7 +71,7 @@ namespace Speedy.UnitTests
 					},
 					(after, update) =>
 					{
-						Assert.AreEqual(1, update.Updates.Count);
+						Assert.AreEqual(0, update.Updates.Count);
 						Assert.IsNull(after.Name);
 						Assert.AreEqual(0, after.Age);
 						Assert.AreEqual(0, after.Id);
@@ -95,16 +95,24 @@ namespace Speedy.UnitTests
 		{
 			var json = "{\"Age\": 21, \"Name\": \"Fred\", \"IsDeleted\": \"true\" }";
 			//var actual = json.FromJson<MyClass2>();
-			var actual = json.FromJson<MyClass2Partial>();
+			var actual = json.FromJson<MyEntityUpdate>();
 
 			Assert.AreEqual(21, actual.Get<int>("Age"));
 			Assert.AreEqual(21, actual.Age);
-			Assert.AreEqual(3, actual.Updates.Count);
+			Assert.AreEqual(null, actual.Get<string>("Name", null));
+			Assert.AreEqual("Fred", actual.Name);
+			Assert.AreEqual(2, actual.Updates.Count);
+			TestHelper.AreEqual(new[] { "Age", "IsDeleted" }, actual.Updates.Keys);
 
-			var entity = new MyClass2Entity();
+			var entity = new MyEntity();
 			Assert.AreEqual(0, entity.Age);
+			Assert.AreEqual(null, entity.Name);
+
 			actual.Apply(entity);
+
+			// Age will apply, name will not because it's not an "Update"
 			Assert.AreEqual(21, entity.Age);
+			Assert.AreEqual(null, entity.Name);
 		}
 
 		[TestMethod]
@@ -296,7 +304,7 @@ namespace Speedy.UnitTests
 					{
 						Updates = { { "foo", new PartialUpdateValue("foo", "bar") }, { "age", new PartialUpdateValue("age", "21") } }
 					}
-				),
+				)
 			};
 
 			foreach (var scenario in scenarios)
@@ -581,7 +589,6 @@ namespace Speedy.UnitTests
 
 		#region Classes
 
-		
 		public class MyClass : SyncModel<long>
 		{
 			#region Properties
@@ -597,19 +604,33 @@ namespace Speedy.UnitTests
 			#endregion
 		}
 
-		public class MyClass2Entity : SyncEntity<long>
-		{
-			/// <inheritdoc />
-			public override long Id { get; set; }
-
-			public int Age { get; set; }
-		}
-
-		public class MyClass2Partial : PartialUpdate<MyClass2Entity>
+		public class MyEntity : SyncEntity<long>
 		{
 			#region Properties
 
+			public int Age { get; set; }
+
+			/// <inheritdoc />
+			public override long Id { get; set; }
+
+			public string Name { get; set; }
+
+			#endregion
+		}
+
+		public class MyEntityUpdate : PartialUpdate<MyEntity>
+		{
+			#region Properties
+
+			/// <summary>
+			/// Get only property should still restore from JSON
+			/// </summary>
 			public int Age => Get<int>(nameof(Age), default);
+
+			/// <summary>
+			/// Not update driven property, should still work.
+			/// </summary>
+			public string Name { get; set; }
 
 			#endregion
 		}

@@ -14,14 +14,14 @@ namespace Speedy
 	/// Represents a page of results for a paged request to a service.
 	/// </summary>
 	/// <typeparam name="T"> The type of the items in the results collection. </typeparam>
-	public class PagedResults<T> : PagedResults<T, PagedRequest>
+	public class PagedResults<T> : PagedRequest, IPagedResults
 	{
 		#region Constructors
 
 		/// <summary>
 		/// Instantiate an instance of the paged results.
 		/// </summary>
-		public PagedResults() : this(null, 0)
+		public PagedResults() : this(new PagedRequest(), 0)
 		{
 		}
 
@@ -32,13 +32,26 @@ namespace Speedy
 		/// <param name="totalCount"> The total amount of items for the request. </param>
 		/// <param name="results"> The items in this set of results. </param>
 		public PagedResults(PagedRequest request, int totalCount, params T[] results)
-			: base(request, totalCount, results)
 		{
+			Initialize(request);
+			
+			Results = results.ToList();
+			TotalCount = totalCount;
+
+			// Ensure page is not greater than the total pages
+			Page = TotalPages < Page ? TotalPages : Page;
 		}
 
 		#endregion
 
-		#region Methods
+		/// <summary>
+		/// Update the PagedRequest with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		private void Initialize(PagedRequest update)
+		{
+			this.UpdateWithUsingReflection(update);
+		}
 
 		/// <summary>
 		/// Convert the results of to a different type.
@@ -55,8 +68,7 @@ namespace Speedy
 				Order = Order,
 				Page = Page,
 				PerPage = PerPage,
-				TotalCount = TotalCount,
-				Request = Request
+				TotalCount = TotalCount
 			};
 
 			response.Updates.Reconcile(Updates);
@@ -65,71 +77,10 @@ namespace Speedy
 			return response;
 		}
 
-		#endregion
-	}
-
-	/// <summary>
-	/// Represents a page of results for a paged request to a service.
-	/// </summary>
-	/// <typeparam name="T"> The type of the items in the results collection. </typeparam>
-	/// <typeparam name="T2"> The type of the paged request. </typeparam>
-	public abstract class PagedResults<T, T2> : PartialUpdate<PagedResults<T, T2>>, IPagedResults
-		where T2 : PagedRequest
-	{
-		#region Constructors
-
-		/// <summary>
-		/// Instantiate an instance of the paged results.
-		/// </summary>
-		/// <param name="request"> The request for the results. </param>
-		/// <param name="totalCount"> The total amount of items for the request. </param>
-		/// <param name="results"> The items in this set of results. </param>
-		protected PagedResults(T2 request, int totalCount, params T[] results)
-		{
-			Request = Activator.CreateInstance<T2>();
-			Request.UpdateWith(request);
-
-			Results = results.ToList();
-			TotalCount = totalCount;
-
-			// Ensure page is not greater than the total pages
-			Request.Page = TotalPages < Request.Page ? TotalPages : Request.Page;
-		}
-
-		#endregion
-
 		#region Properties
 
 		/// <inheritdoc />
-		public string Filter
-		{
-			get => Request.Filter;
-			set => Request.Filter = value;
-		}
-
-		/// <inheritdoc />
-		public bool HasMore => (Request.Page > 0) && (Request.Page < TotalPages);
-
-		/// <inheritdoc />
-		public string Order
-		{
-			get => Request.Order;
-			set => Request.Order = value;
-		}
-
-		/// <inheritdoc />
-		public int Page
-		{
-			get => Request.Page;
-			set => Request.Page = value;
-		}
-
-		/// <inheritdoc />
-		public int PerPage
-		{
-			get => Request.PerPage;
-			set => Request.PerPage = value;
-		}
+		public bool HasMore => (Page > 0) && (Page < TotalPages);
 
 		/// <summary>
 		/// The results for a paged request.
@@ -144,12 +95,7 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public int TotalPages => TotalCount > 0 ? (TotalCount / Request.PerPage) + ((TotalCount % Request.PerPage) > 0 ? 1 : 0) : 1;
-
-		/// <summary>
-		/// The incoming request. This will be flattened in the JSON.
-		/// </summary>
-		protected T2 Request { get; set; }
+		public int TotalPages => TotalCount > 0 ? (TotalCount / PerPage) + ((TotalCount % PerPage) > 0 ? 1 : 0) : 1;
 
 		#endregion
 
@@ -158,8 +104,8 @@ namespace Speedy
 		/// <inheritdoc />
 		public (int start, int end) CalculatePaginationValues()
 		{
-			var start = Request.Page - 2;
-			var end = Request.Page + 2;
+			var start = Page - 2;
+			var end = Page + 2;
 
 			if (start < 1)
 			{
@@ -186,18 +132,7 @@ namespace Speedy
 		{
 			var expando = new ExpandoObject();
 
-			Request.RefreshUpdates();
 			RefreshUpdates();
-
-			foreach (var update in Request.Updates)
-			{
-				if (!ShouldProcessProperty(update.Key))
-				{
-					continue;
-				}
-
-				expando.AddOrUpdate(update.Key, update.Value.Value);
-			}
 
 			foreach (var update in Updates)
 			{
@@ -211,13 +146,6 @@ namespace Speedy
 
 			expando.AddOrUpdate(nameof(Results), Results);
 			return expando;
-		}
-
-		/// <inheritdoc />
-		protected internal override void RefreshObject()
-		{
-			Request.UpdateWith(this);
-			base.RefreshObject();
 		}
 
 		/// <inheritdoc />

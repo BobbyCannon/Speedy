@@ -45,6 +45,12 @@
         <member name="M:Speedy.Bindable.PausePropertyChangeNotifications(System.Boolean)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Bindable.ResetChangeTracking(System.Boolean)">
+            <summary>
+            Reset the change tracking flag.
+            </summary>
+            <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
+        </member>
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
@@ -2141,19 +2147,19 @@
             </summary>
             <returns> The all details for the enum value. </returns>
         </member>
-        <member name="M:Speedy.Extensions.EnumExtensions.GetAllEnumDetailsExcept``1(``0[])">
-            <summary>
-            Gets the all details for an enum value except the excluded.
-            </summary>
-            <param name="exclusions"> The types to be excluded. </param>
-            <returns> The all details for the enum value except the exclusions. </returns>
-        </member>
         <member name="M:Speedy.Extensions.EnumExtensions.GetAllEnumDetails(System.Type)">
             <summary>
             Gets the all details for an enum value.
             </summary>
             <param name="type"> The type to process. </param>
             <returns> The all details for the enum value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.GetAllEnumDetailsExcept``1(``0[])">
+            <summary>
+            Gets the all details for an enum value except the excluded.
+            </summary>
+            <param name="exclusions"> The types to be excluded. </param>
+            <returns> The all details for the enum value except the exclusions. </returns>
         </member>
         <member name="M:Speedy.Extensions.EnumExtensions.GetDescription(System.Enum)">
             <summary>
@@ -2510,17 +2516,6 @@
             <param name="request"> The request values. </param>
             <returns> The paged results. </returns>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``3(System.Linq.IQueryable{``0},``2)">
-            <summary>
-            Gets paged results.
-            </summary>
-            <typeparam name="T"> The type of the item returned. </typeparam>
-            <typeparam name="T2"> The PagedResults type </typeparam>
-            <typeparam name="T3"> The PagedRequests for the PagedResults. </typeparam>
-            <param name="query"> The queryable collection. </param>
-            <param name="request"> The request values. </param>
-            <returns> The paged results. </returns>
-        </member>
         <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
             <summary>
             Gets paged results. Transform is executed as part of the query.
@@ -2550,48 +2545,6 @@
             </summary>
             <typeparam name="T1"> The type of item in the query. </typeparam>
             <typeparam name="T2"> The type of the item returned. </typeparam>
-            <param name="query"> The queryable collection. </param>
-            <param name="request"> The request values. </param>
-            <param name="transform"> The function to transfer the results. </param>
-            <param name="order"> The order of the collection. </param>
-            <param name="thenBys"> An optional then bys to order the collection. </param>
-            <returns> The paged results. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
-            <summary>
-            Gets paged results. Transform is executed as part of the query.
-            </summary>
-            <typeparam name="T1"> The type of item in the query. </typeparam>
-            <typeparam name="T2"> The type of the item returned. </typeparam>
-            <typeparam name="T3"> The PagedResults type </typeparam>
-            <typeparam name="T4"> The PagedRequests for the PagedResults. </typeparam>
-            <param name="query"> The queryable collection. </param>
-            <param name="request"> The request values. </param>
-            <param name="transform"> The function to transfer the results. </param>
-            <returns> The paged results. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
-            <summary>
-            Gets paged results. Transform is executed as part of the query.
-            </summary>
-            <typeparam name="T1"> The type of item in the query. </typeparam>
-            <typeparam name="T2"> The type of the item returned. </typeparam>
-            <typeparam name="T3"> The PagedResults type </typeparam>
-            <typeparam name="T4"> The PagedRequests for the PagedResults. </typeparam>
-            <param name="query"> The queryable collection. </param>
-            <param name="request"> The request values. </param>
-            <param name="transform"> The function to transfer the results. </param>
-            <param name="order"> An optional order of the collection. </param>
-            <returns> The paged results. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``4(System.Linq.IQueryable{``0},``3,System.Linq.Expressions.Expression{System.Func{``0,``1}},Speedy.Collections.OrderBy{``0},Speedy.Collections.OrderBy{``0}[])">
-            <summary>
-            Gets paged results. Transform is executed as part of the query.
-            </summary>
-            <typeparam name="T1"> The type of item in the query. </typeparam>
-            <typeparam name="T2"> The type of the item returned. </typeparam>
-            <typeparam name="T3"> The PagedResults type </typeparam>
-            <typeparam name="T4"> The PagedRequests for the PagedResults. </typeparam>
             <param name="query"> The queryable collection. </param>
             <param name="request"> The request values. </param>
             <param name="transform"> The function to transfer the results. </param>
@@ -4530,6 +4483,12 @@
             <param name="totalCount"> The total amount of items for the request. </param>
             <param name="results"> The items in this set of results. </param>
         </member>
+        <member name="M:Speedy.PagedResults`1.Initialize(Speedy.PagedRequest)">
+            <summary>
+            Update the PagedRequest with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+        </member>
         <member name="M:Speedy.PagedResults`1.ConvertResults``1(System.Func{`0,``0})">
             <summary>
             Convert the results of to a different type.
@@ -4538,62 +4497,27 @@
             <param name="convert"> The function to convert from the current type into the requested type. </param>
             <returns> The new paged results for the provided type. </returns>
         </member>
-        <member name="T:Speedy.PagedResults`2">
-            <summary>
-            Represents a page of results for a paged request to a service.
-            </summary>
-            <typeparam name="T"> The type of the items in the results collection. </typeparam>
-            <typeparam name="T2"> The type of the paged request. </typeparam>
-        </member>
-        <member name="M:Speedy.PagedResults`2.#ctor(`1,System.Int32,`0[])">
-            <summary>
-            Instantiate an instance of the paged results.
-            </summary>
-            <param name="request"> The request for the results. </param>
-            <param name="totalCount"> The total amount of items for the request. </param>
-            <param name="results"> The items in this set of results. </param>
-        </member>
-        <member name="P:Speedy.PagedResults`2.Filter">
+        <member name="P:Speedy.PagedResults`1.HasMore">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.PagedResults`2.HasMore">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.PagedResults`2.Order">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.PagedResults`2.Page">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.PagedResults`2.PerPage">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.PagedResults`2.Results">
+        <member name="P:Speedy.PagedResults`1.Results">
             <summary>
             The results for a paged request.
             </summary>
         </member>
-        <member name="P:Speedy.PagedResults`2.TotalCount">
+        <member name="P:Speedy.PagedResults`1.TotalCount">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.PagedResults`2.TotalPages">
+        <member name="P:Speedy.PagedResults`1.TotalPages">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.PagedResults`2.Request">
-            <summary>
-            The incoming request. This will be flattened in the JSON.
-            </summary>
-        </member>
-        <member name="M:Speedy.PagedResults`2.CalculatePaginationValues">
+        <member name="M:Speedy.PagedResults`1.CalculatePaginationValues">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.PagedResults`2.GetExpandoObject">
+        <member name="M:Speedy.PagedResults`1.GetExpandoObject">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.PagedResults`2.RefreshObject">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.PagedResults`2.RefreshUpdates">
+        <member name="M:Speedy.PagedResults`1.RefreshUpdates">
             <inheritdoc />
         </member>
         <member name="T:Speedy.IPagedResults">
@@ -4984,14 +4908,14 @@
             </summary>
             <returns> The dynamic version of the partial update. </returns>
         </member>
-        <member name="M:Speedy.PartialUpdate.RefreshUpdates">
-            <summary>
-            Refresh the update collection for this partial update.
-            </summary>
-        </member>
         <member name="M:Speedy.PartialUpdate.RefreshObject">
             <summary>
             A set of updates have been loaded so refresh object.
+            </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdate.RefreshUpdates">
+            <summary>
+            Refresh the update collection for this partial update.
             </summary>
         </member>
         <member name="M:Speedy.PartialUpdate.Apply(System.Object,System.Collections.Generic.HashSet{System.String},System.Collections.Generic.HashSet{System.String})">

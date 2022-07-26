@@ -4,9 +4,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
-using Speedy.Serialization;
 using Speedy.UnitTests.Factories;
-using Speedy.Website.Models;
 
 #endregion
 
@@ -28,15 +26,6 @@ namespace Speedy.UnitTests
 
 			var expected = new PagedRequest { Page = 1, PerPage = 1000 };
 			TestHelper.AreEqual(expected, actual, nameof(PagedRequest.Updates));
-		}
-
-		[TestMethod]
-		public void CustomPagedRequest()
-		{
-			var request = new CustomPagedRequest { Precision = 2.123, Page = 12, PerPage = 2 };
-			var actual = request.ToJson();
-			var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":12,\"PerPage\":2,\"Precision\":2.123}";
-			Assert.AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -91,7 +80,7 @@ namespace Speedy.UnitTests
 			// Scenarios are cumulative so expect the next scenario to have the previous state
 			(Action<PagedRequest> update, string expected)[] scenarios =
 			{
-				(x => x.AddOrUpdate("options", new[]{ "foo", "bar"}), "options[]=foo&options[]=bar"),
+				(x => x.AddOrUpdate("options", new[] { "foo", "bar" }), "options[]=foo&options[]=bar"),
 				(x => x.Remove("options"), ""),
 				(_ => { }, ""),
 				(x => x.Page = 2, "Page=2"),
@@ -110,7 +99,7 @@ namespace Speedy.UnitTests
 				(x => x.AddOrUpdate("Filter", "{}|\"^[]`"), "Filter=%7b%7d%7c%22%5e%5b%5d%60&Page=2&PerPage=98"),
 				(x => x.Remove("FILTER"), "Page=2&PerPage=98"),
 				// Should be able to handle special (reserved, delimiters, etc) characters as key
-				(x => x.AddOrUpdate(";/?:@&=+$,<>#%\"{}|\"^[]`", "wow..."), "%3b%2f%3f%3a%40%26%3d%2b%24%2c%3c%3e%23%25%22%7b%7d%7c%22%5e%5b%5d%60=wow...&Page=2&PerPage=98"),
+				(x => x.AddOrUpdate(";/?:@&=+$,<>#%\"{}|\"^[]`", "wow..."), "%3b%2f%3f%3a%40%26%3d%2b%24%2c%3c%3e%23%25%22%7b%7d%7c%22%5e%5b%5d%60=wow...&Page=2&PerPage=98")
 			};
 
 			var expected = new PagedRequest();

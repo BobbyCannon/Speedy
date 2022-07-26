@@ -73,18 +73,6 @@ namespace Speedy.Extensions
 		{
 			return GetAllEnumDetails(typeof(T)).ToDictionary(x => (T) x.Key, x => x.Value);
 		}
-		
-		/// <summary>
-		/// Gets the all details for an enum value except the excluded.
-		/// </summary>
-		/// <param name="exclusions"> The types to be excluded. </param>
-		/// <returns> The all details for the enum value except the exclusions. </returns>
-		public static IReadOnlyDictionary<T, EnumDetails> GetAllEnumDetailsExcept<T>(params T[] exclusions) where T : Enum
-		{
-			return GetAllEnumDetails(typeof(T))
-				.Where(x => !exclusions.Contains((T) x.Key))
-				.ToDictionary(x => (T) x.Key, x => x.Value);
-		}
 
 		/// <summary>
 		/// Gets the all details for an enum value.
@@ -117,6 +105,18 @@ namespace Speedy.Extensions
 
 				return response;
 			});
+		}
+
+		/// <summary>
+		/// Gets the all details for an enum value except the excluded.
+		/// </summary>
+		/// <param name="exclusions"> The types to be excluded. </param>
+		/// <returns> The all details for the enum value except the exclusions. </returns>
+		public static IReadOnlyDictionary<T, EnumDetails> GetAllEnumDetailsExcept<T>(params T[] exclusions) where T : Enum
+		{
+			return GetAllEnumDetails(typeof(T))
+				.Where(x => !exclusions.Contains((T) x.Key))
+				.ToDictionary(x => (T) x.Key, x => x.Value);
 		}
 
 		/// <summary>
@@ -158,7 +158,7 @@ namespace Speedy.Extensions
 		{
 			return GetEnumDetails(value).Name;
 		}
-		
+
 		/// <summary>
 		/// Gets the display names.
 		/// </summary>
@@ -167,7 +167,7 @@ namespace Speedy.Extensions
 		{
 			return GetAllEnumDetails<T>().Select(x => x.Value.Name).ToArray();
 		}
-		
+
 		/// <summary>
 		/// Gets the display names excluding the provided values.
 		/// </summary>

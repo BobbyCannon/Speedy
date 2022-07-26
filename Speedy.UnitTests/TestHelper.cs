@@ -57,8 +57,8 @@ namespace Speedy.UnitTests
 		static TestHelper()
 		{
 			Directory = new DirectoryInfo($"{Path.GetTempPath()}\\SpeedyTests");
-			DefaultSqlConnection = "server=localhost;database=Speedy;integrated security=true;TrustServerCertificate=True";
-			DefaultSqlConnection2 = "server=localhost;database=Speedy2;integrated security=true;TrustServerCertificate=True";
+			DefaultSqlConnection = "server=localhost;database=Speedy;integrated security=true;encrypt=false";
+			DefaultSqlConnection2 = "server=localhost;database=Speedy2;integrated security=true;encrypt=false";
 			DefaultSqliteConnection = "Data Source=Speedy.db";
 			DefaultSqliteConnection2 = "Data Source=Speedy2.db";
 

@@ -3,7 +3,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Serialization;
 using Speedy.Serialization.Converters;
-using Speedy.Website.Models;
 using System.Linq;
 
 #endregion
@@ -22,12 +21,13 @@ namespace Speedy.UnitTests.Serialization.Converters
 
 			Assert.AreEqual(1, settings.JsonSettings.Converters.Count(x => x is PartialUpdateConverter));
 
-			var update = new CustomPagedRequest
+			var update = new PagedRequest
 			{
 				Page = 3,
 				PerPage = 12,
-				Precision = 321.45
 			};
+
+			update.AddOrUpdate("Precision", 321.45);
 
 			var expected = "{\"$id\":\"1\",\"filter\":\"\",\"order\":\"\",\"page\":3,\"perPage\":12,\"precision\":321.45}";
 			var actual = update.ToJson(false, true);

@@ -4,8 +4,6 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
-using Speedy.Website.Data.Entities;
-using Speedy.Website.Models;
 
 #endregion
 
@@ -16,22 +14,6 @@ namespace Speedy.UnitTests.Extensions
 	{
 		#region Methods
 
-		[TestMethod]
-		public void GetPagedResults()
-		{
-			var provider = TestHelper.GetMemoryProvider();
-			using var database = provider.GetDatabase();
-
-			var query = database.Accounts.Where(x => x.Id > 0);
-			var request = new PagedRequest { Page = 1, PerPage = 1 };
-			var result = query.GetPagedResults(request, x => new Account { Id = x.Id }, x => x.Id);
-
-			Assert.AreEqual(1, result.Page);
-			Assert.AreEqual(1, result.TotalCount);
-			Assert.AreEqual(1, result.Results.Count);
-			Assert.AreEqual(1, result.Results[0].Id);
-		}
-		
 		[TestMethod]
 		public void ConvertResult()
 		{
@@ -48,18 +30,16 @@ namespace Speedy.UnitTests.Extensions
 			Assert.AreEqual(1, typedResult.Results[0].Id);
 			Assert.AreEqual("Line1\r\nCity, ST  12345", typedResult.Results[0].FullAddress);
 		}
-		
+
 		[TestMethod]
-		public void GetPagedResultsWithCustomRequestAndResult()
+		public void GetPagedResults()
 		{
 			var provider = TestHelper.GetMemoryProvider();
 			using var database = provider.GetDatabase();
 
 			var query = database.Accounts.Where(x => x.Id > 0);
-			var request = new CustomPagedRequest { Page = 1, PerPage = 1 };
-			var result = query
-				.GetPagedResults<AccountEntity, Account, CustomPagedResults<Account>, CustomPagedRequest>(request,
-					x => new Account { Id = x.Id }, x => x.Id);
+			var request = new PagedRequest { Page = 1, PerPage = 1 };
+			var result = query.GetPagedResults(request, x => new Account { Id = x.Id }, x => x.Id);
 
 			Assert.AreEqual(1, result.Page);
 			Assert.AreEqual(1, result.TotalCount);
@@ -74,8 +54,8 @@ namespace Speedy.UnitTests.Extensions
 			using var database = provider.GetDatabase();
 
 			var query = database.Accounts.Where(x => x.Id > 0);
-			var request = new CustomPagedRequest { Page = 1, PerPage = 1 };
-			var result = query.GetPagedResults<AccountEntity, CustomPagedResults<AccountEntity>, CustomPagedRequest>(request);
+			var request = new PagedRequest { Page = 1, PerPage = 1 };
+			var result = query.GetPagedResults(request);
 
 			Assert.AreEqual(1, result.Page);
 			Assert.AreEqual(1, result.TotalCount);
@@ -85,10 +65,18 @@ namespace Speedy.UnitTests.Extensions
 
 		#endregion
 
+		#region Classes
+
 		public class AccountView
 		{
-			public int Id { get; set; }
+			#region Properties
+
 			public string FullAddress { get; set; }
+			public int Id { get; set; }
+
+			#endregion
 		}
+
+		#endregion
 	}
 }

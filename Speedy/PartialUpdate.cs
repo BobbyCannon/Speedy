@@ -818,16 +818,16 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Refresh the update collection for this partial update.
+		/// A set of updates have been loaded so refresh object.
 		/// </summary>
-		protected internal virtual void RefreshUpdates()
+		protected internal virtual void RefreshObject()
 		{
 		}
 
 		/// <summary>
-		/// A set of updates have been loaded so refresh object.
+		/// Refresh the update collection for this partial update.
 		/// </summary>
-		protected internal virtual void RefreshObject()
+		protected internal virtual void RefreshUpdates()
 		{
 		}
 
@@ -1049,7 +1049,8 @@ namespace Speedy
 
 			var jObject = JObject.Load(reader);
 			var jProperties = jObject.Properties();
-			var updateProperties = partialUpdate.GetTargetProperties();
+			var directProperties = partialUpdate.GetType().GetCachedProperties();
+			var targetProperties = partialUpdate.GetTargetProperties();
 
 			foreach (var property in jProperties)
 			{
@@ -1058,8 +1059,11 @@ namespace Speedy
 					continue;
 				}
 
-				var updateProperty = updateProperties.FirstOrDefault(x => x.Key == property.Name);
-				var type = updateProperty.Value?.PropertyType ?? PartialUpdateConverter.ConvertType(property.Value.Type);
+				var directProperty = directProperties.FirstOrDefault(x => string.Equals(x.Name, property.Name, StringComparison.OrdinalIgnoreCase) && x.CanWrite);
+				var targetProperty = targetProperties.FirstOrDefault(x => string.Equals(x.Key, property.Name, StringComparison.OrdinalIgnoreCase)).Value;
+				var type = directProperty?.PropertyType
+					?? targetProperty?.PropertyType
+					?? PartialUpdateConverter.ConvertType(property.Value.Type);
 
 				if (property.Type == JTokenType.Null)
 				{
@@ -1082,17 +1086,32 @@ namespace Speedy
 						}
 					}
 
-					partialUpdate.AddOrUpdate(property.Name, type, genericList);
+					if (directProperty != null)
+					{
+						directProperty.SetValue(partialUpdate, genericList);
+					}
+					else
+					{
+						partialUpdate.AddOrUpdate(property.Name, type, genericList);
+					}
 					continue;
 				}
 
 				if (TryGetValue(property.Value, type, out var value2))
 				{
-					partialUpdate.AddOrUpdate(property.Name, type, value2);
+					if ((directProperty != null)
+						&& (directProperty.PropertyType == value2.GetType()))
+					{
+						directProperty.SetValue(partialUpdate, value2);
+					}
+					else
+					{
+						partialUpdate.AddOrUpdate(property.Name, type, value2);
+					}
 				}
 			}
 
-			partialUpdate.RefreshObject();
+			partialUpdate.RefreshUpdates();
 
 			return partialUpdate;
 		}

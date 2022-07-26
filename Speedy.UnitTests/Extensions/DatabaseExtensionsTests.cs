@@ -3,10 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Client.Data;
 using Speedy.EntityFramework;

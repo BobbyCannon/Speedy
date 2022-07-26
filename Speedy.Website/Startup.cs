@@ -11,12 +11,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -292,6 +294,9 @@ namespace Speedy.Website
 			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => (ContosoDatabase) databaseProvider.GetDatabase());
 			services.AddScoped<IDatabaseProvider<IContosoDatabase>, DatabaseProvider<IContosoDatabase>>(_ => databaseProvider);
 			services.AddScoped<ISyncableDatabaseProvider<IContosoDatabase>, SyncableDatabaseProvider<IContosoDatabase>>(_ => syncDatabaseProvider);
+
+			services.TryAddSingleton<IApiDescriptionGroupCollectionProvider, ApiDescriptionGroupCollectionProvider>();
+			services.TryAddEnumerable(ServiceDescriptor.Transient<IApiDescriptionProvider, DefaultApiDescriptionProvider>());
 
 			using var database = ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null);
 			database.Database.SetCommandTimeout((int) TimeSpan.FromMinutes(15).TotalSeconds);

@@ -1,4 +1,4 @@
-﻿@model CustomPagedResults<object>
+﻿@model PagedResults<object>
 
 <div>
 	<table class="collapsed align-center">
@@ -58,7 +58,7 @@
 	</div>
 	<div class="text-center align-center collapsed margin-top-20">
 		<h6>JSON</h6>
-		<pre class="text-left"><code>@Model.ToRawJson(indented: true, camelCase: Serializer.DefaultSettings.CamelCase)</code></pre>
+		<pre class="text-left"><code>@Model.ToRawJson(true, true)</code></pre>
 	</div>
 	<div class="text-center align-center collapsed margin-top-20">
 		<h6>JSON (min) </h6>

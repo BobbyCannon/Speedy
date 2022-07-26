@@ -55,11 +55,11 @@ namespace Speedy.Website.Controllers
 		}
 
 		[AllowAnonymous]
-		public IActionResult PagedRequest(CustomPagedRequest request = null)
+		public IActionResult PagedRequest(PagedRequest request = null)
 		{
-			request ??= new CustomPagedRequest();
+			request ??= new PagedRequest();
 			request.Cleanup();
-			var result = new CustomPagedResults<object>(request, 156324,
+			var result = new PagedResults<object>(request, 156324,
 				2,
 				"foo",
 				TimeService.UtcNow,
