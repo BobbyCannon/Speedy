@@ -214,6 +214,13 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
+		protected internal override void RefreshObject()
+		{
+			Request.UpdateWith(this);
+			base.RefreshObject();
+		}
+
+		/// <inheritdoc />
 		protected internal override void RefreshUpdates()
 		{
 			// Setting values here

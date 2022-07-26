@@ -143,7 +143,7 @@ namespace Speedy.UnitTests
 
 			// Options and Updates are not required to be equal after serialization
 			update = expected.FromJson<PagedResults<object>>();
-			TestHelper.AreEqual(results, update, nameof(results.Options), nameof(results.Updates));
+			TestHelper.AreEqual(results, update);
 		}
 
 		[TestMethod]

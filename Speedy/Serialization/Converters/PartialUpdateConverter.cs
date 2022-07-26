@@ -13,13 +13,27 @@ namespace Speedy.Serialization.Converters
 	/// </summary>
 	public class PartialUpdateConverter : JsonConverter
 	{
+		#region Constructors
+
+		static PartialUpdateConverter()
+		{
+			TypeOfPartialUpdate = typeof(PartialUpdate);
+		}
+
+		#endregion
+
+		#region Properties
+
+		internal static Type TypeOfPartialUpdate { get; }
+
+		#endregion
+
 		#region Methods
 
 		/// <inheritdoc />
 		public override bool CanConvert(Type objectType)
 		{
-			var partialType = typeof(PartialUpdate);
-			var isPartialType = objectType.IsSubclassOf(partialType);
+			var isPartialType = objectType.IsSubclassOf(TypeOfPartialUpdate);
 			return isPartialType;
 		}
 
@@ -53,9 +67,7 @@ namespace Speedy.Serialization.Converters
 		/// <inheritdoc />
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			return objectType == typeof(PartialUpdate) 
-				? PartialUpdate.FromJson(reader, new PartialUpdateOptions()) 
-				: PartialUpdate.FromJson(reader, objectType, new PartialUpdateOptions());
+			return PartialUpdate.FromJson(objectType, reader, new PartialUpdateOptions());
 		}
 
 		/// <inheritdoc />

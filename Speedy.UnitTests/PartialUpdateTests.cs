@@ -71,7 +71,7 @@ namespace Speedy.UnitTests
 					},
 					(after, update) =>
 					{
-						Assert.AreEqual(0, update.Updates.Count);
+						Assert.AreEqual(1, update.Updates.Count);
 						Assert.IsNull(after.Name);
 						Assert.AreEqual(0, after.Age);
 						Assert.AreEqual(0, after.Id);
@@ -88,6 +88,23 @@ namespace Speedy.UnitTests
 				update.Apply(actual);
 				scenario.after(actual, update);
 			}
+		}
+
+		[TestMethod]
+		public void Apply()
+		{
+			var json = "{\"Age\": 21, \"Name\": \"Fred\", \"IsDeleted\": \"true\" }";
+			//var actual = json.FromJson<MyClass2>();
+			var actual = json.FromJson<MyClass2Partial>();
+
+			Assert.AreEqual(21, actual.Get<int>("Age"));
+			Assert.AreEqual(21, actual.Age);
+			Assert.AreEqual(3, actual.Updates.Count);
+
+			var entity = new MyClass2Entity();
+			Assert.AreEqual(0, entity.Age);
+			actual.Apply(entity);
+			Assert.AreEqual(21, entity.Age);
 		}
 
 		[TestMethod]
@@ -144,7 +161,7 @@ namespace Speedy.UnitTests
 				update.Apply(actual);
 				Assert.IsNull(actual.Name);
 
-				update = PartialUpdate.FromJson(scenario, typeof(MyClass));
+				update = PartialUpdate.FromJson(typeof(MyClass), scenario);
 				actual = new MyClass();
 				Assert.IsNull(actual.Name);
 				update.Apply(actual);
@@ -209,7 +226,7 @@ namespace Speedy.UnitTests
 			{
 				var itemType = item.Key.GetType();
 				var actual = Activator.CreateInstance(itemType);
-				var update = PartialUpdate.FromJson(item.Value, itemType);
+				var update = PartialUpdate.FromJson(itemType, item.Value);
 				update.Apply(actual);
 				TestHelper.AreEqual(item.Key, actual);
 			}
@@ -242,7 +259,7 @@ namespace Speedy.UnitTests
 		public void ExcludedProperties()
 		{
 			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
-			var update = PartialUpdate.FromJson(json, typeof(MyClass));
+			var update = PartialUpdate.FromJson(typeof(MyClass), json);
 
 			// Ensure the updates exists
 			Assert.AreEqual(4, update.Updates.Count);
@@ -290,18 +307,6 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
-		public void ExtraPropertiesIgnored()
-		{
-			var json = "{ \"foo\": \"bar\", \"Id\": 42 }";
-			var update = PartialUpdate.FromJson<Account>(json);
-			Assert.AreEqual(1, update.Updates.Count);
-			Assert.AreEqual(true, update.Updates.ContainsKey("Id"));
-
-			var actual = update.GetInstance();
-			Assert.AreEqual(42, actual.Id);
-		}
-
-		[TestMethod]
 		public void GetWithDefault()
 		{
 			var request = new PartialUpdate<Account>();
@@ -344,7 +349,7 @@ namespace Speedy.UnitTests
 		public void InvalidJson()
 		{
 			var json = "{ \"DoesNotExistOnMyClass\": true }";
-			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>(json).Updates.Count);
+			Assert.AreEqual(1, PartialUpdate.FromJson<MyClass>(json).Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>(null).Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>("").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>(" ").Updates.Count);
@@ -353,13 +358,13 @@ namespace Speedy.UnitTests
 			TestHelper.ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson<MyClass>("1"), "Error reading JObject from JsonReader");
 
 			var type = typeof(MyClass);
-			Assert.AreEqual(0, PartialUpdate.FromJson(json, type).Updates.Count);
-			Assert.AreEqual(0, PartialUpdate.FromJson(null, type).Updates.Count);
-			Assert.AreEqual(0, PartialUpdate.FromJson("", type).Updates.Count);
-			Assert.AreEqual(0, PartialUpdate.FromJson(" ", type).Updates.Count);
-			Assert.AreEqual(0, PartialUpdate.FromJson("\t", type).Updates.Count);
-			Assert.AreEqual(0, PartialUpdate.FromJson("[]", type).Updates.Count);
-			TestHelper.ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson("1", type), "Error reading JObject from JsonReader");
+			Assert.AreEqual(1, PartialUpdate.FromJson(type, json).Updates.Count);
+			Assert.AreEqual(0, PartialUpdate.FromJson(type, (string) null).Updates.Count);
+			Assert.AreEqual(0, PartialUpdate.FromJson(type, "").Updates.Count);
+			Assert.AreEqual(0, PartialUpdate.FromJson(type, " ").Updates.Count);
+			Assert.AreEqual(0, PartialUpdate.FromJson(type, "\t").Updates.Count);
+			Assert.AreEqual(0, PartialUpdate.FromJson(type, "[]").Updates.Count);
+			TestHelper.ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson(type, "1"), "Error reading JObject from JsonReader");
 		}
 
 		[TestMethod]
@@ -576,6 +581,7 @@ namespace Speedy.UnitTests
 
 		#region Classes
 
+		
 		public class MyClass : SyncModel<long>
 		{
 			#region Properties
@@ -587,6 +593,23 @@ namespace Speedy.UnitTests
 			public LogLevel Level { get; set; }
 
 			public string Name { get; set; }
+
+			#endregion
+		}
+
+		public class MyClass2Entity : SyncEntity<long>
+		{
+			/// <inheritdoc />
+			public override long Id { get; set; }
+
+			public int Age { get; set; }
+		}
+
+		public class MyClass2Partial : PartialUpdate<MyClass2Entity>
+		{
+			#region Properties
+
+			public int Age => Get<int>(nameof(Age), default);
 
 			#endregion
 		}

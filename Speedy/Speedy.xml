@@ -4590,6 +4590,9 @@
         <member name="M:Speedy.PagedResults`2.GetExpandoObject">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.PagedResults`2.RefreshObject">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.PagedResults`2.RefreshUpdates">
             <inheritdoc />
         </member>
@@ -4776,9 +4779,17 @@
         </member>
         <member name="M:Speedy.PartialUpdate.AddOrUpdate(System.String,System.Object)">
             <summary>
-            Add an update a
+            Add or update the value with the type.
             </summary>
             <param name="name"> The name of the update to add. </param>
+            <param name="value"> The value of the update. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate.AddOrUpdate(System.String,System.Type,System.Object)">
+            <summary>
+            Add or update the value with the type.
+            </summary>
+            <param name="name"> The name of the update to add. </param>
+            <param name="type"> The type of the value. </param>
             <param name="value"> The value of the update. </param>
         </member>
         <member name="M:Speedy.PartialUpdate.Apply(System.Object)">
@@ -4793,23 +4804,6 @@
             </summary>
             <param name="entity"> Entity to be updated. </param>
             <param name="options"> Options for the partial update. </param>
-        </member>
-        <member name="M:Speedy.PartialUpdate.CreateGeneric(System.Type,Speedy.PartialUpdateOptions)">
-            <summary>
-            Create an instance of a partial update for a specific type.
-            </summary>
-            <param name="genericType"> The type the partial update is for. </param>
-            <param name="options"> An optional set of options for the update. </param>
-            <returns> The partial update. </returns>
-        </member>
-        <member name="M:Speedy.PartialUpdate.CreateGeneric(System.Type,Speedy.PartialUpdateOptions,System.Boolean@)">
-            <summary>
-            Create an instance of a partial update for a specific type.
-            </summary>
-            <param name="genericType"> The type the partial update is for. </param>
-            <param name="options"> An optional set of options for the update. </param>
-            <param name="isPartialObject"> True if the generic type is already a partial update. </param>
-            <returns> The partial update. </returns>
         </member>
         <member name="M:Speedy.PartialUpdate.FromJson(System.String,Speedy.PartialUpdateOptions)">
             <summary>
@@ -4828,12 +4822,21 @@
             <param name="options"> The options for the partial update. </param>
             <returns> The partial update. </returns>
         </member>
-        <member name="M:Speedy.PartialUpdate.FromJson(System.String,System.Type,Speedy.PartialUpdateOptions)">
+        <member name="M:Speedy.PartialUpdate.FromJson(System.Type,System.String,Speedy.PartialUpdateOptions)">
             <summary>
             Gets a partial update from a JSON string.
             </summary>
-            <param name="json"> The JSON containing the partial update. </param>
             <param name="type"> The type the partial update is for. </param>
+            <param name="json"> The JSON containing the partial update. </param>
+            <param name="options"> The options for the partial update. </param>
+            <returns> The partial update. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.FromJson(System.Type,Newtonsoft.Json.JsonReader,Speedy.PartialUpdateOptions)">
+            <summary>
+            Gets a partial update from a JSON string.
+            </summary>
+            <param name="type"> The type the partial update is for. </param>
+            <param name="reader"> The JSON containing the partial update. </param>
             <param name="options"> The options for the partial update. </param>
             <returns> The partial update. </returns>
         </member>
@@ -4986,6 +4989,11 @@
             Refresh the update collection for this partial update.
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdate.RefreshObject">
+            <summary>
+            A set of updates have been loaded so refresh object.
+            </summary>
+        </member>
         <member name="M:Speedy.PartialUpdate.Apply(System.Object,System.Collections.Generic.HashSet{System.String},System.Collections.Generic.HashSet{System.String})">
             <summary>
             Applies the updates to the entity.
@@ -5028,6 +5036,23 @@
             <summary>
             Properties to be included.
             </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.ShouldProcessProperty(System.String)">
+            <summary>
+            Check to see if a property should be processed.
+            </summary>
+            <param name="propertyName"> The name of the property to test. </param>
+            <returns> True if the property should be processed otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.UpdateWith(Speedy.PartialUpdateOptions,System.String[])">
+            <summary>
+            Update the PartialUpdateOptions with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.PartialUpdateValue">
             <summary>

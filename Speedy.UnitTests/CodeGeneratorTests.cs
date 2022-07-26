@@ -83,7 +83,7 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void GenerateUpdateWith()
 		{
-			var type = typeof(CustomPagedRequest);
+			var type = typeof(PartialUpdateOptions);
 			var builder = new StringBuilder();
 			var properties = type
 				.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
