@@ -50,7 +50,11 @@ namespace Speedy
 		/// <param name="update"> The update to be applied. </param>
 		private void Initialize(PagedRequest update)
 		{
-			this.UpdateWithUsingReflection(update);
+			Filter = update.Filter;
+			Order = update.Order;
+			Page = update.Page;
+			PerPage = update.PerPage;
+			Updates.Reconcile(update.Updates);
 		}
 
 		/// <summary>

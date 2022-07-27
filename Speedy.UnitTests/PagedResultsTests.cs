@@ -92,12 +92,20 @@ namespace Speedy.UnitTests
 		public void ResultsFromPagedRequest()
 		{
 			var request = new PagedRequest();
-			request.ParseQueryString("?filter=foo&page=2");
+			request.ParseQueryString("?filter=foo&page=2&roleId=5");
 			var actual = new PagedResults<object>(request, 400, 1, "bar");
 			Assert.AreEqual(2, actual.Page);
 			Assert.AreEqual(10, actual.PerPage);
 			Assert.AreEqual(40, actual.TotalPages);
 			Assert.AreEqual(400, actual.TotalCount);
+			Assert.AreEqual(4, actual.Updates.Count);
+			TestHelper.AreEqual(new []
+			{
+				new PartialUpdateValue("Filter", "foo"),
+				new PartialUpdateValue("Page", 2),
+				new PartialUpdateValue("roleId", "5"),
+				new PartialUpdateValue("TotalCount", 400)
+			}, actual.Updates.Values.ToArray());
 		}
 
 		[TestMethod]

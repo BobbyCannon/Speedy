@@ -83,11 +83,11 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void GenerateUpdateWith()
 		{
-			var type = typeof(PartialUpdateOptions);
+			var type = typeof(PagedRequest);
 			var builder = new StringBuilder();
 			var properties = type
-				.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
-				//.GetCachedProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Instance)
+				//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+				.GetCachedProperties(BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.Instance)
 				.Where(x => x.CanWrite)
 				.OrderBy(x => x.Name)
 				.ToList();
