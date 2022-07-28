@@ -394,6 +394,14 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void NullStringValueUsingCustomUpdate()
+		{
+			var json = "{ \"Name\": null }";
+			var update = json.FromJson<MyEntityUpdate>();
+			Assert.IsNull(update.Name);
+		}
+
+		[TestMethod]
 		public void PartialUpdateAdd()
 		{
 			var update = new PartialUpdate<Account>();

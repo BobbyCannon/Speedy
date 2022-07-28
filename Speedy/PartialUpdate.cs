@@ -1005,9 +1005,12 @@ namespace Speedy
 
 		private static PartialUpdate CreatePartialUpdateInstance(Type type)
 		{
-			return type.IsSubclassOf(PartialUpdateConverter.TypeOfPartialUpdate)
-				? (PartialUpdate) Activator.CreateInstance(type)
-				: (PartialUpdate) typeof(PartialUpdate<>).CreateInstance(new[] { type });
+			if (type.IsSubclassOf(PartialUpdateConverter.TypeOfPartialUpdate))
+			{
+				return (PartialUpdate) Activator.CreateInstance(type);
+			}
+			
+			return (PartialUpdate) typeof(PartialUpdate<>).CreateInstance(new[] { type });
 		}
 
 		private static PartialUpdate LoadJson(PartialUpdate partialUpdate, JsonReader reader, PartialUpdateOptions options)
@@ -1099,8 +1102,8 @@ namespace Speedy
 
 				if (TryGetValue(property.Value, type, out var value2))
 				{
-					if ((directProperty != null)
-						&& (directProperty.PropertyType == value2.GetType()))
+					if ((directProperty != null) 
+						&& (directProperty.PropertyType == value2?.GetType()))
 					{
 						directProperty.SetValue(partialUpdate, value2);
 					}
