@@ -38,7 +38,7 @@ namespace Speedy.IntegrationTests
 
 					var tracker = new CollectionChangeTracker();
 					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					database.CollectionChanged += (_, args) => tracker.Update(args);
+					database.SavedChanges += (_, args) => tracker.Update(args);
 					database.Addresses.Add(expected);
 					var actual = database.Addresses.FirstOrDefault();
 					Assert.IsNull(actual);
@@ -930,14 +930,14 @@ namespace Speedy.IntegrationTests
 					Assert.IsFalse(database.Options.MaintainModifiedOn);
 					Assert.IsTrue(database.Options.MaintainSyncId);
 
-					database.CollectionChanged += (_, args) => tracker.Update(args);
+					database.SavedChanges += (_, args) => tracker.Update(args);
 					var address = database.Addresses.First(x => x.Id == expected.Id);
 					address.SyncId = Guid.NewGuid();
 					database.SaveChanges();
 
 					Assert.AreEqual(0, tracker.Added.Count);
 					Assert.AreEqual(0, tracker.Removed.Count);
-					Assert.AreEqual(0, tracker.Updated.Count);
+					Assert.AreEqual(1, tracker.Modified.Count);
 				});
 		}
 
@@ -1307,7 +1307,7 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 
 					var tracker = new CollectionChangeTracker();
-					database.CollectionChanged += (_, args) => tracker.Update(args);
+					database.SavedChanges += (_, args) => tracker.Update(args);
 					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, tracker.Added.Count);
@@ -1396,7 +1396,7 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 
 					var tracker = new CollectionChangeTracker();
-					database.CollectionChanged += (_, args) => tracker.Update(args);
+					database.SavedChanges += (_, args) => tracker.Update(args);
 					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, tracker.Added.Count);
@@ -1875,6 +1875,67 @@ namespace Speedy.IntegrationTests
 						actual.Data.Dump();
 
 						Assert.AreEqual(expect, actual.Data);
+					}
+				});
+		}
+
+		[TestMethod]
+		public void DatabaseEntityNotificationsShouldWork()
+		{
+			TestHelper.GetDataContexts(initialize: false)
+				.ForEach(provider =>
+				{
+					var expected = DataHelper.NewAddress("123 Main Street");
+					AddressEntity actual;
+
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+						Assert.AreEqual(0, database.Addresses.Count());
+
+						//
+						// Added
+						//
+						database.EnableSaveProcessing = true;
+						database.Addresses.Add(expected);
+						actual = database.Addresses.FirstOrDefault();
+						Assert.IsNull(actual);
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(0, database.LogEvents.Count());
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.LogEvents.Count());
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						//
+						// Modified
+						//
+						database.EnableSaveProcessing = true;
+						actual = database.Addresses.First(x => x.Id == expected.Id);
+						actual.Line1 = "Line 1 Updated";
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.LogEvents.Count());
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(2, database.LogEvents.Count());
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						//
+						// Removed
+						//
+						database.EnableSaveProcessing = true;
+						actual = database.Addresses.First(x => x.Id == actual.Id);
+						database.Options.PermanentSyncEntityDeletions = true;
+						database.Addresses.Remove(actual);
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(2, database.LogEvents.Count());
+						database.SaveChanges();
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(3, database.LogEvents.Count());
 					}
 				});
 		}

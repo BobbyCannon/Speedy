@@ -29,6 +29,28 @@ namespace Speedy.Extensions
 		#region Methods
 
 		/// <summary>
+		/// Returns the larger of two specified date times.
+		/// </summary>
+		/// <param name="left"> The left date and time. </param>
+		/// <param name="right"> The right date and time. </param>
+		/// <returns> The larger of the two. </returns>
+		public static DateTime Max(this DateTime left, DateTime right)
+		{
+			return left.Ticks >= right.Ticks ? left : right;
+		}
+		
+		/// <summary>
+		/// Returns the smaller of two specified date times.
+		/// </summary>
+		/// <param name="left"> The left date and time. </param>
+		/// <param name="right"> The right date and time. </param>
+		/// <returns> The smaller of the two. </returns>
+		public static DateTime Min(this DateTime left, DateTime right)
+		{
+			return left.Ticks <= right.Ticks ? left : right;
+		}
+
+		/// <summary>
 		/// Convert a DateTime to an OscTimeTag.
 		/// </summary>
 		/// <param name="time"> The time to be converted. </param>

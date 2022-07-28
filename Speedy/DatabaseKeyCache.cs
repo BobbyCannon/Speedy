@@ -305,6 +305,42 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Update the cache with the provided tracker changes.
+		/// </summary>
+		/// <param name="tracker"> The tracker with the changes. </param>
+		public void UpdateCache(CollectionChangeTracker tracker)
+		{
+			if (tracker == null)
+			{
+				return;
+			}
+
+			foreach (var item in tracker.Added)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					AddEntity(syncEntity);
+				}
+			}
+
+			foreach (var item in tracker.Modified)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					AddEntity(syncEntity);
+				}
+			}
+
+			foreach (var item in tracker.Removed)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					RemoveEntity(syncEntity);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Cache an entity ID for the entity Sync ID.
 		/// </summary>
 		/// <param name="cache"> The cache to add the keys to. </param>

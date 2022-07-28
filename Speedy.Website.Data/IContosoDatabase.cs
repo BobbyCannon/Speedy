@@ -12,6 +12,7 @@ namespace Speedy.Website.Data
 
 		ISyncableRepository<AccountEntity, int> Accounts { get; }
 		ISyncableRepository<AddressEntity, long> Addresses { get; }
+		bool EnableSaveProcessing { get; set; }
 		IRepository<FoodEntity, int> Food { get; }
 		IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }
 		IRepository<GroupMemberEntity, int> GroupMembers { get; }

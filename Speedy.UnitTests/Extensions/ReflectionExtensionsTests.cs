@@ -8,10 +8,11 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
 using Speedy.Protocols.Osc;
-
-#pragma warning disable 169
+using Speedy.Website.Data.Entities;
 
 #endregion
+
+#pragma warning disable 169
 
 namespace Speedy.UnitTests.Extensions
 {
@@ -138,6 +139,28 @@ namespace Speedy.UnitTests.Extensions
 			expected = new[] { "PrivateProperty" };
 			properties = type.GetCachedProperties(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic).Select(x => x.Name).ToArray();
 			TestHelper.AreEqual(expected, properties);
+		}
+
+		[TestMethod]
+		public void RemoveEventHandlers()
+		{
+			var account = new AccountEntity();
+			var eventInfos = account.GetCachedEventFields();
+			var propertyChangedEventInfo = eventInfos.FirstOrDefault(x => x.Name == nameof(AccountEntity.PropertyChanged));
+			Assert.IsNotNull(propertyChangedEventInfo);
+
+			var actual = propertyChangedEventInfo.GetValue(account);
+			Assert.IsNull(actual);
+
+			account.PropertyChanged += (sender, args) => { };
+			
+			actual = propertyChangedEventInfo.GetValue(account);
+			Assert.IsNotNull(actual);
+
+			account.RemoveEventHandlers();
+
+			actual = propertyChangedEventInfo.GetValue(account);
+			Assert.IsNull(actual);
 		}
 
 		#endregion

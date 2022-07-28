@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System;
-using System.Collections.Specialized;
+using Speedy.Storage;
 
 #endregion
 
@@ -10,9 +10,14 @@ namespace Speedy
 	/// <summary>
 	/// The interfaces for a Speedy database.
 	/// </summary>
-	public interface IDatabase : INotifyCollectionChanged, IDisposable
+	public interface IDatabase : IDisposable
 	{
 		#region Properties
+
+		/// <summary>
+		/// Gets a value indicating whether the database has been disposed of.
+		/// </summary>
+		bool IsDisposed { get; }
 
 		/// <summary>
 		/// Gets the options for this database.
@@ -70,6 +75,20 @@ namespace Speedy
 		/// </returns>
 		/// <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
 		int SaveChanges();
+
+		#endregion
+
+		#region Events
+
+		/// <summary>
+		/// An event for when the database has been disposed.
+		/// </summary>
+		public event EventHandler Disposed;
+
+		/// <summary>
+		/// An event for when changes are saved. <see cref="SaveChanges" />
+		/// </summary>
+		public event EventHandler<CollectionChangeTracker> SavedChanges;
 
 		#endregion
 	}

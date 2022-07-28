@@ -944,6 +944,9 @@
             <param name="options"> The options for this database. </param>
             <param name="keyCache"> An optional key manager for caching entity IDs (primary and sync). </param>
         </member>
+        <member name="P:Speedy.Database.IsDisposed">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Database.KeyCache">
             <inheritdoc />
         </member>
@@ -1038,29 +1041,42 @@
             </summary>
             <returns> The number of items saved. </returns>
         </member>
-        <member name="M:Speedy.Database.Dispose(System.Boolean)">
-            <summary>
-            Clean up any resources being used.
-            </summary>
-            <param name="disposing"> true if managed resources should be disposed; otherwise, false. </param>
-        </member>
         <member name="M:Speedy.Database.EntityAdded(Speedy.IEntity)">
             <summary>
-            Called when an entity is added.
+            Called when an entity is added. Note: this is before saving.
+            See <see cref="E:Speedy.Database.SavedChanges" /> for after save state.
             </summary>
             <param name="entity"> The entity added. </param>
         </member>
         <member name="M:Speedy.Database.EntityDeleted(Speedy.IEntity)">
             <summary>
-            Called when an entity is deleted.
+            Called when an entity is deleted. Note: this is before saving.
+            See <see cref="E:Speedy.Database.SavedChanges" /> for after save state.
             </summary>
             <param name="entity"> The entity deleted. </param>
         </member>
         <member name="M:Speedy.Database.EntityModified(Speedy.IEntity)">
             <summary>
-            Called when an entity is modified.
+            Called when an entity is modified. Note: this is before saving.
+            See <see cref="E:Speedy.Database.SavedChanges" /> for after save state.
             </summary>
             <param name="entity"> The entity modified. </param>
+        </member>
+        <member name="M:Speedy.Database.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
+        </member>
+        <member name="M:Speedy.Database.OnDisposed">
+            <summary>
+            An invocator for the event when the database has been disposed.
+            </summary>
+        </member>
+        <member name="M:Speedy.Database.OnSavedChanges(Speedy.Storage.CollectionChangeTracker)">
+            <summary>
+            Called when for when changes are saved. <see cref="M:Speedy.Database.SaveChanges" />
+            </summary>
         </member>
         <member name="M:Speedy.Database.BuildRelationship``4(``0,System.Collections.IEnumerable,System.String)">
             <summary>
@@ -1075,8 +1091,13 @@
             <param name="key"> The key of the relationship </param>
             <returns> The repository for the relationship. </returns>
         </member>
-        <member name="E:Speedy.Database.CollectionChanged">
+        <member name="E:Speedy.Database.Disposed">
             <inheritdoc />
+        </member>
+        <member name="E:Speedy.Database.SavedChanges">
+            <summary>
+            An event for when changes are saved. <see cref="M:Speedy.Database.SaveChanges" />
+            </summary>
         </member>
         <member name="T:Speedy.DatabaseKeyCache">
             <summary>
@@ -1219,6 +1240,12 @@
             Get a detailed string of cached entities
             </summary>
             <returns> A detailed string. </returns>
+        </member>
+        <member name="M:Speedy.DatabaseKeyCache.UpdateCache(Speedy.Storage.CollectionChangeTracker)">
+            <summary>
+            Update the cache with the provided tracker changes.
+            </summary>
+            <param name="tracker"> The tracker with the changes. </param>
         </member>
         <member name="M:Speedy.DatabaseKeyCache.AddEntityId(Speedy.Storage.MemoryCache,System.Object,System.Object)">
             <summary>
@@ -1980,6 +2007,15 @@
             <param name="collection"> The left collection. </param>
             <param name="updates"> The right collection. </param>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.Reconcile``2(Speedy.IRepository{``0,``1},Speedy.IRepository{``0,``1})">
+            <summary>
+            Reconcile one collection with another.
+            </summary>
+            <typeparam name="T"> The type of the collections. </typeparam>
+            <typeparam name="T2"> </typeparam>
+            <param name="collection"> The left collection. </param>
+            <param name="updates"> The right collection. </param>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.Reconcile``1(System.Collections.Generic.HashSet{``0},System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Reconcile one collection with another.
@@ -2038,6 +2074,22 @@
             <summary>
             The amount of ticks in the Min Date / Time value.
             </summary>
+        </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.Max(System.DateTime,System.DateTime)">
+            <summary>
+            Returns the larger of two specified date times.
+            </summary>
+            <param name="left"> The left date and time. </param>
+            <param name="right"> The right date and time. </param>
+            <returns> The larger of the two. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.Min(System.DateTime,System.DateTime)">
+            <summary>
+            Returns the smaller of two specified date times.
+            </summary>
+            <param name="left"> The left date and time. </param>
+            <param name="right"> The right date and time. </param>
+            <returns> The smaller of the two. </returns>
         </member>
         <member name="M:Speedy.Extensions.DateTimeExtensions.ToOscTimeTag(System.DateTime)">
             <summary>
@@ -2502,6 +2554,12 @@
             <param name="action1"> The action to perform if the test is true. </param>
             <param name="action2"> The action to perform if the test is false. </param>
         </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.RemoveEventHandlers(System.Object)">
+            <summary>
+            Remove all event handlers from the provided value.
+            </summary>
+            <param name="value"> The value to remove all event handlers. </param>
+        </member>
         <member name="T:Speedy.Extensions.QueryableExtensions">
             <summary>
             Extensions for queryable
@@ -2598,6 +2656,11 @@
             Default flags for cached access.
             </summary>
         </member>
+        <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultEventFlags">
+            <summary>
+            Default event flags for cached access.
+            </summary>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.CachedMakeGenericMethod(System.Reflection.MethodInfo,System.Type[])">
             <summary>
             Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
@@ -2630,6 +2693,22 @@
             </summary>
             <param name="info"> The property information to get the generic arguments for. </param>
             <returns> The list of generic arguments for the property information of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedEventFields(System.Object,System.Nullable{System.Reflection.BindingFlags})">
+            <summary>
+            Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+            </summary>
+            <param name="value"> The value to get the events for. </param>
+            <param name="flags"> The flags to find events by. Defaults to Public, Instance, Flatten Hierarchy </param>
+            <returns> The list of field info of the events for the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedEventFields(System.Type,System.Nullable{System.Reflection.BindingFlags})">
+            <summary>
+            Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+            </summary>
+            <param name="type"> The type to get the events for. </param>
+            <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
+            <returns> The list of field info of the events for the type. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedField(System.Type,System.String,System.Nullable{System.Reflection.BindingFlags})">
             <summary>
@@ -3194,6 +3273,11 @@
             The interfaces for a Speedy database.
             </summary>
         </member>
+        <member name="P:Speedy.IDatabase.IsDisposed">
+            <summary>
+            Gets a value indicating whether the database has been disposed of.
+            </summary>
+        </member>
         <member name="P:Speedy.IDatabase.Options">
             <summary>
             Gets the options for this database.
@@ -3246,6 +3330,16 @@
             The number of objects written to the underlying database.
             </returns>
             <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
+        </member>
+        <member name="E:Speedy.IDatabase.Disposed">
+            <summary>
+            An event for when the database has been disposed.
+            </summary>
+        </member>
+        <member name="E:Speedy.IDatabase.SavedChanges">
+            <summary>
+            An event for when changes are saved. <see cref="M:Speedy.IDatabase.SaveChanges" />
+            </summary>
         </member>
         <member name="T:Speedy.IDatabaseProvider`1">
             <summary>
@@ -3756,7 +3850,7 @@
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="M:Speedy.Logging.LogListener.OnEventWritten(System.Diagnostics.Tracing.EventWrittenEventArgs)">
             <inheritdoc />
@@ -4124,7 +4218,7 @@
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="M:Speedy.Net.WebClient.Get``1(System.String,System.Nullable{System.TimeSpan})">
             <summary>
@@ -5460,7 +5554,7 @@
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> A flag determining if we are currently disposing. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="M:Speedy.Profiling.Tracker.OnLog(System.String,System.Diagnostics.Tracing.EventLevel)">
             <summary>
@@ -5609,7 +5703,7 @@
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="M:Speedy.Profiling.TrackerPath.CreatePath(System.Guid,System.Exception,Speedy.Profiling.TrackerPathValue[])">
             <summary>
@@ -7793,15 +7887,21 @@
             The items added during this collection update.
             </summary>
         </member>
+        <member name="P:Speedy.Storage.CollectionChangeTracker.Modified">
+            <summary>
+            The items modified during this collection update.
+            </summary>
+        </member>
         <member name="P:Speedy.Storage.CollectionChangeTracker.Removed">
             <summary>
             The items remove during this collection update.
             </summary>
         </member>
-        <member name="P:Speedy.Storage.CollectionChangeTracker.Updated">
+        <member name="M:Speedy.Storage.CollectionChangeTracker.AddAddedEntities(System.Collections.IList)">
             <summary>
-            The items updated during this collection update.
+            Add a list of items that was added during the collection update.
             </summary>
+            <param name="list"> The list of items that was added. </param>
         </member>
         <member name="M:Speedy.Storage.CollectionChangeTracker.AddAddedEntity``1(``0)">
             <summary>
@@ -7810,11 +7910,24 @@
             <typeparam name="T"> The type of the item. </typeparam>
             <param name="item"> The item that was added. </param>
         </member>
-        <member name="M:Speedy.Storage.CollectionChangeTracker.AddAddedEntity(System.Collections.IList)">
+        <member name="M:Speedy.Storage.CollectionChangeTracker.AddModifiedEntities(System.Collections.IList)">
             <summary>
-            Add a list of items that was added during the collection update.
+            Add a list of items that was modified during the collection update.
             </summary>
-            <param name="list"> The list of items that was added. </param>
+            <param name="list"> The list of items that was modified. </param>
+        </member>
+        <member name="M:Speedy.Storage.CollectionChangeTracker.AddModifiedEntity``1(``0)">
+            <summary>
+            Add an item that was modified during the collection update.
+            </summary>
+            <typeparam name="T"> The type of the item. </typeparam>
+            <param name="item"> The item that was modified. </param>
+        </member>
+        <member name="M:Speedy.Storage.CollectionChangeTracker.AddRemovedEntities(System.Collections.IList)">
+            <summary>
+            Add a list of items that was removed during the collection update.
+            </summary>
+            <param name="list"> The list of items that was removed. </param>
         </member>
         <member name="M:Speedy.Storage.CollectionChangeTracker.AddRemovedEntity``1(``0)">
             <summary>
@@ -7823,29 +7936,16 @@
             <typeparam name="T"> The type of the item. </typeparam>
             <param name="item"> The item that was removed. </param>
         </member>
-        <member name="M:Speedy.Storage.CollectionChangeTracker.AddUpdatedEntity``1(``0)">
-            <summary>
-            Add an item that was update during the collection update.
-            </summary>
-            <typeparam name="T"> The type of the item. </typeparam>
-            <param name="item"> The item that was update. </param>
-        </member>
-        <member name="M:Speedy.Storage.CollectionChangeTracker.Remove(System.Collections.IList)">
-            <summary>
-            Add a list of items that was removed during the collection update.
-            </summary>
-            <param name="list"> The list of items that was removed. </param>
-        </member>
         <member name="M:Speedy.Storage.CollectionChangeTracker.Reset">
             <summary>
             Reset the tracking session.
             </summary>
         </member>
-        <member name="M:Speedy.Storage.CollectionChangeTracker.Update(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
+        <member name="M:Speedy.Storage.CollectionChangeTracker.Update(Speedy.Storage.CollectionChangeTracker)">
             <summary>
-            Update the tracker with a change event.
+            Update the tracker with a collection of changes.
             </summary>
-            <param name="args"> The arguments to update with. </param>
+            <param name="tracker"> The changes to the database. </param>
         </member>
         <member name="M:Speedy.Storage.EntityComparer`2.Equals(`0,`0)">
             <summary>
@@ -8362,9 +8462,9 @@
         </member>
         <member name="M:Speedy.Storage.KeyValue.KeyValueMemoryRepository`1.Dispose(System.Boolean)">
             <summary>
-            Disposes of the repository.
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True to dispose managed objects. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="M:Speedy.Storage.KeyValue.KeyValueMemoryRepository`1.GetCount">
             <summary>
@@ -8744,9 +8844,9 @@
         </member>
         <member name="M:Speedy.Storage.KeyValue.KeyValueRepository`1.Dispose(System.Boolean)">
             <summary>
-            Disposes of the repository.
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True to dispose managed objects. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="M:Speedy.Storage.KeyValue.KeyValueRepository`1.GetCount">
             <summary>
@@ -9341,6 +9441,11 @@
             </summary>
             <param name="obj"> The entity that was deleted. </param>
         </member>
+        <member name="M:Speedy.Storage.Repository`2.OnSavedChanges(Speedy.Storage.CollectionChangeTracker)">
+            <summary>
+            Called when for when changes are saved. <see cref="M:Speedy.Storage.Repository`2.SaveChanges" />
+            </summary>
+        </member>
         <member name="M:Speedy.Storage.Repository`2.OnUpdateEntityRelationships(`0)">
             <summary>
             Occurs when an entity relationships are updated.
@@ -9356,9 +9461,6 @@
         <member name="M:Speedy.Storage.Repository`2.System#Collections#IEnumerable#GetEnumerator">
             <inheritdoc />
         </member>
-        <member name="E:Speedy.Storage.Repository`2.CollectionChanged">
-            <inheritdoc />
-        </member>
         <member name="E:Speedy.Storage.Repository`2.AddingEntity">
             <summary>
             Occurs when an entity is being added.
@@ -9367,6 +9469,11 @@
         <member name="E:Speedy.Storage.Repository`2.DeletingEntity">
             <summary>
             Occurs when an entity is being deleted.
+            </summary>
+        </member>
+        <member name="E:Speedy.Storage.Repository`2.SavedChanges">
+            <summary>
+            An event for when changes are saved. <see cref="M:Speedy.Storage.Repository`2.SaveChanges" />
             </summary>
         </member>
         <member name="E:Speedy.Storage.Repository`2.UpdateEntityRelationships">
@@ -9462,9 +9569,9 @@
         </member>
         <member name="M:Speedy.Streams.NoCloseStreamReader.Dispose(System.Boolean)">
             <summary>
-            Disposes of the stream reader.
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True to dispose managed objects. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="T:Speedy.Streams.NoCloseStreamWriter">
             <summary>
@@ -9486,9 +9593,9 @@
         </member>
         <member name="M:Speedy.Streams.NoCloseStreamWriter.Dispose(System.Boolean)">
             <summary>
-            Disposes of the stream writer.
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True to dispose managed objects. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="T:Speedy.Sync.ISyncClient">
             <summary>
@@ -10159,7 +10266,7 @@
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
         <member name="M:Speedy.Sync.SyncEngine.Process(Speedy.Sync.ISyncClient,Speedy.Sync.ISyncClient,System.DateTime,System.DateTime,System.Collections.Generic.IDictionary{System.Guid,System.DateTime})">
             <summary>

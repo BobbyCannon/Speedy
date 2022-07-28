@@ -1,6 +1,7 @@
 #region References
 
 using Speedy.EntityFramework;
+using Speedy.Storage;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -37,6 +38,8 @@ namespace Speedy.Website.Data
 
 		public ISyncableRepository<AccountEntity, int> Accounts { get; }
 		public ISyncableRepository<AddressEntity, long> Addresses { get; }
+
+		public bool EnableSaveProcessing { get; set; }
 		public IRepository<FoodEntity, int> Food { get; }
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }
 		public IRepository<GroupMemberEntity, int> GroupMembers { get; }
@@ -47,6 +50,20 @@ namespace Speedy.Website.Data
 		public ISyncableRepository<SettingEntity, long> Settings { get; }
 		public IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations { get; }
 		public IRepository<TrackerPathEntity, long> TrackerPaths { get; }
+
+		#endregion
+
+		#region Methods
+
+		/// <inheritdoc />
+		protected override void OnSavedChanges(CollectionChangeTracker e)
+		{
+			if (EnableSaveProcessing)
+			{
+				ContosoDatabase.ProcessSavedChanges(this, e);
+			}
+			base.OnSavedChanges(e);
+		}
 
 		#endregion
 	}

@@ -94,12 +94,6 @@ namespace Speedy.Storage
 			return properties.Where(x => changedProperties.Contains(x.Name)).ToList();
 		}
 
-		public void SaveChanges()
-		{
-			UpdateEntity(OldEntity, Entity);
-			ResetChangeTracking();
-		}
-		
 		public void Reset()
 		{
 			UpdateEntity(Entity, OldEntity);
@@ -116,6 +110,12 @@ namespace Speedy.Storage
 		public void ResetEvents()
 		{
 			Entity.PropertyChanged -= EntityOnPropertyChanged;
+		}
+
+		public void SaveChanges()
+		{
+			UpdateEntity(OldEntity, Entity);
+			ResetChangeTracking();
 		}
 
 		internal void RefreshState()

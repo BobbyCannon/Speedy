@@ -505,6 +505,19 @@ namespace Speedy.Extensions
 		/// Reconcile one collection with another.
 		/// </summary>
 		/// <typeparam name="T"> The type of the collections. </typeparam>
+		/// <typeparam name="T2"> </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		public static void Reconcile<T, T2>(this IRepository<T, T2> collection, IRepository<T, T2> updates) where T : Entity<T2>
+		{
+			collection.BulkRemove(x => true);
+			updates.ForEach(collection.Add);
+		}
+
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="T"> The type of the collections. </typeparam>
 		/// <param name="collection"> The left collection. </param>
 		/// <param name="updates"> The right collection. </param>
 		public static void Reconcile<T>(this HashSet<T> collection, IEnumerable<T> updates)

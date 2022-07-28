@@ -161,7 +161,7 @@ namespace Speedy.Net
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/// <param name="disposing"> True if disposing and false if otherwise. </param>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
 		public virtual void Dispose(bool disposing)
 		{
 			if (!disposing)

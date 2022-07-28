@@ -86,6 +86,9 @@
             Gets the database context options for this database.
             </summary>
         </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkDatabase.IsDisposed">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.EntityFramework.EntityFrameworkDatabase.KeyCache">
             <inheritdoc />
         </member>
@@ -101,6 +104,9 @@
             <summary>
             Discard all changes made in this context to the underlying database.
             </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.Dispose">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetMappingAssembly">
             <summary>
@@ -137,23 +143,37 @@
             </returns>
             <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
         </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> Should be true if managed resources should be disposed. </param>
+        </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityAdded(Speedy.IEntity)">
             <summary>
-            Called when an entity is added.
+            Called when an entity is added. Note: this is before saving.
+            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges" /> for after save state.
             </summary>
             <param name="entity"> The entity added. </param>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityDeleted(Speedy.IEntity)">
             <summary>
-            Called when an entity is deleted.
+            Called when an entity is deleted. Note: this is before saving.
+            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges" /> for after save state.
             </summary>
             <param name="entity"> The entity deleted. </param>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityModified(Speedy.IEntity)">
             <summary>
-            Called when an entity is modified.
+            Called when an entity is modified. Note: this is before saving.
+            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges" /> for after save state.
             </summary>
             <param name="entity"> The entity modified. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnDisposed">
+            <summary>
+            An invocator for the event when the database has been disposed.
+            </summary>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <summary>
@@ -173,6 +193,11 @@
             DbContextFactory classes directly.
             </remarks>
             <param name="modelBuilder"> The builder that defines the model for the context being created. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnSavedChanges(Speedy.Storage.CollectionChangeTracker)">
+            <summary>
+            Called when for when changes are saved. <see cref="M:Speedy.EntityFramework.EntityFrameworkDatabase.SaveChanges" />
+            </summary>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.ProcessException(System.Exception)">
             <summary>
@@ -202,7 +227,10 @@
             </summary>
             <param name="entry"> </param>
         </member>
-        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.CollectionChanged">
+        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.Disposed">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges">
             <inheritdoc />
         </member>
         <member name="T:Speedy.EntityFramework.EntityFrameworkRepository`2">

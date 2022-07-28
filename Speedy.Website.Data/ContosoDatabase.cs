@@ -8,8 +8,10 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Speedy.Data.SyncApi;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
+using Speedy.Storage;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -43,6 +45,7 @@ namespace Speedy.Website.Data
 
 		public ISyncableRepository<AccountEntity, int> Accounts => GetSyncableRepository<AccountEntity, int>();
 		public ISyncableRepository<AddressEntity, long> Addresses => GetSyncableRepository<AddressEntity, long>();
+		public bool EnableSaveProcessing { get; set; }
 		public IRepository<FoodEntity, int> Food => GetRepository<FoodEntity, int>();
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships => GetRepository<FoodRelationshipEntity, int>();
 		public IRepository<GroupMemberEntity, int> GroupMembers => GetRepository<GroupMemberEntity, int>();
@@ -140,8 +143,56 @@ namespace Speedy.Website.Data
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			ConfigureDatabaseOptions(optionsBuilder);
-
 			base.OnConfiguring(optionsBuilder);
+		}
+
+		/// <inheritdoc />
+		protected override void OnSavedChanges(CollectionChangeTracker e)
+		{
+			if (EnableSaveProcessing)
+			{
+				ProcessSavedChanges(this, e);
+			}
+			base.OnSavedChanges(e);
+		}
+
+		internal static void ProcessSavedChanges(IContosoDatabase database, CollectionChangeTracker changes)
+		{
+			foreach (var entity in changes.Added)
+			{
+				switch (entity)
+				{
+					case AddressEntity address:
+					{
+						database.LogEvents.Add(new LogEventEntity { Message = $"Address Added {address.Id} {address.Line1}", Level = LogLevel.Critical });
+						break;
+					}
+				}
+			}
+
+			foreach (var entity in changes.Removed)
+			{
+				switch (entity)
+				{
+					case AddressEntity address:
+					{
+						database.LogEvents.Add(new LogEventEntity { Message = $"Address Deleted {address.Id} {address.Line1}", Level = LogLevel.Critical });
+						break;
+					}
+				}
+			}
+
+			foreach (var entity in changes.Modified)
+			{
+				switch (entity)
+				{
+					case AddressEntity address:
+					{
+						database.LogEvents.Add(new LogEventEntity { Message = $"Address Modified {address.Id} {address.Line1}", Level = LogLevel.Critical });
+						break;
+					}
+				}
+			}
 		}
 
 		private static ConnectionStringSettings GetFromAppConfig()

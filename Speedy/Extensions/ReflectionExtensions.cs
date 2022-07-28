@@ -25,6 +25,11 @@ namespace Speedy.Extensions
 		/// </summary>
 		public const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
 
+		/// <summary>
+		/// Default event flags for cached access.
+		/// </summary>
+		public const BindingFlags DefaultEventFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic;
+
 		#endregion
 
 		#region Fields
@@ -34,6 +39,7 @@ namespace Speedy.Extensions
 		private static readonly ConcurrentDictionary<string, Type[]> _methodsGenericArgumentInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _propertyGetAccessors;
 		private static readonly ConcurrentDictionary<Type, string> _typeAssemblyNames;
+		private static readonly ConcurrentDictionary<string, List<FieldInfo>> _typeEventFieldInfos;
 		private static readonly ConcurrentDictionary<string, FieldInfo[]> _typeFieldInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _typeMethodInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _typeMethodsInfos;
@@ -52,6 +58,7 @@ namespace Speedy.Extensions
 			_methodsGenericArgumentInfos = new ConcurrentDictionary<string, Type[]>();
 			_propertyGetAccessors = new ConcurrentDictionary<string, MethodInfo[]>();
 			_typeAssemblyNames = new ConcurrentDictionary<Type, string>();
+			_typeEventFieldInfos = new ConcurrentDictionary<string, List<FieldInfo>>();
 			_typeFieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
 			_typeMethodInfos = new ConcurrentDictionary<string, MethodInfo>();
 			_typeMethodsInfos = new ConcurrentDictionary<string, MethodInfo[]>();
@@ -167,6 +174,38 @@ namespace Speedy.Extensions
 
 			var key = $"{info.ReflectedType?.FullName}.{info.Name}";
 			return _propertyGetAccessors.GetOrAdd(key, _ => info.GetAccessors());
+		}
+
+		/// <summary>
+		/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="value"> The value to get the events for. </param>
+		/// <param name="flags"> The flags to find events by. Defaults to Public, Instance, Flatten Hierarchy </param>
+		/// <returns> The list of field info of the events for the type. </returns>
+		public static IList<FieldInfo> GetCachedEventFields(this object value, BindingFlags? flags = null)
+		{
+			var type = value.GetType();
+			return GetCachedEventFields(type, flags);
+		}
+
+		/// <summary>
+		/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the events for. </param>
+		/// <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
+		/// <returns> The list of field info of the events for the type. </returns>
+		public static IList<FieldInfo> GetCachedEventFields(this Type type, BindingFlags? flags = null)
+		{
+			var typeFlags = flags ?? DefaultEventFlags;
+			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+
+			return _typeEventFieldInfos.GetOrAdd(key, _ => type
+				.GetEvents(typeFlags)
+				.Where(x => x.DeclaringType != null)
+				.Select(x => x.DeclaringType.GetField(x.Name, typeFlags))
+				.Where(x => x != null)
+				.ToList()
+			);
 		}
 
 		/// <summary>

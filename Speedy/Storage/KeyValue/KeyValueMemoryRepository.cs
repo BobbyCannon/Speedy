@@ -373,9 +373,9 @@ namespace Speedy.Storage.KeyValue
 		}
 
 		/// <summary>
-		/// Disposes of the repository.
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/// <param name="disposing"> True to dispose managed objects. </param>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)

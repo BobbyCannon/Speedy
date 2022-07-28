@@ -1,10 +1,8 @@
 #region References
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +74,9 @@ namespace Speedy.EntityFramework
 		public DbContextOptions DbContextOptions { get; }
 
 		/// <inheritdoc />
+		public bool IsDisposed { get; private set; }
+
+		/// <inheritdoc />
 		public DatabaseKeyCache KeyCache { get; }
 
 		/// <summary>
@@ -128,6 +129,16 @@ namespace Speedy.EntityFramework
 			}
 
 			return count;
+		}
+
+		/// <inheritdoc />
+		public sealed override void Dispose()
+		{
+			base.Dispose();
+			Dispose(true);
+			OnDisposed();
+			GC.SuppressFinalize(this);
+			IsDisposed = true;
 		}
 
 		/// <summary>
@@ -280,12 +291,20 @@ namespace Speedy.EntityFramework
 
 				if (first)
 				{
-					UpdateCache();
+					ChangeTracker.AcceptAllChanges();
+					KeyCache?.UpdateCache(_collectionChangeTracker);
+					OnSavedChanges(_collectionChangeTracker);
+				}
 
-					if ((_collectionChangeTracker.Added.Count > 0) || (_collectionChangeTracker.Removed.Count > 0))
-					{
-						OnCollectionChanged(_collectionChangeTracker.Added, _collectionChangeTracker.Removed);
-					}
+				// It's possible that values were added during OnSavedChanges.
+				var moreEntries = ChangeTracker.Entries();
+				needsMoreSaving = moreEntries.Any(x => (x.State != EntityState.Detached) && (x.State != EntityState.Unchanged));
+
+				if (needsMoreSaving)
+				{
+					// Consider this loop done?
+					_saveChangeCount = 0;
+					response += SaveChanges();
 				}
 
 				return response;
@@ -302,7 +321,16 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
-		/// Called when an entity is added.
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+		}
+
+		/// <summary>
+		/// Called when an entity is added. Note: this is before saving.
+		/// See <see cref="SavedChanges" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity added. </param>
 		protected virtual void EntityAdded(IEntity entity)
@@ -310,7 +338,8 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
-		/// Called when an entity is deleted.
+		/// Called when an entity is deleted. Note: this is before saving.
+		/// See <see cref="SavedChanges" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity deleted. </param>
 		protected virtual void EntityDeleted(IEntity entity)
@@ -318,11 +347,20 @@ namespace Speedy.EntityFramework
 		}
 
 		/// <summary>
-		/// Called when an entity is modified.
+		/// Called when an entity is modified. Note: this is before saving.
+		/// See <see cref="SavedChanges" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity modified. </param>
 		protected virtual void EntityModified(IEntity entity)
 		{
+		}
+
+		/// <summary>
+		/// An invocator for the event when the database has been disposed.
+		/// </summary>
+		protected virtual void OnDisposed()
+		{
+			Disposed?.Invoke(this, EventArgs.Empty);
 		}
 
 		/// <summary>
@@ -356,6 +394,14 @@ namespace Speedy.EntityFramework
 			ProcessModelTypes(modelBuilder);
 
 			base.OnModelCreating(modelBuilder);
+		}
+
+		/// <summary>
+		/// Called when for when changes are saved. <see cref="SaveChanges" />
+		/// </summary>
+		protected virtual void OnSavedChanges(CollectionChangeTracker e)
+		{
+			SavedChanges?.Invoke(this, e);
 		}
 
 		/// <summary>
@@ -473,34 +519,6 @@ namespace Speedy.EntityFramework
 			}
 		}
 
-		private void OnCollectionChanged(IList added, IList removed)
-		{
-			if (CollectionChanged == null)
-			{
-				return;
-			}
-
-			NotifyCollectionChangedEventArgs eventArgs = null;
-
-			if ((added.Count > 0) && (removed.Count > 0))
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, added, removed);
-			}
-			else if (added.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, added);
-			}
-			else if (removed.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed);
-			}
-
-			if (eventArgs != null)
-			{
-				CollectionChanged?.Invoke(this, eventArgs);
-			}
-		}
-
 		/// <summary>
 		/// Manages the created on and modified on members of the base entity.
 		/// </summary>
@@ -564,7 +582,7 @@ namespace Speedy.EntityFramework
 						break;
 					}
 
-					_collectionChangeTracker.AddUpdatedEntity(entity);
+					_collectionChangeTracker.AddModifiedEntity(entity);
 
 					// If Speedy is maintaining the CreatedOn date then we will not allow modifications outside Speedy
 					if ((createdEntity != null) && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
@@ -597,47 +615,22 @@ namespace Speedy.EntityFramework
 						syncableEntity.IsDeleted = true;
 						syncableEntity.ModifiedOn = now;
 						entry.State = EntityState.Modified;
+
+						_collectionChangeTracker.AddModifiedEntity(entity);
+
+						entity.EntityModified();
+						EntityModified(entity);
 					}
 					else
 					{
 						_collectionChangeTracker.AddRemovedEntity(entity);
+
+						entity.EntityDeleted();
+						EntityDeleted(entity);
 					}
 
-					entity.EntityDeleted();
-					EntityDeleted(entity);
+					
 					break;
-				}
-			}
-		}
-
-		private void UpdateCache()
-		{
-			if (KeyCache == null)
-			{
-				return;
-			}
-
-			foreach (var item in _collectionChangeTracker.Added)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.AddEntity(syncEntity);
-				}
-			}
-
-			foreach (var item in _collectionChangeTracker.Updated)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.AddEntity(syncEntity);
-				}
-			}
-
-			foreach (var item in _collectionChangeTracker.Removed)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.RemoveEntity(syncEntity);
 				}
 			}
 		}
@@ -647,7 +640,10 @@ namespace Speedy.EntityFramework
 		#region Events
 
 		/// <inheritdoc />
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
+		public event EventHandler Disposed;
+
+		/// <inheritdoc />
+		public event EventHandler<CollectionChangeTracker> SavedChanges;
 
 		#endregion
 	}
