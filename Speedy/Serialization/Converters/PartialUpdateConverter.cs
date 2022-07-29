@@ -60,6 +60,7 @@ namespace Speedy.Serialization.Converters
 				JTokenType.Undefined => typeof(object),
 				JTokenType.Object => typeof(object),
 				JTokenType.None => typeof(object),
+				JTokenType.Array => typeof(Array),
 				_ => typeof(object)
 			};
 		}

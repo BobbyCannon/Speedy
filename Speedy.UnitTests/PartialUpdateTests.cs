@@ -293,6 +293,17 @@ namespace Speedy.UnitTests
 		{
 			var scenarios = new (string value, PartialUpdate expected)[]
 			{
+				("{\"names\":[\"foo\",\"bar\"],\"scores\":[2,3,4],\"Array\":[]}",
+					new PartialUpdate
+					{
+						Updates =
+						{
+							{ "Array", new PartialUpdateValue("Array", typeof(Array), Array.Empty<object>()) },
+							{ "names", new PartialUpdateValue("names", typeof(Array), new[] { "foo", "bar" }) },
+							{ "scores", new PartialUpdateValue("scores", typeof(Array), new[] { 2, 3, 4 }) },
+						}
+					}
+				),
 				("{\"foo\":\"bar\",\"age\":21}",
 					new PartialUpdate
 					{
@@ -310,6 +321,7 @@ namespace Speedy.UnitTests
 			foreach (var scenario in scenarios)
 			{
 				var actual = (PartialUpdate) scenario.value;
+				actual.ToRawJson(indented: true).Dump();
 				TestHelper.AreEqual(scenario.expected, actual);
 			}
 		}

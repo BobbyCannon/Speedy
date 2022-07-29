@@ -1077,7 +1077,7 @@ namespace Speedy
 				// Property of array must be IEnumerable (ignoring some types like string)
 				if (property.Value is JArray jArray && type.IsEnumerable())
 				{
-					var genericType = type.GenericTypeArguments.FirstOrDefault();
+					var genericType = type.GenericTypeArguments.FirstOrDefault() ?? typeof(object);
 					var genericListType = typeof(List<>).MakeGenericType(genericType);
 					var genericList = (IList) Activator.CreateInstance(genericListType);
 
