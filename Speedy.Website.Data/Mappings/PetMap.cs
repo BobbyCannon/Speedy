@@ -27,8 +27,14 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.TypeId).HasColumnName("TypeId").HasMaxLength(25).IsRequired(false);
 			b.Ignore(x => x.Id);
 
+			#if NET6_0_OR_GREATER
+			b.HasIndex(x => x.OwnerId).HasDatabaseName("IX_Pets_OwnerId");
+			b.HasIndex(x => x.TypeId).HasDatabaseName("IX_Pets_TypeId");
+			#else
 			b.HasIndex(x => x.OwnerId).HasName("IX_Pets_OwnerId");
 			b.HasIndex(x => x.TypeId).HasName("IX_Pets_TypeId");
+			#endif
+			
 			b.HasIndex(x => new { x.Name, x.OwnerId }).IsUnique();
 
 			b.HasOne(x => x.Owner).WithMany(x => x.Pets).HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Restrict);

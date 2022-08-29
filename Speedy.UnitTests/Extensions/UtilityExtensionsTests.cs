@@ -118,9 +118,8 @@ namespace Speedy.UnitTests.Extensions
 			var minimum = TimeSpan.FromMinutes(1);
 			var maximum = TimeSpan.FromMinutes(10);
 			var count = 0;
-			var currentTime = new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			
+			TestHelper.CurrentTime = new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc);
 
 			var watch = Stopwatch.StartNew();
 			var actual = UtilityExtensions.Wait(() =>
@@ -170,16 +169,15 @@ namespace Speedy.UnitTests.Extensions
 			var minimum = TimeSpan.FromSeconds(1);
 			var maximum = TimeSpan.FromSeconds(60);
 			var count = 0;
-			var currentTime = new DateTime(2021, 06, 23, 09, 37, 00, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
-
+			
+			TestHelper.CurrentTime = new DateTime(2021, 06, 23, 09, 37, 00, DateTimeKind.Utc);
+			
 			var watch = Stopwatch.StartNew();
 			var actual = UtilityExtensions.Wait(() =>
 			{
 				if (count > 0)
 				{
-					currentTime += TimeSpan.FromSeconds(1);
+					TestHelper.CurrentTime += TimeSpan.FromSeconds(1);
 				}
 				count++;
 				return false;
@@ -189,7 +187,7 @@ namespace Speedy.UnitTests.Extensions
 			watch.Elapsed.Dump();
 
 			Assert.AreEqual(31, count);
-			Assert.AreEqual(new DateTime(2021, 06, 23, 09, 37, 30, DateTimeKind.Utc), currentTime);
+			Assert.AreEqual(new DateTime(2021, 06, 23, 09, 37, 30, DateTimeKind.Utc), TestHelper.CurrentTime);
 			Assert.AreEqual(true, actual);
 		}
 
@@ -228,13 +226,12 @@ namespace Speedy.UnitTests.Extensions
 			var minimum = TimeSpan.FromMinutes(1);
 			var maximum = TimeSpan.FromMinutes(10);
 			var count = 0;
-			var currentTime = new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc);
 
-			TimeService.UtcNowProvider = () => currentTime;
-
+			TestHelper.CurrentTime = new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc);
+			
 			var actual = UtilityExtensions.Wait(() =>
 			{
-				currentTime += TimeSpan.FromSeconds(60);
+				TestHelper.CurrentTime += TimeSpan.FromSeconds(60);
 				count++;
 				return false;
 			}, timeout, delay, minimum, maximum, true);
@@ -251,13 +248,12 @@ namespace Speedy.UnitTests.Extensions
 			var minimum = TimeSpan.FromMinutes(1);
 			var maximum = TimeSpan.FromMinutes(10);
 			var count = 0;
-			var currentTime = new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			
+			TestHelper.CurrentTime = new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc);
 
 			var actual = UtilityExtensions.Wait(() =>
 			{
-				currentTime += TimeSpan.FromSeconds(10);
+				TestHelper.CurrentTime += TimeSpan.FromSeconds(10);
 				count++;
 				return false;
 			}, timeout, delay, minimum, maximum, true);

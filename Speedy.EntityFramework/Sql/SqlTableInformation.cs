@@ -41,9 +41,13 @@ namespace Speedy.EntityFramework.Sql
 
 		public IReadOnlyList<IProperty> Properties { get; private set; }
 
+		#if NETSTANDARD
 		public IDictionary<string, string> PropertyToColumnName =>
-			_propertyToColumnNames
-				??= Properties.ToDictionary(x => x.Name, x => x.GetColumnName());
+			_propertyToColumnNames ??= Properties.ToDictionary(x => x.Name, x => x.GetColumnName());
+		#else
+		public IDictionary<string, string> PropertyToColumnName =>
+			_propertyToColumnNames ??= Properties.ToDictionary(x => x.Name, x => x.GetColumnName(StoreObjectIdentifier.Table(TableName, SchemaName)));
+		#endif
 
 		public string ProviderPrefix { get; set; }
 
@@ -81,6 +85,13 @@ namespace Speedy.EntityFramework.Sql
 
 			var type = typeof(T);
 			var entityType = database.Model.FindEntityType(type);
+			if (entityType == null)
+			{
+				return;
+			}
+
+			var tableName = entityType.GetTableName();
+			var schemaName = entityType.GetSchema();
 			var allProperties = entityType.GetProperties().OrderBy(x => x.Name).ToList();
 			var timestampDbTypeName = nameof(TimestampAttribute).Replace("Attribute", "").ToLower();
 			var timeStampProperties = allProperties.Where(a => (a.IsConcurrencyToken && (a.ValueGenerated == ValueGenerated.OnAddOrUpdate)) || (a.GetColumnType() == timestampDbTypeName)).ToList();
@@ -90,13 +101,23 @@ namespace Speedy.EntityFramework.Sql
 			var entityProperties = type.GetCachedProperties().ToList();
 			var properties = allPropertiesExceptTimeStamp
 				.Where(a => a.GetComputedColumnSql() == null)
+				#if NETSTANDARD
 				.OrderBy(x => x.GetColumnName())
+				#else
+				.OrderBy(x => x.GetColumnName(StoreObjectIdentifier.Table(tableName, schemaName)))
+				#endif
 				.ToList();
 
 			// Update members with new values
 			TableName = entityType.GetTableName();
 			SchemaName = entityType.GetSchema();
-			PrimaryKeys = entityType.FindPrimaryKey().Properties;
+			PrimaryKeys = entityType.FindPrimaryKey()?.Properties;
+			
+			if (PrimaryKeys == null)
+			{
+				return;
+			}
+
 			Properties = properties.ToImmutableList();
 			ProviderType = database.GetProviderType();
 			ProviderPrefix = ProviderType == DatabaseProviderType.Sqlite ? "\"" : "[";

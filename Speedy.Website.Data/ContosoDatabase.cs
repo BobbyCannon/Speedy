@@ -13,6 +13,7 @@ using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.Website.Data.Entities;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 #endregion
 
@@ -147,13 +148,13 @@ namespace Speedy.Website.Data
 		}
 
 		/// <inheritdoc />
-		protected override void OnSavedChanges(CollectionChangeTracker e)
+		protected override void OnChangesSaved(CollectionChangeTracker e)
 		{
 			if (EnableSaveProcessing)
 			{
 				ProcessSavedChanges(this, e);
 			}
-			base.OnSavedChanges(e);
+			base.OnChangesSaved(e);
 		}
 
 		internal static void ProcessSavedChanges(IContosoDatabase database, CollectionChangeTracker changes)

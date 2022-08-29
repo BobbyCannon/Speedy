@@ -38,7 +38,7 @@ namespace Speedy.IntegrationTests
 
 					var tracker = new CollectionChangeTracker();
 					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					database.SavedChanges += (_, args) => tracker.Update(args);
+					database.ChangesSaved += (_, args) => tracker.Update(args);
 					database.Addresses.Add(expected);
 					var actual = database.Addresses.FirstOrDefault();
 					Assert.IsNull(actual);
@@ -930,7 +930,7 @@ namespace Speedy.IntegrationTests
 					Assert.IsFalse(database.Options.MaintainModifiedOn);
 					Assert.IsTrue(database.Options.MaintainSyncId);
 
-					database.SavedChanges += (_, args) => tracker.Update(args);
+					database.ChangesSaved += (_, args) => tracker.Update(args);
 					var address = database.Addresses.First(x => x.Id == expected.Id);
 					address.SyncId = Guid.NewGuid();
 					database.SaveChanges();
@@ -1307,7 +1307,7 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 
 					var tracker = new CollectionChangeTracker();
-					database.SavedChanges += (_, args) => tracker.Update(args);
+					database.ChangesSaved += (_, args) => tracker.Update(args);
 					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, tracker.Added.Count);
@@ -1396,7 +1396,7 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 
 					var tracker = new CollectionChangeTracker();
-					database.SavedChanges += (_, args) => tracker.Update(args);
+					database.ChangesSaved += (_, args) => tracker.Update(args);
 					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, tracker.Added.Count);
@@ -1449,12 +1449,14 @@ namespace Speedy.IntegrationTests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address),
-						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable."
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.",
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address.Id),
-						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable."
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.",
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
 				});
 		}

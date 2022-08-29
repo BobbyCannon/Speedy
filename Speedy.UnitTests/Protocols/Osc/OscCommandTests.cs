@@ -81,8 +81,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void ToFromByteArray()
 		{
-			TimeService.NowProvider = () => new DateTime(2021, 02, 17, 08, 54, 00, DateTimeKind.Local);
-			TimeService.UtcNowProvider = () => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc);
+			TestHelper.CurrentTime = new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc);
 
 			var command = GetTestCommand();
 			var expected = new byte[] { 0x2F, 0x74, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x2C, 0x69, 0x48, 0x73, 0x69, 0x74, 0x66, 0x64, 0x63, 0x62, 0x54, 0x73, 0x75, 0x68, 0x70, 0x69, 0x69, 0x69, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, 0x4A, 0x6F, 0x68, 0x6E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0xBC, 0x2A, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0xA3, 0x85, 0x1F, 0x40, 0x64, 0x8A, 0x3D, 0x70, 0xA3, 0xD7, 0x0A, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x08, 0x00, 0x01, 0x01, 0x02, 0x03, 0x05, 0x08, 0x0D, 0x65, 0x33, 0x39, 0x36, 0x36, 0x32, 0x30, 0x32, 0x2D, 0x34, 0x30, 0x66, 0x61, 0x2D, 0x34, 0x34, 0x33, 0x64, 0x2D, 0x62, 0x32, 0x31, 0x66, 0x2D, 0x65, 0x31, 0x35, 0x32, 0x38, 0x61, 0x31, 0x65, 0x36, 0x64, 0x66, 0x65, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x69, 0x76, 0x85, 0x18, 0x00, 0x00, 0x00, 0x00, 0x02, 0xFF, 0xFF, 0x80, 0x00, 0x00, 0x00, 0xFF, 0xFF };
@@ -102,8 +101,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void ToFromString()
 		{
-			TimeService.NowProvider = () => new DateTime(2021, 02, 17, 08, 54, 00, DateTimeKind.Local);
-			TimeService.UtcNowProvider = () => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc);
+			TestHelper.CurrentTime = new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc);
 
 			var command = GetTestCommand();
 			command.Version = 1;
@@ -114,7 +112,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			command.UShortId = 0;
 			var actual = command.ToString();
 			actual.Escape().Dump();
-			Assert.AreEqual("/test,1,23U,\"John\",20,{ Time: 2000-01-15T00:00:00.000Z },5.11f,164.32d,'',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L", actual);
+			Assert.AreEqual("/test,1,23U,\"John\",20,{ Time: 2000-01-15T00:00:00.0000000Z },5.11f,164.32d,'',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L", actual);
 			var actualMessage = OscPacket.Parse(command.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
 			var actualCommand = new TestOscCommand();
@@ -128,7 +126,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			command.UShortId = 0;
 			actual = command.ToString();
 			actual.Escape().Dump();
-			Assert.AreEqual("/test,2,23U,\"John\",20,{ Time: 2000-01-15T00:00:00.000Z },5.11f,164.32d,\'\u0004\',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L,{ TimeSpan: 12:34:56 },2", actual);
+			Assert.AreEqual("/test,2,23U,\"John\",20,{ Time: 2000-01-15T00:00:00.0000000Z },5.11f,164.32d,\'\u0004\',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L,{ TimeSpan: 12:34:56 },2", actual);
 			actualMessage = OscPacket.Parse(command.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
 			actualCommand = new TestOscCommand();
@@ -139,7 +137,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			command.Version = 3;
 			actual = command.ToString();
 			actual.Escape().Dump();
-			Assert.AreEqual("/test,3,23U,\"John\",20,{ Time: 2000-01-15T00:00:00.000Z },5.11f,164.32d,\'\u0004\',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L,{ TimeSpan: 12:34:56 },2,-32768,65535", actual);
+			Assert.AreEqual("/test,3,23U,\"John\",20,{ Time: 2000-01-15T00:00:00.0000000Z },5.11f,164.32d,\'\u0004\',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L,{ TimeSpan: 12:34:56 },2,-32768,65535", actual);
 			actualMessage = OscPacket.Parse(command.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
 			actualCommand = new TestOscCommand();
@@ -170,7 +168,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			});
 
 			var expectedTime = command.Time;
-			var expected = "/test,1,23U,\"Johnny\",21,{ Time: 2000-01-15T00:00:00.000Z },5.11f,164.32d,'',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L";
+			var expected = "/test,1,23U,\"Johnny\",21,{ Time: 2000-01-15T00:00:00.0000000Z },5.11f,164.32d,'',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L";
 			var actual = command.ToString();
 			actual.Dump();
 			Assert.AreEqual(expectedTime, command.Time);
@@ -183,7 +181,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 				x.Age = 23;
 			});
 
-			expected = "/test,2,23U,\"Jon\",23,{ Time: 2000-01-15T00:00:00.000Z },5.11f,164.32d,'',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L,{ TimeSpan: 12:34:56 },2";
+			expected = "/test,2,23U,\"Jon\",23,{ Time: 2000-01-15T00:00:00.0000000Z },5.11f,164.32d,'',{ Blob: 0x000101020305080D },True,\"e3966202-40fa-443d-b21f-e1528a1e6dfe\",4294967295u,9223372036854775807L,{ TimeSpan: 12:34:56 },2";
 			actual = command.ToString();
 			actual.Dump();
 			Assert.AreEqual(expectedTime, command.Time);
@@ -208,7 +206,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 				Height = 5.11f,
 				Id = 23,
 				SyncId = Guid.Parse("E3966202-40FA-443D-B21F-E1528A1E6DFE"),
-				Time = new OscTimeTag(new DateTime(2000, 01, 15, 11, 15, 56, DateTimeKind.Utc)),
+				Time = new DateTime(2000, 01, 15, 11, 15, 56, DateTimeKind.Utc),
 				Rating = 4,
 				Values = new byte[] { 0, 1, 1, 2, 3, 5, 8, 13 },
 				Visits = uint.MaxValue,

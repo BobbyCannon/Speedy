@@ -631,14 +631,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void ReadItemFromCache()
 		{
-			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			currentTime += TimeSpan.FromSeconds(1.5);
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -691,14 +689,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void ReadOnlyWrittenItemsFromDisk()
 		{
-			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			currentTime += TimeSpan.FromSeconds(1.5);
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Foo2", "Bar2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -905,14 +901,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void SaveShouldOnlyWriteItemsOverTimeoutToFile()
 		{
-			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			currentTime += TimeSpan.FromSeconds(1.5);
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();

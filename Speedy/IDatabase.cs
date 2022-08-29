@@ -88,7 +88,7 @@ namespace Speedy
 		/// <summary>
 		/// An event for when changes are saved. <see cref="SaveChanges" />
 		/// </summary>
-		public event EventHandler<CollectionChangeTracker> SavedChanges;
+		public event EventHandler<CollectionChangeTracker> ChangesSaved;
 
 		#endregion
 	}

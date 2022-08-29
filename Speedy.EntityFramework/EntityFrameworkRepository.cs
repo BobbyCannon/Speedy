@@ -15,6 +15,10 @@ using Speedy.EntityFramework.Sql;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 
+#if !NETSTANDARD
+using Microsoft.EntityFrameworkCore.Metadata;
+#endif
+
 #endregion
 
 namespace Speedy.EntityFramework
@@ -348,11 +352,20 @@ namespace Speedy.EntityFramework
 			var entityProperties = entityType.GetProperties().ToDictionary(a => a.Name, a => a);
 			var properties = type.GetCachedProperties().Where(x => entityProperties.ContainsKey(x.Name)).ToList();
 
+			#if !NETSTANDARD
+			var tableName = entityType.GetTableName();
+			var schemaName = entityType.GetSchema();
+			#endif
+
 			foreach (var property in properties)
 			{
 				var entityPropertyType = entityProperties[property.Name];
 				var propertyType = property.PropertyType;
+				#if NETSTANDARD
 				var columnName = entityPropertyType.GetColumnName();
+				#else
+				var columnName = entityPropertyType.GetColumnName(StoreObjectIdentifier.Table(tableName, schemaName));
+				#endif
 				var underlyingType = Nullable.GetUnderlyingType(propertyType);
 				dataTable.Columns.Add(columnName, underlyingType ?? propertyType);
 				columnValues.Add(property.Name, null);

@@ -41,11 +41,19 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.Roles).HasColumnName("AccountRoles").IsRequired(false);
 			b.Property(x => x.SyncId).HasColumnName("AccountSyncId").IsRequired();
 
+			#if NET6_0_OR_GREATER
+			b.HasIndex(x => x.AddressId).HasDatabaseName("IX_Accounts_AddressId");
+			b.HasIndex(x => new { x.AddressId, x.ExternalId }).HasDatabaseName("IX_Accounts_AddressId_ExternalId").IsUnique();
+			b.HasIndex(x => x.Name).HasDatabaseName("IX_Accounts_Name").IsUnique();
+			b.HasIndex(x => x.Nickname).HasDatabaseName("IX_Accounts_Nickname").IsUnique();
+			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_Accounts_SyncId").IsUnique();
+			#else
 			b.HasIndex(x => x.AddressId).HasName("IX_Accounts_AddressId");
 			b.HasIndex(x => new { x.AddressId, x.ExternalId }).HasName("IX_Accounts_AddressId_ExternalId").IsUnique();
 			b.HasIndex(x => x.Name).HasName("IX_Accounts_Name").IsUnique();
 			b.HasIndex(x => x.Nickname).HasName("IX_Accounts_Nickname").IsUnique();
 			b.HasIndex(x => x.SyncId).HasName("IX_Accounts_SyncId").IsUnique();
+			#endif
 
 			b.HasOne(x => x.Address).WithMany(x => x.Accounts).HasForeignKey(x => x.AddressId).OnDelete(DeleteBehavior.Restrict);
 		}

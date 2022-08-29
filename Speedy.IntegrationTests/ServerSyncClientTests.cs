@@ -77,9 +77,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void SettingsShouldDelete()
 		{
-			var currentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime; // currentTime = {2/25/2021 08:42:32 AM}
+			TestHelper.CurrentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
 
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
@@ -103,7 +101,8 @@ namespace Speedy.IntegrationTests
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
-			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
+			// currentTime = {2/25/2021 08:42:33 AM}
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); 
 			syncManager.Sync();
 
 			using (var database = clientProvider.GetDatabase())
@@ -115,7 +114,8 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
-			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:34 AM}
+			// currentTime = {2/25/2021 08:42:34 AM}
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); 
 			syncManager.Sync();
 
 			using (var database = entityProvider.GetDatabase())
@@ -129,9 +129,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void SettingsShouldNotDelete()
 		{
-			var currentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime; // currentTime = {2/25/2021 08:42:32 AM}
+			TestHelper.CurrentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
 
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
@@ -156,7 +154,7 @@ namespace Speedy.IntegrationTests
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
-			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
 			syncManager.Sync();
 
 			using (var database = clientProvider.GetDatabase())
@@ -168,7 +166,7 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
-			currentTime = currentTime.AddSeconds(1); // currentTime = {2/25/2021 08:42:34 AM}
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); // currentTime = {2/25/2021 08:42:34 AM}
 			var result = syncManager.Sync();
 
 			Assert.AreEqual(1, result.SyncIssues.Count);

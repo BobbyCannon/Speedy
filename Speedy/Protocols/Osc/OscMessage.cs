@@ -32,7 +32,7 @@ namespace Speedy.Protocols.Osc
 		/// single entry array.
 		/// </remarks>
 		public OscMessage(string address, params object[] args)
-			: this(OscTimeTag.UtcNow, address, null, args)
+			: this(TimeService.UtcNow, address, null, args)
 		{
 		}
 
@@ -47,7 +47,7 @@ namespace Speedy.Protocols.Osc
 		/// object of type object[]. Because an object[] is an object the parameter is seen as a
 		/// single entry array.
 		/// </remarks>
-		public OscMessage(OscTimeTag time, string address, params object[] args)
+		public OscMessage(DateTime time, string address, params object[] args)
 			: this(time, address, null, args)
 		{
 		}
@@ -64,7 +64,7 @@ namespace Speedy.Protocols.Osc
 		/// object of type object[]. Because an object[] is an object the parameter is seen as a
 		/// single entry array.
 		/// </remarks>
-		public OscMessage(OscTimeTag time, string address, IDispatcher dispatcher, params object[] args) : base(dispatcher)
+		public OscMessage(DateTime time, string address, IDispatcher dispatcher, params object[] args) : base(dispatcher)
 		{
 			Address = address;
 			Arguments = new List<object>();
@@ -116,7 +116,7 @@ namespace Speedy.Protocols.Osc
 		/// <returns> The message for the address and arguments. </returns>
 		public static OscMessage FromObjectArray(string address, IEnumerable<object> args)
 		{
-			return FromObjectArray(OscTimeTag.UtcNow, address, args);
+			return FromObjectArray(TimeService.UtcNow, address, args);
 		}
 
 		/// <summary>
@@ -127,7 +127,7 @@ namespace Speedy.Protocols.Osc
 		/// <param name="address"> The address. </param>
 		/// <param name="args"> The arguments. </param>
 		/// <returns> The message for the address and arguments. </returns>
-		public static OscMessage FromObjectArray(OscTimeTag time, string address, IEnumerable<object> args)
+		public static OscMessage FromObjectArray(DateTime time, string address, IEnumerable<object> args)
 		{
 			var response = new OscMessage(time, address);
 			response.Arguments.AddRange(args);
@@ -522,8 +522,8 @@ namespace Speedy.Protocols.Osc
 					}
 					case DateTime dateTime:
 					{
-						var oscTime = dateTime.ToOscTimeTag();
-						sb.Append($"{{ Time: {oscTime} }}");
+						var dateTimeString = dateTime.ToUtcString();
+						sb.Append($"{{ Time: {dateTimeString} }}");
 						break;
 					}
 					case TimeSpan timeSpan:
@@ -575,7 +575,7 @@ namespace Speedy.Protocols.Osc
 		/// <param name="length"> The length for the message. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> Message containing various arguments and an address </returns>
-		internal static OscPacket ParseMessage(OscTimeTag time, byte[] data, int length, params OscArgumentParser[] parsers)
+		internal static OscPacket ParseMessage(DateTime time, byte[] data, int length, params OscArgumentParser[] parsers)
 		{
 			var index = 0;
 			var arguments = new List<object>();
@@ -587,7 +587,7 @@ namespace Speedy.Protocols.Osc
 
 			if ((index % 4) != 0)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidMessageAddressMisAligned);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidMessageAddressMisAligned);
 			}
 
 			// Get type tags
@@ -737,7 +737,7 @@ namespace Speedy.Protocols.Osc
 					case '[':
 						if (arguments != mainArray)
 						{
-							return new OscError(OscTimeTag.UtcNow, OscError.Message.UnsupportedNestedArrays);
+							return new OscError(TimeService.UtcNow, OscError.Message.UnsupportedNestedArrays);
 						}
 						arguments = new List<object>(); // make arguments point to a new object array
 						break;
@@ -765,7 +765,7 @@ namespace Speedy.Protocols.Osc
 
 						if (!parsed)
 						{
-							return new OscError(OscTimeTag.UtcNow, OscError.Message.UnknownTagType, type);
+							return new OscError(TimeService.UtcNow, OscError.Message.UnknownTagType, type);
 						}
 
 						break;
@@ -793,11 +793,11 @@ namespace Speedy.Protocols.Osc
 		/// <param name="provider"> The format provider to use during parsing. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> The parsed OSC message. </returns>
-		internal static OscPacket ParseMessage(OscTimeTag time, string value, IFormatProvider provider, params OscArgumentParser[] parsers)
+		internal static OscPacket ParseMessage(DateTime time, string value, IFormatProvider provider, params OscArgumentParser[] parsers)
 		{
 			if (string.IsNullOrWhiteSpace(value))
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParseOscPacketInput);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidParseOscPacketInput);
 			}
 
 			var index = value.IndexOf(',');
@@ -812,12 +812,12 @@ namespace Speedy.Protocols.Osc
 
 			if (string.IsNullOrWhiteSpace(address))
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidMessageAddressWasEmpty);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidMessageAddressWasEmpty);
 			}
 
 			if (OscAddress.IsValidAddress(address) == false)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidMessageAddress);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidMessageAddress);
 			}
 
 			var arguments = new List<object>();
@@ -828,7 +828,7 @@ namespace Speedy.Protocols.Osc
 			}
 			catch (Exception ex)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.FailedParsingArguments, ex.Message);
+				return new OscError(TimeService.UtcNow, OscError.Message.FailedParsingArguments, ex.Message);
 			}
 
 			return new OscMessage(time, address, arguments.ToArray());

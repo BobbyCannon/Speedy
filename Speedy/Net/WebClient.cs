@@ -37,7 +37,7 @@ namespace Speedy.Net
 		/// <param name="credential"> The optional credential to authenticate with. </param>
 		/// <param name="proxy"> The optional proxy to use. </param>
 		/// <param name="dispatcher"> The optional dispatcher to use. </param>
-		public WebClient(string baseUri, int timeout, WebCredential credential = null, IWebProxy proxy = null, IDispatcher dispatcher = null)
+		public WebClient(string baseUri, int timeout = 1000, WebCredential credential = null, IWebProxy proxy = null, IDispatcher dispatcher = null)
 			: this(new Uri(baseUri), TimeSpan.FromMilliseconds(timeout), credential, proxy, dispatcher)
 		{
 		}

@@ -1,2 +1,0 @@
-MainPackage=C:\Workspaces\GitHub\Speedy\Speedy.UWP\bin\x64\Release\Speedy.UWP_1.0.0.0_x64.msix
-SymbolPackage=C:\Workspaces\GitHub\Speedy\Speedy.UWP\obj\x64\Release\Symbols\Speedy.UWP_1.0.0.0_x64.appxsym

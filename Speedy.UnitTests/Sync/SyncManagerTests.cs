@@ -27,10 +27,9 @@ namespace Speedy.UnitTests.Sync
 			SyncOptions firstSyncOptions = null;
 			SyncOptions secondSyncOptions = null;
 
-			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
-			var offset = 0;
+			var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
+			TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
 
 			var manager = new TestSyncManager();
 			var syncPostUpdateCalled = false;
@@ -101,7 +100,7 @@ namespace Speedy.UnitTests.Sync
 			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
 			var offset = 0;
 
-			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
+			TestHelper.CurrentTime = startTime.AddSeconds(offset++);
 
 			var manager = new TestSyncManager();
 			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Informational);
@@ -122,10 +121,9 @@ namespace Speedy.UnitTests.Sync
 		[TestMethod]
 		public void SyncsShouldNotAverageIfCancelled()
 		{
-			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
-			var offset = 0;
+			var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
+			TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
 
 			var manager = new TestSyncManager();
 			using var logListener = MemoryLogListener.CreateSession(Guid.Empty, EventLevel.Verbose);
@@ -176,10 +174,9 @@ namespace Speedy.UnitTests.Sync
 		[TestMethod]
 		public void SyncsShouldNotWaitForEachOther()
 		{
-			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
-			var offset = 0;
+			var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
+			TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
 
 			var manager = new TestSyncManager();
 			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
@@ -241,10 +238,9 @@ namespace Speedy.UnitTests.Sync
 		{
 			SyncOptions thirdSyncOptions = null;
 
-			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
-			var offset = 0;
+			var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
+			TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
 
 			var manager = new TestSyncManager();
 			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);

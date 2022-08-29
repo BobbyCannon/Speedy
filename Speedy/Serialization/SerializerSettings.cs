@@ -367,7 +367,8 @@ namespace Speedy.Serialization
 					RemoveConverter(typeof(StringEnumConverter));
 				}
 
-				AddOrUpdateConverter(new IsoDateTimeConverter());
+				AddOrUpdateConverter(new Converters.IsoDateTimeConverter());
+				AddOrUpdateConverter(new Newtonsoft.Json.Converters.IsoDateTimeConverter());
 				AddOrUpdateConverter(new PartialUpdateConverter());
 
 				JsonSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;

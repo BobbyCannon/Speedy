@@ -54,7 +54,7 @@ namespace Speedy.Protocols.Osc
 		/// <summary>
 		/// Gets the time of the
 		/// </summary>
-		public OscTimeTag Time
+		public DateTime Time
 		{
 			get => OscMessage.Time;
 			set => OscMessage.Time = value;
@@ -933,9 +933,9 @@ namespace Speedy.Protocols.Osc
 		/// <summary>
 		/// Converts the OscCommand into an OscBundle.
 		/// </summary>
-		/// <param name="time"> On optional time for the bundle. Defaults to OscTimeTag.UtcNow. </param>
+		/// <param name="time"> On optional time for the bundle. Defaults to TimeService.UtcNow. </param>
 		/// <returns> The OscBundle containing this OscCommand as an OscMessage. </returns>
-		public virtual OscBundle ToBundle(OscTimeTag? time = null)
+		public virtual OscBundle ToBundle(DateTime? time = null)
 		{
 			return new OscBundle(time ?? Time, ToMessage());
 		}

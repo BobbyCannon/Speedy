@@ -26,21 +26,11 @@ namespace Speedy.Protocols.Osc
 		#region Constructors
 
 		public OscBundle(params OscPacket[] packets)
-			: this(OscTimeTag.UtcNow, packets)
+			: this(TimeService.UtcNow, packets)
 		{
 		}
 
-		public OscBundle(ulong time, params OscPacket[] packets)
-			: this(new OscTimeTag(time), packets)
-		{
-		}
-
-		public OscBundle(DateTime dateTime, params OscPacket[] packets)
-			: this(OscTimeTag.FromDateTime(dateTime), packets)
-		{
-		}
-
-		public OscBundle(OscTimeTag timeTag, params OscPacket[] packets)
+		public OscBundle(DateTime timeTag, params OscPacket[] packets)
 		{
 			_packets = new List<OscPacket>();
 
@@ -151,7 +141,7 @@ namespace Speedy.Protocols.Osc
 			}
 
 			// Add the time tag
-			var time = OscBitConverter.GetBytes(Time.Value);
+			var time = OscBitConverter.GetBytes(Time.ToOscTimeTag().Value);
 			time.CopyTo(response, responseIndex);
 			responseIndex += time.Length;
 
@@ -190,12 +180,12 @@ namespace Speedy.Protocols.Osc
 			index += 8;
 
 			var time = OscBitConverter.ToUInt64(bundle, index);
-			var timeTag = new OscTimeTag(time);
+			var timeTag = new OscTimeTag(time).ToDateTime();
 			index += 8;
 
 			if ((bundleTag != "#bundle\0") && (bundleTag != "+bundle\0"))
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidBundle);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidBundle);
 			}
 
 			var isExtended = bundleTag == "+bundle\0";
@@ -219,7 +209,7 @@ namespace Speedy.Protocols.Osc
 				if (!(packet is OscMessage message))
 				{
 					// Should never get here but just in case
-					return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParsedMessage);
+					return new OscError(TimeService.UtcNow, OscError.Message.InvalidParsedMessage);
 				}
 
 				message.Time = timeTag;
@@ -240,7 +230,7 @@ namespace Speedy.Protocols.Osc
 
 				if (readCrc != calculatedCrc)
 				{
-					return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidBundleCrc);
+					return new OscError(TimeService.UtcNow, OscError.Message.InvalidBundleCrc);
 				}
 			}
 
@@ -257,7 +247,7 @@ namespace Speedy.Protocols.Osc
 		{
 			if (string.IsNullOrWhiteSpace(value))
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParseOscPacketInput);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidParseOscPacketInput);
 			}
 
 			var start = 0;
@@ -265,14 +255,14 @@ namespace Speedy.Protocols.Osc
 
 			if (end <= start)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidBundleStart);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidBundleStart);
 			}
 
 			var ident = value.Substring(start, end - start).Trim();
 
 			if (!"#bundle".Equals(ident, StringComparison.InvariantCulture) && !"+bundle".Equals(ident, StringComparison.InvariantCulture))
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidBundleIdent, ident);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidBundleIdent, ident);
 			}
 
 			start = end + 1;
@@ -284,7 +274,7 @@ namespace Speedy.Protocols.Osc
 			}
 
 			var timeStampValue = value.Substring(start, end - start);
-			var timeStamp = OscTimeTag.Parse(timeStampValue.Trim(), provider);
+			var timeStamp = DateTime.Parse(timeStampValue.Trim(), provider);
 
 			start = end + 1;
 
@@ -304,7 +294,7 @@ namespace Speedy.Protocols.Osc
 
 			if (string.IsNullOrWhiteSpace(gap) == false)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParsedMessageArray, gap);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidParsedMessageArray, gap);
 			}
 
 			start = end;
@@ -327,7 +317,7 @@ namespace Speedy.Protocols.Osc
 
 				if ((gap.Equals(",") == false) && (string.IsNullOrWhiteSpace(gap) == false))
 				{
-					return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParsedMessageArray, gap);
+					return new OscError(TimeService.UtcNow, OscError.Message.InvalidParsedMessageArray, gap);
 				}
 
 				start = end;

@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Speedy.Automation;
+using Speedy.Automation.Web;
 using Speedy.Client.Data;
 using Speedy.Data;
 using Speedy.EntityFramework;
@@ -30,6 +32,7 @@ using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Data.Sync;
 using Speedy.Website.Services;
+using Application = Speedy.Automation.Application;
 using Timer = Speedy.Profiling.Timer;
 
 #endregion
@@ -43,12 +46,14 @@ namespace Speedy.UnitTests
 		public const string AdministratorEmailAddress = "admin@speedy.local";
 		public const int AdministratorId = 1;
 		public const string AdministratorPassword = "Password";
+		public const BrowserType BrowsersToTests = BrowserType.Chrome; //BrowserType.Chrome | BrowserType.Edge;
 
 		#endregion
 
 		#region Fields
 
 		public static readonly DirectoryInfo Directory;
+		private static DateTime? _currentTime;
 
 		#endregion
 
@@ -79,13 +84,42 @@ namespace Speedy.UnitTests
 
 			var assembly = Assembly.GetExecutingAssembly();
 			Version = assembly.GetName().Version?.ToString(4) ?? "0.0.0.0";
+
+			var path = Path.GetDirectoryName(assembly.Location);
+			var info = new DirectoryInfo(path ?? "/");
+
+			ApplicationPathForWinFormsX64 = $"{info.FullName.Replace("Speedy.AutomationTests", "Speedy.Winforms.Example")}\\Speedy.Winforms.Example.exe"
+				.Replace("net6.0-windows", "net48")
+				.Replace("\\bin\\Debug\\", "\\bin\\x64\\Debug\\");
+
+			ApplicationPathForWinFormsX86 = ApplicationPathForWinFormsX64.Replace("\\x64\\", "\\x86\\");
+
+			// Need to convert
+			// - from C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\Debug\net6.0-windows
+			// - to   C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\x86\Debug\AppX\Speedy.TestUwp.exe
+			ApplicationPathForUwp = info.FullName
+					.Replace("Speedy.AutomationTests", "Speedy.TestUwp")
+					.Replace("x86\\Debug\\net6.0-windows", "x86\\Debug\\AppX")
+				+ "\\Speedy.TestUwp.exe";
 		}
 
 		#endregion
 
 		#region Properties
 
+		public static string ApplicationPathForUwp { get; set; }
+
+		public static string ApplicationPathForWinFormsX64 { get; }
+
+		public static string ApplicationPathForWinFormsX86 { get; }
+
 		public static string ClearDatabaseScript => "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'SET QUOTED_IDENTIFIER ON; IF ''?'' NOT LIKE ''%MigrationHistory%'' AND ''?'' NOT LIKE ''%MigrationsHistory%'' DELETE FROM ?'\r\nEXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'IF OBJECTPROPERTY(object_id(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'";
+
+		public static DateTime CurrentTime
+		{
+			get => _currentTime ?? DateTime.UtcNow;
+			set => _currentTime = value;
+		}
 
 		public static string DefaultSqlConnection { get; }
 
@@ -150,6 +184,31 @@ namespace Speedy.UnitTests
 		{
 			var result = Compare(expected, actual, includeChildren, membersToIgnore);
 			Assert.IsTrue(result.AreEqual, result.DifferencesString);
+		}
+
+		/// <summary>
+		/// Compares two objects to see if they are equal.
+		/// </summary>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The item that is to be tested. </param>
+		/// <param name="sort"> If true will sort collections first. Defaults to true so sorting will occur. </param>
+		public static void AreEqual(string[] expected, string[] actual, bool sort = true)
+		{
+			if (expected.Length != actual.Length)
+			{
+				throw new Exception($"Expected ({expected.Length}) != Actual ({actual.Length}) Length");
+			}
+
+			if (sort)
+			{
+				Array.Sort(expected, StringComparer.OrdinalIgnoreCase);
+				Array.Sort(actual, StringComparer.OrdinalIgnoreCase);
+			}
+
+			for (var i = 0; i < expected.Length; i++)
+			{
+				AreEqual(expected[i], actual[i]);
+			}
 		}
 
 		/// <summary>
@@ -333,7 +392,7 @@ namespace Speedy.UnitTests
 			{
 				database.Options.UpdateWith(x);
 				return database;
-			}, ContosoClientDatabase.GetDefaultOptions(), null);
+			}, ContosoClientMemoryDatabase.GetDefaultOptions(), null);
 		}
 
 		public static ControllerContext GetControllerContext(AccountEntity account)
@@ -373,6 +432,15 @@ namespace Speedy.UnitTests
 				database.Options.UpdateWith(x);
 				return database;
 			}, ContosoDatabase.GetDefaultOptions());
+		}
+
+		public static Application GetOrStartApplication(bool x86 = false)
+		{
+			var path = x86 ? ApplicationPathForWinFormsX86 : ApplicationPathForWinFormsX64;
+			var response = Application.AttachOrCreate(path);
+			response.Timeout = TimeSpan.FromSeconds(5);
+			response.AutoClose = true;
+			return response;
 		}
 
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
@@ -418,7 +486,7 @@ namespace Speedy.UnitTests
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options, null);
-			database.Database.Migrate();
+			//database.Database.Migrate();
 			database.ClearDatabase();
 
 			if (initialize)
@@ -491,7 +559,8 @@ namespace Speedy.UnitTests
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, null, null);
-			database.Database.Migrate();
+			// do not migrate because we have Old EF and New EF migrations
+			//database.Database.Migrate();
 			database.ClearDatabase();
 			if (initialize)
 			{
@@ -504,7 +573,8 @@ namespace Speedy.UnitTests
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2, null, null);
-			database.Database.Migrate();
+			// do not migrate because we have Old EF and New EF migrations
+			//database.Database.Migrate();
 			database.ClearDatabase();
 			if (initialize)
 			{
@@ -553,6 +623,10 @@ namespace Speedy.UnitTests
 			Serializer.ResetDefaultSettings();
 			TimeService.Reset();
 
+			_currentTime = null;
+
+			TimeService.AddUtcNowProvider(() => CurrentTime);
+
 			Wait(() =>
 			{
 				try
@@ -566,6 +640,24 @@ namespace Speedy.UnitTests
 					return false;
 				}
 			});
+
+			Application.CloseAll(ApplicationPathForWinFormsX64);
+			Application.CloseAll(ApplicationPathForWinFormsX86);
+		}
+
+		public static void PrintChildren(Element parent, string prefix = "")
+		{
+			var element = parent;
+			if (element != null)
+			{
+				Console.WriteLine(prefix + element.ToDetailString().Replace(Environment.NewLine, ", "));
+				prefix += "  ";
+			}
+
+			foreach (var child in parent.Children)
+			{
+				PrintChildren(child, prefix);
+			}
 		}
 
 		/// <summary>
@@ -611,6 +703,17 @@ namespace Speedy.UnitTests
 				directory.Refresh();
 				return directory.Exists;
 			});
+		}
+
+		public static Application StartApplication(bool x86 = false)
+		{
+			var path = x86 ? ApplicationPathForWinFormsX86 : ApplicationPathForWinFormsX64;
+			path.Dump();
+			Application.CloseAll(path);
+			var response = Application.AttachOrCreate(path);
+			response.Timeout = TimeSpan.FromSeconds(5);
+			response.AutoClose = true;
+			return response;
 		}
 
 		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action, bool includeWeb = true, bool initializeDatabase = true)

@@ -56,13 +56,13 @@ namespace Speedy.Website.Data
 		#region Methods
 
 		/// <inheritdoc />
-		protected override void OnSavedChanges(CollectionChangeTracker e)
+		protected override void OnChangesSaved(CollectionChangeTracker e)
 		{
 			if (EnableSaveProcessing)
 			{
 				ContosoDatabase.ProcessSavedChanges(this, e);
 			}
-			base.OnSavedChanges(e);
+			base.OnChangesSaved(e);
 		}
 
 		#endregion

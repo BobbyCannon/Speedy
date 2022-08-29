@@ -629,13 +629,27 @@ namespace Speedy.Protocols
 				case OscMidi.Name:
 				case "midi":
 				case "m":
+				{
 					return OscMidi.Parse(value, provider);
-
+				}
 				case OscTimeTag.Name:
 				case "time":
 				case "t":
-					return OscTimeTag.Parse(value, provider);
+				{
+					if (DateTime.TryParse(value, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var datetime))
+					{
+						if ((datetime < OscTimeTag.MinDateTime)
+							|| (datetime > OscTimeTag.MaxDateTime))
+						{
+							// The date range is outside OscTimeTag range so return the datetime instead.
+							return datetime;
+						}
 
+						return OscTimeTag.FromDateTime(datetime);
+					}
+
+					return OscTimeTag.Parse(value, provider);
+				}
 				case "TimeSpan":
 				case "timespan":
 				case "ts":
@@ -644,17 +658,20 @@ namespace Speedy.Protocols
 				case OscRgba.Name:
 				case "color":
 				case "c":
+				{
 					return OscRgba.Parse(value, provider);
-
+				}
 				case "Blob":
 				case "blob":
 				case "b":
 				case "Data":
 				case "data":
 				case "d":
+				{
 					return ParseBlob(value, provider);
-
+				}
 				default:
+				{
 					foreach (var parser in parsers)
 					{
 						if (!parser.CanParse(name))
@@ -666,6 +683,7 @@ namespace Speedy.Protocols
 					}
 
 					return value;
+				}
 			}
 		}
 

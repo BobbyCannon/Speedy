@@ -2,6 +2,14 @@
 
 Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.
 
+## todo
+
+- Should we have a different "date time" other than modified on, if B synced content newer than A but A data is older but just synced it will override B which should "win"?
+- bug: FilteredRepository is returning non-saved entities on entity relationship collections
+- todo: Add columns changed / modified to the "OnModified" method.
+- add ability to "SoftRemove" so the Remove can just set IsDeleted even if "PermantDelete is set"?
+- bug: Will database.CollectionChange blow up if we add and remove at the same time? woah.
+
 ### Setup an interface to describe your database
 
 ``` csharp

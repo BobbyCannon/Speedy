@@ -28,8 +28,13 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.Value).HasColumnName("Value").IsRequired();
 			b.Property(x => x.SyncId).HasColumnName("SyncId").IsRequired();
 
+			#if NET6_0_OR_GREATER
+			b.HasIndex(x => x.Name).HasDatabaseName("IX_Settings_Name").IsUnique();
+			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_Settings_SyncId").IsUnique();
+			#else
 			b.HasIndex(x => x.Name).HasName("IX_Settings_Name").IsUnique();
 			b.HasIndex(x => x.SyncId).HasName("IX_Settings_SyncId").IsUnique();
+			#endif
 		}
 
 		#endregion

@@ -341,7 +341,7 @@ namespace Speedy
 				if (first)
 				{
 					KeyCache?.UpdateCache(_collectionChangeTracker);
-					OnSavedChanges(_collectionChangeTracker);
+					OnChangesSaved(_collectionChangeTracker);
 				}
 
 				// It's possible that values were added during OnSavedChanges.
@@ -371,7 +371,7 @@ namespace Speedy
 
 		/// <summary>
 		/// Called when an entity is added. Note: this is before saving.
-		/// See <see cref="SavedChanges" /> for after save state.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity added. </param>
 		protected internal virtual void EntityAdded(IEntity entity)
@@ -380,7 +380,7 @@ namespace Speedy
 
 		/// <summary>
 		/// Called when an entity is deleted. Note: this is before saving.
-		/// See <see cref="SavedChanges" /> for after save state.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity deleted. </param>
 		protected internal virtual void EntityDeleted(IEntity entity)
@@ -389,7 +389,7 @@ namespace Speedy
 
 		/// <summary>
 		/// Called when an entity is modified. Note: this is before saving.
-		/// See <see cref="SavedChanges" /> for after save state.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity modified. </param>
 		protected internal virtual void EntityModified(IEntity entity)
@@ -419,11 +419,11 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Called when for when changes are saved. <see cref="SaveChanges" />
+		/// Called when for when changes are saved. <see cref="ChangesSaved" />
 		/// </summary>
-		protected virtual void OnSavedChanges(CollectionChangeTracker e)
+		protected virtual void OnChangesSaved(CollectionChangeTracker e)
 		{
-			SavedChanges?.Invoke(this, e);
+			ChangesSaved?.Invoke(this, e);
 		}
 
 		internal void UpdateDependentIds(IEntity entity, List<IEntity> processed)
@@ -922,7 +922,7 @@ namespace Speedy
 		/// <summary>
 		/// An event for when changes are saved. <see cref="SaveChanges" />
 		/// </summary>
-		public event EventHandler<CollectionChangeTracker> SavedChanges;
+		public event EventHandler<CollectionChangeTracker> ChangesSaved;
 
 		#endregion
 	}

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Extensions;
 using Speedy.Protocols.Osc;
 
 #endregion
@@ -52,7 +51,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void GetBytes()
 		{
-			var message = new OscMessage(OscTimeTag.UtcNow, "/test");
+			var message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(true);
 			message.Arguments.Add(123);
 
@@ -68,22 +67,22 @@ namespace Speedy.UnitTests.Protocols.Osc
 		public void GetBytesForAllInfinity()
 		{
 			var expected = new byte[] { 0x2F, 0x74, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x2C, 0x49, 0x00, 0x00 };
-			var message = new OscMessage(OscTimeTag.UtcNow, "/test");
+			var message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(float.PositiveInfinity);
 			var actual = message.ToByteArray();
 			TestHelper.AreEqual(expected, actual);
 
-			message = new OscMessage(OscTimeTag.UtcNow, "/test");
+			message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(float.NegativeInfinity);
 			actual = message.ToByteArray();
 			TestHelper.AreEqual(expected, actual);
 
-			message = new OscMessage(OscTimeTag.UtcNow, "/test");
+			message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(double.PositiveInfinity);
 			actual = message.ToByteArray();
 			TestHelper.AreEqual(expected, actual);
 
-			message = new OscMessage(OscTimeTag.UtcNow, "/test");
+			message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(double.NegativeInfinity);
 			actual = message.ToByteArray();
 			TestHelper.AreEqual(expected, actual);
@@ -93,7 +92,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		public void ParseAllTypes()
 		{
 			var command = "/command,\"value1, value2\",0.1234d";
-			var packet = OscPacket.Parse(TimeService.UtcNow.ToOscTimeTag(), command, CultureInfo.CurrentCulture);
+			var packet = OscPacket.Parse(TimeService.UtcNow, command, CultureInfo.CurrentCulture);
 			var actual = packet as OscMessage;
 
 			Assert.IsNotNull(actual);
@@ -112,7 +111,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			Assert.AreEqual(command, actualString);
 
-			var packet = OscPacket.Parse(TimeService.UtcNow.ToOscTimeTag(), command, CultureInfo.CurrentCulture);
+			var packet = OscPacket.Parse(TimeService.UtcNow, command, CultureInfo.CurrentCulture);
 			var actual = packet as OscMessage;
 
 			Assert.IsNotNull(actual);
@@ -143,7 +142,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			foreach (var command in commands)
 			{
-				var packet = OscPacket.Parse(TimeService.UtcNow.ToOscTimeTag(), command, CultureInfo.CurrentCulture);
+				var packet = OscPacket.Parse(TimeService.UtcNow, command, CultureInfo.CurrentCulture);
 				var actual = packet as OscMessage;
 
 				Assert.IsNotNull(actual);
@@ -162,7 +161,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			foreach (var command in commands)
 			{
-				var packet = OscPacket.Parse(TimeService.UtcNow.ToOscTimeTag(), command, CultureInfo.CurrentCulture);
+				var packet = OscPacket.Parse(TimeService.UtcNow, command, CultureInfo.CurrentCulture);
 				var actual = packet as OscMessage;
 
 				Assert.IsNotNull(actual);
@@ -260,14 +259,14 @@ namespace Speedy.UnitTests.Protocols.Osc
 			);
 
 			// The non-hex version
-			var expected = "/command,123,456u,4321L,8765U,12.34f,123.456d,\"123456\",True,False,{ Blob: 0x000102 },[-123,456u,-4321L,8765U,-12.34f,-123.456d,True,False],{ Time: 2021-02-17T09:18:41.842Z },{ Time: 2021-02-17T09:18:41.842Z }";
+			var expected = "/command,123,456u,4321L,8765U,12.34f,123.456d,\"123456\",True,False,{ Blob: 0x000102 },[-123,456u,-4321L,8765U,-12.34f,-123.456d,True,False],{ Time: 2021-02-17T09:18:41.8420000Z },{ Time: 2021-02-17T09:18:41.8420000Z }";
 			var actualString = oscMessage.ToString();
 			Assert.AreEqual(expected, actualString);
 			var actualMessage = OscPacket.Parse(expected) as OscMessage;
 			TestHelper.AreEqual(oscMessage, actualMessage, false, nameof(OscMessage.Time));
 
 			// The hex version
-			expected = "/command,0x0000007B,0x000001C8u,0x00000000000010E1L,0x000000000000223DU,12.34f,123.456d,\"123456\",True,False,{ Blob: 0x000102 },[0xFFFFFF85,0x000001C8u,0xFFFFFFFFFFFFEF1FL,0x000000000000223DU,-12.34f,-123.456d,True,False],{ Time: 2021-02-17T09:18:41.842Z },{ Time: 2021-02-17T09:18:41.842Z }";
+			expected = "/command,0x0000007B,0x000001C8u,0x00000000000010E1L,0x000000000000223DU,12.34f,123.456d,\"123456\",True,False,{ Blob: 0x000102 },[0xFFFFFF85,0x000001C8u,0xFFFFFFFFFFFFEF1FL,0x000000000000223DU,-12.34f,-123.456d,True,False],{ Time: 2021-02-17T09:18:41.8420000Z },{ Time: 2021-02-17T09:18:41.8420000Z }";
 			actualString = oscMessage.ToHexString();
 			Assert.AreEqual(expected, actualString);
 			actualMessage = OscPacket.Parse(expected) as OscMessage;

@@ -31,12 +31,10 @@ namespace Speedy.UnitTests.Logging
 		{
 			var id1 = Guid.NewGuid();
 			var id2 = Guid.NewGuid();
-
-			var startTime = new DateTime(2020, 04, 23, 03, 26, 12, DateTimeKind.Utc);
-			var offset = 0;
-
-			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
-
+			var startTime = new DateTime(2020, 04, 23, 03, 26, 11, DateTimeKind.Utc);
+			
+			TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
+			
 			using (var listener = MemoryLogListener.CreateSession(id1, EventLevel.Informational))
 			{
 				Logger.Instance.Write(id1, "First message from logger 1.", EventLevel.Informational);

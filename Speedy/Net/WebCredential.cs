@@ -25,7 +25,7 @@ namespace Speedy.Net
 		/// <summary>
 		/// Creates an instance of the web credential.
 		/// </summary>
-		public WebCredential() : this(string.Empty, string.Empty, null)
+		public WebCredential() : this(string.Empty, string.Empty)
 		{
 		}
 

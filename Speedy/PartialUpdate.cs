@@ -1050,6 +1050,11 @@ namespace Speedy
 				return partialUpdate;
 			}
 
+			if (reader.TokenType == JsonToken.Null)
+			{
+				return null;
+			}
+
 			var jObject = JObject.Load(reader);
 			var jProperties = jObject.Properties();
 			var directProperties = partialUpdate.GetType().GetCachedProperties();

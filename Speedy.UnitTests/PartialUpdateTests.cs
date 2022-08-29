@@ -300,7 +300,7 @@ namespace Speedy.UnitTests
 						{
 							{ "Array", new PartialUpdateValue("Array", typeof(Array), Array.Empty<object>()) },
 							{ "names", new PartialUpdateValue("names", typeof(Array), new[] { "foo", "bar" }) },
-							{ "scores", new PartialUpdateValue("scores", typeof(Array), new[] { 2, 3, 4 }) },
+							{ "scores", new PartialUpdateValue("scores", typeof(Array), new[] { 2, 3, 4 }) }
 						}
 					}
 				),
@@ -321,7 +321,7 @@ namespace Speedy.UnitTests
 			foreach (var scenario in scenarios)
 			{
 				var actual = (PartialUpdate) scenario.value;
-				actual.ToRawJson(indented: true).Dump();
+				actual.ToRawJson(true).Dump();
 				TestHelper.AreEqual(scenario.expected, actual);
 			}
 		}
@@ -385,6 +385,47 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, PartialUpdate.FromJson(type, "\t").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson(type, "[]").Updates.Count);
 			TestHelper.ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson(type, "1"), "Error reading JObject from JsonReader");
+		}
+
+		[TestMethod]
+		public void JsonDateTimeShouldAlwaysBeUtc()
+		{
+			var json = "{\"DateTime\":\"2022-08-26T14:58:19.6544671Z\"}";
+			var update = PartialUpdate.FromJson(json);
+			var actual = update.Get<DateTime>("DateTime");
+			var expected = "2022-08-26T14:58:19.6544671Z".ToUtcDateTime();
+			Assert.AreEqual(expected, actual);
+			Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
+
+			update = new PartialUpdate();
+			update.AddOrUpdate("DateTime", "2022-08-26T14:58:19.6544671Z");
+			actual = update.Get<DateTime>("DateTime");
+			Assert.AreEqual(expected, actual);
+			Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
+
+			update = new PartialUpdate();
+			update.AddOrUpdate("DateTime", "2022-08-26T14:58:19.6544671Z");
+			Assert.IsTrue(update.TryGet("DateTime", out actual));
+			Assert.AreEqual(expected, actual);
+			Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
+		}
+
+		[TestMethod]
+		public void JsonIsoDateTimeShouldAlwaysBeUtc()
+		{
+			var json = "{\"DateTime\":\"2022-08-26T14:00:00+00:00/PT1H\"}";
+			var update = PartialUpdate.FromJson(json);
+			var actual = update.Get<IsoDateTime>("DateTime");
+			var expected = IsoDateTime.Parse("2022-08-26T14:00:00+00:00/PT1H");
+			Assert.AreEqual(expected, actual);
+			Assert.AreEqual(DateTimeKind.Utc, actual.DateTime.Kind);
+
+			update = new PartialUpdate();
+			update.AddOrUpdate("DateTime", "2022-08-26T15:00:00+02:00/PT5H");
+			actual = update.Get<IsoDateTime>("DateTime");
+			expected = IsoDateTime.Parse("2022-08-26T15:00:00+02:00/PT5H");
+			Assert.AreEqual(expected, actual);
+			Assert.AreEqual(DateTimeKind.Utc, actual.DateTime.Kind);
 		}
 
 		[TestMethod]

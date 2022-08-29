@@ -2,6 +2,7 @@
 
 using Speedy.Data.Client;
 using Speedy.EntityFramework;
+using Speedy.Extensions;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace Speedy.Client.Data
 		}
 
 		public ContosoClientMemoryDatabase(DatabaseOptions options, DatabaseKeyCache keyCache)
-			: base(options ?? ContosoClientDatabase.GetDefaultOptions(), keyCache)
+			: base(options ?? GetDefaultOptions(), keyCache)
 		{
 			Accounts = GetSyncableRepository<ClientAccount, int>();
 			Addresses = GetSyncableRepository<ClientAddress, long>();
@@ -40,6 +41,24 @@ namespace Speedy.Client.Data
 		public ISyncableRepository<ClientLogEvent, long> LogEvents { get; }
 
 		public ISyncableRepository<ClientSetting, long> Settings { get; }
+
+		#endregion
+
+		#region Methods
+
+		public static DatabaseOptions GetDefaultOptions()
+		{
+			return new DatabaseOptions
+			{
+				SyncOrder = new[]
+				{
+					typeof(ClientAddress).ToAssemblyName(),
+					typeof(ClientAccount).ToAssemblyName(),
+					typeof(ClientLogEvent).ToAssemblyName(),
+					typeof(ClientSetting).ToAssemblyName()
+				}
+			};
+		}
 
 		#endregion
 	}

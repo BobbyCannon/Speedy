@@ -10,9 +10,9 @@ using Speedy.Extensions;
 using Speedy.Protocols.Osc;
 using Speedy.Website.Data.Entities;
 
-#endregion
-
 #pragma warning disable 169
+
+#endregion
 
 namespace Speedy.UnitTests.Extensions
 {

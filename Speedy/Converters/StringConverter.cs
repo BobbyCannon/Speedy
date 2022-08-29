@@ -34,6 +34,8 @@ namespace Speedy.Converters
 		{
 			Parsers = new List<IStringConverterParser>
 			{
+				new DateTimeConverterParser(),
+				new IsoDateTimeConverterParser(),
 				new EnumConverterParser(),
 				new StringConverterParser(),
 				new ReflectionStringConverterParser(),

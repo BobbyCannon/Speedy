@@ -176,9 +176,9 @@ namespace Speedy
 		/// <summary>
 		/// Determines if the object has changes.
 		/// </summary>
-		public virtual bool HasChanges()
+		public virtual bool HasChanges(params string[] exclusions)
 		{
-			return ChangedProperties.Count > 0;
+			return ChangedProperties.Any(x => !exclusions.Contains(x));
 		}
 
 		/// <inheritdoc />

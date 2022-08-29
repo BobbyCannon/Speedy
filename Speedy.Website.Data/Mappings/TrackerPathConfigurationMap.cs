@@ -49,7 +49,11 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.Type08).IsRequired();
 			b.Property(x => x.Type09).IsRequired();
 
+			#if NET6_0_OR_GREATER
+			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_TrackerPathConfigurations_SyncId").IsUnique();
+			#else
 			b.HasIndex(x => x.SyncId).HasName("IX_TrackerPathConfigurations_SyncId").IsUnique();
+			#endif
 		}
 
 		#endregion

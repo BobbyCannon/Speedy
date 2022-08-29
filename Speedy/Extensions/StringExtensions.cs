@@ -197,11 +197,13 @@ namespace Speedy.Extensions
 		/// Converts a string to hex string value. Ex. "A" -> "41"
 		/// </summary>
 		/// <param name="value"> The string value to convert. </param>
+		/// <param name="delimiter"> An optional delimited to put between bytes of the data. </param>
+		/// <param name="prefix"> An optional prefix to put before each byte of the data. </param>
 		/// <returns> The string in a hex string format. </returns>
-		public static string ToHexString(this string value)
+		public static string ToHexString(this string value, string delimiter = null, string prefix = null)
 		{
 			var bytes = Encoding.Default.GetBytes(value);
-			var hexString = bytes.ToHexString();
+			var hexString = bytes.ToHexString(null, null, delimiter, prefix);
 			return hexString;
 		}
 

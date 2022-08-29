@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net5.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Include="..\Speedy.Website.Data.Sql\ContosoSqlDatabase.cs" Link="ContosoSqlDatabase.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.28">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.28" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+</Project>

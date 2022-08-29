@@ -37,7 +37,7 @@ namespace Speedy.UnitTests.Extensions
 		[TestMethod]
 		public void ToJsonCamelCaseParameter()
 		{
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
+			TestHelper.CurrentTime = new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
 			var logEvent = EntityFactory.GetLogEvent("Hello", LogLevel.Critical, x => x.SyncId = Guid.Parse("51387F23-C0CE-47B6-BFAD-5E273B82A5A1"));
 
 			// First use the default values
@@ -56,7 +56,7 @@ namespace Speedy.UnitTests.Extensions
 		[TestMethod]
 		public void ToJsonConvertEnumToStringParameter()
 		{
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
+			TestHelper.CurrentTime = new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
 			var logEvent = EntityFactory.GetLogEvent("Hello", LogLevel.Debug, x => x.SyncId = Guid.Parse("3EC4021A-02C9-4A03-9314-6C078F1A5596"));
 
 			// First use the default values
@@ -81,7 +81,7 @@ namespace Speedy.UnitTests.Extensions
 		[TestMethod]
 		public void ToJsonIgnoreNullParameter()
 		{
-			TimeService.UtcNowProvider = () => new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
+			TestHelper.CurrentTime = new DateTime(2019, 07, 17, 20, 05, 55, DateTimeKind.Utc);
 			var logEvent = EntityFactory.GetLogEvent(null, LogLevel.Error, x => x.SyncId = Guid.Parse("B2BCD532-E952-4966-A6F0-09A14C6C6DDA"));
 
 			// First use the default values

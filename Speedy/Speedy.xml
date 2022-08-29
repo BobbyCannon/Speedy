@@ -750,10 +750,22 @@
             The values of foreign key properties in dependent entities are set to null.
             </summary>
         </member>
+        <member name="M:Speedy.Converters.Parsers.DateTimeConverterParser.SupportsType(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.DateTimeConverterParser.TryParse(System.Type,System.String,System.Object@)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Converters.Parsers.EnumConverterParser.SupportsType(System.Type)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Converters.Parsers.EnumConverterParser.TryParse(System.Type,System.String,System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.IsoDateTimeConverterParser.SupportsType(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Converters.Parsers.IsoDateTimeConverterParser.TryParse(System.Type,System.String,System.Object@)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Converters.Parsers.IStringConverterParser">
@@ -1044,21 +1056,21 @@
         <member name="M:Speedy.Database.EntityAdded(Speedy.IEntity)">
             <summary>
             Called when an entity is added. Note: this is before saving.
-            See <see cref="E:Speedy.Database.SavedChanges" /> for after save state.
+            See <see cref="E:Speedy.Database.ChangesSaved" /> for after save state.
             </summary>
             <param name="entity"> The entity added. </param>
         </member>
         <member name="M:Speedy.Database.EntityDeleted(Speedy.IEntity)">
             <summary>
             Called when an entity is deleted. Note: this is before saving.
-            See <see cref="E:Speedy.Database.SavedChanges" /> for after save state.
+            See <see cref="E:Speedy.Database.ChangesSaved" /> for after save state.
             </summary>
             <param name="entity"> The entity deleted. </param>
         </member>
         <member name="M:Speedy.Database.EntityModified(Speedy.IEntity)">
             <summary>
             Called when an entity is modified. Note: this is before saving.
-            See <see cref="E:Speedy.Database.SavedChanges" /> for after save state.
+            See <see cref="E:Speedy.Database.ChangesSaved" /> for after save state.
             </summary>
             <param name="entity"> The entity modified. </param>
         </member>
@@ -1073,9 +1085,9 @@
             An invocator for the event when the database has been disposed.
             </summary>
         </member>
-        <member name="M:Speedy.Database.OnSavedChanges(Speedy.Storage.CollectionChangeTracker)">
+        <member name="M:Speedy.Database.OnChangesSaved(Speedy.Storage.CollectionChangeTracker)">
             <summary>
-            Called when for when changes are saved. <see cref="M:Speedy.Database.SaveChanges" />
+            Called when for when changes are saved. <see cref="E:Speedy.Database.ChangesSaved" />
             </summary>
         </member>
         <member name="M:Speedy.Database.BuildRelationship``4(``0,System.Collections.IEnumerable,System.String)">
@@ -1094,7 +1106,7 @@
         <member name="E:Speedy.Database.Disposed">
             <inheritdoc />
         </member>
-        <member name="E:Speedy.Database.SavedChanges">
+        <member name="E:Speedy.Database.ChangesSaved">
             <summary>
             An event for when changes are saved. <see cref="M:Speedy.Database.SaveChanges" />
             </summary>
@@ -1481,7 +1493,7 @@
         <member name="M:Speedy.Entity.EntityModified">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity.HasChanges">
+        <member name="M:Speedy.Entity.HasChanges(System.String[])">
             <summary>
             Determines if the object has changes.
             </summary>
@@ -2098,6 +2110,20 @@
             <param name="time"> The time to be converted. </param>
             <returns> The DateTime in OscTimeTag format. </returns>
         </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.ToUtcDateTime(System.String)">
+            <summary>
+            Converts the string representation of a date and time to its <see cref="T:System.DateTime"> </see> equivalent.
+            </summary>
+            <param name="value"> The string value. </param>
+            <returns> The date time value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.ToUtcString(System.DateTime)">
+            <summary>
+            Converts the date time into a ISO8601 format.
+            </summary>
+            <param name="dateTime"> </param>
+            <returns> </returns>
+        </member>
         <member name="T:Speedy.Extensions.DictionaryExtensions">
             <summary>
             Extensions for dictionary
@@ -2165,6 +2191,34 @@
             <param name="value"> The value to be incremented. </param>
             <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.ToCelsius(System.Decimal)">
+            <summary>
+            Convert Fahrenheit to Celsius.
+            </summary>
+            <param name="fahrenheit"> The temperature in Fahrenheit. </param>
+            <returns> The temperature in Celsius. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.ToFahrenheit(System.Single)">
+            <summary>
+            Convert Celsius to Fahrenheit.
+            </summary>
+            <param name="celsius"> The temperature in Celsius. </param>
+            <returns> The temperature in Fahrenheit. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.ToFahrenheit(System.Decimal)">
+            <summary>
+            Convert Celsius to Fahrenheit.
+            </summary>
+            <param name="celsius"> The temperature in Celsius. </param>
+            <returns> The temperature in Fahrenheit. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.ToMilesPerHour(System.Single)">
+            <summary>
+            Convert kilometers to miles per hour.
+            </summary>
+            <param name="kilometersPerHour"> The speed in kilometers per hour. </param>
+            <returns> The speed in miles per hour. </returns>
         </member>
         <member name="T:Speedy.Extensions.EnumExtensions">
             <summary>
@@ -2651,14 +2705,14 @@
             Extensions for all the things.
             </summary>
         </member>
-        <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultFlags">
-            <summary>
-            Default flags for cached access.
-            </summary>
-        </member>
         <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultEventFlags">
             <summary>
             Default event flags for cached access.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultFlags">
+            <summary>
+            Default flags for cached access.
             </summary>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.CachedMakeGenericMethod(System.Reflection.MethodInfo,System.Type[])">
@@ -2999,11 +3053,13 @@
             <param name="addEllipses"> The option to add ellipses to shorted strings. Defaults to false. </param>
             <returns> The value limited to the maximum length. </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.String)">
+        <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.String,System.String,System.String)">
             <summary>
             Converts a string to hex string value. Ex. "A" -> "41"
             </summary>
             <param name="value"> The string value to convert. </param>
+            <param name="delimiter"> An optional delimited to put between bytes of the data. </param>
+            <param name="prefix"> An optional prefix to put before each byte of the data. </param>
             <returns> The string in a hex string format. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.Guid)">
@@ -3336,7 +3392,7 @@
             An event for when the database has been disposed.
             </summary>
         </member>
-        <member name="E:Speedy.IDatabase.SavedChanges">
+        <member name="E:Speedy.IDatabase.ChangesSaved">
             <summary>
             An event for when changes are saved. <see cref="M:Speedy.IDatabase.SaveChanges" />
             </summary>
@@ -3582,6 +3638,105 @@
             Removes a set of entities from the repository.
             </summary>
             <param name="filter"> The filter of the entities to remove. </param>
+        </member>
+        <member name="T:Speedy.IsoDateTime">
+            <summary>
+            Represents a full ISO-8601 date time with duration support.
+            </summary>
+        </member>
+        <member name="P:Speedy.IsoDateTime.DateTime">
+            <summary>
+            The date and time.
+            </summary>
+        </member>
+        <member name="P:Speedy.IsoDateTime.Duration">
+            <summary>
+            The duration of this date time.
+            </summary>
+            <remarks>
+            https://www.w3.org/TR/xmlschema-2/#duration
+            </remarks>
+        </member>
+        <member name="P:Speedy.IsoDateTime.IsExpired">
+            <summary>
+            True if the date time has expired.
+            </summary>
+        </member>
+        <member name="P:Speedy.IsoDateTime.ExpiresOn">
+            <summary>
+            When this date time expires on.
+            </summary>
+        </member>
+        <member name="M:Speedy.IsoDateTime.CompareTo(Speedy.IsoDateTime)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.IsoDateTime.CompareTo(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.IsoDateTime.Equals(Speedy.IsoDateTime)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.IsoDateTime.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.IsoDateTime.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.IsoDateTime.op_Equality(Speedy.IsoDateTime,Speedy.IsoDateTime)">
+            <summary>
+            Determines whether two specified instances of <see cref="T:Speedy.IsoDateTime"> </see> are equal.
+            </summary>
+            <param name="d1"> The first object to compare. </param>
+            <param name="d2"> The second object to compare. </param>
+            <returns> True if they are equal otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IsoDateTime.op_Implicit(Speedy.IsoDateTime)~System.DateTime">
+            <summary>
+            Converts an IsoDateTime to a DateTime format only using the DateTime value.
+            </summary>
+            <param name="isoDateTime"> The ISO date time to convert. </param>
+        </member>
+        <member name="M:Speedy.IsoDateTime.op_Implicit(Speedy.IsoDateTime)~System.TimeSpan">
+            <summary>
+            Converts an IsoDateTime to a TimeSpan format only using the Duration value.
+            </summary>
+            <param name="isoDateTime"> The ISO date time to convert. </param>
+        </member>
+        <member name="M:Speedy.IsoDateTime.op_Inequality(Speedy.IsoDateTime,Speedy.IsoDateTime)">
+            <summary>
+            Determines whether two specified instances of <see cref="T:Speedy.IsoDateTime"> </see> are not equal.
+            </summary>
+            <param name="d1"> The first object to compare. </param>
+            <param name="d2"> The second object to compare. </param>
+            <returns> True if they are not equal otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IsoDateTime.Parse(System.String,System.Globalization.DateTimeStyles)">
+            <summary>
+            Parse a string into an IsoDateTime value.
+            </summary>
+            <param name="data"> The data to parse. </param>
+            <param name="style"> The style to return the date time value in. Defaults to AdjustToUniversal, AssumeUniversal. </param>
+            <returns> The data in a IsoDateTime format. </returns>
+            <exception cref="T:System.ArgumentNullException"> Throws if the data value is null. </exception>
+        </member>
+        <member name="M:Speedy.IsoDateTime.ParseDuration(System.DateTime,System.String)">
+            <summary>
+            Parse the duration string (ex. P1Y2M3DT1H2M3.245S) into a TimeSpan value.
+            </summary>
+            <param name="start"> The date and time the duration starts. </param>
+            <param name="duration"> The duration string. </param>
+            <returns> The timespan that represents the duration. </returns>
+        </member>
+        <member name="M:Speedy.IsoDateTime.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.IsoDateTime.ToDuration(System.DateTime,System.TimeSpan)">
+            <summary>
+            Calculate the ISO-8601 duration.
+            </summary>
+            <param name="startDate"> The date to start from. </param>
+            <param name="duration"> The timespan for the duration. </param>
+            <returns> </returns>
         </member>
         <member name="T:Speedy.ISyncableDatabase">
             <summary>
@@ -3850,7 +4005,7 @@
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
-            <param name="disposing"> Should be true if managed resources should be disposed. </param>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="M:Speedy.Logging.LogListener.OnEventWritten(System.Diagnostics.Tracing.EventWrittenEventArgs)">
             <inheritdoc />
@@ -3897,6 +4052,116 @@
             <typeparam name="T"> The type of the entity key. </typeparam>
         </member>
         <member name="P:Speedy.ModifiableEntity`1.ModifiedOn">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Net.FileDownloader">
+            <summary>
+            Used to download files from web servers.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloader.BytesReceived">
+            <summary>
+            The amount of data received.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloader.CurrentSpeed">
+            <summary>
+            The calculated current speed.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloader.ExistingLength">
+            <summary>
+            Existing length in the case of resuming download.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloader.IsBusy">
+            <summary>
+            Determines if a download is in progress.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloader.ProgressPercentage">
+            <summary>
+            The percent of progress.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloader.TimeLeft">
+            <summary>
+            The calculated time left.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloader.TotalBytesToReceive">
+            <summary>
+            The total bytes to receive.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.FileDownloader.Cancel">
+            <summary>
+            Cancels the download.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.FileDownloader.Download(System.String,System.String,System.Boolean,System.Action,System.Func{System.Boolean})">
+            <summary>
+            </summary>
+            <param name="remoteUri"> The remote URI of the file. </param>
+            <param name="localFilePath"> The local file path. </param>
+            <param name="force"> The option to force to overwrite local file. </param>
+            <param name="progressChanged"> Called when the file download progress changes. </param>
+            <param name="cancellationCheck"> Called to check to see if download should be cancelled. </param>
+            <returns> The file downloaded completed details. </returns>
+        </member>
+        <member name="M:Speedy.Net.FileDownloader.StartDownload(System.String,System.String,System.Boolean)">
+            <summary>
+            Start a file download.
+            </summary>
+            <param name="remoteUri"> The remote URI of the file. </param>
+            <param name="localFilePath"> The local file path. </param>
+            <param name="force"> Optional force to overwrite local file. </param>
+        </member>
+        <member name="M:Speedy.Net.FileDownloader.OnCompleted(Speedy.Net.FileDownloaderCompletedEventArgs)">
+            <summary>
+            Called when the file download is completed.
+            </summary>
+            <param name="args"> The file downloaded completed details. </param>
+        </member>
+        <member name="M:Speedy.Net.FileDownloader.OnProgressChanged">
+            <summary>
+            Called when the file download progress changes.
+            </summary>
+        </member>
+        <member name="E:Speedy.Net.FileDownloader.Completed">
+            <summary>
+            Event for when the file download is completed.
+            </summary>
+        </member>
+        <member name="E:Speedy.Net.FileDownloader.ProgressChanged">
+            <summary>
+            Event for when the file download progress changes.
+            </summary>
+        </member>
+        <member name="T:Speedy.Net.FileDownloaderCompletedEventArgs">
+            <summary>
+            Represents the state of a downloaded file.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloaderCompletedEventArgs.Cancelled">
+            <summary>
+            True if the download was cancelled.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloaderCompletedEventArgs.ErrorMessage">
+            <summary>
+            An optional error message if there was an error.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.FileDownloaderCompletedEventArgs.HasError">
+            <summary>
+            True if the file was incomplete due to an error.
+            </summary>
+        </member>
+        <member name="T:Speedy.Net.HttpClientFactory">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.HttpClientFactory.CreateClient(System.String)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Net.IWebClient">
@@ -4326,6 +4591,25 @@
             <param name="arg3"> </param>
             <param name="arg4"> </param>
             <returns> </returns>
+        </member>
+        <member name="T:Speedy.Net.WebClientProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.WebClientProvider.CreateClient(System.String,System.Func{Speedy.Net.WebCredential})">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Net.IWebClientProvider">
+            <summary>
+            A provider for IWebClients.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.IWebClientProvider.CreateClient(System.String,System.Func{Speedy.Net.WebCredential})">
+            <summary>
+            Get or create a client for a base URi.
+            </summary>
+            <param name="baseUri"> The URI the client is for. </param>
+            <param name="credential"> An optional method to get credential for authorization. </param>
+            <returns> The web client. </returns>
         </member>
         <member name="T:Speedy.Net.WebCredential">
             <summary>
@@ -5307,6 +5591,18 @@
             </summary>
             <param name="paths"> The paths to be added. </param>
         </member>
+        <member name="T:Speedy.Profiling.Profiler">
+            <summary>
+            Class for profiling actions
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.Profiler.Profile(System.Action)">
+            <summary>
+            Profile an action.
+            </summary>
+            <param name="action"> The action to profile. </param>
+            <returns> The time the action took. </returns>
+        </member>
         <member name="T:Speedy.Profiling.Timer">
             <summary>
             Timer that uses the time service.
@@ -5921,6 +6217,244 @@
             <param name="endChar"> end control char </param>
             <param name="escapeCharacter"> the escape character </param>
             <returns> the index of the end char </returns>
+        </member>
+        <member name="T:Speedy.Protocols.Modbus.Commands.ModbusCommand">
+            <summary>
+            Represents a command for Modbus
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Modbus.Commands.ModbusCommand.InvalidFunctionCode">
+            <summary>
+            Represents the message for an invalid code on a response message.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ModbusCommand.#ctor(System.Byte,System.UInt16,Speedy.Protocols.Modbus.ModbusFunctionCode)">
+            <summary>
+            Constructs a modbus command.
+            </summary>
+            <param name="deviceAddress"> The address for the device. </param>
+            <param name="startAddress"> The starting address of the data. </param>
+            <param name="functionCode"> The function code of the command. </param>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ModbusCommand.DeviceAddress">
+            <summary>
+            The address of the slave device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ModbusCommand.ErrorCheckingField">
+            <summary>
+            Two kinds of error-checking methods are used for standard Modbus networks.
+            The error checking field contents depend upon the method that is being used.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ModbusCommand.FunctionCode">
+            <summary>
+            The Function Code field tells the addressed slave what function to perform.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ModbusCommand.StartAddress">
+            <summary>
+            The address field of a message frame contains two characters (ASCII) or eight bits (RTU).
+            The individual slave devices are assigned addresses in the range of 1 ... 247.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ModbusCommand.ToBuffer">
+            <summary>
+            Converts the command to a buffer.
+            </summary>
+            <returns> The byte array of the command. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ModbusCommand.UpdateCrc(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Updates the CRC for the command.
+            </summary>
+            <param name="buffer"> The buffer containing the data. </param>
+            <param name="offset"> The offset where the data starts. </param>
+            <param name="length"> The length of the data. </param>
+        </member>
+        <member name="T:Speedy.Protocols.Modbus.Commands.ReadHoldingRegistersModbusCommand">
+            <summary>
+            Reads the binary contents of holding registers in the slave.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadHoldingRegistersModbusCommand.#ctor(System.Byte,System.UInt16,System.UInt16)">
+            <summary>
+            Instantiates an instance of the modbus command to Read Holding Registers (3).
+            </summary>
+            <param name="deviceAddress"> The address of the slave device. </param>
+            <param name="startAddress"> The starting address of the register. </param>
+            <param name="quantityOfRegisters"> The quantity of registers to read. </param>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ReadHoldingRegistersModbusCommand.QuantityOfRegisters">
+            <summary>
+            The quantity of registers to read.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadHoldingRegistersModbusCommand.ToBuffer">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadHoldingRegistersModbusCommand.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusCommand">
+            <summary>
+            Read the binary contents of input registers in the slave.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusCommand.#ctor(System.Byte,System.UInt16,System.UInt16)">
+            <summary>
+            Instantiates an instance of the modbus command.
+            </summary>
+            <param name="deviceAddress"> The address of the slave device. </param>
+            <param name="startAddress"> The starting address of the registers. </param>
+            <param name="quantityOfRegisters"> The quantity of registers to read. </param>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusCommand.QuantityOfRegisters">
+            <summary>
+            The quantity of registers to read.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusCommand.ToBuffer">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusCommand.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse">
+            <summary>
+            The response of the read input registers command.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.#ctor">
+            <summary>
+            Instantiates an instance of the modbus response.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.QuantityOfRegisters">
+            <summary>
+            The quantity of registers to read.
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.Registers">
+            <summary>
+            Register data that was read.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.FromBuffer(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            </summary>
+            <param name="buffer"> The buffer containing the data. </param>
+            <param name="offset"> The offset where the data starts. </param>
+            <param name="length"> The length of the data. </param>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.GetDecimal(System.Int32,System.Decimal)">
+            <summary>
+            Convert the offset to a decimal value.
+            </summary>
+            <param name="offset"> The offset of the data. </param>
+            <param name="conversion"> The value of the conversion. Ex. 0.1 to convert 512 to 51.2 </param>
+            <returns> The decimal value. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.GetDecimal(System.Int32,System.Int32,System.Decimal)">
+            <summary>
+            Convert the offset to a decimal value.
+            </summary>
+            <param name="offset"> The high offset of the data. </param>
+            <param name="offset2"> The low offset of the data. </param>
+            <param name="conversion"> The value of the conversion. Ex. 0.1 to convert 512 to 51.2 </param>
+            <returns> The decimal value. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.GetUInt(System.Int32)">
+            <summary>
+            Convert the offset and following value to an unsigned integer.
+            </summary>
+            <param name="offset"> The offset of the data. High ushort followed by the low ushort value. </param>
+            <returns> The unsigned integer value. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.Commands.ReadInputRegistersModbusResponse.ToBuffer">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Protocols.Modbus.ModbusFunctionCode">
+            <summary>
+            https://www.modbus.org/docs/PI_MBUS_300.pdf
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Modbus.ModbusFunctionCode.ReadHoldingRegisters">
+            <summary>
+            Reads the binary contents of holding registers in the slave.
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Modbus.ModbusFunctionCode.ReadInputRegisters">
+            <summary>
+            Reads the binary contents of input registers in the slave.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Modbus.ModbusHelper">
+            <summary>
+            A helper for calculating specific modbus type methods.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.CalculateCrc(System.Byte[])">
+            <summary>
+            CRC calculation for RTU.
+            </summary>
+            <param name="buffer"> The buffer containing the data. </param>
+            <returns> The CRC calculated for the data. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.CalculateCrc(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            CRC calculation for RTU.
+            </summary>
+            <param name="buffer"> The buffer containing the data. </param>
+            <param name="offset"> The offset where the data starts. </param>
+            <param name="length"> The length of the data. </param>
+            <returns> The CRC calculated for the data. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.CalculateLrc(System.String)">
+            <summary>
+            LRC calculation for ASCII.
+            </summary>
+            <param name="data"> The buffer containing the data. </param>
+            <returns> The CRC calculated for the data. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.DecodeWords(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Converts the byte array to a ushort array.
+            </summary>
+            <param name="buffer"> The buffer containing the data. </param>
+            <param name="offset"> The offset where the data starts. </param>
+            <param name="length"> The length of the data. </param>
+            <returns> The words for the buffer data. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.GetUInt(System.UInt16,System.UInt16)">
+            <summary>
+            Converts two ushort values into a uint value.
+            </summary>
+            <param name="uh"> The high ushort value of the uint. </param>
+            <param name="ul"> The high ushort value of the uint. </param>
+            <returns> The uint value of the two ushort values. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.GetInt(System.UInt16,System.UInt16)">
+            <summary>
+            Converts two ushort values into a int value.
+            </summary>
+            <param name="uh"> The high ushort value of the int. </param>
+            <param name="ul"> The high ushort value of the int. </param>
+            <returns> The int value of the two ushort values. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.High(System.UInt16)">
+            <summary>
+            The high value of the ushort value.
+            </summary>
+            <param name="value"> The ushort value. </param>
+            <returns> The high value of the ushort value. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.Low(System.UInt16)">
+            <summary>
+            The low value of the ushort value.
+            </summary>
+            <param name="value"> The ushort value. </param>
+            <returns> The low value of the ushort value. </returns>
         </member>
         <member name="T:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException">
             <summary>
@@ -6866,11 +7400,11 @@
             Resets the index for sequential argument processing. Call this before calling "GetArgument" methods that do *not* provide an index.
             </summary>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscCommand.ToBundle(System.Nullable{Speedy.Protocols.Osc.OscTimeTag})">
+        <member name="M:Speedy.Protocols.Osc.OscCommand.ToBundle(System.Nullable{System.DateTime})">
             <summary>
             Converts the OscCommand into an OscBundle.
             </summary>
-            <param name="time"> On optional time for the bundle. Defaults to OscTimeTag.UtcNow. </param>
+            <param name="time"> On optional time for the bundle. Defaults to TimeService.UtcNow. </param>
             <returns> The OscBundle containing this OscCommand as an OscMessage. </returns>
         </member>
         <member name="M:Speedy.Protocols.Osc.OscCommand.ToMessage(System.Boolean)">
@@ -6915,7 +7449,7 @@
             single entry array.
             </remarks>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(Speedy.Protocols.Osc.OscTimeTag,System.String,System.Object[])">
+        <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(System.DateTime,System.String,System.Object[])">
             <summary>
             Instantiates an instance of an OSC message for the provided address and arguments.
             </summary>
@@ -6928,7 +7462,7 @@
             single entry array.
             </remarks>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(Speedy.Protocols.Osc.OscTimeTag,System.String,Speedy.IDispatcher,System.Object[])">
+        <member name="M:Speedy.Protocols.Osc.OscMessage.#ctor(System.DateTime,System.String,Speedy.IDispatcher,System.Object[])">
             <summary>
             Instantiates an instance of an OSC message for the provided address and arguments.
             </summary>
@@ -6978,7 +7512,7 @@
             <param name="args"> The arguments. </param>
             <returns> The message for the address and arguments. </returns>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscMessage.FromObjectArray(Speedy.Protocols.Osc.OscTimeTag,System.String,System.Collections.Generic.IEnumerable{System.Object})">
+        <member name="M:Speedy.Protocols.Osc.OscMessage.FromObjectArray(System.DateTime,System.String,System.Collections.Generic.IEnumerable{System.Object})">
             <summary>
             They'll be times when you want to instantiate an message with an actually object array. Used this factory method. If you pass
             an object[] to the constructor it will actually be an object[] with one entry of that object[].
@@ -7030,7 +7564,7 @@
             </summary>
             <returns> A string format of the message. </returns>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscMessage.ParseMessage(Speedy.Protocols.Osc.OscTimeTag,System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ParseMessage(System.DateTime,System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
             <summary>
             Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
             </summary>
@@ -7040,7 +7574,7 @@
             <param name="parsers"> An optional set of OSC argument parsers. </param>
             <returns> Message containing various arguments and an address </returns>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscMessage.ParseMessage(Speedy.Protocols.Osc.OscTimeTag,System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
+        <member name="M:Speedy.Protocols.Osc.OscMessage.ParseMessage(System.DateTime,System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
             <summary>
             Parse a message from a string using the supplied provider.
             </summary>
@@ -7063,7 +7597,7 @@
             <param name="parsers"> An optional set of OSC argument parsers. </param>
             <returns> Message containing various arguments and an address </returns>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.Byte[],Speedy.Protocols.Osc.OscArgumentParser[])">
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.DateTime,System.Byte[],Speedy.Protocols.Osc.OscArgumentParser[])">
             <summary>
             Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
             </summary>
@@ -7081,7 +7615,7 @@
             <param name="parsers"> An optional set of OSC argument parsers. </param>
             <returns> Message containing various arguments and an address </returns>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.DateTime,System.Byte[],System.Int32,Speedy.Protocols.Osc.OscArgumentParser[])">
             <summary>
             Takes in an OSC bundle package in byte form and parses it into a more usable OscBundle object
             </summary>
@@ -7108,7 +7642,7 @@
             <param name="parsers"> An optional set of OSC argument parsers. </param>
             <returns> The parsed OSC packet. </returns>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.String,Speedy.Protocols.Osc.OscArgumentParser[])">
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.DateTime,System.String,Speedy.Protocols.Osc.OscArgumentParser[])">
             <summary>
             Parse a packet from a string using the supplied provider.
             </summary>
@@ -7117,7 +7651,7 @@
             <param name="parsers"> An optional set of OSC argument parsers. </param>
             <returns> The parsed OSC packet. </returns>
         </member>
-        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(Speedy.Protocols.Osc.OscTimeTag,System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
+        <member name="M:Speedy.Protocols.Osc.OscPacket.Parse(System.DateTime,System.String,System.IFormatProvider,Speedy.Protocols.Osc.OscArgumentParser[])">
             <summary>
             Parse a packet from a string using the supplied provider.
             </summary>
@@ -7386,6 +7920,17 @@
             <returns>
             The equivalent value as DateTime type.
             </returns>
+        </member>
+        <member name="T:Speedy.Serialization.Converters.IsoDateTimeConverter">
+            <summary>
+            Converter used to deserialize JSON string to IsoDateTime.
+            </summary>
+        </member>
+        <member name="M:Speedy.Serialization.Converters.IsoDateTimeConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,Speedy.IsoDateTime,System.Boolean,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Serialization.Converters.IsoDateTimeConverter.WriteJson(Newtonsoft.Json.JsonWriter,Speedy.IsoDateTime,Newtonsoft.Json.JsonSerializer)">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Serialization.Converters.PartialUpdateConverter">
             <summary>
@@ -11658,25 +12203,55 @@
             Gets the date time in the format of the current time zone.
             </summary>
         </member>
-        <member name="P:Speedy.TimeService.NowProvider">
-            <summary>
-            Gets or sets the Now time provider. Should be in the correct current time zone format.
-            </summary>
-        </member>
         <member name="P:Speedy.TimeService.UtcNow">
             <summary>
             Gets the date time in the format of UTC time zone.
             </summary>
         </member>
-        <member name="P:Speedy.TimeService.UtcNowProvider">
+        <member name="M:Speedy.TimeService.AddNowProvider(System.Func{System.DateTime})">
             <summary>
-            Gets or sets the UTC time provider.
+            Add a new DateTime.Now provider onto the stack.
+            </summary>
+            <returns>
+            The id of the provider. Use this id to remove it from the stack.
+            </returns>
+        </member>
+        <member name="M:Speedy.TimeService.AddUtcNowProvider(System.Func{System.DateTime})">
+            <summary>
+            Add a new DateTime.UtcNow provider onto the stack.
+            </summary>
+            <returns>
+            The id of the provider. Use this id to remove it from the stack.
+            </returns>
+        </member>
+        <member name="M:Speedy.TimeService.RemoveNowProvider(System.UInt32)">
+            <summary>
+            Remove the DateTime.Now provider from the stack by the provided id.
+            </summary>
+        </member>
+        <member name="M:Speedy.TimeService.RemoveUtcNowProvider(System.UInt32)">
+            <summary>
+            Remove the DateTime.UtcNow provider from the stack by the provided id.
             </summary>
         </member>
         <member name="M:Speedy.TimeService.Reset">
             <summary>
             Resets the providers to the default values.
             </summary>
+        </member>
+        <member name="M:Speedy.TimeService.TryAddNowProvider(System.Func{System.DateTime},System.Nullable{System.UInt32}@)">
+            <summary>
+            Try to add a new DateTime.Now provider onto the stack.
+            </summary>
+            <param name="provider"> The provider to add. </param>
+            <param name="id"> The id of the added provider. Returns null if provider not added. </param>
+        </member>
+        <member name="M:Speedy.TimeService.TryAddUtcNowProvider(System.Func{System.DateTime},System.Nullable{System.UInt32}@)">
+            <summary>
+            Try to add a new DateTime.UtcNow provider onto the stack.
+            </summary>
+            <param name="provider"> The provider to add. </param>
+            <param name="id"> The id of the added provider. Returns null if provider not added. </param>
         </member>
         <member name="P:Speedy.Validation.FailedValidation.Message">
             <inheritdoc />

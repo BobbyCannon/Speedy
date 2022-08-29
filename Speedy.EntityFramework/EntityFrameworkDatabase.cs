@@ -13,6 +13,7 @@ using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.Sync;
+using EntityState = Microsoft.EntityFrameworkCore.EntityState;
 using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 #endregion
@@ -293,7 +294,7 @@ namespace Speedy.EntityFramework
 				{
 					ChangeTracker.AcceptAllChanges();
 					KeyCache?.UpdateCache(_collectionChangeTracker);
-					OnSavedChanges(_collectionChangeTracker);
+					OnChangesSaved(_collectionChangeTracker);
 				}
 
 				// It's possible that values were added during OnSavedChanges.
@@ -330,7 +331,7 @@ namespace Speedy.EntityFramework
 
 		/// <summary>
 		/// Called when an entity is added. Note: this is before saving.
-		/// See <see cref="SavedChanges" /> for after save state.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity added. </param>
 		protected virtual void EntityAdded(IEntity entity)
@@ -339,7 +340,7 @@ namespace Speedy.EntityFramework
 
 		/// <summary>
 		/// Called when an entity is deleted. Note: this is before saving.
-		/// See <see cref="SavedChanges" /> for after save state.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity deleted. </param>
 		protected virtual void EntityDeleted(IEntity entity)
@@ -348,11 +349,19 @@ namespace Speedy.EntityFramework
 
 		/// <summary>
 		/// Called when an entity is modified. Note: this is before saving.
-		/// See <see cref="SavedChanges" /> for after save state.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
 		/// <param name="entity"> The entity modified. </param>
 		protected virtual void EntityModified(IEntity entity)
 		{
+		}
+
+		/// <summary>
+		/// Called when for when changes are saved. <see cref="ChangesSaved" />
+		/// </summary>
+		protected virtual void OnChangesSaved(CollectionChangeTracker e)
+		{
+			ChangesSaved?.Invoke(this, e);
 		}
 
 		/// <summary>
@@ -394,14 +403,6 @@ namespace Speedy.EntityFramework
 			ProcessModelTypes(modelBuilder);
 
 			base.OnModelCreating(modelBuilder);
-		}
-
-		/// <summary>
-		/// Called when for when changes are saved. <see cref="SaveChanges" />
-		/// </summary>
-		protected virtual void OnSavedChanges(CollectionChangeTracker e)
-		{
-			SavedChanges?.Invoke(this, e);
 		}
 
 		/// <summary>
@@ -469,6 +470,12 @@ namespace Speedy.EntityFramework
 						{
 							p.SetColumnType("datetime2");
 							p.SetValueConverter(nullableDateTimeConverter);
+							break;
+						}
+						case Type _ when p.ClrType == typeof(decimal):
+						case Type _ when p.ClrType == typeof(decimal?):
+						{
+							p.SetColumnType("decimal(18, 6)");
 							break;
 						}
 						case Type _ when p.ClrType == typeof(Guid):
@@ -629,7 +636,6 @@ namespace Speedy.EntityFramework
 						EntityDeleted(entity);
 					}
 
-					
 					break;
 				}
 			}
@@ -640,10 +646,10 @@ namespace Speedy.EntityFramework
 		#region Events
 
 		/// <inheritdoc />
-		public event EventHandler Disposed;
+		public event EventHandler<CollectionChangeTracker> ChangesSaved;
 
 		/// <inheritdoc />
-		public event EventHandler<CollectionChangeTracker> SavedChanges;
+		public event EventHandler Disposed;
 
 		#endregion
 	}

@@ -1,0 +1,10 @@
+﻿<div ng-controller="controller">
+	<form name="editorForm" id="editorForm">
+		<input id="pageTitle" type="text" autofocus="" required="" placeholder="title" ng-model="model.title" style="width: 400px" /><br />
+		<textarea id="pageText" required placeholder="Content" rows="5" ng-show="!input.showFiles &amp;&amp; !input.showPages" ng-model="model.text" style="width: 400px"></textarea><br />
+		<button disabled="disabled" id="saveButton" ng-click="save()" ng-disabled="editorForm.$invalid">Save</button>
+		<button id="cancelButton" ng-click="cancel()">Cancel</button>
+	</form>
+	<a id="pageLink" href="#!/page">Page</a>
+	<a id="anotherPageLink" href="#!/anotherPage">Another Page</a>
+</div>

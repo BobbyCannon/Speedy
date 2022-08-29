@@ -152,23 +152,28 @@
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityAdded(Speedy.IEntity)">
             <summary>
             Called when an entity is added. Note: this is before saving.
-            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges" /> for after save state.
+            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.ChangesSaved" /> for after save state.
             </summary>
             <param name="entity"> The entity added. </param>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityDeleted(Speedy.IEntity)">
             <summary>
             Called when an entity is deleted. Note: this is before saving.
-            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges" /> for after save state.
+            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.ChangesSaved" /> for after save state.
             </summary>
             <param name="entity"> The entity deleted. </param>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.EntityModified(Speedy.IEntity)">
             <summary>
             Called when an entity is modified. Note: this is before saving.
-            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges" /> for after save state.
+            See <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.ChangesSaved" /> for after save state.
             </summary>
             <param name="entity"> The entity modified. </param>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnChangesSaved(Speedy.Storage.CollectionChangeTracker)">
+            <summary>
+            Called when for when changes are saved. <see cref="E:Speedy.EntityFramework.EntityFrameworkDatabase.ChangesSaved" />
+            </summary>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnDisposed">
             <summary>
@@ -193,11 +198,6 @@
             DbContextFactory classes directly.
             </remarks>
             <param name="modelBuilder"> The builder that defines the model for the context being created. </param>
-        </member>
-        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.OnSavedChanges(Speedy.Storage.CollectionChangeTracker)">
-            <summary>
-            Called when for when changes are saved. <see cref="M:Speedy.EntityFramework.EntityFrameworkDatabase.SaveChanges" />
-            </summary>
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.ProcessException(System.Exception)">
             <summary>
@@ -227,10 +227,10 @@
             </summary>
             <param name="entry"> </param>
         </member>
-        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.Disposed">
+        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.ChangesSaved">
             <inheritdoc />
         </member>
-        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.SavedChanges">
+        <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.Disposed">
             <inheritdoc />
         </member>
         <member name="T:Speedy.EntityFramework.EntityFrameworkRepository`2">
@@ -601,7 +601,6 @@
         </member>
         <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.CreateWhere(Speedy.EntityFramework.Sql.SqlStatement,System.Linq.Expressions.Expression,System.String@,System.String,System.Boolean,System.Boolean)">
             <summary>
-            
             </summary>
             <param name="statement"> </param>
             <param name="expression"> </param>
@@ -615,7 +614,7 @@
             Get SQL insert script from query.
             </summary>
             <param name="statement"> The statement to process. </param>
-            <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement start </param>
+            <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement start so we can build an [Insert or Update] query. </param>
             <returns> The SQL insert script. </returns>
         </member>
         <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlUpdate(Speedy.EntityFramework.Sql.SqlStatement,System.Boolean,System.Boolean,System.String[])">

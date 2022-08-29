@@ -1,4 +1,10 @@
-﻿namespace Speedy.Extensions
+﻿#region References
+
+using System;
+
+#endregion
+
+namespace Speedy.Extensions
 {
 	/// <summary>
 	/// Extensions for double
@@ -47,6 +53,46 @@
 			}
 
 			return value + increase;
+		}
+
+		/// <summary>
+		/// Convert Fahrenheit to Celsius.
+		/// </summary>
+		/// <param name="fahrenheit"> The temperature in Fahrenheit. </param>
+		/// <returns> The temperature in Celsius. </returns>
+		public static decimal ToCelsius(this decimal fahrenheit)
+		{
+			return Math.Round((fahrenheit - 32) / 1.8m, 2);
+		}
+
+		/// <summary>
+		/// Convert Celsius to Fahrenheit.
+		/// </summary>
+		/// <param name="celsius"> The temperature in Celsius. </param>
+		/// <returns> The temperature in Fahrenheit. </returns>
+		public static float ToFahrenheit(this float celsius)
+		{
+			return (float) Math.Round((celsius * 1.8f) + 32, 2);
+		}
+
+		/// <summary>
+		/// Convert Celsius to Fahrenheit.
+		/// </summary>
+		/// <param name="celsius"> The temperature in Celsius. </param>
+		/// <returns> The temperature in Fahrenheit. </returns>
+		public static decimal ToFahrenheit(this decimal celsius)
+		{
+			return Math.Round((celsius * 1.8m) + 32, 2);
+		}
+
+		/// <summary>
+		/// Convert kilometers to miles per hour.
+		/// </summary>
+		/// <param name="kilometersPerHour"> The speed in kilometers per hour. </param>
+		/// <returns> The speed in miles per hour. </returns>
+		public static float ToMilesPerHour(this float kilometersPerHour)
+		{
+			return kilometersPerHour / 1.6093f;
 		}
 
 		#endregion

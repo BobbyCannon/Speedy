@@ -21,14 +21,14 @@ namespace Speedy.Extensions
 		#region Constants
 
 		/// <summary>
-		/// Default flags for cached access.
-		/// </summary>
-		public const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
-
-		/// <summary>
 		/// Default event flags for cached access.
 		/// </summary>
 		public const BindingFlags DefaultEventFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic;
+
+		/// <summary>
+		/// Default flags for cached access.
+		/// </summary>
+		public const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
 
 		#endregion
 

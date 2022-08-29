@@ -60,11 +60,15 @@ namespace Speedy.EntityFramework
 
 				foreach (var property in entityProperties)
 				{
+					#if NET6_0_OR_GREATER
+					// todo: how to detect shadow properties in NET6.0 and greater
+					#else
 					// Ignore shadow properties
 					if (property.GetShadowIndex() >= 0)
 					{
 						continue;
 					}
+					#endif
 
 					// Builds the 'Property' method
 					// ex. database.Property<AddressEntity, long>(x => x.City).IsRequired().HasMaximumLength(256);

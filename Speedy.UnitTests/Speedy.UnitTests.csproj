@@ -1,23 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFramework>net5.0-windows</TargetFramework>
+		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
-		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>8.4.8.0</AssemblyVersion>
-		<FileVersion>8.4.8.0</FileVersion>
-		<Version>8.4.8.0</Version>
 	</PropertyGroup>
-	<ItemGroup>
-		<Compile Remove="Data\Reader\**" />
-		<EmbeddedResource Remove="Data\Reader\**" />
-		<None Remove="Data\Reader\**" />
-		<Page Remove="Data\Reader\**" />
-	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.77.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
@@ -25,17 +15,27 @@
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
 		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
-		<PackageReference Include="System.IO.Ports" Version="4.7.0" />
+		<PackageReference Include="System.IO.Ports" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Speedy.Automation\Speedy.Automation.csproj" />
+		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
 		<ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj" />
 		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting.Example\Speedy.ServiceHosting.Example.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
 		<ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
+		<ProjectReference Include="..\Speedy.Client.Data.Sqlite.Old\Speedy.Client.Data.Sqlite.Old.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sqlite.Old\Speedy.Website.Data.Sqlite.Old.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+		<ProjectReference Include="..\Speedy.Client.Data.Sqlite\Speedy.Client.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
 	</ItemGroup>
 </Project>

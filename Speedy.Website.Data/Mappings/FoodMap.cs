@@ -25,7 +25,11 @@ namespace Speedy.Website.Data.Mappings
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();
 			b.Property(x => x.Name).HasColumnName("Name").HasMaxLength(256).IsRequired();
 
+			#if NET6_0_OR_GREATER
+			b.HasIndex(x => x.Name).HasDatabaseName("IX_Foods_Name").IsUnique();
+			#else
 			b.HasIndex(x => x.Name).HasName("IX_Foods_Name").IsUnique();
+			#endif
 		}
 
 		#endregion

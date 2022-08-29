@@ -104,7 +104,7 @@ namespace Speedy.Logging
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
+		/// <param name="disposing"> True if disposing and false if otherwise. </param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!disposing)
@@ -165,7 +165,11 @@ namespace Speedy.Logging
 		/// <summary>
 		/// Occurs when an event is written.
 		/// </summary>
+		#if NETSTANDARD2_1 || NET48
+		public new event EventHandler<EventWrittenEventArgs> EventWritten;
+		#else
 		public event EventHandler<EventWrittenEventArgs> EventWritten;
+		#endif
 
 		/// <inheritdoc />
 		public event PropertyChangedEventHandler PropertyChanged;

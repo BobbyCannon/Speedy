@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Index</title>
+		<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
+		<meta http-equiv="expires" content="0" />
+		<meta http-equiv="pragma" content="no-cache" />
+		<style type="text/css">
+			[v-cloak] > * { display: none; }
+		</style>
+	</head>
+	<body>
+		<div id="app" v-cloak>
+			<form style="margin: 10px 0">
+				<input id="emailAddress" v-model="emailAddress" type="text" autocomplete="off" />
+				<button id="submit" v-on:click="post()" v-bind:disabled="isRequesting || !emailAddress">
+					<span v-show="!isRequesting">Continue</span>
+					<span v-show="isRequesting">Processing</span>
+				</button>
+				<br />
+				<div id="emailAddressLabel">{{ emailAddress }}</div>
+				<div id="error" class="red" v-show="error">{{ error }}</div>
+				<div id="log"></div>
+			</form>
+
+			<button id="click" v-on:click="click()">click</button>
+		</div>
+		<script src="./Scripts/jquery-3.4.1.js"></script>
+		<script src="./Scripts/Vue.js"></script>
+		<script type="text/javascript" language="javascript">
+
+			console.log(typeof Vue);
+
+			var model = {
+				isRequesting: false,
+				emailAddress: '',
+				error: null
+			};
+
+			app = new Vue({
+				el: '#app',
+				data: model,
+				methods: {
+					click: function() {
+						app.error = "click";
+					},
+					post: function() {
+						app.error = "nope";
+					}
+				}
+			});
+
+			$(document)
+				.ready(function() {
+					document.addEventListener('keydown',
+						function(e) {
+							var element = document.getElementById('log');
+							if (element) {
+								document.getElementById('log').innerHTML += 'keydown: ' +
+									e.keyCode +
+									'(' +
+									String.fromCharCode(e.keyCode) +
+									')<br />';
+							}
+						});
+
+					document.addEventListener('keypress',
+						function(e) {
+							var element = document.getElementById('log');
+							if (element) {
+								document.getElementById('log').innerHTML += 'keypress: ' +
+									e.keyCode +
+									'(' +
+									String.fromCharCode(e.keyCode) +
+									')<br />';
+							}
+						});
+
+					document.addEventListener('keyup',
+						function(e) {
+							var element = document.getElementById('log');
+							if (element) {
+								document.getElementById('log').innerHTML += 'keyup: ' +
+									e.keyCode +
+									'(' +
+									String.fromCharCode(e.keyCode) +
+									')<br />';
+							}
+						});
+				});
+
+		</script>
+	</body>
+</html>
