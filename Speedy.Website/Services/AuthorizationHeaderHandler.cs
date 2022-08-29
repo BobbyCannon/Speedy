@@ -42,7 +42,7 @@ namespace Speedy.Website.Services
 
 		protected override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
-			if (Request.HttpContext.User.Identity?.IsAuthenticated == true || !Request.Headers.ContainsKey("Authorization"))
+			if ((Request.HttpContext.User.Identity?.IsAuthenticated == true) || !Request.Headers.ContainsKey("Authorization"))
 			{
 				return Task.FromResult(AuthenticateResult.NoResult());
 			}

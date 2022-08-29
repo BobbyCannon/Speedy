@@ -10,11 +10,14 @@ using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Speedy.EntityFramework.Sql;
 using Speedy.Exceptions;
 using Speedy.Extensions;
+
+#if !NETSTANDARD
+using Microsoft.EntityFrameworkCore.Metadata;
+#endif
 
 #endregion
 
@@ -348,14 +351,21 @@ namespace Speedy.EntityFramework
 			var entityType = Database.Model.FindEntityType(type);
 			var entityProperties = entityType.GetProperties().ToDictionary(a => a.Name, a => a);
 			var properties = type.GetCachedProperties().Where(x => entityProperties.ContainsKey(x.Name)).ToList();
+
+			#if !NETSTANDARD
 			var tableName = entityType.GetTableName();
 			var schemaName = entityType.GetSchema();
+			#endif
 
 			foreach (var property in properties)
 			{
 				var entityPropertyType = entityProperties[property.Name];
 				var propertyType = property.PropertyType;
+				#if NETSTANDARD
+				var columnName = entityPropertyType.GetColumnName();
+				#else
 				var columnName = entityPropertyType.GetColumnName(StoreObjectIdentifier.Table(tableName, schemaName));
+				#endif
 				var underlyingType = Nullable.GetUnderlyingType(propertyType);
 				dataTable.Columns.Add(columnName, underlyingType ?? propertyType);
 				columnValues.Add(property.Name, null);
@@ -408,7 +418,9 @@ namespace Speedy.EntityFramework
 			var baseType = typeof(IEntity);
 			var entityType = entity.GetRealType();
 			var entityProperties = entityType.GetCachedProperties();
-			var entityRelationships = entityType.GetCachedVirtualProperties().Where(x => baseType.IsAssignableFrom(x.PropertyType)).ToList();
+			var entityRelationships = entityType.GetCachedVirtualProperties()
+				.Where(x => baseType.IsAssignableFrom(x.PropertyType))
+				.ToList();
 
 			foreach (var entityRelationship in entityRelationships)
 			{
@@ -419,9 +431,9 @@ namespace Speedy.EntityFramework
 
 				var otherEntityProperties = otherEntity.GetRealType().GetCachedProperties();
 				var otherEntityIdProperty = otherEntityProperties.FirstOrDefault(x => x.Name == "Id");
-				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
-				
-				if (otherEntityIdProperty != null && entityRelationshipIdProperty != null)
+				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "Id"));
+
+				if ((otherEntityIdProperty != null) && (entityRelationshipIdProperty != null))
 				{
 					var entityId = entityRelationshipIdProperty.GetValue(entity, null);
 					var otherId = otherEntityIdProperty.GetValue(otherEntity);
@@ -434,9 +446,9 @@ namespace Speedy.EntityFramework
 				}
 
 				var otherEntitySyncIdProperty = otherEntityProperties.FirstOrDefault(x => x.Name == "SyncId");
-				var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
-				
-				if (otherEntitySyncIdProperty != null && entityRelationshipSyncIdProperty != null)
+				var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "SyncId"));
+
+				if ((otherEntitySyncIdProperty != null) && (entityRelationshipSyncIdProperty != null))
 				{
 					var entitySyncId = entityRelationshipSyncIdProperty.GetValue(entity, null);
 					var otherSyncId = otherEntitySyncIdProperty?.GetValue(otherEntity);

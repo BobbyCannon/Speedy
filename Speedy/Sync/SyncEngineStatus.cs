@@ -33,6 +33,11 @@
 		/// <summary>
 		/// The sync engine was cancelled.
 		/// </summary>
-		Cancelled = 5
+		Cancelled = 5,
+
+		/// <summary>
+		/// The sync engine experienced an exception while running.
+		/// </summary>
+		Failed = 6
 	}
 }

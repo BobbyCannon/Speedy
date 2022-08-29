@@ -97,7 +97,7 @@ namespace Speedy.Protocols.Nmea.Messages
 				GroundSpeedKilometersPerHourUnit
 			);
 
-			if (ModeIndicator != null && ModeIndicator.IsSet())
+			if ((ModeIndicator != null) && ModeIndicator.IsSet())
 			{
 				start += $",{ModeIndicator}";
 			}

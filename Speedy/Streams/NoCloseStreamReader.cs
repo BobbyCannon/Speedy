@@ -38,9 +38,9 @@ namespace Speedy.Streams
 		#region Methods
 
 		/// <summary>
-		/// Disposes of the stream reader.
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/// <param name="disposing"> True to dispose managed objects. </param>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
 		protected override void Dispose(bool disposing)
 		{
 			// Dispose the stream reader but pass false to the dispose

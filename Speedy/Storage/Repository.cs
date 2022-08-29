@@ -3,10 +3,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Sync;
@@ -26,6 +24,7 @@ namespace Speedy.Storage
 		#region Fields
 
 		internal IList<EntityState<T, T2>> Cache;
+		private readonly CollectionChangeTracker _collectionChangeTracker;
 		private T2 _currentKey;
 		private IQueryable<T> _query;
 		private readonly Type _type;
@@ -42,6 +41,7 @@ namespace Speedy.Storage
 		{
 			_type = typeof(T);
 			_currentKey = default;
+			_collectionChangeTracker = new CollectionChangeTracker();
 
 			Cache = new List<EntityState<T, T2>>(4096);
 			Database = database;
@@ -90,7 +90,7 @@ namespace Speedy.Storage
 				throw new InvalidOperationException($"The instance of entity type '{typeof(T).Name}' cannot be tracked because another instance with the same key value is already being tracked.");
 			}
 
-			Cache.Add(new EntityState<T, T2>(entity, CloneEntity(entity), EntityStateType.Added));
+			Cache.Add(new EntityState<T, T2>(this, entity, CloneEntity(entity), EntityStateType.Added));
 			OnUpdateEntityRelationships(entity);
 		}
 
@@ -106,12 +106,12 @@ namespace Speedy.Storage
 			var foundItem = Cache.FirstOrDefault(x => Equals(x.Entity.Id, entity.Id));
 			if (foundItem == null)
 			{
-				Cache.Add(new EntityState<T, T2>(entity, CloneEntity(entity), EntityStateType.Unmodified));
+				Cache.Add(new EntityState<T, T2>(this, entity, CloneEntity(entity), EntityStateType.Unmodified));
 				OnUpdateEntityRelationships(entity);
 				return;
 			}
 
-			UpdateEntity(foundItem.Entity, entity);
+			foundItem.UpdateEntity(foundItem.Entity, entity);
 		}
 
 		/// <summary>
@@ -159,7 +159,7 @@ namespace Speedy.Storage
 			var maintainedEntity = Database.Options.UnmaintainedEntities.All(x => x != entity.GetType());
 			var maintainSyncId = maintainedEntity && Database.Options.MaintainSyncId;
 
-			if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
+			if (maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
 			{
 				syncableEntity.SyncId = Guid.NewGuid();
 			}
@@ -173,7 +173,7 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public void AssignKeys(List<IEntity> processed)
 		{
-			foreach (var entityState in Cache)
+			foreach (var entityState in Cache.ToListSafe())
 			{
 				AssignKey(entityState.Entity, processed);
 			}
@@ -210,12 +210,17 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public int BulkRemove(Expression<Func<T, bool>> filter)
 		{
-			var count = 0;
+			var itemsToRemove = this.Where(filter).ToList();
 
-			foreach (var item in this.Where(filter))
+			if (itemsToRemove.Count == 0)
+			{
+				// no reason to move forward because nothing was removed
+				return 0;
+			}
+
+			foreach (var item in itemsToRemove)
 			{
 				Remove(item);
-				count++;
 			}
 
 			// Temporarily mark the permanently delete flag
@@ -226,7 +231,7 @@ namespace Speedy.Storage
 			// Restore the previous permanently delete flag
 			Database.Options.PermanentSyncEntityDeletions = value;
 
-			return count;
+			return itemsToRemove.Count;
 		}
 
 		/// <inheritdoc />
@@ -367,7 +372,7 @@ namespace Speedy.Storage
 				throw new ArgumentException("Could not find the target entity", nameof(targetEntity));
 			}
 
-			Cache.Insert(indexOf, new EntityState<T, T2>(entity, CloneEntity(entity), EntityStateType.Added));
+			Cache.Insert(indexOf, new EntityState<T, T2>(this, entity, CloneEntity(entity), EntityStateType.Added));
 		}
 
 		/// <inheritdoc />
@@ -396,7 +401,7 @@ namespace Speedy.Storage
 			{
 				var instance = Activator.CreateInstance<T>();
 				instance.Id = id;
-				state = new EntityState<T, T2>(instance, CloneEntity(instance), EntityStateType.Removed);
+				state = new EntityState<T, T2>(this, instance, CloneEntity(instance), EntityStateType.Removed);
 				Cache.Add(state);
 			}
 
@@ -429,33 +434,15 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public int SaveChanges()
 		{
+			_collectionChangeTracker.Reset();
+
 			var changeCount = GetChanges().Count();
-			var added = Cache.Where(x => x.State == EntityStateType.Added).ToList();
-			var removed = Cache.Where(x => x.State == EntityStateType.Removed).ToList();
-			var now = TimeService.UtcNow;
-
-			foreach (var item in removed)
+			if (changeCount == 0)
 			{
-				if (item.Entity is ISyncEntity syncableEntity)
-				{
-					if (syncableEntity.SyncId == Guid.Empty)
-					{
-						throw new InvalidOperationException("Cannot tombstone this entity because the sync ID has not been set.");
-					}
-
-					if (!Database.Options.PermanentSyncEntityDeletions)
-					{
-						syncableEntity.IsDeleted = true;
-						syncableEntity.ModifiedOn = now;
-						item.State = EntityStateType.Modified;
-						continue;
-					}
-				}
-
-				RemoveFromCache(item);
-
-				item.Entity.EntityDeleted();
+				return 0;
 			}
+
+			var now = TimeService.UtcNow;
 
 			foreach (var entry in Cache.ToList())
 			{
@@ -471,63 +458,97 @@ namespace Speedy.Storage
 				switch (entry.State)
 				{
 					case EntityStateType.Added:
-						if (createdEntity != null && maintainCreatedOnDate)
+					{
+						_collectionChangeTracker.AddAddedEntity(entity);
+
+						if ((createdEntity != null) && maintainCreatedOnDate)
 						{
 							createdEntity.CreatedOn = now;
 						}
 
-						if (modifiableEntity != null && maintainModifiedOnDate)
+						if ((modifiableEntity != null) && maintainModifiedOnDate)
 						{
 							modifiableEntity.ModifiedOn = now;
 						}
 
-						entity.EntityAdded();
-						break;
+						if ((syncableEntity != null) && maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
+						{
+							syncableEntity.SyncId = Guid.NewGuid();
+						}
 
+						entity.EntityAdded();
+						Database.EntityAdded(entity);
+						break;
+					}
 					case EntityStateType.Modified:
+					{
 						if (!entity.CanBeModified())
 						{
-							UpdateEntity(entry.Entity, entry.OldEntity);
-							entry.ResetChangeTracking();
-
+							entry.Reset();
 							changeCount--;
 							continue;
 						}
 
-						if (createdEntity != null && maintainCreatedOnDate)
+						_collectionChangeTracker.AddModifiedEntity(entity);
+
+						// If Speedy is maintaining the CreatedOn date then we will not allow modifications outside Speedy
+						if ((createdEntity != null) && maintainCreatedOnDate)
 						{
-							if (entry.OldEntity is ICreatedEntity oldCreatedEntity && oldCreatedEntity.CreatedOn != createdEntity.CreatedOn)
+							if (entry.OldEntity is ICreatedEntity oldCreatedEntity
+								&& (oldCreatedEntity.CreatedOn != createdEntity.CreatedOn))
 							{
+								// Do not allow created on to change for entities.
 								createdEntity.CreatedOn = oldCreatedEntity.CreatedOn;
 							}
 						}
 
-						if (syncableEntity != null)
+						// If Speedy is maintaining the ModifiedOn then we will set it to 'now'
+						if ((modifiableEntity != null) && maintainModifiedOnDate)
 						{
-							// Do not allow sync ID to change for entities.
-							if (maintainSyncId)
-							{
-								if (entry.OldEntity is ISyncEntity oldSyncableEntity)
-								{
-									syncableEntity.SyncId = oldSyncableEntity.SyncId;
-								}
-							}
-						}
-
-						if (modifiableEntity != null && maintainModifiedOnDate)
-						{
+							// Update modified to now for new entities.
 							modifiableEntity.ModifiedOn = now;
 						}
 
+						if ((syncableEntity != null) && maintainSyncId && entry.OldEntity is ISyncEntity oldSyncableEntity)
+						{
+							// Do not allow sync ID to change for entities.
+							syncableEntity.SetEntitySyncId(oldSyncableEntity.GetEntitySyncId());
+						}
+
 						entity.EntityModified();
+						Database.EntityModified(entity);
 						break;
+					}
+					case EntityStateType.Removed:
+					{
+						if ((syncableEntity != null) && !Database.Options.PermanentSyncEntityDeletions)
+						{
+							syncableEntity.IsDeleted = true;
+							syncableEntity.ModifiedOn = now;
+							entry.State = EntityStateType.Modified;
+
+							_collectionChangeTracker.AddModifiedEntity(entity);
+
+							entity.EntityModified();
+							Database.EntityModified(entity);
+						}
+						else
+						{
+							RemoveFromCache(entry);
+
+							_collectionChangeTracker.AddRemovedEntity(entity);
+
+							entity.EntityDeleted();
+							Database.EntityDeleted(entity);
+						}
+						break;
+					}
 				}
 
-				UpdateEntity(entry.OldEntity, entry.Entity);
-				entry.State = EntityStateType.Unmodified;
+				entry.SaveChanges();
 			}
 
-			OnCollectionChanged(added.Select(x => x.Entity).ToList(), removed.Where(x => x.State == EntityStateType.Removed).Select(x => x.Entity).ToList());
+			OnSavedChanges(_collectionChangeTracker);
 
 			return changeCount;
 		}
@@ -575,7 +596,7 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public void ValidateEntities()
 		{
-			Cache.Where(x => x.State == EntityStateType.Added || x.State == EntityStateType.Modified)
+			Cache.Where(x => (x.State == EntityStateType.Added) || (x.State == EntityStateType.Modified))
 				.ToList()
 				.ForEach(x => OnValidateEntity(x.Entity));
 
@@ -609,6 +630,14 @@ namespace Speedy.Storage
 		}
 
 		/// <summary>
+		/// Called when for when changes are saved. <see cref="SaveChanges" />
+		/// </summary>
+		protected virtual void OnSavedChanges(CollectionChangeTracker e)
+		{
+			SavedChanges?.Invoke(this, e);
+		}
+
+		/// <summary>
 		/// Occurs when an entity relationships are updated.
 		/// </summary>
 		/// <param name="obj"> The entity that was updated. </param>
@@ -629,19 +658,19 @@ namespace Speedy.Storage
 
 		internal bool AnyNew(object entity, Func<T, bool> func)
 		{
-			return Cache.Any(x => !ReferenceEquals(x.Entity, entity) && func(x.OldEntity));
+			return Cache.ToListSafe().Any(x => !ReferenceEquals(x.Entity, entity) && func(x.OldEntity));
 		}
 
 		private T CloneEntity(T entity)
 		{
-			var constructorInfo = _type.GetConstructor(new Type[0]);
+			var constructorInfo = _type.GetConstructor(Type.EmptyTypes);
 			if (constructorInfo == null)
 			{
 				throw new SpeedyException("Failed to create new instance...");
 			}
 
 			var response = (T) constructorInfo.Invoke(null);
-			var properties = GetPublicProperties().ToList();
+			var properties = EntityState.GetStateProperties(_type).ToList();
 
 			foreach (var property in properties)
 			{
@@ -650,8 +679,9 @@ namespace Speedy.Storage
 			}
 
 			var enumerableType = typeof(IEnumerable);
-			var collectionRelationships = _type.GetCachedProperties()
-				.Where(x => x.GetAccessors()[0].IsVirtual)
+			var collectionRelationships = _type
+				.GetCachedProperties()
+				.Where(x => x.IsVirtual())
 				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
 				.Where(x => x.PropertyType.IsGenericType)
 				.ToList();
@@ -674,103 +704,23 @@ namespace Speedy.Storage
 			return response;
 		}
 
-		private bool CompareEntity(T entity1, T entity2)
-		{
-			if (entity1 == null && entity2 == null)
-			{
-				return true;
-			}
-
-			if (entity1 == null || entity2 == null)
-			{
-				return false;
-			}
-
-			var properties = GetPublicProperties();
-			foreach (var property in properties)
-			{
-				var value1 = property.GetValue(entity1, null);
-				var value2 = property.GetValue(entity2, null);
-				if (!Equals(value1, value2))
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
 		private IEnumerable<EntityState<T, T2>> GetChanges()
 		{
+			// Make sure we are not missing anything...
 			foreach (var item in Cache.Where(x => x.State == EntityStateType.Unmodified))
 			{
-				if (!CompareEntity(item.Entity, item.OldEntity))
-				{
-					item.State = EntityStateType.Modified;
-				}
+				item.RefreshState();
 			}
 
-			return Cache.Where(x => x.State != EntityStateType.Unmodified).ToList();
+			return Cache
+				.Where(x => x.State != EntityStateType.Unmodified)
+				.ToList();
 		}
 
 		/// <inheritdoc />
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
-		}
-
-		private IEnumerable<PropertyInfo> GetPublicProperties()
-		{
-			return _type.GetCachedProperties()
-				.Where(x =>
-				{
-					if (x.Name == "Id")
-					{
-						return true;
-					}
-
-					var accessors = x.GetAccessors();
-					if (accessors.Length < 2)
-					{
-						return false;
-					}
-
-					if (accessors.Any(a => (a.IsVirtual || !a.IsPublic) && !a.IsFinal))
-					{
-						return false;
-					}
-
-					return true;
-				})
-				.ToList();
-		}
-
-		private void OnCollectionChanged(IList added, IList removed)
-		{
-			if (CollectionChanged == null)
-			{
-				return;
-			}
-
-			NotifyCollectionChangedEventArgs eventArgs = null;
-
-			if (added.Count > 0 && removed.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, added, removed);
-			}
-			else if (added.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, added);
-			}
-			else if (removed.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed);
-			}
-
-			if (eventArgs != null)
-			{
-				CollectionChanged?.Invoke(this, eventArgs);
-			}
 		}
 
 		private void RemoveFromCache(EntityState<T, T2> entityState)
@@ -786,12 +736,12 @@ namespace Speedy.Storage
 
 			if (entityState.Entity is ISyncEntity syncEntity)
 			{
-				Database.KeyCache.RemoveEntityId(syncEntity.GetType(), syncEntity.SyncId);
+				Database.KeyCache.RemoveEntityId(syncEntity.GetType(), syncEntity.GetEntitySyncId());
 			}
 
 			if (entityState.OldEntity is ISyncEntity oldSyncEntity)
 			{
-				Database.KeyCache.RemoveEntityId(oldSyncEntity.GetType(), oldSyncEntity.SyncId);
+				Database.KeyCache.RemoveEntityId(oldSyncEntity.GetType(), oldSyncEntity.GetEntitySyncId());
 			}
 		}
 
@@ -804,38 +754,20 @@ namespace Speedy.Storage
 
 			Cache?
 				.ToList()
-				.ForEach(x =>
-				{
-					UpdateEntity(x.Entity, x.OldEntity);
-					x.ResetChangeTracking();
-				});
+				.ForEach(x => { x.Reset(); });
 		}
 
 		private void UpdateCacheQuery()
 		{
-			_query = Cache.Where(x => x.State != EntityStateType.Added).Select(x => x.Entity).AsQueryable();
-		}
-
-		/// <summary>
-		/// Update the entity with the new values.
-		/// </summary>
-		/// <param name="entity"> The entity to update. </param>
-		/// <param name="updatedEntity"> The new values to update the entity with. </param>
-		private void UpdateEntity(Entity<T2> entity, Entity<T2> updatedEntity)
-		{
-			var properties = GetPublicProperties();
-			foreach (var property in properties)
-			{
-				property.SetValue(entity, property.GetValue(updatedEntity, null), null);
-			}
+			_query = Cache
+				.Where(x => x.State != EntityStateType.Added)
+				.Select(x => x.Entity)
+				.AsQueryable();
 		}
 
 		#endregion
 
 		#region Events
-
-		/// <inheritdoc />
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
 
 		/// <summary>
 		/// Occurs when an entity is being added.
@@ -846,6 +778,11 @@ namespace Speedy.Storage
 		/// Occurs when an entity is being deleted.
 		/// </summary>
 		internal event Action<T> DeletingEntity;
+
+		/// <summary>
+		/// An event for when changes are saved. <see cref="SaveChanges" />
+		/// </summary>
+		internal event EventHandler<CollectionChangeTracker> SavedChanges;
 
 		/// <summary>
 		/// Occurs when an entity relationships are updated.

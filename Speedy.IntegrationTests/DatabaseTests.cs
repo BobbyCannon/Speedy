@@ -1,18 +1,18 @@
 ﻿#region References
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Data.WebApi;
-using Speedy.EntityFramework;
-using Speedy.Extensions;
-using Speedy.Storage;
-using Speedy.UnitTests.Factories;
-using Speedy.Website.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Data.SyncApi;
+using Speedy.EntityFramework;
+using Speedy.Extensions;
+using Speedy.Storage;
 using Speedy.UnitTests;
+using Speedy.UnitTests.Factories;
+using Speedy.Website.Data.Entities;
 
 #endregion
 
@@ -38,7 +38,7 @@ namespace Speedy.IntegrationTests
 
 					var tracker = new CollectionChangeTracker();
 					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
-					database.CollectionChanged += (sender, args) => tracker.Update(args);
+					database.ChangesSaved += (_, args) => tracker.Update(args);
 					database.Addresses.Add(expected);
 					var actual = database.Addresses.FirstOrDefault();
 					Assert.IsNull(actual);
@@ -490,14 +490,14 @@ namespace Speedy.IntegrationTests
 						{
 							x => x.SyncId != Guid.Empty,
 							x => !x.IsDeleted,
-							x => !x.IsDeleted || x.SyncId != Guid.Empty,
-							x => x.CreatedOn > DateTime.MinValue && x.ModifiedOn < DateTime.MaxValue,
-							x => x.Id >= byte.MinValue && x.Id <= byte.MaxValue,
-							x => x.Id >= ushort.MinValue && x.Id <= ushort.MaxValue,
-							x => x.Id >= short.MinValue && x.Id <= short.MaxValue,
-							x => x.Id >= int.MinValue && x.Id <= int.MaxValue,
-							x => x.Id >= uint.MinValue && x.Id <= uint.MaxValue,
-							x => x.Id >= long.MinValue && x.Id <= long.MaxValue
+							x => !x.IsDeleted || (x.SyncId != Guid.Empty),
+							x => (x.CreatedOn > DateTime.MinValue) && (x.ModifiedOn < DateTime.MaxValue),
+							x => (x.Id >= byte.MinValue) && (x.Id <= byte.MaxValue),
+							x => (x.Id >= ushort.MinValue) && (x.Id <= ushort.MaxValue),
+							x => (x.Id >= short.MinValue) && (x.Id <= short.MaxValue),
+							x => (x.Id >= int.MinValue) && (x.Id <= int.MaxValue),
+							x => (x.Id >= uint.MinValue) && (x.Id <= uint.MaxValue),
+							x => (x.Id >= long.MinValue) && (x.Id <= long.MaxValue)
 						};
 
 						filters.ForEach(filter =>
@@ -539,7 +539,7 @@ namespace Speedy.IntegrationTests
 						var filters = new List<Expression<Func<AddressEntity, bool>>>
 						{
 							x => x.IsDeleted,
-							x => x.IsDeleted && x.ModifiedOn <= deletedOn
+							x => x.IsDeleted && (x.ModifiedOn <= deletedOn)
 						};
 
 						filters.ForEach(filter =>
@@ -556,7 +556,7 @@ namespace Speedy.IntegrationTests
 								}
 
 								database.SaveChanges();
-								
+
 								Assert.AreEqual(10, database.Addresses.Count());
 								Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
 
@@ -660,7 +660,7 @@ namespace Speedy.IntegrationTests
 						Assert.AreEqual(10, database.Addresses.Count(x => x.IsDeleted));
 						Assert.AreEqual(0, database.Addresses.Count(x => !x.IsDeleted));
 
-						count = database.Addresses.BulkUpdate(x => x.Id < 5 && x.Id >= 2, x => new AddressEntity { City = "city" });
+						count = database.Addresses.BulkUpdate(x => (x.Id < 5) && (x.Id >= 2), x => new AddressEntity { City = "city" });
 						Assert.AreEqual(3, count);
 						Assert.AreEqual(3, database.Addresses.Count(x => x.City == "city"));
 						Assert.AreEqual(7, database.Addresses.Count(x => x.City != "city"));
@@ -679,9 +679,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Local),
-						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Unspecified),
-						new(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Utc)
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Local),
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Unspecified),
+						new DateTime(DateTimeExtensions.MaxDateTimeTicks, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -729,9 +729,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Local),
-						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Unspecified),
-						new(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Utc)
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Local),
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Unspecified),
+						new DateTime(DateTimeExtensions.MinDateTimeTicks, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -779,9 +779,9 @@ namespace Speedy.IntegrationTests
 				{
 					var testCases = new List<DateTime>
 					{
-						new(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
-						new(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
-						new(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Local),
+						new DateTime(2020, 05, 14, 08, 23, 45, DateTimeKind.Unspecified),
+						new DateTime(2020, 05, 14, 12, 23, 45, DateTimeKind.Utc)
 					};
 
 					foreach (var testCase in testCases)
@@ -906,6 +906,39 @@ namespace Speedy.IntegrationTests
 		public void Initialize()
 		{
 			TestHelper.Initialize();
+		}
+
+		[TestMethod]
+		public void MaintainSyncIdShouldNotSaveIfThatIsAllThatChanged()
+		{
+			TestHelper.GetDataContexts(initialize: false)
+				.ForEach(provider =>
+				{
+					using var database = provider.GetDatabase();
+					Console.WriteLine(database.GetType().Name);
+
+					database.Options.MaintainCreatedOn = false;
+					database.Options.MaintainModifiedOn = false;
+					database.Options.MaintainSyncId = true;
+
+					var tracker = new CollectionChangeTracker();
+					var expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
+					database.Addresses.Add(expected);
+					database.SaveChanges();
+
+					Assert.IsFalse(database.Options.MaintainCreatedOn);
+					Assert.IsFalse(database.Options.MaintainModifiedOn);
+					Assert.IsTrue(database.Options.MaintainSyncId);
+
+					database.ChangesSaved += (_, args) => tracker.Update(args);
+					var address = database.Addresses.First(x => x.Id == expected.Id);
+					address.SyncId = Guid.NewGuid();
+					database.SaveChanges();
+
+					Assert.AreEqual(0, tracker.Added.Count);
+					Assert.AreEqual(0, tracker.Removed.Count);
+					Assert.AreEqual(1, tracker.Modified.Count);
+				});
 		}
 
 		[TestMethod]
@@ -1274,7 +1307,7 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 
 					var tracker = new CollectionChangeTracker();
-					database.CollectionChanged += (sender, args) => tracker.Update(args);
+					database.ChangesSaved += (_, args) => tracker.Update(args);
 					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, tracker.Added.Count);
@@ -1363,7 +1396,7 @@ namespace Speedy.IntegrationTests
 					Console.WriteLine(database.GetType().Name);
 
 					var tracker = new CollectionChangeTracker();
-					database.CollectionChanged += (sender, args) => tracker.Update(args);
+					database.ChangesSaved += (_, args) => tracker.Update(args);
 					database.Addresses.Add(new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" });
 					Assert.AreEqual(0, database.Addresses.Count());
 					Assert.AreEqual(0, tracker.Added.Count);
@@ -1391,7 +1424,7 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestMethod]
-		public void RemoveSingleEntityDependantRelationship()
+		public void RemoveSingleEntityDependentRelationship()
 		{
 			TestHelper.GetDataContexts(initialize: false)
 				.ForEach(provider =>
@@ -1416,11 +1449,13 @@ namespace Speedy.IntegrationTests
 
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address),
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.",
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
-					
+
 					// ReSharper disable once AccessToDisposedClosure
 					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address.Id),
+						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.",
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
 				});
@@ -1837,7 +1872,7 @@ namespace Speedy.IntegrationTests
 						entity.ModifiedOn = new DateTime(2017, 02, 02, 01, 02, 03);
 
 						var actual = entity.ToSyncObject();
-						var expect = "{\"$id\":\"1\",\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":1,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
+						var expect = "{\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2017-01-01T01:02:03\",\"Id\":1,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2017-02-02T01:02:03\",\"Postal\":\"29640\",\"State\":\"SC\",\"SyncId\":\"513b9cf1-7596-4e2e-888d-835622a3fb2b\"}";
 
 						actual.Data.Dump();
 
@@ -1846,9 +1881,70 @@ namespace Speedy.IntegrationTests
 				});
 		}
 
+		[TestMethod]
+		public void DatabaseEntityNotificationsShouldWork()
+		{
+			TestHelper.GetDataContexts(initialize: false)
+				.ForEach(provider =>
+				{
+					var expected = DataHelper.NewAddress("123 Main Street");
+					AddressEntity actual;
+
+					using (var database = provider.GetDatabase())
+					{
+						Console.WriteLine(database.GetType().Name);
+						Assert.AreEqual(0, database.Addresses.Count());
+
+						//
+						// Added
+						//
+						database.EnableSaveProcessing = true;
+						database.Addresses.Add(expected);
+						actual = database.Addresses.FirstOrDefault();
+						Assert.IsNull(actual);
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(0, database.LogEvents.Count());
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.LogEvents.Count());
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						//
+						// Modified
+						//
+						database.EnableSaveProcessing = true;
+						actual = database.Addresses.First(x => x.Id == expected.Id);
+						actual.Line1 = "Line 1 Updated";
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(1, database.LogEvents.Count());
+						database.SaveChanges();
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(2, database.LogEvents.Count());
+					}
+
+					using (var database = provider.GetDatabase())
+					{
+						//
+						// Removed
+						//
+						database.EnableSaveProcessing = true;
+						actual = database.Addresses.First(x => x.Id == actual.Id);
+						database.Options.PermanentSyncEntityDeletions = true;
+						database.Addresses.Remove(actual);
+						Assert.AreEqual(1, database.Addresses.Count());
+						Assert.AreEqual(2, database.LogEvents.Count());
+						database.SaveChanges();
+						Assert.AreEqual(0, database.Addresses.Count());
+						Assert.AreEqual(3, database.LogEvents.Count());
+					}
+				});
+		}
+
 		private static AddressEntity NewAddress(string line1, string line2 = "")
 		{
-			return new() { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
+			return new AddressEntity { Line1 = line1, Line2 = line2, City = "", Postal = "", State = "" };
 		}
 
 		#endregion

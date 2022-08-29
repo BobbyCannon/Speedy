@@ -68,7 +68,7 @@ namespace Speedy.Profiling
 			{
 				return true;
 			}
-			return Name == other.Name && Value == other.Value;
+			return (Name == other.Name) && (Value == other.Value);
 		}
 
 		/// <inheritdoc />

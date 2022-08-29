@@ -211,7 +211,7 @@ namespace Speedy.Protocols.Nmea
 
 			var startIndex = sentence.LastIndexOf('$');
 
-			if (startIndex >= 0 && startIndex != 0)
+			if ((startIndex >= 0) && (startIndex != 0))
 			{
 				sentence = sentence.Substring(startIndex);
 			}
@@ -226,7 +226,7 @@ namespace Speedy.Protocols.Nmea
 		/// <returns> The checksum in a two-character hexadecimal format. </returns>
 		private static string CalculateChecksum(string sentence)
 		{
-			if (string.IsNullOrWhiteSpace(sentence) || sentence.Length < 2)
+			if (string.IsNullOrWhiteSpace(sentence) || (sentence.Length < 2))
 			{
 				return 0.ToString("X2");
 			}

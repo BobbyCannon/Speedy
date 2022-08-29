@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Speedy.Extensions;
 using Speedy.Storage;
@@ -15,7 +16,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class Bindable : INotifyPropertyChanged, IBindable, IUpdatable
+	public abstract class Bindable : IBindable, IUpdatable
 	{
 		#region Fields
 
@@ -44,13 +45,15 @@ namespace Speedy
 		/// </summary>
 		[Browsable(false)]
 		[JsonIgnore]
-		public virtual bool HasChanges { get; set; }
+		[IgnoreDataMember]
+		public virtual bool HasChanges { get; private set; }
 
 		/// <summary>
 		/// Represents a thread dispatcher to help with cross threaded request.
 		/// </summary>
 		[Browsable(false)]
 		[JsonIgnore]
+		[IgnoreDataMember]
 		protected IDispatcher Dispatcher { get; private set; }
 
 		/// <summary>
@@ -68,9 +71,7 @@ namespace Speedy
 			return Dispatcher;
 		}
 
-		/// <summary>
-		/// Return true if the change notifications are paused or otherwise false.
-		/// </summary>
+		/// <inheritdoc />
 		public virtual bool IsChangeNotificationsPaused()
 		{
 			return _pausePropertyChanged;
@@ -106,12 +107,19 @@ namespace Speedy
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		/// <summary>
-		/// Pause / Un-pause the property change notifications
-		/// </summary>
+		/// <inheritdoc />
 		public virtual void PausePropertyChangeNotifications(bool pause = true)
 		{
 			_pausePropertyChanged = pause;
+		}
+
+		/// <summary>
+		/// Reset the change tracking flag.
+		/// </summary>
+		/// <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
+		public virtual void ResetChangeTracking(bool hasChanges = false)
+		{
+			HasChanges = hasChanges;
 		}
 
 		/// <inheritdoc />

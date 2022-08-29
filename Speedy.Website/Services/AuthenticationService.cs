@@ -76,8 +76,8 @@ namespace Speedy.Website.Services
 			var roles = user.Roles.SplitTags();
 			var claims = new List<Claim>
 			{
-				new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-				new(ClaimTypes.Name, user.Name)
+				new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+				new Claim(ClaimTypes.Name, user.Name)
 			};
 
 			claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

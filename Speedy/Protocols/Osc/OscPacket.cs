@@ -11,14 +11,26 @@ using Speedy.Extensions;
 
 namespace Speedy.Protocols.Osc
 {
-	public abstract class OscPacket
+	public abstract class OscPacket : Bindable
 	{
+		#region Constructors
+
+		protected OscPacket() : this(null)
+		{
+		}
+
+		protected OscPacket(IDispatcher dispatcher) : base(dispatcher)
+		{
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
 		/// Gets the time of this bundle.
 		/// </summary>
-		public OscTimeTag Time { get; set; }
+		public DateTime Time { get; set; }
 
 		#endregion
 
@@ -32,7 +44,7 @@ namespace Speedy.Protocols.Osc
 		/// <returns> Message containing various arguments and an address </returns>
 		public static OscPacket Parse(byte[] data, params OscArgumentParser[] parsers)
 		{
-			return Parse(OscTimeTag.UtcNow, data, data.Length, parsers);
+			return Parse(TimeService.UtcNow, data, data.Length, parsers);
 		}
 
 		/// <summary>
@@ -42,7 +54,7 @@ namespace Speedy.Protocols.Osc
 		/// <param name="data"> The data for the message. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> Message containing various arguments and an address </returns>
-		public static OscPacket Parse(OscTimeTag time, byte[] data, params OscArgumentParser[] parsers)
+		public static OscPacket Parse(DateTime time, byte[] data, params OscArgumentParser[] parsers)
 		{
 			return Parse(time, data, data.Length, parsers);
 		}
@@ -56,7 +68,7 @@ namespace Speedy.Protocols.Osc
 		/// <returns> Message containing various arguments and an address </returns>
 		public static OscPacket Parse(byte[] data, int length, params OscArgumentParser[] parsers)
 		{
-			return Parse(OscTimeTag.UtcNow, data, length, parsers);
+			return Parse(TimeService.UtcNow, data, length, parsers);
 		}
 
 		/// <summary>
@@ -67,11 +79,11 @@ namespace Speedy.Protocols.Osc
 		/// <param name="length"> The length for the message. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> Message containing various arguments and an address </returns>
-		public static OscPacket Parse(OscTimeTag time, byte[] data, int length, params OscArgumentParser[] parsers)
+		public static OscPacket Parse(DateTime time, byte[] data, int length, params OscArgumentParser[] parsers)
 		{
 			try
 			{
-				if (data[0] == '#' || data[0] == '+')
+				if ((data[0] == '#') || (data[0] == '+'))
 				{
 					return OscBundle.ParseBundle(data, length);
 				}
@@ -80,7 +92,7 @@ namespace Speedy.Protocols.Osc
 			}
 			catch (Exception)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParsedMessage);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidParsedMessage);
 			}
 		}
 
@@ -104,7 +116,7 @@ namespace Speedy.Protocols.Osc
 		/// <returns> The parsed OSC packet. </returns>
 		public static OscPacket Parse(string value, IFormatProvider provider, params OscArgumentParser[] parsers)
 		{
-			return Parse(OscTimeTag.UtcNow, value, provider, parsers);
+			return Parse(TimeService.UtcNow, value, provider, parsers);
 		}
 
 		/// <summary>
@@ -114,7 +126,7 @@ namespace Speedy.Protocols.Osc
 		/// <param name="value"> A string containing the OSC packet data. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> The parsed OSC packet. </returns>
-		public static OscPacket Parse(OscTimeTag time, string value, params OscArgumentParser[] parsers)
+		public static OscPacket Parse(DateTime time, string value, params OscArgumentParser[] parsers)
 		{
 			return Parse(time, value, CultureInfo.InvariantCulture, parsers);
 		}
@@ -127,7 +139,7 @@ namespace Speedy.Protocols.Osc
 		/// <param name="provider"> The format provider to use during parsing. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> The parsed OSC packet. </returns>
-		public static OscPacket Parse(OscTimeTag time, string value, IFormatProvider provider, params OscArgumentParser[] parsers)
+		public static OscPacket Parse(DateTime time, string value, IFormatProvider provider, params OscArgumentParser[] parsers)
 		{
 			if (value.StartsWith("#") || value.StartsWith("+"))
 			{
@@ -160,7 +172,7 @@ namespace Speedy.Protocols.Osc
 				break;
 			}
 
-			if (i >= buffer.Length && address == null)
+			if ((i >= buffer.Length) && (address == null))
 			{
 				throw new Exception("no comma found");
 			}
@@ -182,7 +194,7 @@ namespace Speedy.Protocols.Osc
 				}
 			}
 
-			if (i >= buffer.Length && types == null)
+			if ((i >= buffer.Length) && (types == null))
 			{
 				throw new Exception("No null terminator after type string");
 			}

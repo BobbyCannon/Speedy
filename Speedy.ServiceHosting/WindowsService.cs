@@ -83,6 +83,19 @@ namespace Speedy.ServiceHosting
 		/// </summary>
 		public int Start()
 		{
+			var serviceHeader = $"{Options.ServiceDisplayName} v{Options.ServiceVersion}";
+
+			if (Options.UninstallService)
+			{
+				WriteLine(serviceHeader);
+				var response = UninstallService();
+				if (response >= 0)
+				{
+					WriteLine($"{Environment.NewLine}\tService Uninstalled Successfully");
+				}
+				return response;
+			}
+
 			// Show help if asked or if no argument were provided
 			if (Options.ShowHelp)
 			{
@@ -96,16 +109,16 @@ namespace Speedy.ServiceHosting
 				return -1;
 			}
 
-			WriteLine($"{Options.ServiceDisplayName} v{Options.ServiceVersion}");
+			WriteLine(serviceHeader);
 
 			if (Options.InstallService)
 			{
-				return InstallService();
-			}
-
-			if (Options.UninstallService)
-			{
-				return UninstallService();
+				var response = InstallService();
+				if (response >= 0)
+				{
+					WriteLine($"{Environment.NewLine}\tService Installed Successfully");
+				}
+				return response;
 			}
 
 			// Check to see if we need to run in service mode.
@@ -258,7 +271,8 @@ namespace Speedy.ServiceHosting
 			}
 			catch (Exception ex)
 			{
-				WriteLine(ex.ToDetailedString(), EventLevel.Critical);
+				WriteLine(string.Empty, EventLevel.Critical);
+				WriteLine(ex.ToDetailedString(false), EventLevel.Critical);
 				return -1;
 			}
 		}
@@ -275,7 +289,8 @@ namespace Speedy.ServiceHosting
 			}
 			catch (Exception ex)
 			{
-				WriteLine(ex.ToDetailedString(), EventLevel.Critical);
+				WriteLine(string.Empty, EventLevel.Critical);
+				WriteLine(ex.ToDetailedString(false), EventLevel.Critical);
 			}
 		}
 
@@ -312,7 +327,8 @@ namespace Speedy.ServiceHosting
 			}
 			catch (Exception ex)
 			{
-				WriteLine(ex.ToDetailedString(), EventLevel.Critical);
+				WriteLine(string.Empty);
+				WriteLine(ex.ToDetailedString(false), EventLevel.Critical);
 				return -1;
 			}
 		}

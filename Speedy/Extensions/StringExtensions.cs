@@ -23,7 +23,7 @@ namespace Speedy.Extensions
 		/// <returns> The byte array value of the hex string. </returns>
 		public static byte[] ConvertHexStringToByteArray(this string hexString)
 		{
-			if (hexString.Length % 2 != 0)
+			if ((hexString.Length % 2) != 0)
 			{
 				throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "The binary key cannot have an odd number of digits: {0}", hexString));
 			}
@@ -91,7 +91,7 @@ namespace Speedy.Extensions
 						continue;
 					default:
 						// ASCII printable character
-						if (c >= 0x20 && c <= 0x7e)
+						if ((c >= 0x20) && (c <= 0x7e))
 						{
 							literal.Append(c);
 							// As UTF16 escaped character
@@ -160,17 +160,17 @@ namespace Speedy.Extensions
 				var hash1 = 5381;
 				var hash2 = hash1;
 
-				for (var i = 0; i < value.Length && value[i] != '\0'; i += 2)
+				for (var i = 0; (i < value.Length) && (value[i] != '\0'); i += 2)
 				{
 					hash1 = ((hash1 << 5) + hash1) ^ value[i];
-					if (i == value.Length - 1 || value[i + 1] == '\0')
+					if ((i == (value.Length - 1)) || (value[i + 1] == '\0'))
 					{
 						break;
 					}
 					hash2 = ((hash2 << 5) + hash2) ^ value[i + 1];
 				}
 
-				return hash1 + hash2 * 1566083941;
+				return hash1 + (hash2 * 1566083941);
 			}
 		}
 
@@ -183,12 +183,12 @@ namespace Speedy.Extensions
 		/// <returns> The value limited to the maximum length. </returns>
 		public static string MaxLength(this string value, int max, bool addEllipses = false)
 		{
-			if (string.IsNullOrWhiteSpace(value) || max <= 0)
+			if (string.IsNullOrWhiteSpace(value) || (max <= 0))
 			{
 				return string.Empty;
 			}
 
-			var shouldAddEllipses = addEllipses && value.Length > max && max >= 4;
+			var shouldAddEllipses = addEllipses && (value.Length > max) && (max >= 4);
 
 			return value.Length > max ? value.Substring(0, shouldAddEllipses ? max - 3 : max) + (shouldAddEllipses ? "..." : string.Empty) : value;
 		}
@@ -197,11 +197,13 @@ namespace Speedy.Extensions
 		/// Converts a string to hex string value. Ex. "A" -> "41"
 		/// </summary>
 		/// <param name="value"> The string value to convert. </param>
+		/// <param name="delimiter"> An optional delimited to put between bytes of the data. </param>
+		/// <param name="prefix"> An optional prefix to put before each byte of the data. </param>
 		/// <returns> The string in a hex string format. </returns>
-		public static string ToHexString(this string value)
+		public static string ToHexString(this string value, string delimiter = null, string prefix = null)
 		{
 			var bytes = Encoding.Default.GetBytes(value);
-			var hexString = bytes.ToHexString();
+			var hexString = bytes.ToHexString(null, null, delimiter, prefix);
 			return hexString;
 		}
 
@@ -221,11 +223,15 @@ namespace Speedy.Extensions
 		/// Converts a byte array to a hex string format. Ex. [41],[42] = "4142"
 		/// </summary>
 		/// <param name="data"> The byte array to convert. </param>
+		/// <param name="startIndex"> The starting position within value. </param>
+		/// <param name="length"> The number of array elements in value to convert. </param>
+		/// <param name="delimiter"> An optional delimited to put between bytes of the data. </param>
+		/// <param name="prefix"> An optional prefix to put before each byte of the data. </param>
 		/// <returns> The byte array in a hex string format. </returns>
-		public static string ToHexString(this byte[] data)
+		public static string ToHexString(this byte[] data, int? startIndex = null, int? length = null, string delimiter = null, string prefix = null)
 		{
-			var hexString = BitConverter.ToString(data);
-			hexString = hexString.Replace("-", "");
+			var hexString = BitConverter.ToString(data, startIndex ?? 0, length ?? data.Length);
+			hexString = (prefix ?? "") + hexString.Replace("-", (delimiter ?? "") + (prefix ?? ""));
 			return hexString;
 		}
 
@@ -263,7 +269,7 @@ namespace Speedy.Extensions
 				}
 
 				// if we are not in  an escape sequence and the char is a escape char
-				else if (isEscaped == false && c == '\\')
+				else if ((isEscaped == false) && (c == '\\'))
 				{
 					// escape
 					isEscaped = true;
@@ -339,7 +345,7 @@ namespace Speedy.Extensions
 				var c = value[i];
 
 				// if we are not in  an escape sequence and the char is a escape char
-				if (isEscaped == false && c == '\\')
+				if ((isEscaped == false) && (c == '\\'))
 				{
 					// escape
 					isEscaped = true;
@@ -425,7 +431,7 @@ namespace Speedy.Extensions
 
 		internal static int AlignedStringLength(this string val)
 		{
-			var len = val.Length + (4 - val.Length % 4);
+			var len = val.Length + (4 - (val.Length % 4));
 			if (len <= val.Length)
 			{
 				len += 4;

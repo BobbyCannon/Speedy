@@ -8,6 +8,15 @@ namespace Speedy.Website.Data.Entities
 {
 	public class PetEntity : Entity<(string Name, int OwnerId)>, IModifiableEntity
 	{
+		#region Constructors
+
+		public PetEntity()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <inheritdoc />

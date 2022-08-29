@@ -82,7 +82,16 @@ namespace Speedy.IntegrationTests
 
 		public SyncSession BeginSync(Guid sessionId, SyncOptions options)
 		{
-			return new() { Id = sessionId, StartedOn = TimeService.UtcNow };
+			return new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		public SyncStatistics EndSync(Guid sessionId)
@@ -103,6 +112,17 @@ namespace Speedy.IntegrationTests
 		public ISyncableDatabase GetDatabase()
 		{
 			return null;
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
+			{
+			}
 		}
 
 		T ISyncClient.GetDatabase<T>()

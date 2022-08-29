@@ -1,36 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFrameworks>net5.0;net6.0</TargetFrameworks>
 		<UserSecretsId>698fe656-11be-4f44-bd5a-e32b91bd21b1</UserSecretsId>
 		<LangVersion>latest</LangVersion>
-		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Remove="compilerconfig.json" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Humanizer.Core" Version="2.11.10" />
-		<PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.319" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.11" />
-		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
+		<PackageReference Include="Humanizer.Core" Version="2.14.1" />
+		<PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.368" />
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
+		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+		<PackageReference Include="System.Windows.Extensions" Version="6.0.0" />
+		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sqlite.Old\Speedy.Website.Data.Sqlite.Old.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.17" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.28">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.11">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.28">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.113" />
-		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-		<PackageReference Include="System.Windows.Extensions" Version="5.0.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.8" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.Data\Speedy.Data.csproj" />
 		<ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 	</ItemGroup>

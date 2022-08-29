@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Net.Http.Headers;
 using Speedy.Serialization;
 using Speedy.Storage;
 using ICloneable = Speedy.Serialization.ICloneable;
@@ -119,12 +121,42 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Add or update the value in the HTTP headers collection.
+		/// </summary>
+		/// <param name="headers"> The headers to be updated. </param>
+		/// <param name="key"> The key of the value. </param>
+		/// <param name="value"> The value of the entry. </param>
+		public static void AddOrUpdate(this HttpHeaders headers, string key, string value)
+		{
+			if (headers.Contains(key))
+			{
+				headers.Remove(key);
+			}
+
+			headers.Add(key, value);
+		}
+
+		/// <summary>
 		/// Add multiple items to a collection
 		/// </summary>
 		/// <param name="set"> The set to add items to. </param>
 		/// <param name="items"> The items to add. </param>
 		/// <typeparam name="T"> The type of the items in the collection. </typeparam>
 		public static void AddRange<T>(this ICollection<T> set, IEnumerable<T> items)
+		{
+			foreach (var item in items)
+			{
+				set.Add(item);
+			}
+		}
+
+		/// <summary>
+		/// Add multiple items to a collection
+		/// </summary>
+		/// <param name="set"> The set to add items to. </param>
+		/// <param name="items"> The items to add. </param>
+		/// <typeparam name="T"> The type of the items in the collection. </typeparam>
+		public static void AddRange<T>(this ICollection<T> set, params T[] items)
 		{
 			foreach (var item in items)
 			{
@@ -141,7 +173,7 @@ namespace Speedy.Extensions
 		/// <returns> A new HashSet containing the new values. </returns>
 		public static HashSet<T> Append<T>(this HashSet<T> set, params T[] values)
 		{
-			return new(set.Union(values));
+			return new HashSet<T>(set.Union(values));
 		}
 
 		/// <summary>
@@ -153,7 +185,7 @@ namespace Speedy.Extensions
 		/// <returns> A new HashSet containing the new values. </returns>
 		public static HashSet<T> Append<T>(this HashSet<T> set, HashSet<T> values)
 		{
-			return new(set.Union(values));
+			return new HashSet<T>(set.Union(values));
 		}
 
 		/// <summary>
@@ -237,6 +269,48 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Exclude duplicates that are sequential. Ex. 1,2,2,3,3,4 -> 1,2,3,4
+		/// </summary>
+		/// <typeparam name="T"> The type of the collection entries. </typeparam>
+		/// <typeparam name="T2"> The type of the property to be validated. </typeparam>
+		/// <param name="collection"> The collection to be processed. </param>
+		/// <param name="propertyExpression"> The expression of the property to be tested. </param>
+		/// <param name="additionalCheck"> An optional additional check for testing for duplicates. </param>
+		/// <returns> The processed collections with sequential duplicates removed. </returns>
+		public static IEnumerable<T> ExcludeSequentialDuplicates<T, T2>(this IEnumerable<T> collection,
+			Expression<Func<T, T2>> propertyExpression, Func<T, T, bool> additionalCheck = null)
+		{
+			var list = collection.ToList();
+			if (list.Count == 0)
+			{
+				return Array.Empty<T>();
+			}
+
+			var current = list[0];
+			var response = new List<T> { current };
+			var test = propertyExpression.Compile();
+
+			for (var index = 1; index < list.Count; index++)
+			{
+				var next = list[index];
+				var currentValue = test.Invoke(current);
+				var nextValue = test.Invoke(next);
+
+				if (Equals(currentValue, nextValue)
+					&& ((additionalCheck == null)
+						|| additionalCheck.Invoke(current, next)))
+				{
+					continue;
+				}
+
+				current = next;
+				response.Add(current);
+			}
+
+			return response;
+		}
+
+		/// <summary>
 		/// Execute the action on each entity in the collection.
 		/// </summary>
 		/// <param name="items"> The collection of items to process. </param>
@@ -285,6 +359,174 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="TLeft"> The type of the left collection. </typeparam>
+		/// <typeparam name="TLeftKey"> The type of the left collection key. </typeparam>
+		/// <typeparam name="TRight"> The type of the right collection. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="filter"> The filter for the collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		/// <param name="compare"> The logic for comparison. </param>
+		/// <param name="locate"> The logic to locate matching entity. </param>
+		/// <param name="convert"> The function to convert from TLeft to TRight. </param>
+		/// <param name="optionalUpdates"> A set of optional updates. </param>
+		/// <param name="optionalExclusions"> A set of optional excluded properties </param>
+		public static void Reconcile<TLeft, TLeftKey, TRight>(this IRepository<TLeft, TLeftKey> collection,
+			Func<TLeft, bool> filter,
+			IEnumerable<TRight> updates,
+			Func<TLeft, TRight, bool> compare,
+			Func<TLeft, TRight, bool> locate,
+			Func<TRight, TLeft> convert,
+			Action<TLeft, TRight> optionalUpdates = null,
+			string[] optionalExclusions = null
+		)
+			where TLeft : Entity<TLeftKey>
+			where TRight : IUpdatable
+		{
+			var filteredCollection = collection.Where(filter).ToList();
+			var updateList = updates.ToList();
+
+			// Reconcile two collections
+			var updatesToBeAdded = updateList
+				.Where(update => filteredCollection.All(item => !locate(item, update)))
+				.ToList();
+			var updateToBeApplied = updateList
+				.Select(update => new { item = filteredCollection.FirstOrDefault(item => locate(item, update)), update })
+				.Where(x => x.item != null)
+				.ToList();
+			var itemsToRemove = filteredCollection
+				.Where(item => updateList.All(update => !locate(item, update)))
+				.ToList();
+
+			foreach (var addedUpdates in updatesToBeAdded)
+			{
+				var newItem = convert(addedUpdates);
+				if (newItem == null)
+				{
+					continue;
+				}
+
+				newItem.UpdateWith(addedUpdates, optionalExclusions);
+				optionalUpdates?.Invoke(newItem, addedUpdates);
+				collection.Add(newItem);
+			}
+
+			foreach (var updateToApply in updateToBeApplied)
+			{
+				if (compare(updateToApply.item, updateToApply.update))
+				{
+					continue;
+				}
+
+				updateToApply.item.UpdateWith(updateToApply.update, optionalExclusions);
+				optionalUpdates?.Invoke(updateToApply.item, updateToApply.update);
+			}
+
+			foreach (var deviceToRemove in itemsToRemove)
+			{
+				collection.Remove(deviceToRemove);
+			}
+		}
+
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="TLeft"> The type of the left collection. </typeparam>
+		/// <typeparam name="TRight"> The type of the right collection. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		/// <param name="compare"> The logic for comparison. </param>
+		/// <param name="convert"> The function to convert from TLeft to TRight. </param>
+		/// <param name="optionalUpdates"> A set of optional updates. </param>
+		/// <param name="optionalExclusions"> A set of optional excluded properties </param>
+		public static void Reconcile<TLeft, TRight>(this ICollection<TLeft> collection,
+			IEnumerable<TRight> updates,
+			Func<TLeft, TRight, bool> compare,
+			Func<TRight, TLeft> convert,
+			Action<TLeft, TRight> optionalUpdates = null,
+			string[] optionalExclusions = null
+		)
+			where TLeft : IUpdatable
+			where TRight : IUpdatable
+		{
+			var updateList = updates.ToList();
+
+			// Reconcile two collections
+			var updatesToBeAdded = updateList
+				.Where(update => collection.All(item => !compare(item, update)))
+				.ToList();
+			var updateToBeApplied = updateList
+				.Select(update => new { item = collection.FirstOrDefault(item => compare(item, update)), update })
+				.Where(x => x.item != null)
+				.ToList();
+			var itemsToRemove = collection
+				.Where(item => updateList.All(update => !compare(item, update)))
+				.ToList();
+
+			foreach (var addedUpdates in updatesToBeAdded)
+			{
+				var newItem = convert(addedUpdates);
+				if (newItem == null)
+				{
+					continue;
+				}
+
+				newItem.UpdateWith(addedUpdates, optionalExclusions);
+				optionalUpdates?.Invoke(newItem, addedUpdates);
+				collection.Add(newItem);
+			}
+
+			foreach (var updateToApply in updateToBeApplied)
+			{
+				updateToApply.item.UpdateWith(updateToApply.update, optionalExclusions);
+				optionalUpdates?.Invoke(updateToApply.item, updateToApply.update);
+			}
+
+			foreach (var deviceToRemove in itemsToRemove)
+			{
+				collection.Remove(deviceToRemove);
+			}
+		}
+
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="T"> The type of the collections. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		public static void Reconcile<T>(this IList<T> collection, IEnumerable<T> updates)
+		{
+			collection.Clear();
+			collection.AddRange(updates);
+		}
+
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="T"> The type of the collections. </typeparam>
+		/// <typeparam name="T2"> </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		public static void Reconcile<T, T2>(this IRepository<T, T2> collection, IRepository<T, T2> updates) where T : Entity<T2>
+		{
+			collection.BulkRemove(x => true);
+			updates.ForEach(collection.Add);
+		}
+
+		/// <summary>
+		/// Reconcile one collection with another.
+		/// </summary>
+		/// <typeparam name="T"> The type of the collections. </typeparam>
+		/// <param name="collection"> The left collection. </param>
+		/// <param name="updates"> The right collection. </param>
+		public static void Reconcile<T>(this HashSet<T> collection, IEnumerable<T> updates)
+		{
+			collection.Clear();
+			collection.AddRange(updates);
+		}
+
+		/// <summary>
 		/// Gets a sub array from an existing array.
 		/// </summary>
 		/// <typeparam name="T"> The type of the array items. </typeparam>
@@ -297,6 +539,18 @@ namespace Speedy.Extensions
 			var result = new T[length];
 			Array.Copy(data, index, result, 0, length);
 			return result;
+		}
+
+		/// <summary>
+		/// Appends new values to an existing HashSet.
+		/// </summary>
+		/// <typeparam name="T"> The type of value in the set. </typeparam>
+		/// <param name="set"> The set to append to. </param>
+		/// <param name="values"> The values to add. </param>
+		/// <returns> A new HashSet containing the new values. </returns>
+		public static HashSet<T> ToHashSet<T>(this IEnumerable<T> set, params T[] values)
+		{
+			return new HashSet<T>(set.Union(values));
 		}
 
 		/// <summary>

@@ -69,7 +69,11 @@ namespace Speedy.Storage
 			}
 
 			var entities = query.Take(take).ToList();
-			var objects = entities.Select(x => x.ToSyncObject()).Where(x => x != null).ToList();
+			var objects = entities
+				.Select(x => x.ToSyncObject())
+				.Where(x => !x.Equals(SyncObjectExtensions.Empty))
+				.ToList();
+
 			return objects;
 		}
 
@@ -80,6 +84,20 @@ namespace Speedy.Storage
 		}
 
 		/// <inheritdoc />
+		public ISyncEntity ReadByPrimaryId(object primaryId)
+		{
+			var state = Cache.FirstOrDefault(x => Equals(x.Entity.Id, primaryId));
+			return state?.Entity;
+		}
+
+		/// <inheritdoc />
+		public ISyncEntity ReadByPrimaryId(T2 primaryId)
+		{
+			var state = Cache.FirstOrDefault(x => Equals(x.Entity.Id, primaryId));
+			return state?.Entity;
+		}
+
+		/// <inheritdoc />
 		public void Remove(ISyncEntity entity)
 		{
 			base.Remove((T) entity);
@@ -87,12 +105,12 @@ namespace Speedy.Storage
 
 		private IQueryable<T> GetChangesQuery(DateTime since, DateTime until, SyncRepositoryFilter filter)
 		{
-			var query = this.Where(x => x.CreatedOn >= since && x.CreatedOn < until
-				|| x.ModifiedOn >= since && x.ModifiedOn < until);
+			var query = this.Where(x => ((x.CreatedOn >= since) && (x.CreatedOn < until))
+				|| ((x.ModifiedOn >= since) && (x.ModifiedOn < until)));
 
 			// Disable merge because merged expression is very hard to read
 			// ReSharper disable once MergeSequentialPatterns
-			if (filter is SyncRepositoryFilter<T> srf && srf.OutgoingExpression != null)
+			if (filter is SyncRepositoryFilter<T> srf && (srf.OutgoingExpression != null))
 			{
 				query = query.Where(srf.OutgoingFilter);
 			}
@@ -103,7 +121,7 @@ namespace Speedy.Storage
 			// but it still exist in the database. If an item is "soft deleted" we will normally
 			// still sync the item to allow the clients (non-server) to have the opportunity to
 			// hard delete the item on their end.
-			if (since == DateTime.MinValue && filter?.SkipDeletedItemsOnInitialSync == true)
+			if ((since == DateTime.MinValue) && (filter?.SkipDeletedItemsOnInitialSync == true))
 			{
 				// We can skip soft deleted items that we will hard deleted on clients anyways
 				query = query.Where(x => !x.IsDeleted);
@@ -130,12 +148,13 @@ namespace Speedy.Storage
 				throw new SpeedyException(SpeedyException.SyncEntityIncorrectType);
 			}
 
-			if (filter is SyncRepositoryFilter<T> srf && srf.LookupFilter != null)
+			if (filter is SyncRepositoryFilter<T> srf && srf.HasLookupFilter)
 			{
 				return Cache.Select(x => x.Entity).AsQueryable().FirstOrDefault(srf.LookupFilter.Invoke(entity));
 			}
 
-			var state = Cache.FirstOrDefault(x => x.Entity.SyncId == syncEntity.SyncId);
+			var syncId = syncEntity.GetEntitySyncId();
+			var state = Cache.FirstOrDefault(x => Equals(x.Entity.SyncId, syncId));
 			return state?.Entity;
 		}
 

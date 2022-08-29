@@ -44,12 +44,13 @@ namespace Speedy.Extensions
 		/// Gets the details of the exception.
 		/// </summary>
 		/// <param name="ex"> The exception to be processed. </param>
+		/// <param name="includeStackTrace"> Optionally include the stack trace. Defaults to true. </param>
 		/// <returns> The detailed string for the exception. </returns>
-		public static string ToDetailedString(this Exception ex)
+		public static string ToDetailedString(this Exception ex, bool includeStackTrace = true)
 		{
 			var builder = new StringBuilder();
-			AddExceptionToBuilder(builder, ex);
-			return builder.ToString();
+			AddExceptionToBuilder(builder, ex, includeStackTrace);
+			return builder.ToString().Trim().Trim(Environment.NewLine.ToCharArray());
 		}
 
 		/// <summary>
@@ -57,15 +58,21 @@ namespace Speedy.Extensions
 		/// </summary>
 		/// <param name="builder"> The builder to be appended to. </param>
 		/// <param name="ex"> The exception to be processed. </param>
-		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex)
+		/// <param name="includeStackTrace"> Optionally include the stack trace. Defaults to true. </param>
+		private static void AddExceptionToBuilder(StringBuilder builder, Exception ex, bool includeStackTrace = true)
 		{
-			builder.Append(builder.Length > 0 ? "\r\n" + ex.Message : ex.Message);
-			builder.Append(builder.Length > 0 ? "\r\n" + ex.StackTrace : ex.StackTrace);
+			builder.Append(builder.Length > 0 ? Environment.NewLine + ex.Message : ex.Message);
+
+			if (includeStackTrace)
+			{
+				builder.Append(builder.Length > 0 ? Environment.NewLine + ex.StackTrace : ex.StackTrace);
+			}
+
 			builder.AppendLine();
 
 			if (ex.InnerException != null)
 			{
-				AddExceptionToBuilder(builder, ex.InnerException);
+				AddExceptionToBuilder(builder, ex.InnerException, includeStackTrace);
 			}
 		}
 

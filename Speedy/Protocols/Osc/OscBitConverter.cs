@@ -1,6 +1,7 @@
 #region References
 
 using System;
+using System.Linq;
 using System.Text;
 using Speedy.Extensions;
 
@@ -23,9 +24,9 @@ namespace Speedy.Protocols.Osc
 		{
 			// Calculate the correct length (size + bytes)
 			var len = 4 + value.Length;
-			if (len % 4 > 0)
+			if ((len % 4) > 0)
 			{
-				len += 4 - len % 4;
+				len += 4 - (len % 4);
 			}
 
 			var buffer = new byte[len];
@@ -55,62 +56,89 @@ namespace Speedy.Protocols.Osc
 			return BitConverter.GetBytes(crc.Value);
 		}
 
+		public static byte[] GetBytes(decimal value)
+		{
+			// Gets 4 integers then convert to bytes
+			var intValues = decimal.GetBits(value);
+			var bytes = intValues.SelectMany(BitConverter.GetBytes).ToArray();
+			var response = new byte[16];
+
+			response[0] = bytes[15];
+			response[1] = bytes[14];
+			response[2] = bytes[13];
+			response[3] = bytes[12];
+			response[4] = bytes[11];
+			response[5] = bytes[10];
+			response[6] = bytes[9];
+			response[7] = bytes[8];
+			response[8] = bytes[7];
+			response[9] = bytes[6];
+			response[10] = bytes[5];
+			response[11] = bytes[4];
+			response[12] = bytes[3];
+			response[13] = bytes[2];
+			response[14] = bytes[1];
+			response[15] = bytes[0];
+
+			return response;
+		}
+
 		public static byte[] GetBytes(double value)
 		{
-			var rev = BitConverter.GetBytes(value);
-			var output = new byte[8];
-			output[0] = rev[7];
-			output[1] = rev[6];
-			output[2] = rev[5];
-			output[3] = rev[4];
-			output[4] = rev[3];
-			output[5] = rev[2];
-			output[6] = rev[1];
-			output[7] = rev[0];
-			return output;
+			var bytes = BitConverter.GetBytes(value);
+			var response = new byte[8];
+			response[0] = bytes[7];
+			response[1] = bytes[6];
+			response[2] = bytes[5];
+			response[3] = bytes[4];
+			response[4] = bytes[3];
+			response[5] = bytes[2];
+			response[6] = bytes[1];
+			response[7] = bytes[0];
+			return response;
 		}
 
 		public static byte[] GetBytes(float value)
 		{
-			var buffer = new byte[4];
 			var bytes = BitConverter.GetBytes(value);
-			buffer[0] = bytes[3];
-			buffer[1] = bytes[2];
-			buffer[2] = bytes[1];
-			buffer[3] = bytes[0];
-			return buffer;
+			var response = new byte[4];
+			response[0] = bytes[3];
+			response[1] = bytes[2];
+			response[2] = bytes[1];
+			response[3] = bytes[0];
+			return response;
 		}
 
 		public static byte[] GetBytes(int value)
 		{
-			var buffer = new byte[4];
 			var bytes = BitConverter.GetBytes(value);
-			buffer[0] = bytes[3];
-			buffer[1] = bytes[2];
-			buffer[2] = bytes[1];
-			buffer[3] = bytes[0];
-			return buffer;
+			var response = new byte[4];
+			response[0] = bytes[3];
+			response[1] = bytes[2];
+			response[2] = bytes[1];
+			response[3] = bytes[0];
+			return response;
 		}
 
 		public static byte[] GetBytes(long value)
 		{
-			var rev = BitConverter.GetBytes(value);
-			var output = new byte[8];
-			output[0] = rev[7];
-			output[1] = rev[6];
-			output[2] = rev[5];
-			output[3] = rev[4];
-			output[4] = rev[3];
-			output[5] = rev[2];
-			output[6] = rev[1];
-			output[7] = rev[0];
-			return output;
+			var bytes = BitConverter.GetBytes(value);
+			var response = new byte[8];
+			response[0] = bytes[7];
+			response[1] = bytes[6];
+			response[2] = bytes[5];
+			response[3] = bytes[4];
+			response[4] = bytes[3];
+			response[5] = bytes[2];
+			response[6] = bytes[1];
+			response[7] = bytes[0];
+			return response;
 		}
 
 		public static byte[] GetBytes(string value)
 		{
 			// Make sure we have room for the null terminator
-			var len = value.Length + (4 - value.Length % 4);
+			var len = value.Length + (4 - (value.Length % 4));
 			if (len <= value.Length)
 			{
 				len += 4;
@@ -126,28 +154,28 @@ namespace Speedy.Protocols.Osc
 
 		public static byte[] GetBytes(uint value)
 		{
-			var buffer = new byte[4];
 			var bytes = BitConverter.GetBytes(value);
-			buffer[0] = bytes[3];
-			buffer[1] = bytes[2];
-			buffer[2] = bytes[1];
-			buffer[3] = bytes[0];
-			return buffer;
+			var response = new byte[4];
+			response[0] = bytes[3];
+			response[1] = bytes[2];
+			response[2] = bytes[1];
+			response[3] = bytes[0];
+			return response;
 		}
 
 		public static byte[] GetBytes(ulong value)
 		{
-			var rev = BitConverter.GetBytes(value);
-			var output = new byte[8];
-			output[0] = rev[7];
-			output[1] = rev[6];
-			output[2] = rev[5];
-			output[3] = rev[4];
-			output[4] = rev[3];
-			output[5] = rev[2];
-			output[6] = rev[1];
-			output[7] = rev[0];
-			return output;
+			var bytes = BitConverter.GetBytes(value);
+			var response = new byte[8];
+			response[0] = bytes[7];
+			response[1] = bytes[6];
+			response[2] = bytes[5];
+			response[3] = bytes[4];
+			response[4] = bytes[3];
+			response[5] = bytes[2];
+			response[6] = bytes[1];
+			response[7] = bytes[0];
+			return response;
 		}
 
 		public static byte[] SetOscType<T>(T oscType) where T : IOscArgument
@@ -155,28 +183,59 @@ namespace Speedy.Protocols.Osc
 			return oscType.GetOscValueBytes();
 		}
 
-		public static byte[] ToBlob(byte[] buffer, int index)
+		public static byte[] ToBlob(byte[] buffer, int index = 0)
 		{
 			var size = ToInt32(buffer, index);
 			return buffer.SubArray(index + 4, size);
 		}
 
-		public static byte ToByte(byte[] buffer, int index)
+		public static byte ToByte(byte[] buffer, int index = 0)
 		{
 			return buffer[index + 3];
 		}
 
-		public static char ToChar(byte[] buffer, int index)
+		public static char ToChar(byte[] buffer, int index = 0)
 		{
 			return (char) buffer[index + 3];
 		}
 
-		public static OscCrc ToCrc(byte[] buffer, int index)
+		public static OscCrc ToCrc(byte[] buffer, int index = 0)
 		{
 			return new OscCrc(BitConverter.ToUInt16(buffer, index));
 		}
 
-		public static double ToDouble(byte[] buffer, int index)
+		public static decimal ToDecimal(byte[] buffer, int index = 0)
+		{
+			var bytes = new byte[16];
+			bytes[15] = buffer[index];
+			bytes[14] = buffer[index + 1];
+			bytes[13] = buffer[index + 2];
+			bytes[12] = buffer[index + 3];
+			bytes[11] = buffer[index + 4];
+			bytes[10] = buffer[index + 5];
+			bytes[9] = buffer[index + 6];
+			bytes[8] = buffer[index + 7];
+			bytes[7] = buffer[index + 8];
+			bytes[6] = buffer[index + 9];
+			bytes[5] = buffer[index + 10];
+			bytes[4] = buffer[index + 11];
+			bytes[3] = buffer[index + 12];
+			bytes[2] = buffer[index + 13];
+			bytes[1] = buffer[index + 14];
+			bytes[0] = buffer[index + 15];
+
+			var intValues = new[]
+			{
+				BitConverter.ToInt32(bytes, 0),
+				BitConverter.ToInt32(bytes, 4),
+				BitConverter.ToInt32(bytes, 8),
+				BitConverter.ToInt32(bytes, 12)
+			};
+
+			return new decimal(intValues);
+		}
+
+		public static double ToDouble(byte[] buffer, int index = 0)
 		{
 			var var = new byte[8];
 			var[7] = buffer[index];
@@ -190,7 +249,7 @@ namespace Speedy.Protocols.Osc
 			return BitConverter.ToDouble(var, 0);
 		}
 
-		public static float ToFloat(byte[] buffer, int index)
+		public static float ToFloat(byte[] buffer, int index = 0)
 		{
 			var reversed = new byte[4];
 			reversed[3] = buffer[index];
@@ -200,7 +259,7 @@ namespace Speedy.Protocols.Osc
 			return BitConverter.ToSingle(reversed, 0);
 		}
 
-		public static int ToInt32(byte[] buffer, int index)
+		public static int ToInt32(byte[] buffer, int index = 0)
 		{
 			return (buffer[index] << 24)
 				+ (buffer[index + 1] << 16)
@@ -208,7 +267,7 @@ namespace Speedy.Protocols.Osc
 				+ buffer[index + 3];
 		}
 
-		public static long ToInt64(byte[] buffer, int index)
+		public static long ToInt64(byte[] buffer, int index = 0)
 		{
 			var var = new byte[8];
 			var[7] = buffer[index];
@@ -234,7 +293,7 @@ namespace Speedy.Protocols.Osc
 			string output = null;
 			var i = index + 4;
 
-			for (; i - 1 < buffer.Length; i += 4)
+			for (; (i - 1) < buffer.Length; i += 4)
 			{
 				if (buffer[i - 1] == 0)
 				{
@@ -243,7 +302,7 @@ namespace Speedy.Protocols.Osc
 				}
 			}
 
-			if (i >= buffer.Length && output == null)
+			if ((i >= buffer.Length) && (output == null))
 			{
 				throw new Exception("No null terminator after type string");
 			}
@@ -252,7 +311,7 @@ namespace Speedy.Protocols.Osc
 			return output?.Replace("\0", "");
 		}
 
-		public static uint ToUInt32(byte[] buffer, int index)
+		public static uint ToUInt32(byte[] buffer, int index = 0)
 		{
 			return ((uint) buffer[index] << 24)
 				+ ((uint) buffer[index + 1] << 16)
@@ -260,7 +319,7 @@ namespace Speedy.Protocols.Osc
 				+ buffer[index + 3];
 		}
 
-		public static ulong ToUInt64(byte[] buffer, int index)
+		public static ulong ToUInt64(byte[] buffer, int index = 0)
 		{
 			return ((ulong) buffer[index] << 56)
 				+ ((ulong) buffer[index + 1] << 48)

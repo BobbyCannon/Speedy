@@ -3,11 +3,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text;
+using System.Security.Cryptography;
 
 #endregion
 
@@ -19,6 +19,11 @@ namespace Speedy.Extensions
 	public static class ReflectionExtensions
 	{
 		#region Constants
+
+		/// <summary>
+		/// Default event flags for cached access.
+		/// </summary>
+		public const BindingFlags DefaultEventFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic;
 
 		/// <summary>
 		/// Default flags for cached access.
@@ -34,10 +39,11 @@ namespace Speedy.Extensions
 		private static readonly ConcurrentDictionary<string, Type[]> _methodsGenericArgumentInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _propertyGetAccessors;
 		private static readonly ConcurrentDictionary<Type, string> _typeAssemblyNames;
-		private static readonly ConcurrentDictionary<string, Func<object>> _typeEmitDelegates;
+		private static readonly ConcurrentDictionary<string, List<FieldInfo>> _typeEventFieldInfos;
 		private static readonly ConcurrentDictionary<string, FieldInfo[]> _typeFieldInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo> _typeMethodInfos;
 		private static readonly ConcurrentDictionary<string, MethodInfo[]> _typeMethodsInfos;
+		private static readonly ConcurrentDictionary<string, Dictionary<string, PropertyInfo>> _typePropertyInfoDictionaries;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _typePropertyInfos;
 		private static readonly ConcurrentDictionary<string, PropertyInfo[]> _typeVirtualPropertyInfos;
 
@@ -52,10 +58,11 @@ namespace Speedy.Extensions
 			_methodsGenericArgumentInfos = new ConcurrentDictionary<string, Type[]>();
 			_propertyGetAccessors = new ConcurrentDictionary<string, MethodInfo[]>();
 			_typeAssemblyNames = new ConcurrentDictionary<Type, string>();
-			_typeEmitDelegates = new ConcurrentDictionary<string, Func<object>>();
+			_typeEventFieldInfos = new ConcurrentDictionary<string, List<FieldInfo>>();
 			_typeFieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
 			_typeMethodInfos = new ConcurrentDictionary<string, MethodInfo>();
 			_typeMethodsInfos = new ConcurrentDictionary<string, MethodInfo[]>();
+			_typePropertyInfoDictionaries = new ConcurrentDictionary<string, Dictionary<string, PropertyInfo>>();
 			_typePropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 			_typeVirtualPropertyInfos = new ConcurrentDictionary<string, PropertyInfo[]>();
 		}
@@ -75,50 +82,82 @@ namespace Speedy.Extensions
 		{
 			var fullName = info.ReflectedType?.FullName + "." + info.Name;
 			var key = info.ToString().Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
-			return _genericMethods.GetOrAdd(key, x => info.MakeGenericMethod(arguments));
+			return _genericMethods.GetOrAdd(key, _ => info.MakeGenericMethod(arguments));
 		}
 
 		/// <summary>
-		/// Quickly create a new type of a generic.
+		/// Create an instance for a given Type.
 		/// </summary>
-		/// <param name="type"> The type to be created. </param>
+		/// <param name="type"> The Type for which to get an instance of. </param>
+		/// <param name="arguments"> The value of the arguments. </param>
 		/// <returns> The new instances of the type. </returns>
-		/// <exception cref="InvalidOperationException"> The provided type is invalid. </exception>
-		public static object CreateNewInstance(Type type)
+		public static object CreateInstance(this Type type, params object[] arguments)
 		{
+			// If no type was supplied, return null.
 			if (type == null)
 			{
-				throw new ArgumentNullException(nameof(type));
+				return null;
 			}
 
-			if (type.FullName == null)
+			var isGeneric = type.IsGenericType && type.GenericTypeArguments.Any();
+			if (isGeneric)
 			{
-				throw new InvalidOperationException("The provided type is invalid.");
+				return Activator.CreateInstance(type, arguments);
 			}
 
-			var expression = _typeEmitDelegates.GetOrAdd(type.FullName, x =>
+			// If the supplied Type has generic parameters, its default value cannot be determined
+			if (type.ContainsGenericParameters)
 			{
-				var createHeadersMethod = new DynamicMethod($"Emit{type.FullName}", type, null, type.Module, false);
-				var ctor = type.GetConstructor(Type.EmptyTypes);
-				var il = createHeadersMethod.GetILGenerator();
-				il.Emit(OpCodes.Newobj, ctor);
-				il.Emit(OpCodes.Ret);
-				return Expression.Lambda<Func<object>>(Expression.New(type)).Compile();
-			});
+				throw new ArgumentException(
+					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+					"> contains generic parameters, so the default value cannot be retrieved");
+			}
 
-			return expression.DynamicInvoke();
+			// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
+			//  default instance of the value type
+			if (type.IsPrimitive || !type.IsNotPublic)
+			{
+				try
+				{
+					if (type == typeof(string))
+					{
+						return string.Empty;
+					}
+
+					return arguments.Any()
+						? Activator.CreateInstance(type, arguments)
+						: Activator.CreateInstance(type);
+				}
+				catch (Exception e)
+				{
+					throw new ArgumentException(
+						"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
+						"create a default instance of the supplied value type <" + type +
+						"> (Inner Exception message: \"" + e.Message + "\")", e);
+				}
+			}
+
+			// Fail with exception
+			throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+				"> is not a publicly-visible type, so the default value cannot be retrieved");
 		}
 
 		/// <summary>
 		/// Quickly create a new type of a generic.
 		/// </summary>
-		/// <typeparam name="T"> The type to be created. </typeparam>
+		/// <param name="type"> The base type that requires generics. </param>
+		/// <param name="genericTypes"> The types for the generic. </param>
+		/// <param name="arguments"> The value of the arguments. </param>
 		/// <returns> The new instances of the type. </returns>
-		/// <exception cref="InvalidOperationException"> The provided type is invalid. </exception>
-		public static T CreateNewInstance<T>()
+		public static object CreateInstance(this Type type, Type[] genericTypes, params object[] arguments)
 		{
-			var type = typeof(T);
-			return (T) CreateNewInstance(type);
+			if (!type.GenericTypeArguments.Any())
+			{
+				var genericType = type.MakeGenericType(genericTypes);
+				return CreateInstance(genericType, arguments);
+			}
+
+			return Activator.CreateInstance(type, arguments);
 		}
 
 		/// <summary>
@@ -134,7 +173,39 @@ namespace Speedy.Extensions
 			}
 
 			var key = $"{info.ReflectedType?.FullName}.{info.Name}";
-			return _propertyGetAccessors.GetOrAdd(key, x => info.GetAccessors());
+			return _propertyGetAccessors.GetOrAdd(key, _ => info.GetAccessors());
+		}
+
+		/// <summary>
+		/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="value"> The value to get the events for. </param>
+		/// <param name="flags"> The flags to find events by. Defaults to Public, Instance, Flatten Hierarchy </param>
+		/// <returns> The list of field info of the events for the type. </returns>
+		public static IList<FieldInfo> GetCachedEventFields(this object value, BindingFlags? flags = null)
+		{
+			var type = value.GetType();
+			return GetCachedEventFields(type, flags);
+		}
+
+		/// <summary>
+		/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the events for. </param>
+		/// <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
+		/// <returns> The list of field info of the events for the type. </returns>
+		public static IList<FieldInfo> GetCachedEventFields(this Type type, BindingFlags? flags = null)
+		{
+			var typeFlags = flags ?? DefaultEventFlags;
+			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+
+			return _typeEventFieldInfos.GetOrAdd(key, _ => type
+				.GetEvents(typeFlags)
+				.Where(x => x.DeclaringType != null)
+				.Select(x => x.DeclaringType.GetField(x.Name, typeFlags))
+				.Where(x => x != null)
+				.ToList()
+			);
 		}
 
 		/// <summary>
@@ -170,7 +241,7 @@ namespace Speedy.Extensions
 		{
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-			return _typeFieldInfos.GetOrAdd(key, x => type.GetFields(typeFlags));
+			return _typeFieldInfos.GetOrAdd(key, _ => type.GetFields(typeFlags));
 		}
 
 		/// <summary>
@@ -182,7 +253,7 @@ namespace Speedy.Extensions
 		{
 			var fullName = $"{info.ReflectedType?.FullName}.{info.Name}";
 			var key = info.ToString().Replace(info.Name, fullName);
-			return _methodsGenericArgumentInfos.GetOrAdd(key, x => info.GetGenericArguments());
+			return _methodsGenericArgumentInfos.GetOrAdd(key, _ => info.GetGenericArguments());
 		}
 
 		/// <summary>
@@ -192,7 +263,8 @@ namespace Speedy.Extensions
 		/// <returns> The list of generic arguments for the type of the value. </returns>
 		public static IList<Type> GetCachedGenericArguments(this Type type)
 		{
-			return _methodsGenericArgumentInfos.GetOrAdd(type.FullName ?? throw new InvalidOperationException(), x => type.GetGenericArguments());
+			return _methodsGenericArgumentInfos.GetOrAdd(type.FullName ?? throw new InvalidOperationException(),
+				_ => type.GetGenericArguments());
 		}
 
 		/// <summary>
@@ -207,7 +279,7 @@ namespace Speedy.Extensions
 		{
 			var typeKey = GetCacheKey(type, DefaultFlags);
 			var methodKey = typeKey + name;
-			return _typeMethodInfos.GetOrAdd(methodKey, x => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
+			return _typeMethodInfos.GetOrAdd(methodKey, _ => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
 		}
 
 		/// <summary>
@@ -266,7 +338,7 @@ namespace Speedy.Extensions
 			var fullName = reflectedName != null ? $"{reflectedName}.{info.Name}" : info.Name;
 			var key = info.ToString().Replace(info.Name, fullName);
 
-			return _methodParameters.GetOrAdd(key, x => info.GetParameters());
+			return _methodParameters.GetOrAdd(key, _ => info.GetParameters());
 		}
 
 		/// <summary>
@@ -290,7 +362,7 @@ namespace Speedy.Extensions
 		{
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-			return _typePropertyInfos.GetOrAdd(key, x => type.GetProperties(typeFlags));
+			return _typePropertyInfos.GetOrAdd(key, _ => type.GetProperties(typeFlags));
 		}
 
 		/// <summary>
@@ -306,6 +378,23 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
+		/// Gets a list of property information for the provided type. The results are cached so the next query is much faster.
+		/// </summary>
+		/// <param name="type"> The type to get the properties for. </param>
+		/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+		/// <returns> The list of properties for the type. </returns>
+		public static IDictionary<string, PropertyInfo> GetCachedPropertyDictionary(this Type type, BindingFlags? flags = null)
+		{
+			var typeFlags = flags ?? DefaultFlags;
+			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+			return _typePropertyInfoDictionaries.GetOrAdd(key, _ =>
+			{
+				var properties = type.GetProperties(typeFlags);
+				return properties.ToDictionary(p => p.Name, p => p, StringComparer.InvariantCultureIgnoreCase);
+			});
+		}
+
+		/// <summary>
 		/// Gets a list of virtual property types for the provided type. The results are cached so the next query is much faster.
 		/// </summary>
 		/// <param name="type"> The type to get the properties for. </param>
@@ -316,13 +405,70 @@ namespace Speedy.Extensions
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
 
-			return _typeVirtualPropertyInfos.GetOrAdd(key, x =>
+			return _typeVirtualPropertyInfos.GetOrAdd(key, _ =>
 			{
-				return type.GetCachedProperties(typeFlags)
-					.Where(p => p.GetMethod.IsVirtual && !p.GetMethod.IsAbstract && !p.GetMethod.IsFinal && p.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
+				return type
+					.GetCachedProperties(typeFlags)
+					.Where(p => p.IsVirtual())
 					.OrderBy(p => p.Name)
 					.ToArray();
 			});
+		}
+
+		/// <summary>
+		/// Retrieves the default value for a given Type.
+		/// </summary>
+		/// <param name="type"> The Type for which to get the default value </param>
+		/// <returns> The default value for <paramref name="type" /> </returns>
+		/// <remarks>
+		/// If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
+		/// is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
+		/// exception.
+		/// </remarks>
+		public static object GetDefaultValue(this Type type)
+		{
+			// If no type was supplied, if the type is nullable, or if the type was a Void / String, return null
+			if ((type == null) || type.IsNullable() || (type == typeof(void)) || (type == typeof(string)))
+			{
+				return null;
+			}
+
+			var isCollection = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(ICollection<>));
+			if (isCollection)
+			{
+				var collectionType = typeof(Collection<>);
+				var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
+				return Activator.CreateInstance(constructedListType);
+			}
+
+			// If the supplied Type has generic parameters, its default value cannot be determined
+			if (type.ContainsGenericParameters)
+			{
+				throw new ArgumentException(
+					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+					"> contains generic parameters, so the default value cannot be retrieved");
+			}
+
+			// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
+			//  default instance of the value type
+			if (type.IsPrimitive || !type.IsNotPublic)
+			{
+				try
+				{
+					return Activator.CreateInstance(type);
+				}
+				catch (Exception e)
+				{
+					throw new ArgumentException(
+						"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
+						"create a default instance of the supplied value type <" + type +
+						"> (Inner Exception message: \"" + e.Message + "\")", e);
+				}
+			}
+
+			// Fail with exception
+			throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+				"> is not a publicly-visible type, so the default value cannot be retrieved");
 		}
 
 		/// <summary>
@@ -357,7 +503,7 @@ namespace Speedy.Extensions
 				}
 
 				var arg = type.GenericTypeArguments?.ToArray();
-				if (arg == null || arg.Length <= 0)
+				if ((arg == null) || (arg.Length <= 0))
 				{
 					type = type.BaseType;
 					continue;
@@ -382,16 +528,29 @@ namespace Speedy.Extensions
 				throw new InvalidOperationException();
 			}
 
-			switch (memberInfo)
+			return memberInfo switch
 			{
-				case PropertyInfo propertyInfo:
-					return propertyInfo.GetValue(value, null);
+				PropertyInfo propertyInfo => propertyInfo.GetValue(value, null),
+				FieldInfo fieldInfo => fieldInfo.GetValue(value),
+				_ => throw new Exception()
+			};
+		}
 
-				case FieldInfo fieldInfo:
-					return fieldInfo.GetValue(value);
-			}
-
-			throw new Exception();
+		/// <summary>
+		/// Gets the member value of an object using the provider info.
+		/// </summary>
+		/// <param name="memberInfo"> The info for the member. </param>
+		/// <param name="value"> </param>
+		/// <returns> The value of the value member. </returns>
+		/// <exception cref="NotImplementedException"> The member info is not a field or property. </exception>
+		public static object GetMemberValue(this MemberInfo memberInfo, object value)
+		{
+			return memberInfo.MemberType switch
+			{
+				MemberTypes.Field => ((FieldInfo) memberInfo).GetValue(value),
+				MemberTypes.Property => ((PropertyInfo) memberInfo).GetValue(value),
+				_ => throw new NotImplementedException()
+			};
 		}
 
 		/// <summary>
@@ -402,7 +561,8 @@ namespace Speedy.Extensions
 		public static Type GetRealType(this object item)
 		{
 			var type = item.GetType();
-			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true || type.FullName?.Contains("Castle.Proxies") == true;
+			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true)
+				|| (type.FullName?.Contains("Castle.Proxies") == true);
 			return isProxy ? type.BaseType : type;
 		}
 
@@ -413,7 +573,9 @@ namespace Speedy.Extensions
 		/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
 		public static Type GetRealType(this Type type)
 		{
-			var isProxy = type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true || type.FullName?.Contains("Castle.Proxies") == true;
+			var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true)
+				|| (type.FullName?.Contains("Castle.Proxies") == true);
+
 			return isProxy ? type.BaseType : type;
 		}
 
@@ -425,6 +587,25 @@ namespace Speedy.Extensions
 		public static IEnumerable<string> GetVirtualPropertyNames(this Type type)
 		{
 			return GetCachedVirtualProperties(type).Select(x => x.Name).ToArray();
+		}
+
+		/// <summary>
+		/// Determine if the property is a virtual method.
+		/// </summary>
+		/// <param name="info"> The info to process. </param>
+		/// <returns> True if the accessor is virtual. </returns>
+		public static bool IsVirtual(this PropertyInfo info)
+		{
+			return (info.CanRead
+					&& info.GetMethod.IsVirtual
+					&& !info.GetMethod.IsAbstract
+					&& !info.GetMethod.IsFinal
+					&& info.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
+				|| (info.CanWrite
+					&& info.SetMethod.IsVirtual
+					&& !info.SetMethod.IsAbstract
+					&& !info.SetMethod.IsFinal
+					&& info.SetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask));
 		}
 
 		/// <summary>
@@ -448,15 +629,19 @@ namespace Speedy.Extensions
 			switch (memInf)
 			{
 				case PropertyInfo propertyInfo:
+				{
 					propertyInfo.SetValue(obj, newValue, null);
 					break;
-
+				}
 				case FieldInfo fieldInfo:
+				{
 					fieldInfo.SetValue(obj, newValue);
 					break;
-
+				}
 				default:
+				{
 					throw new Exception();
+				}
 			}
 
 			return oldValue;
@@ -473,51 +658,136 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
-		/// Retrieves the default value for a given Type
+		/// Update the provided object with non default values.
 		/// </summary>
-		/// <param name="type"> The Type for which to get the default value </param>
-		/// <returns> The default value for <paramref name="type" /> </returns>
-		/// <remarks>
-		/// If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
-		/// is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
-		/// exception.
-		/// </remarks>
-		internal static object GetDefault(this Type type)
+		/// <typeparam name="T"> The type of the value. </typeparam>
+		/// <param name="value"> The value to update all properties for. </param>
+		/// <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
+		/// <returns> </returns>
+		public static T UpdateWithNonDefaultValues<T>(this T value, Func<PropertyInfo, object> nonSupportedType = null)
 		{
-			// If no Type was supplied, if the Type was a reference type, or if the Type was a System.Void, return null
-			if (type == null || !type.IsValueType || type == typeof(void))
-			{
-				return null;
-			}
+			var random = RandomNumberGenerator.Create();
+			var buffer = new byte[16];
+			var properties = value
+				.GetCachedProperties()
+				.Where(x => x.CanWrite)
+				.ToList();
 
-			// If the supplied Type has generic parameters, its default value cannot be determined
-			if (type.ContainsGenericParameters)
+			foreach (var property in properties)
 			{
-				throw new ArgumentException(
-					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-					"> contains generic parameters, so the default value cannot be retrieved");
-			}
+				var type = property.PropertyType;
 
-			// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
-			//  default instance of the value type
-			if (type.IsPrimitive || !type.IsNotPublic)
-			{
-				try
+				if (type.IsEnum)
 				{
-					return Activator.CreateInstance(type);
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToInt32(buffer, 0));
 				}
-				catch (Exception e)
+				else if (type == typeof(bool))
 				{
-					throw new ArgumentException(
-						"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
-						"create a default instance of the supplied value type <" + type +
-						"> (Inner Exception message: \"" + e.Message + "\")", e);
+					property.SetValue(value, true);
+				}
+				else if (type == typeof(DateTime))
+				{
+					property.SetValue(value, DateTime.UtcNow);
+				}
+				else if (type == typeof(byte))
+				{
+					random.GetBytes(buffer, 0, 1);
+					property.SetValue(value, buffer[0]);
+				}
+				else if (type == typeof(short))
+				{
+					random.GetBytes(buffer, 0, 2);
+					property.SetValue(value, BitConverter.ToInt16(buffer, 0));
+				}
+				else if (type == typeof(ushort))
+				{
+					random.GetBytes(buffer, 0, 2);
+					property.SetValue(value, BitConverter.ToUInt16(buffer, 0));
+				}
+				else if (type == typeof(decimal))
+				{
+					var r = new Random();
+					var dValue = NextDecimal(r);
+					property.SetValue(value, dValue);
+				}
+				else if (type == typeof(double))
+				{
+					random.GetBytes(buffer, 0, 8);
+					property.SetValue(value, BitConverter.ToDouble(buffer, 0));
+				}
+				else if (type == typeof(float))
+				{
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToSingle(buffer, 0));
+				}
+				else if ((type == typeof(Guid)) || (type == typeof(Guid?)))
+				{
+					property.SetValue(value, Guid.NewGuid());
+				}
+				else if ((type == typeof(int)) || (type == typeof(int?)))
+				{
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToInt32(buffer, 0));
+				}
+				else if ((type == typeof(uint)) || (type == typeof(uint?)))
+				{
+					random.GetBytes(buffer, 0, 4);
+					property.SetValue(value, BitConverter.ToUInt32(buffer, 0));
+				}
+				else if ((type == typeof(long)) || (type == typeof(long?)))
+				{
+					random.GetBytes(buffer, 0, 8);
+					property.SetValue(value, BitConverter.ToInt64(buffer, 0));
+				}
+				else if (type == typeof(string))
+				{
+					property.SetValue(value, Guid.NewGuid().ToString());
+				}
+				else if (type == typeof(TimeSpan))
+				{
+					property.SetValue(value, TimeSpan.FromSeconds(1));
+				}
+				else
+				{
+					if (nonSupportedType != null)
+					{
+						property.SetValue(value, nonSupportedType.Invoke(property));
+					}
 				}
 			}
 
-			// Fail with exception
-			throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-				"> is not a publicly-visible type, so the default value cannot be retrieved");
+			return value;
+		}
+
+		/// <summary>
+		/// Validates that all values are not default value.
+		/// </summary>
+		/// <typeparam name="T"> The type of the model. </typeparam>
+		/// <param name="model"> The model to be validated. </param>
+		/// <param name="exclusions"> An optional set of exclusions. </param>
+		public static void ValidateAllValuesAreNotDefault<T>(this T model, params string[] exclusions)
+		{
+			var properties = model
+				.GetCachedProperties()
+				.Where(x => x.CanWrite && !x.IsVirtual())
+				.ToList();
+
+			foreach (var property in properties)
+			{
+				if ((exclusions.Length > 0) && exclusions.Contains(property.Name))
+				{
+					continue;
+				}
+
+				var value = property.GetValue(model);
+				var defaultValue = property.PropertyType.GetDefaultValue();
+
+				if (Equals(value, defaultValue))
+				{
+					throw new Exception($"Property {property.Name} should have been set but was not.");
+				}
+			}
 		}
 
 		private static MemberInfo GetCachedMember(object obj, string memberName)
@@ -530,6 +800,29 @@ namespace Speedy.Extensions
 		private static string GetCacheKey(Type type, BindingFlags flags)
 		{
 			return type.FullName + flags;
+		}
+
+		private static decimal NextDecimal(this Random rng)
+		{
+			var scale = (byte) rng.Next(29);
+			var sign = rng.Next(2) == 1;
+			return new decimal(
+				rng.NextInt32(),
+				rng.NextInt32(),
+				rng.NextInt32(),
+				sign,
+				scale);
+		}
+
+		/// <summary>
+		/// Returns an Int32 with a random value across the entire range of
+		/// possible values.
+		/// </summary>
+		private static int NextInt32(this Random rng)
+		{
+			var firstBits = rng.Next(0, 1 << 4) << 28;
+			var lastBits = rng.Next(0, 1 << 28);
+			return firstBits | lastBits;
 		}
 
 		#endregion

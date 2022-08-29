@@ -8,8 +8,11 @@ using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Speedy.Extensions;
+
+#if !NETSTANDARD
+using Microsoft.EntityFrameworkCore.Metadata;
+#endif
 
 #endregion
 
@@ -41,6 +44,7 @@ namespace Speedy.EntityFramework.Sql
 				throw new ArgumentException("Must have a filter query.", nameof(query));
 			}
 
+			response.QueryWhere.Replace("( ", "(");
 			response.Query.Append(
 				tableInformation.ProviderType == DatabaseProviderType.Sqlite
 					? $"DELETE FROM \"{tableInformation.TableName}\"{response.QueryWhere}"
@@ -105,7 +109,7 @@ namespace Speedy.EntityFramework.Sql
 					GetSqlInsert(response, true);
 					response.Query.Append(";");
 
-					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName];
+					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName].First();
 					response.Query.Replace("[[SyncIdParameterName]]", syncIdParameterName);
 					break;
 				}
@@ -113,7 +117,7 @@ namespace Speedy.EntityFramework.Sql
 				{
 					GetSqlUpdate(response, excludeWhere: true, excludedColumns: new[] { createdOnColumnName, syncIdColumnName });
 					response.AddParameterValue(syncIdColumnName, SqlDbType.UniqueIdentifier, Guid.Empty);
-					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName];
+					var syncIdParameterName = response.ParameterNameByColumnName[syncIdColumnName].First();
 					var where = $" WHERE {tableInformation.ProviderPrefix}{syncIdColumnName}{tableInformation.ProviderSuffix} = @{syncIdParameterName}";
 					response.Query.AppendLine($"{where};");
 					GetSqlInsert(response);
@@ -157,6 +161,7 @@ namespace Speedy.EntityFramework.Sql
 			CreateUpdateBody(response, expression.Body, ref memberName);
 			CreateWhere(response, query.Expression);
 
+			response.QueryWhere.Replace("( ", "(");
 			response.Query.Append($"UPDATE {tableInformation.GetFormattedTableName()} SET{response.QueryUpdate}{response.QueryWhere}");
 
 			return response;
@@ -172,7 +177,11 @@ namespace Speedy.EntityFramework.Sql
 			foreach (var property in statement.TableInformation.Properties)
 			{
 				var entityProperty = statement.TableInformation.EntityProperties[property.Name];
+				#if NETSTANDARD2_0
+				var columnName = property.GetColumnName();
+				#else
 				var columnName = property.GetColumnName(StoreObjectIdentifier.Table(statement.TableInformation.TableName, statement.TableInformation.SchemaName));
+				#endif
 
 				if (!statement.ParametersByColumnName.TryGetValue(columnName, out var parameter))
 				{
@@ -180,7 +189,7 @@ namespace Speedy.EntityFramework.Sql
 					continue;
 				}
 
-				var sqlParameter = (SqlParameter) parameter;
+				var sqlParameter = (SqlParameter) parameter.First();
 				var value = entityProperty.GetMethod.Invoke(entity, null);
 
 				sqlParameter.SqlDbType = SqlStatement.GetSqlType(value?.GetType() ?? property.PropertyInfo.PropertyType);
@@ -193,7 +202,11 @@ namespace Speedy.EntityFramework.Sql
 			foreach (var property in statement.TableInformation.Properties)
 			{
 				var entityProperty = statement.TableInformation.EntityProperties[property.Name];
+				#if NETSTANDARD
+				var columnName = property.GetColumnName();
+				#else
 				var columnName = property.GetColumnName(StoreObjectIdentifier.Table(statement.TableInformation.TableName, statement.TableInformation.SchemaName));
+				#endif
 
 				if (!statement.ParametersByColumnName.TryGetValue(columnName, out var parameter))
 				{
@@ -202,7 +215,7 @@ namespace Speedy.EntityFramework.Sql
 				}
 
 				var value = entityProperty.GetMethod.Invoke(entity, null) ?? DBNull.Value;
-				var sqlParameter = (SqliteParameter) parameter;
+				var sqlParameter = (SqliteParameter) parameter.First();
 
 				if (command.Parameters.Contains(sqlParameter))
 				{
@@ -305,7 +318,6 @@ namespace Speedy.EntityFramework.Sql
 		}
 
 		/// <summary>
-		/// 
 		/// </summary>
 		/// <param name="statement"> </param>
 		/// <param name="expression"> </param>
@@ -337,6 +349,7 @@ namespace Speedy.EntityFramework.Sql
 					}
 					break;
 				}
+				// Ex: Id = 1 where 1 is the constant
 				case ConstantExpression constantExpression:
 				{
 					if (statement.QueryWhere.Length <= 0)
@@ -374,10 +387,14 @@ namespace Speedy.EntityFramework.Sql
 						}
 						case ExpressionType.Not:
 						{
+							if (unaryExpression.Type == typeof(bool))
+							{
+								statement.QueryWhere.Append(" (");
+							}
 							CreateWhere(statement, unaryExpression.Operand, ref memberName);
 							if (unaryExpression.Type == typeof(bool))
 							{
-								statement.QueryWhere.Append(" = 0");
+								statement.QueryWhere.Append(" = 0)");
 							}
 							memberName = string.Empty;
 							break;
@@ -389,6 +406,7 @@ namespace Speedy.EntityFramework.Sql
 				{
 					var valueIsNull = binaryExpression.Right is ConstantExpression { Value: null };
 					var results = ProcessExpressionType(binaryExpression, valueIsNull);
+					statement.QueryWhere.Append(" (");
 
 					CreateWhere(statement, binaryExpression.Left, ref memberName, isFinalExpression: !results.awaitingValue);
 
@@ -404,6 +422,8 @@ namespace Speedy.EntityFramework.Sql
 							CreateWhere(statement, binaryExpression.Right, ref memberName, memberName, true, true);
 						}
 					}
+
+					statement.QueryWhere.Append(")");
 					break;
 				}
 				case MethodCallExpression methodExpression:
@@ -435,13 +455,13 @@ namespace Speedy.EntityFramework.Sql
 		/// Get SQL insert script from query.
 		/// </summary>
 		/// <param name="statement"> The statement to process. </param>
-		/// <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement start </param>
+		/// <param name="excludeTableName"> Exclude the "INTO [TableName]" from statement start so we can build an [Insert or Update] query. </param>
 		/// <returns> The SQL insert script. </returns>
 		private static SqlStatement GetSqlInsert(SqlStatement statement, bool excludeTableName = false)
 		{
 			var columns = statement.GetSqlColumnParameterNames();
 			var sqlColumnNames = statement.GetDelimitedColumnNameList(columns.Keys);
-			var parameterNames = columns.Values;
+			var parameterNames = columns.Values.Select(x => x.First());
 			var sqlParameterNames = string.Join(", ", parameterNames.Select(x => $"@{x}"));
 			statement.Query.Append(excludeTableName
 				? $"INSERT ({sqlColumnNames}) VALUES ({sqlParameterNames})"
@@ -539,10 +559,10 @@ namespace Speedy.EntityFramework.Sql
 
 				case ExpressionType.Assign:
 				case ExpressionType.Equal:
-					return valueIsNull ? (" IS NULL", false) : (" =", true);
+					return valueIsNull ? (" IS NULL)", false) : (" =", true);
 
 				case ExpressionType.NotEqual:
-					return valueIsNull ? (" IS NOT NULL", false) : (" <>", true);
+					return valueIsNull ? (" IS NOT NULL)", false) : (" <>", true);
 
 				default:
 					throw new NotSupportedException(expression.NodeType.ToString());
@@ -564,10 +584,14 @@ namespace Speedy.EntityFramework.Sql
 					var propertyType = (Type) propertyInfo.GetValue(memberExpression.Member);
 					if (propertyType == typeof(bool))
 					{
+						if (isFinalExpression)
+						{
+							statement.QueryWhere.Append(" (");
+						}
 						statement.QueryWhere.Append($" {statement.TableInformation.ProviderPrefix}{columnName}{statement.TableInformation.ProviderSuffix}");
 						if (isFinalExpression)
 						{
-							statement.QueryWhere.Append(" = 1");
+							statement.QueryWhere.Append(" = 1)");
 						}
 						return true;
 					}
@@ -589,12 +613,12 @@ namespace Speedy.EntityFramework.Sql
 				if (isLite)
 				{
 					var name = statement.AddParameterValue(columnName, SqlDbType.DateTime2, value);
-					statement.QueryWhere.Append($" @{name}");
+					statement.QueryWhere.Append($" @{name})");
 				}
 				else
 				{
 					var name = statement.AddParameterValue(columnName, value);
-					statement.QueryWhere.Append($" @{name}");
+					statement.QueryWhere.Append($" @{name})");
 				}
 			}
 			else
@@ -637,7 +661,7 @@ namespace Speedy.EntityFramework.Sql
 					}
 
 					// Set the parameter based on type
-					switch (pObject)
+					switch (pObject.First())
 					{
 						case SqlParameter sqlParameter:
 							sqlParameter.Value = x.Value.GetMethod.Invoke(entity, null);

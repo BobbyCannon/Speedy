@@ -22,14 +22,20 @@ namespace Speedy.Client.Data.Mapping
 
 			b.Property(x => x.CreatedOn).IsRequired();
 			b.Property(x => x.Id).IsRequired();
+			b.Property(x => x.IsDeleted).IsRequired();
 			b.Property(x => x.LastClientUpdate).IsRequired();
 			b.Property(x => x.Level).IsRequired();
 			b.Property(x => x.Message).HasMaxLength(256).IsRequired();
 			b.Property(x => x.ModifiedOn).IsRequired();
 			b.Property(x => x.SyncId).IsRequired();
 
+			#if NET6_0_OR_GREATER
 			b.HasIndex(x => x.LastClientUpdate).HasDatabaseName("IX_LogEvents_LastClientUpdate").IsUnique(false);
 			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_LogEvents_SyncId").IsUnique();
+			#else
+			b.HasIndex(x => x.LastClientUpdate).HasName("IX_LogEvents_LastClientUpdate").IsUnique(false);
+			b.HasIndex(x => x.SyncId).HasName("IX_LogEvents_SyncId").IsUnique();
+			#endif
 		}
 
 		#endregion

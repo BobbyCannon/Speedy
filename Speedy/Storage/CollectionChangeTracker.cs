@@ -2,7 +2,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 #endregion
 
@@ -21,8 +20,8 @@ namespace Speedy.Storage
 		public CollectionChangeTracker()
 		{
 			Added = new List<object>();
+			Modified = new List<object>();
 			Removed = new List<object>();
-			Updated = new List<object>();
 		}
 
 		#endregion
@@ -35,18 +34,35 @@ namespace Speedy.Storage
 		public IList Added { get; }
 
 		/// <summary>
+		/// The items modified during this collection update.
+		/// </summary>
+		public IList Modified { get; }
+
+		/// <summary>
 		/// The items remove during this collection update.
 		/// </summary>
 		public IList Removed { get; }
 
-		/// <summary>
-		/// The items updated during this collection update.
-		/// </summary>
-		public IList Updated { get; }
-
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Add a list of items that was added during the collection update.
+		/// </summary>
+		/// <param name="list"> The list of items that was added. </param>
+		public void AddAddedEntities(IList list)
+		{
+			if (list == null)
+			{
+				return;
+			}
+
+			foreach (var item in list)
+			{
+				Added.Add(item);
+			}
+		}
 
 		/// <summary>
 		/// Add an item that was added during the collection update.
@@ -64,10 +80,10 @@ namespace Speedy.Storage
 		}
 
 		/// <summary>
-		/// Add a list of items that was added during the collection update.
+		/// Add a list of items that was modified during the collection update.
 		/// </summary>
-		/// <param name="list"> The list of items that was added. </param>
-		public void AddAddedEntity(IList list)
+		/// <param name="list"> The list of items that was modified. </param>
+		public void AddModifiedEntities(IList list)
 		{
 			if (list == null)
 			{
@@ -76,7 +92,39 @@ namespace Speedy.Storage
 
 			foreach (var item in list)
 			{
-				Added.Add(item);
+				Modified.Add(item);
+			}
+		}
+
+		/// <summary>
+		/// Add an item that was modified during the collection update.
+		/// </summary>
+		/// <typeparam name="T"> The type of the item. </typeparam>
+		/// <param name="item"> The item that was modified. </param>
+		public void AddModifiedEntity<T>(T item)
+		{
+			if (item == null)
+			{
+				return;
+			}
+
+			Modified.Add(item);
+		}
+
+		/// <summary>
+		/// Add a list of items that was removed during the collection update.
+		/// </summary>
+		/// <param name="list"> The list of items that was removed. </param>
+		public void AddRemovedEntities(IList list)
+		{
+			if (list == null)
+			{
+				return;
+			}
+
+			foreach (var item in list)
+			{
+				Removed.Add(item);
 			}
 		}
 
@@ -96,55 +144,24 @@ namespace Speedy.Storage
 		}
 
 		/// <summary>
-		/// Add an item that was update during the collection update.
-		/// </summary>
-		/// <typeparam name="T"> The type of the item. </typeparam>
-		/// <param name="item"> The item that was update. </param>
-		public void AddUpdatedEntity<T>(T item)
-		{
-			if (item == null)
-			{
-				return;
-			}
-
-			Updated.Add(item);
-		}
-
-		/// <summary>
-		/// Add a list of items that was removed during the collection update.
-		/// </summary>
-		/// <param name="list"> The list of items that was removed. </param>
-		public void Remove(IList list)
-		{
-			if (list == null)
-			{
-				return;
-			}
-
-			foreach (var item in list)
-			{
-				Removed.Add(item);
-			}
-		}
-
-		/// <summary>
 		/// Reset the tracking session.
 		/// </summary>
 		public void Reset()
 		{
 			Added.Clear();
+			Modified.Clear();
 			Removed.Clear();
-			Updated.Clear();
 		}
 
 		/// <summary>
-		/// Update the tracker with a change event.
+		/// Update the tracker with a collection of changes.
 		/// </summary>
-		/// <param name="args"> The arguments to update with. </param>
-		public void Update(NotifyCollectionChangedEventArgs args)
+		/// <param name="tracker"> The changes to the database. </param>
+		public void Update(CollectionChangeTracker tracker)
 		{
-			AddAddedEntity(args.NewItems);
-			Remove(args.OldItems);
+			AddAddedEntities(tracker.Added);
+			AddModifiedEntities(tracker.Modified);
+			AddRemovedEntities(tracker.Removed);
 		}
 
 		#endregion

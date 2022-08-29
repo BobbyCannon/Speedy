@@ -1,14 +1,13 @@
 ﻿#region References
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Storage;
+using Speedy.Sync;
 using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
@@ -18,7 +17,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a Speedy entity.
 	/// </summary>
-	/// <typeparam name="T"> The type of the entity key. </typeparam>
+	/// <typeparam name="T"> The type of the entity primary ID. </typeparam>
 	public abstract class Entity<T> : Entity
 	{
 		#region Properties
@@ -45,40 +44,18 @@ namespace Speedy
 		/// <returns> The new key to be used in. </returns>
 		public virtual T NewId(ref T currentKey)
 		{
-			switch (currentKey)
+			currentKey = currentKey switch
 			{
-				case sbyte sbKey:
-					currentKey = (T) (object) (sbKey + 1);
-					break;
-
-				case byte bKey:
-					currentKey = (T) (object) (bKey + 1);
-					break;
-
-				case short sKey:
-					currentKey = (T) (object) (sKey + 1);
-					break;
-
-				case ushort usKey:
-					currentKey = (T) (object) (usKey + 1);
-					break;
-
-				case int iKey:
-					currentKey = (T) (object) (iKey + 1);
-					break;
-
-				case uint uiKey:
-					currentKey = (T) (object) (uiKey + 1);
-					break;
-
-				case long lKey:
-					currentKey = (T) (object) (lKey + 1);
-					break;
-
-				case ulong ulKey:
-					currentKey = (T) (object) (ulKey + 1);
-					break;
-			}
+				sbyte sbKey => (T) (object) (sbKey + 1),
+				byte bKey => (T) (object) (bKey + 1),
+				short sKey => (T) (object) (sKey + 1),
+				ushort usKey => (T) (object) (usKey + 1),
+				int iKey => (T) (object) (iKey + 1),
+				uint uiKey => (T) (object) (uiKey + 1),
+				long lKey => (T) (object) (lKey + 1),
+				ulong ulKey => (T) (object) (ulKey + 1),
+				_ => currentKey
+			};
 
 			return currentKey;
 		}
@@ -118,7 +95,7 @@ namespace Speedy
 		/// <inheritdoc />
 		public sealed override void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 		{
-			var exclusions = GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+			var exclusions = SyncEntity.GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
 			UpdateWith(update, exclusions.ToArray());
 		}
 
@@ -131,21 +108,6 @@ namespace Speedy
 	public abstract class Entity : IEntity, IUnwrappable
 	{
 		#region Fields
-
-		/// <summary>
-		/// Cache of combination of exclusions.
-		/// </summary>
-		private static readonly ConcurrentDictionary<ExclusionKey, HashSet<string>> _excludedProperties;
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		private static readonly ConcurrentDictionary<Type, HashSet<string>> _exclusionCacheForChangeTracking;
-
-		/// <summary>
-		/// Represents if the entity has had changes or not.
-		/// </summary>
-		private bool _hasChanges;
 
 		/// <summary>
 		/// Cached version of the "real" type, meaning not EF proxy but rather root type
@@ -161,19 +123,9 @@ namespace Speedy
 		/// </summary>
 		protected Entity()
 		{
-			_exclusionCacheForChangeTracking.GetOrAdd(RealType, x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
-		}
-
-		/// <summary>
-		/// Instantiates an entity
-		/// </summary>
-		static Entity()
-		{
-			_exclusionCacheForChangeTracking = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExclusionCacheForIncomingSync = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExclusionCacheForOutgoingSync = new ConcurrentDictionary<Type, HashSet<string>>();
-			ExclusionCacheForSyncUpdate = new ConcurrentDictionary<Type, HashSet<string>>();
-			_excludedProperties = new ConcurrentDictionary<ExclusionKey, HashSet<string>>();
+			ChangedProperties = new HashSet<string>();
+			SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(RealType,
+				x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
 		}
 
 		#endregion
@@ -181,19 +133,9 @@ namespace Speedy
 		#region Properties
 
 		/// <summary>
-		/// All hash sets for types, this is for optimization
+		/// The properties that has changed since last <see cref="ResetChangeTracking" /> event.
 		/// </summary>
-		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForIncomingSync { get; }
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForOutgoingSync { get; }
-
-		/// <summary>
-		/// All hash sets for types, this is for optimization
-		/// </summary>
-		internal static ConcurrentDictionary<Type, HashSet<string>> ExclusionCacheForSyncUpdate { get; }
+		internal HashSet<string> ChangedProperties { get; }
 
 		/// <summary>
 		/// Cached version of the "real" type, meaning not EF proxy but rather root type
@@ -234,9 +176,9 @@ namespace Speedy
 		/// <summary>
 		/// Determines if the object has changes.
 		/// </summary>
-		public virtual bool HasChanges()
+		public virtual bool HasChanges(params string[] exclusions)
 		{
-			return _hasChanges;
+			return ChangedProperties.Any(x => !exclusions.Contains(x));
 		}
 
 		/// <inheritdoc />
@@ -245,18 +187,28 @@ namespace Speedy
 		/// <inheritdoc />
 		public bool IsPropertyExcludedForChangeTracking(string propertyName)
 		{
-			return _exclusionCacheForChangeTracking[RealType].Contains(propertyName);
+			return SyncEntity.ExclusionCacheForChangeTracking[RealType].Contains(propertyName);
 		}
 
 		/// <summary>
 		/// Notify that a property has changed
 		/// </summary>
 		/// <param name="propertyName"> The name of the property that changed. </param>
-		public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		public virtual void OnPropertyChanged(string propertyName)
 		{
-			if (!_exclusionCacheForChangeTracking[RealType].Contains(propertyName))
+			if (propertyName != null)
 			{
-				_hasChanges = true;
+				if (!ChangedProperties.Contains(propertyName))
+				{
+					if (!SyncEntity.ExclusionCacheForChangeTracking[RealType].Contains(propertyName))
+					{
+						ChangedProperties.Add(propertyName);
+					}
+				}
+				else if (!ChangedProperties.Contains(propertyName))
+				{
+					ChangedProperties.Add(propertyName);
+				}
 			}
 
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -265,9 +217,9 @@ namespace Speedy
 		/// <summary>
 		/// Reset the change tracking flag.
 		/// </summary>
-		public void ResetChangeTracking()
+		public virtual void ResetChangeTracking()
 		{
-			_hasChanges = false;
+			ChangedProperties.Clear();
 		}
 
 		/// <inheritdoc />
@@ -308,6 +260,37 @@ namespace Speedy
 			return test;
 		}
 
+		/// <summary>
+		/// Update all local sync IDs.
+		/// </summary>
+		public void UpdateLocalSyncIds()
+		{
+			var syncEntityInterface = typeof(ISyncEntity);
+			var properties = RealType.GetCachedProperties().ToList();
+			var entityRelationships = properties
+				.Where(x => x.IsVirtual())
+				.Where(x => syncEntityInterface.IsAssignableFrom(x.PropertyType))
+				.ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				var entityRelationshipSyncIdProperty = properties.FirstOrDefault(x => x.Name == $"{entityRelationship.Name}SyncId");
+
+				if (entityRelationship.GetValue(this, null) is ISyncEntity syncEntity && (entityRelationshipSyncIdProperty != null))
+				{
+					var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(this, null);
+					var syncEntitySyncId = syncEntity.GetEntitySyncId();
+					if (otherEntitySyncId != syncEntitySyncId)
+					{
+						// resets entitySyncId to entity.SyncId if it does not match
+						entityRelationshipSyncIdProperty.SetValue(this, syncEntitySyncId, null);
+					}
+				}
+
+				// todo: maybe?, support setting EntityId would then query the entity sync id and set it?
+			}
+		}
+
 		/// <inheritdoc />
 		public abstract void UpdateWith(object update, params string[] exclusions);
 
@@ -331,42 +314,6 @@ namespace Speedy
 		protected virtual HashSet<string> GetDefaultExclusionsForChangeTracking()
 		{
 			return new HashSet<string>();
-		}
-
-		/// <summary>
-		/// Get exclusions for the provided type.
-		/// </summary>
-		/// <param name="type"> The type to get exclusions for. </param>
-		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
-		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
-		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-		/// <returns> The list of members to be excluded. </returns>
-		protected static HashSet<string> GetExclusions(Type type, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
-		{
-			var key = new ExclusionKey(type, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
-
-			return _excludedProperties.GetOrAdd(key, x =>
-			{
-				var exclusions = new HashSet<string>();
-				exclusions.AddRange(type.GetVirtualPropertyNames());
-
-				if (excludePropertiesForIncomingSync)
-				{
-					exclusions.AddRange(ExclusionCacheForIncomingSync[type]);
-				}
-
-				if (excludePropertiesForOutgoingSync)
-				{
-					exclusions.AddRange(ExclusionCacheForOutgoingSync[type]);
-				}
-
-				if (excludePropertiesForSyncUpdate)
-				{
-					exclusions.AddRange(ExclusionCacheForSyncUpdate[type]);
-				}
-
-				return exclusions;
-			});
 		}
 
 		#endregion

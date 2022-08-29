@@ -1,12 +1,20 @@
-﻿using Speedy.Data.Client;
+﻿#region References
+
+using Speedy.Data.Client;
+
+#endregion
 
 namespace Speedy.Client.Data
 {
-	public interface IContosoClientDatabase
+	public interface IContosoClientDatabase : ISyncableDatabase
 	{
-		IRepository<ClientAccount, int> Accounts { get; }
-		IRepository<ClientAddress, long> Addresses { get; }
-		IRepository<ClientLogEvent, long> LogEvents { get; }
-		IRepository<ClientSetting, long> Settings { get; }
+		#region Properties
+
+		ISyncableRepository<ClientAccount, int> Accounts { get; }
+		ISyncableRepository<ClientAddress, long> Addresses { get; }
+		ISyncableRepository<ClientLogEvent, long> LogEvents { get; }
+		ISyncableRepository<ClientSetting, long> Settings { get; }
+
+		#endregion
 	}
 }

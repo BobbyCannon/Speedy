@@ -28,7 +28,7 @@ namespace Speedy.IntegrationTests
 			ForEachDatabaseType(x =>
 			{
 				// Removing from cache only works if we are actually removing data from the database
-				var client = TestHelper.GetSyncClient("Client", x, false, true, false);
+				var client = TestHelper.GetSyncClient("Client", x, false, true, false, null, null);
 				client.DatabaseProvider.Options.PermanentSyncEntityDeletions = true;
 
 				// Creating an address like normal, cache should not contain the ID yet
@@ -41,7 +41,7 @@ namespace Speedy.IntegrationTests
 				addressId = client.DatabaseProvider.KeyCache.GetEntityId(address);
 				Assert.IsNotNull(addressId);
 				Assert.AreEqual(address.Id, (long) addressId);
-				
+
 				// Cache should be updated automatically
 				client.GetDatabase<IContosoDatabase>().RemoveSaveAndCleanup<AddressEntity, long>(address);
 				addressId = client.DatabaseProvider.KeyCache.GetEntityId(address);

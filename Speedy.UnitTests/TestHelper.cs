@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Windows;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -16,19 +16,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Speedy.Automation;
+using Speedy.Automation.Web;
 using Speedy.Client.Data;
 using Speedy.Data;
-using Speedy.Data.WebApi;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Net;
+using Speedy.Serialization;
 using Speedy.Sync;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 using Speedy.Website.Data.Enumerations;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
+using Speedy.Website.Data.Sync;
 using Speedy.Website.Services;
+using Application = Speedy.Automation.Application;
 using Timer = Speedy.Profiling.Timer;
 
 #endregion
@@ -42,12 +46,14 @@ namespace Speedy.UnitTests
 		public const string AdministratorEmailAddress = "admin@speedy.local";
 		public const int AdministratorId = 1;
 		public const string AdministratorPassword = "Password";
+		public const BrowserType BrowsersToTests = BrowserType.Chrome; //BrowserType.Chrome | BrowserType.Edge;
 
 		#endregion
 
 		#region Fields
 
 		public static readonly DirectoryInfo Directory;
+		private static DateTime? _currentTime;
 
 		#endregion
 
@@ -56,8 +62,8 @@ namespace Speedy.UnitTests
 		static TestHelper()
 		{
 			Directory = new DirectoryInfo($"{Path.GetTempPath()}\\SpeedyTests");
-			DefaultSqlConnection = "server=localhost;database=Speedy;integrated security=true;";
-			DefaultSqlConnection2 = "server=localhost;database=Speedy2;integrated security=true;";
+			DefaultSqlConnection = "server=localhost;database=Speedy;integrated security=true;encrypt=false";
+			DefaultSqlConnection2 = "server=localhost;database=Speedy2;integrated security=true;encrypt=false";
 			DefaultSqliteConnection = "Data Source=Speedy.db";
 			DefaultSqliteConnection2 = "Data Source=Speedy2.db";
 
@@ -65,7 +71,7 @@ namespace Speedy.UnitTests
 
 			var lines = File.ReadAllLines("C:\\Windows\\System32\\drivers\\etc\\hosts")
 				.Select(x => x.Trim())
-				.Where(x => !x.StartsWith("#") && x.Length > 0)
+				.Where(x => !x.StartsWith("#") && (x.Length > 0))
 				.ToList();
 
 			var missing = hostEntries.Where(x => !lines.Any(y => y.Contains(x))).ToList();
@@ -78,13 +84,42 @@ namespace Speedy.UnitTests
 
 			var assembly = Assembly.GetExecutingAssembly();
 			Version = assembly.GetName().Version?.ToString(4) ?? "0.0.0.0";
+
+			var path = Path.GetDirectoryName(assembly.Location);
+			var info = new DirectoryInfo(path ?? "/");
+
+			ApplicationPathForWinFormsX64 = $"{info.FullName.Replace("Speedy.AutomationTests", "Speedy.Winforms.Example")}\\Speedy.Winforms.Example.exe"
+				.Replace("net6.0-windows", "net48")
+				.Replace("\\bin\\Debug\\", "\\bin\\x64\\Debug\\");
+
+			ApplicationPathForWinFormsX86 = ApplicationPathForWinFormsX64.Replace("\\x64\\", "\\x86\\");
+
+			// Need to convert
+			// - from C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\Debug\net6.0-windows
+			// - to   C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\x86\Debug\AppX\Speedy.TestUwp.exe
+			ApplicationPathForUwp = info.FullName
+					.Replace("Speedy.AutomationTests", "Speedy.TestUwp")
+					.Replace("x86\\Debug\\net6.0-windows", "x86\\Debug\\AppX")
+				+ "\\Speedy.TestUwp.exe";
 		}
 
 		#endregion
 
 		#region Properties
 
+		public static string ApplicationPathForUwp { get; set; }
+
+		public static string ApplicationPathForWinFormsX64 { get; }
+
+		public static string ApplicationPathForWinFormsX86 { get; }
+
 		public static string ClearDatabaseScript => "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'SET QUOTED_IDENTIFIER ON; IF ''?'' NOT LIKE ''%MigrationHistory%'' AND ''?'' NOT LIKE ''%MigrationsHistory%'' DELETE FROM ?'\r\nEXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'IF OBJECTPROPERTY(object_id(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'";
+
+		public static DateTime CurrentTime
+		{
+			get => _currentTime ?? DateTime.UtcNow;
+			set => _currentTime = value;
+		}
 
 		public static string DefaultSqlConnection { get; }
 
@@ -111,6 +146,21 @@ namespace Speedy.UnitTests
 		}
 
 		/// <summary>
+		/// Compares many objects to an expected see if they are all equal.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object. </typeparam>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The items that are to be tested. </param>
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static void AreAllEqual<T>(T expected, T[] actual, params string[] membersToIgnore)
+		{
+			foreach (var item in actual)
+			{
+				AreEqual(expected, item, true, membersToIgnore);
+			}
+		}
+
+		/// <summary>
 		/// Compares two objects to see if they are equal.
 		/// </summary>
 		/// <typeparam name="T"> The type of the object. </typeparam>
@@ -132,24 +182,33 @@ namespace Speedy.UnitTests
 		/// <param name="membersToIgnore"> Optional members to ignore. </param>
 		public static void AreEqual<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
 		{
-			var compareObjects = new CompareLogic
-			{
-				Config =
-				{
-					CompareChildren = includeChildren,
-					IgnoreObjectTypes = true,
-					MaxDifferences = int.MaxValue,
-					MaxStructDepth = 3
-				}
-			};
+			var result = Compare(expected, actual, includeChildren, membersToIgnore);
+			Assert.IsTrue(result.AreEqual, result.DifferencesString);
+		}
 
-			if (membersToIgnore.Any())
+		/// <summary>
+		/// Compares two objects to see if they are equal.
+		/// </summary>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The item that is to be tested. </param>
+		/// <param name="sort"> If true will sort collections first. Defaults to true so sorting will occur. </param>
+		public static void AreEqual(string[] expected, string[] actual, bool sort = true)
+		{
+			if (expected.Length != actual.Length)
 			{
-				compareObjects.Config.MembersToIgnore = membersToIgnore.ToList();
+				throw new Exception($"Expected ({expected.Length}) != Actual ({actual.Length}) Length");
 			}
 
-			var result = compareObjects.Compare(expected, actual);
-			Assert.IsTrue(result.AreEqual, result.DifferencesString);
+			if (sort)
+			{
+				Array.Sort(expected, StringComparer.OrdinalIgnoreCase);
+				Array.Sort(actual, StringComparer.OrdinalIgnoreCase);
+			}
+
+			for (var i = 0; i < expected.Length; i++)
+			{
+				AreEqual(expected[i], actual[i]);
+			}
 		}
 
 		/// <summary>
@@ -172,6 +231,24 @@ namespace Speedy.UnitTests
 			}
 		}
 
+		public static void AreNotEqual<T>(T expected, T actual, params string[] membersToIgnore)
+		{
+			var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue };
+			configuration.MembersToIgnore.AddRange(membersToIgnore);
+			var logic = new CompareLogic(configuration);
+			var result = logic.Compare(expected, actual);
+			Assert.IsFalse(result.AreEqual, result.DifferencesString);
+		}
+
+		public static void AreNotEqual<T>(string message, T expected, T actual, params string[] membersToIgnore)
+		{
+			var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue };
+			configuration.MembersToIgnore.AddRange(membersToIgnore);
+			var logic = new CompareLogic(configuration);
+			var result = logic.Compare(expected, actual);
+			Assert.IsFalse(result.AreEqual, message + Environment.NewLine + result.DifferencesString);
+		}
+
 		public static void Cleanup()
 		{
 			Directory.SafeDelete();
@@ -183,17 +260,75 @@ namespace Speedy.UnitTests
 			return database;
 		}
 
-		public static void Dump(this object item)
+		/// <summary>
+		/// Compares two objects to see if they are equal.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object. </typeparam>
+		/// <param name="expected"> The item that is expected. </param>
+		/// <param name="actual"> The item that is to be tested. </param>
+		/// <param name="includeChildren"> True to include child complex types. </param>
+		/// <param name="membersToIgnore"> Optional members to ignore. </param>
+		public static ComparisonResult Compare<T>(T expected, T actual, bool includeChildren = true, params string[] membersToIgnore)
 		{
-			Console.WriteLine(item);
+			var compareObjects = new CompareLogic
+			{
+				Config =
+				{
+					CompareChildren = includeChildren,
+					IgnoreObjectTypes = true,
+					MaxDifferences = int.MaxValue,
+					MaxStructDepth = 3
+				}
+			};
+
+			if (membersToIgnore.Any())
+			{
+				compareObjects.Config.MembersToIgnore = membersToIgnore.ToList();
+			}
+
+			return compareObjects.Compare(expected, actual);
 		}
 
-		public static void Dump(this IEnumerable<object> items)
+		public static T CopyToClipboard<T>(this T value)
 		{
+			var thread = new Thread(() =>
+			{
+				try
+				{
+					Clipboard.SetText(value?.ToString() ?? "null");
+				}
+				catch
+				{
+					// Ignore the clipboard set issue...
+				}
+			});
+			thread.SetApartmentState(ApartmentState.STA);
+			thread.Start();
+			thread.Join();
+
+			return value;
+		}
+
+		public static string Dump(this object item)
+		{
+			Console.WriteLine(item);
+			return item.ToString();
+		}
+
+		public static string Dump(this IEnumerable<object> items, string prefix = null)
+		{
+			var builder = new StringBuilder();
 			foreach (var item in items)
 			{
-				Console.WriteLine(item);
+				if (prefix != null)
+				{
+					builder.Append(prefix);
+				}
+
+				builder.Append(item);
 			}
+			Console.WriteLine(builder.ToString());
+			return builder.ToString();
 		}
 
 		public static void Dump(this byte[] item)
@@ -257,7 +392,7 @@ namespace Speedy.UnitTests
 			{
 				database.Options.UpdateWith(x);
 				return database;
-			}, ContosoClientDatabase.GetDefaultOptions(), null);
+			}, ContosoClientMemoryDatabase.GetDefaultOptions(), null);
 		}
 
 		public static ControllerContext GetControllerContext(AccountEntity account)
@@ -299,11 +434,20 @@ namespace Speedy.UnitTests
 			}, ContosoDatabase.GetDefaultOptions());
 		}
 
+		public static Application GetOrStartApplication(bool x86 = false)
+		{
+			var path = x86 ? ApplicationPathForWinFormsX86 : ApplicationPathForWinFormsX64;
+			var response = Application.AttachOrCreate(path);
+			response.Timeout = TimeSpan.FromSeconds(5);
+			response.AutoClose = true;
+			return response;
+		}
+
 		public static T GetRandomItem<T>(this IEnumerable<T> collection, T exclude = null) where T : class
 		{
 			var random = new Random();
 			var list = collection.ToList();
-			if (!list.Any() || (exclude != null && list.Count == 1))
+			if (!list.Any() || ((exclude != null) && (list.Count == 1)))
 			{
 				return null;
 			}
@@ -342,7 +486,7 @@ namespace Speedy.UnitTests
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options, null);
-			database.Database.Migrate();
+			//database.Database.Migrate();
 			database.ClearDatabase();
 
 			if (initialize)
@@ -351,6 +495,22 @@ namespace Speedy.UnitTests
 			}
 
 			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x, keyCache), options);
+		}
+
+		public static ISyncableDatabaseProvider<IContosoClientDatabase> GetSyncableClientMemoryProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null, bool initialize = true)
+		{
+			var database = new ContosoClientMemoryDatabase(options, keyCache);
+
+			if (initialize)
+			{
+				//InitializeDatabase(database, keyCache);
+			}
+
+			return new SyncableDatabaseProvider<IContosoClientDatabase>((x, y) =>
+			{
+				database.Options.UpdateWith(x);
+				return database;
+			}, database.Options, keyCache);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableMemoryProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -399,7 +559,8 @@ namespace Speedy.UnitTests
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, null, null);
-			database.Database.Migrate();
+			// do not migrate because we have Old EF and New EF migrations
+			//database.Database.Migrate();
 			database.ClearDatabase();
 			if (initialize)
 			{
@@ -412,7 +573,8 @@ namespace Speedy.UnitTests
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection2, null, null);
-			database.Database.Migrate();
+			// do not migrate because we have Old EF and New EF migrations
+			//database.Database.Migrate();
 			database.ClearDatabase();
 			if (initialize)
 			{
@@ -421,37 +583,49 @@ namespace Speedy.UnitTests
 			return new SyncableDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
-		public static ISyncClient GetSyncClient(string name, DatabaseType type, bool initializeDatabase, bool useKeyCache, bool useSecondaryConnection)
+		public static ISyncClient GetSyncClient(string name, DatabaseType type, bool initializeDatabase, bool useKeyCache, bool useSecondaryConnection,
+			SyncClientIncomingConverter incomingConverter, SyncClientOutgoingConverter outgoingConverter)
 		{
 			switch (type)
 			{
 				case DatabaseType.Memory:
+				{
 					return new SyncClient($"{name}: ({type}{(useKeyCache ? ", cached" : "")})",
-						GetSyncableMemoryProvider(null, useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase));
-
+							GetSyncableMemoryProvider(null, useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase))
+						{ IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter };
+				}
 				case DatabaseType.Sql:
+				{
 					return new SyncClient($"{name}: ({type}{(useKeyCache ? ", cached" : "")})",
 						useSecondaryConnection
 							? GetSyncableSqlProvider2(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
 							: GetSyncableSqlProvider(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
-					);
-
+					) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter };
+				}
 				case DatabaseType.Sqlite:
+				{
 					return new SyncClient($"{name}: ({type}{(useKeyCache ? ", cached" : "")})",
 						useSecondaryConnection
 							? GetSyncableSqliteProvider2(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
 							: GetSyncableSqliteProvider(useKeyCache ? new DatabaseKeyCache() : null, initializeDatabase)
-					);
-
+					) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter };
+				}
 				default:
 				case DatabaseType.Unknown:
+				{
 					throw new ArgumentOutOfRangeException(nameof(type), type, null);
+				}
 			}
 		}
 
 		public static void Initialize()
 		{
+			Serializer.ResetDefaultSettings();
 			TimeService.Reset();
+
+			_currentTime = null;
+
+			TimeService.AddUtcNowProvider(() => CurrentTime);
 
 			Wait(() =>
 			{
@@ -466,6 +640,24 @@ namespace Speedy.UnitTests
 					return false;
 				}
 			});
+
+			Application.CloseAll(ApplicationPathForWinFormsX64);
+			Application.CloseAll(ApplicationPathForWinFormsX86);
+		}
+
+		public static void PrintChildren(Element parent, string prefix = "")
+		{
+			var element = parent;
+			if (element != null)
+			{
+				Console.WriteLine(prefix + element.ToDetailString().Replace(Environment.NewLine, ", "));
+				prefix += "  ";
+			}
+
+			foreach (var child in parent.Children)
+			{
+				PrintChildren(child, prefix);
+			}
 		}
 
 		/// <summary>
@@ -513,6 +705,17 @@ namespace Speedy.UnitTests
 			});
 		}
 
+		public static Application StartApplication(bool x86 = false)
+		{
+			var path = x86 ? ApplicationPathForWinFormsX86 : ApplicationPathForWinFormsX64;
+			path.Dump();
+			Application.CloseAll(path);
+			var response = Application.AttachOrCreate(path);
+			response.Timeout = TimeSpan.FromSeconds(5);
+			response.AutoClose = true;
+			return response;
+		}
+
 		public static void TestServerAndClients(Action<ISyncClient, ISyncClient> action, bool includeWeb = true, bool initializeDatabase = true)
 		{
 			GetServerClientScenarios(includeWeb, initializeDatabase).ForEach(x =>
@@ -548,6 +751,18 @@ namespace Speedy.UnitTests
 
 		private static IEnumerable<(Timer timer, ISyncClient server, ISyncClient client)> GetServerClientScenarios(bool includeWeb, bool initializeDatabase)
 		{
+			var account = new AccountEntity
+			{
+				Name = "Administrator",
+				EmailAddress = AdministratorEmailAddress,
+				PasswordHash = AccountService.Hash(AdministratorPassword, AdministratorId.ToString()),
+				Roles = BaseService.CombineTags(AccountRole.Administrator),
+				SyncId = Guid.Parse("56CF7B5C-4C5A-462C-939D-A1F387A7483C")
+			};
+
+			var incomingConverter = ServerSyncClient.GetIncomingConverter(account);
+			var outgoingConverter = ServerSyncClient.GetOutgoingConverter();
+
 			static (Timer timer, ISyncClient server, ISyncClient client) Process(Timer timer, ISyncClient server, ISyncClient client)
 			{
 				server.Options.IsServerClient = true;
@@ -561,72 +776,61 @@ namespace Speedy.UnitTests
 
 			var scenarios = new List<(DatabaseType server, DatabaseType client)>
 			{
-				new(DatabaseType.Memory, DatabaseType.Memory),
-				new(DatabaseType.Memory, DatabaseType.Sql),
-				new(DatabaseType.Memory, DatabaseType.Sqlite),
-				new(DatabaseType.Sql, DatabaseType.Memory),
-				new(DatabaseType.Sql, DatabaseType.Sql),
-				new(DatabaseType.Sql, DatabaseType.Sqlite),
-				new(DatabaseType.Sqlite, DatabaseType.Memory),
-				new(DatabaseType.Sqlite, DatabaseType.Sql),
-				new(DatabaseType.Sqlite, DatabaseType.Sqlite)
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Memory, DatabaseType.Memory),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Memory, DatabaseType.Sql),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Memory, DatabaseType.Sqlite),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sql, DatabaseType.Memory),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sql, DatabaseType.Sql),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sql, DatabaseType.Sqlite),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sqlite, DatabaseType.Memory),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sqlite, DatabaseType.Sql),
+				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sqlite, DatabaseType.Sqlite)
 			};
 
 			foreach (var (server, client) in scenarios)
 			{
-				yield return Process2(GetSyncClients(server, false, client, false, initializeDatabase));
-				yield return Process2(GetSyncClients(server, true, client, false, initializeDatabase));
-				yield return Process2(GetSyncClients(server, false, client, true, initializeDatabase));
-				yield return Process2(GetSyncClients(server, true, client, true, initializeDatabase));
+				yield return Process2(GetSyncClients(server, false, client, false, initializeDatabase, incomingConverter, outgoingConverter));
+				yield return Process2(GetSyncClients(server, true, client, false, initializeDatabase, incomingConverter, outgoingConverter));
+				yield return Process2(GetSyncClients(server, false, client, true, initializeDatabase, incomingConverter, outgoingConverter));
+				yield return Process2(GetSyncClients(server, true, client, true, initializeDatabase, incomingConverter, outgoingConverter));
 			}
 
 			if (includeWeb)
 			{
-				var outgoingConverter = new SyncClientOutgoingConverter(
-					new SyncObjectOutgoingConverter<AddressEntity, long, Address, long>(),
-					new SyncObjectOutgoingConverter<AccountEntity, int, Account, int>(),
-					new SyncObjectOutgoingConverter<LogEventEntity, long, LogEvent, long>(),
-					new SyncObjectOutgoingConverter<SettingEntity, long, Setting, long>()
-				);
-
-				var incomingConverter = new SyncClientIncomingConverter(
-					new SyncObjectIncomingConverter<Address, long, AddressEntity, long>(),
-					new SyncObjectIncomingConverter<Account, int, AccountEntity, int>(),
-					new SyncObjectIncomingConverter<LogEvent, long, LogEventEntity, long>(),
-					new SyncObjectIncomingConverter<Setting, long, SettingEntity, long>()
-				);
-
-				var credential = new NetworkCredential("admin@speedy.local", "Password");
 				const string serverUri = "https://speedy.local";
 				const int timeout = 60000;
 
+				var credential = new WebCredential("admin@speedy.local", "Password");
+				var webClient = new WebClient(serverUri, timeout, credential);
+
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (MEM)", GetSyncableMemoryProvider(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (MEM, Cached)", GetSyncableMemoryProvider(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (SQL2)", GetSyncableSqlProvider2(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (SQL2, Cached)", GetSyncableSqlProvider2(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (Sqlite)", GetSyncableSqliteProvider(initialize: initializeDatabase)) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 				yield return Process(Timer.StartNew(),
-					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), serverUri, credential: credential, timeout: timeout),
+					new WebSyncClient("Server (WEB)", GetSyncableSqlProvider(initialize: initializeDatabase), webClient),
 					new SyncClient("Client (Sqlite, Cached)", GetSyncableSqliteProvider(initialize: initializeDatabase, keyCache: new DatabaseKeyCache())) { IncomingConverter = incomingConverter, OutgoingConverter = outgoingConverter });
 			}
 		}
 
-		private static (Timer timer, ISyncClient server, ISyncClient client) GetSyncClients(DatabaseType scenarioServer, bool cacheServer, DatabaseType scenarioClient, bool cacheClient, bool initializeDatabase)
+		private static (Timer timer, ISyncClient server, ISyncClient client) GetSyncClients(DatabaseType scenarioServer, bool cacheServer, DatabaseType scenarioClient,
+			bool cacheClient, bool initializeDatabase, SyncClientIncomingConverter incomingConverter, SyncClientOutgoingConverter outgoingConverter)
 		{
 			var timer = new Timer();
 			timer.Start();
-			var server = GetSyncClient("Server", scenarioServer, initializeDatabase, cacheServer, false);
-			var client = GetSyncClient("Client", scenarioClient, initializeDatabase, cacheClient, scenarioServer == scenarioClient);
+			var server = GetSyncClient("Server", scenarioServer, initializeDatabase, cacheServer, false, incomingConverter, outgoingConverter);
+			var client = GetSyncClient("Client", scenarioClient, initializeDatabase, cacheClient, scenarioServer == scenarioClient, incomingConverter, outgoingConverter);
 			return (timer, server, client);
 		}
 
@@ -654,7 +858,7 @@ namespace Speedy.UnitTests
 
 			database.SaveChanges();
 
-			keyCache?.Initialize(database);
+			keyCache?.InitializeAndLoad(database);
 		}
 
 		/// <summary>

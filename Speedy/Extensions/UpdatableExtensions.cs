@@ -23,7 +23,7 @@ namespace Speedy.Extensions
 		/// <param name="exclusions"> An optional list of members to exclude. </param>
 		public static void UpdateWithUsingReflection<T, T2>(this T value, T2 update, params string[] exclusions)
 		{
-			if (value == null || update == null)
+			if ((value == null) || (update == null))
 			{
 				return;
 			}
@@ -49,14 +49,14 @@ namespace Speedy.Extensions
 					continue;
 				}
 
-				var isPropertyExcluded = exclusions.Contains(thisProperty.Name);
+				var isPropertyExcluded = exclusions?.Contains(thisProperty.Name) == true;
 				if (isPropertyExcluded)
 				{
 					continue;
 				}
 
 				// Check to see if the update source entity has the property
-				var updateProperty = sourceProperties.FirstOrDefault(x => x.Name == thisProperty.Name && x.PropertyType == thisProperty.PropertyType);
+				var updateProperty = sourceProperties.FirstOrDefault(x => (x.Name == thisProperty.Name) && (x.PropertyType == thisProperty.PropertyType));
 				if (updateProperty == null)
 				{
 					// Skip this because target type does not have correct property name and / or type.

@@ -1,9 +1,15 @@
-﻿namespace Speedy
+﻿#region References
+
+using System.ComponentModel;
+
+#endregion
+
+namespace Speedy
 {
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public interface IBindable
+	public interface IBindable : INotifyPropertyChanged
 	{
 		#region Methods
 
@@ -14,6 +20,16 @@
 		/// The dispatcher that is currently being used. Null if no dispatcher is assigned.
 		/// </returns>
 		IDispatcher GetDispatcher();
+
+		/// <summary>
+		/// Return true if the change notifications are paused or otherwise false.
+		/// </summary>
+		bool IsChangeNotificationsPaused();
+
+		/// <summary>
+		/// Pause / Un-pause the property change notifications
+		/// </summary>
+		void PausePropertyChangeNotifications(bool pause = true);
 
 		/// <summary>
 		/// Updates the entity for this entity.

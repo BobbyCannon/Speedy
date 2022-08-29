@@ -44,7 +44,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Returns true if the statistics are all zero.
 		/// </summary>
-		public bool IsReset => AppliedChanges == 0 && AppliedCorrections == 0 && Changes == 0 && Corrections == 0 && IndividualProcessCount == 0;
+		public bool IsReset => (AppliedChanges == 0) && (AppliedCorrections == 0) && (Changes == 0) && (Corrections == 0) && (IndividualProcessCount == 0);
 
 		#endregion
 
@@ -67,7 +67,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="update"> The update to be applied. </param>
 		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public void UpdateWith(SyncStatistics update, params string[] exclusions)
+		public override void UpdateWith(SyncStatistics update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)

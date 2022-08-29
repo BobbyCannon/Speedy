@@ -60,7 +60,7 @@ namespace Speedy.Storage
 			var ix = 0;
 			var iy = 0;
 
-			while (ix < x.Length && iy < y.Length)
+			while ((ix < x.Length) && (iy < y.Length))
 			{
 				if (char.IsDigit(x[ix]) && char.IsDigit(y[iy]))
 				{
@@ -68,11 +68,11 @@ namespace Speedy.Storage
 					var ix1 = ix++;
 					var iy1 = iy++;
 
-					while (ix < x.Length && char.IsDigit(x[ix]))
+					while ((ix < x.Length) && char.IsDigit(x[ix]))
 					{
 						ix++;
 					}
-					while (iy < y.Length && char.IsDigit(y[iy]))
+					while ((iy < y.Length) && char.IsDigit(y[iy]))
 					{
 						iy++;
 					}
@@ -104,7 +104,7 @@ namespace Speedy.Storage
 			}
 
 			// we should not be here with no parts left, they're equal
-			Debug.Assert(ix < x.Length || iy < y.Length);
+			Debug.Assert((ix < x.Length) || (iy < y.Length));
 
 			// we still got parts of x left, y comes first
 			if (ix < x.Length)

@@ -22,19 +22,19 @@ namespace Speedy.PerformanceTests
 			var collection = new List<object>();
 			var type = typeof(ClientAccount);
 			// warmup?
-			ReflectionExtensions.CreateNewInstance(type);
+			ReflectionExtensions.CreateInstance(type);
 			var watch = Stopwatch.StartNew();
 
 			for (var i = 0; i < 1000; i++)
 			{
-				var item = ReflectionExtensions.CreateNewInstance(type);
+				var item = ReflectionExtensions.CreateInstance(type);
 				collection.Add(item);
 			}
 
 			watch.Stop();
 
 			Console.WriteLine(watch.Elapsed);
-			
+
 			watch.Restart();
 
 			for (var i = 0; i < 1000; i++)

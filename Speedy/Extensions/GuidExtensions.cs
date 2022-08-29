@@ -49,6 +49,16 @@ namespace Speedy.Extensions
 			return new Guid(bytes);
 		}
 
+		/// <summary>
+		/// Converts a Guid to a Short Guid.
+		/// </summary>
+		/// <param name="guid"> The Guid to convert. </param>
+		/// <returns> The Guid in a Short Guid format. </returns>
+		public static ShortGuid ToShortGuid(this Guid guid)
+		{
+			return new ShortGuid(guid);
+		}
+
 		#endregion
 	}
 }

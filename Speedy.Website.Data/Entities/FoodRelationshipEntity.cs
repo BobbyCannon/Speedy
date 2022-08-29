@@ -8,6 +8,15 @@ namespace Speedy.Website.Data.Entities
 {
 	public class FoodRelationshipEntity : Entity<int>, IModifiableEntity
 	{
+		#region Constructors
+
+		public FoodRelationshipEntity()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		public virtual FoodEntity Child { get; set; }

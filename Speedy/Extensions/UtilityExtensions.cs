@@ -132,7 +132,7 @@ namespace Speedy.Extensions
 
 			var watch = Stopwatch.StartNew();
 			var timer = Timer.StartNew();
-			Func<TimeSpan> elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
+			var elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
 			var watchTimeout = TimeSpan.FromMilliseconds(timeout);
 
 			while (!action())
@@ -169,10 +169,10 @@ namespace Speedy.Extensions
 
 			var watch = Stopwatch.StartNew();
 			var timer = Timer.StartNew();
-			Func<TimeSpan> elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
+			var elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
 			var shouldDelay = delay.Ticks > 0;
 
-			while ((elapsed() < value || elapsed() < minimum) && elapsed() < maximum)
+			while (((elapsed() < value) || (elapsed() < minimum)) && (elapsed() < maximum))
 			{
 				if (cancellationPending())
 				{

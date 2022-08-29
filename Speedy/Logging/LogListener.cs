@@ -118,7 +118,7 @@ namespace Speedy.Logging
 		/// <inheritdoc />
 		protected override void OnEventWritten(EventWrittenEventArgs args)
 		{
-			if (SessionId != Guid.Empty && !Equals(args.Payload[0], SessionId))
+			if ((SessionId != Guid.Empty) && !Equals(args.Payload[0], SessionId))
 			{
 				return;
 			}
@@ -165,7 +165,11 @@ namespace Speedy.Logging
 		/// <summary>
 		/// Occurs when an event is written.
 		/// </summary>
+		#if NETSTANDARD2_1 || NET48
 		public new event EventHandler<EventWrittenEventArgs> EventWritten;
+		#else
+		public event EventHandler<EventWrittenEventArgs> EventWritten;
+		#endif
 
 		/// <inheritdoc />
 		public event PropertyChangedEventHandler PropertyChanged;

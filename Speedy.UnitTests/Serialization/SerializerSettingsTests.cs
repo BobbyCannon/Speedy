@@ -1,10 +1,10 @@
 ﻿#region References
 
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Speedy.Extensions;
 using Speedy.Serialization;
-using Speedy.Serialization.Converters;
 
 #endregion
 
@@ -18,41 +18,24 @@ namespace Speedy.UnitTests.Serialization
 		[TestMethod]
 		public void CustomConvertersShouldBeRemovedDuringReset()
 		{
-			var jsonSettings = new JsonSerializerSettings();
-			jsonSettings.Converters.Add(new VersionStringConverter());
-
-			var settings = new SerializerSettings(jsonSettings);
-			var actual = settings.JsonSettings.GetConverter<VersionStringConverter>();
+			var settings = new SerializerSettings();
+			settings.AddOrUpdateConverter(new TestConverter());
+			var actual = settings.JsonSettings.GetConverter<TestConverter>();
 			Assert.IsNotNull(actual, "The JSON converter was not found but should have been. ");
 
 			// Reset should remove the custom converter because it's not in DefaultSettings
 			settings.Reset();
-			actual = settings.JsonSettings.GetConverter<VersionStringConverter>();
+			actual = settings.JsonSettings.GetConverter<TestConverter>();
 			Assert.IsNull(actual, "The JSON converter was found but should not have been. ");
 		}
 
 		[TestMethod]
 		public void CustomConvertersShouldNotBeRemoved()
 		{
-			var jsonSettings = new JsonSerializerSettings();
-			jsonSettings.Converters.Add(new VersionStringConverter());
-
-			var settings = new SerializerSettings(jsonSettings);
-			var actual = settings.JsonSettings.GetConverter<VersionStringConverter>();
+			var settings = new SerializerSettings();
+			settings.AddOrUpdateConverter(new TestConverter());
+			var actual = settings.JsonSettings.GetConverter<TestConverter>();
 			Assert.IsNotNull(actual, "The JSON converter was not found but should have been. ");
-		}
-
-		[TestMethod]
-		public void JsonSerializerSettingsShouldSetDefaults()
-		{
-			var jsonSettings = new SerializerSettings(true, true, true, true, true, true).JsonSettings;
-			var settings = new SerializerSettings(jsonSettings);
-			Assert.AreEqual(false, settings.Indented);
-			Assert.AreEqual(true, settings.CamelCase);
-			Assert.AreEqual(true, settings.IgnoreNullValues);
-			Assert.AreEqual(false, settings.IgnoreReadOnly);
-			Assert.AreEqual(false, settings.IgnoreVirtuals);
-			Assert.AreEqual(true, settings.ConvertEnumsToString);
 		}
 
 		[TestMethod]
@@ -93,12 +76,12 @@ namespace Speedy.UnitTests.Serialization
 
 		private void ResetSettings(bool indented, bool camelCase, bool ignoreNullValues, bool ignoreReadOnly, bool ignoreVirtuals, bool convertEnumsToString)
 		{
-			SerializerSettings.DefaultSettings.Indented = indented;
-			SerializerSettings.DefaultSettings.CamelCase = camelCase;
-			SerializerSettings.DefaultSettings.IgnoreNullValues = ignoreNullValues;
-			SerializerSettings.DefaultSettings.IgnoreReadOnly = ignoreReadOnly;
-			SerializerSettings.DefaultSettings.IgnoreVirtuals = ignoreVirtuals;
-			SerializerSettings.DefaultSettings.ConvertEnumsToString = convertEnumsToString;
+			Serializer.DefaultSettings.Indented = indented;
+			Serializer.DefaultSettings.CamelCase = camelCase;
+			Serializer.DefaultSettings.IgnoreNullValues = ignoreNullValues;
+			Serializer.DefaultSettings.IgnoreReadOnly = ignoreReadOnly;
+			Serializer.DefaultSettings.IgnoreVirtuals = ignoreVirtuals;
+			Serializer.DefaultSettings.ConvertEnumsToString = convertEnumsToString;
 
 			var settings = new SerializerSettings(!indented, !camelCase, !ignoreNullValues, !ignoreReadOnly, !ignoreVirtuals, !convertEnumsToString);
 			Assert.AreEqual(settings.Indented, !indented);
@@ -119,7 +102,7 @@ namespace Speedy.UnitTests.Serialization
 			Assert.AreEqual(settings.ConvertEnumsToString, convertEnumsToString);
 
 			// Reset the DefaultSettings to Speedy original defaults
-			SerializerSettings.ResetDefaultSettings();
+			Serializer.ResetDefaultSettings();
 			settings.Reset();
 
 			Assert.AreEqual(false, settings.Indented);
@@ -139,6 +122,34 @@ namespace Speedy.UnitTests.Serialization
 			Assert.AreEqual(ignoreReadOnly, settings.IgnoreReadOnly);
 			Assert.AreEqual(ignoreVirtuals, settings.IgnoreVirtuals);
 			Assert.AreEqual(convertEnumsToString, settings.ConvertEnumsToString);
+		}
+
+		#endregion
+
+		#region Classes
+
+		public class TestConverter : JsonConverter
+		{
+			#region Methods
+
+			/// <inheritdoc />
+			public override bool CanConvert(Type objectType)
+			{
+				return false;
+			}
+
+			/// <inheritdoc />
+			public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+			{
+				return new object();
+			}
+
+			/// <inheritdoc />
+			public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+			{
+			}
+
+			#endregion
 		}
 
 		#endregion

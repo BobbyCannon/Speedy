@@ -1,6 +1,8 @@
 ﻿#region References
 
+using System;
 using System.Diagnostics;
+using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -39,11 +41,32 @@ namespace Speedy.Website.Controllers
 		{
 			return View();
 		}
-		
+
 		[AllowAnonymous]
-		public IActionResult Login()
+		public IActionResult LogIn()
 		{
 			return View();
+		}
+
+		[AllowAnonymous]
+		public IActionResult LogOut()
+		{
+			return RedirectToAction(nameof(LogIn));
+		}
+
+		[AllowAnonymous]
+		public IActionResult PagedRequest(PagedRequest request = null)
+		{
+			request ??= new PagedRequest();
+			request.Cleanup();
+			var result = new PagedResults<object>(request, 156324,
+				2,
+				"foo",
+				TimeService.UtcNow,
+				TimeSpan.FromMilliseconds(123456),
+				Assembly.GetAssembly(typeof(Entity))?.GetName().Version ?? new Version(1, 2, 3, 4)
+			);
+			return View(result);
 		}
 
 		[AllowAnonymous]

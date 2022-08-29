@@ -61,7 +61,7 @@ namespace Speedy.Benchmark
 				case double d:
 				case decimal dValue:
 				{
-					if (parameter != null && decimal.TryParse(parameter.ToString(), out var number))
+					if ((parameter != null) && decimal.TryParse(parameter.ToString(), out var number))
 					{
 						var nValue = decimal.Parse(value.ToString());
 						return nValue >= number ? show : hide;

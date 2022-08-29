@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Speedy.Extensions;
 
 #endregion
 
@@ -135,7 +136,7 @@ namespace Speedy.Sync
 				return converter.Convert(value, ExcludePropertiesForIncomingSync, ExcludePropertiesForOutgoingSync);
 			}
 
-			return null;
+			return SyncObjectExtensions.Empty;
 		}
 
 		/// <summary>

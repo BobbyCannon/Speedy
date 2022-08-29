@@ -23,7 +23,32 @@ namespace Speedy.Collections
 		/// <summary>
 		/// Instantiates an instance of the collection.
 		/// </summary>
-		public BaseObservableCollection()
+		public BaseObservableCollection() : this(null, Array.Empty<T>())
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="items"> An optional set of initial items. </param>
+		public BaseObservableCollection(params T[] items) : this(null, items)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <param name="items"> An optional set of initial items. </param>
+		public BaseObservableCollection(IDispatcher dispatcher, IEnumerable<T> items) : this(dispatcher, items?.ToArray())
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		/// <param name="items"> An optional set of initial items. </param>
+		public BaseObservableCollection(IEnumerable<T> items) : this(null, items?.ToArray())
 		{
 		}
 
@@ -35,32 +60,6 @@ namespace Speedy.Collections
 		public BaseObservableCollection(IDispatcher dispatcher, params T[] items) : base(items)
 		{
 			Dispatcher = dispatcher;
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		/// <param name="items"> An optional set of initial items. </param>
-		public BaseObservableCollection(params T[] items) : base(items)
-		{
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
-		/// <param name="items"> An optional set of initial items. </param>
-		public BaseObservableCollection(IDispatcher dispatcher, IEnumerable<T> items) : base(items)
-		{
-			Dispatcher = dispatcher;
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		/// <param name="items"> An optional set of initial items. </param>
-		public BaseObservableCollection(IEnumerable<T> items) : base(items)
-		{
 		}
 
 		#endregion
@@ -86,21 +85,12 @@ namespace Speedy.Collections
 		#region Methods
 
 		/// <summary>
-		/// Indicates the property has changed on the collection object.
-		/// </summary>
-		/// <param name="propertyName"> The name of the property has changed. </param>
-		public virtual void OnPropertyChanged(string propertyName)
-		{
-			OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-		}
-
-		/// <summary>
 		/// Reset the collection to the provided values.
 		/// </summary>
 		/// <param name="values"> The values to be set to. </param>
 		public void Reset(params T[] values)
 		{
-			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => Reset(values));
 				return;
@@ -131,7 +121,7 @@ namespace Speedy.Collections
 				return;
 			}
 
-			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(ClearItems);
 				return;
@@ -148,7 +138,7 @@ namespace Speedy.Collections
 		/// <inheritdoc />
 		protected override void InsertItem(int index, T item)
 		{
-			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => InsertItem(index, item));
 				return;
@@ -191,7 +181,7 @@ namespace Speedy.Collections
 		/// <inheritdoc />
 		protected sealed override void OnPropertyChanged(PropertyChangedEventArgs e)
 		{
-			if (Dispatcher != null && !Dispatcher.HasThreadAccess)
+			if (Dispatcher?.HasThreadAccess == false)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(e));
 				return;

@@ -11,27 +11,58 @@ namespace Speedy
 	/// </summary>
 	public class PartialUpdateValue
 	{
+		#region Constructors
+
+		/// <summary>
+		/// Instantiates a partial update value.
+		/// </summary>
+		public PartialUpdateValue()
+		{
+		}
+
+		/// <summary>
+		/// Instantiates a partial update value.
+		/// </summary>
+		/// <param name="name"> The property name of the update. </param>
+		/// <param name="value"> The value to set the property to. </param>
+		public PartialUpdateValue(string name, object value)
+		{
+			Name = name;
+			Type = value.GetType();
+			Value = value;
+		}
+
+		/// <summary>
+		/// Instantiates a partial update value.
+		/// </summary>
+		/// <param name="name"> The property name of the update. </param>
+		/// <param name="type"> The type for the property. </param>
+		/// <param name="value"> The value to set the property to. </param>
+		public PartialUpdateValue(string name, Type type, object value)
+		{
+			Name = name;
+			Type = type;
+			Value = value;
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <summary>
-		/// The path of the update.
+		/// The name of the member for the update.
 		/// </summary>
-		public string Path { get; set; }
+		public string Name { get; set; }
 
 		/// <summary>
-		/// The type of the value being apply.
+		/// The type of the property.
 		/// </summary>
-		public object TypeValue { get; set; }
+		public Type Type { get; set; }
 
 		/// <summary>
-		/// The update delegate.
+		/// The value being apply.
 		/// </summary>
-		public Delegate Update { get; set; }
-
-		/// <summary>
-		/// The value.
-		/// </summary>
-		public IConvertible Value { get; set; }
+		public object Value { get; set; }
 
 		#endregion
 	}

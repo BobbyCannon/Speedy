@@ -43,9 +43,9 @@ namespace Speedy.Sync
 		/// Indicates if the sync engine is running.
 		/// </summary>
 		public bool IsRunning =>
-			Status != SyncEngineStatus.Cancelled
-			&& Status != SyncEngineStatus.Completed
-			&& Status != SyncEngineStatus.Stopped;
+			Status is SyncEngineStatus.Starting
+				or SyncEngineStatus.Pulling
+				or SyncEngineStatus.Pushing;
 
 		/// <summary>
 		/// Gets or set the message for the state.
@@ -59,7 +59,7 @@ namespace Speedy.Sync
 		{
 			get
 			{
-				var result = Total == 0 ? 0 : Math.Round((double) Count / Total * 100, 2);
+				var result = Total == 0 ? 0 : Math.Round(((double) Count / Total) * 100, 2);
 				return double.IsNaN(result) || double.IsInfinity(result) ? 0 : result;
 			}
 		}
@@ -85,8 +85,10 @@ namespace Speedy.Sync
 			{
 				case nameof(Count):
 				case nameof(Total):
-					OnPropertyChanged(nameof(Percent));
+				{
+					base.OnPropertyChanged(nameof(Percent));
 					break;
+				}
 			}
 
 			base.OnPropertyChanged(propertyName);
@@ -112,7 +114,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="update"> The update to be applied. </param>
 		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public void UpdateWith(SyncEngineState update, params string[] exclusions)
+		public override void UpdateWith(SyncEngineState update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)

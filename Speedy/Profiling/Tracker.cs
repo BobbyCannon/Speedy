@@ -221,14 +221,15 @@ namespace Speedy.Profiling
 		{
 			ValidateTrackerState();
 			var response = new TrackerPath { ParentId = _session.Id, Name = name, Values = values.ToList(), Type = name };
-			response.Completed += x => _currentCacheRepository.WriteAndSave(x);
+			response.Completed += OnResponseOnCompleted;
+			response.Disposed += ResponseOnDisposed;
 			return response;
 		}
 
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/// <param name="disposing"> A flag determining if we are currently disposing. </param>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!disposing)
@@ -298,6 +299,11 @@ namespace Speedy.Profiling
 			return response;
 		}
 
+		private void OnResponseOnCompleted(TrackerPath x)
+		{
+			_currentCacheRepository.WriteAndSave(x);
+		}
+
 		private static void PathProcessorOnDoWork(object sender, DoWorkEventArgs args)
 		{
 			var worker = (BackgroundWorker) sender;
@@ -346,7 +352,7 @@ namespace Speedy.Profiling
 
 					delayWatch.Restart();
 
-					while (delayWatch.Elapsed.TotalMilliseconds < pathProcessingDelay && !worker.CancellationPending)
+					while ((delayWatch.Elapsed.TotalMilliseconds < pathProcessingDelay) && !worker.CancellationPending)
 					{
 						Thread.Sleep(50);
 					}
@@ -449,6 +455,12 @@ namespace Speedy.Profiling
 		private int ProcessSession()
 		{
 			return ProcessRepository(this, _currentCacheRepository, PathRepository);
+		}
+
+		private void ResponseOnDisposed(TrackerPath path)
+		{
+			path.Completed -= OnResponseOnCompleted;
+			path.Disposed -= ResponseOnDisposed;
 		}
 
 		/// <summary>

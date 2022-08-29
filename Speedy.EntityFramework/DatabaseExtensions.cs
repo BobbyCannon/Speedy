@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -31,10 +32,10 @@ namespace Speedy.EntityFramework
 		public static void ConfigureModelViaMapping(this Database database)
 		{
 			var methods = database.GetCachedMethods(BindingFlags.Instance | BindingFlags.Public);
-			var databasePropertyMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.Property) && x.ReturnType.Name == "PropertyConfiguration`2")
+			var databasePropertyMethod = methods.FirstOrDefault(x => x.IsGenericMethod && (x.Name == nameof(Database.Property)) && (x.ReturnType.Name == "PropertyConfiguration`2"))
 				?? throw new SpeedyException($"Failed to find the '{nameof(Database.Property)}' method on the '{nameof(Database)}' class.");
 
-			var databaseHasRequiredMethod = methods.FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Database.HasRequired))
+			var databaseHasRequiredMethod = methods.FirstOrDefault(x => x.IsGenericMethod && (x.Name == nameof(Database.HasRequired)))
 				?? throw new SpeedyException($"Failed to find the '{nameof(Database.HasRequired)}' method on the '{nameof(Database)}' class.");
 
 			var assembly = database.GetMappingAssembly();
@@ -59,11 +60,15 @@ namespace Speedy.EntityFramework
 
 				foreach (var property in entityProperties)
 				{
+					#if NET6_0_OR_GREATER
+					// todo: how to detect shadow properties in NET6.0 and greater
+					#else
 					// Ignore shadow properties
 					if (property.GetShadowIndex() >= 0)
 					{
 						continue;
 					}
+					#endif
 
 					// Builds the 'Property' method
 					// ex. database.Property<AddressEntity, long>(x => x.City).IsRequired().HasMaximumLength(256);
@@ -164,6 +169,33 @@ namespace Speedy.EntityFramework
 			return DatabaseProviderType.Unknown;
 		}
 
+		/// <summary>
+		/// Validate mappings for the provided database.
+		/// </summary>
+		/// <param name="database"> The database to validate mappings for. </param>
+		/// <returns> The list of entities with their missing properties. </returns>
+		public static IDictionary<string, ICollection<string>> ValidateMappings(this Database database)
+		{
+			var assembly = database.GetMappingAssembly();
+			return ValidateMappings(assembly);
+		}
+
+		/// <summary>
+		/// Validate mappings for the provided database.
+		/// </summary>
+		/// <param name="database"> The database to validate mappings for. </param>
+		/// <returns> The list of entities with their missing properties. </returns>
+		public static IDictionary<string, ICollection<string>> ValidateMappings(this EntityFrameworkDatabase database)
+		{
+			var assembly = database.GetMappingAssembly();
+			return ValidateMappings(assembly);
+		}
+
+		/// <summary>
+		/// Get the type of the primary key.
+		/// </summary>
+		/// <param name="type"> The type to be tested. </param>
+		/// <returns> The type for the primary key. </returns>
 		private static Type GetPrimaryKeyType(this Type type)
 		{
 			while (true)
@@ -200,6 +232,37 @@ namespace Speedy.EntityFramework
 			var convert = Expression.Convert(memberExpression, typeof(object));
 			var lambdaExpression = Expression.Lambda(convert, parameter);
 			return lambdaExpression;
+		}
+
+		private static IDictionary<string, ICollection<string>> ValidateMappings(Assembly assembly)
+		{
+			var types = assembly.GetTypes();
+			var mappingTypes = types.Where(x => !x.IsAbstract && x.GetInterfaces().Any(y => y == typeof(IEntityMappingConfiguration)));
+			var builder = new ModelBuilder(new ConventionSet());
+			var response = new Dictionary<string, ICollection<string>>();
+
+			foreach (var config in mappingTypes.Select(Activator.CreateInstance).Cast<IEntityMappingConfiguration>())
+			{
+				var entityBuilder = (EntityTypeBuilder) config.Map(builder);
+				var mapProperties = entityBuilder.Metadata.GetProperties();
+				var ignoreProperties = entityBuilder.Metadata.GetIgnoredMembers().ToList();
+				var virtualProperties = entityBuilder.Metadata.ClrType.GetVirtualPropertyNames().ToList();
+				var entityProperties = entityBuilder.Metadata.ClrType.GetCachedProperties().ToList();
+				var missingProperties = entityProperties
+					.Where(x => ignoreProperties.All(v => v != x.Name))
+					.Where(x => virtualProperties.All(v => v != x.Name))
+					.Where(x => x.CanWrite)
+					.Where(x => mapProperties.All(m => m.Name != x.Name))
+					.OrderBy(x => x.Name)
+					.ToList();
+
+				if (missingProperties.Count > 0)
+				{
+					response.Add(entityBuilder.Metadata.Name, missingProperties.Select(x => x.Name).ToList());
+				}
+			}
+
+			return response;
 		}
 
 		#endregion

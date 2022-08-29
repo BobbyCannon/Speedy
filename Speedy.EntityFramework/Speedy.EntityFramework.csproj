@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy.EntityFramework</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.EntityFramework</Product>
 		<Description>Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.</Description>
-		<Copyright>© Copyright 2014-2021</Copyright>
+		<Copyright>© Copyright 2014-2022</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -23,31 +23,35 @@
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>9.0.6.0</AssemblyVersion>
-		<FileVersion>9.0.6.0</FileVersion>
-		<Version>9.0.6.0</Version>
 		<DocumentationFile>Speedy.EntityFramework.xml</DocumentationFile>
+		<AssemblyVersion>10.0.0.0</AssemblyVersion>
+		<FileVersion>10.0.0.0</FileVersion>
+		<Version>10.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
-		<None Remove="Speedy.png" />
-	</ItemGroup>
-	<ItemGroup>
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+		<None Remove="Speedy.png" />
+		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.11" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.28" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.28" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.8" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>

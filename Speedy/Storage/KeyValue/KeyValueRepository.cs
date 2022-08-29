@@ -423,7 +423,7 @@ namespace Speedy.Storage.KeyValue
 				using var stream = OpenFile(FileInfo, true);
 				var reader = new StreamReader(stream);
 
-				while (_cache.Count <= _options.Limit && reader.Peek() > 0)
+				while ((_cache.Count <= _options.Limit) && (reader.Peek() > 0))
 				{
 					var line = reader.ReadLine();
 					if (string.IsNullOrWhiteSpace(line))
@@ -477,7 +477,7 @@ namespace Speedy.Storage.KeyValue
 				UpdateCache();
 
 				var threshold = TimeService.UtcNow - _options.Timeout;
-				if (_cache.Count <= _options.Limit && !_cache.Any(x => x.Value.Item2 <= threshold))
+				if ((_cache.Count <= _options.Limit) && !_cache.Any(x => x.Value.Item2 <= threshold))
 				{
 					return;
 				}
@@ -564,9 +564,9 @@ namespace Speedy.Storage.KeyValue
 		}
 
 		/// <summary>
-		/// Disposes of the repository.
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		/// <param name="disposing"> True to dispose managed objects. </param>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
 		protected virtual void Dispose(bool disposing)
 		{
 			if (disposing)
@@ -671,7 +671,7 @@ namespace Speedy.Storage.KeyValue
 		{
 			// Append the expired cache.
 			var expiredCache = _cache
-				.Where(x => x.Value.Item2 <= threshold && x.Value.Item1 != null)
+				.Where(x => (x.Value.Item2 <= threshold) && (x.Value.Item1 != null))
 				.OrderBy(x => x.Value.Item3)
 				.ToDictionary(x => x.Key, x => x.Value);
 

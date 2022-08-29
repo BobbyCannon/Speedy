@@ -2,7 +2,7 @@
 
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 

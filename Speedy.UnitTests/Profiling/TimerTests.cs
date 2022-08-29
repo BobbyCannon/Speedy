@@ -16,10 +16,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void AddAverageTimerShouldWork()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
-
-			// ReSharper disable once AccessToModifiedClosure
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
 			var timer = new Timer();
 			var count = 0;
@@ -40,7 +37,7 @@ namespace Speedy.UnitTests.Profiling
 			averageTimer.Start();
 			Assert.AreEqual(0, averageTimer.Elapsed.TotalMilliseconds);
 			Assert.AreEqual(0, count);
-			currentTime = currentTime.AddMilliseconds(123456);
+			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(123456);
 			Assert.AreEqual(123456, averageTimer.Elapsed.TotalMilliseconds);
 			Assert.AreEqual(0, count);
 			averageTimer.Stop();
@@ -102,10 +99,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void ShouldRestartWithProvidedStartTime()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
-
-			// ReSharper disable once AccessToModifiedClosure
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
 			var timer = new Timer();
 			Assert.IsFalse(timer.IsRunning);
@@ -121,7 +115,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, timer.Elapsed.TotalMilliseconds);
 
 			timer.Restart();
-			currentTime = currentTime.AddMilliseconds(123456);
+			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(123456);
 
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(123456, timer.Elapsed.TotalMilliseconds);
@@ -130,17 +124,15 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void ShouldTrackUsingTimeService()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 			var timer = new Timer();
 
 			Assert.IsFalse(timer.IsRunning);
-			// ReSharper disable once AccessToModifiedClosure
-			TimeService.UtcNowProvider = () => currentTime;
-
+			
 			timer.Start();
 
 			Assert.IsTrue(timer.IsRunning);
-			currentTime = currentTime.AddTicks(1);
+			TestHelper.CurrentTime += TimeSpan.FromTicks(1);
 
 			timer.Stop();
 
@@ -151,16 +143,13 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void StartWithDateTimeShouldStartTimerInPast()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
-
-			// ReSharper disable once AccessToModifiedClosure
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
 			var timer = new Timer();
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(0, timer.Elapsed.Ticks);
 
-			timer.Start(currentTime.AddMilliseconds(-12345));
+			timer.Start(TestHelper.CurrentTime.AddMilliseconds(-12345));
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(12345, timer.Elapsed.TotalMilliseconds);
 
@@ -172,10 +161,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void StopWithDateTimeShouldStopTimerInPast()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 12);
-
-			// ReSharper disable once AccessToModifiedClosure
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
 
 			var timer = new Timer();
 			Assert.IsFalse(timer.IsRunning);
@@ -185,7 +171,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(0, timer.Elapsed.TotalMilliseconds);
 
-			currentTime = currentTime.AddSeconds(12);
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(12);
 
 			timer.Stop(new DateTime(2020, 04, 23, 07, 56, 15));
 			Assert.IsFalse(timer.IsRunning);

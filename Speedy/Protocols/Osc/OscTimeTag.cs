@@ -2,6 +2,7 @@
 
 using System;
 using System.Globalization;
+using Speedy.Extensions;
 
 #endregion
 
@@ -80,17 +81,17 @@ namespace Speedy.Protocols.Osc
 		/// <summary>
 		/// Gets the number of seconds including fractional parts since midnight on January 1, 1900.
 		/// </summary>
-		public decimal PreciseValue => Seconds + SubSeconds / (decimal) uint.MaxValue;
+		public decimal PreciseValue => Seconds + (SubSeconds / (decimal) uint.MaxValue);
 
 		/// <summary>
 		/// Gets the number of seconds since midnight on January 1, 1900. This is the first 32 bits of the 64 bit fixed point OscTimeTag value.
 		/// </summary>
-		public uint Seconds => (uint) (Value >> 32);
+		public uint Seconds => (uint) ((Value >> 32) & uint.MaxValue);
 
 		/// <summary>
 		/// Gets the fractional parts of a second. This is the 32 bits of the 64 bit fixed point OscTimeTag value.
 		/// </summary>
-		public uint SubSeconds => (uint) Value;
+		public uint SubSeconds => (uint) (Value & uint.MaxValue);
 
 		/// <summary>
 		/// Gets a OscTimeTag object that is set to the current date and time on this computer, expressed as the Coordinated Universal Time (UTC).
@@ -179,23 +180,24 @@ namespace Speedy.Protocols.Osc
 		/// <returns> The equivalent value as an osc time tag. </returns>
 		public static OscTimeTag FromDateTime(DateTime datetime)
 		{
-			if (datetime <= DateTime.MinValue
-				|| datetime <= MinDateTime
-				|| datetime.ToUniversalTime() == DateTime.MinValue
-				|| datetime.ToUniversalTime() == MinDateTime)
+			if ((datetime <= DateTime.MinValue)
+				|| (datetime <= MinDateTime)
+				|| (datetime.ToUniversalTime() == DateTime.MinValue)
+				|| (datetime.ToUniversalTime() == MinDateTime))
 			{
 				return MinValue;
 			}
 
-			if (datetime >= DateTime.MaxValue
-				|| datetime >= MaxDateTime
-				|| datetime.ToUniversalTime() == DateTime.MaxValue
-				|| datetime.ToUniversalTime() == MaxDateTime)
+			if ((datetime >= DateTime.MaxValue)
+				|| (datetime >= MaxDateTime)
+				|| (datetime.ToUniversalTime() == DateTime.MaxValue)
+				|| (datetime.ToUniversalTime() == MaxDateTime))
 			{
 				return MaxValue;
 			}
 
-			var span = datetime.ToUniversalTime().Subtract(MinDateTime);
+			var udt = datetime.ToUniversalTime();
+			var span = udt.Subtract(MinDateTime);
 			return FromTimeSpan(span);
 		}
 
@@ -214,9 +216,10 @@ namespace Speedy.Protocols.Osc
 		{
 			var seconds = span.TotalSeconds;
 			var secondsUInt = (uint) seconds;
-			var milliseconds = span.TotalMilliseconds - (double) secondsUInt * 1000;
-			var fraction = milliseconds / 1000.0 * uint.MaxValue;
-			return new OscTimeTag(((ulong) (secondsUInt & 0xFFFFFFFF) << 32) | ((ulong) fraction & 0xFFFFFFFF));
+			var remainingTicks = span.Ticks - ((decimal) secondsUInt * TimeSpan.TicksPerSecond);
+			var fraction = ((remainingTicks / TimeSpan.TicksPerMillisecond) / 1000.0m) * uint.MaxValue;
+			var preciseValue = ((ulong) (secondsUInt & 0xFFFFFFFF) << 32) | ((ulong) fraction & 0xFFFFFFFF);
+			return new OscTimeTag(preciseValue);
 		}
 
 		public static OscTimeTag FromTicks(long value)
@@ -329,12 +332,9 @@ namespace Speedy.Protocols.Osc
 		/// </returns>
 		public DateTime ToDateTime()
 		{
-			// Kas: http://stackoverflow.com/questions/5206857/convert-ntp-timestamp-to-utc
-			var seconds = Seconds;
-			var fraction = SubSeconds;
-			var milliseconds = fraction / (double) uint.MaxValue * 1000;
-			var datetime = MinDateTime.AddSeconds(seconds).AddMilliseconds(milliseconds);
-			return datetime;
+			var ticks1 = Math.Round((((decimal) SubSeconds) / uint.MaxValue) * 1000, 4, MidpointRounding.AwayFromZero);
+			var ticks2 = ticks1 * TimeSpan.TicksPerMillisecond;
+			return MinDateTime.AddSeconds(Seconds).AddTicks((long) ticks2);
 		}
 
 		public double ToMilliseconds()
@@ -344,7 +344,7 @@ namespace Speedy.Protocols.Osc
 
 		public override string ToString()
 		{
-			return ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+			return ToDateTime().ToUtcString();
 		}
 
 		public string ToString(string format)
@@ -403,12 +403,18 @@ namespace Speedy.Protocols.Osc
 				"HH:mm:ss.ff",
 				"HH:mm:ss.fff",
 				"HH:mm:ss.ffff",
-				"yyyy-MM-ddTHH:mm:ss",
+				"HH:mm:ss.fffff",
+				"HH:mm:ss.ffffff",
+				"HH:mm:ss.fffffff",
 				"yyyy-MM-ddTHH:mm",
+				"yyyy-MM-ddTHH:mm:ss",
 				"yyyy-MM-ddTHH:mm:ss.f",
 				"yyyy-MM-ddTHH:mm:ss.ff",
 				"yyyy-MM-ddTHH:mm:ss.fff",
-				"yyyy-MM-ddTHH:mm:ss.ffff"
+				"yyyy-MM-ddTHH:mm:ss.ffff",
+				"yyyy-MM-ddTHH:mm:ss.fffff",
+				"yyyy-MM-ddTHH:mm:ss.ffffff",
+				"yyyy-MM-ddTHH:mm:ss.fffffff"
 			};
 
 			if (DateTime.TryParseExact(value, formats, provider, style, out var datetime))

@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Speedy
 	{
 		#region Fields
 
-		private readonly Dictionary<Type, MemoryCache> _cachedEntityId;
+		private readonly ConcurrentDictionary<Type, MemoryCache> _cachedEntityId;
 		private readonly TimeSpan _cacheTimeout;
 
 		#endregion
@@ -39,7 +40,7 @@ namespace Speedy
 		/// <param name="cacheTimeout"> The timeout for removing an item from the cache. </param>
 		public DatabaseKeyCache(TimeSpan cacheTimeout)
 		{
-			_cachedEntityId = new Dictionary<Type, MemoryCache>();
+			_cachedEntityId = new ConcurrentDictionary<Type, MemoryCache>();
 			_cacheTimeout = cacheTimeout;
 
 			SyncEntitiesToCache = Array.Empty<Type>();
@@ -53,6 +54,16 @@ namespace Speedy
 		/// The total types tracked.
 		/// </summary>
 		public int Count => _cachedEntityId.Count;
+
+		/// <summary>
+		/// Return the cache for the type. If the type has not been cached then null will be returned.
+		/// </summary>
+		/// <param name="type"> The type for the key cache. </param>
+		/// <returns> The memory cache for the type if found otherwise null if not. </returns>
+		public Dictionary<string, object> this[Type type] =>
+			_cachedEntityId.TryGetValue(type, out var value)
+				? value.ToDictionary(x => x.Key, x => x.Value)
+				: null;
 
 		/// <summary>
 		/// Gets or sets the list of entities to cache the keys (ID, Sync ID). If the collection is empty
@@ -91,18 +102,13 @@ namespace Speedy
 				return;
 			}
 
-			if (SyncEntitiesToCache.Length > 0 && !SyncEntitiesToCache.Contains(type))
+			if ((SyncEntitiesToCache.Length > 0) && !SyncEntitiesToCache.Contains(type))
 			{
 				// We are filtering what sync entities to cache and this entity is not in the list
 				return;
 			}
 
-			if (!_cachedEntityId.ContainsKey(type))
-			{
-				_cachedEntityId.Add(type, new MemoryCache(_cacheTimeout));
-			}
-
-			var cache = _cachedEntityId[type];
+			var cache = _cachedEntityId.GetOrAdd(type, _ => new MemoryCache(_cacheTimeout));
 			cache.Set(syncId.ToString(), id);
 		}
 
@@ -122,7 +128,7 @@ namespace Speedy
 			_cachedEntityId
 				.Where(x => x.Value.IsEmpty)
 				.ToList()
-				.ForEach(x => _cachedEntityId.Remove(x.Key));
+				.ForEach(x => _cachedEntityId.TryRemove(x.Key, out _));
 		}
 
 		/// <summary>
@@ -152,13 +158,16 @@ namespace Speedy
 		/// <returns> The ID of the entity. </returns>
 		public object GetEntityId(Type type, object syncId)
 		{
-			if (!_cachedEntityId.ContainsKey(type))
-			{
-				_cachedEntityId.Add(type, new MemoryCache(_cacheTimeout));
-			}
-
-			var cache = _cachedEntityId[type];
+			var cache = _cachedEntityId.GetOrAdd(type, _ => new MemoryCache(_cacheTimeout));
 			return cache.TryGet(syncId.ToString(), out var cachedItem) ? cachedItem.Value : null;
+		}
+
+		/// <summary>
+		/// Returns true if they keys have been loaded.
+		/// </summary>
+		public bool HasKeysBeenLoadedIntoCache(Type type)
+		{
+			return _cachedEntityId.ContainsKey(type);
 		}
 
 		/// <summary>
@@ -174,11 +183,11 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Initializes the default key cache.
+		/// Initializes the default key cache and load the keys.
 		/// </summary>
 		/// <param name="provider"> The syncable database provider. </param>
 		/// <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
-		public void Initialize(ISyncableDatabaseProvider provider, params Type[] syncEntitiesToCache)
+		public void InitializeAndLoad(ISyncableDatabaseProvider provider, params Type[] syncEntitiesToCache)
 		{
 			using var database = provider.GetSyncableDatabase();
 			Initialize(syncEntitiesToCache);
@@ -186,14 +195,53 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Initializes the default key cache.
+		/// Initializes the default key cache and load the keys.
 		/// </summary>
 		/// <param name="database"> The syncable database. </param>
 		/// <param name="syncEntitiesToCache"> An optional set of specific entity types to cache. </param>
-		public void Initialize(ISyncableDatabase database, params Type[] syncEntitiesToCache)
+		public void InitializeAndLoad(ISyncableDatabase database, params Type[] syncEntitiesToCache)
 		{
 			Initialize(syncEntitiesToCache);
 			LoadKeysIntoCache(database);
+		}
+
+		/// <summary>
+		/// Loads all keys for the sync entities to be cached.
+		/// </summary>
+		/// <param name="database"> The database to use for loading. </param>
+		public void LoadKeysIntoCache(ISyncableDatabase database)
+		{
+			LoadKeysIntoCache(database, SyncEntitiesToCache);
+		}
+
+		/// <summary>
+		/// Allows for caching of individual sync types.
+		/// </summary>
+		/// <param name="database"> The database to use for loading. </param>
+		/// <param name="types"> The types to be loaded. </param>
+		public void LoadKeysIntoCache(ISyncableDatabase database, params Type[] types)
+		{
+			var syncOptions = new SyncOptions();
+			var repositories = database.GetSyncableRepositories(syncOptions).ToList();
+
+			foreach (var type in types)
+			{
+				var repository = repositories.FirstOrDefault(x => x.RealType == type);
+				if (repository == null)
+				{
+					continue;
+				}
+
+				if ((SyncEntitiesToCache.Length > 0) && !SyncEntitiesToCache.Contains(type))
+				{
+					// We are filtering what sync entities to cache and this entity is not in the list
+					continue;
+				}
+
+				var keys = repository.ReadAllKeys();
+				var cache = CreateCache(type);
+				keys.ForEach(x => AddEntityId(cache, x.Key, x.Value));
+			}
 		}
 
 		/// <summary>
@@ -207,7 +255,7 @@ namespace Speedy
 				return;
 			}
 
-			RemoveEntityId(entity.GetRealType(), entity.SyncId);
+			RemoveEntityId(entity.GetRealType(), entity.GetEntitySyncId());
 		}
 
 		/// <summary>
@@ -215,7 +263,7 @@ namespace Speedy
 		/// </summary>
 		/// <param name="type"> The type of the entity. </param>
 		/// <param name="syncId"> The sync ID of the entity. </param>
-		public void RemoveEntityId(Type type, Guid syncId)
+		public void RemoveEntityId(Type type, object syncId)
 		{
 			if (!_cachedEntityId.ContainsKey(type))
 			{
@@ -233,7 +281,8 @@ namespace Speedy
 		/// <returns> True if the type is support or false if otherwise. </returns>
 		public bool SupportsType(Type type)
 		{
-			return SyncEntitiesToCache.Length <= 0 || SyncEntitiesToCache.Contains(type);
+			return (SyncEntitiesToCache.Length <= 0)
+				|| SyncEntitiesToCache.Contains(type);
 		}
 
 		/// <summary>
@@ -243,11 +292,11 @@ namespace Speedy
 		public string ToDetailedString()
 		{
 			var builder = new StringBuilder();
-			foreach (var test in _cachedEntityId)
+			foreach (var cache in _cachedEntityId)
 			{
-				builder.AppendLine($"\t{test.Key.FullName}");
+				builder.AppendLine($"\t{cache.Key.FullName}");
 
-				foreach (var test2 in test.Value)
+				foreach (var test2 in cache.Value)
 				{
 					builder.AppendLine($"\t\t{test2.Key}-{test2.Value}");
 				}
@@ -255,24 +304,61 @@ namespace Speedy
 			return builder.ToString();
 		}
 
-		private void LoadKeysIntoCache(ISyncableDatabase database)
+		/// <summary>
+		/// Update the cache with the provided tracker changes.
+		/// </summary>
+		/// <param name="tracker"> The tracker with the changes. </param>
+		public void UpdateCache(CollectionChangeTracker tracker)
 		{
-			var syncOptions = new SyncOptions();
-			var repositories = database.GetSyncableRepositories(syncOptions).ToList();
-
-			foreach (var repository in repositories)
+			if (tracker == null)
 			{
-				var type = repository.RealType;
-
-				if (SyncEntitiesToCache.Length > 0 && !SyncEntitiesToCache.Contains(type))
-				{
-					// We are filtering what sync entities to cache and this entity is not in the list
-					continue;
-				}
-
-				var keys = repository.ReadAllKeys();
-				keys.ForEach(x => AddEntityId(type, x.Key, x.Value));
+				return;
 			}
+
+			foreach (var item in tracker.Added)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					AddEntity(syncEntity);
+				}
+			}
+
+			foreach (var item in tracker.Modified)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					AddEntity(syncEntity);
+				}
+			}
+
+			foreach (var item in tracker.Removed)
+			{
+				if (item is ISyncEntity syncEntity)
+				{
+					RemoveEntity(syncEntity);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Cache an entity ID for the entity Sync ID.
+		/// </summary>
+		/// <param name="cache"> The cache to add the keys to. </param>
+		/// <param name="syncId"> The sync ID of the entity. </param>
+		/// <param name="id"> The ID of the entity. </param>
+		private void AddEntityId(MemoryCache cache, object syncId, object id)
+		{
+			if (id == null)
+			{
+				return;
+			}
+
+			cache.Set(syncId.ToString(), id);
+		}
+
+		private MemoryCache CreateCache(Type type)
+		{
+			return _cachedEntityId.GetOrAdd(type, _ => new MemoryCache(_cacheTimeout));
 		}
 
 		#endregion

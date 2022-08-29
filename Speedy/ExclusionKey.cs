@@ -91,10 +91,10 @@ namespace Speedy
 				return true;
 			}
 
-			return Type?.FullName?.Equals(other.Type.FullName) == true
-				&& ExcludeIncomingSync == other.ExcludeIncomingSync
-				&& ExcludeOutgoingSync == other.ExcludeOutgoingSync
-				&& ExcludeSyncUpdate == other.ExcludeSyncUpdate;
+			return (Type?.FullName?.Equals(other.Type.FullName) == true)
+				&& (ExcludeIncomingSync == other.ExcludeIncomingSync)
+				&& (ExcludeOutgoingSync == other.ExcludeOutgoingSync)
+				&& (ExcludeSyncUpdate == other.ExcludeSyncUpdate);
 		}
 
 		/// <inheritdoc />
@@ -126,6 +126,12 @@ namespace Speedy
 				hashCode = (hashCode * 397) ^ ExcludeSyncUpdate.GetHashCode();
 				return hashCode;
 			}
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"{Type}, I:{ExcludeIncomingSync}, O:{ExcludeOutgoingSync}, U:{ExcludeSyncUpdate}";
 		}
 
 		#endregion

@@ -1,13 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0-windows</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
+		<Platforms>AnyCPU;x64;x86</Platforms>
 		<AssemblyTitle>Speedy.ServiceHosting</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.ServiceHosting</Product>
 		<Description>Speedy is a simple easy to use service hosting framework.</Description>
-		<Copyright>© Copyright 2014-2021</Copyright>
+		<Copyright>© Copyright 2014-2022</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -23,11 +24,10 @@
 		<PackageId>Speedy.ServiceHosting</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>9.0.6.0</AssemblyVersion>
-		<FileVersion>9.0.6.0</FileVersion>
-		<Version>9.0.6.0</Version>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
+		<AssemblyVersion>10.0.0.0</AssemblyVersion>
+		<FileVersion>10.0.0.0</FileVersion>
+		<Version>10.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />
@@ -36,7 +36,7 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

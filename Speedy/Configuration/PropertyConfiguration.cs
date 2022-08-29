@@ -154,32 +154,32 @@ namespace Speedy.Configuration
 				throw new ArgumentNullException(nameof(typedEntity));
 			}
 
-			if (_nodeType != "Convert" && _nodeType != "MemberAccess")
+			if ((_nodeType != "Convert") && (_nodeType != "MemberAccess"))
 			{
 				return;
 			}
 
 			var property = _propertyFunction.Invoke(typedEntity);
 
-			if (IsNullable.HasValue && IsNullable.Value == false && property == null)
+			if (IsNullable.HasValue && (IsNullable.Value == false) && (property == null))
 			{
 				throw new ValidationException($"{_entityType.Name}: The {MemberName} field is required.");
 			}
 
-			if ((_maxLength > 0 || _minLength > 0) && property is string stringEntity)
+			if (((_maxLength > 0) || (_minLength > 0)) && property is string stringEntity)
 			{
-				if (_maxLength > 0 && stringEntity.Length > _maxLength)
+				if ((_maxLength > 0) && (stringEntity.Length > _maxLength))
 				{
 					throw new ValidationException($"{_entityType.Name}: The {MemberName} field is too long.");
 				}
 
-				if (_minLength > 0 && stringEntity.Length < _minLength)
+				if ((_minLength > 0) && (stringEntity.Length < _minLength))
 				{
 					throw new ValidationException($"{_entityType.Name}: The {MemberName} field is too short.");
 				}
 			}
 
-			if (IsNullable.HasValue && IsNullable.Value == false && property == null)
+			if (IsNullable.HasValue && (IsNullable.Value == false) && (property == null))
 			{
 				throw new ValidationException($"{_entityType.Name}: The {MemberName} field is required.");
 			}

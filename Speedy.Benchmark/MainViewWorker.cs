@@ -8,6 +8,7 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
@@ -112,7 +113,7 @@ namespace Speedy.Benchmark
 			if (view.UseBulkProcessing)
 			{
 				database.Accounts.BulkAddOrUpdate(entities);
-				client.DatabaseProvider.KeyCache.Initialize(database);
+				client.DatabaseProvider.KeyCache.InitializeAndLoad(database);
 			}
 			else
 			{
@@ -132,7 +133,7 @@ namespace Speedy.Benchmark
 						count = 0;
 					}
 
-					var percent = Math.Round(i / (double) testCount * 100.0, 1);
+					var percent = Math.Round((i / (double) testCount) * 100.0, 1);
 
 					if (Math.Abs(percent - lastPercent) > double.Epsilon)
 					{
@@ -177,7 +178,7 @@ namespace Speedy.Benchmark
 			if (view.UseBulkProcessing)
 			{
 				database.Addresses.BulkAddOrUpdate(entities);
-				client.DatabaseProvider.KeyCache.Initialize(database);
+				client.DatabaseProvider.KeyCache.InitializeAndLoad(database);
 			}
 			else
 			{
@@ -197,7 +198,7 @@ namespace Speedy.Benchmark
 						count = 0;
 					}
 
-					var percent = Math.Round(i / (double) testCount * 100.0, 1);
+					var percent = Math.Round((i / (double) testCount) * 100.0, 1);
 
 					if (Math.Abs(percent - lastPercent) > double.Epsilon)
 					{
@@ -306,22 +307,6 @@ namespace Speedy.Benchmark
 			}
 		}
 
-		private static void PrintClientDetails(BackgroundWorker worker, SyncClient client)
-		{
-			using var database = client.GetDatabase<IContosoDatabase>();
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, client.Name);
-			var addresses = database.Addresses.Select(x => $"{x.SyncId}-{x.Id}").ToList();
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\tAddresses: " + addresses.Count);
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\t\t" + string.Join("\r\n\t\t", addresses));
-			var accounts = database.Accounts.Select(x => $"{x.SyncId}-{x.Id}").ToList();
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\tAccounts: " + accounts.Count);
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\t\t" + string.Join("\r\n\t\t", accounts));
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, "");
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, "Total Cached Items");
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, client.DatabaseProvider.KeyCache.ToDetailedString());
-			worker.ReportProgress((int) MainViewWorkerStatus.Log, "");
-		}
-
 		private static T ClearDatabase<T>(this T database) where T : EntityFrameworkDatabase
 		{
 			database.Database.Migrate();
@@ -400,6 +385,22 @@ DELETE FROM [Addresses];
 			return new SyncableDatabaseProvider((x, y) => database, options ?? ContosoDatabase.GetDefaultOptions(), keyCache);
 		}
 
+		private static void PrintClientDetails(BackgroundWorker worker, SyncClient client)
+		{
+			using var database = client.GetDatabase<IContosoDatabase>();
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, client.Name);
+			var addresses = database.Addresses.Select(x => $"{x.SyncId}-{x.Id}").ToList();
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\tAddresses: " + addresses.Count);
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\t\t" + string.Join("\r\n\t\t", addresses));
+			var accounts = database.Accounts.Select(x => $"{x.SyncId}-{x.Id}").ToList();
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\tAccounts: " + accounts.Count);
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, "\t\t" + string.Join("\r\n\t\t", accounts));
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, "");
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, "Total Cached Items");
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, client.DatabaseProvider.KeyCache.ToDetailedString());
+			worker.ReportProgress((int) MainViewWorkerStatus.Log, "");
+		}
+
 		private static BenchmarkResult StartResult(string name)
 		{
 			var result = new BenchmarkResult { Name = name };
@@ -423,7 +424,7 @@ DELETE FROM [Addresses];
 			using var test = LogListener.CreateSession(Guid.Empty, view.UseVerboseLogging ? EventLevel.Verbose : EventLevel.Informational);
 			test.EventWritten += (sender, args) => _worker.ReportProgress((int) MainViewWorkerStatus.Log, args.GetDetailedMessage());
 
-			var engine = new SyncEngine(client, server, options);
+			using var engine = new SyncEngine(Guid.NewGuid(), client, server, options);
 			var watch = Stopwatch.StartNew();
 
 			engine.SyncStateChanged += (sender, state) =>
@@ -433,7 +434,7 @@ DELETE FROM [Addresses];
 				watch.Restart();
 			};
 
-			var task = engine.RunAsync();
+			var task = Task.Factory.StartNew(() => engine.Run());
 
 			while (!worker.CancellationPending && !task.IsCompleted())
 			{

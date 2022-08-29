@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Net;
 using Speedy.Sync;
 
 #endregion
@@ -26,12 +25,9 @@ namespace Speedy.Net
 		/// </summary>
 		/// <param name="provider"> The database provider for the client </param>
 		/// <param name="name"> The name of the client. </param>
-		/// <param name="serverUri"> The server to send data to. </param>
+		/// <param name="webClient"> The client to access the web. </param>
 		/// <param name="syncUri"> The sync URI. Defaults to "api/Sync". </param>
-		/// <param name="credential"> The optional credential for the sync client. </param>
-		/// <param name="proxy"> The optional proxy to use. </param>
-		/// <param name="timeout"> The timeout in milliseconds for each transaction. </param>
-		public WebSyncClient(string name, ISyncableDatabaseProvider provider, string serverUri, string syncUri = "api/Sync", NetworkCredential credential = null, WebProxy proxy = null, int timeout = 10000)
+		public WebSyncClient(string name, ISyncableDatabaseProvider provider, IWebClient webClient, string syncUri = "api/Sync")
 		{
 			_syncUri = syncUri;
 
@@ -40,8 +36,7 @@ namespace Speedy.Net
 			Options = new SyncClientOptions();
 			Profiler = new SyncClientProfiler(name);
 			Statistics = new SyncStatistics();
-			SyncSession = new SyncSession();
-			WebClient = new WebClient(serverUri, timeout, credential, proxy);
+			WebClient = webClient;
 		}
 
 		#endregion
@@ -72,13 +67,10 @@ namespace Speedy.Net
 		/// <inheritdoc />
 		public SyncOptions SyncOptions { get; private set; }
 
-		/// <inheritdoc />
-		public SyncSession SyncSession { get; }
-
 		/// <summary>
 		/// The web client to use to connect to the server.
 		/// </summary>
-		public WebClient WebClient { get; }
+		public IWebClient WebClient { get; }
 
 		#endregion
 

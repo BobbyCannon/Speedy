@@ -1,6 +1,7 @@
 #region References
 
 using Speedy.EntityFramework;
+using Speedy.Storage;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -35,18 +36,34 @@ namespace Speedy.Website.Data
 
 		#region Properties
 
-		public IRepository<AccountEntity, int> Accounts { get; }
-		public IRepository<AddressEntity, long> Addresses { get; }
+		public ISyncableRepository<AccountEntity, int> Accounts { get; }
+		public ISyncableRepository<AddressEntity, long> Addresses { get; }
+
+		public bool EnableSaveProcessing { get; set; }
 		public IRepository<FoodEntity, int> Food { get; }
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }
 		public IRepository<GroupMemberEntity, int> GroupMembers { get; }
 		public IRepository<GroupEntity, int> Groups { get; }
-		public IRepository<LogEventEntity, long> LogEvents { get; }
+		public ISyncableRepository<LogEventEntity, long> LogEvents { get; }
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets { get; }
 		public IRepository<PetTypeEntity, string> PetTypes { get; }
-		public IRepository<SettingEntity, long> Settings { get; }
-		public IRepository<TrackerPathEntity, long> TrackerPaths { get; }
+		public ISyncableRepository<SettingEntity, long> Settings { get; }
 		public IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations { get; }
+		public IRepository<TrackerPathEntity, long> TrackerPaths { get; }
+
+		#endregion
+
+		#region Methods
+
+		/// <inheritdoc />
+		protected override void OnChangesSaved(CollectionChangeTracker e)
+		{
+			if (EnableSaveProcessing)
+			{
+				ContosoDatabase.ProcessSavedChanges(this, e);
+			}
+			base.OnChangesSaved(e);
+		}
 
 		#endregion
 	}

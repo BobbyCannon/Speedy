@@ -1,0 +1,67 @@
+﻿@model PagedResults<object>
+
+<div>
+	<table class="collapsed align-center">
+		<tbody>
+			<tr>
+				<td>Page</td>
+				<td>@Model.Page</td>
+			</tr>
+			<tr>
+				<td>Total Pages</td>
+				<td>@Model.TotalPages</td>
+			</tr>
+			<tr>
+				<td>PerPage</td>
+				<td>@Model.PerPage</td>
+			</tr>
+			<tr>
+				<td>Total Count</td>
+				<td>@Model.TotalCount</td>
+			</tr>
+			<tr>
+				<td colspan="2" class="text-center">
+					<h6 class="margin-top-20">Request Values (@Model.Updates.Count)</h6>
+				</td>
+			</tr>
+			@{
+				foreach (var item in Model.Updates)
+				{
+					<text>
+						<tr>
+							<td>@item.Key</td>
+							<td>@(item.Value.Name) / @(item.Value.Type.FullName) / @(item.Value.Value)</td>
+						</tr>
+					</text>
+				}
+			}
+			<tr>
+				<td colspan="2" class="text-center">
+					<h6 class="margin-top-20">Results (@Model.Results.Count)</h6>
+				</td>
+			</tr>
+			@{
+				foreach (var item in Model.Results)
+				{
+					<text>
+						<tr>
+							<td colspan="2">@item</td>
+						</tr>
+					</text>
+				}
+			}
+		</tbody>
+	</table>
+	<div class="text-center margin-top-20">
+		<h6>Query String</h6>
+		@Model.ToQueryString()
+	</div>
+	<div class="text-center align-center collapsed margin-top-20">
+		<h6>JSON</h6>
+		<pre class="text-left"><code>@Model.ToRawJson(true, true)</code></pre>
+	</div>
+	<div class="text-center align-center collapsed margin-top-20">
+		<h6>JSON (min) </h6>
+		<pre class="text-left"><code>@Model.ToRawJson()</code></pre>
+	</div>
+</div>

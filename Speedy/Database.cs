@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -60,6 +59,9 @@ namespace Speedy
 		#region Properties
 
 		/// <inheritdoc />
+		public bool IsDisposed { get; private set; }
+
+		/// <inheritdoc />
 		public DatabaseKeyCache KeyCache { get; set; }
 
 		/// <inheritdoc />
@@ -99,10 +101,12 @@ namespace Speedy
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		public virtual void Dispose()
+		public void Dispose()
 		{
 			Dispose(true);
+			OnDisposed();
 			GC.SuppressFinalize(this);
+			IsDisposed = true;
 		}
 
 		/// <summary>
@@ -336,7 +340,16 @@ namespace Speedy
 
 				if (first)
 				{
-					OnCollectionChanged(_collectionChangeTracker.Added, _collectionChangeTracker.Removed);
+					KeyCache?.UpdateCache(_collectionChangeTracker);
+					OnChangesSaved(_collectionChangeTracker);
+				}
+
+				// It's possible that values were added during OnSavedChanges.
+				if (Repositories.Any(x => x.Value.HasChanges()))
+				{
+					// Consider this loop done?
+					_saveChangeCount = 0;
+					response += SaveChanges();
 				}
 
 				return response;
@@ -357,46 +370,63 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Clean up any resources being used.
+		/// Called when an entity is added. Note: this is before saving.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
-		/// <param name="disposing"> true if managed resources should be disposed; otherwise, false. </param>
-		protected virtual void Dispose(bool disposing)
+		/// <param name="entity"> The entity added. </param>
+		protected internal virtual void EntityAdded(IEntity entity)
 		{
-			if (disposing)
-			{
-				Repositories.Values.ForEach(x => x.Dispose());
-			}
 		}
 
-		internal void OnCollectionChanged(IList added, IList removed)
+		/// <summary>
+		/// Called when an entity is deleted. Note: this is before saving.
+		/// See <see cref="ChangesSaved" /> for after save state.
+		/// </summary>
+		/// <param name="entity"> The entity deleted. </param>
+		protected internal virtual void EntityDeleted(IEntity entity)
 		{
-			if (CollectionChanged == null)
+		}
+
+		/// <summary>
+		/// Called when an entity is modified. Note: this is before saving.
+		/// See <see cref="ChangesSaved" /> for after save state.
+		/// </summary>
+		/// <param name="entity"> The entity modified. </param>
+		protected internal virtual void EntityModified(IEntity entity)
+		{
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing)
 			{
 				return;
 			}
 
-			NotifyCollectionChangedEventArgs eventArgs = null;
-
-			if (added.Count > 0 && removed.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, added, removed);
-			}
-			else if (added.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, added);
-			}
-			else if (removed.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed);
-			}
-
-			if (eventArgs != null)
-			{
-				CollectionChanged?.Invoke(this, eventArgs);
-			}
+			Repositories.Values.ForEach(repository => repository.Dispose());
 		}
 
-		internal void UpdateDependantIds(IEntity entity, List<IEntity> processed)
+		/// <summary>
+		/// An invocator for the event when the database has been disposed.
+		/// </summary>
+		protected virtual void OnDisposed()
+		{
+			Disposed?.Invoke(this, EventArgs.Empty);
+		}
+
+		/// <summary>
+		/// Called when for when changes are saved. <see cref="ChangesSaved" />
+		/// </summary>
+		protected virtual void OnChangesSaved(CollectionChangeTracker e)
+		{
+			ChangesSaved?.Invoke(this, e);
+		}
+
+		internal void UpdateDependentIds(IEntity entity, List<IEntity> processed)
 		{
 			if (processed.Contains(entity))
 			{
@@ -408,13 +438,8 @@ namespace Speedy
 
 			processed.Add(entity);
 
-			UpdateDependantIds(entity, properties, processed);
+			UpdateDependentIds(entity, properties, processed);
 			UpdateDependentCollectionIds(entity, properties, processed);
-		}
-
-		private void AddingEntity<T2>(Entity<T2> entity)
-		{
-			// todo: add relationship check...
 		}
 
 		private static void AssignNewValue<T1, T2>(T1 obj, Expression<Func<T1, T2>> expression, T2 value)
@@ -457,7 +482,7 @@ namespace Speedy
 			where T1 : Entity<T1K>
 			where T2 : Entity<T2K>
 		{
-			if (!OneToManyRelationships.ContainsKey(key) || entity == null)
+			if (!OneToManyRelationships.ContainsKey(key) || (entity == null))
 			{
 				return null;
 			}
@@ -472,7 +497,7 @@ namespace Speedy
 			var response = new RelationshipRepository<T2, T2K>(key, (Repository<T2, T2K>) repository, x =>
 			{
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (!Equals(invokedKey, default(T2K)) && invokedKey?.Equals(entity.Id) == true)
+				if (!Equals(invokedKey, default(T2K)) && (invokedKey?.Equals(entity.Id) == true))
 				{
 					return true;
 				}
@@ -500,7 +525,7 @@ namespace Speedy
 				}
 
 				var invokedKey = foreignKeyFunction.Invoke(x);
-				if (invokedKey != null && !invokedKey.Equals(invokedEntity.Id))
+				if ((invokedKey != null) && !invokedKey.Equals(invokedEntity.Id))
 				{
 					invokedEntity.Id = (T1K) invokedKey;
 				}
@@ -513,54 +538,23 @@ namespace Speedy
 		private Repository<T, T2> CreateRepository<T, T2>() where T : Entity<T2>
 		{
 			var repository = new Repository<T, T2>(this);
-			repository.AddingEntity += AddingEntity;
-			repository.CollectionChanged += RepositoryCollectionChanged;
-			repository.DeletingEntity += DeletingEntity;
-			repository.UpdateEntityRelationships += UpdateEntityRelationships;
-			repository.ValidateEntity += ValidateEntity;
+			repository.AddingEntity += RepositoryAddingEntity;
+			repository.DeletingEntity += RepositoryDeletingEntity;
+			repository.SavedChanges += RepositorySavedChanges;
+			repository.UpdateEntityRelationships += RepositoryUpdateEntityRelationships;
+			repository.ValidateEntity += RepositoryValidateEntity;
 			return repository;
 		}
 
 		private SyncableRepository<T, T2> CreateSyncableRepository<T, T2>() where T : SyncEntity<T2>
 		{
 			var repository = new SyncableRepository<T, T2>(this);
-			repository.AddingEntity += AddingEntity;
-			repository.CollectionChanged += RepositoryCollectionChanged;
-			repository.DeletingEntity += DeletingEntity;
-			repository.UpdateEntityRelationships += UpdateEntityRelationships;
-			repository.ValidateEntity += ValidateEntity;
+			repository.AddingEntity += RepositoryAddingEntity;
+			repository.DeletingEntity += RepositoryDeletingEntity;
+			repository.SavedChanges += RepositorySavedChanges;
+			repository.UpdateEntityRelationships += RepositoryUpdateEntityRelationships;
+			repository.ValidateEntity += RepositoryValidateEntity;
 			return repository;
-		}
-
-		private void DeletingEntity<T2>(Entity<T2> entity)
-		{
-			var key = $"{entity.GetRealType().Name}-";
-
-			foreach (var relationship in OneToManyRelationships.Where(x => x.Key.StartsWith(key)))
-			{
-				var repository = (IDatabaseRepository) relationship.Value[0];
-				var configuration = (IPropertyConfiguration) relationship.Value[5];
-
-				if (configuration.DeleteBehavior == RelationshipDeleteBehavior.Cascade)
-				{
-					repository.RemoveDependent(relationship.Value, entity.Id);
-					continue;
-				}
-
-				if (configuration.DeleteBehavior == RelationshipDeleteBehavior.SetNull)
-				{
-					repository.SetDependentToNull(relationship.Value, entity.Id);
-					continue;
-				}
-
-				if (!repository.HasDependentRelationship(relationship.Value, entity.Id))
-				{
-					continue;
-				}
-
-				var message = $"The association between entity types '{entity.RealType.Name}' and '{configuration.TypeName}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable.";
-				throw new InvalidOperationException(message);
-			}
 		}
 
 		private void DetectSyncableRepositories(SyncOptions options)
@@ -602,7 +596,7 @@ namespace Speedy
 				var gCount = method.GetCachedGenericArguments().Count;
 				var pCount = method.GetCachedParameters().Count;
 
-				if (typeArgs.Length != gCount || argTypes.Length != pCount)
+				if ((typeArgs.Length != gCount) || (argTypes.Length != pCount))
 				{
 					continue;
 				}
@@ -632,38 +626,79 @@ namespace Speedy
 			return repository;
 		}
 
-		private void RepositoryCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void RepositoryAddingEntity<T2>(Entity<T2> entity)
 		{
-			_collectionChangeTracker.AddAddedEntity(e.NewItems);
-			_collectionChangeTracker.Remove(e.OldItems);
+			// todo: add relationship check...
 		}
 
-		private void UpdateDependantIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
+		private void RepositoryDeletingEntity<T2>(Entity<T2> entity)
 		{
-			var entityRelationships = properties
-				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
-				.ToList();
+			var key = $"{entity.GetRealType().Name}-";
 
-			foreach (var entityRelationship in entityRelationships)
+			foreach (var relationship in OneToManyRelationships.Where(x => x.Key.StartsWith(key)))
 			{
-				if (!(entityRelationship.GetValue(entity, null) is IEntity expectedEntity))
+				var repository = (IDatabaseRepository) relationship.Value[0];
+				var configuration = (IPropertyConfiguration) relationship.Value[5];
+
+				if (configuration.DeleteBehavior == RelationshipDeleteBehavior.Cascade)
+				{
+					repository.RemoveDependent(relationship.Value, entity.Id);
+					continue;
+				}
+
+				if (configuration.DeleteBehavior == RelationshipDeleteBehavior.SetNull)
+				{
+					repository.SetDependentToNull(relationship.Value, entity.Id);
+					continue;
+				}
+
+				if (!repository.HasDependentRelationship(relationship.Value, entity.Id))
 				{
 					continue;
 				}
 
-				if (processed.Contains(expectedEntity))
-				{
-					continue;
-				}
+				var message = $"The association between entity types '{entity.RealType.Name}' and '{configuration.TypeName}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.";
+				throw new InvalidOperationException(message);
+			}
+		}
 
-				var collectionType = expectedEntity.GetType();
-				if (!Repositories.ContainsKey(collectionType.ToAssemblyName()))
-				{
-					continue;
-				}
+		private void RepositorySavedChanges(object sender, CollectionChangeTracker tracker)
+		{
+			_collectionChangeTracker.Update(tracker);
+		}
 
-				var repository = Repositories[collectionType.ToAssemblyName()];
-				repository.AssignKey(expectedEntity, processed);
+		private void RepositoryUpdateEntityRelationships(IEntity entity)
+		{
+			UpdateEntityDirectRelationships(entity);
+			UpdateEntityCollectionRelationships(entity);
+		}
+
+		private void RepositoryValidateEntity<T, T2>(T entity, IRepository<T, T2> repository) where T : Entity<T2>
+		{
+			if (Options.DisableEntityValidations)
+			{
+				return;
+			}
+
+			var typeofT = typeof(T);
+
+			if (EntityPropertyConfigurations.ContainsKey(typeofT))
+			{
+				foreach (var configuration in EntityPropertyConfigurations[typeofT])
+				{
+					if (configuration is PropertyConfiguration<T, T2> validation)
+					{
+						validation.Validate(entity, repository);
+					}
+				}
+			}
+
+			if (EntityIndexConfigurations.ContainsKey(typeofT))
+			{
+				foreach (var configuration in EntityIndexConfigurations[typeofT])
+				{
+					configuration.Validate(entity, repository);
+				}
 			}
 		}
 
@@ -671,7 +706,7 @@ namespace Speedy
 		{
 			var enumerableType = typeof(IEnumerable);
 			var collectionRelationships = properties
-				.Where(x => x.GetCachedAccessors()[0].IsVirtual)
+				.Where(x => x.IsVirtual())
 				.Where(x => enumerableType.IsAssignableFrom(x.PropertyType))
 				.Where(x => x.PropertyType.IsGenericType)
 				.ToList();
@@ -697,6 +732,35 @@ namespace Speedy
 			}
 		}
 
+		private void UpdateDependentIds(IEntity entity, ICollection<PropertyInfo> properties, List<IEntity> processed)
+		{
+			var entityRelationships = properties
+				.Where(x => x.IsVirtual())
+				.ToList();
+
+			foreach (var entityRelationship in entityRelationships)
+			{
+				if (!(entityRelationship.GetValue(entity, null) is IEntity expectedEntity))
+				{
+					continue;
+				}
+
+				if (processed.Contains(expectedEntity))
+				{
+					continue;
+				}
+
+				var collectionType = expectedEntity.GetType();
+				if (!Repositories.ContainsKey(collectionType.ToAssemblyName()))
+				{
+					continue;
+				}
+
+				var repository = Repositories[collectionType.ToAssemblyName()];
+				repository.AssignKey(expectedEntity, processed);
+			}
+		}
+
 		private void UpdateEntityChildRelationships(IEntity item, IEntity entity)
 		{
 			var itemType = item.GetType();
@@ -707,7 +771,7 @@ namespace Speedy
 			var entityRelationship = itemProperties.FirstOrDefault(x => x.Name == entityType.Name);
 			entityRelationship?.SetValue(item, entity, null);
 
-			var entityRelationshipId = itemProperties.FirstOrDefault(x => x.Name == entityType.Name + "Id");
+			var entityRelationshipId = itemProperties.FirstOrDefault(x => x.Name == (entityType.Name + "Id"));
 			var entityKeyId = entityProperties.FirstOrDefault(x => x.Name == nameof(Entity<int>.Id));
 			entityRelationshipId?.SetValue(item, entityKeyId?.GetValue(entity), null);
 		}
@@ -779,12 +843,12 @@ namespace Speedy
 			foreach (var entityRelationship in entityRelationships)
 			{
 				var otherEntity = entityRelationship.GetValue(entity, null) as IEntity;
-				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "Id");
+				var entityRelationshipIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "Id"));
 
-				if (otherEntity == null && entityRelationshipIdProperty != null)
+				if ((otherEntity == null) && (entityRelationshipIdProperty != null))
 				{
 					var otherEntityId = entityRelationshipIdProperty.GetValue(entity, null);
-					var defaultValue = entityRelationshipIdProperty.PropertyType.GetDefault();
+					var defaultValue = entityRelationshipIdProperty.PropertyType.GetDefaultValue();
 
 					if (!Equals(otherEntityId, defaultValue) && Repositories.ContainsKey(entityRelationship.PropertyType.ToAssemblyName()))
 					{
@@ -793,7 +857,7 @@ namespace Speedy
 						entityRelationship.SetValue(entity, otherEntity, null);
 					}
 				}
-				else if (otherEntity != null && entityRelationshipIdProperty != null)
+				else if ((otherEntity != null) && (entityRelationshipIdProperty != null))
 				{
 					var repository = Repositories[entityRelationship.PropertyType.ToAssemblyName()];
 					var repositoryType = repository.GetType();
@@ -832,52 +896,18 @@ namespace Speedy
 						entityRelationshipIdProperty.SetValue(entity, otherId, null);
 					}
 
-					var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == entityRelationship.Name + "SyncId");
+					var entityRelationshipSyncIdProperty = entityProperties.FirstOrDefault(x => x.Name == (entityRelationship.Name + "SyncId"));
 
-					if (entityRelationship.GetValue(entity, null) is ISyncEntity syncEntity && entityRelationshipSyncIdProperty != null)
+					if (entityRelationship.GetValue(entity, null) is ISyncEntity syncEntity && (entityRelationshipSyncIdProperty != null))
 					{
 						var otherEntitySyncId = (Guid?) entityRelationshipSyncIdProperty.GetValue(entity, null);
-						if (otherEntitySyncId != syncEntity.SyncId)
+						var syncEntitySyncId = syncEntity.GetEntitySyncId();
+						if (otherEntitySyncId != syncEntitySyncId)
 						{
 							// resets entitySyncId to entity.SyncId if it does not match
-							entityRelationshipSyncIdProperty.SetValue(entity, syncEntity.SyncId, null);
+							entityRelationshipSyncIdProperty.SetValue(entity, syncEntitySyncId, null);
 						}
 					}
-				}
-			}
-		}
-
-		private void UpdateEntityRelationships(IEntity entity)
-		{
-			UpdateEntityDirectRelationships(entity);
-			UpdateEntityCollectionRelationships(entity);
-		}
-
-		private void ValidateEntity<T, T2>(T entity, IRepository<T, T2> repository) where T : Entity<T2>
-		{
-			if (Options.DisableEntityValidations)
-			{
-				return;
-			}
-
-			var typeofT = typeof(T);
-
-			if (EntityPropertyConfigurations.ContainsKey(typeofT))
-			{
-				foreach (var configuration in EntityPropertyConfigurations[typeofT])
-				{
-					if (configuration is PropertyConfiguration<T, T2> validation)
-					{
-						validation.Validate(entity, repository);
-					}
-				}
-			}
-
-			if (EntityIndexConfigurations.ContainsKey(typeofT))
-			{
-				foreach (var configuration in EntityIndexConfigurations[typeofT])
-				{
-					configuration.Validate(entity, repository);
 				}
 			}
 		}
@@ -887,7 +917,12 @@ namespace Speedy
 		#region Events
 
 		/// <inheritdoc />
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
+		public event EventHandler Disposed;
+
+		/// <summary>
+		/// An event for when changes are saved. <see cref="SaveChanges" />
+		/// </summary>
+		public event EventHandler<CollectionChangeTracker> ChangesSaved;
 
 		#endregion
 	}

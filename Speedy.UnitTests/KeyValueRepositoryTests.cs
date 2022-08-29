@@ -257,9 +257,9 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Bar2", "Foo2"),
-				new("Item3", "Item3"),
-				new("Item1", "Item1")
+				new KeyValuePair<string, string>("Bar2", "Foo2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item1")
 			};
 
 			var actual = repository.Read().ToList();
@@ -279,9 +279,9 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Item2", "Item2"),
-				new("Item3", "Item3"),
-				new("Item1", "Item1")
+				new KeyValuePair<string, string>("Item2", "Item2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item1")
 			};
 
 			var actual = repository.Read().ToList();
@@ -354,9 +354,9 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Item2", "Item2"),
-				new("Item3", "Item3"),
-				new("Item1", "Item10")
+				new KeyValuePair<string, string>("Item2", "Item2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item10")
 			};
 
 			var actual = repository.Read().ToList();
@@ -376,9 +376,9 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Item2", "Item2"),
-				new("Item3", "Item3"),
-				new("Item1", "Item10")
+				new KeyValuePair<string, string>("Item2", "Item2"),
+				new KeyValuePair<string, string>("Item3", "Item3"),
+				new KeyValuePair<string, string>("Item1", "Item10")
 			};
 
 			var actual = repository.Read().ToList();
@@ -610,8 +610,8 @@ namespace Speedy.UnitTests
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name);
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Bar2", "Foo2"),
-				new("Foo1", "Bar1")
+				new KeyValuePair<string, string>("Bar2", "Foo2"),
+				new KeyValuePair<string, string>("Foo1", "Bar1")
 			};
 
 			var actual = repository.Read().ToList();
@@ -631,14 +631,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void ReadItemFromCache()
 		{
-			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			currentTime += TimeSpan.FromSeconds(1.5);
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -691,14 +689,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void ReadOnlyWrittenItemsFromDisk()
 		{
-			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			currentTime += TimeSpan.FromSeconds(1.5);
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Foo2", "Bar2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -731,10 +727,10 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Foo4", "Bar4"),
-				new("Bar4", "Foo4"),
-				new("Foo1", "Bar1"),
-				new("Bar1", "Foo1")
+				new KeyValuePair<string, string>("Foo4", "Bar4"),
+				new KeyValuePair<string, string>("Bar4", "Foo4"),
+				new KeyValuePair<string, string>("Foo1", "Bar1"),
+				new KeyValuePair<string, string>("Bar1", "Foo1")
 			};
 
 			var actual = repository.Read().ToList();
@@ -760,10 +756,10 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Foo4", "Bar4"),
-				new("Bar4", "Foo4"),
-				new("Foo1", "Bar1"),
-				new("Bar1", "Foo1")
+				new KeyValuePair<string, string>("Foo4", "Bar4"),
+				new KeyValuePair<string, string>("Bar4", "Foo4"),
+				new KeyValuePair<string, string>("Foo1", "Bar1"),
+				new KeyValuePair<string, string>("Bar1", "Foo1")
 			};
 
 			var actual = repository.Read().ToList();
@@ -783,8 +779,8 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("ChildItem1", "ChildItemValue1"),
-				new("ChildItem2", "ChildItemValue2")
+				new KeyValuePair<string, string>("ChildItem1", "ChildItemValue1"),
+				new KeyValuePair<string, string>("ChildItem2", "ChildItemValue2")
 			};
 
 			var actual = repository.Read(key => key != repository.Name).ToList();
@@ -905,14 +901,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void SaveShouldOnlyWriteItemsOverTimeoutToFile()
 		{
-			var currentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
-
-			TimeService.UtcNowProvider = () => currentTime;
+			TestHelper.CurrentTime = new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc);
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			currentTime += TimeSpan.FromSeconds(1.5);
+			TestHelper.CurrentTime += TimeSpan.FromSeconds(1.5);
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -964,9 +958,9 @@ namespace Speedy.UnitTests
 
 			var expected = new List<KeyValuePair<string, string>>
 			{
-				new("Item1", "Item1|Item2"),
-				new("Item2", "Item2|Boo"),
-				new("Item3", "Item3|Foo|Bar|Again")
+				new KeyValuePair<string, string>("Item1", "Item1|Item2"),
+				new KeyValuePair<string, string>("Item2", "Item2|Boo"),
+				new KeyValuePair<string, string>("Item3", "Item3|Foo|Bar|Again")
 			};
 
 			var actual = repository.Read().ToList();

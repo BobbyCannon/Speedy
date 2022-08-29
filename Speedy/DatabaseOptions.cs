@@ -79,12 +79,20 @@ namespace Speedy
 
 		#region Methods
 
+		/// <inheritdoc />
+		public override object DeepClone(int? maxDepth = null)
+		{
+			var response = new DatabaseOptions();
+			response.UpdateWith(this);
+			return response;
+		}
+
 		/// <summary>
 		/// Update these database options.
 		/// </summary>
 		/// <param name="update"> </param>
 		/// <param name="exclusions"> </param>
-		public void UpdateWith(DatabaseOptions update, params string[] exclusions)
+		public override void UpdateWith(DatabaseOptions update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)
@@ -101,9 +109,9 @@ namespace Speedy
 				MaintainModifiedOn = update.MaintainModifiedOn;
 				MaintainSyncId = update.MaintainSyncId;
 				PermanentSyncEntityDeletions = update.PermanentSyncEntityDeletions;
-				SyncOrder = update.SyncOrder;
+				SyncOrder = (string[]) update.SyncOrder.Clone();
 				Timeout = update.Timeout;
-				UnmaintainedEntities = update.UnmaintainedEntities;
+				UnmaintainedEntities = (Type[]) update.UnmaintainedEntities.Clone();
 			}
 			else
 			{

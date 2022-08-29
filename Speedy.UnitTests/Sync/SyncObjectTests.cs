@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.Client;
+using Speedy.Extensions;
 using Speedy.Sync;
 using Speedy.Website.Data.Entities;
 
@@ -56,14 +57,14 @@ namespace Speedy.UnitTests.Sync
 			);
 
 			var actual = converter.Convert(changes).ToList();
-			var expectedAddress = "{\"$id\":\"1\",\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2019-01-01T02:03:04Z\",\"Id\":0,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2019-02-03T04:05:06Z\",\"Postal\":\"Postal\",\"State\":\"State\",\"SyncId\":\"efc2c530-37b6-4fa5-ab71-bd38a3b4d277\"}";
-			var expectedAccount = "{\"$id\":\"1\",\"AddressId\":0,\"AddressSyncId\":\"efc2c530-37b6-4fa5-ab71-bd38a3b4d277\",\"CreatedOn\":\"2019-01-01T02:03:04Z\",\"EmailAddress\":null,\"ExternalId\":null,\"Id\":0,\"IsDeleted\":false,\"LastLoginDate\":\"0001-01-01T00:00:00\",\"ModifiedOn\":\"2019-02-03T04:05:06Z\",\"Name\":\"John\",\"Nickname\":null,\"PasswordHash\":null,\"Roles\":null,\"SyncId\":\"7d880bb3-183f-4f75-86d8-9834ffe8fad2\"}";
+			var expectedAddress = "{\"AccountId\":null,\"AccountSyncId\":null,\"City\":\"City\",\"CreatedOn\":\"2019-01-01T02:03:04Z\",\"Id\":0,\"IsDeleted\":false,\"Line1\":\"Line1\",\"Line2\":\"Line2\",\"LinkedAddressId\":null,\"LinkedAddressSyncId\":null,\"ModifiedOn\":\"2019-02-03T04:05:06Z\",\"Postal\":\"Postal\",\"State\":\"State\",\"SyncId\":\"efc2c530-37b6-4fa5-ab71-bd38a3b4d277\"}";
+			var expectedAccount = "{\"AddressId\":0,\"AddressSyncId\":\"efc2c530-37b6-4fa5-ab71-bd38a3b4d277\",\"CreatedOn\":\"2019-01-01T02:03:04Z\",\"EmailAddress\":null,\"ExternalId\":null,\"Id\":0,\"IsDeleted\":false,\"LastLoginDate\":\"0001-01-01T00:00:00\",\"ModifiedOn\":\"2019-02-03T04:05:06Z\",\"Name\":\"John\",\"Nickname\":null,\"PasswordHash\":null,\"Roles\":null,\"SyncId\":\"7d880bb3-183f-4f75-86d8-9834ffe8fad2\"}";
 
 			Assert.AreEqual(address.SyncId, actual[0].SyncId);
 			Assert.AreEqual(expectedAddress, actual[0].Data);
 			Assert.AreEqual(SyncObjectStatus.Modified, actual[0].Status);
 
-			actual[1].Data.Dump();
+			actual[1].Data.Escape().Dump();
 
 			Assert.AreEqual(person.SyncId, actual[1].SyncId);
 			Assert.AreEqual(expectedAccount, actual[1].Data);

@@ -11,7 +11,7 @@ namespace Speedy.Collections
 	/// Represents a sorted observable collection. The collection supports notification on clear and ability to be sorted.
 	/// </summary>
 	/// <typeparam name="T"> The type of the item stored in the collection. </typeparam>
-	public class SortedObservableCollection<T> : BaseObservableCollection<T>
+	public class SortedObservableCollection<T> : LimitedObservableCollection<T>
 	{
 		#region Fields
 
@@ -84,10 +84,7 @@ namespace Speedy.Collections
 						var index = IndexOf(sorted[i]);
 						if (index != i)
 						{
-							var item = this[index];
-							RemoveAt(index);
-							Insert(i, item);
-							//Move(index, i);
+							Move(index, i);
 						}
 					}
 				}
@@ -104,7 +101,10 @@ namespace Speedy.Collections
 		{
 			base.OnCollectionChanged(e);
 
-			if (OrderBy == null || e.Action == NotifyCollectionChangedAction.Move || e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Reset)
+			if ((OrderBy == null)
+				|| (e.Action == NotifyCollectionChangedAction.Move)
+				|| (e.Action == NotifyCollectionChangedAction.Remove)
+				|| (e.Action == NotifyCollectionChangedAction.Reset))
 			{
 				// No need to sort on these actions
 				return;

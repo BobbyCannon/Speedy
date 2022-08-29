@@ -16,12 +16,11 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void AverageTimerWithMovingAverage()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+
 			var timer = new AverageTimer();
 
-			TimeService.UtcNowProvider = () => currentTime;
-
-			timer.Time(() => currentTime = currentTime.AddTicks(1));
+			timer.Time(() => TestHelper.CurrentTime += TimeSpan.FromTicks(1));
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(1, timer.Elapsed.Ticks);
@@ -29,7 +28,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, timer.Samples);
 			Assert.AreEqual(1, timer.Count);
 
-			timer.Time(() => currentTime = currentTime.AddTicks(2));
+			timer.Time(() => TestHelper.CurrentTime += TimeSpan.FromTicks(2));
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(2, timer.Elapsed.Ticks);
@@ -37,7 +36,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, timer.Samples);
 			Assert.AreEqual(2, timer.Count);
 
-			timer.Time(() => currentTime = currentTime.AddTicks(3));
+			timer.Time(() => TestHelper.CurrentTime += TimeSpan.FromTicks(3));
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(3, timer.Elapsed.Ticks);
@@ -45,7 +44,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, timer.Samples);
 			Assert.AreEqual(3, timer.Count);
 
-			timer.Time(() => currentTime = currentTime.AddTicks(4));
+			timer.Time(() => TestHelper.CurrentTime += TimeSpan.FromTicks(4));
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(4, timer.Elapsed.Ticks);
@@ -53,7 +52,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, timer.Samples);
 			Assert.AreEqual(4, timer.Count);
 
-			timer.Time(() => currentTime = currentTime.AddTicks(5));
+			timer.Time(() => TestHelper.CurrentTime += TimeSpan.FromTicks(5));
 
 			Assert.IsFalse(timer.IsRunning);
 			Assert.AreEqual(5, timer.Elapsed.Ticks);
@@ -65,13 +64,12 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void CancelShouldResetTimer()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			
 			var timer = new AverageTimer(4);
-
-			TimeService.UtcNowProvider = () => currentTime;
-
 			timer.Start();
-			currentTime = currentTime.AddMilliseconds(123);
+			
+			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(123);
 
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
@@ -95,13 +93,12 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void CancelShouldResetTimerWithoutChangingHistory()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			
 			var timer = new AverageTimer(4);
-
-			TimeService.UtcNowProvider = () => currentTime;
-
 			timer.Start();
-			currentTime = currentTime.AddMilliseconds(123);
+			
+			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(123);
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(123, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(0, timer.Average.Ticks);
@@ -113,9 +110,9 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(1, timer.Samples);
 
 			// Restart timer
-			currentTime = currentTime.AddMilliseconds(12);
+			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(12);
 			timer.Start();
-			currentTime = currentTime.AddMilliseconds(13);
+			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(13);
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(13, timer.Elapsed.Milliseconds);
 			Assert.AreEqual(1230000, timer.Average.Ticks);
@@ -165,17 +162,15 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void ShouldAverageOverTime()
 		{
-			var dateTime = new DateTime(2020, 04, 23, 07, 56, 12);
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+
 			var timer = new AverageTimer(10);
-
 			Assert.IsFalse(timer.IsRunning);
-			TimeService.UtcNowProvider = () => dateTime;
-
+			
 			timer.Start();
-
 			Assert.IsTrue(timer.IsRunning);
-			TimeService.UtcNowProvider = () => dateTime.AddTicks(10);
 
+			TestHelper.CurrentTime += TimeSpan.FromTicks(10);
 			timer.Stop();
 
 			Assert.IsFalse(timer.IsRunning);
@@ -184,12 +179,12 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(1, timer.Samples);
 
 			// Just bump up to ensure average is borked by time moving
-			TimeService.UtcNowProvider = () => dateTime.AddTicks(100);
+			TestHelper.CurrentTime += TimeSpan.FromTicks(100);
 
 			timer.Start();
 
 			Assert.IsTrue(timer.IsRunning);
-			TimeService.UtcNowProvider = () => dateTime.AddTicks(120);
+			TestHelper.CurrentTime += TimeSpan.FromTicks(20);
 
 			timer.Stop();
 
@@ -200,12 +195,12 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(2, timer.Samples);
 
 			// Just bump up to ensure average is borked by time moving
-			TimeService.UtcNowProvider = () => dateTime.AddTicks(131);
+			TestHelper.CurrentTime += TimeSpan.FromTicks(131);
 
 			timer.Start();
 
 			Assert.IsTrue(timer.IsRunning);
-			TimeService.UtcNowProvider = () => dateTime.AddTicks(140);
+			TestHelper.CurrentTime += TimeSpan.FromTicks(9);
 
 			timer.Stop();
 
@@ -219,22 +214,21 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void ShouldAverageWithLimit()
 		{
-			var currentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 00);
+
 			var timer = new AverageTimer(4);
 			var values = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-			TimeService.UtcNowProvider = () => currentTime;
-
+			
 			for (var i = 0; i < values.Length; i++)
 			{
 				var value = values[i];
 
 				timer.Start();
-				currentTime = currentTime.AddTicks(value);
+				TestHelper.CurrentTime += TimeSpan.FromTicks(value);
 				timer.Stop();
 
 				// Just bump up to ensure average is not borked by time moving
-				currentTime = currentTime.AddTicks(50 + i);
+				TestHelper.CurrentTime += TimeSpan.FromTicks(50 + i);
 			}
 
 			// 6 + 7 + 8 + 9 = 30 / 4 = 7

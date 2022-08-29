@@ -1,5 +1,6 @@
 #region References
 
+using System;
 using System.ComponentModel;
 using System.Text;
 
@@ -13,7 +14,7 @@ namespace Speedy.Protocols.Osc
 	{
 		#region Constructors
 
-		public OscError(OscTimeTag time, Message message, params object[] arguments)
+		public OscError(DateTime time, Message message, params object[] arguments)
 		{
 			Code = message;
 			Description = message.GetDescription(arguments);

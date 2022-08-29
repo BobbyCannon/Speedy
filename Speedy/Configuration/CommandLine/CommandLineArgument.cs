@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using Speedy.Extensions;
 
 #endregion
 
@@ -11,12 +12,6 @@ namespace Speedy.Configuration.CommandLine
 	/// </summary>
 	public class CommandLineArgument<T> : CommandLineArgument
 	{
-		#region Fields
-
-		private T _typedDefaultValue;
-
-		#endregion
-
 		#region Properties
 
 		/// <summary>
@@ -24,12 +19,24 @@ namespace Speedy.Configuration.CommandLine
 		/// </summary>
 		public new T DefaultValue
 		{
-			get => _typedDefaultValue;
-			set
-			{
-				_typedDefaultValue = value;
-				HasDefaultValue = true;
-			}
+			get => base.DefaultValue is T ? (T) base.DefaultValue : default;
+			set => base.DefaultValue = value;
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return WasFound
+				? HasValue
+					? typeof(T) == typeof(string)
+						? $"{Prefix}{Name} \"{Value.Escape()}\""
+						: $"{Prefix}{Name} {Value}"
+					: $"{Prefix}{Name}"
+				: string.Empty;
 		}
 
 		#endregion

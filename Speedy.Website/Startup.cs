@@ -1,18 +1,6 @@
 #region References
 
 using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Net.Http.Headers;
-using Speedy.Profiling;
-using Speedy.Storage.KeyValue;
-using Speedy.Website.Data.Sql;
-using Speedy.Website.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -20,23 +8,36 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Newtonsoft.Json;
-using Speedy.Extensions;
-using Speedy.Serialization;
-using Speedy.Website.Middleware;
-using Speedy.Website.Services;
-using AuthenticationService = Speedy.Website.Services.AuthenticationService;
-using IAuthenticationService = Speedy.Website.Services.IAuthenticationService;
-using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
-using Speedy.Data;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using NUglify;
 using NUglify.Css;
 using NUglify.JavaScript;
+using Speedy.Data;
+using Speedy.Extensions;
+using Speedy.Profiling;
+using Speedy.Serialization;
+using Speedy.Storage.KeyValue;
 using Speedy.Sync;
 using Speedy.Website.Data;
+using Speedy.Website.Data.Sql;
+using Speedy.Website.Middleware;
+using Speedy.Website.Models;
+using Speedy.Website.Services;
 using Speedy.Website.WebApi;
+using AuthenticationService = Speedy.Website.Services.AuthenticationService;
+using IAuthenticationService = Speedy.Website.Services.IAuthenticationService;
+using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 #endregion
 
@@ -57,7 +58,9 @@ namespace Speedy.Website
 			var appDataPath = Path.Combine(rootSitePath, "SpeedyAppData");
 
 			AppDataPath = new DirectoryInfo(appDataPath);
-			SerializerSettings = new SerializerSettings(false, true, false, false, true, false);
+
+			Serializer.DefaultSettings.CamelCase = true;
+			Serializer.DefaultSettings.IgnoreVirtuals = true;
 
 			// Load settings
 			ConnectionStrings = Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
@@ -75,11 +78,9 @@ namespace Speedy.Website
 
 		public static IWebHostEnvironment Environment { get; private set; }
 
-		public static Tracker Tracker { get; private set; }
-
 		public static bool IndentModelJson => true;
 
-		public static SerializerSettings SerializerSettings { get; private set; }
+		public static Tracker Tracker { get; private set; }
 
 		#endregion
 
@@ -91,7 +92,7 @@ namespace Speedy.Website
 		public void Configure(IApplicationBuilder app)
 		{
 			var analyticsPath = Path.Combine(AppDataPath.FullName, "Analytics");
-			var client = new TrackerService(new DatabaseProvider<IContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null)));
+			var client = new TrackerService(new DatabaseProvider<IContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, x, null)));
 			var provider = new KeyValueRepositoryProvider<TrackerPath>(analyticsPath);
 
 			Tracker = Tracker.Start(client, provider);
@@ -103,11 +104,10 @@ namespace Speedy.Website
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
-
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-				app.UseHsts();
 			}
 
+			app.UseHttpsRedirection();
+			app.UseHsts();
 			app.UseWebOptimizer();
 			app.UseStaticFiles(new StaticFileOptions
 			{
@@ -137,8 +137,8 @@ namespace Speedy.Website
 
 			app.UseMiddleware<RequestTracking>();
 			app.UseSession();
+			app.UseStaticFiles();
 			app.UseRouting();
-			app.UseHttpsRedirection();
 			app.UseAuthentication();
 			app.UseAuthorization();
 
@@ -147,7 +147,7 @@ namespace Speedy.Website
 				// Routes
 				endpoints.MapControllerRoute("LogIn", "LogIn", new { controller = "Home", action = "LogIn" });
 				endpoints.MapControllerRoute("LogOut", "LogOut", new { controller = "Home", action = "LogOut" });
-				
+
 				// Defaults
 				endpoints.MapControllerRoute("Speedy", "{controller=Home}/{action=Index}/{id?}");
 			});
@@ -158,6 +158,17 @@ namespace Speedy.Website
 		/// </summary>
 		public void ConfigureServices(IServiceCollection services)
 		{
+			var isDevelopment = Environment.IsDevelopment();
+
+			if (isDevelopment)
+			{
+				services.AddHttpsRedirection(options =>
+				{
+					options.RedirectStatusCode = (int) HttpStatusCode.PermanentRedirect;
+					options.HttpsPort = 443;
+				});
+			}
+
 			services.AddMvc(options =>
 				{
 					var policy = new AuthorizationPolicyBuilder()
@@ -180,11 +191,12 @@ namespace Speedy.Website
 				options.Cookie.IsEssential = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 			});
+			services.AddControllersWithViews(options =>
+			{
+				options.Filters.Add(new HttpResponseExceptionFilter());
+				options.ModelBinderProviders.Insert(0, new PagedRequestModelBinderProvider());
+			});
 
-			services.AddControllersWithViews(options => options.Filters.Add(new HttpResponseExceptionFilter()))
-				.AddNewtonsoftJson(options => UpdateSettings(options.SerializerSettings));
-
-			var isDevelopment = Environment.IsDevelopment();
 			var databaseProvider = new DatabaseProvider<IContosoDatabase>(o => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, null), ContosoDatabase.GetDefaultOptions());
 			var syncDatabaseProvider = new SyncableDatabaseProvider<IContosoDatabase>((o, c) => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, o, c), ContosoDatabase.GetDefaultOptions(), SyncController.KeyCache);
 
@@ -240,7 +252,7 @@ namespace Speedy.Website
 					};
 					options.Events.OnRedirectToAccessDenied = async context =>
 					{
-						if (context.Request.Path.Value != null
+						if ((context.Request.Path.Value != null)
 							&& context.Request.Path.Value.Contains("/api/", StringComparison.OrdinalIgnoreCase))
 						{
 							// This will ignore all web api that are not authorized
@@ -256,7 +268,7 @@ namespace Speedy.Website
 					};
 					options.Events.OnRedirectToLogin = async context =>
 					{
-						if (context.Request.Path.Value != null 
+						if ((context.Request.Path.Value != null)
 							&& context.Request.Path.Value.Contains("/api/", StringComparison.OrdinalIgnoreCase))
 						{
 							// This will ignore all web api that are not authorized
@@ -277,24 +289,73 @@ namespace Speedy.Website
 
 			services.AddScoped<AccountService, AccountService>();
 			services.AddScoped<IAuthenticationService, AuthenticationService>();
-			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null));
+			services.AddScoped<IContosoDatabase, ContosoDatabase>(x => (ContosoDatabase) databaseProvider.GetDatabase());
 			services.AddScoped<IDatabaseProvider<IContosoDatabase>, DatabaseProvider<IContosoDatabase>>(_ => databaseProvider);
 			services.AddScoped<ISyncableDatabaseProvider<IContosoDatabase>, SyncableDatabaseProvider<IContosoDatabase>>(_ => syncDatabaseProvider);
 
 			using var database = ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection, null, null);
 			database.Database.SetCommandTimeout((int) TimeSpan.FromMinutes(15).TotalSeconds);
 			database.Database.Migrate();
+			
+			using var database2 = ContosoSqlDatabase.UseSql(ConnectionStrings.DefaultConnection.Replace("database=Speedy;", "database=Speedy2;"), null, null);
+			database2.Database.SetCommandTimeout((int) TimeSpan.FromMinutes(15).TotalSeconds);
+			database2.Database.Migrate();
 		}
 
 		private void UpdateSettings(JsonSerializerSettings destination)
 		{
-			var settings = SerializerSettings.JsonSettings;
+			var settings = Serializer.DefaultSettings.JsonSettings;
+
 			destination.ContractResolver = settings.ContractResolver;
 			destination.Converters.AddRange(settings.Converters);
 			destination.DateTimeZoneHandling = settings.DateTimeZoneHandling;
 			destination.DateFormatHandling = settings.DateFormatHandling;
 			destination.ReferenceLoopHandling = settings.ReferenceLoopHandling;
 			destination.NullValueHandling = settings.NullValueHandling;
+		}
+
+		#endregion
+	}
+
+	public class PagedRequestModelBinder : IModelBinder
+	{
+		#region Methods
+
+		public Task BindModelAsync(ModelBindingContext bindingContext)
+		{
+			if (bindingContext == null)
+			{
+				throw new ArgumentNullException(nameof(bindingContext));
+			}
+
+			if (Activator.CreateInstance(bindingContext.ModelType) is not PagedRequest pagedRequest)
+			{
+				bindingContext.Result = ModelBindingResult.Failed();
+				return Task.CompletedTask;
+			}
+			
+			pagedRequest.ParseQueryString(bindingContext.HttpContext.Request.QueryString.ToString());
+			bindingContext.Result = ModelBindingResult.Success(pagedRequest);
+			return Task.CompletedTask;
+		}
+
+		#endregion
+	}
+
+	public class PagedRequestModelBinderProvider : IModelBinderProvider
+	{
+		#region Methods
+
+		public IModelBinder GetBinder(ModelBinderProviderContext context)
+		{
+			if (context == null)
+			{
+				throw new ArgumentNullException(nameof(context));
+			}
+
+			return typeof(PagedRequest).IsAssignableFrom(context.Metadata.ModelType)
+				? new PagedRequestModelBinder()
+				: null;
 		}
 
 		#endregion

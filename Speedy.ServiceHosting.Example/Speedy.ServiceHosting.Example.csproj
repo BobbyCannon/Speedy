@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net5.0</TargetFramework>
+		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>9.0.6.0</AssemblyVersion>
-		<FileVersion>9.0.6.0</FileVersion>
-		<Version>9.0.6.0</Version>
+		<AssemblyVersion>10.0.0.0</AssemblyVersion>
+		<FileVersion>10.0.0.0</FileVersion>
+		<Version>10.0.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />

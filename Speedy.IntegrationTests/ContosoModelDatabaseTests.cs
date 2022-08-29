@@ -85,11 +85,11 @@ namespace Speedy.IntegrationTests
 
 			var methods = database.Addresses.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
 			var sortMethod = methods.First(x => x.Name == "Sort");
-			sortMethod.Invoke(database.Addresses, new object[0]);
+			sortMethod.Invoke(database.Addresses, Array.Empty<object>());
 
 			methods = database.Accounts.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
 			sortMethod = methods.First(x => x.Name == "Sort");
-			sortMethod.Invoke(database.Accounts, new object[0]);
+			sortMethod.Invoke(database.Accounts, Array.Empty<object>());
 
 			var address = database.Addresses.First();
 			address.Accounts.Add(ClientFactory.GetClientAccount("Test", address));
@@ -100,7 +100,7 @@ namespace Speedy.IntegrationTests
 
 		private static ContosoClientMemoryDatabase GetDatabase(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)
 		{
-			return new(options, keyCache);
+			return new ContosoClientMemoryDatabase(options, keyCache);
 		}
 
 		private static IDatabaseProvider<IContosoDatabase> GetDatabaseProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null)

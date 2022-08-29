@@ -3,7 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Speedy.Data.Client;
-using Speedy.Data.WebApi;
+using Speedy.Data.SyncApi;
 
 #endregion
 
@@ -26,6 +26,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -44,6 +45,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}
@@ -58,6 +60,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
+			result.ResetChangeTracking();
 
 			return result;
 		}

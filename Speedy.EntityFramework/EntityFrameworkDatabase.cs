@@ -1,19 +1,19 @@
 #region References
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Speedy.Collections;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Storage;
 using Speedy.Sync;
+using EntityState = Microsoft.EntityFrameworkCore.EntityState;
 using ValidationException = System.ComponentModel.DataAnnotations.ValidationException;
 
 #endregion
@@ -75,6 +75,9 @@ namespace Speedy.EntityFramework
 		public DbContextOptions DbContextOptions { get; }
 
 		/// <inheritdoc />
+		public bool IsDisposed { get; private set; }
+
+		/// <inheritdoc />
 		public DatabaseKeyCache KeyCache { get; }
 
 		/// <summary>
@@ -105,24 +108,46 @@ namespace Speedy.EntityFramework
 				switch (entry.State)
 				{
 					case EntityState.Modified:
+					{
 						entry.CurrentValues.SetValues(entry.OriginalValues);
 						entry.State = EntityState.Unchanged;
 						count++;
 						break;
-
+					}
 					case EntityState.Deleted:
+					{
 						entry.State = EntityState.Unchanged;
 						count++;
 						break;
-
+					}
 					case EntityState.Added:
+					{
 						entry.State = EntityState.Detached;
 						count++;
 						break;
+					}
 				}
 			}
 
 			return count;
+		}
+
+		/// <inheritdoc />
+		public sealed override void Dispose()
+		{
+			base.Dispose();
+			Dispose(true);
+			OnDisposed();
+			GC.SuppressFinalize(this);
+			IsDisposed = true;
+		}
+
+		/// <summary>
+		/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+		/// </summary>
+		public virtual Assembly GetMappingAssembly()
+		{
+			return GetType().Assembly;
 		}
 
 		/// <inheritdoc />
@@ -185,25 +210,25 @@ namespace Speedy.EntityFramework
 		{
 			var assemblyName = type.ToAssemblyName();
 
-			if (Options.SyncOrder.Length > 0 && !Options.SyncOrder.Contains(assemblyName))
+			if ((Options.SyncOrder.Length > 0) && !Options.SyncOrder.Contains(assemblyName))
 			{
 				return null;
 			}
 
-			if (_syncableRepositories.TryGetValue(type.ToAssemblyName(), out var repository))
+			if (_syncableRepositories.TryGetValue(assemblyName, out var repository))
 			{
 				return repository;
 			}
 
 			var idType = type.GetCachedProperties(BindingFlags.Public | BindingFlags.Instance).First(x => x.Name == "Id").PropertyType;
 			var methods = GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
-			var setMethod = methods.First(x => x.Name == "Set" && x.IsGenericMethodDefinition);
+			var setMethod = methods.First(x => (x.Name == "Set") && x.IsGenericMethodDefinition);
 			var method = setMethod.MakeGenericMethod(type);
 			var entitySet = method.Invoke(this, null);
 			var repositoryType = typeof(EntityFrameworkSyncableRepository<,>).MakeGenericType(type, idType);
 			repository = Activator.CreateInstance(repositoryType, this, entitySet) as ISyncableRepository;
 
-			_syncableRepositories.AddOrUpdate(type.ToAssemblyName(), repository, (k, v) => repository);
+			_syncableRepositories.AddOrUpdate(type.ToAssemblyName(), repository, (_, _) => repository);
 
 			return repository;
 		}
@@ -240,11 +265,26 @@ namespace Speedy.EntityFramework
 				var entries = ChangeTracker.Entries().ToList();
 				entries.ForEach(ProcessEntity);
 
+				var comparer = new GenericComparer<EntityEntry>(
+					(x, y) => x.Entity == y.Entity ? 0 : -1,
+					x => x.Entity.GetHashCode()
+				);
+				var newEntries = ChangeTracker
+					.Entries()
+					.Except(entries, comparer)
+					.ToList();
+
+				if (newEntries.Any())
+				{
+					newEntries.ForEach(ProcessEntity);
+					entries.AddRange(newEntries);
+				}
+
 				// The local relationships may have changed. We need keep our sync IDs in sync with any relationships that may have changed.
-				entries.ForEach(x => (x.Entity as ISyncEntity)?.UpdateLocalSyncIds());
+				entries.ForEach(x => (x.Entity as Entity)?.UpdateLocalSyncIds());
 
 				var response = base.SaveChanges();
-				var needsMoreSaving = entries.Any(x => x.State != EntityState.Detached && x.State != EntityState.Unchanged);
+				var needsMoreSaving = entries.Any(x => (x.State != EntityState.Detached) && (x.State != EntityState.Unchanged));
 				if (needsMoreSaving)
 				{
 					response += SaveChanges();
@@ -252,8 +292,20 @@ namespace Speedy.EntityFramework
 
 				if (first)
 				{
-					UpdateCache();
-					OnCollectionChanged(_collectionChangeTracker.Added, _collectionChangeTracker.Removed);
+					ChangeTracker.AcceptAllChanges();
+					KeyCache?.UpdateCache(_collectionChangeTracker);
+					OnChangesSaved(_collectionChangeTracker);
+				}
+
+				// It's possible that values were added during OnSavedChanges.
+				var moreEntries = ChangeTracker.Entries();
+				needsMoreSaving = moreEntries.Any(x => (x.State != EntityState.Detached) && (x.State != EntityState.Unchanged));
+
+				if (needsMoreSaving)
+				{
+					// Consider this loop done?
+					_saveChangeCount = 0;
+					response += SaveChanges();
 				}
 
 				return response;
@@ -269,44 +321,55 @@ namespace Speedy.EntityFramework
 			}
 		}
 
-		private void UpdateCache()
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <param name="disposing"> Should be true if managed resources should be disposed. </param>
+		protected virtual void Dispose(bool disposing)
 		{
-			if (KeyCache == null)
-			{
-				return;
-			}
-
-			foreach (var item in _collectionChangeTracker.Added)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.AddEntity(syncEntity);
-				}
-			}
-			
-			foreach (var item in _collectionChangeTracker.Updated)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.AddEntity(syncEntity);
-				}
-			}
-			
-			foreach (var item in _collectionChangeTracker.Removed)
-			{
-				if (item is ISyncEntity syncEntity)
-				{
-					KeyCache.RemoveEntity(syncEntity);
-				}
-			}
 		}
 
 		/// <summary>
-		/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+		/// Called when an entity is added. Note: this is before saving.
+		/// See <see cref="ChangesSaved" /> for after save state.
 		/// </summary>
-		protected virtual Assembly GetMappingAssembly()
+		/// <param name="entity"> The entity added. </param>
+		protected virtual void EntityAdded(IEntity entity)
 		{
-			return GetType().Assembly;
+		}
+
+		/// <summary>
+		/// Called when an entity is deleted. Note: this is before saving.
+		/// See <see cref="ChangesSaved" /> for after save state.
+		/// </summary>
+		/// <param name="entity"> The entity deleted. </param>
+		protected virtual void EntityDeleted(IEntity entity)
+		{
+		}
+
+		/// <summary>
+		/// Called when an entity is modified. Note: this is before saving.
+		/// See <see cref="ChangesSaved" /> for after save state.
+		/// </summary>
+		/// <param name="entity"> The entity modified. </param>
+		protected virtual void EntityModified(IEntity entity)
+		{
+		}
+
+		/// <summary>
+		/// Called when for when changes are saved. <see cref="ChangesSaved" />
+		/// </summary>
+		protected virtual void OnChangesSaved(CollectionChangeTracker e)
+		{
+			ChangesSaved?.Invoke(this, e);
+		}
+
+		/// <summary>
+		/// An invocator for the event when the database has been disposed.
+		/// </summary>
+		protected virtual void OnDisposed()
+		{
+			Disposed?.Invoke(this, EventArgs.Empty);
 		}
 
 		/// <summary>
@@ -351,11 +414,14 @@ namespace Speedy.EntityFramework
 			switch (exception)
 			{
 				case ValidationException ve:
+				{
 					throw new Exceptions.ValidationException(ve.Message);
-
+				}
 				case DbUpdateException ue:
+				{
 					// Wrap in a Speedy exception for consistency
 					throw new UpdateException(ue.Message, ue);
+				}
 			}
 		}
 
@@ -371,7 +437,7 @@ namespace Speedy.EntityFramework
 		protected virtual void ProcessModelTypes(ModelBuilder modelBuilder)
 		{
 			var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
-				x => x.Ticks == DateTimeExtensions.MinDateTimeTicks || x.Ticks == DateTimeExtensions.MaxDateTimeTicks
+				x => (x.Ticks == DateTimeExtensions.MinDateTimeTicks) || (x.Ticks == DateTimeExtensions.MaxDateTimeTicks)
 					? DateTime.SpecifyKind(x, DateTimeKind.Utc)
 					: x.ToUniversalTime(),
 				x => DateTime.SpecifyKind(x, DateTimeKind.Utc)
@@ -379,7 +445,7 @@ namespace Speedy.EntityFramework
 
 			var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
 				x => x.HasValue
-					? x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks || x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks
+					? (x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks) || (x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks)
 						? DateTime.SpecifyKind(x.Value, DateTimeKind.Utc)
 						: x.Value.ToUniversalTime()
 					: x.Value.ToUniversalTime(),
@@ -395,19 +461,34 @@ namespace Speedy.EntityFramework
 					switch (p.ClrType)
 					{
 						case Type _ when p.ClrType == typeof(DateTime):
-						case Type _ when p.ClrType == typeof(DateTime?):
+						{
 							p.SetColumnType("datetime2");
 							p.SetValueConverter(dateTimeConverter);
 							break;
-
+						}
+						case Type _ when p.ClrType == typeof(DateTime?):
+						{
+							p.SetColumnType("datetime2");
+							p.SetValueConverter(nullableDateTimeConverter);
+							break;
+						}
+						case Type _ when p.ClrType == typeof(decimal):
+						case Type _ when p.ClrType == typeof(decimal?):
+						{
+							p.SetColumnType("decimal(18, 6)");
+							break;
+						}
 						case Type _ when p.ClrType == typeof(Guid):
 						case Type _ when p.ClrType == typeof(Guid?):
+						{
 							p.SetColumnType("uniqueidentifier");
 							break;
-
+						}
 						case Type _ when p.ClrType == typeof(string):
+						{
 							p.SetIsUnicode(false);
 							break;
+						}
 					}
 				}
 			}
@@ -421,7 +502,7 @@ namespace Speedy.EntityFramework
 			var type = GetType();
 			var syncEntityType = typeof(ISyncEntity);
 			var cachedProperties = type.GetCachedProperties();
-			var properties = cachedProperties.Where(x => x.PropertyType.Name == typeof(IRepository<,>).Name || x.PropertyType.Name == typeof(ISyncableRepository<,>).Name).ToList();
+			var properties = cachedProperties.Where(x => (x.PropertyType.Name == typeof(IRepository<,>).Name) || (x.PropertyType.Name == typeof(ISyncableRepository<,>).Name)).ToList();
 
 			_syncableRepositories.Clear();
 
@@ -442,34 +523,6 @@ namespace Speedy.EntityFramework
 				}
 
 				GetSyncableRepository(genericType);
-			}
-		}
-
-		private void OnCollectionChanged(IList added, IList removed)
-		{
-			if (CollectionChanged == null)
-			{
-				return;
-			}
-
-			NotifyCollectionChangedEventArgs eventArgs = null;
-
-			if (added.Count > 0 && removed.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, added, removed);
-			}
-			else if (added.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, added);
-			}
-			else if (removed.Count > 0)
-			{
-				eventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed);
-			}
-
-			if (eventArgs != null)
-			{
-				CollectionChanged?.Invoke(this, eventArgs);
 			}
 		}
 
@@ -505,31 +558,30 @@ namespace Speedy.EntityFramework
 			switch (entry.State)
 			{
 				case EntityState.Added:
+				{
 					_collectionChangeTracker.AddAddedEntity(entity);
 
-					if (createdEntity != null && maintainCreatedOnDate)
+					if ((createdEntity != null) && maintainCreatedOnDate)
 					{
-						// Make sure the modified on value matches created on for new items.
 						createdEntity.CreatedOn = now;
 					}
 
-					if (modifiableEntity != null && maintainModifiedOnDate)
+					if ((modifiableEntity != null) && maintainModifiedOnDate)
 					{
 						modifiableEntity.ModifiedOn = now;
 					}
 
-					if (syncableEntity != null)
+					if ((syncableEntity != null) && maintainSyncId && (syncableEntity.SyncId == Guid.Empty))
 					{
-						if (maintainSyncId && syncableEntity.SyncId == Guid.Empty)
-						{
-							syncableEntity.SyncId = Guid.NewGuid();
-						}
+						syncableEntity.SyncId = Guid.NewGuid();
 					}
 
 					entity.EntityAdded();
+					EntityAdded(entity);
 					break;
-
+				}
 				case EntityState.Modified:
+				{
 					if (!entity.CanBeModified())
 					{
 						// Tell entity framework to not update the entity.
@@ -537,48 +589,55 @@ namespace Speedy.EntityFramework
 						break;
 					}
 
-					_collectionChangeTracker.AddUpdatedEntity(entity);
+					_collectionChangeTracker.AddModifiedEntity(entity);
 
 					// If Speedy is maintaining the CreatedOn date then we will not allow modifications outside Speedy
-					if (createdEntity != null && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
+					if ((createdEntity != null) && maintainCreatedOnDate && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ICreatedEntity.CreatedOn)))
 					{
 						// Do not allow created on to change for entities.
-						createdEntity.CreatedOn = (DateTime) entry.OriginalValues["CreatedOn"];
+						createdEntity.CreatedOn = (DateTime) entry.OriginalValues[nameof(ICreatedEntity.CreatedOn)];
 					}
 
 					// If Speedy is maintaining the ModifiedOn then we will set it to 'now'
-					if (modifiableEntity != null && maintainModifiedOnDate)
+					if ((modifiableEntity != null) && maintainModifiedOnDate)
 					{
 						// Update modified to now for new entities.
 						modifiableEntity.ModifiedOn = now;
 					}
 
-					if (syncableEntity != null)
+					if ((syncableEntity != null) && maintainSyncId && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ISyncEntity.SyncId)))
 					{
 						// Do not allow sync ID to change for entities.
-						if (Options.MaintainSyncId && entry.CurrentValues.Properties.Any(x => x.Name == nameof(ISyncEntity.SyncId)))
-						{
-							syncableEntity.SyncId = (Guid) entry.OriginalValues["SyncId"];
-						}
+						syncableEntity.SetEntitySyncId((Guid) entry.OriginalValues[nameof(ISyncEntity.SyncId)]);
 					}
 
 					entity.EntityModified();
+					EntityModified(entity);
 					break;
-
+				}
 				case EntityState.Deleted:
-					if (syncableEntity != null && !Options.PermanentSyncEntityDeletions)
+				{
+					if ((syncableEntity != null) && !Options.PermanentSyncEntityDeletions)
 					{
 						syncableEntity.IsDeleted = true;
 						syncableEntity.ModifiedOn = now;
 						entry.State = EntityState.Modified;
+
+						_collectionChangeTracker.AddModifiedEntity(entity);
+
+						entity.EntityModified();
+						EntityModified(entity);
 					}
 					else
 					{
 						_collectionChangeTracker.AddRemovedEntity(entity);
+
+						entity.EntityDeleted();
+						EntityDeleted(entity);
 					}
 
-					entity.EntityDeleted();
 					break;
+				}
 			}
 		}
 
@@ -587,7 +646,10 @@ namespace Speedy.EntityFramework
 		#region Events
 
 		/// <inheritdoc />
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
+		public event EventHandler<CollectionChangeTracker> ChangesSaved;
+
+		/// <inheritdoc />
+		public event EventHandler Disposed;
 
 		#endregion
 	}

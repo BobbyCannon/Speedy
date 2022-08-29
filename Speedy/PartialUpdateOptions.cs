@@ -2,9 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
-using Speedy.Exceptions;
+using System.Linq;
 using Speedy.Extensions;
 
 #endregion
@@ -14,38 +12,17 @@ namespace Speedy
 	/// <summary>
 	/// Options for Partial Update
 	/// </summary>
-	public class PartialUpdateOptions<T> : PartialUpdateOptions
-	{
-		#region Methods
-
-		/// <summary>
-		/// Configure a validation for a property.
-		/// </summary>
-		public PartialValidation<TProperty> Property<TProperty>([NotNull] Expression<Func<T, TProperty>> expression)
-		{
-			var propertyExpression = (MemberExpression) expression.Body;
-			var name = propertyExpression.Member.Name;
-			var response = new PartialValidation<TProperty>(name);
-			Validations.Add(name, response);
-			return response;
-		}
-
-		#endregion
-	}
-
-	/// <summary>
-	/// Options for Partial Update
-	/// </summary>
-	public abstract class PartialUpdateOptions
+	public class PartialUpdateOptions : Bindable
 	{
 		#region Constructors
 
 		/// <summary>
 		/// Instantiates options for validation for a partial update.
 		/// </summary>
-		protected PartialUpdateOptions()
+		public PartialUpdateOptions()
 		{
-			Validations = new Dictionary<string, PartialValidation>(StringComparer.OrdinalIgnoreCase);
+			ExcludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			IncludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 		}
 
 		#endregion
@@ -55,189 +32,86 @@ namespace Speedy
 		/// <summary>
 		/// Properties to be excluded.
 		/// </summary>
-		public string[] ExcludedProperties { get; private set; }
+		public HashSet<string> ExcludedProperties { get; }
 
 		/// <summary>
 		/// Properties to be included.
 		/// </summary>
-		public string[] IncludedProperties { get; private set; }
-
-		/// <summary>
-		/// The validations for a partial update.
-		/// </summary>
-		public Dictionary<string, PartialValidation> Validations { get; }
+		public HashSet<string> IncludedProperties { get; }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Exclude properties for this partial update options.
+		/// Check to see if a property should be processed.
 		/// </summary>
-		/// <param name="properties"> The properties to be excluded. </param>
-		public void ExcludeProperties(params string[] properties)
+		/// <param name="propertyName"> The name of the property to test. </param>
+		/// <returns> True if the property should be processed otherwise false. </returns>
+		public bool ShouldProcessProperty(string propertyName)
 		{
-			ExcludedProperties = properties;
+			if (IncludedProperties.Any() && !IncludedProperties.Contains(propertyName))
+			{
+				// Ignore this property because we only want to include it
+				return false;
+			}
+
+			if (ExcludedProperties.Contains(propertyName))
+			{
+				// Ignore this property because we only want to exclude it
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>
-		/// Include properties for this partial update options.
+		/// Update the PartialUpdateOptions with an update.
 		/// </summary>
-		/// <param name="properties"> The properties to be included. </param>
-		public void IncludeProperties(params string[] properties)
+		/// <param name="update"> The update to be applied. </param>
+		/// <param name="exclusions"> An optional set of properties to exclude. </param>
+		public void UpdateWith(PartialUpdateOptions update, params string[] exclusions)
 		{
-			IncludedProperties = properties;
-		}
-
-		internal static PartialUpdateOptions Create(Type genericType)
-		{
-			var partialType = typeof(PartialUpdateOptions<>);
-			var typeWithGeneric = partialType.MakeGenericType(genericType);
-			var response = (PartialUpdateOptions) Activator.CreateInstance(typeWithGeneric);
-			return response;
-		}
-
-		#endregion
-
-		#region Classes
-
-		/// <summary>
-		/// Validation for Partial Update
-		/// </summary>
-		public abstract class PartialValidation
-		{
-			#region Constructors
-
-			/// <summary>
-			/// Instantiates a validation for a partial update.
-			/// </summary>
-			protected PartialValidation(string name)
+			// If the update is null then there is nothing to do.
+			if (update == null)
 			{
-				Name = name;
+				return;
 			}
 
-			#endregion
+			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
 
-			#region Properties
-
-			/// <summary>
-			/// The text of the message that will be thrown if the validation fails.
-			/// </summary>
-			public string Message { get; protected set; }
-
-			/// <summary>
-			/// The name of the validation.
-			/// </summary>
-			public string Name { get; }
-
-			/// <summary>
-			/// Gets or sets the flag to clear / set a required requirement.
-			/// </summary>
-			public bool Required { get; protected set; }
-
-			#endregion
-
-			#region Methods
-
-			/// <summary>
-			/// Process a value through an update validation.
-			/// </summary>
-			/// <param name="value"> The value to test against a validation. </param>
-			public abstract void Process(object value);
-
-			#endregion
-		}
-
-		/// <summary>
-		/// Validation for Partial Update
-		/// </summary>
-		public class PartialValidation<T> : PartialValidation
-		{
-			#region Fields
-
-			private Func<T, bool> _validate;
-
-			#endregion
-
-			#region Constructors
-
-			/// <summary>
-			/// Instantiates a validation for a partial update.
-			/// </summary>
-			/// <param name="name"> The name of the partial update. </param>
-			public PartialValidation(string name) : base(name)
+			if (exclusions.Length <= 0)
 			{
+				ExcludedProperties.Reconcile(update.ExcludedProperties);
+				IncludedProperties.Reconcile(update.IncludedProperties);
+			}
+			else
+			{
+				this.IfThen(_ => !exclusions.Contains(nameof(ExcludedProperties)), x => x.ExcludedProperties.Reconcile(update.ExcludedProperties));
+				this.IfThen(_ => !exclusions.Contains(nameof(IncludedProperties)), x => x.IncludedProperties.Reconcile(update.IncludedProperties));
 			}
 
-			#endregion
+			//base.UpdateWith(update, exclusions);
+		}
 
-			#region Methods
-
-			/// <summary>
-			/// Set a minimum and maximum for the value.
-			/// </summary>
-			/// <param name="minimum"> The inclusive minimal value. </param>
-			/// <param name="maximum"> The inclusive maximum value. </param>
-			/// <returns> The validation for method chaining. </returns>
-			public PartialValidation<T> HasMinMaxRange(int minimum, int maximum)
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			switch (update)
 			{
-				if (typeof(T) == typeof(string))
+				case PartialUpdateOptions options:
 				{
-					_validate = x => x.ValidateStringRange(minimum, maximum);
+					UpdateWith(options, exclusions);
+					return;
 				}
-				else if (typeof(T) == typeof(int))
+				default:
 				{
-					_validate = x => x.ValidateIntRange(minimum, maximum);
-				}
-
-				return this;
-			}
-
-			/// <summary>
-			/// Sets the flag to clear / set a required requirement.
-			/// </summary>
-			/// <param name="required"> </param>
-			/// <returns> The validation for method chaining. </returns>
-			public PartialValidation<T> IsRequired(bool required = true)
-			{
-				Required = required;
-				return this;
-			}
-
-			/// <summary>
-			/// Process a validation against an object.
-			/// </summary>
-			/// <param name="value"> The object to validate against. Must be of type T. </param>
-			public override void Process(object value)
-			{
-				Process((T) value);
-			}
-
-			/// <summary>
-			/// Process a validation against an object.
-			/// </summary>
-			/// <param name="value"> The value to validate against. </param>
-			public virtual void Process(T value)
-			{
-				if (!_validate.Invoke(value))
-				{
-					throw new ValidationException(Message);
+					base.UpdateWith(update, exclusions);
+					return;
 				}
 			}
-
-			/// <summary>
-			/// The message to throw if the validation fails.
-			/// </summary>
-			/// <param name="message"> The text of the message that will be thrown if the validation fails. </param>
-			/// <returns> The validation for method chaining. </returns>
-			public PartialValidation<T> Throws(string message)
-			{
-				Message = message;
-				return this;
-			}
-
-			#endregion
 		}
+
 
 		#endregion
 	}

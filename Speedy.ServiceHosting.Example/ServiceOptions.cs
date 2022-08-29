@@ -44,6 +44,7 @@ namespace Speedy.ServiceHosting.Example
 				Help = "A require message to print.",
 				Name = "m",
 				PropertyName = nameof(Message),
+				IncludeInServiceArguments = true,
 				IsRequired = true
 			});
 

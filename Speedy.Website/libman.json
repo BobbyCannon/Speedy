@@ -3,7 +3,7 @@
 	"defaultProvider": "cdnjs",
 	"libraries": [
 		{
-			"library": "jquery@3.4.1",
+			"library": "jquery@3.6.0",
 			"destination": "wwwroot/lib/jquery"
 		},
 		{
@@ -11,7 +11,7 @@
 			"destination": "wwwroot/lib/toastr"
 		},
 		{
-			"library": "moment.js@2.24.0",
+			"library": "moment.js@2.29.4",
 			"destination": "wwwroot/lib/moment",
 			"files": ["moment.js"]
 		},
@@ -24,11 +24,11 @@
 			"destination": "wwwroot/lib/vue"
 		},
 		{
-			"library": "vue-resource@1.5.1",
+			"library": "vue-resource@1.5.3",
 			"destination": "wwwroot/lib/vue-resource"
 		},
 		{
-			"library": "underscore.js@1.9.1",
+			"library": "underscore.js@1.13.4",
 			"destination": "wwwroot/lib/underscore"
 		}
 	]

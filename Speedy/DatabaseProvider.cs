@@ -91,7 +91,7 @@ namespace Speedy
 				{
 					process(i, database);
 
-					if (i % iterationSize == 0)
+					if ((i % iterationSize) == 0)
 					{
 						database.SaveChanges();
 						database.Dispose();

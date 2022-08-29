@@ -3,6 +3,7 @@
 using System;
 using Speedy.Extensions;
 using Speedy.Serialization;
+using Speedy.Storage;
 using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
@@ -12,7 +13,7 @@ namespace Speedy
 	/// <summary>
 	/// Represents a bindable object.
 	/// </summary>
-	public abstract class CloneableBindable<T> : Bindable, ICloneable where T : new()
+	public abstract class CloneableBindable<T> : Bindable, IUpdatable<T>, ICloneable where T : new()
 	{
 		#region Constructors
 
@@ -48,6 +49,9 @@ namespace Speedy
 			}
 			return test;
 		}
+
+		/// <inheritdoc />
+		public abstract void UpdateWith(T update, params string[] exclusions);
 
 		#endregion
 	}

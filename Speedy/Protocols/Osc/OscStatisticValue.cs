@@ -1,18 +1,15 @@
 #region References
 
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 #endregion
 
-#pragma warning disable 1591
-
-#pragma warning disable 1591
-
 namespace Speedy.Protocols.Osc
 {
-	public class OscStatisticValue : INotifyPropertyChanged
+	/// <summary>
+	/// Represents a value for an OSC statistic.
+	/// </summary>
+	public class OscStatisticValue : Bindable
 	{
 		#region Fields
 
@@ -23,7 +20,20 @@ namespace Speedy.Protocols.Osc
 
 		#region Constructors
 
-		public OscStatisticValue(string name)
+		/// <summary>
+		/// Create an instance of the OSC statistic.
+		/// </summary>
+		/// <param name="name"> The name of the value. </param>
+		public OscStatisticValue(string name) : this(name, null)
+		{
+		}
+
+		/// <summary>
+		/// Create an instance of the OSC statistic.
+		/// </summary>
+		/// <param name="name"> The name of the value. </param>
+		/// <param name="dispatcher"> The dispatcher for updates. </param>
+		public OscStatisticValue(string name, IDispatcher dispatcher) : base(dispatcher)
 		{
 			Name = name;
 			UpdateInterval = TimeSpan.FromMilliseconds(1000);
@@ -33,29 +43,51 @@ namespace Speedy.Protocols.Osc
 
 		#region Properties
 
+		/// <summary>
+		/// The name of the statistic.
+		/// </summary>
 		public string Name { get; }
 
+		/// <summary>
+		/// The rate of the statistic.
+		/// </summary>
 		public float Rate { get; private set; }
 
+		/// <summary>
+		/// The total of the statistic.
+		/// </summary>
 		public long Total { get; private set; }
 
+		/// <summary>
+		/// The interval to update the statistic.
+		/// </summary>
 		public TimeSpan UpdateInterval { get; set; }
 
 		#endregion
 
 		#region Methods
 
+		/// <summary>
+		/// Increment the statistic. Default amount is 1.
+		/// </summary>
+		/// <param name="amount"> The amount to increment. Defaults to 1. </param>
 		public void Increment(int amount = 1)
 		{
 			Total += amount;
 		}
 
+		/// <summary>
+		/// Notify the UI with property changed events.
+		/// </summary>
 		public void InvokePropertyChanged()
 		{
 			OnPropertyChanged(nameof(Total));
 			OnPropertyChanged(nameof(Rate));
 		}
 
+		/// <summary>
+		/// Resets the statistic to 0.
+		/// </summary>
 		public void Reset()
 		{
 			Rate = 0;
@@ -64,6 +96,9 @@ namespace Speedy.Protocols.Osc
 			_lastTotal = 0;
 		}
 
+		/// <summary>
+		/// Updates the rate of updates.
+		/// </summary>
 		public void UpdateRate()
 		{
 			var now = TimeService.Now;
@@ -80,17 +115,6 @@ namespace Speedy.Protocols.Osc
 			_lastTotal = Total;
 			_lastUpdate = now;
 		}
-
-		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
-
-		#endregion
-
-		#region Events
-
-		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 	}

@@ -1,13 +1,16 @@
 ﻿#region References
 
 using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.Reflection;
 
 #endregion
 
 namespace Speedy.Extensions
 {
 	/// <summary>
-	/// Extensions for the string type.
+	/// Extensions for the object.
 	/// </summary>
 	public static class ObjectExtensions
 	{
@@ -32,50 +35,80 @@ namespace Speedy.Extensions
 		}
 
 		/// <summary>
-		/// Validate an object as a string with in a range.
+		/// Remove all event handlers from the provided value.
 		/// </summary>
-		/// <param name="value"> The string as an object. </param>
-		/// <param name="expected"> The expected value. </param>
-		/// <returns> True if the value is a boolean and matches the expected value. </returns>
-		public static bool ValidateBoolean(this object value, bool expected)
+		/// <param name="value"> The value to remove all event handlers. </param>
+		public static void RemoveEventHandlers(this object value)
 		{
-			return value is bool bValue && bValue == expected;
-		}
-
-		/// <summary>
-		/// Validate an object as a string with in a range.
-		/// </summary>
-		/// <param name="value"> The string as an object. </param>
-		/// <param name="minimum"> The inclusive minimum value. </param>
-		/// <param name="maximum"> The inclusive maximum value. </param>
-		/// <returns> True if the value is a string and within the provided range. </returns>
-		public static bool ValidateIntRange(this object value, int minimum, int maximum)
-		{
-			if (value is not int iValue)
+			if (value == null)
 			{
-				return false;
+				return;
 			}
 
-			return iValue >= minimum
-				&& iValue <= maximum;
-		}
+			var flags = BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+			var valueType = value.GetType();
+			var eventFields = valueType.GetCachedEventFields(flags);
+			EventHandlerList staticEventHandlers = null;
 
-		/// <summary>
-		/// Validate an object as a string with in a range.
-		/// </summary>
-		/// <param name="value"> The string as an object. </param>
-		/// <param name="minimum"> The inclusive minimum value. </param>
-		/// <param name="maximum"> The inclusive maximum value. </param>
-		/// <returns> True if the value is a string and within the provided range. </returns>
-		public static bool ValidateStringRange(this object value, int minimum, int maximum)
-		{
-			if (value is not string sValue)
+			void RemoveEventHandler(EventInfo info, Delegate subscriber)
 			{
-				return false;
+				var privateRemoveMethod = info.GetRemoveMethod(true);
+				privateRemoveMethod.Invoke(value, flags, null, new object[] { subscriber }, CultureInfo.CurrentCulture);
 			}
 
-			return sValue.Length >= minimum
-				&& sValue.Length <= maximum;
+			foreach (var eventField in eventFields)
+			{
+				// After hours and hours of research and trial and error, it turns out that
+				// STATIC Events have to be treated differently from INSTANCE Events...
+				if (eventField.IsStatic)
+				{
+					if (staticEventHandlers == null)
+					{
+						var mi = valueType.GetCachedMethod("get_Events", flags);
+						staticEventHandlers = (EventHandlerList) mi.Invoke(value, new object[] { });
+					}
+
+					var idx = eventField.GetValue(value);
+					var eventHandler = staticEventHandlers[idx];
+					var invocationList = eventHandler?.GetInvocationList();
+
+					if (invocationList == null)
+					{
+						continue;
+					}
+
+					var eventInfo = valueType.GetEvent(eventField.Name, flags);
+
+					if (eventInfo == null)
+					{
+						continue;
+					}
+
+					foreach (var subscriber in invocationList)
+					{
+						RemoveEventHandler(eventInfo, subscriber);
+					}
+				}
+				else
+				{
+					var eventInfo = valueType.GetEvent(eventField.Name, flags);
+					if (eventInfo == null)
+					{
+						continue;
+					}
+
+					var eventFieldValue = eventField.GetValue(value);
+					if (eventFieldValue is not Delegate eventHandler)
+					{
+						continue;
+					}
+
+					foreach (var subscriber in eventHandler.GetInvocationList())
+					{
+						RemoveEventHandler(eventInfo, subscriber);
+					}
+				}
+			}
 		}
 
 		#endregion

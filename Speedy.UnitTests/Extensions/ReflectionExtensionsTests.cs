@@ -1,9 +1,14 @@
 ﻿#region References
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
+using Speedy.Protocols.Osc;
+using Speedy.Website.Data.Entities;
 
 #pragma warning disable 169
 
@@ -15,6 +20,55 @@ namespace Speedy.UnitTests.Extensions
 	public class ReflectionExtensionsTests
 	{
 		#region Methods
+
+		[TestMethod]
+		public void CreateInstance()
+		{
+			var scenarios = new Dictionary<Type, object>
+			{
+				{ typeof(byte), (byte) 0 },
+				{ typeof(short), (short) 0 },
+				{ typeof(ushort), (ushort) 0 },
+				{ typeof(int), 0 },
+				{ typeof(uint), (uint) 0 },
+				{ typeof(long), (long) 0 },
+				{ typeof(ulong), (ulong) 0 },
+				{ typeof(string), string.Empty },
+				{ typeof(DateTime), DateTime.MinValue },
+				{ typeof(TimeSpan), TimeSpan.Zero },
+				{ typeof(OscTimeTag), OscTimeTag.MinValue }
+			};
+
+			foreach (var scenario in scenarios)
+			{
+				scenario.Key.FullName.Dump();
+				Assert.AreEqual(scenario.Value, scenario.Key.CreateInstance(), scenario.Key.FullName);
+			}
+		}
+
+		[TestMethod]
+		public void CreateInstanceForGenerics()
+		{
+			var scenarios = new ICollection<int>[]
+			{
+				new Collection<int>(new[] { 1, 2, 3 }),
+				new List<int>(new[] { 2, 4, 5 }),
+				new HashSet<int>(new[] { 6, 7, 8 })
+			};
+
+			foreach (var list in scenarios)
+			{
+				var type = list.GetType();
+				type.FullName.Dump();
+				TestHelper.AreEqual(list, type.CreateInstance(list), type.FullName);
+
+				if (!list.IsReadOnly)
+				{
+					list.Clear();
+					TestHelper.AreEqual(list, type.CreateInstance(), type.FullName);
+				}
+			}
+		}
 
 		[TestMethod]
 		public void FieldTests()
@@ -39,6 +93,32 @@ namespace Speedy.UnitTests.Extensions
 		}
 
 		[TestMethod]
+		public void GetDefaultValue()
+		{
+			var scenarios = new Dictionary<Type, object>
+			{
+				{ typeof(byte), (byte) 0 },
+				{ typeof(short), (short) 0 },
+				{ typeof(ushort), (ushort) 0 },
+				{ typeof(int), 0 },
+				{ typeof(uint), (uint) 0 },
+				{ typeof(long), (long) 0 },
+				{ typeof(ulong), (ulong) 0 },
+				{ typeof(string), null },
+				{ typeof(void), null },
+				{ typeof(DateTime), DateTime.MinValue },
+				{ typeof(TimeSpan), TimeSpan.Zero },
+				{ typeof(OscTimeTag), OscTimeTag.MinValue }
+			};
+
+			foreach (var scenario in scenarios)
+			{
+				scenario.Key.FullName.Dump();
+				Assert.AreEqual(scenario.Value, scenario.Key.GetDefaultValue(), scenario.Key.FullName);
+			}
+		}
+
+		[TestMethod]
 		public void MethodTests()
 		{
 			// Get Method Info by Name
@@ -59,6 +139,28 @@ namespace Speedy.UnitTests.Extensions
 			expected = new[] { "PrivateProperty" };
 			properties = type.GetCachedProperties(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic).Select(x => x.Name).ToArray();
 			TestHelper.AreEqual(expected, properties);
+		}
+
+		[TestMethod]
+		public void RemoveEventHandlers()
+		{
+			var account = new AccountEntity();
+			var eventInfos = account.GetCachedEventFields();
+			var propertyChangedEventInfo = eventInfos.FirstOrDefault(x => x.Name == nameof(AccountEntity.PropertyChanged));
+			Assert.IsNotNull(propertyChangedEventInfo);
+
+			var actual = propertyChangedEventInfo.GetValue(account);
+			Assert.IsNull(actual);
+
+			account.PropertyChanged += (sender, args) => { };
+			
+			actual = propertyChangedEventInfo.GetValue(account);
+			Assert.IsNotNull(actual);
+
+			account.RemoveEventHandlers();
+
+			actual = propertyChangedEventInfo.GetValue(account);
+			Assert.IsNull(actual);
 		}
 
 		#endregion

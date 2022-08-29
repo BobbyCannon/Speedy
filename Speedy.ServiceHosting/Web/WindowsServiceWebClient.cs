@@ -3,6 +3,7 @@
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Speedy.Net;
 using WebClient = Speedy.Net.WebClient;
 
 #endregion
@@ -22,7 +23,7 @@ namespace Speedy.ServiceHosting.Web
 		/// </summary>
 		/// <param name="uri"> The URI of the web server. </param>
 		/// <param name="credentials"> The network credentials for authentication. </param>
-		public WindowsServiceWebClient(string uri, NetworkCredential credentials = null)
+		public WindowsServiceWebClient(string uri, WebCredential credentials = null)
 			: this(uri, 0, credentials)
 		{
 		}
@@ -33,7 +34,7 @@ namespace Speedy.ServiceHosting.Web
 		/// <param name="uri"> The URI of the web server. </param>
 		/// <param name="timeout"> The timeout in milliseconds. </param>
 		/// <param name="credentials"> The network credentials for authentication. </param>
-		public WindowsServiceWebClient(string uri, int timeout, NetworkCredential credentials = null)
+		public WindowsServiceWebClient(string uri, int timeout, WebCredential credentials = null)
 			: base(uri, timeout, credentials)
 		{
 		}

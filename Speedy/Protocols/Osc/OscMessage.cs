@@ -14,6 +14,9 @@ using Speedy.Extensions;
 
 namespace Speedy.Protocols.Osc
 {
+	/// <summary>
+	/// Represents an OSC message.
+	/// </summary>
 	public class OscMessage : OscPacket, IEnumerable<object>
 	{
 		#region Constructors
@@ -29,7 +32,7 @@ namespace Speedy.Protocols.Osc
 		/// single entry array.
 		/// </remarks>
 		public OscMessage(string address, params object[] args)
-			: this(OscTimeTag.UtcNow, address, args)
+			: this(TimeService.UtcNow, address, null, args)
 		{
 		}
 
@@ -44,7 +47,24 @@ namespace Speedy.Protocols.Osc
 		/// object of type object[]. Because an object[] is an object the parameter is seen as a
 		/// single entry array.
 		/// </remarks>
-		public OscMessage(OscTimeTag time, string address, params object[] args)
+		public OscMessage(DateTime time, string address, params object[] args)
+			: this(time, address, null, args)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of an OSC message for the provided address and arguments.
+		/// </summary>
+		/// <param name="time"> The time. </param>
+		/// <param name="address"> The address. </param>
+		/// <param name="dispatcher"> The dispatcher for updates. </param>
+		/// <param name="args"> The arguments. </param>
+		/// <remarks>
+		/// Do NOT call this constructor with an object[] unless you want a message with a single
+		/// object of type object[]. Because an object[] is an object the parameter is seen as a
+		/// single entry array.
+		/// </remarks>
+		public OscMessage(DateTime time, string address, IDispatcher dispatcher, params object[] args) : base(dispatcher)
 		{
 			Address = address;
 			Arguments = new List<object>();
@@ -96,7 +116,7 @@ namespace Speedy.Protocols.Osc
 		/// <returns> The message for the address and arguments. </returns>
 		public static OscMessage FromObjectArray(string address, IEnumerable<object> args)
 		{
-			return FromObjectArray(OscTimeTag.UtcNow, address, args);
+			return FromObjectArray(TimeService.UtcNow, address, args);
 		}
 
 		/// <summary>
@@ -107,7 +127,7 @@ namespace Speedy.Protocols.Osc
 		/// <param name="address"> The address. </param>
 		/// <param name="args"> The arguments. </param>
 		/// <returns> The message for the address and arguments. </returns>
-		public static OscMessage FromObjectArray(OscTimeTag time, string address, IEnumerable<object> args)
+		public static OscMessage FromObjectArray(DateTime time, string address, IEnumerable<object> args)
 		{
 			var response = new OscMessage(time, address);
 			response.Arguments.AddRange(args);
@@ -147,6 +167,10 @@ namespace Speedy.Protocols.Osc
 			Arguments.AddRange(arguments);
 		}
 
+		/// <summary>
+		/// Convert the message to a byte array.
+		/// </summary>
+		/// <returns> The bytes that represents the message. </returns>
 		public override byte[] ToByteArray()
 		{
 			var parts = new List<byte[]>();
@@ -161,36 +185,43 @@ namespace Speedy.Protocols.Osc
 				switch (arg)
 				{
 					case short sArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(sArg));
 						break;
-
+					}
 					case ushort usArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(usArg));
 						break;
-
+					}
 					case int iArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(iArg));
 						break;
-
+					}
 					case uint uiArg:
+					{
 						typeString += "u";
 						parts.Add(OscBitConverter.GetBytes(uiArg));
 						break;
-
+					}
 					case long i64:
+					{
 						typeString += "h";
 						parts.Add(OscBitConverter.GetBytes(i64));
 						break;
-
+					}
 					case ulong ui64:
+					{
 						typeString += "H";
 						parts.Add(OscBitConverter.GetBytes(ui64));
 						break;
-
+					}
 					case float sArg:
+					{
 						if (float.IsPositiveInfinity(sArg) || float.IsNegativeInfinity(sArg))
 						{
 							typeString += "I";
@@ -201,8 +232,9 @@ namespace Speedy.Protocols.Osc
 							parts.Add(OscBitConverter.GetBytes(sArg));
 						}
 						break;
-
+					}
 					case double dValue:
+					{
 						if (double.IsPositiveInfinity(dValue) || double.IsNegativeInfinity(dValue))
 						{
 							typeString += "I";
@@ -213,81 +245,102 @@ namespace Speedy.Protocols.Osc
 							parts.Add(OscBitConverter.GetBytes(dValue));
 						}
 						break;
-
+					}
+					case decimal dValue:
+					{
+						typeString += "M";
+						parts.Add(OscBitConverter.GetBytes(dValue));
+						break;
+					}
 					case byte bValue:
+					{
 						typeString += "c";
 						parts.Add(OscBitConverter.GetBytes((char) bValue));
 						break;
-
+					}
 					case sbyte bValue:
+					{
 						typeString += "c";
 						parts.Add(OscBitConverter.GetBytes((char) bValue));
 						break;
-
+					}
 					case char character:
+					{
 						typeString += "c";
 						parts.Add(OscBitConverter.GetBytes(character));
 						break;
-
+					}
 					case bool boolean:
+					{
 						typeString += boolean ? "T" : "F";
 						break;
-
+					}
 					case null:
+					{
 						typeString += "N";
 						break;
-
+					}
 					case string s:
+					{
 						typeString += "s";
 						parts.Add(OscBitConverter.GetBytes(s));
 						break;
-
+					}
 					case IOscArgument oscType:
+					{
 						typeString += oscType.GetOscBinaryType();
 						parts.Add(oscType.GetOscValueBytes());
 						break;
-
+					}
 					case DateTime time:
+					{
 						typeString += "t";
 						var oscTime = new OscTimeTag(time);
 						parts.Add(OscBitConverter.GetBytes(oscTime.Value));
 						break;
-
+					}
 					case TimeSpan timeSpan:
+					{
 						typeString += "p";
 						parts.Add(OscBitConverter.GetBytes(timeSpan.Ticks));
 						break;
-
+					}
 					case OscSymbol s2Value:
+					{
 						typeString += "S";
 						parts.Add(OscBitConverter.GetBytes(s2Value.Value));
 						break;
-
+					}
 					case OscCrc crc:
+					{
 						typeString += "C";
 						parts.Add(OscBitConverter.GetBytes(crc));
 						break;
-
+					}
 					case byte[] b:
+					{
 						typeString += "b";
 						parts.Add(OscBitConverter.GetBytes(b));
 						break;
-
+					}
 					// Guid types that are just converted to strings and back.
 					case Guid value:
+					{
 						typeString += "s";
 						parts.Add(OscBitConverter.GetBytes(value.ToString()));
 						break;
-
+					}
 					case Enum eArg:
+					{
 						typeString += "i";
 						parts.Add(OscBitConverter.GetBytes(Convert.ToInt32(eArg)));
 						break;
-
+					}
 					// This part handles arrays. It points currentList to the array and reSets i
 					// The array is processed like normal and when it is finished we replace  
 					// currentList back with Arguments and continue from where we left off
 					case IEnumerable<object> objects:
+					{
 						if (Arguments != currentList)
 						{
 							throw new Exception("Nested Arrays are not supported");
@@ -297,14 +350,16 @@ namespace Speedy.Protocols.Osc
 						argumentsIndex = i;
 						i = 0;
 						continue;
-
+					}
 					default:
+					{
 						throw new Exception("Unable to transmit values of type " + arg.GetType());
+					}
 				}
 
 				i++;
 
-				if (currentList != Arguments && i == currentList.Count)
+				if ((currentList != Arguments) && (i == currentList.Count))
 				{
 					// End of array, go back to main Argument list
 					typeString += "]";
@@ -334,16 +389,28 @@ namespace Speedy.Protocols.Osc
 			return output;
 		}
 
+		/// <summary>
+		/// Converts the message to a HEX string.
+		/// </summary>
+		/// <returns> A hex string format of the message. </returns>
 		public string ToHexString()
 		{
 			return ToString(CultureInfo.InvariantCulture, true);
 		}
 
+		/// <summary>
+		/// Converts the message to a string.
+		/// </summary>
+		/// <returns> A string format of the message. </returns>
 		public override string ToString()
 		{
 			return ToString(CultureInfo.InvariantCulture, false);
 		}
 
+		/// <summary>
+		/// Converts the message to a string.
+		/// </summary>
+		/// <returns> A string format of the message. </returns>
 		public string ToString(IFormatProvider provider, bool numberAsHex)
 		{
 			var sb = new StringBuilder();
@@ -380,21 +447,25 @@ namespace Speedy.Protocols.Osc
 				switch (obj)
 				{
 					case int i:
+					{
 						sb.Append(hex ? $"0x{i.ToString("X8", provider)}" : i.ToString(provider));
 						break;
-
+					}
 					case uint u:
+					{
 						sb.Append(hex ? $"0x{u.ToString("X8", provider)}u" : $"{u.ToString(provider)}u");
 						break;
-
+					}
 					case long l:
+					{
 						sb.Append(hex ? $"0x{l.ToString("X16", provider)}L" : $"{l.ToString(provider)}L");
 						break;
-
+					}
 					case ulong ul:
+					{
 						sb.Append(hex ? $"0x{ul.ToString("X16", provider)}U" : $"{ul.ToString(provider)}U");
 						break;
-
+					}
 					case float f:
 					{
 						var value = f;
@@ -409,69 +480,89 @@ namespace Speedy.Protocols.Osc
 						}
 						break;
 					}
-
 					case double d:
+					{
 						sb.Append(d.ToString(provider) + "d");
 						break;
-
+					}
+					case decimal d:
+					{
+						sb.Append(d.ToString(provider) + "m");
+						break;
+					}
 					case byte b:
+					{
 						sb.Append($"'{(char) b}'");
 						break;
-
+					}
 					case char c:
+					{
 						sb.Append($"'{c}'");
 						break;
-
+					}
 					case bool b:
+					{
 						sb.Append(b.ToString());
 						break;
-
+					}
 					case null:
+					{
 						sb.Append("null");
 						break;
-
+					}
 					case string value:
+					{
 						sb.Append($"\"{value.Escape()}\"");
 						break;
-
+					}
 					case IOscArgument oscType:
+					{
 						sb.Append($"{{ {oscType.GetOscStringType()}: {oscType.GetOscValueString()} }}");
 						break;
-
+					}
 					case DateTime dateTime:
-						var oscTime = dateTime.ToOscTimeTag();
-						sb.Append($"{{ Time: {oscTime} }}");
+					{
+						var dateTimeString = dateTime.ToUtcString();
+						sb.Append($"{{ Time: {dateTimeString} }}");
 						break;
-
+					}
 					case TimeSpan timeSpan:
+					{
 						sb.Append($"{{ TimeSpan: {timeSpan} }}");
 						break;
-
+					}
 					case OscSymbol symbol:
+					{
 						sb.Append(symbol.Value.Escape());
 						break;
-
+					}
 					case byte[] bytes:
+					{
 						sb.Append($"{{ Blob: {bytes.ToStringBlob()} }}");
 						break;
-
+					}
 					case Guid value:
+					{
 						sb.Append($"\"{value}\"");
 						break;
-
+					}
 					case Enum eValue:
+					{
 						sb.Append(Convert.ToInt32(eValue));
 						break;
-
+					}
 					case IEnumerable<object> objects:
+					{
 						sb.Append('[');
 						ArgumentsToString(sb, hex, provider, objects);
 						sb.Append(']');
 						break;
-
+					}
 					default:
+					{
 						sb.Append(obj.ToString().Escape());
 						break;
+					}
 				}
 			}
 		}
@@ -484,7 +575,7 @@ namespace Speedy.Protocols.Osc
 		/// <param name="length"> The length for the message. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> Message containing various arguments and an address </returns>
-		internal static OscPacket ParseMessage(OscTimeTag time, byte[] data, int length, params OscArgumentParser[] parsers)
+		internal static OscPacket ParseMessage(DateTime time, byte[] data, int length, params OscArgumentParser[] parsers)
 		{
 			var index = 0;
 			var arguments = new List<object>();
@@ -494,26 +585,35 @@ namespace Speedy.Protocols.Osc
 			var address = GetAddress(data, index);
 			index += data.FirstIndexAfter(address.Length, x => x == ',');
 
-			if (index % 4 != 0)
+			if ((index % 4) != 0)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidMessageAddressMisAligned);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidMessageAddressMisAligned);
 			}
 
 			// Get type tags
 			var types = GetTypes(data, index);
 			index += types.Length;
 
-			while (index % 4 != 0)
+			while ((index % 4) != 0)
 			{
 				index++;
 			}
 
 			var commaParsed = false;
 
+			//
+			// Use type 'char' values
+			//
+			//	\0, i (int32), u (uint32), f (float), s (string), b (blob), h (int64), H (uint64),
+			//	t (OscTime), p (TimeSpan), d (double), S (symbol), c (char), r (rgba), m (midi),
+			//	T (true), F (false), N (null), I (positive infinity), C (crc), M (decimal)
+			//	[ (start array), ] (end array)
+			//
+
 			foreach (var type in types)
 			{
 				// skip leading comma
-				if (type == ',' && !commaParsed)
+				if ((type == ',') && !commaParsed)
 				{
 					commaParsed = true;
 					continue;
@@ -578,11 +678,19 @@ namespace Speedy.Protocols.Osc
 						break;
 
 					case 'd':
+					{
 						var dValue = OscBitConverter.ToDouble(data, index);
 						arguments.Add(dValue);
 						index += 8;
 						break;
-
+					}
+					case 'M':
+					{
+						var dValue = OscBitConverter.ToDecimal(data, index);
+						arguments.Add(dValue);
+						index += 16;
+						break;
+					}
 					case 'S':
 						var s2Value = OscBitConverter.ToString(data, ref index);
 						arguments.Add(new OscSymbol(s2Value));
@@ -629,7 +737,7 @@ namespace Speedy.Protocols.Osc
 					case '[':
 						if (arguments != mainArray)
 						{
-							return new OscError(OscTimeTag.UtcNow, OscError.Message.UnsupportedNestedArrays);
+							return new OscError(TimeService.UtcNow, OscError.Message.UnsupportedNestedArrays);
 						}
 						arguments = new List<object>(); // make arguments point to a new object array
 						break;
@@ -657,13 +765,13 @@ namespace Speedy.Protocols.Osc
 
 						if (!parsed)
 						{
-							return new OscError(OscTimeTag.UtcNow, OscError.Message.UnknownTagType, type);
+							return new OscError(TimeService.UtcNow, OscError.Message.UnknownTagType, type);
 						}
 
 						break;
 				}
 
-				while (index % 4 != 0)
+				while ((index % 4) != 0)
 				{
 					index++;
 				}
@@ -685,11 +793,11 @@ namespace Speedy.Protocols.Osc
 		/// <param name="provider"> The format provider to use during parsing. </param>
 		/// <param name="parsers"> An optional set of OSC argument parsers. </param>
 		/// <returns> The parsed OSC message. </returns>
-		internal static OscPacket ParseMessage(OscTimeTag time, string value, IFormatProvider provider, params OscArgumentParser[] parsers)
+		internal static OscPacket ParseMessage(DateTime time, string value, IFormatProvider provider, params OscArgumentParser[] parsers)
 		{
 			if (string.IsNullOrWhiteSpace(value))
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidParseOscPacketInput);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidParseOscPacketInput);
 			}
 
 			var index = value.IndexOf(',');
@@ -704,12 +812,12 @@ namespace Speedy.Protocols.Osc
 
 			if (string.IsNullOrWhiteSpace(address))
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidMessageAddressWasEmpty);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidMessageAddressWasEmpty);
 			}
 
 			if (OscAddress.IsValidAddress(address) == false)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.InvalidMessageAddress);
+				return new OscError(TimeService.UtcNow, OscError.Message.InvalidMessageAddress);
 			}
 
 			var arguments = new List<object>();
@@ -720,7 +828,7 @@ namespace Speedy.Protocols.Osc
 			}
 			catch (Exception ex)
 			{
-				return new OscError(OscTimeTag.UtcNow, OscError.Message.FailedParsingArguments, ex.Message);
+				return new OscError(TimeService.UtcNow, OscError.Message.FailedParsingArguments, ex.Message);
 			}
 
 			return new OscMessage(time, address, arguments.ToArray());

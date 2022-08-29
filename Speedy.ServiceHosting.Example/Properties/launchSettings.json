@@ -2,7 +2,7 @@
 	"profiles": {
 		"Speedy.ServiceHosting.Example": {
 			"commandName": "Project",
-			"commandLineArgs": ""
+			"commandLineArgs": "-i -m \"test\""
 		}
 	}
 }

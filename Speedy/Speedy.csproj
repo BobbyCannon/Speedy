@@ -1,13 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
+		<Platforms>AnyCPU;x64;x86</Platforms>
 		<AssemblyTitle>Speedy</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy</Product>
 		<Description>Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.</Description>
-		<Copyright>Â© Copyright 2014-2021</Copyright>
+		<Copyright>© Copyright 2014-2022</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -23,29 +24,33 @@
 		<PackageId>Speedy</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-		<AssemblyVersion>9.0.6.0</AssemblyVersion>
-		<FileVersion>9.0.6.0</FileVersion>
-		<Version>9.0.6.0</Version>
 		<DocumentationFile>Speedy.xml</DocumentationFile>
+		<AssemblyVersion>10.0.0.0</AssemblyVersion>
+		<FileVersion>10.0.0.0</FileVersion>
+		<Version>10.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />
-	</ItemGroup>
-	<ItemGroup>
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+		<None Include="Speedy.snk" />
+		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="NETStandard.Library" Version="2.0.3" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="3.1.28" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+		<PackageReference Include="NETStandard.Library" Version="2.0.3" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="Speedy.snk" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+		<InternalsVisibleTo Include="Speedy.EntityFramework" Key="0024000004800000940000000602000000240000525341310004000001000100F97ABDC5A6BC1880E495FB5575D8C7758E32B31D901068015D0E4F9D21DFA2D3EDA859956E585EBC5D62066957FACE3530698EAA1EACE45A9175DA66211E9FFF0DEB7B686E01743A9A1ACEE9F42B8EDF341C4F97A8212006A5AC0A6C211BC8206DC87F190F890FF1D041C9EB3EDA3BB863240775B8EF2580EC4BCA96AC0365D8" />
+		<InternalsVisibleTo Include="Speedy.IntegrationTests" Key="0024000004800000940000000602000000240000525341310004000001000100F97ABDC5A6BC1880E495FB5575D8C7758E32B31D901068015D0E4F9D21DFA2D3EDA859956E585EBC5D62066957FACE3530698EAA1EACE45A9175DA66211E9FFF0DEB7B686E01743A9A1ACEE9F42B8EDF341C4F97A8212006A5AC0A6C211BC8206DC87F190F890FF1D041C9EB3EDA3BB863240775B8EF2580EC4BCA96AC0365D8" />
 	</ItemGroup>
 </Project>

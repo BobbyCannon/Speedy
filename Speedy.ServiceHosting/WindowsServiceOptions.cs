@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -114,7 +115,7 @@ namespace Speedy.ServiceHosting
 			builder.AppendLine($"{ServiceDisplayName} {ServiceVersion}");
 			return base.BuildHelpInformation(builder, shouldIncludeCheck);
 		}
-		
+
 		/// <inheritdoc />
 		public override string BuildIssueInformation(StringBuilder builder = null)
 		{
@@ -230,8 +231,14 @@ namespace Speedy.ServiceHosting
 		{
 			ServiceFilePath = assembly.Location;
 
+			// Single file compile will not have ServiceFilePath
+			if (string.IsNullOrWhiteSpace(ServiceFilePath))
+			{
+				ServiceFilePath = Process.GetCurrentProcess().MainModule?.FileName;
+			}
+
 			// .Net 5/6 (core) ends with dll but that is not correct.
-			if (ServiceFilePath.ToLower().EndsWith(".dll"))
+			if (ServiceFilePath?.ToLower().EndsWith(".dll") == true)
 			{
 				ServiceFilePath = $"{ServiceFilePath.Substring(0, ServiceFilePath.Length - 4)}.exe";
 			}

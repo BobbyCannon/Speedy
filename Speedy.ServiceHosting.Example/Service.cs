@@ -29,6 +29,8 @@ namespace Speedy.ServiceHosting.Example
 		{
 			var count = 0;
 
+			WriteLine(Options.Message);
+
 			while (IsRunning)
 			{
 				//CheckForUpdate();

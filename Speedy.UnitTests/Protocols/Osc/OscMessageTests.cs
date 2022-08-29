@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Speedy.Extensions;
@@ -141,7 +142,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", false);
 			//                         /     a                 ,     F
@@ -150,14 +151,14 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 		}
 
 		[TestMethod]
-		public void ToBytesForBytArray()
+		public void ToBytesForByteArray()
 		{
 			var message = new OscMessage("/a", new byte[] { 0, 1, 1, 2, 3, 5, 8, 13 });
-			//                         /     a                 ,     i                                   8     0     1     1     2     3     5     8    13
+			//                             /     a                 ,     i                                   8     0     1     1     2     3     5     8    13
 			var expected = new byte[] { 0x2F, 0x61, 0x00, 0x00, 0x2C, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x01, 0x01, 0x02, 0x03, 0x05, 0x08, 0x0D };
 			var actual = message.ToByteArray();
 			TestHelper.AreEqual(expected, actual);
@@ -174,6 +175,80 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.IsNotNull(actualMessage);
 			TestHelper.AreEqual(message[0], actualMessage[0]);
 		}
+		
+		[TestMethod]
+		public void ToBytesForDecimal()
+		{
+			var message = new OscMessage("/a", 123.45678m);
+			//                             /     a                 ,     M                 1                                                                                        16
+			var expected = new byte[] { 0x2F, 0x61, 0x00, 0x00, 0x2C, 0x4D, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xBC, 0x61, 0x4E };
+			var actual = message.ToByteArray();
+			actual.Select(x => $"0x{x:X2}, ").Dump();
+			TestHelper.AreEqual(expected, actual);
+			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
+			Assert.IsNotNull(actualMessage);
+			TestHelper.AreEqual(123.45678m, message[0]);
+			TestHelper.AreEqual(message[0], actualMessage[0]);
+			
+			message = new OscMessage("/a", decimal.MinValue);
+			//                         /     a                 ,     M                 1                                                                                        16
+			expected = new byte[] { 0x2F, 0x61, 0x00, 0x00, 0x2C, 0x4D, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+			actual = message.ToByteArray();
+			actual.Select(x => $"0x{x:X2}, ").Dump();
+			TestHelper.AreEqual(expected, actual);
+			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
+			Assert.IsNotNull(actualMessage);
+			TestHelper.AreEqual(decimal.MinValue, message[0]);
+			TestHelper.AreEqual(message[0], actualMessage[0]);
+			
+			message = new OscMessage("/a", decimal.MaxValue);
+			//                         /     a                 ,     M                 1                                                                                        16
+			expected = new byte[] { 0x2F, 0x61, 0x00, 0x00, 0x2C, 0x4D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+			actual = message.ToByteArray();
+			actual.Select(x => $"0x{x:X2}, ").Dump();
+			TestHelper.AreEqual(expected, actual);
+			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
+			Assert.IsNotNull(actualMessage);
+			TestHelper.AreEqual(decimal.MaxValue, message[0]);
+			TestHelper.AreEqual(message[0], actualMessage[0]);
+		}
+		
+		[TestMethod]
+		public void ToBytesForIntegers()
+		{
+			var message = new OscMessage("/a", 1234);
+			//                             /     a                 ,     i                 1                 4
+			var expected = new byte[] { 0x2F, 0x61, 0x00, 0x00, 0x2C, 0x69, 0x00, 0x00, 0x00, 0x00, 0x04, 0xD2 };
+			var actual = message.ToByteArray();
+			actual.Select(x => $"0x{x:X2}, ").Dump();
+			TestHelper.AreEqual(expected, actual);
+			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
+			Assert.IsNotNull(actualMessage);
+			TestHelper.AreEqual(1234, message[0]);
+			TestHelper.AreEqual(message[0], actualMessage[0]);
+			
+			message = new OscMessage("/a", int.MinValue);
+			//                         /     a                 ,     i                 1                 4
+			expected = new byte[] { 0x2F, 0x61, 0x00, 0x00, 0x2C, 0x69, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00 };
+			actual = message.ToByteArray();
+			actual.Select(x => $"0x{x:X2}, ").Dump();
+			TestHelper.AreEqual(expected, actual);
+			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
+			Assert.IsNotNull(actualMessage);
+			TestHelper.AreEqual(int.MinValue, message[0]);
+			TestHelper.AreEqual(message[0], actualMessage[0]);
+			
+			message = new OscMessage("/a", int.MaxValue);
+			//                         /     a                 ,     i                 1                 4
+			expected = new byte[] { 0x2F, 0x61, 0x00, 0x00, 0x2C, 0x69, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF };
+			actual = message.ToByteArray();
+			actual.Select(x => $"0x{x:X2}, ").Dump();
+			TestHelper.AreEqual(expected, actual);
+			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
+			Assert.IsNotNull(actualMessage);
+			TestHelper.AreEqual(int.MaxValue, message[0]);
+			TestHelper.AreEqual(message[0], actualMessage[0]);
+		}
 
 		[TestMethod]
 		public void ToBytesForStrings()
@@ -185,7 +260,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "1");
 			//                         /     a                 ,     s                 1
@@ -194,7 +269,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "123");
 			//                         /     a                 ,     s                 1     2     3
@@ -203,7 +278,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "1234");
 			//                         /     a                 ,     s                 1     2     3     4
@@ -212,7 +287,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", "12345");
 			//                         /     a                 ,     s                 1     2     3     4     5
@@ -221,7 +296,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 		}
 
 		[TestMethod]
@@ -241,8 +316,8 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void ToBytesForTimeTag()
 		{
-			TimeService.NowProvider = () => new DateTime(2021, 02, 17, 08, 54, 00, DateTimeKind.Local);
-			TimeService.UtcNowProvider = () => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc);
+			TimeService.AddNowProvider(() => new DateTime(2021, 02, 17, 08, 54, 00, DateTimeKind.Local));
+			TimeService.AddUtcNowProvider(() => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc));
 
 			var message = new OscMessage("/a", new OscTimeTag(new DateTime(2020, 02, 13, 01, 45, 13, DateTimeKind.Utc)));
 			((OscTimeTag) message.Arguments[0]).Value.Dump();
@@ -268,7 +343,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			var actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", 23, "12345");
 			//                         /     a                 ,     i     s                            23     1     2     3     4     5
@@ -277,7 +352,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			TestHelper.AreEqual(expected, actual);
 			actualMessage = OscPacket.Parse(message.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage);
-			TestHelper.AreEqual(message, actualMessage, new[] { nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow) });
+			TestHelper.AreEqual(message, actualMessage, nameof(OscTimeTag.Now), nameof(OscTimeTag.UtcNow));
 
 			message = new OscMessage("/a", 23, Guid.Parse("0354FF2E-508C-4CF6-8BEA-2A2870E78A9B"));
 			//                         /     a                 ,     i     s                            23     0     3     5     4     F     F     2     E     -     5     0     8     C     -     4     C     F     6     -     8     B     E     A     -     2     A     2     8     7     0     E     7     8     A     9     B
@@ -303,13 +378,13 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void ToFromByteArrayOscMessageWithAllTypes()
 		{
-			TimeService.NowProvider = () => new DateTime(2021, 02, 17, 08, 54, 00, DateTimeKind.Local);
-			TimeService.UtcNowProvider = () => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc);
+			TimeService.AddNowProvider(() => new DateTime(2021, 02, 17, 08, 54, 00, DateTimeKind.Local));
+			TimeService.AddUtcNowProvider(() => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc));
 
 			var message = GetOscMessage();
-			var expected = new byte[] { 0x2F, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x69, 0x75, 0x73, 0x62, 0x68, 0x48, 0x48, 0x74, 0x5B, 0x54, 0x69, 0x73, 0x4E, 0x5D, 0x63, 0x54, 0x46, 0x66, 0x49, 0x49, 0x4E, 0x64, 0x49, 0x49, 0x53, 0x72, 0x6D, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7B, 0x00, 0x00, 0x01, 0xC8, 0x42, 0x6F, 0x6F, 0x6D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x8E, 0xDF, 0xEE, 0xA7, 0x94, 0x00, 0x00, 0x00, 0x00, 0xDF, 0xEE, 0xB4, 0xC4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7B, 0x66, 0x6F, 0x78, 0x00, 0x00, 0x00, 0x00, 0x41, 0x42, 0xF6, 0xE6, 0x66, 0x40, 0x4B, 0x29, 0x16, 0x87, 0x2B, 0x02, 0x0C, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x50, 0x4C, 0x2A, 0x18, 0x00, 0x00, 0x0A, 0x92, 0xE6, 0x1F, 0xB2, 0xA0 };
+			var expected = new byte[] { 0x2F, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x00, 0x00, 0x00, 0x00, 0x2C, 0x69, 0x75, 0x73, 0x62, 0x68, 0x48, 0x48, 0x74, 0x5B, 0x54, 0x69, 0x73, 0x4E, 0x5D, 0x63, 0x54, 0x46, 0x66, 0x49, 0x49, 0x4E, 0x64, 0x49, 0x49, 0x4D, 0x4D, 0x4D, 0x53, 0x72, 0x6D, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7B, 0x00, 0x00, 0x01, 0xC8, 0x42, 0x6F, 0x6F, 0x6D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x01, 0x02, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x8E, 0xDF, 0xEE, 0xA7, 0x94, 0x00, 0x00, 0x00, 0x00, 0xDF, 0xEE, 0xB4, 0xC4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7B, 0x66, 0x6F, 0x78, 0x00, 0x00, 0x00, 0x00, 0x41, 0x42, 0xF6, 0xE6, 0x66, 0x40, 0x4B, 0x29, 0x16, 0x87, 0x2B, 0x02, 0x0C, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x1F, 0x71, 0xFB, 0x04, 0xCB, 0x80, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x50, 0x4C, 0x2A, 0x18, 0x00, 0x00, 0x0A, 0x92, 0xE6, 0x1F, 0xB2, 0xA0 };
 			var actual = message.ToByteArray();
-			actual.Dump();
+			actual.Select(x => $"0x{x:X2}, ").Dump();
 
 			TestHelper.AreEqual(expected, actual);
 
@@ -320,7 +395,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		public void ToFromStringOscMessageWithAllTypes()
 		{
 			var message = GetOscMessage();
-			var expected = "/Address,123,456u,\"Boom\",{ Blob: 0x010203 },321L,654U,16136018769012064256U,{ Time: 2019-01-20T08:50:12.000Z },[True,123,\"fox\",null],'A',True,False,123.45f,Infinity,-Infinity,null,54.321d,Infinityd,-Infinityd,Test,{ Color: 1,2,3,4 },{ Midi: 80,76,42,24 },{ TimeSpan: 13.10:56:44.2340000 }";
+			var expected = "/Address,123,456u,\"Boom\",{ Blob: 0x010203 },321L,654U,16136018769012064256U,{ Time: 2019-01-20T08:50:12.0000000Z },[True,123,\"fox\",null],\'A\',True,False,123.45f,Infinity,-Infinity,null,54.321d,Infinityd,-Infinityd,12345.67890123m,-79228162514264337593543950335m,79228162514264337593543950335m,Test,{ Color: 1,2,3,4 },{ Midi: 80,76,42,24 },{ TimeSpan: 13.10:56:44.2340000 }";
 			var actual = message.ToString();
 
 			actual.Escape().Dump();
@@ -363,7 +438,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 		private OscMessage GetOscMessage()
 		{
-			var message = new OscMessage(OscTimeTag.UtcNow, "/Address");
+			var message = new OscMessage(TimeService.UtcNow, "/Address");
 			message.Arguments.Add(123);
 			message.Arguments.Add((uint) 456);
 			message.Arguments.Add("Boom");
@@ -383,6 +458,9 @@ namespace Speedy.UnitTests.Protocols.Osc
 			message.Arguments.Add(54.321d);
 			message.Arguments.Add(double.PositiveInfinity);
 			message.Arguments.Add(double.NegativeInfinity);
+			message.Arguments.Add(12345.67890123m);
+			message.Arguments.Add(decimal.MinValue);
+			message.Arguments.Add(decimal.MaxValue);
 			message.Arguments.Add(new OscSymbol("Test"));
 			message.Arguments.Add(new OscRgba(1, 2, 3, 4));
 			message.Arguments.Add(new OscMidi(80, 76, 42, 24));
@@ -395,7 +473,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var index = 0;
 			Assert.IsNotNull(actual);
 			Assert.AreEqual("/Address", actual.Address);
-			Assert.AreEqual(23, actual.Arguments.Count);
+			Assert.AreEqual(26, actual.Arguments.Count);
 			Assert.AreEqual(123, actual.Arguments[index++]);
 			Assert.AreEqual((uint) 456, actual.Arguments[index++]);
 			Assert.AreEqual("Boom", actual.Arguments[index++]);
@@ -427,6 +505,9 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(54.321d, actual.Arguments[index++]);
 			Assert.AreEqual(double.PositiveInfinity, actual.Arguments[index++]);
 			Assert.AreEqual(allInfinityTheSame ? double.PositiveInfinity : double.NegativeInfinity, actual.Arguments[index++]);
+			Assert.AreEqual(12345.67890123m, actual.Arguments[index++]);
+			Assert.AreEqual(decimal.MinValue, actual.Arguments[index++]);
+			Assert.AreEqual(decimal.MaxValue, actual.Arguments[index++]);
 			Assert.AreEqual(new OscSymbol("Test"), actual.Arguments[index++]);
 			Assert.AreEqual(new OscRgba(1, 2, 3, 4), actual.Arguments[index++]);
 			Assert.AreEqual(new OscMidi(80, 76, 42, 24), actual.Arguments[index++]);

@@ -11,8 +11,16 @@
 $ErrorActionPreference = "Stop"
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = $PSScriptRoot
-#$scriptPath = "C:\Workspaces\GitHub\Speedy"
 $productName = "Speedy"
+
+#$scriptPath = "C:\Workspaces\EpicCoders\$productName"
+#$scriptPath = "C:\Workspaces\GitHub\$productName"
+
+if ($scriptPath.Length -le 0)
+{
+	$scriptPath = "C:\Workspaces\EpicCoders\$productName"
+}
+
 $destination = "$scriptPath\Binaries"
 $destination2 = "C:\Workspaces\Nuget\Development"
 
@@ -24,7 +32,6 @@ if (Test-Path $destination -PathType Container)
 }
 
 New-Item $destination -ItemType Directory | Out-Null
-New-Item $destination\Bin -ItemType Directory | Out-Null
 
 if (!(Test-Path $destination2 -PathType Container))
 {
@@ -35,7 +42,7 @@ try
 {
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 9 -Minor 0 -Build $BuildNumber -Revision 0
+	$newVersion = .\IncrementVersion.ps1 -Major 10 -Minor 0 -Build $BuildNumber -Revision 0
 	$nugetVersion = ([Version] $newVersion).ToString(3)
 	
 	if ($VersionSuffix.Length -gt 0)
@@ -43,7 +50,7 @@ try
 		$nugetVersion = "$nugetVersion-$VersionSuffix"
 	}
 	
-	$projectFiles = "$scriptPath\Speedy\Speedy.csproj", "$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj"
+	$projectFiles = "$scriptPath\Speedy\Speedy.csproj", "$scriptPath\Speedy.Automation\Speedy.Automation.csproj", "$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj", "$scriptPath\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj"
 
 	# Set the nuget version
 	foreach ($filePath in $projectFiles)
@@ -55,8 +62,8 @@ try
 
 	& nuget.exe restore "$scriptPath\$productName.sln"
 
-	$msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe"
-	& $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /p:Platform="Any CPU" /t:Rebuild /v:m /m
+	$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Professional\Msbuild\Current\Bin\MSBuild.exe"
+	& $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /t:Rebuild /v:m /m
 
 	if ($LASTEXITCODE -ne 0)
 	{
@@ -64,23 +71,20 @@ try
 		exit $LASTEXITCODE
 	}
 
-	Copy-Item "$productName\bin\$Configuration\\$productName.dll" "$destination\bin\"
-	Copy-Item "$productName\bin\$Configuration\\$productName.pdb" "$destination\bin\"
-
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination\"
+	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.ServiceHosting\bin\$Configuration\$productName.ServiceHosting.$nugetVersion.nupkg" "$destination\"
+	
+	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination\$productName.$nugetVersion.nupkg.zip"
+	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination\$productName.Automation.$nugetVersion.nupkg.zip"
+	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination\$productName.EntityFramework.$nugetVersion.nupkg.zip"
+	Copy-Item "$productName.ServiceHosting\bin\$Configuration\$productName.ServiceHosting.$nugetVersion.nupkg" "$destination\$productName.ServiceHosting.$nugetVersion.nupkg.zip"
 
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
+	Copy-Item "$productName.Automation\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.ServiceHosting\bin\$Configuration\$productName.ServiceHosting.$nugetVersion.nupkg" "$destination2\"
-
-	$versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$destination\bin\$productName.dll")
-
-	if ($versionInfo.FileVersion.ToString() -ne $newVersion)
-	{
-		Write-Error "The new version $($versionInfo.FileVersion.ToString()) does not match the expected version ($newVersion)"
-	}
 
 	Write-Host
 	Set-Location $scriptPath

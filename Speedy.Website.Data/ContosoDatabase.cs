@@ -8,9 +8,12 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Speedy.Data.SyncApi;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
+using Speedy.Storage;
 using Speedy.Website.Data.Entities;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 #endregion
 
@@ -41,18 +44,19 @@ namespace Speedy.Website.Data
 
 		#region Properties
 
-		public IRepository<AccountEntity, int> Accounts => GetSyncableRepository<AccountEntity, int>();
-		public IRepository<AddressEntity, long> Addresses => GetSyncableRepository<AddressEntity, long>();
+		public ISyncableRepository<AccountEntity, int> Accounts => GetSyncableRepository<AccountEntity, int>();
+		public ISyncableRepository<AddressEntity, long> Addresses => GetSyncableRepository<AddressEntity, long>();
+		public bool EnableSaveProcessing { get; set; }
 		public IRepository<FoodEntity, int> Food => GetRepository<FoodEntity, int>();
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships => GetRepository<FoodRelationshipEntity, int>();
 		public IRepository<GroupMemberEntity, int> GroupMembers => GetRepository<GroupMemberEntity, int>();
 		public IRepository<GroupEntity, int> Groups => GetRepository<GroupEntity, int>();
-		public IRepository<LogEventEntity, long> LogEvents => GetSyncableRepository<LogEventEntity, long>();
+		public ISyncableRepository<LogEventEntity, long> LogEvents => GetSyncableRepository<LogEventEntity, long>();
 		public IRepository<PetEntity, (string Name, int OwnerId)> Pets => GetRepository<PetEntity, (string Name, int OwnerId)>();
 		public IRepository<PetTypeEntity, string> PetTypes => GetRepository<PetTypeEntity, string>();
-		public IRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
-		public IRepository<TrackerPathEntity, long> TrackerPaths => GetRepository<TrackerPathEntity, long>();
+		public ISyncableRepository<SettingEntity, long> Settings => GetSyncableRepository<SettingEntity, long>();
 		public IRepository<TrackerPathConfigurationEntity, int> TrackerPathConfigurations => GetRepository<TrackerPathConfigurationEntity, int>();
+		public IRepository<TrackerPathEntity, long> TrackerPaths => GetRepository<TrackerPathEntity, long>();
 
 		#endregion
 
@@ -61,7 +65,7 @@ namespace Speedy.Website.Data
 		public static string GetConnectionString()
 		{
 			var connection = ConfigurationManager.ConnectionStrings["DefaultConnection"];
-			if (connection != null && !string.IsNullOrWhiteSpace(connection.ConnectionString))
+			if ((connection != null) && !string.IsNullOrWhiteSpace(connection.ConnectionString))
 			{
 				return connection.ConnectionString;
 			}
@@ -91,6 +95,11 @@ namespace Speedy.Website.Data
 			var response = new DatabaseOptions();
 			SetRequiredOptions(response);
 			return response;
+		}
+
+		public override Assembly GetMappingAssembly()
+		{
+			return typeof(AddressEntity).Assembly;
 		}
 
 		public static void SetRequiredOptions(DatabaseOptions options)
@@ -132,16 +141,59 @@ namespace Speedy.Website.Data
 			options.UseLazyLoadingProxies();
 		}
 
-		protected override Assembly GetMappingAssembly()
-		{
-			return typeof(AddressEntity).Assembly;
-		}
-
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			ConfigureDatabaseOptions(optionsBuilder);
-
 			base.OnConfiguring(optionsBuilder);
+		}
+
+		/// <inheritdoc />
+		protected override void OnChangesSaved(CollectionChangeTracker e)
+		{
+			if (EnableSaveProcessing)
+			{
+				ProcessSavedChanges(this, e);
+			}
+			base.OnChangesSaved(e);
+		}
+
+		internal static void ProcessSavedChanges(IContosoDatabase database, CollectionChangeTracker changes)
+		{
+			foreach (var entity in changes.Added)
+			{
+				switch (entity)
+				{
+					case AddressEntity address:
+					{
+						database.LogEvents.Add(new LogEventEntity { Message = $"Address Added {address.Id} {address.Line1}", Level = LogLevel.Critical });
+						break;
+					}
+				}
+			}
+
+			foreach (var entity in changes.Removed)
+			{
+				switch (entity)
+				{
+					case AddressEntity address:
+					{
+						database.LogEvents.Add(new LogEventEntity { Message = $"Address Deleted {address.Id} {address.Line1}", Level = LogLevel.Critical });
+						break;
+					}
+				}
+			}
+
+			foreach (var entity in changes.Modified)
+			{
+				switch (entity)
+				{
+					case AddressEntity address:
+					{
+						database.LogEvents.Add(new LogEventEntity { Message = $"Address Modified {address.Id} {address.Line1}", Level = LogLevel.Critical });
+						break;
+					}
+				}
+			}
 		}
 
 		private static ConnectionStringSettings GetFromAppConfig()

@@ -21,7 +21,7 @@ namespace Speedy.Extensions
 		/// <returns> The formatted message. </returns>
 		public static string GetDetailedMessage(this EventWrittenEventArgs args)
 		{
-			return $"{args.Payload[2]} {args.Level} : {args.GetMessage()}";
+			return $"{args.Payload[2]} - {args.Payload[0]} {args.Level} : {args.GetMessage()}";
 		}
 
 		/// <summary>

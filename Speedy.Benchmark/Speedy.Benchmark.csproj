@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net5.0-windows</TargetFramework>
+		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Speedy.ico</ApplicationIcon>
 		<LangVersion>latest</LangVersion>
-		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.ico" />
@@ -13,23 +12,38 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
 		<ProjectReference Include="..\Speedy.UnitTests\Speedy.UnitTests.csproj" />
-		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Speedy.ico">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-	</ItemGroup>
-	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
+		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.28">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.11">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.28">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
+		<ProjectReference Include="..\Speedy.Client.Data.Sqlite.Old\Speedy.Client.Data.Sqlite.Old.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sqlite.Old\Speedy.Website.Data.Sqlite.Old.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<ProjectReference Include="..\Speedy.Client.Data.Sqlite\Speedy.Client.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
 	</ItemGroup>
 </Project>

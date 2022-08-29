@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 #endregion
 
@@ -11,7 +10,7 @@ namespace Speedy.Storage
 	/// <summary>
 	/// This class is an internal class.
 	/// </summary>
-	internal interface IDatabaseRepository : IDisposable, INotifyCollectionChanged
+	internal interface IDatabaseRepository : IDisposable
 	{
 		#region Methods
 

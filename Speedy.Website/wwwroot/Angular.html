@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="app">
+	<head>
+		<title>Index</title>
+		<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
+		<meta http-equiv="expires" content="0" />
+		<meta http-equiv="pragma" content="no-cache" />
+		<style type="text/css">
+			.ng-invalid,
+			.ng-invalid-email,
+			.ng-invalid-required {
+				border-color: red;
+				color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<a href="/Main.html">Main</a> ::
+			<a href="/Inputs.html">Inputs</a> ::
+			<a href="/JQuery.html">JQuery</a> ::
+			<a href="/Moment.html">Moment</a> ::
+			<a href="/Bootstrap2.html">Bootstrap 2</a> ::
+			<a href="/Bootstrap3.html">Bootstrap 3</a> ::
+			<a href="/Relationships.html">Relationships</a> ::
+			<a href="/TextContent.html">Text Content</a>
+		</div>
+		<br />
+		<div class="ng-view ng-cloak"></div>
+		<script src="./Scripts/jquery-3.4.1.js"></script>
+		<script src="./Scripts/angular.js"></script>
+		<script src="./Scripts/angular-route.js"></script>
+		<script type="text/javascript" language="javascript">
+
+			console.log(typeof angular);
+
+			var app = angular.module('app', ['ngRoute'])
+				.config([
+					'$httpProvider', '$routeProvider',
+					function($httpProvider, $routeProvider) {
+						$routeProvider
+							.when('/', { templateUrl: 'Templates/Page.html', controller: 'controller' })
+							.when('/form', { templateUrl: 'Templates/Form.html', controller: 'controller' })
+							.when('/anotherPage', { templateUrl: 'Templates/AnotherPage.html', controller: 'anotherPageController' })
+							.otherwise('/', { templateUrl: 'Templates/Page.html', controller: 'controller' });
+					}
+				]);
+
+			app.controller('controller',
+				[
+					'$scope',
+					function($scope) {
+						$scope.message = 'Hello World';
+						$scope.model = {};
+						$scope.items = [];
+
+						$scope.user = {
+							email: '',
+							userName: '',
+							password: ''
+						};
+
+						$scope.state = {
+							error: ''
+						};
+
+						$scope.addItem = function() {
+							setTimeout(function() {
+								var id = $scope.items.length + 1;
+								$scope.items.push({ id: id, text: id.toString() });
+								$scope.$apply();
+							}, 500);
+						};
+
+						$scope.register = function() {
+
+							$scope.state.error = $scope.user.userName + ':' + $scope.user.password;
+						};
+					}
+				]);
+
+			app.controller('anotherPageController',
+				[
+					'$scope',
+					function($scope) {
+						$scope.message = 'Hello World';
+						$scope.items = [];
+						$scope.user = {
+							email: ''
+						};
+
+						$scope.addItem = function() {
+							var id = $scope.items.length + 1;
+							$scope.items.push({ id: id, text: id.toString() });
+						};
+					}
+				]);
+
+			$(document)
+				.ready(function() {
+					document.addEventListener('keydown',
+						function(e) {
+							var element = document.getElementById('log');
+							if (element) {
+								document.getElementById('log').innerHTML += 'keydown: ' +
+									e.keyCode +
+									'(' +
+									String.fromCharCode(e.keyCode) +
+									')<br />';
+							}
+						});
+
+					document.addEventListener('keypress',
+						function(e) {
+							var element = document.getElementById('log');
+							if (element) {
+								document.getElementById('log').innerHTML += 'keypress: ' +
+									e.keyCode +
+									'(' +
+									String.fromCharCode(e.keyCode) +
+									')<br />';
+							}
+						});
+
+					document.addEventListener('keyup',
+						function(e) {
+							var element = document.getElementById('log');
+							if (element) {
+								document.getElementById('log').innerHTML += 'keyup: ' +
+									e.keyCode +
+									'(' +
+									String.fromCharCode(e.keyCode) +
+									')<br />';
+							}
+						});
+				});
+
+		</script>
+	</body>
+</html>

@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Speedy.Extensions;
@@ -17,7 +18,8 @@ namespace Speedy.Serialization
 		#region Fields
 
 		private static readonly SerializerSettings _settingsForDeepClone1, _settingsForDeepClone2;
-		private static readonly SerializerSettings _settingsForDeserialization;
+		private static readonly SerializerSettings _settingsForDeserialization, _settingsForSerialization;
+		private static readonly SerializerSettings _settingsForRawSerialization;
 
 		#endregion
 
@@ -25,14 +27,38 @@ namespace Speedy.Serialization
 
 		static Serializer()
 		{
-			_settingsForDeserialization = new SerializerSettings(false);
-			_settingsForDeepClone1 = new SerializerSettings(ignoreVirtuals: true);
-			_settingsForDeepClone2 = new SerializerSettings(ignoreVirtuals: false);
+			_settingsForRawSerialization = new SerializerSettings(endReset: x => x.JsonSettings.PreserveReferencesHandling = PreserveReferencesHandling.None);
+			_settingsForDeserialization = new SerializerSettings();
+			_settingsForSerialization = new SerializerSettings();
+			_settingsForDeepClone1 = new SerializerSettings(beginReset: x => x.IgnoreVirtuals = true);
+			_settingsForDeepClone2 = new SerializerSettings(beginReset: x => x.IgnoreVirtuals = false);
+
+			DefaultSettings = new SerializerSettings();
+			DefaultSettings.PropertyChanged += DefaultSettingsOnPropertyChanged;
 		}
 
 		#endregion
 
+		#region Properties
+
+		/// <summary>
+		/// Represents default values to set when <see cref="SerializerSettings.Reset" /> is invoked.
+		/// </summary>
+		public static SerializerSettings DefaultSettings { get; }
+
+		#endregion
+
 		#region Methods
+
+		/// <summary>
+		/// Add or update converter to the JsonSettings.
+		/// </summary>
+		/// <param name="converter"> The converter to add or update. </param>
+		public static void AddOrUpdateConverter(JsonConverter converter)
+		{
+			DefaultSettings.RemoveConverter(converter.GetType());
+			DefaultSettings.JsonSettings.Converters.Add(converter);
+		}
 
 		/// <summary>
 		/// Deep clone the item.
@@ -152,10 +178,38 @@ namespace Speedy.Serialization
 				return true;
 			});
 
-			return (input.StartsWith("{") && input.EndsWith("}")
-					|| input.StartsWith("[") && input.EndsWith("]")
-					|| input.StartsWith("\"") && input.EndsWith("\"")
+			return ((input.StartsWith("{") && input.EndsWith("}"))
+					|| (input.StartsWith("[") && input.EndsWith("]"))
+					|| (input.StartsWith("\"") && input.EndsWith("\""))
 				) && isWellFormed();
+		}
+
+		/// <summary>
+		/// Determines if the string is a query string
+		/// </summary>
+		/// <param name="input"> The value to validate. </param>
+		/// <returns> True if the input is a query string or false if otherwise. </returns>
+		public static bool IsQueryString(this string input)
+		{
+			return (input != null)
+				&& (input.Length >= 1)
+				&& (input[0] == '?');
+		}
+
+		/// <summary>
+		/// Reset the DefaultSettings back to default settings.
+		/// </summary>
+		public static void ResetDefaultSettings()
+		{
+			// Must use special reset to actual reset back to initial state
+			DefaultSettings.ResetForDefaultSettings();
+
+			// Now reset all dependents
+			_settingsForDeepClone1.Reset();
+			_settingsForDeepClone2.Reset();
+			_settingsForDeserialization.Reset();
+			_settingsForSerialization.Reset();
+			_settingsForRawSerialization.Reset();
 		}
 
 		/// <summary>
@@ -175,6 +229,17 @@ namespace Speedy.Serialization
 		/// </summary>
 		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
 		/// <param name="item"> The object to serialize. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToJson<T>(this T item)
+		{
+			return item.ToJson(_settingsForSerialization);
+		}
+
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
 		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
 		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
 		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
@@ -182,28 +247,103 @@ namespace Speedy.Serialization
 		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
 		/// <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
 		/// <returns> The JSON string of the serialized object. </returns>
-		public static string ToJson<T>(this T item, bool indented = false, bool camelCase = false, bool ignoreNullValues = false, bool ignoreReadOnly = false, bool ignoreVirtuals = false, bool convertEnumsToString = false)
+		public static string ToJson<T>(this T item, bool indented = SerializerSettings.DefaultForIndented, bool camelCase = SerializerSettings.DefaultForCamelCase,
+			bool ignoreNullValues = SerializerSettings.DefaultForIgnoreNullValues, bool ignoreReadOnly = SerializerSettings.DefaultForIgnoreReadOnly,
+			bool ignoreVirtuals = SerializerSettings.DefaultForIgnoreVirtuals, bool convertEnumsToString = SerializerSettings.DefaultForConvertEnumsToString)
 		{
 			return item.ToJson(new SerializerSettings(indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString));
 		}
 
 		/// <summary>
-		/// Unwraps a sync entity and disconnects it from the Entity Framework context. Check the value to see if the
-		/// IUnwrappable interface is implemented. If so the value's implementation is used instead.
-		/// The default behavior is to ignore read only and virtual properties.
+		/// Serialize an object into a JSON string.
 		/// </summary>
-		/// <typeparam name="T"> The type of the incoming object. </typeparam>
-		/// <typeparam name="T2"> The type of the outgoing object. </typeparam>
-		/// <param name="value"> The value to unwrap from the proxy. </param>
-		/// <param name="update"> An optional update method. </param>
-		/// <returns> The disconnected entity. </returns>
-		public static T2 Unwrap<T, T2>(this T value, Action<T2> update = null)
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToRawJson<T>(this T item)
 		{
-			// notice: do not use Unwrappable until it can support to specific types
+			return item.ToJson(_settingsForRawSerialization);
+		}
 
-			var response = value.ToJson(ignoreReadOnly: true, ignoreVirtuals: true).FromJson<T2>();
-			update?.Invoke(response);
-			return response;
+		/// <summary>
+		/// Serialize an object into a JSON string.
+		/// </summary>
+		/// <typeparam name="T"> The type of the object to serialize. </typeparam>
+		/// <param name="item"> The object to serialize. </param>
+		/// <param name="indented"> The flag to determine if the JSON should be indented or not. Default value is false. </param>
+		/// <param name="camelCase"> The flag to determine if we should use camel case or not. Default value is false. </param>
+		/// <param name="ignoreNullValues"> True to ignore members that are null else include them. </param>
+		/// <param name="ignoreReadOnly"> True to ignore members that are read only. </param>
+		/// <param name="ignoreVirtuals"> Flag to ignore virtual members. Default value is false. </param>
+		/// <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
+		/// <returns> The JSON string of the serialized object. </returns>
+		public static string ToRawJson<T>(this T item, bool indented = SerializerSettings.DefaultForIndented, bool camelCase = SerializerSettings.DefaultForCamelCase,
+			bool ignoreNullValues = SerializerSettings.DefaultForIgnoreNullValues, bool ignoreReadOnly = SerializerSettings.DefaultForIgnoreReadOnly,
+			bool ignoreVirtuals = SerializerSettings.DefaultForIgnoreVirtuals, bool convertEnumsToString = SerializerSettings.DefaultForConvertEnumsToString)
+		{
+			return item.ToJson(new SerializerSettings(indented, camelCase, ignoreNullValues, ignoreReadOnly, ignoreVirtuals, convertEnumsToString) { JsonSettings = { PreserveReferencesHandling = PreserveReferencesHandling.None } });
+		}
+
+		private static void DefaultSettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch (e.PropertyName)
+			{
+				case nameof(SerializerSettings.CamelCase):
+				{
+					_settingsForDeserialization.CamelCase = DefaultSettings.CamelCase;
+					_settingsForSerialization.CamelCase = DefaultSettings.CamelCase;
+					_settingsForRawSerialization.CamelCase = DefaultSettings.CamelCase;
+					_settingsForDeepClone1.CamelCase = DefaultSettings.CamelCase;
+					_settingsForDeepClone2.CamelCase = DefaultSettings.CamelCase;
+					break;
+				}
+				case nameof(SerializerSettings.ConvertEnumsToString):
+				{
+					_settingsForDeserialization.ConvertEnumsToString = DefaultSettings.ConvertEnumsToString;
+					_settingsForSerialization.ConvertEnumsToString = DefaultSettings.ConvertEnumsToString;
+					_settingsForRawSerialization.ConvertEnumsToString = DefaultSettings.ConvertEnumsToString;
+					_settingsForDeepClone1.ConvertEnumsToString = DefaultSettings.ConvertEnumsToString;
+					_settingsForDeepClone2.ConvertEnumsToString = DefaultSettings.ConvertEnumsToString;
+					break;
+				}
+				case nameof(SerializerSettings.IgnoreNullValues):
+				{
+					_settingsForDeserialization.IgnoreNullValues = DefaultSettings.IgnoreNullValues;
+					_settingsForSerialization.IgnoreNullValues = DefaultSettings.IgnoreNullValues;
+					_settingsForRawSerialization.IgnoreNullValues = DefaultSettings.IgnoreNullValues;
+					_settingsForDeepClone1.IgnoreNullValues = DefaultSettings.IgnoreNullValues;
+					_settingsForDeepClone2.IgnoreNullValues = DefaultSettings.IgnoreNullValues;
+					break;
+				}
+				case nameof(SerializerSettings.IgnoreReadOnly):
+				{
+					_settingsForDeserialization.IgnoreReadOnly = DefaultSettings.IgnoreReadOnly;
+					_settingsForSerialization.IgnoreReadOnly = DefaultSettings.IgnoreReadOnly;
+					_settingsForRawSerialization.IgnoreReadOnly = DefaultSettings.IgnoreReadOnly;
+					_settingsForDeepClone1.IgnoreReadOnly = DefaultSettings.IgnoreReadOnly;
+					_settingsForDeepClone2.IgnoreReadOnly = DefaultSettings.IgnoreReadOnly;
+					break;
+				}
+				case nameof(SerializerSettings.IgnoreVirtuals):
+				{
+					_settingsForDeserialization.IgnoreVirtuals = DefaultSettings.IgnoreVirtuals;
+					_settingsForSerialization.IgnoreVirtuals = DefaultSettings.IgnoreVirtuals;
+					_settingsForRawSerialization.IgnoreVirtuals = DefaultSettings.IgnoreVirtuals;
+					// These should never change for these settings
+					//_settingsForDeepClone1.IgnoreVirtuals = DefaultSettings.IgnoreVirtuals;
+					//_settingsForDeepClone2.IgnoreVirtuals = DefaultSettings.IgnoreVirtuals;
+					break;
+				}
+				case nameof(SerializerSettings.Indented):
+				{
+					_settingsForDeserialization.Indented = DefaultSettings.Indented;
+					_settingsForSerialization.Indented = DefaultSettings.Indented;
+					_settingsForRawSerialization.Indented = DefaultSettings.Indented;
+					_settingsForDeepClone1.Indented = DefaultSettings.Indented;
+					_settingsForDeepClone2.Indented = DefaultSettings.Indented;
+					break;
+				}
+			}
 		}
 
 		#endregion

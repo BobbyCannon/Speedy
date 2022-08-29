@@ -31,12 +31,10 @@ namespace Speedy.UnitTests.Logging
 		{
 			var id1 = Guid.NewGuid();
 			var id2 = Guid.NewGuid();
-
-			var startTime = new DateTime(2020, 04, 23, 03, 26, 12, DateTimeKind.Utc);
-			var offset = 0;
-
-			TimeService.UtcNowProvider = () => startTime.AddSeconds(offset++);
-
+			var startTime = new DateTime(2020, 04, 23, 03, 26, 11, DateTimeKind.Utc);
+			
+			TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
+			
 			using (var listener = MemoryLogListener.CreateSession(id1, EventLevel.Informational))
 			{
 				Logger.Instance.Write(id1, "First message from logger 1.", EventLevel.Informational);
@@ -51,11 +49,11 @@ namespace Speedy.UnitTests.Logging
 					Assert.AreEqual(id2, listener2.Events[0].Payload[0]);
 					Assert.AreEqual("First message from logger 2.", listener2.Events[0].Payload[1]);
 					Assert.AreEqual(new DateTime(2020, 04, 23, 03, 26, 13, DateTimeKind.Utc), listener2.Events[0].Payload[2]);
-					Assert.AreEqual("4/23/2020 3:26:13 AM Informational : First message from logger 2.", listener2.Events[0].GetDetailedMessage());
+					Assert.AreEqual($"4/23/2020 3:26:13 AM - {id2} Informational : First message from logger 2.", listener2.Events[0].GetDetailedMessage());
 					Assert.AreEqual(id2, listener2.Events[1].Payload[0]);
 					Assert.AreEqual("Second message from logger 2 (critical).", listener2.Events[1].Payload[1]);
 					Assert.AreEqual(new DateTime(2020, 04, 23, 03, 26, 14, DateTimeKind.Utc), listener2.Events[1].Payload[2]);
-					Assert.AreEqual("4/23/2020 3:26:14 AM Critical : Second message from logger 2 (critical).", listener2.Events[1].GetDetailedMessage());
+					Assert.AreEqual($"4/23/2020 3:26:14 AM - {id2} Critical : Second message from logger 2 (critical).", listener2.Events[1].GetDetailedMessage());
 				}
 
 				Logger.Instance.Write(id1, "Second message from logger 1 (critical).", EventLevel.Critical);
@@ -65,11 +63,11 @@ namespace Speedy.UnitTests.Logging
 				Assert.AreEqual(id1, listener.Events[0].Payload[0]);
 				Assert.AreEqual("First message from logger 1.", listener.Events[0].Payload[1]);
 				Assert.AreEqual(new DateTime(2020, 04, 23, 03, 26, 12, DateTimeKind.Utc), listener.Events[0].Payload[2]);
-				Assert.AreEqual("4/23/2020 3:26:12 AM Informational : First message from logger 1.", listener.Events[0].GetDetailedMessage());
+				Assert.AreEqual($"4/23/2020 3:26:12 AM - {id1} Informational : First message from logger 1.", listener.Events[0].GetDetailedMessage());
 				Assert.AreEqual(id1, listener.Events[1].Payload[0]);
 				Assert.AreEqual("Second message from logger 1 (critical).", listener.Events[1].Payload[1]);
 				Assert.AreEqual(new DateTime(2020, 04, 23, 03, 26, 15, DateTimeKind.Utc), listener.Events[1].Payload[2]);
-				Assert.AreEqual("4/23/2020 3:26:15 AM Critical : Second message from logger 1 (critical).", listener.Events[1].GetDetailedMessage());
+				Assert.AreEqual($"4/23/2020 3:26:15 AM - {id1} Critical : Second message from logger 1 (critical).", listener.Events[1].GetDetailedMessage());
 			}
 		}
 

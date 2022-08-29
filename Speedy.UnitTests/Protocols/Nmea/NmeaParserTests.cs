@@ -1216,7 +1216,7 @@ namespace Speedy.UnitTests.Protocols.Nmea
 			{
 				foreach (var type in types)
 				{
-					$"(NmeaMessagePrefix.{prefix}, NmeaMessageType.{type}, \"${prefix.ToDisplayShortName()}{type.ToDisplayShortName()},\"),".Dump();
+					$"(NmeaMessagePrefix.{prefix}, NmeaMessageType.{type}, \"${prefix.GetDisplayShortName()}{type.GetDisplayShortName()},\"),".Dump();
 				}
 			}
 

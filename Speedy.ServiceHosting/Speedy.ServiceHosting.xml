@@ -82,14 +82,14 @@
             </summary>
             <seealso cref="T:Speedy.Net.WebClient" />
         </member>
-        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.#ctor(System.String,System.Net.NetworkCredential)">
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.#ctor(System.String,Speedy.Net.WebCredential)">
             <summary>
             Instantiates an instances of the windows service web client.
             </summary>
             <param name="uri"> The URI of the web server. </param>
             <param name="credentials"> The network credentials for authentication. </param>
         </member>
-        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.#ctor(System.String,System.Int32,System.Net.NetworkCredential)">
+        <member name="M:Speedy.ServiceHosting.Web.WindowsServiceWebClient.#ctor(System.String,System.Int32,Speedy.Net.WebCredential)">
             <summary>
             Instantiates an instances of the windows service web client.
             </summary>

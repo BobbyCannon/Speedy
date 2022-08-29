@@ -8,6 +8,15 @@ namespace Speedy.Website.Data.Entities
 {
 	public class GroupMemberEntity : Entity<int>, IModifiableEntity
 	{
+		#region Constructors
+
+		public GroupMemberEntity()
+		{
+			ResetChangeTracking();
+		}
+
+		#endregion
+
 		#region Properties
 
 		/// <inheritdoc />

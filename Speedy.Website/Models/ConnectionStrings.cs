@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Speedy.Website.Models
+﻿namespace Speedy.Website.Models
 {
 	public class ConnectionStrings
 	{
