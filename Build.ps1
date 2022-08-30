@@ -82,7 +82,7 @@ try
 	Copy-Item "$productName.ServiceHosting\bin\$Configuration\$productName.ServiceHosting.$nugetVersion.nupkg" "$destination\$productName.ServiceHosting.$nugetVersion.nupkg.zip"
 
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
-	Copy-Item "$productName.Automation\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination2\"
+	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.ServiceHosting\bin\$Configuration\$productName.ServiceHosting.$nugetVersion.nupkg" "$destination2\"
 

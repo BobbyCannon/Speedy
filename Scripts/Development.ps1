@@ -33,8 +33,11 @@ Get-Process vbcs* | Stop-Process
 Get-ChildItem "C:\Workspaces\Nuget\Development\" -Filter "Speedy.*-pre.nupkg"
 Get-ChildItem "C:\Workspaces\Nuget\Development\" -Filter "Speedy.*-pre.nupkg" | Remove-Item
 
-# Build a final release
+# Open the nuget folder
+ii 'C:\Workspaces\Nuget\Development'
+ii 'C:\Workspaces\Nuget\Release'
 
+# Build a final release
 & 'C:\Workspaces\GitHub\Speedy\Build.ps1' -BuildNumber 0 -Configuration Release
 
 
