@@ -24,9 +24,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.EntityFramework.xml</DocumentationFile>
-		<AssemblyVersion>10.0.0.0</AssemblyVersion>
-		<FileVersion>10.0.0.0</FileVersion>
-		<Version>10.0.0</Version>
+		<AssemblyVersion>10.0.1.0</AssemblyVersion>
+		<FileVersion>10.0.1.0</FileVersion>
+		<Version>10.0.1</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
@@ -35,10 +35,10 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.0.2" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.5" />
 		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.28" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.28" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.28" />

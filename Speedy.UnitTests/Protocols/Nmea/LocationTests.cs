@@ -18,7 +18,7 @@ namespace Speedy.UnitTests.Protocols.Nmea
 		[TestMethod]
 		public void TestMethodLocationEast()
 		{
-			var l = new Location("02436.77459", "E");
+			var l = new Speedy.Protocols.Nmea.NmeaLocation("02436.77459", "E");
 			var d = l.ToDecimal();
 			Assert.AreEqual("24.61291", d.ToString("0.00000"));
 		}
@@ -26,7 +26,7 @@ namespace Speedy.UnitTests.Protocols.Nmea
 		[TestMethod]
 		public void TestMethodLocationNone()
 		{
-			var l = new Location("", "");
+			var l = new Speedy.Protocols.Nmea.NmeaLocation("", "");
 			var d = l.ToDecimal();
 			Assert.AreEqual(-1, d);
 		}
@@ -37,7 +37,7 @@ namespace Speedy.UnitTests.Protocols.Nmea
 		[TestMethod]
 		public void TestMethodLocationNorth()
 		{
-			var l = new Location("4036.82924", "N");
+			var l = new Speedy.Protocols.Nmea.NmeaLocation("4036.82924", "N");
 			var d = l.ToDecimal();
 			Assert.AreEqual("40.613821", d.ToString("0.000000"));
 		}
@@ -45,7 +45,7 @@ namespace Speedy.UnitTests.Protocols.Nmea
 		[TestMethod]
 		public void TestMethodLocationSouth()
 		{
-			var l = new Location("4036.82924", "S");
+			var l = new Speedy.Protocols.Nmea.NmeaLocation("4036.82924", "S");
 			var d = l.ToDecimal();
 			Assert.AreEqual("-40.61382", d.ToString("0.00000"));
 		}
@@ -53,7 +53,7 @@ namespace Speedy.UnitTests.Protocols.Nmea
 		[TestMethod]
 		public void TestMethodLocationWest()
 		{
-			var l = new Location("02436.77459", "W");
+			var l = new Speedy.Protocols.Nmea.NmeaLocation("02436.77459", "W");
 			var d = l.ToDecimal();
 			Assert.AreEqual("-24.61291", d.ToString("0.00000"));
 		}

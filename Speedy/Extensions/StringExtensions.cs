@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 
 #endregion
@@ -233,6 +235,48 @@ namespace Speedy.Extensions
 			var hexString = BitConverter.ToString(data, startIndex ?? 0, length ?? data.Length);
 			hexString = (prefix ?? "") + hexString.Replace("-", (delimiter ?? "") + (prefix ?? ""));
 			return hexString;
+		}
+
+		/// <summary>
+		/// Convert a string into a secure string.
+		/// </summary>
+		/// <param name="input"> The string. </param>
+		/// <returns> The secure string. </returns>
+		public static SecureString ToSecureString(this string input)
+		{
+			var secure = new SecureString();
+			foreach (var c in input)
+			{
+				secure.AppendChar(c);
+			}
+
+			secure.MakeReadOnly();
+			return secure;
+		}
+
+		/// <summary>
+		/// Converts a SecureString to an unsecure string.
+		/// </summary>
+		/// <param name="value"> The value to be converted. </param>
+		/// <returns> The unsecure string. </returns>
+		public static string ToUnsecureString(this SecureString value)
+		{
+			if (value == null)
+			{
+				throw new ArgumentNullException(nameof(value));
+			}
+
+			var unmanagedString = IntPtr.Zero;
+
+			try
+			{
+				unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(value);
+				return Marshal.PtrToStringUni(unmanagedString);
+			}
+			finally
+			{
+				Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+			}
 		}
 
 		/// <summary>

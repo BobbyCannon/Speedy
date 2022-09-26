@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
+using Speedy.Extensions;
 
 #endregion
 
@@ -29,7 +30,7 @@ namespace Speedy.Exceptions
 		/// Instantiates an instance of the exception.
 		/// </summary>
 		public WebClientException(HttpResponseMessage result)
-			: this(result.StatusCode, result.Content.ReadAsStringAsync().Result)
+			: this(result.StatusCode, result.Content.ReadAsStringAsync().AwaitResults())
 		{
 		}
 

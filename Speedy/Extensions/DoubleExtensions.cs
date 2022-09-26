@@ -92,7 +92,27 @@ namespace Speedy.Extensions
 		/// <returns> The speed in miles per hour. </returns>
 		public static float ToMilesPerHour(this float kilometersPerHour)
 		{
-			return kilometersPerHour / 1.6093f;
+			return (float) ToMilesPerHour((decimal) kilometersPerHour);
+		}
+
+		/// <summary>
+		/// Convert kilometers to miles per hour.
+		/// </summary>
+		/// <param name="kilometersPerHour"> The speed in kilometers per hour. </param>
+		/// <returns> The speed in miles per hour. </returns>
+		public static double ToMilesPerHour(this double kilometersPerHour)
+		{
+			return (double) ToMilesPerHour((decimal) kilometersPerHour);
+		}
+
+		/// <summary>
+		/// Convert kilometers to miles per hour.
+		/// </summary>
+		/// <param name="kilometersPerHour"> The speed in kilometers per hour. </param>
+		/// <returns> The speed in miles per hour. </returns>
+		public static decimal ToMilesPerHour(this decimal kilometersPerHour)
+		{
+			return kilometersPerHour / 1.6093m;
 		}
 
 		#endregion

@@ -632,8 +632,8 @@ namespace Speedy.Sync
 					var issue = new SyncIssue
 					{
 						Id = syncObject.SyncId,
-						IssueType = SyncIssueType.RelationshipConstraint,
-						Message = "This entity has relationship issue with other entities.",
+						IssueType = ex.IssueType,
+						Message = ex.Message,
 						TypeName = syncObject.TypeName
 					};
 
@@ -815,7 +815,9 @@ namespace Speedy.Sync
 
 			if (response.Any(x => x != null))
 			{
-				throw new SyncIssueException("This entity has relationship issues.", response.Where(x => x != null));
+				throw new SyncIssueException(SyncIssueType.RelationshipConstraint,
+					"This entity has relationship issues.",
+					response.Where(x => x != null).ToArray());
 			}
 		}
 

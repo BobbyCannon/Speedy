@@ -177,6 +177,9 @@ namespace Speedy.Sync
 		/// <returns> True if the type is filter or false if otherwise. </returns>
 		public bool ShouldExcludeRepository(Type type)
 		{
+			//
+			// If we do not have a filter then consider the repository as excluded.
+			//
 			return ShouldExcludeRepository(type?.ToAssemblyName());
 		}
 
@@ -187,6 +190,9 @@ namespace Speedy.Sync
 		/// <returns> True if the type is filter or false if otherwise. </returns>
 		public bool ShouldExcludeRepository(string typeAssemblyName)
 		{
+			//
+			// If we do not have a filter then consider the repository as excluded.
+			//
 			return (_filters.Count > 0) && !_filters.ContainsKey(typeAssemblyName);
 		}
 

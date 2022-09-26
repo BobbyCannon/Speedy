@@ -12,6 +12,7 @@ using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
+using Speedy.Serialization;
 
 #endregion
 
@@ -160,21 +161,20 @@ namespace Speedy.Sync
 			}
 			catch (WebClientException ex)
 			{
-				_syncIssues.Add(new SyncIssue
-				{
-					IssueType = ex.Code == HttpStatusCode.Unauthorized ? SyncIssueType.Unauthorized : SyncIssueType.Unknown,
-					Message = ex.Message
-				});
+				var clientNotSupported = ex.Message.FromJson<string>() == SpeedyException.ClientNotSupported;
+				var issueType = ex.Code == HttpStatusCode.Unauthorized
+					? SyncIssueType.Unauthorized
+					: clientNotSupported
+						? SyncIssueType.ClientNotSupported
+						: SyncIssueType.Unknown;
+
+				_syncIssues.Add(new SyncIssue { IssueType = issueType, Message = ex.Message });
 
 				UpdateSyncState($"{TimeService.UtcNow:hh:mm:ss tt} {ex.Message}", SyncEngineStatus.Failed);
 			}
 			catch (Exception ex)
 			{
-				_syncIssues.Add(new SyncIssue
-				{
-					IssueType = SyncIssueType.Unknown,
-					Message = ex.Message
-				});
+				_syncIssues.Add(new SyncIssue { IssueType = SyncIssueType.Unknown, Message = ex.Message });
 
 				UpdateSyncState($"{TimeService.UtcNow:hh:mm:ss tt} {ex.Message}", SyncEngineStatus.Failed);
 			}

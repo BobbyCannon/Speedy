@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
-		<Platforms>AnyCPU;x64;x86</Platforms>
 		<AssemblyTitle>Speedy.Automation</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.Automation</Product>
@@ -22,9 +21,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Automation.xml</DocumentationFile>
-		<AssemblyVersion>10.0.0.0</AssemblyVersion>
-		<FileVersion>10.0.0.0</FileVersion>
-		<Version>10.0.0</Version>
+		<AssemblyVersion>10.0.1.0</AssemblyVersion>
+		<FileVersion>10.0.1.0</FileVersion>
+		<Version>10.0.1</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Speedy.Automation.js" />
@@ -37,7 +36,7 @@
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="PropertyChanged.Fody" Version="3.4.1" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.0.2" PrivateAssets="All" />
 		<PackageReference Include="System.Management" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>

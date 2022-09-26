@@ -20,25 +20,26 @@ namespace Speedy.Exceptions
 		/// <summary>
 		/// Instantiates an instance of the exception.
 		/// </summary>
-		public SyncIssueException()
+		public SyncIssueException() : this(SyncIssueType.Unknown, string.Empty)
 		{
-			Issues = Array.Empty<SyncIssue>();
 		}
 
 		/// <summary>
 		/// Instantiates an instance of the exception.
 		/// </summary>
-		public SyncIssueException(string message, IEnumerable<SyncIssue> issues) : base(message)
+		public SyncIssueException(SyncIssueType type, string message, params SyncIssue[] issues)
+			: this(type, message, null, issues)
 		{
-			Issues = issues;
 		}
 
 		/// <summary>
 		/// Instantiates an instance of the exception.
 		/// </summary>
-		public SyncIssueException(string message, Exception inner, IEnumerable<SyncIssue> issues) : base(message, inner)
+		public SyncIssueException(SyncIssueType type, string message, Exception inner, params SyncIssue[] issues)
+			: base(message, inner)
 		{
-			Issues = issues;
+			IssueType = type;
+			Issues = issues ?? Array.Empty<SyncIssue>();
 		}
 
 		/// <summary>
@@ -53,9 +54,14 @@ namespace Speedy.Exceptions
 		#region Properties
 
 		/// <summary>
-		/// Gets the sync issues for this exception.
+		/// Gets the child sync issues for this exception.
 		/// </summary>
-		public IEnumerable<SyncIssue> Issues { get; }
+		public IEnumerable<SyncIssue> Issues { get; set; }
+
+		/// <summary>
+		/// Gets the type of the issue.
+		/// </summary>
+		public SyncIssueType IssueType { get; set; }
 
 		#endregion
 	}

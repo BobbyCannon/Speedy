@@ -172,6 +172,11 @@ namespace Speedy
 		public virtual void EntityModified()
 		{
 		}
+		
+		/// <inheritdoc />
+		public virtual void EntityAddedDeletedOrModified()
+		{
+		}
 
 		/// <summary>
 		/// Determines if the object has changes.
@@ -352,6 +357,11 @@ namespace Speedy
 		/// Update an entity that has been modified.
 		/// </summary>
 		void EntityModified();
+
+		/// <summary>
+		/// Update an entity that has been added, deleted, or modified.
+		/// </summary>
+		void EntityAddedDeletedOrModified();
 
 		/// <summary>
 		/// Determine if the ID is set on the entity.

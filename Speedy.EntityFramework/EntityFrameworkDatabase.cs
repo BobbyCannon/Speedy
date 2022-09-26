@@ -436,16 +436,26 @@ namespace Speedy.EntityFramework
 		/// <param name="modelBuilder"> The model builder. </param>
 		protected virtual void ProcessModelTypes(ModelBuilder modelBuilder)
 		{
+			var isoDateTimeConverter = new ValueConverter<IsoDateTime, DateTime>(
+				x => (x.DateTime.Ticks == DateTimeExtensions.MinDateTimeTicks)
+					|| (x.DateTime.Ticks == DateTimeExtensions.MaxDateTimeTicks)
+						? DateTime.SpecifyKind(x, DateTimeKind.Utc)
+						: x.DateTime.ToUniversalTime(),
+				x => x
+			);
+
 			var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
-				x => (x.Ticks == DateTimeExtensions.MinDateTimeTicks) || (x.Ticks == DateTimeExtensions.MaxDateTimeTicks)
-					? DateTime.SpecifyKind(x, DateTimeKind.Utc)
-					: x.ToUniversalTime(),
+				x => (x.Ticks == DateTimeExtensions.MinDateTimeTicks)
+					|| (x.Ticks == DateTimeExtensions.MaxDateTimeTicks)
+						? DateTime.SpecifyKind(x, DateTimeKind.Utc)
+						: x.ToUniversalTime(),
 				x => DateTime.SpecifyKind(x, DateTimeKind.Utc)
 			);
 
 			var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
 				x => x.HasValue
-					? (x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks) || (x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks)
+					? (x.Value.Ticks == DateTimeExtensions.MinDateTimeTicks)
+					|| (x.Value.Ticks == DateTimeExtensions.MaxDateTimeTicks)
 						? DateTime.SpecifyKind(x.Value, DateTimeKind.Utc)
 						: x.Value.ToUniversalTime()
 					: x.Value.ToUniversalTime(),
@@ -460,6 +470,12 @@ namespace Speedy.EntityFramework
 				{
 					switch (p.ClrType)
 					{
+						case Type _ when p.ClrType == typeof(IsoDateTime):
+						{
+							p.SetColumnType("datetime2");
+							p.SetValueConverter(isoDateTimeConverter);
+							break;
+						}
 						case Type _ when p.ClrType == typeof(DateTime):
 						{
 							p.SetColumnType("datetime2");

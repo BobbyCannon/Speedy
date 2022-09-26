@@ -35,9 +35,9 @@ namespace Speedy.Protocols.Nmea.Messages
 
 		public double HorizontalDilutionOfPrecision { get; set; }
 
-		public Location Latitude { get; set; }
+		public NmeaLocation Latitude { get; set; }
 
-		public Location Longitude { get; set; }
+		public NmeaLocation Longitude { get; set; }
 
 		public int NumberOfSatellites { get; set; }
 
@@ -101,8 +101,8 @@ namespace Speedy.Protocols.Nmea.Messages
 			StartParse(sentence);
 
 			Time = Convert.ToDouble(GetArgument(0, "0"));
-			Latitude = new Location(GetArgument(1), GetArgument(2));
-			Longitude = new Location(GetArgument(3), GetArgument(4));
+			Latitude = new NmeaLocation(GetArgument(1), GetArgument(2));
+			Longitude = new NmeaLocation(GetArgument(3), GetArgument(4));
 			FixQuality = GetArgument(5);
 			NumberOfSatellites = Convert.ToInt32(GetArgument(6));
 			HorizontalDilutionOfPrecision = Convert.ToDouble(GetArgument(7, "0"));

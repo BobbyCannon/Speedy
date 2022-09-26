@@ -11,7 +11,7 @@ using Speedy.EntityFramework;
 
 #endregion
 
-namespace Speedy.Client.Data
+namespace Speedy.Client.Data.Sqlite
 {
 	public class ContosoClientDatabase : EntityFrameworkDatabase, IContosoClientDatabase
 	{

@@ -1420,6 +1420,252 @@
         <member name="M:Speedy.DefaultDispatcher.RunAsync(System.Action)">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Devices.DefaultRuntimeInformation">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.ApplicationName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.ApplicationVersion">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceId">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceManufacturer">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceModel">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceType">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DefaultRuntimeInformation.PlatformName">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Devices.IRuntimeInformation">
+            <summary>
+            Represents the information of the client at runtime.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.ApplicationName">
+            <summary>
+            The name of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.ApplicationVersion">
+            <summary>
+            The version of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceId">
+            <summary>
+            The ID of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceManufacturer">
+            <summary>
+            The name of the device manufacturer.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceModel">
+            <summary>
+            The model of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceName">
+            <summary>
+            The name of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceType">
+            <summary>
+            The type of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IRuntimeInformation.PlatformName">
+            <summary>
+            The name of the platform.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.AltitudeReferenceType">
+            <summary>
+            Represents the reference point for the altitude.
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.AltitudeReferenceType.Unspecified">
+            <summary>
+            Unknown / Unspecified
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.AltitudeReferenceType.Terrain">
+            <summary>
+            Distance above terrain or ground level.
+            </summary>
+            <remarks>
+            Terrain is very volatile, be careful using the concept of terrain.
+            </remarks>
+        </member>
+        <member name="F:Speedy.Devices.Location.AltitudeReferenceType.Ellipsoid">
+            <summary>
+            Ellipsoid which is a mathematical approximation of the shape of the Earth.
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.AltitudeReferenceType.Geoid">
+            <summary>
+            Distance above sea level.
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.AltitudeReferenceType.Surface">
+            <summary>
+            Distance above the tallest surface structures, such as buildings, trees, roads, etc., above terrain or ground level.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.GeoLocation">
+            <summary>
+            Represents a geo-location (lat, long, alt, alt ref).
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.#ctor">
+            <summary>
+            This constructor is only for serialization, do not actually use.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.#ctor(Speedy.Devices.Location.IGeoLocation)">
+            <summary>
+            Initialize an instance of the GeoLocation.
+            </summary>
+            <param name="location"> The default values. </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.#ctor(System.Double,System.Double)">
+            <summary>
+            Initialize an instance of the GeoLocation.
+            </summary>
+            <param name="latitude"> The default values. </param>
+            <param name="longitude"> The default values. </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.#ctor(System.Double,System.Double,System.Double,Speedy.Devices.Location.AltitudeReferenceType)">
+            <summary>
+            Initialize an instance of the GeoLocation.
+            </summary>
+            <param name="latitude"> The default value. </param>
+            <param name="longitude"> The default value. </param>
+            <param name="altitude"> The default value. </param>
+            <param name="altitudeReference"> The default value. </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.#ctor(Speedy.IDispatcher,System.Double,System.Double,System.Double,Speedy.Devices.Location.AltitudeReferenceType)">
+            <summary>
+            Initialize an instance of the GeoLocation.
+            </summary>
+            <param name="dispatcher"> The default value. </param>
+            <param name="latitude"> The default value. </param>
+            <param name="longitude"> The default value. </param>
+            <param name="altitude"> The default value. </param>
+            <param name="altitudeReference"> The default value. </param>
+        </member>
+        <member name="P:Speedy.Devices.Location.GeoLocation.Altitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.GeoLocation.AltitudeReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.GeoLocation.Latitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.GeoLocation.Longitude">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.CompareTo(Speedy.Devices.Location.GeoLocation)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.CompareTo(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.Equals(Speedy.Devices.Location.GeoLocation)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.UpdateWith(Speedy.Devices.Location.IGeoLocation)">
+            <summary>
+            Update the location.
+            </summary>
+            <param name="update"> The location update. </param>
+        </member>
+        <member name="T:Speedy.Devices.Location.IGeoLocation">
+            <summary>
+            Represents a geo-location (lat, long, alt, alt ref).
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IGeoLocation.Altitude">
+            <summary>
+            The altitude of the location
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IGeoLocation.AltitudeReference">
+            <summary>
+            The reference type for the altitude value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IGeoLocation.Latitude">
+            <summary>
+            Ranges between -90 to 90 from North to South
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IGeoLocation.Longitude">
+            <summary>
+            Ranges between -180 to 180 from West to East
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.SecureVault">
+            <summary>
+            The vault to store credential securely.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.SecureVault.#ctor">
+            <summary>
+            Creates an instance of the vault.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.SecureVault.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the vault.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.Devices.SecureVault.Credential">
+            <summary>
+            The credential for the vault.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.SecureVault.ClearCredential">
+            <summary>
+            Clears the credential from the vault.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.SecureVault.ReadCredentialAsync">
+            <summary>
+            Gets the stored credential from the vault.
+            </summary>
+            <returns> Return true if the credential was read otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Devices.SecureVault.WriteCredentialAsync">
+            <summary>
+            Writes a credential to the vault.
+            </summary>
+            <returns> Return true if the credential was written otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Entity`1">
             <summary>
             Represents a Speedy entity.
@@ -1491,6 +1737,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.EntityModified">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Entity.EntityAddedDeletedOrModified">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.HasChanges(System.String[])">
@@ -1584,6 +1833,11 @@
             Update an entity that has been modified.
             </summary>
         </member>
+        <member name="M:Speedy.IEntity.EntityAddedDeletedOrModified">
+            <summary>
+            Update an entity that has been added, deleted, or modified.
+            </summary>
+        </member>
         <member name="M:Speedy.IEntity.IdIsSet">
             <summary>
             Determine if the ID is set on the entity.
@@ -1643,6 +1897,11 @@
             Represents message for invalid sync entity type.
             </summary>
         </member>
+        <member name="F:Speedy.Exceptions.SpeedyException.ClientNotSupported">
+            <summary>
+            Represents message for invalid sync clients.
+            </summary>
+        </member>
         <member name="M:Speedy.Exceptions.SpeedyException.#ctor">
             <summary>
             Instantiates an instance of the speedy exception.
@@ -1673,12 +1932,12 @@
             Instantiates an instance of the exception.
             </summary>
         </member>
-        <member name="M:Speedy.Exceptions.SyncIssueException.#ctor(System.String,System.Collections.Generic.IEnumerable{Speedy.Sync.SyncIssue})">
+        <member name="M:Speedy.Exceptions.SyncIssueException.#ctor(Speedy.Sync.SyncIssueType,System.String,Speedy.Sync.SyncIssue[])">
             <summary>
             Instantiates an instance of the exception.
             </summary>
         </member>
-        <member name="M:Speedy.Exceptions.SyncIssueException.#ctor(System.String,System.Exception,System.Collections.Generic.IEnumerable{Speedy.Sync.SyncIssue})">
+        <member name="M:Speedy.Exceptions.SyncIssueException.#ctor(Speedy.Sync.SyncIssueType,System.String,System.Exception,Speedy.Sync.SyncIssue[])">
             <summary>
             Instantiates an instance of the exception.
             </summary>
@@ -1690,7 +1949,12 @@
         </member>
         <member name="P:Speedy.Exceptions.SyncIssueException.Issues">
             <summary>
-            Gets the sync issues for this exception.
+            Gets the child sync issues for this exception.
+            </summary>
+        </member>
+        <member name="P:Speedy.Exceptions.SyncIssueException.IssueType">
+            <summary>
+            Gets the type of the issue.
             </summary>
         </member>
         <member name="T:Speedy.Exceptions.UpdateException">
@@ -1835,37 +2099,6 @@
             Extensions for collections.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.AddIfMissing``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
-            <summary>
-            Add a dictionary entry if the key is not found.
-            </summary>
-            <typeparam name="T1"> The type of the key. </typeparam>
-            <typeparam name="T2"> The type of the value. </typeparam>
-            <param name="dictionary"> The dictionary to update. </param>
-            <param name="key"> The value of the key. </param>
-            <param name="value"> The value of the value. </param>
-        </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
-            <summary>
-            Add or update a dictionary entry.
-            </summary>
-            <typeparam name="T1"> The type of the key. </typeparam>
-            <typeparam name="T2"> The type of the value. </typeparam>
-            <param name="dictionary"> The dictionary to update. </param>
-            <param name="key"> The value of the key. </param>
-            <param name="value"> The value of the value. </param>
-        </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``1},System.Func{``1,``1})">
-            <summary>
-            Add or update a dictionary entry.
-            </summary>
-            <typeparam name="T1"> The type of the key. </typeparam>
-            <typeparam name="T2"> The type of the value. </typeparam>
-            <param name="dictionary"> The dictionary to update. </param>
-            <param name="key"> The value of the key. </param>
-            <param name="get"> The function to get the value. </param>
-            <param name="update"> The function to update the value. </param>
-        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate(System.Net.Http.Headers.HttpHeaders,System.String,System.String)">
             <summary>
             Add or update the value in the HTTP headers collection.
@@ -1922,24 +2155,6 @@
             <param name="data"> The data to calculate the CRC for. </param>
             <param name="length"> The length to calculate. </param>
             <returns> The CRC for the data. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.DeepClone``2(System.Collections.Generic.IDictionary{``0,``1})">
-            <summary>
-            Deep clone a dictionary of items. Will use the ICloneable interface if available.
-            </summary>
-            <typeparam name="T"> The key type. </typeparam>
-            <typeparam name="T2"> The value type. </typeparam>
-            <param name="dictionary"> The dictionary to clone. </param>
-            <returns> The clone dictionary. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.DeepClone``2(System.Collections.Generic.Dictionary{``0,``1})">
-            <summary>
-            Deep clone a dictionary of items. Will use the ICloneable interface if available.
-            </summary>
-            <typeparam name="T"> The key type. </typeparam>
-            <typeparam name="T2"> The value type. </typeparam>
-            <param name="dictionary"> The dictionary to clone. </param>
-            <returns> The clone dictionary. </returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.ExcludeSequentialDuplicates``2(System.Collections.Generic.IEnumerable{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Func{``0,``0,System.Boolean})">
             <summary>
@@ -2072,6 +2287,16 @@
             <param name="values"> The enumeration to convert to a list. </param>
             <returns> The values in a list format. </returns>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.TryFirst``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean},``0@)">
+            <summary>
+            Try to get the first item out of the provided values.
+            </summary>
+            <typeparam name="T"> The type of the items in values. </typeparam>
+            <param name="values"> The values to enumerate. </param>
+            <param name="predicate"> The predicate to validate the item. </param>
+            <param name="value"> The value if found otherwise the "default" value of the type. </param>
+            <returns> True if the item was found otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Extensions.DateTimeExtensions">
             <summary>
             Extensions for date time
@@ -2129,6 +2354,16 @@
             Extensions for dictionary
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.AddIfMissing``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Add a dictionary entry if the key is not found.
+            </summary>
+            <typeparam name="T1"> The type of the key. </typeparam>
+            <typeparam name="T2"> The type of the value. </typeparam>
+            <param name="dictionary"> The dictionary to update. </param>
+            <param name="key"> The value of the key. </param>
+            <param name="value"> The value of the value. </param>
+        </member>
         <member name="M:Speedy.Extensions.DictionaryExtensions.AddOrUpdate``2(System.Collections.Generic.Dictionary{``0,``1},System.Collections.Generic.KeyValuePair{``0,``1})">
             <summary>
             Add or update an entry in a dictionary.
@@ -2139,6 +2374,55 @@
             <param name="value"> The value to add or update. </param>
             <returns> The dictionary that was update. </returns>
         </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Add or update a dictionary entry.
+            </summary>
+            <typeparam name="T1"> The type of the key. </typeparam>
+            <typeparam name="T2"> The type of the value. </typeparam>
+            <param name="dictionary"> The dictionary to update. </param>
+            <param name="key"> The value of the key. </param>
+            <param name="value"> The value of the value. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``1},System.Func{``1,``1})">
+            <summary>
+            Add or update a dictionary entry.
+            </summary>
+            <typeparam name="T1"> The type of the key. </typeparam>
+            <typeparam name="T2"> The type of the value. </typeparam>
+            <param name="dictionary"> The dictionary to update. </param>
+            <param name="key"> The value of the key. </param>
+            <param name="get"> The function to get the value. </param>
+            <param name="update"> The function to update the value. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.DeepClone``2(System.Collections.Generic.IDictionary{``0,``1})">
+            <summary>
+            Deep clone a dictionary of items. Will use the ICloneable interface if available.
+            </summary>
+            <typeparam name="T"> The key type. </typeparam>
+            <typeparam name="T2"> The value type. </typeparam>
+            <param name="dictionary"> The dictionary to clone. </param>
+            <returns> The clone dictionary. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.DeepClone``2(System.Collections.Generic.Dictionary{``0,``1})">
+            <summary>
+            Deep clone a dictionary of items. Will use the ICloneable interface if available.
+            </summary>
+            <typeparam name="T"> The key type. </typeparam>
+            <typeparam name="T2"> The value type. </typeparam>
+            <param name="dictionary"> The dictionary to clone. </param>
+            <returns> The clone dictionary. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.GetValue``2(System.Collections.Generic.IDictionary{``0,``1},``0)">
+            <summary>
+            Tries to get a value or returns the default value.
+            </summary>
+            <typeparam name="T"> The key type. </typeparam>
+            <typeparam name="T2"> The value type. </typeparam>
+            <param name="dictionary"> The dictionary to check. </param>
+            <param name="key"> The key to check for. </param>
+            <returns> The value that was found or default value </returns>
+        </member>
         <member name="M:Speedy.Extensions.DictionaryExtensions.Reconcile``2(System.Collections.Generic.IDictionary{``0,``1},System.Collections.Generic.IDictionary{``0,``1})">
             <summary>
             Reconcile one collection with another.
@@ -2147,6 +2431,17 @@
             <typeparam name="TValue"> The type of the value for the dictionary. </typeparam>
             <param name="dictionary"> The left collection. </param>
             <param name="updates"> The right collection. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.TryGetValue``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1@)">
+            <summary>
+            Tries to get a value or returns the default value.
+            </summary>
+            <typeparam name="T"> The key type. </typeparam>
+            <typeparam name="T2"> The value type. </typeparam>
+            <param name="dictionary"> The dictionary to check. </param>
+            <param name="key"> The key to check for. </param>
+            <param name="value"> The value that was found or default value. </param>
+            <returns> True if the value exist otherwise false. </returns>
         </member>
         <member name="T:Speedy.Extensions.DirectoryInfoExtensions">
             <summary>
@@ -2214,6 +2509,20 @@
             <returns> The temperature in Fahrenheit. </returns>
         </member>
         <member name="M:Speedy.Extensions.DoubleExtensions.ToMilesPerHour(System.Single)">
+            <summary>
+            Convert kilometers to miles per hour.
+            </summary>
+            <param name="kilometersPerHour"> The speed in kilometers per hour. </param>
+            <returns> The speed in miles per hour. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.ToMilesPerHour(System.Double)">
+            <summary>
+            Convert kilometers to miles per hour.
+            </summary>
+            <param name="kilometersPerHour"> The speed in kilometers per hour. </param>
+            <returns> The speed in miles per hour. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.ToMilesPerHour(System.Decimal)">
             <summary>
             Convert kilometers to miles per hour.
             </summary>
@@ -2547,6 +2856,29 @@
             </summary>
             <param name="guid"> The Guid to convert. </param>
             <returns> The Guid in a Short Guid format. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.HttpExtensions">
+            <summary>
+            Extensions for HTTP (ish)
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.HttpExtensions.GetResponseString(System.Net.HttpWebResponse)">
+            <summary>
+            Returns the string from a HttpWebResponse.
+            </summary>
+            <param name="response"> The response to read from. </param>
+            <returns>
+            The string from the response.
+            </returns>
+        </member>
+        <member name="M:Speedy.Extensions.HttpExtensions.IsSuccessStatusCode(System.Net.HttpWebResponse)">
+            <summary>
+            A value that indicates whether the HTTP response was successful.
+            </summary>
+            <param name="response"> The response to validate. </param>
+            <returns>
+            True if HttpStatusCode is in the successful range (200-299) otherwise false;
+            </returns>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -2997,6 +3329,27 @@
             possible values.
             </summary>
         </member>
+        <member name="T:Speedy.Extensions.StreamExtensions">
+            <summary>
+            Extensions for stream
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.StreamExtensions.ReadString(System.IO.Stream,System.Int32)">
+            <summary>
+            Read a string from a stream.
+            </summary>
+            <param name="stream"> The stream to read from. </param>
+            <param name="bufferLength"> The buffer length for individual reads. Defaults to 1024. </param>
+            <returns> The string to read. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StreamExtensions.ReadStringAndCleanup(System.IO.Stream,System.Int32)">
+            <summary>
+            Read a string from a stream then disposes of the stream
+            </summary>
+            <param name="stream"> The stream to read from. </param>
+            <param name="bufferLength"> The buffer length for individual reads. Defaults to 1024. </param>
+            <returns> The string to read. </returns>
+        </member>
         <member name="T:Speedy.Extensions.StringExtensions">
             <summary>
             Extensions for the string type.
@@ -3080,6 +3433,20 @@
             <param name="prefix"> An optional prefix to put before each byte of the data. </param>
             <returns> The byte array in a hex string format. </returns>
         </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToSecureString(System.String)">
+            <summary>
+            Convert a string into a secure string.
+            </summary>
+            <param name="input"> The string. </param>
+            <returns> The secure string. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToUnsecureString(System.Security.SecureString)">
+            <summary>
+            Converts a SecureString to an unsecure string.
+            </summary>
+            <param name="value"> The value to be converted. </param>
+            <returns> The unsecure string. </returns>
+        </member>
         <member name="M:Speedy.Extensions.StringExtensions.Unescape(System.String)">
             <summary>
             Turn a readable string into a byte array
@@ -3104,26 +3471,26 @@
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults(System.Threading.Tasks.Task)">
             <summary>
-            Await the results of a task.
+            Synchronously await the results of an asynchronous operation without deadlocking.
             </summary>
-            <param name="task"> The task to run. </param>
+            <param name="task"> The <see cref="T:System.Threading.Tasks.Task" /> representing the pending operation. </param>
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults``1(System.Threading.Tasks.Task{``0})">
             <summary>
-            Await the results of a task.
+            Synchronously await the results of an asynchronous operation without deadlocking.
             </summary>
-            <typeparam name="T"> The type to return. </typeparam>
-            <param name="task"> The task to run. </param>
-            <returns> The result of the task. </returns>
+            <typeparam name="T"> The result type of the operation. </typeparam>
+            <param name="task"> The <see cref="T:System.Threading.Tasks.Task" /> representing the pending operation. </param>
+            <returns> The result of the operation. </returns>
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults``1(System.Threading.Tasks.Task{``0},System.TimeSpan)">
             <summary>
-            Await the results of a task.
+            Synchronously await the results of an asynchronous operation without deadlocking.
             </summary>
-            <typeparam name="T"> The type to return. </typeparam>
-            <param name="task"> The task to run. </param>
+            <typeparam name="T"> The result type of the operation. </typeparam>
+            <param name="task"> The <see cref="T:System.Threading.Tasks.Task" /> representing the pending operation. </param>
             <param name="timeout"> The timeout if the task does not complete. </param>
-            <returns> The result of the task. </returns>
+            <returns> The result of the operation. </returns>
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.IsCompleted(System.Threading.Tasks.Task)">
             <summary>
@@ -3294,6 +3661,18 @@
             <param name="maximum"> The maximum time to wait. </param>
             <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
             <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.VersionExtensions">
+            <summary>
+            Extensions for Version
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.VersionExtensions.IsDefault(System.Version)">
+            <summary>
+            Checks to see if version is default (not set). Ex. 0.0.0.0
+            </summary>
+            <param name="version"> The version to check. </param>
+            <returns> True if the version is the default value of 0.0.0.0. </returns>
         </member>
         <member name="T:Speedy.IBindable">
             <summary>
@@ -3737,6 +4116,12 @@
             <param name="startDate"> The date to start from. </param>
             <param name="duration"> The timespan for the duration. </param>
             <returns> </returns>
+        </member>
+        <member name="M:Speedy.IsoDateTime.op_Implicit(System.DateTime)~Speedy.IsoDateTime">
+            <summary>
+            Implicit operator from DateTime to IsoDateTime with Zero duration.
+            </summary>
+            <param name="value"> The DateTime value to cast. </param>
         </member>
         <member name="T:Speedy.ISyncableDatabase">
             <summary>
@@ -4621,23 +5006,59 @@
             Creates an instance of the web credential.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebCredential.#ctor(System.String,System.String,System.String)">
+        <member name="M:Speedy.Net.WebCredential.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the web credential.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.#ctor(System.String,System.String,Speedy.IDispatcher)">
             <summary>
             Creates an instance of the web credential.
             </summary>
             <param name="username"> The username of the credential. </param>
             <param name="password"> The password of the credential. </param>
-            <param name="domain"> An optional domain value. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
         </member>
-        <member name="P:Speedy.Net.WebCredential.AuthenticationHeaderValue">
+        <member name="P:Speedy.Net.WebCredential.Password">
+            <summary>
+            Represents the password for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.WebCredential.SecurePassword">
+            <summary>
+            Represents the secure password for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.WebCredential.UserName">
+            <summary>
+            Represents the username for the credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.GetAuthenticationHeaderValue">
             <summary>
             Gets the credential as an auth header value.
             </summary>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.HasCredentials">
+            <summary>
+            Determines if the credentials have been provided.
+            </summary>
+            <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.OnPropertyChanged(System.String)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebCredential.Reset">
             <summary>
             Reset the web credential.
             </summary>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.UpdateWith(Speedy.Net.WebCredential)">
+            <summary>
+            Update with the provided credential.
+            </summary>
+            <param name="credential"> The credential to update with. </param>
         </member>
         <member name="T:Speedy.Net.WebHttpHeaders">
             <summary>
@@ -6501,18 +6922,6 @@
             Instantiates an instance of the exception.
             </summary>
         </member>
-        <member name="T:Speedy.Protocols.Nmea.Location">
-            <summary>
-            Position - location
-            </summary>
-        </member>
-        <member name="M:Speedy.Protocols.Nmea.Location.ToDecimal">
-            <summary>
-            XXYY.YYYY = XX + (YYYYYY / 600000) graden.
-            (d)dd + (mm.mmmm/60) (* -1 for W and S)
-            </summary>
-            <returns> </returns>
-        </member>
         <member name="T:Speedy.Protocols.Nmea.Messages.GbsMessage">
             <summary>
             Represents a GBS message.
@@ -6654,6 +7063,18 @@
         </member>
         <member name="M:Speedy.Protocols.Nmea.ModeIndicator.ToString">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Protocols.Nmea.NmeaLocation">
+            <summary>
+            Position - location
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Nmea.NmeaLocation.ToDecimal">
+            <summary>
+            XXYY.YYYY = XX + (YYYYYY / 600000) graden.
+            (d)dd + (mm.mmmm/60) (* -1 for W and S)
+            </summary>
+            <returns> </returns>
         </member>
         <member name="T:Speedy.Protocols.Nmea.NmeaMessage">
             <summary>
@@ -11155,16 +11576,22 @@
             The sync client was not authorized to access the server.
             </summary>
         </member>
+        <member name="F:Speedy.Sync.SyncIssueType.ClientNotSupported">
+            <summary>
+            The client is not supported by this server.
+            </summary>
+        </member>
         <member name="T:Speedy.Sync.SyncManager`1">
             <summary>
             Represents a sync manager for syncing two clients.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncManager`1.#ctor(Speedy.IDispatcher)">
+        <member name="M:Speedy.Sync.SyncManager`1.#ctor(Speedy.IDispatcher,`0[])">
             <summary>
             Instantiates a sync manager for syncing two clients.
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
+            <param name="supportedSyncTypes"> </param>
         </member>
         <member name="P:Speedy.Sync.SyncManager`1.IncomingConverter">
             <summary>
@@ -11355,6 +11782,13 @@
             start then the options will be null as they were never read or set.
             </param>
             <returns> The task for the process. </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncManager`1.ValidateSyncType(`0)">
+            <summary>
+            Validates the provided sync type is supported by this sync manager.
+            </summary>
+            <param name="syncType"> The type of the sync to validate. </param>
+            <exception cref="T:System.Data.ConstraintException"> The sync type is not supported by this sync manager. </exception>
         </member>
         <member name="M:Speedy.Sync.SyncManager`1.WaitOnTask(System.Threading.Tasks.Task{Speedy.Sync.SyncResults{`0}},System.Nullable{System.TimeSpan})">
             <summary>

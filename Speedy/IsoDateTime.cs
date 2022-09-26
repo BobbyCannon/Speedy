@@ -309,6 +309,15 @@ namespace Speedy
 			return builder.ToString();
 		}
 
+		/// <summary>
+		/// Implicit operator from DateTime to IsoDateTime with Zero duration.
+		/// </summary>
+		/// <param name="value"> The DateTime value to cast. </param>
+		public static implicit operator IsoDateTime(DateTime value)
+		{
+			return new IsoDateTime { DateTime = value, Duration = TimeSpan.Zero };
+		}
+
 		#endregion
 	}
 }

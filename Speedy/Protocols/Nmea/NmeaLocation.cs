@@ -11,11 +11,11 @@ namespace Speedy.Protocols.Nmea
 	/// <summary>
 	/// Position - location
 	/// </summary>
-	public class Location
+	public class NmeaLocation
 	{
 		#region Constructors
 
-		public Location(string degree, string indicator)
+		public NmeaLocation(string degree, string indicator)
 		{
 			Degree = degree;
 			Indicator = indicator;

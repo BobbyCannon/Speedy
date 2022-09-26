@@ -206,7 +206,7 @@ namespace Speedy.Extensions
 		/// </summary>
 		/// <param name="value"> The value to process. </param>
 		/// <returns> The details for the enum value. </returns>
-		public static EnumDetails GetEnumDetails(Enum value)
+		public static EnumDetails GetEnumDetails(this Enum value)
 		{
 			var allDetails = GetAllEnumDetails(value.GetType());
 			return allDetails.ContainsKey(value)

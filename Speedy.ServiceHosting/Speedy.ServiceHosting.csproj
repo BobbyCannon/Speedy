@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0-windows</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
-		<Platforms>AnyCPU;x64;x86</Platforms>
 		<AssemblyTitle>Speedy.ServiceHosting</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.ServiceHosting</Product>
@@ -25,9 +24,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
-		<AssemblyVersion>10.0.0.0</AssemblyVersion>
-		<FileVersion>10.0.0.0</FileVersion>
-		<Version>10.0.0</Version>
+		<AssemblyVersion>10.0.1.0</AssemblyVersion>
+		<FileVersion>10.0.1.0</FileVersion>
+		<Version>10.0.1</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Net;
+using Speedy.Net;
 
 #endregion
 
@@ -85,7 +85,7 @@ namespace Speedy.ServiceHosting.Web
 		}
 
 		/// <inheritdoc />
-		public void Login(NetworkCredential credentials)
+		public void Login(WebCredential credentials)
 		{
 			throw new NotImplementedException();
 		}

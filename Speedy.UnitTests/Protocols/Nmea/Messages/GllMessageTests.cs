@@ -23,8 +23,8 @@ namespace Speedy.UnitTests.Protocols.Nmea.Messages
 					new GllMessage
 					{
 						Prefix = NmeaMessagePrefix.GlobalNavigationSatelliteSystem,
-						Latitude = new Location("4513.13795", "N"),
-						Longitude = new Location("01859.19702", "E"),
+						Latitude = new Speedy.Protocols.Nmea.NmeaLocation("4513.13795", "N"),
+						Longitude = new Speedy.Protocols.Nmea.NmeaLocation("01859.19702", "E"),
 						Time = 143717.00,
 						DataValid = "A",
 						ModeIndicator = new ModeIndicator("Autonomous"),

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xaml-comp compile="true" ?>
+
+<ResourceDictionary
+		xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+	<!-- Colors (controlled by Theme) -->
+	<Color x:Key="ForegroundColor">#FFD8D8D8</Color>
+	<SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}" />
+	<Color x:Key="BackgroundColor">#FF212121</Color>
+	<SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
+	<Color x:Key="ControlBackgroundColor">#FF2B2B2B</Color>
+	<SolidColorBrush x:Key="ControlBackgroundBrush" Color="{StaticResource ControlBackgroundColor}" />
+	<Color x:Key="TextBoxBackgroundColor">#FF212121</Color>
+	<SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="{StaticResource TextBoxBackgroundColor}" />
+
+	<!-- Colors (controlled by Accent) -->
+	<Color x:Key="AccentColor">#FF6459DF</Color>
+	<SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+	<Color x:Key="Accent2Color">#CC5047B2</Color>
+	<SolidColorBrush x:Key="Accent2Brush" Color="{StaticResource Accent2Color}" />
+	<Color x:Key="Accent3Color">#993C3585</Color>
+	<SolidColorBrush x:Key="Accent3Brush" Color="{StaticResource Accent3Color}" />
+	<Color x:Key="ControlFocusBorderColor">#FF6459DF</Color>
+	<SolidColorBrush x:Key="ControlFocusBorderBrush" Color="{StaticResource ControlFocusBorderColor}" />
+	<Color x:Key="ControlMouseOverBorderColor">#CC5047B2</Color>
+	<SolidColorBrush x:Key="ControlMouseOverBorderBrush" Color="{StaticResource ControlMouseOverBorderColor}" />
+
+</ResourceDictionary>

@@ -15,7 +15,7 @@ namespace Speedy
 		#region Properties
 
 		/// <inheritdoc />
-		public bool HasThreadAccess { get; set; }
+		public bool HasThreadAccess { get; private set; }
 
 		#endregion
 
@@ -42,7 +42,8 @@ namespace Speedy
 				HasThreadAccess = true;
 			}
 
-			return Task.Run(action);
+			action();
+			return Task.CompletedTask;
 		}
 
 		#endregion

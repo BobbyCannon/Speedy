@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace Speedy.Sync
 
 		private SyncEngine _engine;
 		private readonly object _processLock;
+		private readonly T[] _supportedSyncTypes;
 		private readonly ConcurrentDictionary<T, SyncOptions> _syncOptions;
 		private readonly ConcurrentDictionary<T, SyncTimer> _syncTimers;
 		private readonly Stopwatch _watch;
@@ -38,8 +40,10 @@ namespace Speedy.Sync
 		/// Instantiates a sync manager for syncing two clients.
 		/// </summary>
 		/// <param name="dispatcher"> The dispatcher to update with. </param>
-		protected SyncManager(IDispatcher dispatcher) : base(dispatcher)
+		/// <param name="supportedSyncTypes"> </param>
+		protected SyncManager(IDispatcher dispatcher, params T[] supportedSyncTypes) : base(dispatcher)
 		{
+			_supportedSyncTypes = supportedSyncTypes.Length <= 0 ? EnumExtensions.GetValues<T>() : supportedSyncTypes;
 			_processLock = new object();
 			_watch = new Stopwatch();
 
@@ -350,6 +354,18 @@ namespace Speedy.Sync
 		/// <param name="results"> The results of the completed sync. </param>
 		protected virtual void OnSyncCompleted(SyncResults<T> results)
 		{
+			// If no issues we'll store last synced on
+			if (results.SyncSuccessful)
+			{
+				// Update the last synced on times (client/server)
+				var syncOptions = GetSyncOptions(results.SyncType);
+				if (syncOptions != null)
+				{
+					syncOptions.LastSyncedOnClient = results.Options.LastSyncedOnClient;
+					syncOptions.LastSyncedOnServer = results.Options.LastSyncedOnServer;
+				}
+			}
+
 			SyncCompleted?.Invoke(this, results);
 		}
 
@@ -382,6 +398,8 @@ namespace Speedy.Sync
 		/// <returns> The task for the process. </returns>
 		protected Task<SyncResults<T>> ProcessAsync(T syncType, Action<SyncOptions> updateOptions, TimeSpan? waitFor = null, Action<SyncResults<T>> postAction = null)
 		{
+			ValidateSyncType(syncType);
+
 			if (!IsEnabled)
 			{
 				OnLogEvent($"Sync Manager is not enabled so Sync {syncType} not started.", EventLevel.Verbose);
@@ -415,6 +433,19 @@ namespace Speedy.Sync
 		}
 
 		/// <summary>
+		/// Validates the provided sync type is supported by this sync manager.
+		/// </summary>
+		/// <param name="syncType"> The type of the sync to validate. </param>
+		/// <exception cref="ConstraintException"> The sync type is not supported by this sync manager. </exception>
+		protected void ValidateSyncType(T syncType)
+		{
+			if (!_supportedSyncTypes.Contains(syncType))
+			{
+				throw new ConstraintException("The sync type is not supported by this sync manager.");
+			}
+		}
+
+		/// <summary>
 		/// Wait on a task to be completed.
 		/// </summary>
 		/// <param name="task"> The task to wait for. </param>
@@ -424,8 +455,7 @@ namespace Speedy.Sync
 		/// </param>
 		protected SyncResults<T> WaitOnTask(Task<SyncResults<T>> task, TimeSpan? timeout)
 		{
-			Task.WaitAll(new Task[] { task }, timeout ?? ProcessTimeout);
-			return task.Result;
+			return task.AwaitResults(timeout ?? ProcessTimeout);
 		}
 
 		private void OnEngineOnSyncStateChanged(object sender, SyncEngineState state)

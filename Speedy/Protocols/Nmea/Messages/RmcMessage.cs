@@ -21,9 +21,9 @@ namespace Speedy.Protocols.Nmea.Messages
 
 		public string DateOfFix { get; set; }
 
-		public Location Latitude { get; set; }
+		public NmeaLocation Latitude { get; set; }
 
-		public Location Longitude { get; set; }
+		public NmeaLocation Longitude { get; set; }
 
 		public string MagneticVariation { get; set; }
 
@@ -88,8 +88,8 @@ namespace Speedy.Protocols.Nmea.Messages
 
 			Time = GetArgument(0);
 			Status = GetArgument(1);
-			Latitude = new Location(GetArgument(2), GetArgument(3));
-			Longitude = new Location(GetArgument(4), GetArgument(5));
+			Latitude = new NmeaLocation(GetArgument(2), GetArgument(3));
+			Longitude = new NmeaLocation(GetArgument(4), GetArgument(5));
 			Speed = GetArgument(6);
 			Course = GetArgument(7);
 			DateOfFix = GetArgument(8);

@@ -16,14 +16,6 @@ namespace Speedy.UnitTests
 		#region Methods
 
 		[TestMethod]
-		public void Constructor()
-		{
-			var guid = new ShortGuid();
-			Assert.AreNotEqual(ShortGuid.Empty, guid);
-			Assert.AreNotEqual(Guid.Empty, guid.Guid);
-		}
-
-		[TestMethod]
 		public void Deserialize()
 		{
 			var guid = new ShortGuid(Guid.Parse("C64D607D-EC15-4F82-9B36-3DB2D17E037C"));

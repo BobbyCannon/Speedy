@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.ComponentModel;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -22,6 +23,7 @@ namespace Speedy.Net
 	{
 		#region Fields
 
+		private WebCredential _credential;
 		private readonly HttpClientHandler _handler;
 		private readonly HttpClient _httpClient;
 
@@ -78,7 +80,20 @@ namespace Speedy.Net
 		/// <summary>
 		/// The credentials for the connection.
 		/// </summary>
-		public WebCredential Credential { get; set; }
+		public WebCredential Credential
+		{
+			get => _credential;
+			set
+			{
+				if (_credential != null)
+				{
+					_credential.PropertyChanged -= CredentialOnPropertyChanged;
+				}
+
+				_credential = value;
+				_credential.PropertyChanged += CredentialOnPropertyChanged;
+			}
+		}
 
 		/// <summary>
 		/// Headers for this client.
@@ -363,6 +378,11 @@ namespace Speedy.Net
 			return true;
 		}
 
+		private void CredentialOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateCredentials();
+		}
+
 		private HttpResponseMessage InternalPatch<T>(string uri, T content, TimeSpan? timeout = null)
 		{
 			var json = GetJson(content);
@@ -399,7 +419,7 @@ namespace Speedy.Net
 				return;
 			}
 
-			_httpClient.DefaultRequestHeaders.Authorization = Credential?.AuthenticationHeaderValue;
+			_httpClient.DefaultRequestHeaders.Authorization = Credential?.GetAuthenticationHeaderValue();
 		}
 
 		#endregion

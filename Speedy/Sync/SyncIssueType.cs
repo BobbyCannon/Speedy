@@ -45,6 +45,11 @@
 		/// <summary>
 		/// The sync client was not authorized to access the server.
 		/// </summary>
-		Unauthorized = 7
+		Unauthorized = 7,
+
+		/// <summary>
+		/// The client is not supported by this server.
+		/// </summary>
+		ClientNotSupported = 8
 	}
 }

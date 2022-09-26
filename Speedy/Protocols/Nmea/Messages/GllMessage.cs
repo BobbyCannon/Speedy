@@ -25,9 +25,9 @@ namespace Speedy.Protocols.Nmea.Messages
 
 		public string DataValid { get; set; }
 
-		public Location Latitude { get; set; }
+		public NmeaLocation Latitude { get; set; }
 
-		public Location Longitude { get; set; }
+		public NmeaLocation Longitude { get; set; }
 
 		public ModeIndicator ModeIndicator { get; set; }
 
@@ -74,8 +74,8 @@ namespace Speedy.Protocols.Nmea.Messages
 
 			StartParse(sentence);
 
-			Latitude = new Location(GetArgument(0), GetArgument(1));
-			Longitude = new Location(GetArgument(2), GetArgument(3));
+			Latitude = new NmeaLocation(GetArgument(0), GetArgument(1));
+			Longitude = new NmeaLocation(GetArgument(2), GetArgument(3));
 			Time = Convert.ToDouble(GetArgument(4, "0"));
 			DataValid = GetArgument(5);
 

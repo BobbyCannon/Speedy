@@ -29,6 +29,11 @@ namespace Speedy.Exceptions
 		/// </summary>
 		public const string SyncEntityIncorrectType = "The sync entity is not the correct type.";
 
+		/// <summary>
+		/// Represents message for invalid sync clients.
+		/// </summary>
+		public const string ClientNotSupported = "This client is no longer supported. Please update to a supported version.";
+
 		#endregion
 
 		#region Constructors

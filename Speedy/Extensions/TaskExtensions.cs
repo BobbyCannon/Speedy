@@ -16,35 +16,35 @@ namespace Speedy.Extensions
 		#region Methods
 
 		/// <summary>
-		/// Await the results of a task.
+		/// Synchronously await the results of an asynchronous operation without deadlocking.
 		/// </summary>
-		/// <param name="task"> The task to run. </param>
+		/// <param name="task"> The <see cref="Task" /> representing the pending operation. </param>
 		public static void AwaitResults(this Task task)
 		{
-			task.ConfigureAwait(false).GetAwaiter().GetResult();
+			SynchronousAwaiter.GetResult(task);
 		}
 
 		/// <summary>
-		/// Await the results of a task.
+		/// Synchronously await the results of an asynchronous operation without deadlocking.
 		/// </summary>
-		/// <typeparam name="T"> The type to return. </typeparam>
-		/// <param name="task"> The task to run. </param>
-		/// <returns> The result of the task. </returns>
+		/// <typeparam name="T"> The result type of the operation. </typeparam>
+		/// <param name="task"> The <see cref="Task" /> representing the pending operation. </param>
+		/// <returns> The result of the operation. </returns>
 		public static T AwaitResults<T>(this Task<T> task)
 		{
-			return task.ConfigureAwait(false).GetAwaiter().GetResult();
+			return SynchronousAwaiter.GetResult(task);
 		}
 
 		/// <summary>
-		/// Await the results of a task.
+		/// Synchronously await the results of an asynchronous operation without deadlocking.
 		/// </summary>
-		/// <typeparam name="T"> The type to return. </typeparam>
-		/// <param name="task"> The task to run. </param>
+		/// <typeparam name="T"> The result type of the operation. </typeparam>
+		/// <param name="task"> The <see cref="Task" /> representing the pending operation. </param>
 		/// <param name="timeout"> The timeout if the task does not complete. </param>
-		/// <returns> The result of the task. </returns>
+		/// <returns> The result of the operation. </returns>
 		public static T AwaitResults<T>(this Task<T> task, TimeSpan timeout)
 		{
-			return task.TimeoutAfter(timeout).AwaitResults();
+			return SynchronousAwaiter.GetResult(task, timeout);
 		}
 
 		/// <summary>
@@ -72,7 +72,7 @@ namespace Speedy.Extensions
 			using var timeoutCancellationTokenSource = new CancellationTokenSource();
 			using var delay = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
 
-			var completedTask = await Task.WhenAny(task, delay);
+			var completedTask = await Task.WhenAny(task, delay).ConfigureAwait(false);
 			if (completedTask != task)
 			{
 				throw new TimeoutException("The operation has timed out.");
@@ -82,6 +82,115 @@ namespace Speedy.Extensions
 
 			// Very important in order to propagate exceptions
 			return await task;
+		}
+
+		#endregion
+
+		#region Classes
+
+		private class SynchronousAwaiter
+		{
+			#region Fields
+
+			private Exception _exception;
+			private object _result;
+
+			#endregion
+
+			#region Methods
+
+			public static void GetResult(Task task)
+			{
+				var t = new SynchronousAwaiter();
+				t.InternalGetResult(task);
+			}
+
+			public static T GetResult<T>(Task<T> task)
+			{
+				var t = new SynchronousAwaiter();
+				return t.InternalGetResult(task);
+			}
+
+			public static T GetResult<T>(Task<T> task, TimeSpan timeout)
+			{
+				var t = new SynchronousAwaiter();
+				return t.InternalGetResult(task, timeout);
+			}
+
+			private T InternalGetResult<T>(Task<T> task, TimeSpan timeout)
+			{
+				var manualResetEvent = new ManualResetEvent(false);
+				WaitFor(task, manualResetEvent);
+				var completed = manualResetEvent.WaitOne(timeout);
+
+				if (_exception != null)
+				{
+					throw _exception;
+				}
+
+				return completed ? (T) _result : default;
+			}
+
+			private void InternalGetResult(Task task)
+			{
+				var manualResetEvent = new ManualResetEvent(false);
+				WaitFor(task, manualResetEvent);
+				manualResetEvent.WaitOne();
+				if (_exception != null)
+				{
+					throw _exception;
+				}
+			}
+
+			private T InternalGetResult<T>(Task<T> task)
+			{
+				var manualResetEvent = new ManualResetEvent(false);
+				WaitFor(task, manualResetEvent);
+				manualResetEvent.WaitOne();
+				if (_exception != null)
+				{
+					throw _exception;
+				}
+
+				return (T) _result;
+			}
+
+			private async void WaitFor<T>(Task<T> task, ManualResetEvent manualResetEvent)
+			{
+				try
+				{
+					_result = await task.ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					_exception = ex;
+				}
+				finally
+				{
+					manualResetEvent.Set();
+				}
+			}
+
+			private async void WaitFor(Task task, ManualResetEvent manualResetEvent)
+			{
+				try
+				{
+					await task.ConfigureAwait(false);
+				}
+				catch (OperationCanceledException)
+				{
+				}
+				catch (Exception ex)
+				{
+					_exception = ex;
+				}
+				finally
+				{
+					manualResetEvent.Set();
+				}
+			}
+
+			#endregion
 		}
 
 		#endregion
