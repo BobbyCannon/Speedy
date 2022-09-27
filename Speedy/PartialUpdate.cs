@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
@@ -36,7 +37,7 @@ namespace Speedy
 	{
 		#region Fields
 
-		private readonly Validator<PartialUpdate<T>> _validator;
+		private readonly ConcurrentDictionary<string, Validator<PartialUpdate<T>>> _validators;
 
 		#endregion
 
@@ -72,7 +73,7 @@ namespace Speedy
 		/// <param name="dispatcher"> An optional dispatcher. </param>
 		public PartialUpdate(PartialUpdateOptions options, IDispatcher dispatcher) : base(options, dispatcher)
 		{
-			_validator = new Validator<PartialUpdate<T>>(dispatcher);
+			_validators = new ConcurrentDictionary<string, Validator<PartialUpdate<T>>>();
 		}
 
 		#endregion
@@ -182,7 +183,15 @@ namespace Speedy
 		/// </summary>
 		public sealed override bool TryValidate(out IList<IValidation> failures)
 		{
-			return GetValidator().TryValidate(this, out failures);
+			return GetValidator(DefaultGroupName).TryValidate(this, out failures);
+		}
+
+		/// <summary>
+		/// Runs the validator to check the parameter.
+		/// </summary>
+		public sealed override bool TryValidate(string name, out IList<IValidation> failures)
+		{
+			return GetValidator(name).TryValidate(this, out failures);
 		}
 
 		/// <summary>
@@ -190,23 +199,26 @@ namespace Speedy
 		/// </summary>
 		public sealed override void Validate()
 		{
-			GetValidator().Validate(this);
+			Validate(DefaultGroupName);
 		}
 
 		/// <summary>
-		/// Configure a validation for an update.
+		/// Runs the validator to check the partial update.
 		/// </summary>
-		public void Validate(Func<T, bool> expression, string message)
+		public sealed override void Validate(string groupName)
 		{
-			GetValidator().IsTrue(expression, message);
+			GetValidator(groupName).Validate(this);
 		}
 
 		/// <summary>
 		/// Configure a validation for an update value.
 		/// </summary>
-		public PropertyValidator<TProperty> Validate<TProperty>(Expression<Func<T, TProperty>> expression)
+		public PropertyValidator<TProperty> ValidateProperty<TProperty>(Expression<Func<T, TProperty>> expression)
 		{
-			return GetValidator().Property(expression);
+			var propertyExpression = (MemberExpression) expression.Body;
+			var propertyName = (PropertyInfo) propertyExpression.Member;
+			var groupNames = GetGroupNames(propertyName.Name);
+			return InternalValidateProperty(expression, groupNames);
 		}
 
 		/// <summary>
@@ -219,14 +231,35 @@ namespace Speedy
 			return typeof(T).GetCachedPropertyDictionary();
 		}
 
-		internal override Validator GetValidator()
+		internal override Validator GetValidator(string name)
 		{
-			return _validator;
+			return _validators.GetOrAdd(name, _ => new Validator<PartialUpdate<T>>(Dispatcher));
 		}
 
 		internal override string ToAssemblyName()
 		{
 			return typeof(T).ToAssemblyName();
+		}
+
+		/// <summary>
+		/// Configure a validation for an update value.
+		/// </summary>
+		private PropertyValidator<TProperty> InternalValidateProperty<TProperty>(Expression<Func<T, TProperty>> expression, params string[] groupNames)
+		{
+			// Always add to the default group
+			var propertyValidator = GetValidator(DefaultGroupName).Property(expression);
+
+			foreach (var group in groupNames)
+			{
+				if (group == DefaultGroupName)
+				{
+					continue;
+				}
+
+				return GetValidator(group).Add(propertyValidator);
+			}
+
+			return propertyValidator;
 		}
 
 		#endregion
@@ -240,9 +273,18 @@ namespace Speedy
 	[JsonConverter(typeof(PartialUpdateConverter))]
 	public class PartialUpdate : Bindable
 	{
+		#region Constants
+
+		/// <summary>
+		/// The default name for updates if a group name is not provided.
+		/// </summary>
+		protected const string DefaultGroupName = "1191C53B-2580-4726-A4EE-4EAA9E01483A";
+
+		#endregion
+
 		#region Fields
 
-		private readonly Validator<PartialUpdate> _validator;
+		private readonly ConcurrentDictionary<string, Validator<PartialUpdate>> _validators;
 
 		#endregion
 
@@ -278,7 +320,7 @@ namespace Speedy
 		/// <param name="dispatcher"> An optional dispatcher. </param>
 		public PartialUpdate(PartialUpdateOptions options, IDispatcher dispatcher) : base(dispatcher)
 		{
-			_validator = new Validator<PartialUpdate>();
+			_validators = new ConcurrentDictionary<string, Validator<PartialUpdate>>();
 
 			Options = options ?? new PartialUpdateOptions();
 			Updates = new SortedDictionary<string, PartialUpdateValue>(StringComparer.OrdinalIgnoreCase);
@@ -556,6 +598,16 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Calculate the group names to for validations.
+		/// </summary>
+		/// <param name="propertyName"> The name of the property. </param>
+		/// <returns> The names of the groups for the property. </returns>
+		public virtual string[] GetGroupNames(string propertyName)
+		{
+			return Array.Empty<string>();
+		}
+
+		/// <summary>
 		/// Creates an instance of the type and applies the partial update.
 		/// </summary>
 		/// <returns> </returns>
@@ -766,7 +818,15 @@ namespace Speedy
 		/// </summary>
 		public virtual bool TryValidate(out IList<IValidation> failures)
 		{
-			GetValidator().TryValidate(this, out failures);
+			return TryValidate(DefaultGroupName, out failures);
+		}
+
+		/// <summary>
+		/// Runs the validator to check the parameter.
+		/// </summary>
+		public virtual bool TryValidate(string name, out IList<IValidation> failures)
+		{
+			GetValidator(name).TryValidate(this, out failures);
 			return failures.Count <= 0;
 		}
 
@@ -775,23 +835,26 @@ namespace Speedy
 		/// </summary>
 		public virtual void Validate()
 		{
-			GetValidator().Validate(this);
+			Validate(DefaultGroupName);
 		}
 
 		/// <summary>
-		/// Configure a validation for an update.
+		/// Runs the validator to check the partial update.
 		/// </summary>
-		public void Validate(Func<PartialUpdate, bool> expression, string message)
+		public virtual void Validate(string groupName)
 		{
-			GetValidator().IsTrue(expression, message);
+			GetValidator(groupName).Validate(this);
 		}
 
 		/// <summary>
 		/// Configure a validation for an update value.
 		/// </summary>
-		public PropertyValidator<TProperty> Validate<T, TProperty>(Expression<Func<T, TProperty>> expression)
+		public PropertyValidator<TProperty> ValidateProperty<TClass, TProperty>(Expression<Func<TClass, TProperty>> expression)
 		{
-			return GetValidator().Property(expression);
+			var propertyExpression = (MemberExpression) expression.Body;
+			var propertyName = (PropertyInfo) propertyExpression.Member;
+			var groupNames = GetGroupNames(propertyName.Name);
+			return InternalValidateProperty(expression, groupNames);
 		}
 
 		/// <summary>
@@ -882,6 +945,11 @@ namespace Speedy
 					continue;
 				}
 
+				if ((update.Value == null) && !propertyInfo.PropertyType.IsNullable())
+				{
+					continue;
+				}
+
 				try
 				{
 					var value = Convert.ChangeType(update.Value?.Value, propertyInfo.PropertyType);
@@ -962,9 +1030,14 @@ namespace Speedy
 			Updates.AddOrUpdate(name, response);
 		}
 
-		internal virtual Validator GetValidator()
+		internal virtual Validator GetValidator(string name)
 		{
-			return _validator;
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				name = DefaultGroupName;
+			}
+
+			return _validators.GetOrAdd(name, _ => new Validator<PartialUpdate>());
 		}
 
 		internal virtual string ToAssemblyName()
@@ -1009,15 +1082,36 @@ namespace Speedy
 			{
 				return (PartialUpdate) Activator.CreateInstance(type);
 			}
-			
+
 			return (PartialUpdate) typeof(PartialUpdate<>).CreateInstance(new[] { type });
+		}
+
+		/// <summary>
+		/// Configure a validation for an update value.
+		/// </summary>
+		private PropertyValidator<TProperty> InternalValidateProperty<TClass, TProperty>(Expression<Func<TClass, TProperty>> expression, params string[] groupNames)
+		{
+			// Always add to the default group
+			var propertyValidator = GetValidator(DefaultGroupName).Property(expression);
+
+			foreach (var group in groupNames)
+			{
+				if (group == DefaultGroupName)
+				{
+					continue;
+				}
+
+				return GetValidator(group).Add(propertyValidator);
+			}
+
+			return propertyValidator;
 		}
 
 		private static PartialUpdate LoadJson(PartialUpdate partialUpdate, JsonReader reader, PartialUpdateOptions options)
 		{
 			options ??= new PartialUpdateOptions();
 
-			bool TryGetValue(JToken token, Type type, out object value)
+			bool tryGetValue(JToken token, Type type, out object value)
 			{
 				if (token is not JValue jValue)
 				{
@@ -1067,15 +1161,20 @@ namespace Speedy
 					continue;
 				}
 
-				var directProperty = directProperties.FirstOrDefault(x => string.Equals(x.Name, property.Name, StringComparison.OrdinalIgnoreCase) && x.CanWrite);
+				var directWritableProperty = directProperties.FirstOrDefault(x => string.Equals(x.Name, property.Name, StringComparison.OrdinalIgnoreCase) && x.CanWrite);
 				var targetProperty = targetProperties.FirstOrDefault(x => string.Equals(x.Key, property.Name, StringComparison.OrdinalIgnoreCase)).Value;
-				var type = directProperty?.PropertyType
+				var type = directWritableProperty?.PropertyType
 					?? targetProperty?.PropertyType
 					?? PartialUpdateConverter.ConvertType(property.Value.Type);
 
-				if (property.Type == JTokenType.Null)
+				if ((property.Type == JTokenType.Null)
+					|| (property.Value.Type == JTokenType.Null))
 				{
-					partialUpdate.AddOrUpdate(property.Name, type, null);
+					// Only keep "null" values for nullable property types
+					if (type.IsNullable())
+					{
+						partialUpdate.AddOrUpdate(property.Name, type, null);
+					}
 					continue;
 				}
 
@@ -1088,15 +1187,15 @@ namespace Speedy
 
 					foreach (var jArrayValue in jArray.Values())
 					{
-						if (TryGetValue(jArrayValue, genericType, out var arrayValue))
+						if (tryGetValue(jArrayValue, genericType, out var arrayValue))
 						{
 							genericList.Add(arrayValue);
 						}
 					}
 
-					if (directProperty != null)
+					if (directWritableProperty != null)
 					{
-						directProperty.SetValue(partialUpdate, genericList);
+						directWritableProperty.SetValue(partialUpdate, genericList);
 					}
 					else
 					{
@@ -1105,12 +1204,12 @@ namespace Speedy
 					continue;
 				}
 
-				if (TryGetValue(property.Value, type, out var value2))
+				if (tryGetValue(property.Value, type, out var value2))
 				{
-					if ((directProperty != null) 
-						&& (directProperty.PropertyType == value2?.GetType()))
+					if ((directWritableProperty != null)
+						&& (directWritableProperty.PropertyType == value2?.GetType()))
 					{
-						directProperty.SetValue(partialUpdate, value2);
+						directWritableProperty.SetValue(partialUpdate, value2);
 					}
 					else
 					{

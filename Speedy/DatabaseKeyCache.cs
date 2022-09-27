@@ -74,7 +74,7 @@ namespace Speedy
 		/// <summary>
 		/// The total count for all items tracked.
 		/// </summary>
-		public int TotalCachedItems => _cachedEntityId.Sum(x => x.Value.Count());
+		public int TotalCachedItems => _cachedEntityId.Sum(x => x.Value.Count);
 
 		#endregion
 

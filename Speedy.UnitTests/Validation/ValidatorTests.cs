@@ -72,19 +72,19 @@ namespace Speedy.UnitTests.Validation
 		public void HasValidValue()
 		{
 			var update = new PartialUpdate<Sample>();
-			update.Validate(x => x.LogLevel).HasValidValue();
+			update.ValidateProperty(x => x.LogLevel).HasValidValue();
 			update.Validate();
 			update.Set(x => x.LogLevel, (LogLevel) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
 
 			update = new PartialUpdate<Sample>();
-			update.Validate(x => x.OptionalLogLevel).HasValidValue();
+			update.ValidateProperty(x => x.OptionalLogLevel).HasValidValue();
 			update.Validate();
 			update.Set(x => x.OptionalLogLevel, (LogLevel?) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
 
 			update = new PartialUpdate<Sample>();
-			update.Validate(x => x.OptionalLogLevel).HasValidValue();
+			update.ValidateProperty(x => x.OptionalLogLevel).HasValidValue();
 			update.Validate();
 			update.Set(nameof(Sample.OptionalLogLevel), (LogLevel) 99);
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
@@ -132,7 +132,7 @@ namespace Speedy.UnitTests.Validation
 		public void IsOptional()
 		{
 			var update = new PartialUpdate<Sample>();
-			update.Validate(x => x.Name).IsOptional();
+			update.ValidateProperty(x => x.Name).IsOptional();
 			var actual = update.TryValidate(out var failures);
 			Assert.AreEqual(true, actual);
 			Assert.AreEqual(0, failures.Count);
@@ -142,7 +142,7 @@ namespace Speedy.UnitTests.Validation
 		public void IsRequired()
 		{
 			var update = new PartialUpdate<Sample>();
-			update.Validate(x => x.Name).IsRequired();
+			update.ValidateProperty(x => x.Name).IsRequired();
 			var actual = update.TryValidate(out var failures);
 			Assert.AreEqual(false, actual);
 			Assert.AreEqual(1, failures.Count);

@@ -16,7 +16,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void AddAverageTimerShouldWork()
 		{
-			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+			TestHelper.SetTime(new DateTime(2020, 04, 23, 07, 56, 12));
 
 			var timer = new Timer();
 			var count = 0;
@@ -37,7 +37,7 @@ namespace Speedy.UnitTests.Profiling
 			averageTimer.Start();
 			Assert.AreEqual(0, averageTimer.Elapsed.TotalMilliseconds);
 			Assert.AreEqual(0, count);
-			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(123456);
+			TestHelper.IncrementTime(TimeSpan.FromMilliseconds(123456));
 			Assert.AreEqual(123456, averageTimer.Elapsed.TotalMilliseconds);
 			Assert.AreEqual(0, count);
 			averageTimer.Stop();
@@ -99,7 +99,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void ShouldRestartWithProvidedStartTime()
 		{
-			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+			TestHelper.SetTime(new DateTime(2020, 04, 23, 07, 56, 12));
 
 			var timer = new Timer();
 			Assert.IsFalse(timer.IsRunning);
@@ -115,7 +115,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.AreEqual(0, timer.Elapsed.TotalMilliseconds);
 
 			timer.Restart();
-			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(123456);
+			TestHelper.IncrementTime(TimeSpan.FromMilliseconds(123456));
 
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(123456, timer.Elapsed.TotalMilliseconds);
@@ -124,7 +124,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void ShouldTrackUsingTimeService()
 		{
-			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+			TestHelper.SetTime(new DateTime(2020, 04, 23, 07, 56, 12));
 			var timer = new Timer();
 
 			Assert.IsFalse(timer.IsRunning);
@@ -132,7 +132,7 @@ namespace Speedy.UnitTests.Profiling
 			timer.Start();
 
 			Assert.IsTrue(timer.IsRunning);
-			TestHelper.CurrentTime += TimeSpan.FromTicks(1);
+			TestHelper.IncrementTime(TimeSpan.FromTicks(1));
 
 			timer.Stop();
 
@@ -143,7 +143,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void StartWithDateTimeShouldStartTimerInPast()
 		{
-			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+			TestHelper.SetTime(new DateTime(2020, 04, 23, 07, 56, 12));
 
 			var timer = new Timer();
 			Assert.IsFalse(timer.IsRunning);
@@ -161,7 +161,7 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void StopWithDateTimeShouldStopTimerInPast()
 		{
-			TestHelper.CurrentTime = new DateTime(2020, 04, 23, 07, 56, 12);
+			TestHelper.SetTime(new DateTime(2020, 04, 23, 07, 56, 12));
 
 			var timer = new Timer();
 			Assert.IsFalse(timer.IsRunning);
@@ -171,7 +171,7 @@ namespace Speedy.UnitTests.Profiling
 			Assert.IsTrue(timer.IsRunning);
 			Assert.AreEqual(0, timer.Elapsed.TotalMilliseconds);
 
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(12);
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(12));
 
 			timer.Stop(new DateTime(2020, 04, 23, 07, 56, 15));
 			Assert.IsFalse(timer.IsRunning);

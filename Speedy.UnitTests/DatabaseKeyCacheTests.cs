@@ -20,7 +20,7 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void Cleanup()
 		{
-			TestHelper.CurrentTime = new DateTime(2021, 02, 04, 08, 00, 01, DateTimeKind.Utc);
+			TestHelper.SetTime(new DateTime(2021, 02, 04, 08, 00, 01, DateTimeKind.Utc));
 
 			var cache = new DatabaseKeyCache(new TimeSpan(0, 0, 2));
 			cache.AddEntityId(typeof(AddressEntity), Guid.Parse("4BC15FD1-B6F0-4BDF-A24C-BBC8A88ADDCB"), 1);
@@ -30,7 +30,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(1, cache.TotalCachedItems);
 			Assert.AreEqual("\tSpeedy.Website.Data.Entities.AddressEntity\r\n\t\t4bc15fd1-b6f0-4bdf-a24c-bbc8a88addcb-1\r\n", cache.ToDetailedString());
 
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(1);
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(1));
 			cache.AddEntityId(typeof(AddressEntity), Guid.Parse("3D5859EE-5C0D-4CD5-8EDB-5D4B9127CADF"), 2);
 			Assert.AreEqual(2, cache.TotalCachedItems);
 			Assert.AreEqual("\tSpeedy.Website.Data.Entities.AddressEntity\r\n\t\t4bc15fd1-b6f0-4bdf-a24c-bbc8a88addcb-1\r\n\t\t3d5859ee-5c0d-4cd5-8edb-5d4b9127cadf-2\r\n", cache.ToDetailedString());
@@ -41,12 +41,12 @@ namespace Speedy.UnitTests
 			Assert.AreEqual("\tSpeedy.Website.Data.Entities.AddressEntity\r\n\t\t4bc15fd1-b6f0-4bdf-a24c-bbc8a88addcb-1\r\n\t\t3d5859ee-5c0d-4cd5-8edb-5d4b9127cadf-2\r\n", cache.ToDetailedString());
 
 			// Cache should be clear only 1 item after cleanup because enough time passed
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(1);
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(1));
 			cache.Cleanup();
 			Assert.AreEqual(1, cache.TotalCachedItems);
 			Assert.AreEqual("\tSpeedy.Website.Data.Entities.AddressEntity\r\n\t\t3d5859ee-5c0d-4cd5-8edb-5d4b9127cadf-2\r\n", cache.ToDetailedString());
 
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(1);
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(1));
 
 			// Cache should be clear the only remaining item after cleanup because enough time passed
 			cache.Cleanup();

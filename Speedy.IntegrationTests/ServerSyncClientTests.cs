@@ -77,7 +77,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void SettingsShouldDelete()
 		{
-			TestHelper.CurrentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
+			TestHelper.SetTime(new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc));
 
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
@@ -102,7 +102,7 @@ namespace Speedy.IntegrationTests
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
 			// currentTime = {2/25/2021 08:42:33 AM}
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); 
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); 
 			syncManager.Sync();
 
 			using (var database = clientProvider.GetDatabase())
@@ -115,7 +115,7 @@ namespace Speedy.IntegrationTests
 			}
 
 			// currentTime = {2/25/2021 08:42:34 AM}
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); 
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); 
 			syncManager.Sync();
 
 			using (var database = entityProvider.GetDatabase())
@@ -129,7 +129,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void SettingsShouldNotDelete()
 		{
-			TestHelper.CurrentTime = new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc);
+			TestHelper.SetTime(new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc));
 
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
@@ -154,7 +154,7 @@ namespace Speedy.IntegrationTests
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); // currentTime = {2/25/2021 08:42:33 AM}
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); // currentTime = {2/25/2021 08:42:33 AM}
 			syncManager.Sync();
 
 			using (var database = clientProvider.GetDatabase())
@@ -166,7 +166,7 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
-			TestHelper.CurrentTime += TimeSpan.FromSeconds(1); // currentTime = {2/25/2021 08:42:34 AM}
+			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); // currentTime = {2/25/2021 08:42:34 AM}
 			var result = syncManager.Sync();
 
 			Assert.AreEqual(1, result.SyncIssues.Count);

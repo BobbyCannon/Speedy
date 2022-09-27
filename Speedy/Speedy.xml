@@ -750,6 +750,123 @@
             The values of foreign key properties in dependent entities are set to null.
             </summary>
         </member>
+        <member name="T:Speedy.Converters.ObjectConverter">
+            <summary>
+            Converts an object to different types
+            </summary>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToByte(System.Object)">
+            <summary>
+            Converts the object to a byte value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a byte format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToChar(System.Object)">
+            <summary>
+            Converts the object to a char value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a char format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToDateTime(System.Object)">
+            <summary>
+            Converts the object to a DateTime value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a DateTime format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToDateTimeOffset(System.Object)">
+            <summary>
+            Converts the object to a DateTimeOffset value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a DateTimeOffset format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToDecimal(System.Object)">
+            <summary>
+            Converts the object to a decimal value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a decimal format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToDouble(System.Object)">
+            <summary>
+            Converts the object to a double value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a double format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToFloat(System.Object)">
+            <summary>
+            Converts the object to a float value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a float format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToInt16(System.Object)">
+            <summary>
+            Converts the object to a Int16 value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a Int16 format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToInt32(System.Object)">
+            <summary>
+            Converts the object to a Int32 value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a Int32 format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToInt64(System.Object)">
+            <summary>
+            Converts the object to a Int64 value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a Int64 format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToOscTimeTag(System.Object)">
+            <summary>
+            Converts the object to a DateTime value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a DateTime format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToSByte(System.Object)">
+            <summary>
+            Converts the object to a sbyte value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a sbyte format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToTimeSpan(System.Object)">
+            <summary>
+            Converts the object to a TimeSpan value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a TimeSpan format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToUInt16(System.Object)">
+            <summary>
+            Converts the object to a UInt16 value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a UInt16 format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToUInt32(System.Object)">
+            <summary>
+            Converts the object to a UInt32 value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a UInt32 format or returns the default value. </returns>
+        </member>
+        <member name="M:Speedy.Converters.ObjectConverter.ToUInt64(System.Object)">
+            <summary>
+            Converts the object to a UInt64 value.
+            </summary>
+            <param name="value"> The value to convert. </param>
+            <returns> The value in a UInt64 format or returns the default value. </returns>
+        </member>
         <member name="M:Speedy.Converters.Parsers.DateTimeConverterParser.SupportsType(System.Type)">
             <inheritdoc />
         </member>
@@ -5282,20 +5399,6 @@
             <param name="totalCount"> The total amount of items for the request. </param>
             <param name="results"> The items in this set of results. </param>
         </member>
-        <member name="M:Speedy.PagedResults`1.Initialize(Speedy.PagedRequest)">
-            <summary>
-            Update the PagedRequest with an update.
-            </summary>
-            <param name="update"> The update to be applied. </param>
-        </member>
-        <member name="M:Speedy.PagedResults`1.ConvertResults``1(System.Func{`0,``0})">
-            <summary>
-            Convert the results of to a different type.
-            </summary>
-            <typeparam name="T2"> The type to convert into. </typeparam>
-            <param name="convert"> The function to convert from the current type into the requested type. </param>
-            <returns> The new paged results for the provided type. </returns>
-        </member>
         <member name="P:Speedy.PagedResults`1.HasMore">
             <inheritdoc />
         </member>
@@ -5313,11 +5416,25 @@
         <member name="M:Speedy.PagedResults`1.CalculatePaginationValues">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.PagedResults`1.ConvertResults``1(System.Func{`0,``0})">
+            <summary>
+            Convert the results of to a different type.
+            </summary>
+            <typeparam name="T2"> The type to convert into. </typeparam>
+            <param name="convert"> The function to convert from the current type into the requested type. </param>
+            <returns> The new paged results for the provided type. </returns>
+        </member>
         <member name="M:Speedy.PagedResults`1.GetExpandoObject">
             <inheritdoc />
         </member>
         <member name="M:Speedy.PagedResults`1.RefreshUpdates">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.PagedResults`1.Initialize(Speedy.PagedRequest)">
+            <summary>
+            Update the PagedRequest with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
         </member>
         <member name="T:Speedy.IPagedResults">
             <summary>
@@ -5437,17 +5554,22 @@
             Runs the validator to check the parameter.
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdate`1.TryValidate(System.String,System.Collections.Generic.IList{Speedy.Validation.IValidation}@)">
+            <summary>
+            Runs the validator to check the parameter.
+            </summary>
+        </member>
         <member name="M:Speedy.PartialUpdate`1.Validate">
             <summary>
             Runs the validator to check the partial update.
             </summary>
         </member>
-        <member name="M:Speedy.PartialUpdate`1.Validate(System.Func{`0,System.Boolean},System.String)">
+        <member name="M:Speedy.PartialUpdate`1.Validate(System.String)">
             <summary>
-            Configure a validation for an update.
+            Runs the validator to check the partial update.
             </summary>
         </member>
-        <member name="M:Speedy.PartialUpdate`1.Validate``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+        <member name="M:Speedy.PartialUpdate`1.ValidateProperty``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
             Configure a validation for an update value.
             </summary>
@@ -5459,11 +5581,21 @@
             </summary>
             <returns> The list of properties for the provided type. </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate`1.InternalValidateProperty``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.String[])">
+            <summary>
+            Configure a validation for an update value.
+            </summary>
+        </member>
         <member name="T:Speedy.PartialUpdate">
             <summary>
             This class contains updates for itself. JSON is deserialized into the declaring type.
             Meaning, if you create an "AccountUpdate" that inherits from "PartialUpdate" then the
             updates are for the "AccountUpdate" itself.
+            </summary>
+        </member>
+        <member name="F:Speedy.PartialUpdate.DefaultGroupName">
+            <summary>
+            The default name for updates if a group name is not provided.
             </summary>
         </member>
         <member name="M:Speedy.PartialUpdate.#ctor">
@@ -5595,6 +5727,13 @@
             <param name="defaultValue"> A default value if update not available. </param>
             <returns> The value if it was found otherwise default(T). </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate.GetGroupNames(System.String)">
+            <summary>
+            Calculate the group names to for validations.
+            </summary>
+            <param name="propertyName"> The name of the property. </param>
+            <returns> The names of the groups for the property. </returns>
+        </member>
         <member name="M:Speedy.PartialUpdate.GetInstance``1">
             <summary>
             Creates an instance of the type and applies the partial update.
@@ -5686,17 +5825,22 @@
             Runs the validator to check the parameter.
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdate.TryValidate(System.String,System.Collections.Generic.IList{Speedy.Validation.IValidation}@)">
+            <summary>
+            Runs the validator to check the parameter.
+            </summary>
+        </member>
         <member name="M:Speedy.PartialUpdate.Validate">
             <summary>
             Runs the validator to check the partial update.
             </summary>
         </member>
-        <member name="M:Speedy.PartialUpdate.Validate(System.Func{Speedy.PartialUpdate,System.Boolean},System.String)">
+        <member name="M:Speedy.PartialUpdate.Validate(System.String)">
             <summary>
-            Configure a validation for an update.
+            Runs the validator to check the partial update.
             </summary>
         </member>
-        <member name="M:Speedy.PartialUpdate.Validate``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+        <member name="M:Speedy.PartialUpdate.ValidateProperty``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
             <summary>
             Configure a validation for an update value.
             </summary>
@@ -5739,6 +5883,11 @@
             <param name="name"> The name of the member to set. </param>
             <param name="value"> The value of the member. </param>
             <param name="properties"> The properties for the set. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate.InternalValidateProperty``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.String[])">
+            <summary>
+            Configure a validation for an update value.
+            </summary>
         </member>
         <member name="T:Speedy.PartialUpdateOptions">
             <summary>
@@ -10003,23 +10152,48 @@
             </summary>
             <param name="defaultTimeout"> The default timeout of new entries. </param>
         </member>
+        <member name="P:Speedy.Storage.MemoryCache.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Storage.MemoryCache.DefaultTimeout">
+            <summary>
+            The default timeout for items when they are added.
+            </summary>
+        </member>
         <member name="P:Speedy.Storage.MemoryCache.IsEmpty">
             <summary>
             Indicates whether or not the memory cache is empty.
             </summary>
+        </member>
+        <member name="P:Speedy.Storage.MemoryCache.IsSynchronized">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Storage.MemoryCache.SlidingExpiration">
             <summary>
             Determines if the expiration time should be extended when read from the cache.
             </summary>
         </member>
+        <member name="P:Speedy.Storage.MemoryCache.SyncRoot">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Storage.MemoryCache.Clear">
             <summary>
             Clear the memory cache.
             </summary>
         </member>
-        <member name="M:Speedy.Storage.MemoryCache.GetEnumerator">
+        <member name="M:Speedy.Storage.MemoryCache.CopyTo(System.Array,System.Int32)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.MemoryCache.GetEnumerator">
+            <summary>
+            Enumerator for the memory cache.
+            </summary>
+            <returns> The enumerator for the collection. </returns>
+            <remarks>
+            Enumeration should NOT be considered "accessing" items
+            We only bump last accessed by direct access. This allows
+            Enumeration of the item to check expiration
+            </remarks>
         </member>
         <member name="M:Speedy.Storage.MemoryCache.Remove(System.String)">
             <summary>
@@ -10033,14 +10207,7 @@
             </summary>
             <param name="memoryCacheItem"> The item to remove from the cache. </param>
         </member>
-        <member name="M:Speedy.Storage.MemoryCache.Set(System.String,System.Object)">
-            <summary>
-            Set a new entry. This will add a new entry or update an existing one.
-            </summary>
-            <param name="key"> The key of the entry. </param>
-            <param name="value"> The value of the entry. </param>
-        </member>
-        <member name="M:Speedy.Storage.MemoryCache.Set(System.String,System.Object,System.TimeSpan)">
+        <member name="M:Speedy.Storage.MemoryCache.Set(System.String,System.Object,System.Nullable{System.TimeSpan})">
             <summary>
             Set a new entry with a custom timeout. This will add a new entry or update an existing one.
             </summary>
@@ -10064,10 +10231,11 @@
             Represents an item for a memory cache.
             </summary>
         </member>
-        <member name="M:Speedy.Storage.MemoryCacheItem.#ctor(System.String,System.Object,System.TimeSpan)">
+        <member name="M:Speedy.Storage.MemoryCacheItem.#ctor(Speedy.Storage.MemoryCache,System.String,System.Object,System.Nullable{System.TimeSpan})">
             <summary>
             Instantiates a memory cache item.
             </summary>
+            <param name="cache"> The cache this item is for. </param>
             <param name="key"> The key of the item. </param>
             <param name="value"> The value of the item. </param>
             <param name="timeout"> The timeout of the item. </param>
@@ -12835,6 +13003,17 @@
             </summary>
             <param name="message"> The message for failed validation. </param>
         </member>
+        <member name="M:Speedy.Validation.PropertyValidator`1.IsTrue">
+            <summary>
+            Validate an property with provided test.
+            </summary>
+        </member>
+        <member name="M:Speedy.Validation.PropertyValidator`1.IsTrue(System.String)">
+            <summary>
+            Validate an property with provided test.
+            </summary>
+            <param name="message"> The message for failed validation. </param>
+        </member>
         <member name="M:Speedy.Validation.PropertyValidator`1.IsTrue(System.Func{`0,System.Boolean},System.String)">
             <summary>
             Validate an property with provided test.
@@ -13151,6 +13330,14 @@
             <summary>
             Runs the validator to check the partial update.
             </summary>
+        </member>
+        <member name="M:Speedy.Validation.Validator.Add``1(Speedy.Validation.PropertyValidator{``0})">
+            <summary>
+            Adds a validation for a property.
+            </summary>
+            <remarks>
+            If this is updated, also update <seealso cref="M:Speedy.PartialUpdate`1.Validate" />
+            </remarks>
         </member>
         <member name="M:Speedy.Validation.Validator.ProcessValidations(System.Collections.Generic.IList{Speedy.Validation.IValidation},System.Object,System.Collections.Generic.ICollection{Speedy.Validation.IValidation})">
             <summary>

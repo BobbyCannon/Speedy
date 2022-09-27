@@ -17,13 +17,13 @@ namespace Speedy.UnitTests.Profiling
 		[TestMethod]
 		public void CompleteShouldWork()
 		{
-			TestHelper.CurrentTime = new DateTime(2020, 12, 15, 01, 02, 03, 999, DateTimeKind.Utc);
+			TestHelper.SetTime(new DateTime(2020, 12, 15, 01, 02, 03, 999, DateTimeKind.Utc));
 
 			var path = new TrackerPath();
 			Assert.AreEqual(false, path.IsCompleted);
 			Assert.AreEqual(0, path.ElapsedTime.Ticks);
 
-			TestHelper.CurrentTime += TimeSpan.FromMilliseconds(1);
+			TestHelper.IncrementTime(TimeSpan.FromMilliseconds(1));
 
 			path.Complete();
 			Assert.AreEqual(true, path.IsCompleted);

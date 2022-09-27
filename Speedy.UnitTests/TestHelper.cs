@@ -101,13 +101,15 @@ namespace Speedy.UnitTests
 					.Replace("Speedy.AutomationTests", "Speedy.TestUwp")
 					.Replace("x86\\Debug\\net6.0-windows", "x86\\Debug\\AppX")
 				+ "\\Speedy.TestUwp.exe";
+
+			Initialize();
 		}
 
 		#endregion
 
 		#region Properties
 
-		public static string ApplicationPathForUwp { get; set; }
+		public static string ApplicationPathForUwp { get; }
 
 		public static string ApplicationPathForWinFormsX64 { get; }
 
@@ -115,11 +117,9 @@ namespace Speedy.UnitTests
 
 		public static string ClearDatabaseScript => "EXEC sp_MSForEachTable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? DISABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'SET QUOTED_IDENTIFIER ON; IF ''?'' NOT LIKE ''%MigrationHistory%'' AND ''?'' NOT LIKE ''%MigrationsHistory%'' DELETE FROM ?'\r\nEXEC sp_MSforeachtable 'ALTER TABLE ? ENABLE TRIGGER ALL'\r\nEXEC sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'\r\nEXEC sp_MSForEachTable 'IF OBJECTPROPERTY(object_id(''?''), ''TableHasIdentity'') = 1 DBCC CHECKIDENT (''?'', RESEED, 0)'";
 
-		public static DateTime CurrentTime
-		{
-			get => _currentTime ?? DateTime.UtcNow;
-			set => _currentTime = value;
-		}
+		public static DateTime CurrentTime =>
+			// There are very few places we should use DateTime, this is one of them.
+			_currentTime ?? DateTime.UtcNow;
 
 		public static string DefaultSqlConnection { get; }
 
@@ -618,6 +618,31 @@ namespace Speedy.UnitTests
 			}
 		}
 
+		public static void IncrementTime(int? hours = null, int? minutes = null, int? seconds = null, int? milliseconds = null, long? ticks = null)
+		{
+			if ((hours == null)
+				&& (minutes == null)
+				&& (seconds == null)
+				&& (milliseconds == null)
+				&& (ticks == null))
+			{
+				seconds = 1;
+			}
+
+			IncrementTime(
+				TimeSpan.FromHours(hours ?? 0)
+				+ TimeSpan.FromMinutes(minutes ?? 0)
+				+ TimeSpan.FromSeconds(seconds ?? 0)
+				+ TimeSpan.FromMilliseconds(milliseconds ?? 0)
+				+ TimeSpan.FromTicks(ticks ?? 0)
+			);
+		}
+
+		public static void IncrementTime(TimeSpan interval)
+		{
+			_currentTime = CurrentTime + interval;
+		}
+
 		public static void Initialize()
 		{
 			Serializer.ResetDefaultSettings();
@@ -640,9 +665,6 @@ namespace Speedy.UnitTests
 					return false;
 				}
 			});
-
-			Application.CloseAll(ApplicationPathForWinFormsX64);
-			Application.CloseAll(ApplicationPathForWinFormsX86);
 		}
 
 		public static void PrintChildren(Element parent, string prefix = "")
@@ -703,6 +725,11 @@ namespace Speedy.UnitTests
 				directory.Refresh();
 				return directory.Exists;
 			});
+		}
+
+		public static void SetTime(DateTime value)
+		{
+			_currentTime = value;
 		}
 
 		public static Application StartApplication(bool x86 = false)

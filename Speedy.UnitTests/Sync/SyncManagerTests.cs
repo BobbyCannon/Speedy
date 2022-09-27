@@ -81,6 +81,16 @@ namespace Speedy.UnitTests.Sync
 					$"4/23/2020 1:55:28 AM - {manager.SessionId} Verbose : Cancelling running Sync All...",
 					$"4/23/2020 1:55:31 AM - {manager.SessionId} Verbose : Changing status to Cancelled.",
 					$"4/23/2020 1:55:32 AM - {manager.SessionId} Verbose : Sync All stopped. 00:00.000"
+				},
+				new[]
+				{
+					$"4/23/2020 1:55:23 AM - {manager.SessionId} Verbose : Sync All started",
+					$"4/23/2020 1:55:25 AM - {manager.SessionId} Verbose : Syncing All for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
+					$"4/23/2020 1:55:26 AM - {manager.SessionId} Verbose : Sync All is already running so Sync Accounts not started.",
+					$"4/23/2020 1:55:27 AM - {manager.SessionId} Verbose : Changing status to Starting.",
+					$"4/23/2020 1:55:28 AM - {manager.SessionId} Verbose : Cancelling running Sync All...",
+					$"4/23/2020 1:55:31 AM - {manager.SessionId} Verbose : Changing status to Cancelled.",
+					$"4/23/2020 1:55:32 AM - {manager.SessionId} Verbose : Sync All stopped. 00:00.000",
 				}
 			};
 
@@ -100,7 +110,7 @@ namespace Speedy.UnitTests.Sync
 			var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
 			var offset = 0;
 
-			TestHelper.CurrentTime = startTime.AddSeconds(offset++);
+			TestHelper.SetTime(startTime.AddSeconds(offset++));
 
 			var manager = new TestSyncManager();
 			using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Informational);

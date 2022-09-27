@@ -34,7 +34,7 @@ namespace Speedy
 		public PagedResults(PagedRequest request, int totalCount, params T[] results)
 		{
 			Initialize(request);
-			
+
 			Results = results.ToList();
 			TotalCount = totalCount;
 
@@ -43,43 +43,6 @@ namespace Speedy
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Update the PagedRequest with an update.
-		/// </summary>
-		/// <param name="update"> The update to be applied. </param>
-		private void Initialize(PagedRequest update)
-		{
-			Filter = update.Filter;
-			Order = update.Order;
-			Page = update.Page;
-			PerPage = update.PerPage;
-			Updates.Reconcile(update.Updates);
-		}
-
-		/// <summary>
-		/// Convert the results of to a different type.
-		/// </summary>
-		/// <typeparam name="T2"> The type to convert into. </typeparam>
-		/// <param name="convert"> The function to convert from the current type into the requested type. </param>
-		/// <returns> The new paged results for the provided type. </returns>
-		public PagedResults<T2> ConvertResults<T2>(Func<T, T2> convert)
-		{
-			var response = new PagedResults<T2>
-			{
-				Results = Results.Select(convert).ToList(),
-				Filter = Filter,
-				Order = Order,
-				Page = Page,
-				PerPage = PerPage,
-				TotalCount = TotalCount
-			};
-
-			response.Updates.Reconcile(Updates);
-			response.Options.UpdateWith(Options);
-
-			return response;
-		}
 
 		#region Properties
 
@@ -131,6 +94,30 @@ namespace Speedy
 			return (start, end);
 		}
 
+		/// <summary>
+		/// Convert the results of to a different type.
+		/// </summary>
+		/// <typeparam name="T2"> The type to convert into. </typeparam>
+		/// <param name="convert"> The function to convert from the current type into the requested type. </param>
+		/// <returns> The new paged results for the provided type. </returns>
+		public PagedResults<T2> ConvertResults<T2>(Func<T, T2> convert)
+		{
+			var response = new PagedResults<T2>
+			{
+				Results = Results.Select(convert).ToList(),
+				Filter = Filter,
+				Order = Order,
+				Page = Page,
+				PerPage = PerPage,
+				TotalCount = TotalCount
+			};
+
+			response.Updates.Reconcile(Updates);
+			response.Options.UpdateWith(Options);
+
+			return response;
+		}
+
 		/// <inheritdoc />
 		protected internal override ExpandoObject GetExpandoObject()
 		{
@@ -167,6 +154,19 @@ namespace Speedy
 			AddOrUpdate(nameof(HasMore), HasMore);
 
 			base.RefreshUpdates();
+		}
+
+		/// <summary>
+		/// Update the PagedRequest with an update.
+		/// </summary>
+		/// <param name="update"> The update to be applied. </param>
+		private void Initialize(PagedRequest update)
+		{
+			Filter = update.Filter;
+			Order = update.Order;
+			Page = update.Page;
+			PerPage = update.PerPage;
+			Updates.Reconcile(update.Updates);
 		}
 
 		#endregion

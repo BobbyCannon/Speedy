@@ -128,7 +128,12 @@ namespace Speedy.Extensions
 					throw _exception;
 				}
 
-				return completed ? (T) _result : default;
+				if (!completed)
+				{
+					throw new TimeoutException("The operation has timed out.");
+				}
+
+				return (T) _result;
 			}
 
 			private void InternalGetResult(Task task)

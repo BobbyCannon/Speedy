@@ -50,7 +50,7 @@ namespace Speedy.Extensions
 			var eventFields = valueType.GetCachedEventFields(flags);
 			EventHandlerList staticEventHandlers = null;
 
-			void RemoveEventHandler(EventInfo info, Delegate subscriber)
+			void removeEventHandler(EventInfo info, Delegate subscriber)
 			{
 				var privateRemoveMethod = info.GetRemoveMethod(true);
 				privateRemoveMethod.Invoke(value, flags, null, new object[] { subscriber }, CultureInfo.CurrentCulture);
@@ -86,7 +86,7 @@ namespace Speedy.Extensions
 
 					foreach (var subscriber in invocationList)
 					{
-						RemoveEventHandler(eventInfo, subscriber);
+						removeEventHandler(eventInfo, subscriber);
 					}
 				}
 				else
@@ -105,7 +105,7 @@ namespace Speedy.Extensions
 
 					foreach (var subscriber in eventHandler.GetInvocationList())
 					{
-						RemoveEventHandler(eventInfo, subscriber);
+						removeEventHandler(eventInfo, subscriber);
 					}
 				}
 			}

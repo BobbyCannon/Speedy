@@ -221,6 +221,18 @@ namespace Speedy.Validation
 		}
 
 		/// <summary>
+		/// Adds a validation for a property.
+		/// </summary>
+		/// <remarks>
+		/// If this is updated, also update <seealso cref="PartialUpdate{T}.Validate()" />
+		/// </remarks>
+		internal PropertyValidator<TProperty> Add<TProperty>(PropertyValidator<TProperty> propertyValidator)
+		{
+			MemberValidators.Add(propertyValidator);
+			return propertyValidator;
+		}
+
+		/// <summary>
 		/// Process the validations.
 		/// </summary>
 		/// <param name="validations"> The list of validation to process. </param>
@@ -244,10 +256,8 @@ namespace Speedy.Validation
 			}
 		}
 
-		private static void ProcessValidator(PartialUpdate update, ICollection<IValidation> failedValidation)
+		private static void ProcessValidator(Validator validator, PartialUpdate update, ICollection<IValidation> failedValidation)
 		{
-			var validator = update.GetValidator();
-
 			ProcessValidations(validator.Validations, update, failedValidation);
 
 			for (var i = 0; i < validator.MemberValidators.Count; i++)
@@ -279,7 +289,7 @@ namespace Speedy.Validation
 		{
 			if (value is PartialUpdate partialUpdate)
 			{
-				ProcessValidator(partialUpdate, failedValidation);
+				ProcessValidator(validator, partialUpdate, failedValidation);
 				return;
 			}
 

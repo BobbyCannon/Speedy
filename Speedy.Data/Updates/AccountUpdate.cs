@@ -13,7 +13,7 @@ namespace Speedy.Data.Updates
 
 		public AccountUpdate()
 		{
-			Validate(x => x.Name)
+			ValidateProperty(x => x.Name)
 				.HasMinMaxRange(1, 5, "Name must be between 1 and 5 characters in length.")
 				.IsNotNull()
 				.IsRequired();

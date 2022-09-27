@@ -8,8 +8,6 @@ using Speedy.Extensions;
 
 #pragma warning disable 1591
 
-#pragma warning disable 1591
-
 namespace Speedy.Protocols.Osc
 {
 	/// <summary>
@@ -217,7 +215,7 @@ namespace Speedy.Protocols.Osc
 			var seconds = span.TotalSeconds;
 			var secondsUInt = (uint) seconds;
 			var remainingTicks = span.Ticks - ((decimal) secondsUInt * TimeSpan.TicksPerSecond);
-			var fraction = ((remainingTicks / TimeSpan.TicksPerMillisecond) / 1000.0m) * uint.MaxValue;
+			var fraction = (remainingTicks / TimeSpan.TicksPerMillisecond / 1000.0m) * uint.MaxValue;
 			var preciseValue = ((ulong) (secondsUInt & 0xFFFFFFFF) << 32) | ((ulong) fraction & 0xFFFFFFFF);
 			return new OscTimeTag(preciseValue);
 		}
@@ -332,7 +330,7 @@ namespace Speedy.Protocols.Osc
 		/// </returns>
 		public DateTime ToDateTime()
 		{
-			var ticks1 = Math.Round((((decimal) SubSeconds) / uint.MaxValue) * 1000, 4, MidpointRounding.AwayFromZero);
+			var ticks1 = Math.Round(((decimal) SubSeconds / uint.MaxValue) * 1000, 4, MidpointRounding.AwayFromZero);
 			var ticks2 = ticks1 * TimeSpan.TicksPerMillisecond;
 			return MinDateTime.AddSeconds(Seconds).AddTicks((long) ticks2);
 		}
@@ -437,6 +435,16 @@ namespace Speedy.Protocols.Osc
 
 			result = default;
 			return false;
+		}
+
+		public static implicit operator OscTimeTag(DateTime value)
+		{
+			return new OscTimeTag(value);
+		}
+		
+		public static implicit operator OscTimeTag(ulong value)
+		{
+			return new OscTimeTag(value);
 		}
 
 		#endregion

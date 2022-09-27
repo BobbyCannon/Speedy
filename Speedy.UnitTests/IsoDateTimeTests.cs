@@ -19,13 +19,13 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void IsExpired()
 		{
-			TestHelper.CurrentTime = "2022-08-23T01:23:45.789Z".ToUtcDateTime();
+			TestHelper.SetTime("2022-08-23T01:23:45.789Z".ToUtcDateTime());
 			
 			var iso = NewIsoDateTime("2022-08-23T00:00:00.000Z", "01:23:45.789");
 			iso.ExpiresOn.ToString("O").Dump();
 			Assert.IsFalse(iso.IsExpired);
 
-			TestHelper.CurrentTime = "2022-08-23T01:23:45.790Z".ToUtcDateTime();
+			TestHelper.SetTime("2022-08-23T01:23:45.790Z".ToUtcDateTime());
 			iso.ExpiresOn.ToString("O").Dump();
 			Assert.IsTrue(iso.IsExpired);
 		}

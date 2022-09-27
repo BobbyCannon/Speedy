@@ -78,7 +78,9 @@ namespace Speedy.Extensions
 				throw new FileNotFoundException("The file could not be found.", fileLocation.FullName);
 			}
 
-			UtilityExtensions.Retry(() => fileLocation.MoveTo(newLocation.FullName), 1000, 10);
+			// Must clone file info because MoveTo will change full name
+			var movingFileLocation = new FileInfo(fileLocation.FullName);
+			UtilityExtensions.Retry(() => movingFileLocation.MoveTo(newLocation.FullName), 1000, 10);
 
 			UtilityExtensions.Wait(() =>
 			{

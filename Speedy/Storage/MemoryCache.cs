@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Speedy.Extensions;
 
 #endregion
@@ -12,11 +13,10 @@ namespace Speedy.Storage
 	/// <summary>
 	/// Represent a memory cache.
 	/// </summary>
-	public class MemoryCache : IEnumerable<MemoryCacheItem>
+	public class MemoryCache : IEnumerable<MemoryCacheItem>, ICollection
 	{
 		#region Fields
 
-		private readonly TimeSpan _defaultTimeout;
 		private readonly Dictionary<string, MemoryCacheItem> _dictionary;
 
 		#endregion
@@ -36,23 +36,58 @@ namespace Speedy.Storage
 		/// <param name="defaultTimeout"> The default timeout of new entries. </param>
 		public MemoryCache(TimeSpan defaultTimeout)
 		{
-			_defaultTimeout = defaultTimeout;
 			_dictionary = new Dictionary<string, MemoryCacheItem>();
+
+			DefaultTimeout = defaultTimeout;
+			SlidingExpiration = true;
+			SyncRoot = new object();
 		}
 
 		#endregion
 
 		#region Properties
 
+		/// <inheritdoc />
+		public int Count
+		{
+			get
+			{
+				lock (SyncRoot)
+				{
+					return _dictionary.Count;
+				}
+			}
+		}
+
+		/// <summary>
+		/// The default timeout for items when they are added.
+		/// </summary>
+		public TimeSpan DefaultTimeout { get; }
+
 		/// <summary>
 		/// Indicates whether or not the memory cache is empty.
 		/// </summary>
-		public bool IsEmpty => _dictionary.Count <= 0;
+		public bool IsEmpty
+		{
+			get
+			{
+				lock (SyncRoot)
+				{
+					return _dictionary.Count <= 0;
+				}
+			}
+		}
+
+		/// <inheritdoc />
+		public bool IsSynchronized => true;
 
 		/// <summary>
 		/// Determines if the expiration time should be extended when read from the cache.
 		/// </summary>
 		public bool SlidingExpiration { get; set; }
+
+		/// <inheritdoc />
+		public object SyncRoot { get; }
 
 		#endregion
 
@@ -63,41 +98,69 @@ namespace Speedy.Storage
 		/// </summary>
 		public void Clear()
 		{
-			_dictionary.Clear();
+			lock (SyncRoot)
+			{
+				_dictionary.Clear();
+			}
 		}
 
 		/// <inheritdoc />
+		public void CopyTo(Array array, int index)
+		{
+			lock (SyncRoot)
+			{
+				Array.Copy(_dictionary.Values.ToArray(), 0, array, index, _dictionary.Count);
+			}
+		}
+
+		/// <summary>
+		/// Enumerator for the memory cache.
+		/// </summary>
+		/// <returns> The enumerator for the collection. </returns>
+		/// <remarks>
+		/// Enumeration should NOT be considered "accessing" items
+		/// We only bump last accessed by direct access. This allows
+		/// Enumeration of the item to check expiration
+		/// </remarks>
 		public IEnumerator<MemoryCacheItem> GetEnumerator()
 		{
-			return _dictionary.Values.GetEnumerator();
+			lock (SyncRoot)
+			{
+				foreach (var value in _dictionary)
+				{
+					// See remark in method summary.
+					//value.Value.LastAccessed = TimeService.UtcNow;
+					yield return value.Value;
+				}
+			}
 		}
 
 		/// <summary>
 		/// Remove an entry by the key name.
 		/// </summary>
 		/// <param name="key"> The name of the key. </param>
-		public void Remove(string key)
+		public MemoryCacheItem Remove(string key)
 		{
-			_dictionary.Remove(key);
+			lock (SyncRoot)
+			{
+				if (!_dictionary.ContainsKey(key))
+				{
+					return default;
+				}
+
+				var item = _dictionary[key];
+				_dictionary.Remove(key);
+				return item;
+			}
 		}
 
 		/// <summary>
 		/// Remove the entry from the cache.
 		/// </summary>
 		/// <param name="memoryCacheItem"> The item to remove from the cache. </param>
-		public void Remove(MemoryCacheItem memoryCacheItem)
+		public MemoryCacheItem Remove(MemoryCacheItem memoryCacheItem)
 		{
-			_dictionary.Remove(memoryCacheItem.Key);
-		}
-
-		/// <summary>
-		/// Set a new entry. This will add a new entry or update an existing one.
-		/// </summary>
-		/// <param name="key"> The key of the entry. </param>
-		/// <param name="value"> The value of the entry. </param>
-		public void Set(string key, object value)
-		{
-			Set(key, value, _defaultTimeout);
+			return Remove(memoryCacheItem?.Key);
 		}
 
 		/// <summary>
@@ -106,15 +169,21 @@ namespace Speedy.Storage
 		/// <param name="key"> The key of the entry. </param>
 		/// <param name="value"> The value of the entry. </param>
 		/// <param name="timeout"> The custom timeout of the entry. </param>
-		public void Set(string key, object value, TimeSpan timeout)
+		public void Set(string key, object value, TimeSpan? timeout = null)
 		{
-			_dictionary.AddOrUpdate(key, () => new MemoryCacheItem(key, value, timeout), x =>
+			lock (SyncRoot)
 			{
-				x.Key = key;
-				x.Value = value;
-				x.LastAccessed = TimeService.UtcNow;
-				return x;
-			});
+				_dictionary.AddOrUpdate(key,
+					() => new MemoryCacheItem(this, key, value, timeout),
+					x =>
+					{
+						x.Key = key;
+						x.Value = value;
+						x.LastAccessed = TimeService.UtcNow;
+						return x;
+					}
+				);
+			}
 		}
 
 		/// <summary>
@@ -125,29 +194,24 @@ namespace Speedy.Storage
 		/// <returns> True if the entry was found or otherwise false. </returns>
 		public bool TryGet(string key, out MemoryCacheItem value)
 		{
-			if (!_dictionary.TryGetValue(key, out var cachedItem))
+			lock (SyncRoot)
 			{
-				value = null;
-				return false;
-			}
+				if (!_dictionary.TryGetValue(key, out var cachedItem))
+				{
+					value = null;
+					return false;
+				}
 
-			if (cachedItem.ExpirationDate <= TimeService.UtcNow)
-			{
-				value = null;
-				Remove(cachedItem);
-				return false;
-			}
+				if (cachedItem.ExpirationDate <= TimeService.UtcNow)
+				{
+					value = null;
+					Remove(cachedItem);
+					return false;
+				}
 
-			value = cachedItem;
-			value.LastAccessed = TimeService.UtcNow;
-			return true;
-		}
-
-		internal void UpdateTimeout(TimeSpan value)
-		{
-			foreach (var item in _dictionary)
-			{
-				item.Value.Timeout = value;
+				value = cachedItem;
+				value.LastAccessed = TimeService.UtcNow;
+				return true;
 			}
 		}
 

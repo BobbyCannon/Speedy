@@ -11,21 +11,31 @@ namespace Speedy.Storage
 	/// </summary>
 	public class MemoryCacheItem
 	{
+		#region Fields
+
+		private readonly MemoryCache _cache;
+		private readonly TimeSpan? _timeout;
+
+		#endregion
+
 		#region Constructors
 
 		/// <summary>
 		/// Instantiates a memory cache item.
 		/// </summary>
+		/// <param name="cache"> The cache this item is for. </param>
 		/// <param name="key"> The key of the item. </param>
 		/// <param name="value"> The value of the item. </param>
 		/// <param name="timeout"> The timeout of the item. </param>
-		public MemoryCacheItem(string key, object value, TimeSpan timeout)
+		public MemoryCacheItem(MemoryCache cache, string key, object value, TimeSpan? timeout)
 		{
+			_cache = cache;
+			_timeout = timeout;
+
 			Key = key;
 			Value = value;
 			CreatedOn = TimeService.UtcNow;
 			LastAccessed = CreatedOn;
-			Timeout = timeout;
 		}
 
 		#endregion
@@ -40,7 +50,12 @@ namespace Speedy.Storage
 		/// <summary>
 		/// The date and time the item will expire.
 		/// </summary>
-		public DateTime ExpirationDate => Timeout == TimeSpan.MaxValue ? DateTime.MaxValue : LastAccessed.Add(Timeout);
+		public DateTime ExpirationDate =>
+			Timeout == TimeSpan.MaxValue
+				? DateTime.MaxValue
+				: _cache?.SlidingExpiration == true
+					? LastAccessed.Add(Timeout)
+					: CreatedOn.Add(Timeout);
 
 		/// <summary>
 		/// Indicates if the item has expired.
@@ -60,7 +75,7 @@ namespace Speedy.Storage
 		/// <summary>
 		/// The timeout value of the item.
 		/// </summary>
-		public TimeSpan Timeout { get; set; }
+		public TimeSpan Timeout => _timeout ?? _cache.DefaultTimeout;
 
 		/// <summary>
 		/// The value of the item.

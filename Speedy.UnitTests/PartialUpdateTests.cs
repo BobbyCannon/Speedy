@@ -93,7 +93,7 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void Apply()
 		{
-			var json = "{\"Age\": 21, \"Name\": \"Fred\", \"IsDeleted\": \"true\" }";
+			var json = "{\"age\": 21, \"Name\": \"Fred\", \"IsDeleted\": \"true\" }";
 			//var actual = json.FromJson<MyClass2>();
 			var actual = json.FromJson<MyEntityUpdate>();
 
@@ -102,7 +102,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(null, actual.Get<string>("Name", null));
 			Assert.AreEqual("Fred", actual.Name);
 			Assert.AreEqual(2, actual.Updates.Count);
-			TestHelper.AreEqual(new[] { "Age", "IsDeleted" }, actual.Updates.Keys);
+			TestHelper.AreEqual(new[] { "age", "IsDeleted" }, actual.Updates.Keys);
 
 			var entity = new MyEntity();
 			Assert.AreEqual(0, entity.Age);
@@ -245,7 +245,7 @@ namespace Speedy.UnitTests
 		{
 			var json = "{ \"Level\": 42 }";
 			var update = PartialUpdate.FromJson<MyClass>(json);
-			update.Validate(x => x.Level)
+			update.ValidateProperty(x => x.Level)
 				.HasValidValue();
 
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Level does not contain a valid value.");
@@ -530,6 +530,14 @@ namespace Speedy.UnitTests
 		}
 
 		[TestMethod]
+		public void PartialUpdateWithNullValueOnNonNullableProperty()
+		{
+			var json = "{ \"Age\": null }";
+			var update = json.FromJson<MyEntityUpdate>();
+			Assert.AreEqual(0, update.Updates.Count);
+		}
+
+		[TestMethod]
 		public void Remove()
 		{
 			var update = new PartialUpdate<Account>();
@@ -590,7 +598,7 @@ namespace Speedy.UnitTests
 			var requiredMessage = "Name is required";
 
 			var update = json.FromJson<PartialUpdate>();
-			update.Validate<MyClass, string>(x => x.Name)
+			update.ValidateProperty<MyClass, string>(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
 				.IsNotNullOrWhitespace();
 
@@ -598,7 +606,58 @@ namespace Speedy.UnitTests
 
 			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			update = json.FromJson<PartialUpdate>();
-			update.Validate<MyClass, string>(x => x.Name)
+			update.ValidateProperty<MyClass, string>(x => x.Name)
+				.HasMinMaxRange(1, 5, rangeMessage)
+				.IsNotNullOrWhitespace()
+				.IsRequired(requiredMessage);
+
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
+		}
+
+		[TestMethod]
+		public void ValidateCustomGroups()
+		{
+			var json = "{ \"Age\":20, \"Enabled\": false, \"Id\": 42, \"Name\":\"foo\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
+			var update = json.FromJson<MyEntityUpdate>();
+
+			var actual = update.TryValidate("AgeOnly", out var failures);
+			Assert.AreEqual(false, actual);
+			Assert.AreEqual(1, failures.Count);
+			Assert.AreEqual(nameof(MyEntityUpdate.Age), failures[0].Name);
+			Assert.AreEqual("The age must be greater than or equal to 21.", failures[0].Message);
+
+			actual = update.TryValidate("EnabledOnly", out failures);
+			Assert.AreEqual(false, actual);
+			Assert.AreEqual(1, failures.Count);
+			Assert.AreEqual(nameof(MyEntityUpdate.Enabled), failures[0].Name);
+			Assert.AreEqual("The account should be enabled.", failures[0].Message);
+		}
+
+		[TestMethod]
+		public void ValidateNoLessThanForDouble()
+		{
+			var update = new PartialUpdate<MyEntity>();
+			update.ValidateProperty(x => x.Grade).NoLessThan(0, "Cannot be less than 0");
+			update.Validate();
+		}
+
+		[TestMethod]
+		public void ValidateOnly()
+		{
+			var json = "{ \"Age\":21, \"Id\": 42, \"Name\":\"foo bar\", \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
+			var rangeMessage = "Name must be between 1 to 5 characters.";
+			var requiredMessage = "Name is required";
+
+			var update = json.FromJson<PartialUpdate>();
+			update.ValidateProperty<MyClass, string>(x => x.Name)
+				.HasMinMaxRange(1, 5, rangeMessage)
+				.IsNotNullOrWhitespace();
+
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
+
+			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
+			update = json.FromJson<PartialUpdate>();
+			update.ValidateProperty<MyClass, string>(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
 				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
@@ -613,7 +672,7 @@ namespace Speedy.UnitTests
 			foreach (var json in scenarios)
 			{
 				var update = PartialUpdate.FromJson<MyClass>(json);
-				update.Validate(x => x.Name)
+				update.ValidateProperty(x => x.Name)
 					.IsOptional()
 					.HasMinMaxRange(1, 5, "Name must be between 1 to 5 characters.");
 
@@ -629,7 +688,7 @@ namespace Speedy.UnitTests
 			var requiredMessage = "Name is required";
 
 			var update = PartialUpdate.FromJson<MyClass>(json);
-			update.Validate(x => x.Name)
+			update.ValidateProperty(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
 				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
@@ -638,7 +697,7 @@ namespace Speedy.UnitTests
 
 			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			update = PartialUpdate.FromJson<MyClass>(json);
-			update.Validate(x => x.Name)
+			update.ValidateProperty(x => x.Name)
 				.HasMinMaxRange(1, 5, rangeMessage)
 				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
@@ -671,6 +730,10 @@ namespace Speedy.UnitTests
 
 			public int Age { get; set; }
 
+			public bool Enabled { get; set; }
+
+			public double Grade { get; set; }
+
 			/// <inheritdoc />
 			public override long Id { get; set; }
 
@@ -681,6 +744,19 @@ namespace Speedy.UnitTests
 
 		public class MyEntityUpdate : PartialUpdate<MyEntity>
 		{
+			#region Constructors
+
+			public MyEntityUpdate()
+			{
+				ValidateProperty(x => x.Age)
+					.NoLessThan(21, "The age must be greater than or equal to 21.");
+
+				ValidateProperty<MyEntity, bool>(x => x.Enabled)
+					.IsTrue("The account should be enabled.");
+			}
+
+			#endregion
+
 			#region Properties
 
 			/// <summary>
@@ -689,9 +765,29 @@ namespace Speedy.UnitTests
 			public int Age => Get<int>(nameof(Age), default);
 
 			/// <summary>
+			/// Get only property should still restore from JSON
+			/// </summary>
+			public bool Enabled => Get<bool>(nameof(Enabled), default);
+
+			/// <summary>
 			/// Not update driven property, should still work.
 			/// </summary>
 			public string Name { get; set; }
+
+			#endregion
+
+			#region Methods
+
+			/// <inheritdoc />
+			public override string[] GetGroupNames(string propertyName)
+			{
+				return propertyName switch
+				{
+					nameof(Age) => new[] { "AgeOnly", "Everything" },
+					nameof(Enabled) => new[] { "EnabledOnly", "Everything" },
+					_ => base.GetGroupNames(propertyName)
+				};
+			}
 
 			#endregion
 		}
