@@ -277,6 +277,29 @@ namespace Speedy.Extensions
 			return value.SetFlag(flag, true);
 		}
 
+		/// <summary>
+		/// Set the "flagged" enum value based on the provided update value state.
+		/// </summary>
+		/// <typeparam name="T"> The type of the enum value. </typeparam>
+		/// <param name="value"> The value to update. </param>
+		/// <param name="update"> The source of update. </param>
+		/// <param name="flags"> The flags to be read then set. </param>
+		/// <returns> The value with the flagged set or cleared based on the update value. </returns>
+		public static T UpdateFlag<T>(this T value, T update, T flags) where T : Enum
+		{
+			var flagValues = flags.GetFlaggedValues();
+			var response = value;
+
+			foreach (var flag in flagValues)
+			{
+				response = update.HasFlag(flag)
+					? response.SetFlag(flag)
+					: response.ClearFlag(flag);
+			}
+
+			return response;
+		}
+
 		private static T SetFlag<T>(this T value, T flag, bool set) where T : Enum
 		{
 			var eValue = Convert.ToUInt64(value);

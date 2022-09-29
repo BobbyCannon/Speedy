@@ -19,6 +19,27 @@ namespace Speedy.UnitTests
 		#region Methods
 
 		[TestMethod]
+		public void CreateAsserts()
+		{
+			var type = typeof(PartialUpdateTests.MyClass);
+			var builder = new StringBuilder();
+			var properties = type
+				//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+				.GetCachedProperties(BindingFlags.Public | BindingFlags.Instance)
+				.Where(x => x.CanWrite)
+				.OrderBy(x => x.Name)
+				.ToList();
+
+			foreach (var p in properties)
+			{
+				builder.AppendLine($"Assert.AreEqual(expected.{p.Name}, actual.{p.Name});");
+			}
+
+			builder.ToString().CopyToClipboard();
+			Console.Write(builder.ToString());
+		}
+
+		[TestMethod]
 		public void CopyOverloadForICloneableToClipboard()
 		{
 			var type = typeof(SyncEngineState);

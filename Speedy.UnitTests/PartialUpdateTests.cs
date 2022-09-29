@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -236,7 +237,37 @@ namespace Speedy.UnitTests
 				var actual = Activator.CreateInstance(itemType);
 				var update = PartialUpdate.FromJson(itemType, item.Value);
 				update.Apply(actual);
-				TestHelper.AreEqual(item.Key, actual);
+
+				var properties = actual.GetCachedProperties();
+				var exclusions = actual is ISyncEntity entity
+					? entity.GetExclusions(true, true, true)
+					: new HashSet<string>();
+
+				TestHelper.AreEqual(item.Key, actual, exclusions.ToArray());
+
+				foreach (var exclusion in exclusions)
+				{
+					// All exclusions should not be equal
+					var property = properties.First(x => x.Name == exclusion);
+					var d = property.PropertyType.GetDefaultValue();
+					var e = property.GetValue(item.Key);
+					var a = property.GetValue(actual);
+
+					if ((e == d) && (a == d))
+					{
+						continue;
+					}
+
+					if (e is ICollection ec
+						&& a is ICollection ac
+						&& (ec.Count == 0)
+						&& (ac.Count == 0))
+					{
+						continue;
+					}
+
+					TestHelper.AreNotEqual(e, a);
+				}
 			}
 		}
 
@@ -246,9 +277,10 @@ namespace Speedy.UnitTests
 			var json = "{ \"Level\": 42 }";
 			var update = PartialUpdate.FromJson<MyClass>(json);
 			update.ValidateProperty(x => x.Level)
-				.HasValidValue();
+				.HasEnumValue();
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Level does not contain a valid value.");
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+				ValidationException.GetErrorMessage(ValidationExceptionType.EnumRange, nameof(MyClass.Level)));
 
 			json = "{ \"Level\": 0 }";
 			update = PartialUpdate.FromJson<MyClass>(json);
@@ -568,6 +600,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, partialUpdate.Updates.Count);
 
 			partialUpdate.Set(expected);
+
 			Assert.AreEqual(8, partialUpdate.Updates.Count);
 			Assert.AreEqual(expected.Age, partialUpdate.Get(x => x.Age));
 			Assert.AreEqual(expected.Name, partialUpdate.Get(x => x.Name));
@@ -577,6 +610,88 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(expected.CreatedOn, partialUpdate.Get(x => x.CreatedOn));
 			Assert.AreEqual(expected.ModifiedOn, partialUpdate.Get(x => x.ModifiedOn));
 			Assert.AreEqual(expected.SyncId, partialUpdate.Get(x => x.SyncId));
+		}
+
+		[TestMethod]
+		public void SetUsingObjectOfDifferentType()
+		{
+			var expected = new
+			{
+				Age = 21,
+				Name = "John Doe",
+				Level = LogLevel.Error,
+				Id = 4,
+				IsDeleted = true,
+				CreatedOn = new DateTime(2022, 05, 03, 09, 06, 12, DateTimeKind.Utc),
+				ModifiedOn = new DateTime(2022, 05, 03, 09, 06, 13, DateTimeKind.Utc),
+				SyncId = Guid.Parse("EDFA8A18-B693-4B61-BDE2-EEB727398556"),
+				NewNoneExistantProperty = true
+			};
+
+			var partialUpdate = new PartialUpdate<MyClass>();
+			Assert.AreEqual(0, partialUpdate.Updates.Count);
+
+			partialUpdate.Set(expected);
+
+			Assert.AreEqual(8, partialUpdate.Updates.Count);
+			Assert.AreEqual(expected.Age, partialUpdate.Get(x => x.Age));
+			Assert.AreEqual(expected.Name, partialUpdate.Get(x => x.Name));
+			Assert.AreEqual(expected.Level, partialUpdate.Get(x => x.Level));
+			Assert.AreEqual(expected.Id, partialUpdate.Get(x => x.Id));
+			Assert.AreEqual(expected.IsDeleted, partialUpdate.Get(x => x.IsDeleted));
+			Assert.AreEqual(expected.CreatedOn, partialUpdate.Get(x => x.CreatedOn));
+			Assert.AreEqual(expected.ModifiedOn, partialUpdate.Get(x => x.ModifiedOn));
+			Assert.AreEqual(expected.SyncId, partialUpdate.Get(x => x.SyncId));
+
+			var actual = partialUpdate.GetInstance();
+			Assert.AreEqual(expected.Age, actual.Age);
+			Assert.AreEqual(expected.CreatedOn, actual.CreatedOn);
+			// ID is excluded because MyClass is a SyncEntity
+			Assert.AreNotEqual(expected.Id, actual.Id);
+			Assert.AreEqual(expected.IsDeleted, actual.IsDeleted);
+			Assert.AreEqual(expected.Level, actual.Level);
+			Assert.AreEqual(expected.ModifiedOn, actual.ModifiedOn);
+			Assert.AreEqual(expected.Name, actual.Name);
+			Assert.AreEqual(expected.SyncId, actual.SyncId);
+		}
+
+		[TestMethod]
+		public void SetUsingObjectOfDifferentTypeAndDifferentPropertyTypes()
+		{
+			var expected = new
+			{
+				Age = false,
+				Name = "John Doe",
+				Level = 45,
+				NewNoneExistantProperty = true
+			};
+
+			var partialUpdate = new PartialUpdate<MyClass>();
+			Assert.AreEqual(0, partialUpdate.Updates.Count);
+
+			partialUpdate.Set(expected);
+
+			Assert.AreEqual(3, partialUpdate.Updates.Count);
+			Assert.AreEqual(0, partialUpdate.Get(x => x.Age));
+			// We want this to be "incorrect" enum, allow the value to come in
+			// Apply will correct it
+			Assert.AreEqual((LogLevel) 45, partialUpdate.Get(x => x.Level));
+			Assert.AreEqual(expected.Name, partialUpdate.Get(x => x.Name));
+
+			var actual = partialUpdate.GetInstance();
+			Assert.AreEqual(0, actual.Age);
+			Assert.AreEqual(LogLevel.Critical, actual.Level);
+			Assert.AreEqual(expected.Name, actual.Name);
+		}
+
+		[TestMethod]
+		public void SetWithNotWritableProperties()
+		{
+			// Setting name will set HasChanges
+			var entity1 = new MyModel { Name = "Test" };
+			var entity2 = new PartialUpdate<MyModel>();
+			entity2.Set(entity1);
+			Assert.AreEqual("Test", entity2.Get(x => x.Name));
 		}
 
 		[TestMethod]
@@ -788,6 +903,19 @@ namespace Speedy.UnitTests
 					_ => base.GetGroupNames(propertyName)
 				};
 			}
+
+			#endregion
+		}
+
+		public class MyModel : Bindable
+		{
+			#region Properties
+
+			public int Age { get; set; }
+
+			public bool Enabled { get; set; }
+
+			public string Name { get; set; }
 
 			#endregion
 		}

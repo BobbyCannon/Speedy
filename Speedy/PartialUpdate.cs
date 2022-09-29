@@ -18,6 +18,7 @@ using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Serialization.Converters;
+using Speedy.Sync;
 using Speedy.Validation;
 
 #endregion
@@ -90,6 +91,25 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Applies the updates to the entity including only properties from the default validation group.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		public void ApplyValidationGroup(T entity)
+		{
+			base.ApplyValidationGroup(entity);
+		}
+
+		/// <summary>
+		/// Applies the updates to the entity including only properties from a validation group.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		/// <param name="groupName"> The name of the validation group to apply. </param>
+		public void ApplyValidationGroup(T entity, string groupName)
+		{
+			base.ApplyValidationGroup(entity, groupName);
+		}
+
+		/// <summary>
 		/// Get the property value.
 		/// </summary>
 		/// <typeparam name="TProperty"> The type to cast the value to. </typeparam>
@@ -142,8 +162,7 @@ namespace Speedy
 		/// <param name="value"> The value of the member. </param>
 		public override void Set(string name, object value)
 		{
-			var properties = GetTargetProperties();
-			Set(name, value, properties);
+			InternalSet(name, value);
 		}
 
 		/// <summary>
@@ -152,18 +171,11 @@ namespace Speedy
 		/// <param name="value"> The value that contains a full set of updates. </param>
 		public void Set(T value)
 		{
-			var properties = GetTargetProperties();
+			var properties = GetTargetReadableWritableProperties();
 
-			foreach (var property in properties.Values)
+			foreach (var property in properties)
 			{
-				var response = new PartialUpdateValue
-				{
-					Name = property.Name,
-					Type = property.PropertyType,
-					Value = property.GetValue(value)
-				};
-
-				Updates.AddOrUpdate(property.Name, response);
+				InternalSet(property.Name, property.GetValue(value), property);
 			}
 		}
 
@@ -229,6 +241,19 @@ namespace Speedy
 		protected override IDictionary<string, PropertyInfo> GetTargetProperties()
 		{
 			return typeof(T).GetCachedPropertyDictionary();
+		}
+		
+		/// <summary>
+		/// Gets a list of property information for provided type that are readable and writable.
+		/// The results are cached so the next query is much faster.
+		/// </summary>
+		/// <returns> The list of properties for the provided type. </returns>
+		protected override IEnumerable<PropertyInfo> GetTargetReadableWritableProperties()
+		{
+			return GetTargetProperties()
+				.Where(x => x.Value.CanRead && x.Value.CanWrite)
+				.Select(x => x.Value)
+				.ToList();
 		}
 
 		internal override Validator GetValidator(string name)
@@ -353,7 +378,7 @@ namespace Speedy
 		/// <param name="value"> The value of the update. </param>
 		public void AddOrUpdate(string name, object value)
 		{
-			var properties = GetType().GetCachedPropertyDictionary();
+			var properties = GetTargetProperties();
 			var property = properties.Values.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
 			var type = value == null ? property?.PropertyType ?? typeof(object) : value.GetType();
 			AddOrUpdate(name, type, value);
@@ -399,26 +424,41 @@ namespace Speedy
 		/// Applies the updates to the entity.
 		/// </summary>
 		/// <param name="entity"> Entity to be updated. </param>
+		/// <param name="including"> Properties to be included. </param>
+		/// <param name="excluding"> Properties to be excluded. </param>
+		public void Apply(object entity, IEnumerable<string> including, IEnumerable<string> excluding)
+		{
+			Apply(entity, new PartialUpdateOptions(including, excluding));
+		}
+
+		/// <summary>
+		/// Applies the updates to the entity.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
 		/// <param name="options"> Options for the partial update. </param>
 		public void Apply(object entity, PartialUpdateOptions options)
 		{
-			if (entity == null)
-			{
-				throw new ArgumentNullException(nameof(entity));
-			}
-
-			if (Updates == null)
+			if ((entity == null) || (Updates == null))
 			{
 				return;
+			}
+
+			var updateOptions = (PartialUpdateOptions) options?.ShallowClone()
+				?? new PartialUpdateOptions();
+
+			if (entity is ISyncEntity syncEntity)
+			{
+				var exclusions = syncEntity.GetExclusions(true, true, true);
+				updateOptions.ExcludedProperties.AddRange(exclusions);
 			}
 
 			var propertyInfos = entity.GetType().GetCachedPropertyDictionary();
 
 			foreach (var update in Updates)
 			{
-				if (!options.ShouldProcessProperty(update.Key))
+				// Ensure the property should be processed
+				if (!updateOptions.ShouldProcessProperty(update.Key))
 				{
-					// Ignore this property because we only want to include it
 					continue;
 				}
 
@@ -436,6 +476,11 @@ namespace Speedy
 				if ((update.Value == null) && propertyInfo.PropertyType.IsNullable())
 				{
 					propertyInfo.SetValue(entity, null);
+					continue;
+				}
+
+				if ((update.Value == null) && !propertyInfo.PropertyType.IsNullable())
+				{
 					continue;
 				}
 
@@ -461,6 +506,37 @@ namespace Speedy
 					propertyInfo.SetValue(entity, update.Value.Value);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Applies the updates to the sync entity.
+		/// </summary>
+		/// <param name="entity"> Sync entity to be updated. </param>
+		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+		public void ApplyToSyncEntity(ISyncEntity entity, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		{
+			Apply(entity, new PartialUpdateOptions(null, entity.GetExclusions(excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate)));
+		}
+
+		/// <summary>
+		/// Applies the updates to the entity including only properties from the default validation group.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		public void ApplyValidationGroup(object entity)
+		{
+			ApplyValidationGroup(entity, DefaultGroupName);
+		}
+
+		/// <summary>
+		/// Applies the updates to the entity including only properties from a validation group.
+		/// </summary>
+		/// <param name="entity"> Entity to be updated. </param>
+		/// <param name="groupName"> The name of the validation group to apply. </param>
+		public void ApplyValidationGroup(object entity, string groupName)
+		{
+			Apply(entity, GetValidationGroupOptions(groupName));
 		}
 
 		/// <summary>
@@ -653,7 +729,7 @@ namespace Speedy
 		public void ParseQueryString(string queryString)
 		{
 			var collection = HttpUtility.ParseQueryString(queryString);
-			var properties = GetType().GetCachedPropertyDictionary();
+			var properties = GetTargetProperties();
 
 			foreach (var key in collection.AllKeys)
 			{
@@ -700,8 +776,34 @@ namespace Speedy
 		/// <param name="value"> The value of the member. </param>
 		public virtual void Set(string name, object value)
 		{
-			var properties = GetType().GetCachedPropertyDictionary();
-			Set(name, value, properties);
+			InternalSet(name, value);
+		}
+
+		/// <summary>
+		/// Set a full set of updates.
+		/// </summary>
+		/// <param name="value"> The value that contains a full set of updates. </param>
+		public void Set(object value)
+		{
+			var targetProperties = GetTargetProperties();
+			var valueProperties = value.GetCachedProperties();
+
+			foreach (var property in targetProperties.Values)
+			{
+				//
+				// Do NOT use property type in this filter, this will be handled by Set
+				// 
+				var valueProperty = valueProperties
+					.FirstOrDefault(x => x.Name == property.Name);
+
+				if (valueProperty == null)
+				{
+					continue;
+				}
+
+				var propertyValue = valueProperty.GetValue(value);
+				AddOrUpdate(property.Name, propertyValue);
+			}
 		}
 
 		/// <summary>
@@ -895,86 +997,6 @@ namespace Speedy
 		}
 
 		/// <summary>
-		/// Applies the updates to the entity.
-		/// </summary>
-		/// <param name="entity"> Entity to be updated. </param>
-		/// <param name="including"> Properties to be included. </param>
-		/// <param name="excluding"> Properties to be excluded. </param>
-		protected void Apply(object entity, HashSet<string> including, HashSet<string> excluding)
-		{
-			if (entity == null)
-			{
-				throw new ArgumentNullException(nameof(entity));
-			}
-
-			if (Updates == null)
-			{
-				return;
-			}
-
-			var propertyInfos = entity.GetType().GetCachedPropertyDictionary();
-
-			foreach (var update in Updates)
-			{
-				if (including.Any() && !including.Contains(update.Key))
-				{
-					// Ignore this property because we only want to include it
-					continue;
-				}
-
-				if (excluding.Contains(update.Key))
-				{
-					// Ignore this property because we only want to exclude it
-					continue;
-				}
-
-				if (!propertyInfos.ContainsKey(update.Key))
-				{
-					continue;
-				}
-
-				var propertyInfo = propertyInfos[update.Key];
-				if (!propertyInfo.CanWrite)
-				{
-					continue;
-				}
-
-				if ((update.Value == null) && propertyInfo.PropertyType.IsNullable())
-				{
-					propertyInfo.SetValue(entity, null);
-					continue;
-				}
-
-				if ((update.Value == null) && !propertyInfo.PropertyType.IsNullable())
-				{
-					continue;
-				}
-
-				try
-				{
-					var value = Convert.ChangeType(update.Value?.Value, propertyInfo.PropertyType);
-					propertyInfo.SetValue(entity, value);
-					continue;
-				}
-				catch (Exception)
-				{
-					// Ignore changing of type
-				}
-
-				if ((update.Value?.Type != propertyInfo.PropertyType)
-					|| (update.Value?.Value?.GetType() != propertyInfo.PropertyType))
-				{
-					continue;
-				}
-
-				if (update.Value != null)
-				{
-					propertyInfo.SetValue(entity, update.Value.Value);
-				}
-			}
-		}
-
-		/// <summary>
 		/// Gets a list of property information for this type.
 		/// The results are cached so the next query is much faster.
 		/// </summary>
@@ -985,19 +1007,47 @@ namespace Speedy
 		}
 
 		/// <summary>
+		/// Gets a list of property information for provided type that are readable and writable.
+		/// The results are cached so the next query is much faster.
+		/// </summary>
+		/// <returns> The list of properties for the provided type. </returns>
+		protected virtual IEnumerable<PropertyInfo> GetTargetReadableWritableProperties()
+		{
+			return GetTargetProperties()
+				.Where(x => x.Value.CanRead && x.Value.CanWrite)
+				.Select(x => x.Value)
+				.ToList();
+		}
+
+		internal virtual Validator GetValidator(string name)
+		{
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				name = DefaultGroupName;
+			}
+
+			return _validators.GetOrAdd(name, _ => new Validator<PartialUpdate>());
+		}
+
+		/// <summary>
 		/// Set a property for the update. The name must be available of the target value.
 		/// </summary>
 		/// <param name="name"> The name of the member to set. </param>
 		/// <param name="value"> The value of the member. </param>
-		/// <param name="properties"> The properties for the set. </param>
-		protected void Set(string name, object value, IDictionary<string, PropertyInfo> properties)
+		internal void InternalSet(string name, object value)
 		{
+			var properties = GetTargetProperties();
 			if (!properties.ContainsKey(name))
 			{
 				throw new SpeedyException("The property does not exist by the provided name.");
 			}
 
 			var property = properties[name];
+			InternalSet(name, value, property);
+		}
+
+		internal void InternalSet(string name, object value, PropertyInfo property)
+		{
 			if (!property.CanWrite)
 			{
 				throw new SpeedyException("The property cannot be set because it's not writable.");
@@ -1030,16 +1080,6 @@ namespace Speedy
 			Updates.AddOrUpdate(name, response);
 		}
 
-		internal virtual Validator GetValidator(string name)
-		{
-			if (string.IsNullOrWhiteSpace(name))
-			{
-				name = DefaultGroupName;
-			}
-
-			return _validators.GetOrAdd(name, _ => new Validator<PartialUpdate>());
-		}
-
 		internal virtual string ToAssemblyName()
 		{
 			return GetType().ToAssemblyName();
@@ -1068,6 +1108,14 @@ namespace Speedy
 				}
 			}
 
+			if (type.IsEnum)
+			{
+				if (StringConverter.TryParse(type, update.Value?.ToString(), out var value))
+				{
+					return value;
+				}
+			}
+
 			return Convert.ChangeType(update.Value, type);
 		}
 
@@ -1084,6 +1132,17 @@ namespace Speedy
 			}
 
 			return (PartialUpdate) typeof(PartialUpdate<>).CreateInstance(new[] { type });
+		}
+
+		private PartialUpdateOptions GetValidationGroupOptions(string groupName)
+		{
+			var validator = GetValidator(groupName);
+			var validationNames = validator.Validations.Select(x => x.Name);
+			var memberNames = validator.MemberValidators.Select(x => x.Name);
+			var response = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			response.AddRange(validationNames);
+			response.AddRange(memberNames);
+			return new PartialUpdateOptions(response, null);
 		}
 
 		/// <summary>

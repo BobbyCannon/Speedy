@@ -2,9 +2,11 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
+using Speedy.Sync;
 
 #endregion
 
@@ -14,6 +16,25 @@ namespace Speedy.UnitTests.Extensions
 	public class EnumExtensionsTests
 	{
 		#region Methods
+
+		[TestMethod]
+		public void ClearFlag()
+		{
+			var allSettableFlags = EnumExtensions
+				.GetFlagValues<SyncResultStatus>()
+				.Except(new[] { SyncResultStatus.Unknown })
+				.ToList();
+
+			var actual = SyncResultStatus.Cancelled;
+			allSettableFlags.ForEach(x => actual = actual.SetFlag(x));
+
+			foreach (var flag in allSettableFlags)
+			{
+				Assert.IsTrue(actual.HasFlag(flag));
+				actual = actual.ClearFlag(flag);
+				Assert.IsFalse(actual.HasFlag(flag));
+			}
+		}
 
 		[TestMethod]
 		public void Count()
@@ -192,6 +213,52 @@ namespace Speedy.UnitTests.Extensions
 			}
 
 			builder.CopyToClipboard().Dump();
+		}
+
+		[TestMethod]
+		public void SetFlag()
+		{
+			var actual = SyncResultStatus.Unknown;
+			var allButUnknown = EnumExtensions
+				.GetFlagValues<SyncResultStatus>()
+				.Except(new[] { actual })
+				.ToList();
+
+			foreach (var flag in allButUnknown)
+			{
+				Assert.IsFalse(actual.HasFlag(flag));
+			}
+
+			foreach (var flag in allButUnknown)
+			{
+				actual = SyncResultStatus.Unknown.SetFlag(flag);
+				Assert.IsTrue(actual.HasFlag(flag));
+
+				var allButFlag = allButUnknown.Except(new[] { flag });
+				foreach (var fagNotSet in allButFlag)
+				{
+					Assert.IsFalse(actual.HasFlag(fagNotSet));
+				}
+			}
+		}
+
+		[TestMethod]
+		public void UpdateFlag()
+		{
+			var allSettableFlags = EnumExtensions
+				.GetFlagValues<SyncResultStatus>()
+				.Except(new[] { SyncResultStatus.Unknown })
+				.ToList();
+
+			var allFlagsSet = SyncResultStatus.Cancelled;
+			allSettableFlags.ForEach(x => allFlagsSet = allFlagsSet.SetFlag(x));
+
+			foreach (var singleFlag in allSettableFlags)
+			{
+				var actual = SyncResultStatus.Unknown;
+				actual = actual.UpdateFlag(allFlagsSet, singleFlag);
+				Assert.AreEqual(singleFlag, actual);
+			}
 		}
 
 		#endregion

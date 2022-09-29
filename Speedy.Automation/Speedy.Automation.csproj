@@ -21,9 +21,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Automation.xml</DocumentationFile>
-		<AssemblyVersion>10.0.2.0</AssemblyVersion>
-		<FileVersion>10.0.2.0</FileVersion>
-		<Version>10.0.2</Version>
+		<AssemblyVersion>10.0.3.0</AssemblyVersion>
+		<FileVersion>10.0.3.0</FileVersion>
+		<Version>10.0.3</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Speedy.Automation.js" />

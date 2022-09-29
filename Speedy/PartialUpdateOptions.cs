@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Speedy.Extensions;
+using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -12,17 +13,28 @@ namespace Speedy
 	/// <summary>
 	/// Options for Partial Update
 	/// </summary>
-	public class PartialUpdateOptions : Bindable
+	public class PartialUpdateOptions : Bindable, ICloneable
 	{
 		#region Constructors
 
 		/// <summary>
 		/// Instantiates options for validation for a partial update.
 		/// </summary>
-		public PartialUpdateOptions()
+		public PartialUpdateOptions() : this(null, null)
 		{
-			ExcludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			IncludedProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		}
+
+		/// <summary>
+		/// Instantiates options for validation for a partial update.
+		/// </summary>
+		public PartialUpdateOptions(IEnumerable<string> including, IEnumerable<string> excluding)
+		{
+			ExcludedProperties = excluding != null
+				? new HashSet<string>(excluding, StringComparer.OrdinalIgnoreCase)
+				: new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			IncludedProperties = including != null
+				? new HashSet<string>(including, StringComparer.OrdinalIgnoreCase)
+				: new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 		}
 
 		#endregion
@@ -42,6 +54,18 @@ namespace Speedy
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc />
+		public object DeepClone(int? maxDepth = null)
+		{
+			return ShallowClone();
+		}
+
+		/// <inheritdoc />
+		public object ShallowClone()
+		{
+			return new PartialUpdateOptions(IncludedProperties, ExcludedProperties);
+		}
 
 		/// <summary>
 		/// Check to see if a property should be processed.
@@ -111,7 +135,6 @@ namespace Speedy
 				}
 			}
 		}
-
 
 		#endregion
 	}

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Speedy.Converters;
+using Speedy.Exceptions;
 using Speedy.Extensions;
 using Speedy.Protocols.Osc;
 
@@ -57,7 +58,8 @@ namespace Speedy.Validation
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
 		public PropertyValidator<T> HasMinMaxRange(T minimum, T maximum, bool excludeRangeValues = false)
 		{
-			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum, $"{Info.Name} is not within the provided range values.", excludeRangeValues);
+			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum, 
+				ValidationException.GetErrorMessage(ValidationExceptionType.MinMaxRange, Info.Name), excludeRangeValues);
 		}
 
 		/// <summary>
@@ -80,7 +82,8 @@ namespace Speedy.Validation
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
 		public PropertyValidator<T> HasMinMaxRange(int minimum, int maximum, bool excludeRangeValues = false)
 		{
-			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum, $"{Info.Name} is not within the provided range values.", excludeRangeValues);
+			return (PropertyValidator<T>) AddMinMaxRange(minimum, maximum,
+				ValidationException.GetErrorMessage(ValidationExceptionType.MinMaxRange, Info.Name), excludeRangeValues);
 		}
 
 		/// <summary>
@@ -108,7 +111,7 @@ namespace Speedy.Validation
 		/// <param name="maximum"> The inclusive maximum value. </param>
 		/// <param name="message"> The message for failed validation. </param>
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-		/// <returns> True if the value is and within the provided range. </returns>
+		/// <returns> True if the value is and within the expected range. </returns>
 		public override PropertyValidator HasMinMaxRange(object minimum, object maximum, string message, bool excludeRangeValues)
 		{
 			return AddMinMaxRange(minimum, maximum, message, excludeRangeValues);
@@ -117,16 +120,16 @@ namespace Speedy.Validation
 		/// <summary>
 		/// Validates that a property has a valid value.
 		/// </summary>
-		public PropertyValidator<T> HasValidValue()
+		public PropertyValidator<T> HasEnumValue()
 		{
-			return HasValidValue($"{Info.Name} does not contain a valid value.");
+			return HasEnumValue(ValidationException.GetErrorMessage(ValidationExceptionType.EnumRange, Info.Name));
 		}
 
 		/// <summary>
 		/// Validates that a property has a valid value.
 		/// </summary>
 		/// <param name="message"> The message for failed validation. </param>
-		public PropertyValidator<T> HasValidValue(string message)
+		public PropertyValidator<T> HasEnumValue(string message)
 		{
 			var underlyingType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 			var validation = new Validation<T>(Name, message, x => Enum.IsDefined(underlyingType, x));
@@ -149,7 +152,7 @@ namespace Speedy.Validation
 		/// </summary>
 		public PropertyValidator<T> IsNotNull()
 		{
-			return IsNotNull($"{Info.Name} is null.");
+			return IsNotNull(ValidationException.GetErrorMessage(ValidationExceptionType.IsNotNull, Info.Name));
 		}
 
 		/// <summary>
@@ -168,7 +171,7 @@ namespace Speedy.Validation
 		/// </summary>
 		public PropertyValidator<T> IsOptional()
 		{
-			return IsOptional($"{Info.Name} is required but was not provided.");
+			return IsOptional(ValidationException.GetErrorMessage(ValidationExceptionType.IsOptional, Info.Name));
 		}
 
 		/// <summary>
@@ -185,7 +188,7 @@ namespace Speedy.Validation
 		/// </summary>
 		public PropertyValidator<T> IsRequired()
 		{
-			return IsRequired($"{Info.Name} is required but was not provided.");
+			return IsRequired(ValidationException.GetErrorMessage(ValidationExceptionType.IsRequired, Info.Name));
 		}
 
 		/// <summary>
@@ -202,7 +205,7 @@ namespace Speedy.Validation
 		/// </summary>
 		public PropertyValidator<T> IsTrue()
 		{
-			return IsTrue($"{Info.Name} is required but was not provided.");
+			return IsTrue(ValidationException.GetErrorMessage(ValidationExceptionType.IsTrue, Info.Name));
 		}
 
 		/// <summary>
@@ -231,7 +234,7 @@ namespace Speedy.Validation
 		/// <returns> True if the value is equal to or greater than the provided value. </returns>
 		public PropertyValidator<T> NoLessThan(T minimum)
 		{
-			return NoLessThan(minimum, $"{Info.Name} is less than the provided minimum value.");
+			return NoLessThan(minimum, ValidationException.GetErrorMessage(ValidationExceptionType.NoLessThan, Info.Name));
 		}
 
 		/// <summary>
@@ -252,7 +255,7 @@ namespace Speedy.Validation
 		/// <returns> True if the value is equal to or less than the provided value. </returns>
 		public PropertyValidator<T> NoMoreThan(T maximum)
 		{
-			return NoMoreThan(maximum, $"{Info.Name} is greater than the provided maximum value.");
+			return NoMoreThan(maximum, ValidationException.GetErrorMessage(ValidationExceptionType.NoMoreThan, Info.Name));
 		}
 
 		/// <summary>
@@ -287,34 +290,14 @@ namespace Speedy.Validation
 			return true;
 		}
 
-		private PropertyValidator<T1> AddMinMaxRange<T1>(T1 minimum, object maximum, Func<T1, T1, Func<T1, bool>> getValidate, string message)
+		private PropertyValidator<T1> AddMinMaxRange<T1>(T1 minimum, T1 maximum, Func<T1, T1, Func<T1, bool>> getValidate, string message)
 		{
-			if (minimum is not T1 tMinimum)
-			{
-				throw new InvalidCastException("Minimum value is the incorrect type.");
-			}
-
-			if (maximum is not T1 tMaximum)
-			{
-				throw new InvalidCastException("Maximum value is the incorrect type.");
-			}
-
-			return AddValidation(getValidate(tMinimum, tMaximum), message);
+			return AddValidation(getValidate(minimum, maximum), message);
 		}
 
-		private PropertyValidator<T1> AddMinMaxRange<T1, T2>(object minimum, object maximum, Func<T2, T2, Func<T1, bool>> getValidate, string message)
+		private PropertyValidator<T1> AddMinMaxRange<T1, T2>(T2 minimum, T2 maximum, Func<T2, T2, Func<T1, bool>> getValidate, string message)
 		{
-			if (minimum is not T2 tMinimum)
-			{
-				throw new InvalidCastException("Minimum value is the incorrect type.");
-			}
-
-			if (maximum is not T2 tMaximum)
-			{
-				throw new InvalidCastException("Maximum value is the incorrect type.");
-			}
-
-			return AddValidation(getValidate(tMinimum, tMaximum), message);
+			return AddValidation(getValidate(minimum, maximum), message);
 		}
 
 		/// <summary>
@@ -324,88 +307,89 @@ namespace Speedy.Validation
 		/// <param name="maximum"> The inclusive maximum value. </param>
 		/// <param name="message"> The message for failed validation. </param>
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-		/// <returns> True if the value is and within the provided range. </returns>
+		/// <returns> True if the value is and within the expected range. </returns>
 		private PropertyValidator AddMinMaxRange(object minimum, object maximum, string message, bool excludeRangeValues)
 		{
 			if (typeof(T) == typeof(short))
 			{
-				return AddMinMaxRange(minimum.ToInt16(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToInt16(), maximum.ToInt16(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(ushort))
 			{
-				return AddMinMaxRange(minimum.ToUInt16(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToUInt16(), maximum.ToUInt16(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(int))
 			{
-				return AddMinMaxRange(minimum.ToInt32(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToInt32(), maximum.ToInt32(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(uint))
 			{
-				return AddMinMaxRange(minimum.ToUInt32(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToUInt32(), maximum.ToUInt32(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(long))
 			{
-				return AddMinMaxRange(minimum.ToInt64(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToInt64(), maximum.ToInt64(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(ulong))
 			{
-				return AddMinMaxRange(minimum.ToUInt64(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToUInt64(), maximum.ToUInt64(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(float))
 			{
-				return AddMinMaxRange(minimum.ToFloat(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToFloat(), maximum.ToFloat(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(double))
 			{
-				return AddMinMaxRange(minimum.ToDouble(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToDouble(), maximum.ToDouble(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(decimal))
 			{
-				return AddMinMaxRange(minimum.ToDecimal(), maximum, (min, max) => excludeRangeValues
+				return AddMinMaxRange(minimum.ToDecimal(), maximum.ToDecimal(), (min, max) => excludeRangeValues
 						? x => (x > min) && (x < max)
 						: x => (x >= min) && (x <= max)
 					, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(byte))
 			{
-				return AddMinMaxRange(minimum.ToByte(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToByte(), maximum.ToByte(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(sbyte))
 			{
-				return AddMinMaxRange(minimum.ToSByte(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToSByte(), maximum.ToSByte(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(char))
 			{
-				return AddMinMaxRange(minimum.ToChar(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToChar(), maximum.ToChar(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(string))
 			{
-				return AddMinMaxRange<string, int>(minimum, maximum, (min, max) => excludeRangeValues
+				return AddMinMaxRange<string, int>(minimum.ToInt32(), maximum.ToInt32(),
+					(min, max) => excludeRangeValues
 						? x => (x != null) && (x.Length > min) && (x.Length < max)
 						: x => (x != null) && (x.Length >= min) && (x.Length <= max)
 					, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(DateTime))
 			{
-				return AddMinMaxRange(minimum.ToDateTime(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToDateTime(), maximum.ToDateTime(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(DateTimeOffset))
 			{
-				return AddMinMaxRange(minimum.ToDateTimeOffset(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToDateTimeOffset(), maximum.ToDateTimeOffset(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(OscTimeTag))
 			{
-				return AddMinMaxRange<OscTimeTag>(minimum.ToOscTimeTag(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToOscTimeTag(), maximum.ToOscTimeTag(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(TimeSpan))
 			{
-				return AddMinMaxRange(minimum.ToTimeSpan(), maximum, (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
+				return AddMinMaxRange(minimum.ToTimeSpan(), maximum.ToTimeSpan(), (min, max) => excludeRangeValues ? x => (x > min) && (x < max) : x => (x >= min) && (x <= max), message) as PropertyValidator<T>;
 			}
 
 			throw new NotSupportedException($"The type is not supported for {nameof(AddMinMaxRange)}.");
 		}
 
-		private PropertyValidator<T1> AddNoLessThan<T1>(object minimum, Func<T1, Func<T1, bool>> getValidate, string message)
+		private PropertyValidator<T1> AddNoLessThan<T1>(T1 minimum, Func<T1, Func<T1, bool>> getValidate, string message)
 		{
 			return AddNoLessThan<T1, T1>(minimum, getValidate, message);
 		}
@@ -430,71 +414,71 @@ namespace Speedy.Validation
 		{
 			if (typeof(T) == typeof(short))
 			{
-				return AddNoLessThan<short>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToInt16(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(ushort))
 			{
-				return AddNoLessThan<ushort>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToUInt16(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(int))
 			{
-				return AddNoLessThan<int>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToInt32(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(uint))
 			{
-				return AddNoLessThan<uint>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToUInt32(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(long))
 			{
-				return AddNoLessThan<long>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToInt64(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(ulong))
 			{
-				return AddNoLessThan<ulong>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToUInt64(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(float))
 			{
-				return AddNoLessThan<float>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToFloat(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(double))
 			{
-				return AddNoLessThan<double>(minimum.ToDouble(), min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToDouble(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(decimal))
 			{
-				return AddNoLessThan<decimal>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToDecimal(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(byte))
 			{
-				return AddNoLessThan<byte>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToByte(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(sbyte))
 			{
-				return AddNoLessThan<sbyte>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToSByte(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(char))
 			{
-				return AddNoLessThan<char>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToChar(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(string))
 			{
-				return AddNoLessThan<string, int>(minimum, min => x => x.Length >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan<string, int>(minimum.ToInt32(), min => x => x.Length >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(DateTime))
 			{
-				return AddNoLessThan<DateTime>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToDateTime(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(DateTimeOffset))
 			{
-				return AddNoLessThan<DateTimeOffset>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToDateTimeOffset(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(OscTimeTag))
 			{
-				return AddNoLessThan<OscTimeTag>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToOscTimeTag(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 			if (typeof(T) == typeof(TimeSpan))
 			{
-				return AddNoLessThan<TimeSpan>(minimum, min => x => x >= min, message) as PropertyValidator<T>;
+				return AddNoLessThan(minimum.ToTimeSpan(), min => x => x >= min, message) as PropertyValidator<T>;
 			}
 
 			throw new NotSupportedException($"The type is not supported for {nameof(AddNoLessThan)}.");
@@ -592,7 +576,7 @@ namespace Speedy.Validation
 				return AddNoMoreThan<TimeSpan>(maximum, max => x => x <= max, message) as PropertyValidator<T>;
 			}
 
-			throw new NotSupportedException($"The type is not supported for {nameof(AddNoLessThan)}.");
+			throw new NotSupportedException($"The type is not supported for {nameof(AddNoMoreThan)}.");
 		}
 
 		private PropertyValidator<T1> AddValidation<T1>(Func<T1, bool> validate, string message)
@@ -670,10 +654,9 @@ namespace Speedy.Validation
 		/// Validates that a property matches the provided value.
 		/// </summary>
 		/// <param name="value"> The value to compare with. </param>
-		/// <returns> True if the value is and within the provided range. </returns>
 		public PropertyValidator AreEqual(object value)
 		{
-			return AreEqual(value, $"{Info.Name} does not equal the provided value.");
+			return AreEqual(value, ValidationException.GetErrorMessage(ValidationExceptionType.AreEqual, Info.Name));
 		}
 
 		/// <summary>
@@ -684,15 +667,15 @@ namespace Speedy.Validation
 		public abstract PropertyValidator AreEqual(object value, string message);
 
 		/// <summary>
-		/// Tries to set the property using the provided value.
+		/// Tries to get the property using the provided value.
 		/// </summary>
-		/// <param name="obj"> </param>
-		/// <returns> The value of the property or default value. </returns>
-		public object GetValue(object obj)
+		/// <param name="entity"> The entity to get the value from. </param>
+		/// <returns> The value of the property or default value if it cannot be read. </returns>
+		public object GetValue(object entity)
 		{
 			if (Info.CanRead)
 			{
-				return Info.GetValue(obj);
+				return Info.GetValue(entity);
 			}
 
 			return Info.PropertyType.GetDefaultValue();
@@ -704,7 +687,6 @@ namespace Speedy.Validation
 		/// <param name="minimum"> The inclusive minimum value. </param>
 		/// <param name="maximum"> The inclusive maximum value. </param>
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-		/// <returns> True if the value is and within the provided range. </returns>
 		public abstract PropertyValidator HasMinMaxRange(object minimum, object maximum, bool excludeRangeValues);
 
 		/// <summary>
@@ -714,20 +696,18 @@ namespace Speedy.Validation
 		/// <param name="maximum"> The inclusive maximum value. </param>
 		/// <param name="message"> The message for failed validation. </param>
 		/// <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-		/// <returns> True if the value is and within the provided range. </returns>
 		public abstract PropertyValidator HasMinMaxRange(object minimum, object maximum, string message, bool excludeRangeValues);
 
 		/// <summary>
 		/// Tries to set the property using the provided value.
 		/// </summary>
-		/// <param name="obj"> </param>
+		/// <param name="entity"> </param>
 		/// <param name="value"> </param>
-		/// <returns> </returns>
-		public PropertyValidator SetValue(object obj, object value)
+		public PropertyValidator SetValue(object entity, object value)
 		{
 			if (Info.CanWrite)
 			{
-				Info.SetValue(obj, value);
+				Info.SetValue(entity, value);
 			}
 
 			return this;

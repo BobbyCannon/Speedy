@@ -2,6 +2,8 @@
 
 using System;
 using System.Runtime.Serialization;
+using Speedy.Extensions;
+using Speedy.Validation;
 
 #endregion
 
@@ -41,6 +43,21 @@ namespace Speedy.Exceptions
 		/// </summary>
 		protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context)
 		{
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// Get the error message for AreEqual validation.
+		/// </summary>
+		/// <param name="name"> The property name. </param>
+		/// <returns> The error message. </returns>
+		public static string GetErrorMessage(ValidationExceptionType type, string name)
+		{
+			var attribute = type.GetEnumDetails();
+			return string.Format(attribute.Description, name);
 		}
 
 		#endregion

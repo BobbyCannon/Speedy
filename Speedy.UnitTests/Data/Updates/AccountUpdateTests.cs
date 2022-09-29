@@ -7,6 +7,7 @@ using Speedy.Data.SyncApi;
 using Speedy.Data.Updates;
 using Speedy.Exceptions;
 using Speedy.Serialization.Converters;
+using Speedy.Validation;
 
 #endregion
 
@@ -32,7 +33,7 @@ namespace Speedy.UnitTests.Data.Updates
 
 			update.Options.ExcludedProperties.Add(nameof(Account.SyncId));
 			var actual = update.GetInstance();
-			Assert.AreEqual(1, actual.Id);
+			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Empty, actual.SyncId);
 			Assert.AreEqual("{\"$id\":\"1\",\"Id\":1,\"Name\":\"Testing\"}", update.ToJson());
@@ -51,7 +52,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual("Id,Name,SyncId", string.Join(",", update.Updates.Keys));
 
 			var actual = update.GetInstance();
-			Assert.AreEqual(1, actual.Id);
+			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Parse("52BE31A3-EA29-45A3-90C6-2F80392BCFBC"), actual.SyncId);
 		}
@@ -69,7 +70,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual("Id,Name,SyncId", string.Join(",", update.Updates.Keys));
 
 			var actual = update.GetInstance();
-			Assert.AreEqual(1, actual.Id);
+			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Parse("52BE31A3-EA29-45A3-90C6-2F80392BCFBC"), actual.SyncId);
 
@@ -79,7 +80,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual(Guid.Empty, actual.SyncId);
 
 			update.Apply(actual);
-			Assert.AreEqual(1, actual.Id);
+			Assert.AreEqual(0, actual.Id);
 			Assert.AreEqual("Testing", actual.Name);
 			Assert.AreEqual(Guid.Parse("52BE31A3-EA29-45A3-90C6-2F80392BCFBC"), actual.SyncId);
 
@@ -125,14 +126,16 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null.");
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+				ValidationException.GetErrorMessage(ValidationExceptionType.IsNotNull, "Name")
+			);
 
 			update.AddOrUpdate("Name", string.Empty);
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
-				"Name must be between 1 and 5 characters in length."
+				ValidationException.GetErrorMessage(ValidationExceptionType.MinMaxRange, "Name")
 			);
 
 			update.AddOrUpdate("Name", "123456");
@@ -140,7 +143,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
 			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
-				"Name must be between 1 and 5 characters in length."
+				ValidationException.GetErrorMessage(ValidationExceptionType.MinMaxRange, "Name")
 			);
 		}
 

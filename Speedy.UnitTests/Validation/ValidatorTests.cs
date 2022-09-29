@@ -34,7 +34,7 @@ namespace Speedy.UnitTests.Validation
 				var sample = new Sample();
 				var validator = new Validator<Sample>();
 				var p = scenario.setup(validator);
-				var message = $"{p.Info.Name} is not within the provided range values.";
+				var message = ValidationException.GetErrorMessage(ValidationExceptionType.MinMaxRange, p.Info.Name);
 
 				// We will exclude the ranges so the min and max should NOT be valid
 				p.HasMinMaxRange(scenario.min, scenario.max, true);
@@ -72,22 +72,25 @@ namespace Speedy.UnitTests.Validation
 		public void HasValidValue()
 		{
 			var update = new PartialUpdate<Sample>();
-			update.ValidateProperty(x => x.LogLevel).HasValidValue();
+			update.ValidateProperty(x => x.LogLevel).HasEnumValue();
 			update.Validate();
 			update.Set(x => x.LogLevel, (LogLevel) 99);
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), 
+				ValidationException.GetErrorMessage(ValidationExceptionType.EnumRange, nameof(Sample.LogLevel)));
 
 			update = new PartialUpdate<Sample>();
-			update.ValidateProperty(x => x.OptionalLogLevel).HasValidValue();
+			update.ValidateProperty(x => x.OptionalLogLevel).HasEnumValue();
 			update.Validate();
 			update.Set(x => x.OptionalLogLevel, (LogLevel?) 99);
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+				ValidationException.GetErrorMessage(ValidationExceptionType.EnumRange, nameof(Sample.LogLevel)));
 
 			update = new PartialUpdate<Sample>();
-			update.ValidateProperty(x => x.OptionalLogLevel).HasValidValue();
+			update.ValidateProperty(x => x.OptionalLogLevel).HasEnumValue();
 			update.Validate();
 			update.Set(nameof(Sample.OptionalLogLevel), (LogLevel) 99);
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "LogLevel does not contain a valid value.");
+			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+				ValidationException.GetErrorMessage(ValidationExceptionType.EnumRange, nameof(Sample.LogLevel)));
 		}
 
 		[TestMethod]
@@ -109,9 +112,11 @@ namespace Speedy.UnitTests.Validation
 			var sample = new Sample { Name = null };
 			var validator = new Validator<Sample>();
 			validator.Property(x => x.Name).IsNotNull();
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Name is null.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.IsNotNull, "Name"));
 			validator.Property(x => x.Name).IsNotNull("FooBar");
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "FooBar");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.IsNotNull, "Name"));
 		}
 
 		[TestMethod]
@@ -175,28 +180,32 @@ namespace Speedy.UnitTests.Validation
 			validator.Property(x => x.Date1).NoLessThan(DateTime.Today);
 			validator.Validate(sample);
 			sample.Date1 -= TimeSpan.FromTicks(1);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is less than the provided minimum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoLessThan, nameof(Sample.Date1)));
 
 			sample = new Sample { Date2 = DateTime.Today };
 			validator = new Validator<Sample>();
 			validator.Property(x => x.Date2).NoLessThan(DateTime.Today);
 			validator.Validate(sample);
 			sample.Date2 -= TimeSpan.FromTicks(1);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is less than the provided minimum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoLessThan, nameof(Sample.Date2)));
 
 			sample = new Sample { TimeTag1 = new OscTimeTag(new DateTime(2022, 05, 03, 12, 00, 00, DateTimeKind.Utc)) };
 			validator = new Validator<Sample>();
 			validator.Property(x => x.TimeTag1).NoLessThan(sample.TimeTag1);
 			validator.Validate(sample);
 			sample.TimeTag1 -= TimeSpan.FromTicks(5);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is less than the provided minimum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoLessThan, nameof(Sample.TimeTag1)));
 
 			sample = new Sample { Elapsed = TimeSpan.FromSeconds(10) };
 			validator = new Validator<Sample>();
 			validator.Property(x => x.Elapsed).NoLessThan(sample.Elapsed);
 			validator.Validate(sample);
 			sample.Elapsed -= TimeSpan.FromTicks(1);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is less than the provided minimum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoLessThan, nameof(Sample.Elapsed)));
 		}
 
 		[TestMethod]
@@ -207,28 +216,32 @@ namespace Speedy.UnitTests.Validation
 			validator.Property(x => x.Date1).NoMoreThan(DateTime.Today);
 			validator.Validate(sample);
 			sample.Date1 += TimeSpan.FromTicks(1);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date1 is greater than the provided maximum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoMoreThan, nameof(Sample.Date1)));
 
 			sample = new Sample { Date2 = DateTime.Today };
 			validator = new Validator<Sample>();
 			validator.Property(x => x.Date2).NoMoreThan(DateTime.Today);
 			validator.Validate(sample);
 			sample.Date2 += TimeSpan.FromTicks(1);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Date2 is greater than the provided maximum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoMoreThan, nameof(Sample.Date2)));
 
 			sample = new Sample { TimeTag1 = new OscTimeTag(new DateTime(2022, 05, 03, 12, 00, 00, DateTimeKind.Utc)) };
 			validator = new Validator<Sample>();
 			validator.Property(x => x.TimeTag1).NoMoreThan(sample.TimeTag1);
 			validator.Validate(sample);
 			sample.TimeTag1 += TimeSpan.FromTicks(5);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "TimeTag1 is greater than the provided maximum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoMoreThan, nameof(Sample.TimeTag1)));
 
 			sample = new Sample { Elapsed = TimeSpan.FromSeconds(10) };
 			validator = new Validator<Sample>();
 			validator.Property(x => x.Elapsed).NoMoreThan(sample.Elapsed);
 			validator.Validate(sample);
 			sample.Elapsed += TimeSpan.FromTicks(1);
-			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample), "Elapsed is greater than the provided maximum value.");
+			TestHelper.ExpectedException<ValidationException>(() => validator.Validate(sample),
+				ValidationException.GetErrorMessage(ValidationExceptionType.NoMoreThan, nameof(Sample.Elapsed)));
 		}
 
 		#endregion

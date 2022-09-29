@@ -708,7 +708,7 @@ namespace Speedy.Extensions
 				else if (type == typeof(decimal))
 				{
 					var r = new Random();
-					var dValue = NextDecimal(r);
+					var dValue = r.NextDecimal();
 					property.SetValue(value, dValue);
 				}
 				else if (type == typeof(double))
@@ -800,18 +800,6 @@ namespace Speedy.Extensions
 		private static string GetCacheKey(Type type, BindingFlags flags)
 		{
 			return type.FullName + flags;
-		}
-
-		private static decimal NextDecimal(this Random rng)
-		{
-			var scale = (byte) rng.Next(29);
-			var sign = rng.Next(2) == 1;
-			return new decimal(
-				rng.NextInt32(),
-				rng.NextInt32(),
-				rng.NextInt32(),
-				sign,
-				scale);
 		}
 
 		/// <summary>

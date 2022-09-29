@@ -2124,6 +2124,13 @@
             Instantiates an instance of the validation exception.
             </summary>
         </member>
+        <member name="M:Speedy.Exceptions.ValidationException.GetErrorMessage(Speedy.Validation.ValidationExceptionType,System.String)">
+            <summary>
+            Get the error message for AreEqual validation.
+            </summary>
+            <param name="name"> The property name. </param>
+            <returns> The error message. </returns>
+        </member>
         <member name="T:Speedy.Exceptions.WebClientException">
             <summary>
             Represents a web client exception.
@@ -2786,6 +2793,16 @@
             <param name="flag"> The flag to be set. </param>
             <returns> The value with the flagged set. </returns>
         </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.UpdateFlag``1(``0,``0,``0)">
+            <summary>
+            Set the "flagged" enum value based on the provided update value state.
+            </summary>
+            <typeparam name="T"> The type of the enum value. </typeparam>
+            <param name="value"> The value to update. </param>
+            <param name="update"> The source of update. </param>
+            <param name="flags"> The flags to be read then set. </param>
+            <returns> The value with the flagged set or cleared based on the update value. </returns>
+        </member>
         <member name="T:Speedy.Extensions.EnumExtensions.EnumDetails">
             <summary>
             Represents the details for an enum value.
@@ -3148,6 +3165,37 @@
             <param name="order"> The order of the collection. </param>
             <param name="thenBys"> An optional then bys to order the collection. </param>
             <returns> The paged results. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.RandomExtensions">
+            <summary>
+            Extensions for the Random type.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.RandomExtensions.NextDecimal(System.Random,System.Decimal,System.Decimal,System.Byte)">
+            <summary>
+            Returns a random decimal floating point that is within a specified range.
+            </summary>
+            <param name="random"> The random object to use. </param>
+            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <param name="scale"> The scale of the decimal. How precise? 1 = 0.1, 2 = 0.01 </param>
+            <returns>
+            A decimal number greater than or equal to minValue and less than maxValue; that is, the
+            range of return values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
+            </returns>
+        </member>
+        <member name="M:Speedy.Extensions.RandomExtensions.NextDouble(System.Random,System.Double,System.Double,System.Byte)">
+            <summary>
+            Returns a random double floating point that is within a specified range.
+            </summary>
+            <param name="random"> The random object to use. </param>
+            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <param name="scale"> The scale of the double. How precise? 1 = 0.1, 2 = 0.01 </param>
+            <returns>
+            A double floating point number greater than or equal to minValue and less than maxValue; that is, the
+            range of return values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
+            </returns>
         </member>
         <member name="T:Speedy.Extensions.ReflectionExtensions">
             <summary>
@@ -5500,6 +5548,19 @@
             </summary>
             <param name="entity"> Entity to be updated. </param>
         </member>
+        <member name="M:Speedy.PartialUpdate`1.ApplyValidationGroup(`0)">
+            <summary>
+            Applies the updates to the entity including only properties from the default validation group.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate`1.ApplyValidationGroup(`0,System.String)">
+            <summary>
+            Applies the updates to the entity including only properties from a validation group.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+            <param name="groupName"> The name of the validation group to apply. </param>
+        </member>
         <member name="M:Speedy.PartialUpdate`1.Get``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
             Get the property value.
@@ -5581,6 +5642,13 @@
             </summary>
             <returns> The list of properties for the provided type. </returns>
         </member>
+        <member name="M:Speedy.PartialUpdate`1.GetTargetReadableWritableProperties">
+            <summary>
+            Gets a list of property information for provided type that are readable and writable.
+            The results are cached so the next query is much faster.
+            </summary>
+            <returns> The list of properties for the provided type. </returns>
+        </member>
         <member name="M:Speedy.PartialUpdate`1.InternalValidateProperty``1(System.Linq.Expressions.Expression{System.Func{`0,``0}},System.String[])">
             <summary>
             Configure a validation for an update value.
@@ -5653,12 +5721,42 @@
             </summary>
             <param name="entity"> Entity to be updated. </param>
         </member>
+        <member name="M:Speedy.PartialUpdate.Apply(System.Object,System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Applies the updates to the entity.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+            <param name="including"> Properties to be included. </param>
+            <param name="excluding"> Properties to be excluded. </param>
+        </member>
         <member name="M:Speedy.PartialUpdate.Apply(System.Object,Speedy.PartialUpdateOptions)">
             <summary>
             Applies the updates to the entity.
             </summary>
             <param name="entity"> Entity to be updated. </param>
             <param name="options"> Options for the partial update. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate.ApplyToSyncEntity(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Applies the updates to the sync entity.
+            </summary>
+            <param name="entity"> Sync entity to be updated. </param>
+            <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
+            <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
+            <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate.ApplyValidationGroup(System.Object)">
+            <summary>
+            Applies the updates to the entity including only properties from the default validation group.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+        </member>
+        <member name="M:Speedy.PartialUpdate.ApplyValidationGroup(System.Object,System.String)">
+            <summary>
+            Applies the updates to the entity including only properties from a validation group.
+            </summary>
+            <param name="entity"> Entity to be updated. </param>
+            <param name="groupName"> The name of the validation group to apply. </param>
         </member>
         <member name="M:Speedy.PartialUpdate.FromJson(System.String,Speedy.PartialUpdateOptions)">
             <summary>
@@ -5774,6 +5872,12 @@
             <param name="name"> The name of the member to set. </param>
             <param name="value"> The value of the member. </param>
         </member>
+        <member name="M:Speedy.PartialUpdate.Set(System.Object)">
+            <summary>
+            Set a full set of updates.
+            </summary>
+            <param name="value"> The value that contains a full set of updates. </param>
+        </member>
         <member name="M:Speedy.PartialUpdate.ShouldProcessProperty(System.String)">
             <summary>
             Check to see if a property should be processed.
@@ -5861,14 +5965,6 @@
             Refresh the update collection for this partial update.
             </summary>
         </member>
-        <member name="M:Speedy.PartialUpdate.Apply(System.Object,System.Collections.Generic.HashSet{System.String},System.Collections.Generic.HashSet{System.String})">
-            <summary>
-            Applies the updates to the entity.
-            </summary>
-            <param name="entity"> Entity to be updated. </param>
-            <param name="including"> Properties to be included. </param>
-            <param name="excluding"> Properties to be excluded. </param>
-        </member>
         <member name="M:Speedy.PartialUpdate.GetTargetProperties">
             <summary>
             Gets a list of property information for this type.
@@ -5876,13 +5972,19 @@
             </summary>
             <returns> The list of properties for this type. </returns>
         </member>
-        <member name="M:Speedy.PartialUpdate.Set(System.String,System.Object,System.Collections.Generic.IDictionary{System.String,System.Reflection.PropertyInfo})">
+        <member name="M:Speedy.PartialUpdate.GetTargetReadableWritableProperties">
+            <summary>
+            Gets a list of property information for provided type that are readable and writable.
+            The results are cached so the next query is much faster.
+            </summary>
+            <returns> The list of properties for the provided type. </returns>
+        </member>
+        <member name="M:Speedy.PartialUpdate.InternalSet(System.String,System.Object)">
             <summary>
             Set a property for the update. The name must be available of the target value.
             </summary>
             <param name="name"> The name of the member to set. </param>
             <param name="value"> The value of the member. </param>
-            <param name="properties"> The properties for the set. </param>
         </member>
         <member name="M:Speedy.PartialUpdate.InternalValidateProperty``2(System.Linq.Expressions.Expression{System.Func{``0,``1}},System.String[])">
             <summary>
@@ -5899,6 +6001,11 @@
             Instantiates options for validation for a partial update.
             </summary>
         </member>
+        <member name="M:Speedy.PartialUpdateOptions.#ctor(System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Instantiates options for validation for a partial update.
+            </summary>
+        </member>
         <member name="P:Speedy.PartialUpdateOptions.ExcludedProperties">
             <summary>
             Properties to be excluded.
@@ -5908,6 +6015,12 @@
             <summary>
             Properties to be included.
             </summary>
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.DeepClone(System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.PartialUpdateOptions.ShallowClone">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.PartialUpdateOptions.ShouldProcessProperty(System.String)">
             <summary>
@@ -12950,14 +13063,14 @@
             <param name="maximum"> The inclusive maximum value. </param>
             <param name="message"> The message for failed validation. </param>
             <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-            <returns> True if the value is and within the provided range. </returns>
+            <returns> True if the value is and within the expected range. </returns>
         </member>
-        <member name="M:Speedy.Validation.PropertyValidator`1.HasValidValue">
+        <member name="M:Speedy.Validation.PropertyValidator`1.HasEnumValue">
             <summary>
             Validates that a property has a valid value.
             </summary>
         </member>
-        <member name="M:Speedy.Validation.PropertyValidator`1.HasValidValue(System.String)">
+        <member name="M:Speedy.Validation.PropertyValidator`1.HasEnumValue(System.String)">
             <summary>
             Validates that a property has a valid value.
             </summary>
@@ -13062,7 +13175,7 @@
             <param name="maximum"> The inclusive maximum value. </param>
             <param name="message"> The message for failed validation. </param>
             <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-            <returns> True if the value is and within the provided range. </returns>
+            <returns> True if the value is and within the expected range. </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator`1.AddNoLessThan(System.Object,System.String)">
             <summary>
@@ -13127,7 +13240,6 @@
             Validates that a property matches the provided value.
             </summary>
             <param name="value"> The value to compare with. </param>
-            <returns> True if the value is and within the provided range. </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.AreEqual(System.Object,System.String)">
             <summary>
@@ -13138,10 +13250,10 @@
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.GetValue(System.Object)">
             <summary>
-            Tries to set the property using the provided value.
+            Tries to get the property using the provided value.
             </summary>
-            <param name="obj"> </param>
-            <returns> The value of the property or default value. </returns>
+            <param name="entity"> The entity to get the value from. </param>
+            <returns> The value of the property or default value if it cannot be read. </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.HasMinMaxRange(System.Object,System.Object,System.Boolean)">
             <summary>
@@ -13150,7 +13262,6 @@
             <param name="minimum"> The inclusive minimum value. </param>
             <param name="maximum"> The inclusive maximum value. </param>
             <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-            <returns> True if the value is and within the provided range. </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.HasMinMaxRange(System.Object,System.Object,System.String,System.Boolean)">
             <summary>
@@ -13160,15 +13271,13 @@
             <param name="maximum"> The inclusive maximum value. </param>
             <param name="message"> The message for failed validation. </param>
             <param name="excludeRangeValues"> The option to exclude the minimum and maximum values </param>
-            <returns> True if the value is and within the provided range. </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.SetValue(System.Object,System.Object)">
             <summary>
             Tries to set the property using the provided value.
             </summary>
-            <param name="obj"> </param>
+            <param name="entity"> </param>
             <param name="value"> </param>
-            <returns> </returns>
         </member>
         <member name="M:Speedy.Validation.PropertyValidator.TryValidate(System.Object)">
             <summary>
@@ -13224,6 +13333,76 @@
             Tries to validate
             </summary>
             <returns> Returns true if the validation passes otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.Validation.ValidationExceptionType">
+            <summary>
+            Represents validation exception types
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.Unknown">
+            <summary>
+            Represents an unknown error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.AreEqual">
+            <summary>
+            Represents an AreEqual error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.NotEqual">
+            <summary>
+            Represents an NotEqual error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.IsNull">
+            <summary>
+            Represents an IsNull error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.IsNotNull">
+            <summary>
+            Represents an IsNotNull error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.MinMaxRange">
+            <summary>
+            Represents an MinMaxRange error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.EnumRange">
+            <summary>
+            Represents an EnumRange error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.IsRequired">
+            <summary>
+            Represents an IsRequired error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.IsOptional">
+            <summary>
+            Represents an IsOptional error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.NoLessThan">
+            <summary>
+            Represents an NoLessThan error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.NoMoreThan">
+            <summary>
+            Represents an NoMoreThan error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.IsTrue">
+            <summary>
+            Represents an IsTrue error
+            </summary>
+        </member>
+        <member name="F:Speedy.Validation.ValidationExceptionType.IsFalse">
+            <summary>
+            Represents an IsFalse error
+            </summary>
         </member>
         <member name="T:Speedy.Validation.Validator`1">
             <summary>

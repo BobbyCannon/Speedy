@@ -4,9 +4,9 @@
 		<OutputType>Exe</OutputType>
 		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>10.0.2.0</AssemblyVersion>
-		<FileVersion>10.0.2.0</FileVersion>
-		<Version>10.0.2.0</Version>
+		<AssemblyVersion>10.0.3.0</AssemblyVersion>
+		<FileVersion>10.0.3.0</FileVersion>
+		<Version>10.0.3.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.IO.Ports" Version="6.0.0" />
