@@ -215,7 +215,7 @@ namespace Speedy.Protocols.Osc
 			var seconds = span.TotalSeconds;
 			var secondsUInt = (uint) seconds;
 			var remainingTicks = span.Ticks - ((decimal) secondsUInt * TimeSpan.TicksPerSecond);
-			var fraction = (remainingTicks / TimeSpan.TicksPerMillisecond / 1000.0m) * uint.MaxValue;
+			var fraction = ((remainingTicks / TimeSpan.TicksPerMillisecond) / 1000.0m) * uint.MaxValue;
 			var preciseValue = ((ulong) (secondsUInt & 0xFFFFFFFF) << 32) | ((ulong) fraction & 0xFFFFFFFF);
 			return new OscTimeTag(preciseValue);
 		}
@@ -330,7 +330,7 @@ namespace Speedy.Protocols.Osc
 		/// </returns>
 		public DateTime ToDateTime()
 		{
-			var ticks1 = Math.Round(((decimal) SubSeconds / uint.MaxValue) * 1000, 4, MidpointRounding.AwayFromZero);
+			var ticks1 = Math.Round((((decimal) SubSeconds) / uint.MaxValue) * 1000, 4, MidpointRounding.AwayFromZero);
 			var ticks2 = ticks1 * TimeSpan.TicksPerMillisecond;
 			return MinDateTime.AddSeconds(Seconds).AddTicks((long) ticks2);
 		}

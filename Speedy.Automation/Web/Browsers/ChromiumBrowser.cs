@@ -40,7 +40,6 @@ namespace Speedy.Automation.Web.Browsers
 		#region Fields
 
 		private static readonly HttpClient _client;
-
 		private readonly int _debugPort;
 		private readonly JsonSerializerSettings _jsonSerializerSettings;
 		private int _requestId;

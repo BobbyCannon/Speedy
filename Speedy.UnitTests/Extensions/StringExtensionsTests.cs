@@ -20,6 +20,13 @@ namespace Speedy.UnitTests.Extensions
 		}
 
 		[TestMethod]
+		public void Reverse()
+		{
+			Assert.AreEqual("CBA", "ABC".ReverseString());
+			Assert.AreEqual("321", "123".ReverseString());
+		}
+
+		[TestMethod]
 		public void ToByteString()
 		{
 			Assert.AreEqual("41426162", "ABab".ToHexString());

@@ -57,9 +57,9 @@ namespace Speedy.AutomationTests.Desktop
 
 			try
 			{
-				using var application = Application.AttachOrCreate("c:\\windows\\system32\\notepad.exe");
+				using var application = Automation.Application.AttachOrCreate("c:\\windows\\system32\\notepad.exe");
 
-				//var application = Application.AttachOrCreate("C:\\Workspaces\\GitHub\\Speedy\\Speedy.Winforms.Example\\bin\\Debug\\Speedy.Winforms.Example.exe");
+				//var application = Automation.Application.AttachOrCreate("C:\\Workspaces\\GitHub\\Speedy\\Speedy.Winforms.Example\\bin\\Debug\\Speedy.Winforms.Example.exe");
 				application.BringToFront();
 				application.Focus();
 				application.FirstOrDefault("textBox1", true, false)?.Focus();

@@ -52,6 +52,7 @@ namespace Speedy.Exceptions
 		/// <summary>
 		/// Get the error message for AreEqual validation.
 		/// </summary>
+		/// <param name="type"> The exception type. </param>
 		/// <param name="name"> The property name. </param>
 		/// <returns> The error message. </returns>
 		public static string GetErrorMessage(ValidationExceptionType type, string name)

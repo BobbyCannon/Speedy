@@ -200,15 +200,15 @@ namespace Speedy.AutomationTests.Desktop
 		[TestMethod]
 		public void CloseAll()
 		{
-			using var application1 = Application.Create(TestHelper.ApplicationPathForWinFormsX64);
-			using var application2 = Application.Create(TestHelper.ApplicationPathForWinFormsX64);
+			using var application1 = Automation.Application.Create(TestHelper.ApplicationPathForWinFormsX64);
+			using var application2 = Automation.Application.Create(TestHelper.ApplicationPathForWinFormsX64);
 			application1.AutoClose = false;
 			application2.AutoClose = false;
 			Assert.IsTrue(application1.IsRunning);
 			Assert.IsTrue(application2.IsRunning);
 			Assert.AreNotEqual(application1.Id, application2.Id);
 
-			Application.CloseAll(TestHelper.ApplicationPathForWinFormsX64, exceptProcessId: application2.Process.Id);
+			Automation.Application.CloseAll(TestHelper.ApplicationPathForWinFormsX64, exceptProcessId: application2.Process.Id);
 
 			Assert.IsFalse(application1.IsRunning);
 			Assert.IsTrue(application2.IsRunning);

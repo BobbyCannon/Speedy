@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Reflection;
 using Speedy.Storage;
 
 #endregion
@@ -41,6 +42,11 @@ namespace Speedy
 		/// Discard all changes made in this context to the underlying database.
 		/// </summary>
 		int DiscardChanges();
+
+		/// <summary>
+		/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+		/// </summary>
+		Assembly GetMappingAssembly();
 
 		/// <summary>
 		/// Gets a read only repository of the requested entity.

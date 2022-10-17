@@ -121,7 +121,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void ToBytes()
 		{
-			var message = OscPacket.Parse("/ahoy,\"Flare Lite\"");
+			var message = OscPacket.Parse("/ahoy,\"Hello World\"");
 			var actual = OscSlip.EncodePacket(message);
 			actual.Dump();
 

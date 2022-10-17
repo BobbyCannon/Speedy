@@ -1,5 +1,7 @@
 ﻿#region References
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
@@ -31,7 +33,14 @@ namespace Speedy.Collections
 		/// <summary>
 		/// Instantiates an instance of the collection.
 		/// </summary>
-		public SortedObservableCollection(IDispatcher dispatcher, OrderBy<T> orderBy, params OrderBy<T>[] thenBy) : base(dispatcher)
+		public SortedObservableCollection(IDispatcher dispatcher, OrderBy<T> orderBy, params OrderBy<T>[] thenBy) : this(Array.Empty<T>(), dispatcher, orderBy, thenBy)
+		{
+		}
+
+		/// <summary>
+		/// Instantiates an instance of the collection.
+		/// </summary>
+		public SortedObservableCollection(T[] items, IDispatcher dispatcher, OrderBy<T> orderBy, params OrderBy<T>[] thenBy) : base(dispatcher, items)
 		{
 			OrderBy = orderBy;
 			ThenBy = thenBy;

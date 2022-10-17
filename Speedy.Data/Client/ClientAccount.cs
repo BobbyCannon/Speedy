@@ -11,7 +11,9 @@ using Speedy.Sync;
 namespace Speedy.Data.Client
 {
 	/// <summary>
-	/// Represents the client private account model.
+	/// Represents the client private account model. That
+	/// does not inherit from a "SyncApi" model due to differences
+	/// of property types.
 	/// </summary>
 	public class ClientAccount : SyncModel<int>
 	{

@@ -1,6 +1,6 @@
 ﻿namespace Speedy.Devices.Location
 {
-    /// <summary>
+	/// <summary>
     /// Represents the reference point for the altitude.
     /// </summary>
     public enum AltitudeReferenceType

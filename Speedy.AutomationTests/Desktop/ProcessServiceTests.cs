@@ -3,7 +3,6 @@
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Automation;
 using Speedy.Automation.Desktop;
 using Speedy.UnitTests;
 
@@ -32,12 +31,12 @@ namespace Speedy.AutomationTests.Desktop
 		public void WhereShouldFindByName()
 		{
 			var notepadPath = @"C:\Windows\Notepad.exe";
-			Application.CloseAll(notepadPath);
+			Automation.Application.CloseAll(notepadPath);
 
 			var processes = ProcessService.Where("Notepad.exe").ToList();
 			Assert.AreEqual(0, processes.Count);
 
-			using (var a = Application.Create(notepadPath))
+			using (var a = Automation.Application.Create(notepadPath))
 			{
 				var watch = Stopwatch.StartNew();
 				processes = ProcessService.Where("Notepad.exe").ToList();

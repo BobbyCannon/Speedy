@@ -8,11 +8,14 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Speedy.Configuration;
 using Speedy.Exceptions;
 using Speedy.Extensions;
 using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
+
+#if !NET6_0_OR_GREATER
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+#endif
 
 #endregion
 

@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Automation;
 using Speedy.Automation.Desktop;
 using Speedy.Automation.Desktop.Elements;
 using Speedy.UnitTests;
@@ -26,14 +25,14 @@ namespace Speedy.AutomationTests.Desktop
 
 			Assert.AreEqual(expected, filepath);
 
-			var process = Application.Attach(filepath, isUwp: true);
+			var process = Automation.Application.Attach(filepath, isUwp: true);
 			if (process != null)
 			{
 				process.Kill(1);
 				process.Dispose();
 			}
 
-			var application = Application.AttachOrCreateUniversal(filepath, packageName);
+			var application = Automation.Application.AttachOrCreateUniversal(filepath, packageName);
 
 			application.Children.Count.Dump();
 			var children = application.Descendants().ToList();

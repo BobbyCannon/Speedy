@@ -4225,6 +4225,125 @@
             <param name="horizontalPercent"> The percentage to scroll horizontally. </param>
             <param name="verticalPercent"> The percentage to scroll vertically. </param>
         </member>
+        <member name="T:Speedy.Automation.Tests.SpeedyTest">
+            <summary>
+            Represents a Speedy test.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0,``0,System.Action{System.Boolean},System.String[])">
+            <summary>
+            Validates that the expected and actual are equal.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0},System.Boolean,System.Action{System.Boolean},System.String[])">
+            <summary>
+            Validates that the expected and actual are equal.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0[],``0[],System.Boolean,System.Action{System.Boolean},System.String[])">
+            <summary>
+            Validates that the expected and actual are equal.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0,``0,System.String[])">
+            <summary>
+            Validates that the expected and actual are equal.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0,``0,System.Func{System.String},System.String[])">
+            <summary>
+            Validates that the expected and actual are equal with custom message an optional exceptions.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreNotEqual``1(``0,``0,System.String[])">
+            <summary>
+            Validates that the expected and actual are not equal.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreNotEqual``1(System.String,``0,``0,System.String[])">
+            <summary>
+            Validates that the expected and actual are not equal.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.CopyToClipboard``1(``0)">
+            <summary>
+            Copy the string version of the value to the clipboard.
+            </summary>
+            <typeparam name="T"> The type of the value. </typeparam>
+            <param name="value"> The object to copy to the clipboard. Calls ToString on the value. </param>
+            <returns> The value input to allow for method chaining. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.SetClipboardProvider(System.Action{System.String})">
+            <summary>
+            Sets the clipboard provider.
+            </summary>
+            <param name="provider"> The provider to be set. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.CreateClientSyncAccount">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.GetClientDatabaseProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.GetClientSyncManager(`2)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.GetRuntimeInformationProvider">
+            <summary>
+            Get the runtime information provider.
+            </summary>
+            <returns> The runtime information. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.GetServerDatabaseProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.GetServerSyncAccount">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.GetServerSyncClient">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.Process(`0,System.Action{`7,`3,`8,`5},System.Action{Speedy.Sync.SyncOptions},System.Nullable{System.TimeSpan},System.Action{Speedy.Sync.SyncResults{`0}})">
+            <summary>
+            Process the sync.
+            </summary>
+            <param name="type"></param>
+            <param name="setupSync"></param>
+            <param name="updateOptions"></param>
+            <param name="waitFor"></param>
+            <param name="postAction"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Speedy.Automation.Tests.TestingExtensions">
+            <summary>
+            Extension for testing
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Dump each item to the Console.WriteLine().
+            </summary>
+            <typeparam name="T"> The type of the item in the list. </typeparam>
+            <param name="items"> The items to dump. </param>
+            <returns> The items that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``1(``0)">
+            <summary>
+            Dump the item to the Console.WriteLine().
+            </summary>
+            <typeparam name="T"> The type of the item. </typeparam>
+            <param name="item"> The item to dump. </param>
+            <returns> The item that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}})">
+            <summary>
+            Dump the item to the Console.WriteLine().
+            </summary>
+            <typeparam name="T"> The type of the item. </typeparam>
+            <typeparam name="T2"> The type of the item in the collection. </typeparam>
+            <param name="dictionary"> The dictionary to dump. </param>
+            <returns> The dictionary that was dumped. </returns>
+        </member>
         <member name="T:Speedy.Automation.Utility">
             <summary>
             Represents the Utility class.

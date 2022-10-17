@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+		<AssemblyTitle>Speedy.Application.Wpf</AssemblyTitle>
+		<UseWPF>true</UseWPF>
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>false</DelaySign>
+		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="Speedy.snk" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Management.Infrastructure" Version="2.0.0" />
+		<PackageReference Include="System.Management" Version="6.0.0" />
+	</ItemGroup>
+
+</Project>

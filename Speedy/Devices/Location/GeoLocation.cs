@@ -2,6 +2,7 @@
 
 using System;
 using Speedy.Extensions;
+using Speedy.Storage;
 
 #endregion
 
@@ -10,7 +11,7 @@ namespace Speedy.Devices.Location
 	/// <summary>
 	/// Represents a geo-location (lat, long, alt, alt ref).
 	/// </summary>
-	public class GeoLocation : Bindable, IGeoLocation, IComparable, IComparable<GeoLocation>, IEquatable<GeoLocation>
+	public class GeoLocation : Bindable, IGeoLocation, IComparable, IComparable<GeoLocation>, IEquatable<GeoLocation>, IUpdatable<IGeoLocation>
 	{
 		#region Constructors
 
@@ -121,6 +122,12 @@ namespace Speedy.Devices.Location
 		}
 
 		/// <inheritdoc />
+		public void UpdateWith(IGeoLocation update, params string[] exclusions)
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <inheritdoc />
 		public override bool Equals(object obj)
 		{
 			return Equals(obj as GeoLocation);
@@ -145,48 +152,13 @@ namespace Speedy.Devices.Location
 			return $"{Latitude:F7}, {Longitude:F7}, {Altitude:F3} / {AltitudeReference.GetDisplayName()}";
 		}
 
-		/// <summary>
-		/// Update the location.
-		/// </summary>
-		/// <param name="update"> The location update. </param>
-		public virtual void UpdateWith(IGeoLocation update)
-		{
-			Latitude = update.Latitude;
-			Longitude = update.Longitude;
-			Altitude = update.Altitude;
-			AltitudeReference = update.AltitudeReference;
-		}
-
 		#endregion
 	}
 
 	/// <summary>
 	/// Represents a geo-location (lat, long, alt, alt ref).
 	/// </summary>
-	public interface IGeoLocation
+	public interface IGeoLocation : IHorizontalLocation, IVerticalLocation
 	{
-		#region Properties
-
-		/// <summary>
-		/// The altitude of the location
-		/// </summary>
-		double Altitude { get; set; }
-
-		/// <summary>
-		/// The reference type for the altitude value.
-		/// </summary>
-		AltitudeReferenceType AltitudeReference { get; set; }
-
-		/// <summary>
-		/// Ranges between -90 to 90 from North to South
-		/// </summary>
-		double Latitude { get; set; }
-
-		/// <summary>
-		/// Ranges between -180 to 180 from West to East
-		/// </summary>
-		double Longitude { get; set; }
-
-		#endregion
 	}
 }

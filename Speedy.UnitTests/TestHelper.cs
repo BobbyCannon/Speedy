@@ -32,7 +32,6 @@ using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Data.Sync;
 using Speedy.Website.Services;
-using Application = Speedy.Automation.Application;
 using Timer = Speedy.Profiling.Timer;
 
 #endregion
@@ -434,10 +433,10 @@ namespace Speedy.UnitTests
 			}, ContosoDatabase.GetDefaultOptions());
 		}
 
-		public static Application GetOrStartApplication(bool x86 = false)
+		public static Automation.Application GetOrStartApplication(bool x86 = false)
 		{
 			var path = x86 ? ApplicationPathForWinFormsX86 : ApplicationPathForWinFormsX64;
-			var response = Application.AttachOrCreate(path);
+			var response = Automation.Application.AttachOrCreate(path);
 			response.Timeout = TimeSpan.FromSeconds(5);
 			response.AutoClose = true;
 			return response;
@@ -732,12 +731,12 @@ namespace Speedy.UnitTests
 			_currentTime = value;
 		}
 
-		public static Application StartApplication(bool x86 = false)
+		public static Automation.Application StartApplication(bool x86 = false)
 		{
 			var path = x86 ? ApplicationPathForWinFormsX86 : ApplicationPathForWinFormsX64;
 			path.Dump();
-			Application.CloseAll(path);
-			var response = Application.AttachOrCreate(path);
+			Automation.Application.CloseAll(path);
+			var response = Automation.Application.AttachOrCreate(path);
 			response.Timeout = TimeSpan.FromSeconds(5);
 			response.AutoClose = true;
 			return response;

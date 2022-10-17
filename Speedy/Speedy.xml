@@ -160,6 +160,48 @@
             PropertyChanged event (per <see cref="T:System.ComponentModel.INotifyPropertyChanged" />).
             </summary>
         </member>
+        <member name="T:Speedy.Collections.FilteredCollection`1">
+            <summary>
+            This collection representing a list of entities for a relationship.
+            </summary>
+            <typeparam name="T"> The type for the relationship. </typeparam>
+        </member>
+        <member name="P:Speedy.Collections.FilteredCollection`1.Count">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FilteredCollection`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FilteredCollection`1.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="M:Speedy.Collections.FilteredCollection`1.GetEnumerable">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="M:Speedy.Collections.FilteredCollection`1.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>
+            An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="E:Speedy.Collections.FilteredCollection`1.CollectionChanged">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Collections.FilteredCollection`1.PropertyChanged">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Collections.GenericComparer`1">
             <summary>
             Exposes a method that compares two objects.
@@ -221,13 +263,13 @@
             Instantiates an instance of the collection.
             </summary>
         </member>
-        <member name="M:Speedy.Collections.LimitedObservableCollection`1.#ctor(Speedy.IDispatcher)">
+        <member name="M:Speedy.Collections.LimitedObservableCollection`1.#ctor(Speedy.IDispatcher,`0[])">
             <summary>
             Instantiates an instance of the collection.
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
         </member>
-        <member name="M:Speedy.Collections.LimitedObservableCollection`1.#ctor(System.Int32,Speedy.IDispatcher)">
+        <member name="M:Speedy.Collections.LimitedObservableCollection`1.#ctor(System.Int32,Speedy.IDispatcher,`0[])">
             <summary>
             Instantiates an instance of the collection.
             </summary>
@@ -291,6 +333,11 @@
             </summary>
         </member>
         <member name="M:Speedy.Collections.SortedObservableCollection`1.#ctor(Speedy.IDispatcher,Speedy.Collections.OrderBy{`0},Speedy.Collections.OrderBy{`0}[])">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SortedObservableCollection`1.#ctor(`0[],Speedy.IDispatcher,Speedy.Collections.OrderBy{`0},Speedy.Collections.OrderBy{`0}[])">
             <summary>
             Instantiates an instance of the collection.
             </summary>
@@ -975,6 +1022,13 @@
             <param name="value"> The type value in string format. </param>
             <returns> The object version of the string. </returns>
         </member>
+        <member name="M:Speedy.Converters.StringConverter.Parse``1(System.String)">
+            <summary>
+            Parse the value from the provided value.
+            </summary>
+            <param name="value"> The type value in string format. </param>
+            <returns> The object version of the string. </returns>
+        </member>
         <member name="M:Speedy.Converters.StringConverter.Parse(System.Type,System.String)">
             <summary>
             Parse the value from the provided value.
@@ -1537,76 +1591,89 @@
         <member name="M:Speedy.DefaultDispatcher.RunAsync(System.Action)">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Devices.DefaultRuntimeInformation">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.ApplicationName">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.ApplicationVersion">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceId">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceManufacturer">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceModel">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceName">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.DeviceType">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.DefaultRuntimeInformation.PlatformName">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Devices.IRuntimeInformation">
+        <member name="T:Speedy.Devices.DevicePlatform">
             <summary>
-            Represents the information of the client at runtime.
+            Represents the platform of device
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.ApplicationName">
+        <member name="F:Speedy.Devices.DevicePlatform.Unknown">
             <summary>
-            The name of the application.
+            Unknown
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.ApplicationVersion">
+        <member name="F:Speedy.Devices.DevicePlatform.Windows">
             <summary>
-            The version of the application.
+            Windows
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceId">
+        <member name="F:Speedy.Devices.DevicePlatform.Android">
             <summary>
-            The ID of the device.
+            Android
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceManufacturer">
+        <member name="F:Speedy.Devices.DevicePlatform.IOS">
             <summary>
-            The name of the device manufacturer.
+            iOS
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceModel">
+        <member name="F:Speedy.Devices.DevicePlatform.MacOS">
             <summary>
-            The model of the device.
+            Mac OS
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceName">
+        <member name="F:Speedy.Devices.DevicePlatform.Linux">
             <summary>
-            The name of the device.
+            Linux
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.DeviceType">
+        <member name="T:Speedy.Devices.DeviceType">
             <summary>
-            The type of the device.
+            Represents the type of device
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IRuntimeInformation.PlatformName">
+        <member name="F:Speedy.Devices.DeviceType.Unknown">
             <summary>
-            The name of the platform.
+            Unknown
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.DeviceType.Desktop">
+            <summary>
+            Desktop
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.DeviceType.Phone">
+            <summary>
+            Phone
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.DeviceType.Watch">
+            <summary>
+            Watch
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.DeviceType.Tablet">
+            <summary>
+            Tablet
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.DeviceType.TV">
+            <summary>
+            TV
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.AccuracyReferenceType">
+            <summary>
+            Accuracy Reference
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.AccuracyReferenceType.Unknown">
+            <summary>
+            Unknown altitude value
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.AccuracyReferenceType.Meters">
+            <summary>
+            Altitude in meters
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.AltitudeReferenceType">
@@ -1705,6 +1772,9 @@
         <member name="M:Speedy.Devices.Location.GeoLocation.Equals(Speedy.Devices.Location.GeoLocation)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Devices.Location.GeoLocation.UpdateWith(Speedy.Devices.Location.IGeoLocation,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Devices.Location.GeoLocation.Equals(System.Object)">
             <inheritdoc />
         </member>
@@ -1714,35 +1784,533 @@
         <member name="M:Speedy.Devices.Location.GeoLocation.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.GeoLocation.UpdateWith(Speedy.Devices.Location.IGeoLocation)">
-            <summary>
-            Update the location.
-            </summary>
-            <param name="update"> The location update. </param>
-        </member>
         <member name="T:Speedy.Devices.Location.IGeoLocation">
             <summary>
             Represents a geo-location (lat, long, alt, alt ref).
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IGeoLocation.Altitude">
+        <member name="T:Speedy.Devices.Location.GeolocationError">
             <summary>
-            The altitude of the location
+            Error for geolocator
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IGeoLocation.AltitudeReference">
+        <member name="F:Speedy.Devices.Location.GeolocationError.PositionUnavailable">
             <summary>
-            The reference type for the altitude value.
+            The provider was unable to retrieve any position data.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IGeoLocation.Latitude">
+        <member name="F:Speedy.Devices.Location.GeolocationError.Unauthorized">
+            <summary>
+            The app is not, or no longer, authorized to receive location data.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.GeolocationException">
+            <summary>
+            Location exception
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeolocationException.#ctor(Speedy.Devices.Location.GeolocationError)">
+            <summary>
+            Location exception
+            </summary>
+            <param name="error"> </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeolocationException.#ctor(Speedy.Devices.Location.GeolocationError,System.Exception)">
+            <summary>
+            Geolocation error
+            </summary>
+            <param name="error"> </param>
+            <param name="innerException"> </param>
+        </member>
+        <member name="T:Speedy.Devices.Location.GeolocatorUtils">
+            <summary>
+            Geolocator Plugin Utilities
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeolocatorUtils.CalculateDistance(System.Double,System.Double,System.Double,System.Double,Speedy.Devices.Location.GeolocatorUtils.DistanceUnits)">
+            <summary>
+            Calculates the distance in miles
+            </summary>
+            <returns> The distance. </returns>
+            <param name="latitudeStart"> Latitude start. </param>
+            <param name="longitudeStart"> Longitude start. </param>
+            <param name="latitudeEnd"> Latitude end. </param>
+            <param name="longitudeEnd"> Longitude end. </param>
+            <param name="units"> Units to return </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeolocatorUtils.CalculateDistance(Speedy.Devices.Location.IGeoLocation,Speedy.Devices.Location.IGeoLocation,Speedy.Devices.Location.GeolocatorUtils.DistanceUnits)">
+            <summary>
+            Calculates the distance in miles
+            </summary>
+            <returns> The distance. </returns>
+            <param name="positionStart"> Start position </param>
+            <param name="positionEnd"> End ProviderLocation. </param>
+            <param name="units"> Units to return </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeolocatorUtils.KilometersToMiles(System.Double)">
+            <summary>
+            Convert Kilometers to Miles
+            </summary>
+            <param name="kilometers"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeolocatorUtils.MilesToKilometers(System.Double)">
+            <summary>
+            Convert Miles to Kilometers
+            </summary>
+            <param name="miles"> </param>
+            <returns> </returns>
+        </member>
+        <member name="T:Speedy.Devices.Location.GeolocatorUtils.DistanceUnits">
+            <summary>
+            Units for the distance
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.GeolocatorUtils.DistanceUnits.Kilometers">
+            <summary>
+            Kilometers
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.GeolocatorUtils.DistanceUnits.Miles">
+            <summary>
+            Miles
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.IHorizontalLocation">
+            <summary>
+            Represents a horizontal location (lat, long).
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.Latitude">
             <summary>
             Ranges between -90 to 90 from North to South
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IGeoLocation.Longitude">
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.Longitude">
             <summary>
             Ranges between -180 to 180 from West to East
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.IVerticalLocation">
+            <summary>
+            Represents a vertical location (alt, alt ref).
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.Altitude">
+            <summary>
+            The altitude of the location
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.AltitudeReference">
+            <summary>
+            The reference type for the altitude value.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.ListenerSettings">
+            <summary>
+            Settings for location listening.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationProvider">
+            <summary>
+            Location Provider
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates an instance of the location provider.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.DesiredAccuracy">
+            <summary>
+            Desired accuracy in meters
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.IsGeolocationAvailable">
+            <summary>
+            Gets if geolocation is available on device
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.IsGeolocationEnabled">
+            <summary>
+            Gets if geolocation is enabled on device
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.IsListening">
+            <summary>
+            Gets if you are listening for location changes
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.LastReadPosition">
+            <summary>
+            The last read position.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.ListenerSettings">
+            <summary>
+            The settings for when the provider is listening.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.StartListeningCommand">
+            <summary>
+            The command for starting to listen.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.StopListeningCommand">
+            <summary>
+            The command to stop to listening.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider.SupportsHeading">
+            <summary>
+            Gets if device supports heading
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider.GetLastKnownLocationAsync">
+            <summary>
+            Gets the last known and most accurate location.
+            This is usually cached and best to display first before querying for full position.
+            </summary>
+            <returns> Best and most recent location or null if none found </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider.GetPositionAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken},System.Boolean)">
+            <summary>
+            Gets position async with specified parameters
+            </summary>
+            <param name="timeout"> Timeout to wait, Default Infinite </param>
+            <param name="token"> Cancellation token </param>
+            <param name="includeHeading"> If you would like to include heading </param>
+            <returns> ProviderLocation </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider.StartListeningAsync">
+            <summary>
+            Start listening for changes
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider.StopListeningAsync">
+            <summary>
+            Stop listening
+            </summary>
+            <returns> If successfully stopped </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider.OnPositionChanged(Speedy.Devices.Location.PositionEventArgs)">
+            <summary>
+            Triggers event handler.
+            </summary>
+            <param name="e"> The value for the event handler. </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider.OnPositionError(Speedy.Devices.Location.PositionErrorEventArgs)">
+            <summary>
+            Triggers event handler.
+            </summary>
+            <param name="e"> The value for the event handler. </param>
+        </member>
+        <member name="E:Speedy.Devices.Location.LocationProvider.PositionChanged">
+            <summary>
+            Provider location changed event handler.
+            </summary>
+        </member>
+        <member name="E:Speedy.Devices.Location.LocationProvider.PositionError">
+            <summary>
+            ProviderLocation error event handler
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.PositionErrorEventArgs">
+            <summary>
+            Error ARgs
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.PositionErrorEventArgs.#ctor(Speedy.Devices.Location.GeolocationError)">
+            <summary>
+            Constructor for event error args
+            </summary>
+            <param name="error"> </param>
+        </member>
+        <member name="P:Speedy.Devices.Location.PositionErrorEventArgs.Error">
+            <summary>
+            The Error
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.PositionEventArgs">
+            <summary>
+            ProviderLocation args
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.PositionEventArgs.#ctor(Speedy.Devices.Location.IProviderLocation)">
+            <summary>
+            ProviderLocation args
+            </summary>
+            <param name="position"> </param>
+        </member>
+        <member name="P:Speedy.Devices.Location.PositionEventArgs.ProviderLocation">
+            <summary>
+            The ProviderLocation
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.ProviderLocation">
+            <summary>
+            Represents a location from a LocationProvider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.#ctor">
+            <summary>
+            Instantiates a location for a LocationProvider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.#ctor(Speedy.IDispatcher,Speedy.Devices.Location.IGeoLocation,System.DateTime)">
+            <summary>
+            Instantiates a location for a LocationProvider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.#ctor(Speedy.IDispatcher,System.Double,System.Double,System.Double,Speedy.Devices.Location.AltitudeReferenceType)">
+            <summary>
+            Instantiates a location for a LocationProvider.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.Accuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.AccuracyReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.AltitudeAccuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.AltitudeAccuracyReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.HasAccuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.HasAltitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.HasHeading">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.HasLatitudeLongitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.HasSpeed">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.Heading">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.SourceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.Speed">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ProviderLocation.StatusTime">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.DeepClone(System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.OnPropertyChanged(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.ShallowClone">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.UpdateWith(Speedy.Devices.Location.IProviderLocation,System.String[])">
+            <summary>
+            Update the ProviderLocation with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.ProviderLocation.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Devices.Location.IProviderLocation">
+            <summary>
+            Represents a provider location.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.Accuracy">
+            <summary>
+            The accuracy of the horizontal location. (latitude, longitude)
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.AccuracyReference">
+            <summary>
+            The reference system for accuracy.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.AltitudeAccuracy">
+            <summary>
+            The accuracy of the vertical location. (altitude)
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.AltitudeAccuracyReference">
+            <summary>
+            The reference system for altitude accuracy.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.HasAccuracy">
+            <summary>
+            Specifies if the Accuracy value is valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.HasAltitude">
+            <summary>
+            Specifies if the Altitude value is valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.HasHeading">
+            <summary>
+            Specifies if the Heading value is valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.HasLatitudeLongitude">
+            <summary>
+            Specifies if the Latitude and Longitude values are valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.HasSpeed">
+            <summary>
+            Specifies if the Speed value is valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.Heading">
+            <summary>
+            The heading of a device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.SourceName">
+            <summary>
+            The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.Speed">
+            <summary>
+            The speed of the device in meters per second.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IProviderLocation.StatusTime">
+            <summary>
+            The original time of the location was captured.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.RuntimeInformation">
+            <summary>
+            Gets information about the current runtime.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.#ctor">
+            <summary>
+            Creates an instance of the runtime information.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the runtime information.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.ApplicationName">
+            <summary>
+            The name of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.ApplicationVersion">
+            <summary>
+            The version of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.DeviceId">
+            <summary>
+            The ID of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.DeviceManufacturer">
+            <summary>
+            The name of the device manufacturer.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.DeviceModel">
+            <summary>
+            The model of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.DeviceName">
+            <summary>
+            The name of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.DevicePlatform">
+            <summary>
+            The name of the platform.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.RuntimeInformation.DeviceType">
+            <summary>
+            The type of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.IsWindows">
+            <summary>
+            Determines if the platform is Windows.
+            </summary>
+            <returns> True if the platform is Windows otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.Refresh">
+            <summary>
+            Loads all properties.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.ResetCache">
+            <summary>
+            Reset the cache.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetApplicationName">
+            <summary>
+            The name of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetApplicationVersion">
+            <summary>
+            The version of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetDeviceId">
+            <summary>
+            The ID of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetDeviceManufacturer">
+            <summary>
+            The name of the device manufacturer.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetDeviceModel">
+            <summary>
+            The model of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetDeviceName">
+            <summary>
+            The name of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetDevicePlatform">
+            <summary>
+            The name of the platform.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.RuntimeInformation.GetDeviceType">
+            <summary>
+            The type of the device.
             </summary>
         </member>
         <member name="T:Speedy.Devices.SecureVault">
@@ -2128,6 +2696,7 @@
             <summary>
             Get the error message for AreEqual validation.
             </summary>
+            <param name="type"> The exception type. </param>
             <param name="name"> The property name. </param>
             <returns> The error message. </returns>
         </member>
@@ -2265,6 +2834,14 @@
             <param name="values"> The values to add. </param>
             <returns> A new HashSet containing the new values. </returns>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AppendExtraProperties``2(System.Collections.Generic.HashSet{System.String})">
+            <summary>
+            Appends all properties that are on the first type (T1) but not on the second type (T2).
+            </summary>
+            <typeparam name="T1"> The type of the first item. </typeparam>
+            <typeparam name="T2"> The type of the second item. </typeparam>
+            <param name="collection"> The collection to be updated. </param>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[])">
             <summary>
             Calculate a CRC using CRC-16/KERMIT.
@@ -2385,6 +2962,13 @@
             <param name="length"> The amount of data to pull. </param>
             <returns> The sub array of data. </returns>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.ToBase64(System.Byte[])">
+            <summary>
+            Gets the base 64 version of the byte array.
+            </summary>
+            <param name="data"> The data to process. </param>
+            <returns> The base 64 string of the data. </returns>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.ToHashSet``1(System.Collections.Generic.IEnumerable{``0},``0[])">
             <summary>
             Appends new values to an existing HashSet.
@@ -2487,6 +3071,16 @@
             <param name="dictionary"> The dictionary to update. </param>
             <param name="key"> The value of the key. </param>
             <param name="value"> The value of the value. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Collections.Generic.IDictionary{``0,``1})">
+            <summary>
+            Add or update a dictionary entry if the key is not found in the source.
+            </summary>
+            <typeparam name="T1"> The type of the key. </typeparam>
+            <typeparam name="T2"> The type of the value. </typeparam>
+            <param name="dictionary"> The dictionary to update. </param>
+            <param name="key"> The value of the key. </param>
+            <param name="source"> The dictionary for source values. </param>
         </member>
         <member name="M:Speedy.Extensions.DictionaryExtensions.AddOrUpdate``2(System.Collections.Generic.Dictionary{``0,``1},System.Collections.Generic.KeyValuePair{``0,``1})">
             <summary>
@@ -3520,6 +4114,13 @@
             Extensions for the string type.
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToBase64(System.String)">
+            <summary>
+            Convert string to a base 64 string.
+            </summary>
+            <param name="data"> The data to be converted. </param>
+            <returns> The base 64 encoded string. </returns>
+        </member>
         <member name="M:Speedy.Extensions.StringExtensions.ConvertHexStringToByteArray(System.String)">
             <summary>
             Convert a hex string to a byte array.
@@ -3571,6 +4172,13 @@
             <param name="addEllipses"> The option to add ellipses to shorted strings. Defaults to false. </param>
             <returns> The value limited to the maximum length. </returns>
         </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ReverseString(System.String)">
+            <summary>
+            Reverse the string order. Ex. "ABC" -> "CBA"
+            </summary>
+            <param name="value"> The value to reverse. </param>
+            <returns> The string in a reversed order. </returns>
+        </member>
         <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.String,System.String,System.String)">
             <summary>
             Converts a string to hex string value. Ex. "A" -> "41"
@@ -3618,6 +4226,56 @@
             </summary>
             <param name="value"> a string, optionally with escape sequences in it </param>
             <returns> The unescape version of the provided value. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.SyncDeviceExtensions">
+            <summary>
+            Extensions for Sync Device
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.SyncDeviceExtensions.ApplicationNameValueKey">
+            <summary>
+            The key for the ApplicationName value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.SyncDeviceExtensions.ApplicationVersionValueKey">
+            <summary>
+            The key for the ApplicationVersion value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.SyncDeviceExtensions.DeviceIdValueKey">
+            <summary>
+            The key for the DeviceId value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.SyncDeviceExtensions.DevicePlatformValueKey">
+            <summary>
+            The key for the DevicePlatform value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.SyncDeviceExtensions.DeviceTypeValueKey">
+            <summary>
+            The key for the DeviceType value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.ISyncDevice,Speedy.Sync.SyncOptions)">
+            <summary>
+            Load the sync client details into the provided sync options.
+            </summary>
+            <param name="device"> The device to load options into. </param>
+            <param name="syncOptions"> The options to load. </param>
+        </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.SyncOptions,Speedy.Sync.ISyncClientDetails)">
+            <summary>
+            Load the sync client details into the provided sync options.
+            </summary>
+            <param name="syncOptions"> The options to load. </param>
+            <param name="clientDetails"> The client details to load. </param>
+        </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Validate(Speedy.Sync.ISyncClientDetails)">
+            <summary>
+            Validate that all the sync client details are available.
+            </summary>
+            <param name="device"> The device to load options into. </param>
         </member>
         <member name="T:Speedy.Extensions.SyncObjectExtensions">
             <summary>
@@ -3895,6 +4553,11 @@
         <member name="M:Speedy.IDatabase.DiscardChanges">
             <summary>
             Discard all changes made in this context to the underlying database.
+            </summary>
+        </member>
+        <member name="M:Speedy.IDatabase.GetMappingAssembly">
+            <summary>
+            Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
             </summary>
         </member>
         <member name="M:Speedy.IDatabase.GetReadOnlyRepository``2">
@@ -10889,6 +11552,51 @@
             The options for the sync
             </summary>
         </member>
+        <member name="M:Speedy.Sync.ISyncClient.ApplyChanges(System.Guid,Speedy.Net.ServiceRequest{Speedy.Sync.SyncObject})">
+            <summary>
+            Sends changes to a server.
+            </summary>
+            <param name="sessionId"> The ID of the sync session. </param>
+            <param name="changes"> The changes to write to the server. </param>
+            <returns> A list of sync issues if there were any. </returns>
+        </member>
+        <member name="M:Speedy.Sync.ISyncClient.ApplyCorrections(System.Guid,Speedy.Net.ServiceRequest{Speedy.Sync.SyncObject})">
+            <summary>
+            Sends issue corrections to a server.
+            </summary>
+            <param name="sessionId"> The ID of the sync session. </param>
+            <param name="corrections"> The corrections to write to the server. </param>
+            <returns> A list of sync issues if there were any. </returns>
+        </member>
+        <member name="M:Speedy.Sync.ISyncClient.BeginSync(System.Guid,Speedy.Sync.SyncOptions)">
+            <summary>
+            Starts the sync session.
+            </summary>
+            <param name="sessionId"> The ID of the sync session. </param>
+            <param name="options"> The options for the sync session. </param>
+        </member>
+        <member name="M:Speedy.Sync.ISyncClient.EndSync(System.Guid)">
+            <summary>
+            Ends the sync session.
+            </summary>
+            <param name="sessionId"> The ID of the sync session. </param>
+        </member>
+        <member name="M:Speedy.Sync.ISyncClient.GetChanges(System.Guid,Speedy.Sync.SyncRequest)">
+            <summary>
+            Gets the changes from the server.
+            </summary>
+            <param name="sessionId"> The ID of the sync session. </param>
+            <param name="request"> The details for the request. </param>
+            <returns> The list of changes from the server. </returns>
+        </member>
+        <member name="M:Speedy.Sync.ISyncClient.GetCorrections(System.Guid,Speedy.Net.ServiceRequest{Speedy.Sync.SyncIssue})">
+            <summary>
+            Gets the list of sync objects to try and resolve the issue list.
+            </summary>
+            <param name="sessionId"> The ID of the sync session. </param>
+            <param name="issues"> The issues to process. </param>
+            <returns> The sync objects to resolve the issues. </returns>
+        </member>
         <member name="M:Speedy.Sync.ISyncClient.GetDatabase">
             <summary>
             Gets an instance of the database this sync client is for.
@@ -11275,6 +11983,36 @@
             <param name="status"> The status of the update. </param>
             <returns> Return true if the entity was updated and should be saved. </returns>
         </member>
+        <member name="T:Speedy.Sync.ISyncClientDetails">
+            <summary>
+            The details for a sync client.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncClientDetails.ApplicationName">
+            <summary>
+            The ApplicationName value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncClientDetails.ApplicationVersion">
+            <summary>
+            The ApplicationVersion value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncClientDetails.DeviceId">
+            <summary>
+            The DeviceId value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncClientDetails.DevicePlatform">
+            <summary>
+            The DevicePlatform value for Sync Client Details.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncClientDetails.DeviceType">
+            <summary>
+            The DeviceType value for Sync Client Details.
+            </summary>
+        </member>
         <member name="T:Speedy.Sync.SyncClientOptions">
             <summary>
             Represents the options for a sync client
@@ -11395,6 +12133,55 @@
             </summary>
             <param name="name"> The name of the client. </param>
             <returns> The sync client. </returns>
+        </member>
+        <member name="T:Speedy.Sync.SyncDevice`1">
+            <summary>
+            Represents a sync device.
+            </summary>
+            <typeparam name="T"> The type of the ID for the sync model. </typeparam>
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.Altitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.AltitudeReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.ApplicationName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.ApplicationVersion">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.ApplicationVersionHash">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.DeviceId">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.DevicePlatform">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.DeviceType">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.Latitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.Longitude">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Sync.ISyncDevice">
+            <summary>
+            Represents a sync device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncDevice.ApplicationVersionHash">
+            <summary>
+            The application version in a number hash.
+            </summary>
         </member>
         <member name="T:Speedy.Sync.SyncDirection">
             <summary>
@@ -11953,6 +12740,19 @@
             See <seealso cref="M:Speedy.Sync.SyncManager`1.WaitForSyncToComplete(System.Nullable{System.TimeSpan})" /> if you want to wait for the sync to complete.
             </remarks>
         </member>
+        <member name="M:Speedy.Sync.SyncManager`1.ProcessAsync(`0,System.Action{Speedy.Sync.SyncOptions},System.Nullable{System.TimeSpan},System.Action{Speedy.Sync.SyncResults{`0}})">
+            <summary>
+            Processes a sync request.
+            </summary>
+            <param name="syncType"> The type of the sync to process. </param>
+            <param name="updateOptions"> Optional action to possibly update options when the sync starts. </param>
+            <param name="waitFor"> Optional timeout to wait for the active sync to complete. </param>
+            <param name="postAction">
+            An optional action to run after sync is completed but before notification goes out. If the sync cannot
+            start then the options will be null as they were never read or set.
+            </param>
+            <returns> The task for the process. </returns>
+        </member>
         <member name="M:Speedy.Sync.SyncManager`1.ResetSyncDates(System.DateTime,System.DateTime)">
             <summary>
             Reset the sync dates on all sync options
@@ -12050,19 +12850,6 @@
             Indicate the sync is being updated.
             </summary>
             <param name="state"> The state of the sync. </param>
-        </member>
-        <member name="M:Speedy.Sync.SyncManager`1.ProcessAsync(`0,System.Action{Speedy.Sync.SyncOptions},System.Nullable{System.TimeSpan},System.Action{Speedy.Sync.SyncResults{`0}})">
-            <summary>
-            Processes a sync request.
-            </summary>
-            <param name="syncType"> The type of the sync to process. </param>
-            <param name="updateOptions"> The action to possibly update options when the sync starts. </param>
-            <param name="waitFor"> Optional timeout to wait for the active sync to complete. </param>
-            <param name="postAction">
-            An optional action to run after sync is completed but before notification goes out. If the sync cannot
-            start then the options will be null as they were never read or set.
-            </param>
-            <returns> The task for the process. </returns>
         </member>
         <member name="M:Speedy.Sync.SyncManager`1.ValidateSyncType(`0)">
             <summary>
@@ -12438,6 +13225,11 @@
             Additional values for synchronizing.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncOptions.AddSyncableFilter``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Func{``0,System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Boolean)">
+            <summary>
+            Adds a syncable filter to the options.
+            </summary>
+        </member>
         <member name="M:Speedy.Sync.SyncOptions.AddSyncableFilter(Speedy.Sync.SyncRepositoryFilter)">
             <summary>
             Adds a syncable filter to the options.
@@ -12454,6 +13246,12 @@
             <typeparam name="T"> The sync type enumeration type. </typeparam>
             <param name="defaultValue"> The default value to return if the Sync Type value is missing or could not be parsed. </param>
             <returns> </returns>
+        </member>
+        <member name="M:Speedy.Sync.SyncOptions.LoadClientDetails(Speedy.Sync.SyncOptions)">
+            <summary>
+            Load client details from options that are not trusted.
+            </summary>
+            <param name="untrustedOptions"> The untrusted options. </param>
         </member>
         <member name="M:Speedy.Sync.SyncOptions.ResetFilters">
             <summary>

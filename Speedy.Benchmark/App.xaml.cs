@@ -1,15 +1,9 @@
-﻿#region References
-
-using System.Windows;
-
-#endregion
-
-namespace Speedy.Benchmark
+﻿namespace Speedy.Benchmark
 {
 	/// <summary>
 	/// Interaction logic for App.xaml
 	/// </summary>
-	public partial class App : Application
+	public partial class App
 	{
 	}
 }

@@ -362,7 +362,12 @@ namespace Speedy.Extensions
 		{
 			var typeFlags = flags ?? DefaultFlags;
 			var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-			return _typePropertyInfos.GetOrAdd(key, _ => type.GetProperties(typeFlags));
+			return _typePropertyInfos.GetOrAdd(key, _ =>
+			{
+				return type.GetProperties(typeFlags)
+					.OrderBy(x => x.Name)
+					.ToArray();
+			});
 		}
 
 		/// <summary>

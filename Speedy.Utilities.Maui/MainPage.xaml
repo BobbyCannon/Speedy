@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+		xmlns:viewModels="clr-namespace:Speedy.Utilities.Maui.ViewModels"
+		x:Class="Speedy.Utilities.Maui.MainPage"
+		x:DataType="viewModels:ClientViewModel">
+
+	<ScrollView>
+		<VerticalStackLayout>
+			<VerticalStackLayout Spacing="10" Padding="0" Margin="0,20,0,0" VerticalOptions="Center">
+				<Label Text="{Binding RuntimeInformation.ApplicationName, Mode=OneWay}" HorizontalOptions="Center" />
+				<Label Text="{Binding RuntimeInformation.ApplicationVersion, Mode=OneWay}" HorizontalOptions="Center" />
+				<Label Text="{Binding RuntimeInformation.DeviceManufacturer, Mode=OneWay}" HorizontalOptions="Center" />
+				<Label Text="{Binding RuntimeInformation.DeviceModel, Mode=OneWay}" HorizontalOptions="Center" />
+				<Label Text="{Binding RuntimeInformation.DeviceType, Mode=OneWay}" HorizontalOptions="Center" />
+			</VerticalStackLayout>
+			<VerticalStackLayout Spacing="10" Padding="0" Margin="0,40,0,0" VerticalOptions="Center" HorizontalOptions="Center">
+				<Label Text="Location" HorizontalOptions="Center" FontSize="38" />
+				<HorizontalStackLayout HorizontalOptions="Center">
+					<Label Text="Is Listening:" Margin="0,0,10,0" />
+					<Label Text="{Binding LocationProvider.IsListening, Mode=OneWay}" />
+				</HorizontalStackLayout>
+				<HorizontalStackLayout HorizontalOptions="Center">
+					<Label Text="Latitude:" Margin="0,0,10,0" />
+					<Label Text="{Binding LocationProvider.LastReadPosition.Latitude, Mode=OneWay}" />
+				</HorizontalStackLayout>
+				<HorizontalStackLayout HorizontalOptions="Center">
+					<Label Text="Longitude:" Margin="0,0,10,0" />
+					<Label Text="{Binding LocationProvider.LastReadPosition.Longitude, Mode=OneWay}" />
+				</HorizontalStackLayout>
+				<HorizontalStackLayout HorizontalOptions="Center">
+					<Label Text="Altitude:" Margin="0,0,10,0" />
+					<Label Text="{Binding LocationProvider.LastReadPosition.Altitude, Mode=OneWay}" />
+				</HorizontalStackLayout>
+			</VerticalStackLayout>
+		</VerticalStackLayout>
+	</ScrollView>
+
+</ContentPage>

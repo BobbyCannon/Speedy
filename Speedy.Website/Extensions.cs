@@ -78,12 +78,6 @@ namespace Speedy.Website
 			return !int.TryParse(input, out var response) ? defaultValue : response;
 		}
 
-		public static string FromBase64(this string data)
-		{
-			var bytes = Convert.FromBase64String(data);
-			return Encoding.UTF8.GetString(bytes);
-		}
-
 		/// <summary>
 		/// Get the user ID from the claims principal.
 		/// </summary>

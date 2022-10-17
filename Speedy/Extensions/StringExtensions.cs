@@ -19,6 +19,34 @@ namespace Speedy.Extensions
 		#region Methods
 
 		/// <summary>
+		/// Convert string to a base 64 string.
+		/// </summary>
+		/// <param name="data"> The data to be converted. </param>
+		/// <returns> The base 64 encoded string. </returns>
+		public static string ToBase64(this string data)
+		{
+			return data == null ? string.Empty : Encoding.UTF8.GetBytes(data).ToBase64();
+		}
+
+		public static string FromBase64(this string data)
+		{
+			var bytes = Convert.FromBase64String(data);
+			return Encoding.UTF8.GetString(bytes);
+		}
+
+		public static byte[] FromBase64ToByteArray(this string data)
+		{
+			var key = ";base64,";
+			var index = data.IndexOf(key);
+			if (index >= 0)
+			{
+				data = data.Substring(index + key.Length);
+			}
+
+			return Convert.FromBase64String(data);
+		}
+
+		/// <summary>
 		/// Convert a hex string to a byte array.
 		/// </summary>
 		/// <param name="hexString"> A string with hex data (2 bytes per character). </param>
@@ -193,6 +221,18 @@ namespace Speedy.Extensions
 			var shouldAddEllipses = addEllipses && (value.Length > max) && (max >= 4);
 
 			return value.Length > max ? value.Substring(0, shouldAddEllipses ? max - 3 : max) + (shouldAddEllipses ? "..." : string.Empty) : value;
+		}
+
+		/// <summary>
+		/// Reverse the string order. Ex. "ABC" -> "CBA"
+		/// </summary>
+		/// <param name="value"> The value to reverse. </param>
+		/// <returns> The string in a reversed order. </returns>
+		public static string ReverseString(this string value)
+		{
+			var myArr = value.ToCharArray();
+			Array.Reverse(myArr);
+			return new string(myArr);
 		}
 
 		/// <summary>
