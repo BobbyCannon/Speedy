@@ -1,18 +1,17 @@
-﻿namespace Speedy.Devices.Location
+﻿namespace Speedy.Devices.Location;
+
+/// <summary>
+/// Accuracy Reference
+/// </summary>
+public enum AccuracyReferenceType
 {
 	/// <summary>
-	/// Accuracy Reference
+	/// Unknown altitude value
 	/// </summary>
-	public enum AccuracyReferenceType
-	{
-		/// <summary>
-		/// Unknown altitude value
-		/// </summary>
-		Unknown = 0,
+	Unknown = 0,
 
-		/// <summary>
-		/// Altitude in meters
-		/// </summary>
-		Meters = 1
-	}
+	/// <summary>
+	/// Altitude in meters
+	/// </summary>
+	Meters = 1
 }

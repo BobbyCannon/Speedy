@@ -1,10 +1,10 @@
 ﻿#region References
 
-#if ANDROID
+#if MONOANDROID
 using Android.Provider;
-#elif IOS || __MACCATALYST__
+#elif XAMARIN_IOS
 using UIKit;
-#elif WINDOWS
+#elif WINDOWS_UWP || NETCOREAPP
 using System.Runtime.InteropServices.WindowsRuntime;
 using Speedy.Application.Internal;
 using Windows.System.Profile;
@@ -23,13 +23,13 @@ public static class DeviceIdExtensions
 
 	public static DeviceId AddVendorId(this DeviceId builder)
 	{
-		#if ANDROID
+		#if MONOANDROID
 		var context = Android.App.Application.Context;
 		var id = Settings.Secure.GetString(context.ContentResolver, Settings.Secure.AndroidId);
 		builder.AddComponent("VendorId", new DeviceIdComponent(id));
-		#elif IOS || __MACCATALYST__
+		#elif XAMARIN_IOS
 		builder.AddComponent("VendorId", new DeviceIdComponent(UIDevice.CurrentDevice.IdentifierForVendor.AsString()));
-		#elif WINDOWS
+		#elif WINDOWS_UWP || NETCOREAPP
 		var systemId = SystemIdentification.GetSystemIdForPublisher();
 		if (systemId == null)
 		{
@@ -46,7 +46,6 @@ public static class DeviceIdExtensions
 
 		return builder;
 	}
-
 
 	#endregion
 }

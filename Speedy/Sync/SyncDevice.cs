@@ -53,6 +53,10 @@ public class SyncDevice<T> : SyncModel<T>, ISyncDevice
 
 	#region Methods
 
+	/// <summary>
+	/// Load the sync options.
+	/// </summary>
+	/// <param name="syncOptions"> The options to be loaded. </param>
 	public void Load(SyncOptions syncOptions)
 	{
 	}
@@ -63,7 +67,7 @@ public class SyncDevice<T> : SyncModel<T>, ISyncDevice
 /// <summary>
 /// Represents a sync device.
 /// </summary>
-public interface ISyncDevice : IGeoLocation, ISyncClientDetails
+public interface ISyncDevice : IBasicLocation, ISyncClientDetails
 {
 	#region Properties
 

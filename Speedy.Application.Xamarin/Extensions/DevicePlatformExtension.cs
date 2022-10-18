@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System.Collections.Generic;
-using DevicePlatform = Speedy.Devices.DevicePlatform;
+using Speedy.Devices;
 using XamarinEssentials = Xamarin.Essentials;
 
 #endregion
@@ -26,7 +26,7 @@ public static class DevicePlatformExtension
 			{ XamarinEssentials.DevicePlatform.Android, DevicePlatform.Android },
 			{ XamarinEssentials.DevicePlatform.iOS, DevicePlatform.IOS },
 			{ XamarinEssentials.DevicePlatform.UWP, DevicePlatform.Windows },
-			{ XamarinEssentials.DevicePlatform.Unknown, DevicePlatform.Unknown },
+			{ XamarinEssentials.DevicePlatform.Unknown, DevicePlatform.Unknown }
 		};
 
 		_mauiLookup = new Dictionary<DevicePlatform, XamarinEssentials.DevicePlatform>

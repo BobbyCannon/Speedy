@@ -11,7 +11,7 @@ public class NotificationService : INotificationService
 		#if ANDROID
 		#elif IOS
 		#else
-			// do nothing...
+		// do nothing...
 		#endif
 	}
 

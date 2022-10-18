@@ -1,27 +1,47 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
-		<AssemblyTitle>Speedy.Application.Wpf</AssemblyTitle>
+		<Configurations>Debug;Release</Configurations>
 		<UseWPF>true</UseWPF>
+		<AssemblyTitle>Speedy.Application.Wpf</AssemblyTitle>
+		<AssemblyName>Speedy.Application.Wpf</AssemblyName>
+		<Company>Bobby Cannon</Company>
+		<Product>Speedy.EntityFramework</Product>
+		<Description>Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications.</Description>
+		<Copyright>© Copyright 2014-2022</Copyright>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
 		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>Speedy.png</PackageIcon>
+		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
+		<PackageLicenseFile>License.txt</PackageLicenseFile>
+		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
+		<RepositoryType></RepositoryType>
+		<PackageTags>Speedy Application WPF</PackageTags>
+		<PackageId>Speedy.Application.Wpf</PackageId>
+		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
+		<DocumentationFile>Speedy.Application.Wpf.xml</DocumentationFile>
+		<AssemblyVersion>11.0.0.0</AssemblyVersion>
+		<FileVersion>11.0.0.0</FileVersion>
+		<Version>11.0.0-RC1</Version>
 	</PropertyGroup>
-
 	<ItemGroup>
 		<None Include="Speedy.snk" />
+		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+		<None Remove="Speedy.png" />
+		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Management.Infrastructure" Version="2.0.0" />
 		<PackageReference Include="System.Management" Version="6.0.0" />
 	</ItemGroup>
-
 </Project>

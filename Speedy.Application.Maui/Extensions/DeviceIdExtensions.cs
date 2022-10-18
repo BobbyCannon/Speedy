@@ -47,6 +47,5 @@ public static class DeviceIdExtensions
 		return builder;
 	}
 
-
 	#endregion
 }

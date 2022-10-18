@@ -1,7 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<AssemblyTitle>Speedy.Application.Maui</AssemblyTitle>
 		<TargetFrameworks>net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net6.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
@@ -15,18 +14,44 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<UseMaui>true</UseMaui>
+		<Configurations>Debug;Release</Configurations>
+		<AssemblyTitle>Speedy.Application.Maui</AssemblyTitle>
+		<AssemblyName>Speedy.Application.Maui</AssemblyName>
+		<Company>Bobby Cannon</Company>
+		<Product>Speedy.Application.Maui</Product>
+		<Description>Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications.</Description>
+		<Copyright>© Copyright 2014-2022</Copyright>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
 		<AssemblyOriginatorKeyFile>Speedy.snk</AssemblyOriginatorKeyFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>Speedy.png</PackageIcon>
+		<PackageIconUrl>https://raw.githubusercontent.com/BobbyCannon/Speedy/master/Speedy.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
+		<PackageLicenseFile>License.txt</PackageLicenseFile>
+		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
+		<RepositoryType></RepositoryType>
+		<PackageTags>Speedy Application Maui</PackageTags>
+		<PackageId>Speedy.Application.Maui</PackageId>
+		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
+		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
+		<AssemblyVersion>11.0.0.0</AssemblyVersion>
+		<FileVersion>11.0.0.0</FileVersion>
+		<Version>11.0.0-RC1</Version>
 	</PropertyGroup>
-
+	<ItemGroup>
+		<None Include="Speedy.snk" />
+		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+		<None Remove="Speedy.png" />
+		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="**/Platforms/**/*.cs" />
 		<None Include="**/Platforms/**/*.cs" />
 		<None Include="Speedy.snk" />
 	</ItemGroup>
-
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
 		<Compile Include="**/Platforms/Android/**/*.cs" />
 	</ItemGroup>
@@ -39,10 +64,8 @@
 	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<Compile Include="**/Platforms/Windows/**/*.cs" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 	</ItemGroup>
-
 </Project>

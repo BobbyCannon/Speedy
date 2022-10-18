@@ -1,38 +1,37 @@
-﻿namespace Speedy.Devices
+﻿namespace Speedy.Devices;
+
+/// <summary>
+/// Represents the type of device
+/// </summary>
+public enum DeviceType
 {
 	/// <summary>
-	/// Represents the type of device
+	/// Unknown
 	/// </summary>
-	public enum DeviceType
-	{
-		/// <summary>
-		/// Unknown
-		/// </summary>
-		Unknown = 0,
-		
-		/// <summary>
-		/// Desktop
-		/// </summary>
-		Desktop = 1,
+	Unknown = 0,
 
-		/// <summary>
-		/// Phone
-		/// </summary>
-		Phone = 2,
+	/// <summary>
+	/// Desktop
+	/// </summary>
+	Desktop = 1,
 
-		/// <summary>
-		/// Watch
-		/// </summary>
-		Watch = 3,
+	/// <summary>
+	/// Phone
+	/// </summary>
+	Phone = 2,
 
-		/// <summary>
-		/// Tablet
-		/// </summary>
-		Tablet = 4,
+	/// <summary>
+	/// Watch
+	/// </summary>
+	Watch = 3,
 
-		/// <summary>
-		/// TV
-		/// </summary>
-		TV = 5
-	}
+	/// <summary>
+	/// Tablet
+	/// </summary>
+	Tablet = 4,
+
+	/// <summary>
+	/// TV
+	/// </summary>
+	TV = 5
 }

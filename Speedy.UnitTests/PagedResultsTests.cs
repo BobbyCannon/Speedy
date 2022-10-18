@@ -7,6 +7,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.Serialization;
+using Speedy.Sync;
+using Speedy.UnitTests.Factories;
 
 #endregion
 
@@ -130,6 +132,68 @@ namespace Speedy.UnitTests
 			// Options and Updates are not required to be equal after serialization
 			update = expected.FromJson<PagedResults<object>>();
 			TestHelper.AreEqual(results, update);
+		}
+
+		[TestMethod]
+		public void ToJsonThenFromJsonWithArrayOfArrays()
+		{
+			var request = new PagedRequest { Page = 2, PerPage = 11 };
+			var results = new PagedResults<int[][]>(request, 12,
+				new[]
+				{
+					new[] { 1, 2, 3 },
+					new[] { 4, 5, 6 }
+				},
+				new[]
+				{
+					new[] { 7, 8, 9 },
+					new[] { 10, 11, 12 }
+				}
+			);
+
+			var actual = results.ToRawJson();
+			var expected = "{\"Filter\":\"\",\"HasMore\":false,\"Order\":\"\",\"Page\":2,\"PerPage\":11,\"TotalCount\":12,\"TotalPages\":2,\"Results\":[[[1,2,3],[4,5,6]],[[7,8,9],[10,11,12]]]}";
+			//actual.Escape().Dump();
+			Assert.AreEqual(expected, actual);
+
+			var actualPagedResults = actual.FromJson<PagedResults<int[][]>>();
+			TestHelper.AreEqual(results, actualPagedResults);
+			Assert.AreEqual(2, actualPagedResults.Results.Count);
+		}
+		
+		[TestMethod]
+		public void ToJsonThenFromJsonSyncObject()
+		{
+			var request = new PagedRequest { Page = 2, PerPage = 11 };
+			var results = new PagedResults<SyncObject>(request, 12,
+				EntityFactory.GetAccount(x =>
+				{
+					x.AddressSyncId = Guid.Parse("4562A619-89FA-4D64-A91A-66750184491F");
+					x.SyncId = Guid.Parse("E778E441-4486-478B-8661-4AA107FC92E3");
+					x.CreatedOn = new DateTime(2022, 10, 17, 05, 43, 21, DateTimeKind.Utc);
+					x.ModifiedOn = new DateTime(2022, 10, 17, 05, 43, 22, DateTimeKind.Utc);
+				}, "Bobby").ToSyncObject(),
+				EntityFactory.GetAccount(x =>
+				{
+					x.AddressSyncId = Guid.Parse("E49366C5-0CDB-45F7-A997-8F27471B8FBE");
+					x.SyncId = Guid.Parse("F77EC788-38F5-493D-9CA9-EC57BFCDCF8C");
+					x.CreatedOn = new DateTime(2022, 10, 17, 05, 43, 23, DateTimeKind.Utc);
+					x.ModifiedOn = new DateTime(2022, 10, 17, 05, 43, 24, DateTimeKind.Utc);
+				}, "Fred").ToSyncObject()
+			);
+			var actual = results.ToRawJson();
+			var expected = "{\"Filter\":\"\",\"HasMore\":false,\"Order\":\"\",\"Page\":2,\"PerPage\":11,\"TotalCount\":12,\"TotalPages\":2,\"Results\":[{\"Data\":\"{\\\"AddressId\\\":0,\\\"AddressSyncId\\\":\\\"4562a619-89fa-4d64-a91a-66750184491f\\\",\\\"CreatedOn\\\":\\\"2022-10-17T05:43:21Z\\\",\\\"EmailAddress\\\":null,\\\"ExternalId\\\":null,\\\"Id\\\":0,\\\"IsDeleted\\\":false,\\\"LastLoginDate\\\":\\\"0001-01-01T00:00:00\\\",\\\"ModifiedOn\\\":\\\"2022-10-17T05:43:22Z\\\",\\\"Name\\\":\\\"Bobby\\\",\\\"Nickname\\\":null,\\\"PasswordHash\\\":null,\\\"Roles\\\":null,\\\"SyncId\\\":\\\"e778e441-4486-478b-8661-4aa107fc92e3\\\"}\",\"ModifiedOn\":\"2022-10-17T05:43:22Z\",\"Status\":1,\"SyncId\":\"e778e441-4486-478b-8661-4aa107fc92e3\",\"TypeName\":\"Speedy.Website.Data.Entities.AccountEntity,Speedy.Website.Data\"},{\"Data\":\"{\\\"AddressId\\\":0,\\\"AddressSyncId\\\":\\\"e49366c5-0cdb-45f7-a997-8f27471b8fbe\\\",\\\"CreatedOn\\\":\\\"2022-10-17T05:43:23Z\\\",\\\"EmailAddress\\\":null,\\\"ExternalId\\\":null,\\\"Id\\\":0,\\\"IsDeleted\\\":false,\\\"LastLoginDate\\\":\\\"0001-01-01T00:00:00\\\",\\\"ModifiedOn\\\":\\\"2022-10-17T05:43:24Z\\\",\\\"Name\\\":\\\"Fred\\\",\\\"Nickname\\\":null,\\\"PasswordHash\\\":null,\\\"Roles\\\":null,\\\"SyncId\\\":\\\"f77ec788-38f5-493d-9ca9-ec57bfcdcf8c\\\"}\",\"ModifiedOn\":\"2022-10-17T05:43:24Z\",\"Status\":1,\"SyncId\":\"f77ec788-38f5-493d-9ca9-ec57bfcdcf8c\",\"TypeName\":\"Speedy.Website.Data.Entities.AccountEntity,Speedy.Website.Data\"}]}";
+			//actual.Escape().Dump();
+			Assert.AreEqual(expected, actual);
+
+			var actualPagedResults = actual.FromJson<PagedResults<SyncObject>>();
+			TestHelper.AreEqual(results, actualPagedResults);
+			Assert.AreEqual(2, actualPagedResults.Results.Count);
+		}
+
+		public class Test
+		{
+			public List<SyncObject> Results { get; set; }
 		}
 
 		[TestMethod]

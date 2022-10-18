@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Speedy.Application.Xamarin</name>
+    </assembly>
+    <members>
+        <member name="T:Speedy.Application.Xamarin.Extensions.DeviceIdExtensions">
+            <summary>
+            Extension methods for <see cref="T:Speedy.Application.DeviceId" />.
+            </summary>
+        </member>
+        <member name="T:Speedy.Application.Xamarin.XamarinLocationProvider`2">
+            <summary>
+            Implementation for LocationProvider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationName">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationVersion">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDeviceId">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDeviceManufacturer">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDeviceModel">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDeviceName">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDevicePlatform">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDeviceType">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Xamarin.LocationProviderImplementation`2">
+            <summary>
+            Implementation for Feature
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsListening">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationAvailable">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationEnabled">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.ProvidersToUse">
+            <summary>
+            Gets or sets the location manager providers to ignore when getting position.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.ProvidersToUseWhileListening">
+            <summary>
+            Gets or sets the location manager providers to ignore when doing continuous listening.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets position async with specified parameters
+            </summary>
+            <param name="timeout"> Timeout to wait, Default Infinite </param>
+            <param name="cancelToken"> Cancellation token </param>
+            <returns> ProviderLocation </returns>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StartListeningAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StopListeningAsync">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

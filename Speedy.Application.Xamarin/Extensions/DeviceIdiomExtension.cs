@@ -28,7 +28,7 @@ public static class DeviceIdiomExtension
 			{ DeviceIdiom.Tablet, DeviceType.Tablet },
 			{ DeviceIdiom.TV, DeviceType.TV },
 			{ DeviceIdiom.Watch, DeviceType.Watch },
-			{ DeviceIdiom.Unknown, DeviceType.Unknown },
+			{ DeviceIdiom.Unknown, DeviceType.Unknown }
 		};
 
 		_mauiLookup = new Dictionary<DeviceType, DeviceIdiom>
@@ -38,7 +38,7 @@ public static class DeviceIdiomExtension
 			{ DeviceType.Tablet, DeviceIdiom.Tablet },
 			{ DeviceType.TV, DeviceIdiom.TV },
 			{ DeviceType.Watch, DeviceIdiom.Watch },
-			{ DeviceType.Unknown, DeviceIdiom.Unknown },
+			{ DeviceType.Unknown, DeviceIdiom.Unknown }
 		};
 	}
 
@@ -46,14 +46,14 @@ public static class DeviceIdiomExtension
 
 	#region Methods
 
-	public static DeviceType ToDeviceType(this DeviceIdiom deviceIdiom)
-	{
-		return _speedyLookup.ContainsKey(deviceIdiom) ? _speedyLookup[deviceIdiom] : DeviceType.Unknown;
-	}
-
 	public static DeviceIdiom ToDeviceIdiom(this DeviceType deviceType)
 	{
 		return _mauiLookup.ContainsKey(deviceType) ? _mauiLookup[deviceType] : DeviceIdiom.Unknown;
+	}
+
+	public static DeviceType ToDeviceType(this DeviceIdiom deviceIdiom)
+	{
+		return _speedyLookup.ContainsKey(deviceIdiom) ? _speedyLookup[deviceIdiom] : DeviceType.Unknown;
 	}
 
 	#endregion

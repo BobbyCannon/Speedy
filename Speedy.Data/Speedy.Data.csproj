@@ -5,7 +5,7 @@
 		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="PropertyChanged.Fody" Version="4.0.2" PrivateAssets="All" />
+	  <PackageReference Include="PropertyChanged.Fody" Version="4.0.5" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

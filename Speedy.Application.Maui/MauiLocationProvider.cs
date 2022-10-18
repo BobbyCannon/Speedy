@@ -1,6 +1,9 @@
 ﻿#region References
 
 using Speedy.Devices.Location;
+#if !(WINDOWS || ANDROID || IOS)
+using Speedy.Application.Internal;
+#endif
 
 #endregion
 
@@ -9,54 +12,16 @@ namespace Speedy.Application.Maui;
 /// <summary>
 /// Implementation for LocationProvider.
 /// </summary>
-public class MauiLocationProvider
+public class MauiLocationProvider<T, T2>
+	#if WINDOWS || ANDROID || IOS
+	: LocationProviderImplementation<T, T2>
+	#else
+	: InactiveLocationProvider<T, T2>
+	#endif
+	where T : class, ILocation, new()
+	where T2 : LocationProviderSettings, new()
 {
-	#region Fields
-
-	private static readonly Lazy<LocationProvider> _implementation = new Lazy<LocationProvider>(CreateLocationProvider, LazyThreadSafetyMode.PublicationOnly);
-
-	#endregion
-
-	#region Properties
-
-	/// <summary>
-	/// Current plugin implementation to use
-	/// </summary>
-	public static LocationProvider Current
+	public MauiLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		get
-		{
-			var ret = _implementation.Value;
-			if (ret == null)
-			{
-				throw NotImplementedInReferenceAssembly();
-			}
-			return ret;
-		}
 	}
-
-	/// <summary>
-	/// Gets if the plugin is supported on the current platform.
-	/// </summary>
-	public static bool IsSupported => _implementation.Value != null;
-
-	#endregion
-
-	#region Methods
-
-	private static LocationProvider CreateLocationProvider()
-	{
-		#if WINDOWS || ANDROID || IOS
-		return new LocationProviderImplementation(null);
-		#else
-		return null;
-		#endif
-	}
-
-	private static Exception NotImplementedInReferenceAssembly()
-	{
-		return new NotImplementedException("This functionality is not implemented in the portable version of this assembly.  You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
-	}
-
-	#endregion
 }

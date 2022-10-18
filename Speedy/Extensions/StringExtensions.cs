@@ -28,12 +28,22 @@ namespace Speedy.Extensions
 			return data == null ? string.Empty : Encoding.UTF8.GetBytes(data).ToBase64();
 		}
 
+		/// <summary>
+		/// Convert string from a base 64 string.
+		/// </summary>
+		/// <param name="data"> The data to be converted. </param>
+		/// <returns> The unencoded string. </returns>
 		public static string FromBase64(this string data)
 		{
 			var bytes = Convert.FromBase64String(data);
 			return Encoding.UTF8.GetString(bytes);
 		}
 
+		/// <summary>
+		/// Convert string from a base 64 string.
+		/// </summary>
+		/// <param name="data"> The data to be converted. </param>
+		/// <returns> The unencoded byte array. </returns>
 		public static byte[] FromBase64ToByteArray(this string data)
 		{
 			var key = ";base64,";

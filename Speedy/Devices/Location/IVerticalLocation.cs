@@ -1,22 +1,21 @@
-﻿namespace Speedy.Devices.Location
+﻿namespace Speedy.Devices.Location;
+
+/// <summary>
+/// Represents a vertical location (alt, alt ref).
+/// </summary>
+public interface IVerticalLocation : IBindable
 {
+	#region Properties
+
 	/// <summary>
-	/// Represents a vertical location (alt, alt ref).
+	/// The altitude of the location
 	/// </summary>
-	public interface IVerticalLocation
-	{
-		#region Properties
+	double Altitude { get; set; }
 
-		/// <summary>
-		/// The altitude of the location
-		/// </summary>
-		double Altitude { get; set; }
+	/// <summary>
+	/// The reference type for the altitude value.
+	/// </summary>
+	AltitudeReferenceType AltitudeReference { get; set; }
 
-		/// <summary>
-		/// The reference type for the altitude value.
-		/// </summary>
-		AltitudeReferenceType AltitudeReference { get; set; }
-
-		#endregion
-	}
+	#endregion
 }

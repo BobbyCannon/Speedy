@@ -5,8 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
+using Speedy.Commands;
 
 #endregion
 
@@ -17,24 +17,29 @@ namespace Speedy.Collections;
 /// </summary>
 /// <typeparam name="T"> The type for the relationship. </typeparam>
 [Serializable]
-internal class FilteredCollection<T> : IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
+public class FilteredCollection<T> : Bindable, IReadOnlyCollection<T>, INotifyCollectionChanged
 {
 	#region Fields
 
+	private readonly ObservableCollection<T> _collection;
+
 	private readonly Func<T, bool> _filter;
-	private readonly ObservableCollection<T> _repository;
-	private readonly Action<T> _updateRelationship;
 
 	#endregion
 
 	#region Constructors
 
-	public FilteredCollection(ObservableCollection<T> repository, Func<T, bool> filter, Action<T> updateRelationship)
+	/// <summary>
+	/// Instantiates an instance of a filtered collection.
+	/// </summary>
+	/// <param name="collection"> The collection to filter. </param>
+	/// <param name="filter"> The filter expression. </param>
+	/// <param name="dispatcher"> An optional dispatcher. </param>
+	public FilteredCollection(ObservableCollection<T> collection, Func<T, bool> filter, IDispatcher dispatcher = null) : base(dispatcher)
 	{
-		_repository = repository;
-		_repository.CollectionChanged += RepositoryOnCollectionChanged;
+		_collection = collection;
+		_collection.CollectionChanged += new WeakEventHandler<NotifyCollectionChangedEventArgs>(CollectionOnCollectionChanged).Handler;
 		_filter = filter;
-		_updateRelationship = updateRelationship;
 	}
 
 	#endregion
@@ -42,17 +47,11 @@ internal class FilteredCollection<T> : IReadOnlyCollection<T>, INotifyCollection
 	#region Properties
 
 	/// <inheritdoc />
-	public int Count => _repository.Where(_filter).Count();
+	public int Count => _collection.Where(_filter).Count();
 
 	#endregion
 
 	#region Methods
-
-	/// <inheritdoc />
-	public void Dispose()
-	{
-		_repository.CollectionChanged -= RepositoryOnCollectionChanged;
-	}
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the collection.
@@ -65,6 +64,19 @@ internal class FilteredCollection<T> : IReadOnlyCollection<T>, INotifyCollection
 		return GetEnumerable().GetEnumerator();
 	}
 
+	private void CollectionOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+	{
+		// Need to determine if our collection has changed.
+		var hasChanged = e.OldItems?.Cast<T>().Any(x => _filter.Invoke(x))
+			?? e.NewItems?.Cast<T>().Any(x => _filter.Invoke(x))
+			?? false;
+
+		if (hasChanged)
+		{
+			CollectionChanged?.Invoke(this, e);
+		}
+	}
+
 	/// <summary>
 	/// Returns an enumerator that iterates through the collection.
 	/// </summary>
@@ -73,7 +85,7 @@ internal class FilteredCollection<T> : IReadOnlyCollection<T>, INotifyCollection
 	/// </returns>
 	private IEnumerable<T> GetEnumerable()
 	{
-		return _repository.Where(_filter);
+		return _collection.Where(_filter);
 	}
 
 	/// <summary>
@@ -87,20 +99,12 @@ internal class FilteredCollection<T> : IReadOnlyCollection<T>, INotifyCollection
 		return GetEnumerator();
 	}
 
-	private void RepositoryOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-	{
-		CollectionChanged?.Invoke(this, e);
-	}
-
 	#endregion
 
 	#region Events
 
 	/// <inheritdoc />
 	public event NotifyCollectionChangedEventHandler CollectionChanged;
-
-	/// <inheritdoc />
-	public event PropertyChangedEventHandler PropertyChanged;
 
 	#endregion
 }
