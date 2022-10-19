@@ -198,6 +198,21 @@ namespace Speedy.Profiling
 			}
 		}
 
+		/// <inheritdoc />
+		public override void UpdateWith(object update, params string[] exclusions)
+		{
+			if (update is AverageTimer timer)
+			{
+				Average = timer.Average;
+				Count = timer.Count;
+				Samples = timer.Samples;
+
+				_timer.UpdateWith(timer._timer);
+			}
+
+			base.UpdateWith(update, exclusions);
+		}
+
 		#endregion
 	}
 }

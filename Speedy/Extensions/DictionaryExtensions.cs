@@ -147,6 +147,11 @@ public static class DictionaryExtensions
 	/// <returns> The clone dictionary. </returns>
 	public static Dictionary<T, T2> DeepClone<T, T2>(this Dictionary<T, T2> dictionary)
 	{
+		if (dictionary == null)
+		{
+			return null;
+		}
+
 		var response = new Dictionary<T, T2>();
 		foreach (var item in dictionary)
 		{

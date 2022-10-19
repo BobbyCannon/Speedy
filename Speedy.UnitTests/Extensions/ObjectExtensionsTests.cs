@@ -20,9 +20,10 @@ namespace Speedy.UnitTests.Extensions
 			var defaultEntity = new Address();
 			var nonDefaultEntity = new Address();
 			nonDefaultEntity.UpdateWithNonDefaultValues();
+			// Must set ID manually because it's excluded.
+			nonDefaultEntity.Id = 64;
 			var properties = defaultEntity
 				.GetCachedProperties()
-				//.Where(x => x.Name != nameof(GrowattInverterEntity.History))
 				.ToList();
 
 			foreach (var property in properties)

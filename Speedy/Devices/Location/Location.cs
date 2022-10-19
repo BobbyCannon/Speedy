@@ -194,7 +194,7 @@ public class Location : BasicLocation, ILocation, ICloneable
 			this.IfThen(_ => !exclusions.Contains(nameof(StatusTime)), x => x.StatusTime = update.StatusTime);
 		}
 
-		//base.UpdateWith(update, exclusions);
+		base.UpdateWith(update, exclusions);
 	}
 
 	/// <inheritdoc />

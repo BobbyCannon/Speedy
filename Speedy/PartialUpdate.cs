@@ -1211,16 +1211,19 @@ public class PartialUpdate : Bindable
 				continue;
 			}
 
-			if (TryGetValue(property.Value, type, out var value2))
+			if (TryGetValue(property.Value, type, out var readValue))
 			{
+				var readValueType = readValue?.GetType();
+
 				if ((directWritableProperty != null)
-					&& (directWritableProperty.PropertyType == value2?.GetType()))
+					&& (readValueType != null)
+					&& (directWritableProperty.PropertyType.IsAssignableFrom(readValueType)))
 				{
-					directWritableProperty.SetValue(partialUpdate, value2);
+					directWritableProperty.SetValue(partialUpdate, readValue);
 				}
 				else
 				{
-					partialUpdate.AddOrUpdate(property.Name, type, value2);
+					partialUpdate.AddOrUpdate(property.Name, type, readValue);
 				}
 			}
 		}

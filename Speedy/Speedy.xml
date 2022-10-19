@@ -4381,6 +4381,22 @@
             exception.
             </remarks>
         </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
+            <summary>
+            Get a default value for a property.
+            </summary>
+            <param name="propertyInfo"> The property info. </param>
+            <param name="nonSupportedType"> An optional non supported type. </param>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetExclusions``1(``0)">
+            <summary>
+            Get exclusions for the provided type. Currently this returns all sync exclusions.
+            todo: add an "exclusion" interface so we can exclude on any model.
+            </summary>
+            <typeparam name="T"> The type of the model. </typeparam>
+            <param name="model"> The model to get exclusions for. </param>
+            <returns> The exclusions. </returns>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetExpressionName(System.Linq.Expressions.LambdaExpression)">
             <summary>
             Get the name of the expression.
@@ -4411,6 +4427,13 @@
             <param name="value"> </param>
             <returns> The value of the value member. </returns>
             <exception cref="T:System.NotImplementedException"> The member info is not a field or property. </exception>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetNonDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
+            <summary>
+            Get a non default value for a property.
+            </summary>
+            <param name="propertyInfo"> The property info. </param>
+            <param name="nonSupportedType"> An optional non supported type. </param>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetRealType(System.Object)">
             <summary>
@@ -4456,14 +4479,24 @@
             <param name="type"> The type to get the assembly name for. </param>
             <returns> The assembly name for the provided type. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Reflection.PropertyInfo,System.Object})">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.UpdateWithNonDefaultValues``1(``0,System.String[])">
+            <summary>
+            Update the provided object with non default values.
+            </summary>
+            <typeparam name="T"> The type of the value. </typeparam>
+            <param name="value"> The value to update all properties for. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+            <returns> The type updated with non default values. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Reflection.PropertyInfo,System.Object},System.String[])">
             <summary>
             Update the provided object with non default values.
             </summary>
             <typeparam name="T"> The type of the value. </typeparam>
             <param name="value"> The value to update all properties for. </param>
             <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
-            <returns> </returns>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+            <returns> The type updated with non default values. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.ValidateAllValuesAreNotDefault``1(``0,System.String[])">
             <summary>
@@ -6293,6 +6326,9 @@
             </summary>
             <param name="credential"> The credential to update with. </param>
         </member>
+        <member name="M:Speedy.Net.WebCredential.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Net.WebHttpHeaders">
             <summary>
             Just a way to create your own headers collection.
@@ -7233,6 +7269,9 @@
             </summary>
             <param name="function"> The action to be timed. </param>
             <returns> The value return from the function. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.AverageTimer.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Profiling.DebounceService`1">
             <summary>

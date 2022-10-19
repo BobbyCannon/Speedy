@@ -4225,6 +4225,23 @@
             <param name="horizontalPercent"> The percentage to scroll horizontally. </param>
             <param name="verticalPercent"> The percentage to scroll vertically. </param>
         </member>
+        <member name="T:Speedy.Automation.Tests.SpeedyTest`1">
+            <summary>
+            Represents a Speedy test.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest`1.GetModel">
+            <summary>
+            Get a model of the provided type.
+            </summary>
+            <returns> An instance of the type. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest`1.GetModelWithNonDefaultValues">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <returns> The instance of the type with non default values. </returns>
+        </member>
         <member name="T:Speedy.Automation.Tests.SpeedyTest">
             <summary>
             Represents a Speedy test.
@@ -4278,6 +4295,66 @@
             Sets the clipboard provider.
             </summary>
             <param name="provider"> The provider to be set. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.GetDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
+            <summary>
+            Gets a default value for the property info.
+            </summary>
+            <param name="propertyInfo"> The info for the property. </param>
+            <param name="nonSupportedType"> An optional non supported type. </param>
+            <returns> The default value. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.GetModelWithNonDefaultValues(System.Type,System.String[])">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <param name="type"> The type to create. </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
+            <returns> The instance of the type with non default values. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.GetModelWithNonDefaultValues``1">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <typeparam name="T"> The type to create. </typeparam>
+            <returns> The instance of the type with non default values. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.GetNonDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
+            <summary>
+            Gets a non default value for the property info.
+            </summary>
+            <param name="propertyInfo"> The info for the property. </param>
+            <param name="nonSupportedType"> An optional non supported type. </param>
+            <returns> The non default value. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ValidateAllValuesAreNotDefault``1(``0,System.String[])">
+            <summary>
+            Validate the object has all non default values.
+            </summary>
+            <param name="model"> The module to be validated </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ValidateUnwrap(System.Object,System.String[])">
+            <summary>
+            Validate a model that is "IUnwrappable"
+            </summary>
+            <param name="model"> The model to test. </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ValidateUpdatableModel(System.Object,System.String[])">
+            <summary>
+            Validate a model that is "IUpdatable"
+            </summary>
+            <param name="model"> The model to test. </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ValidateUpdateWith(System.Object,System.Boolean,System.String[])">
+            <summary>
+            Validate a model's UpdateWith using the "IUpdatable" interface.
+            </summary>
+            <param name="update"> The model to test. </param>
+            <param name="excludeVirtuals"> Exclude virtuals during the test. </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
         </member>
         <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.CreateClientSyncAccount">
             <inheritdoc />

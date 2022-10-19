@@ -135,7 +135,7 @@ public class BasicLocation : Bindable, IBasicLocation, IComparable, IComparable<
 	/// <inheritdoc />
 	public void UpdateWith(IBasicLocation update, params string[] exclusions)
 	{
-		throw new NotImplementedException();
+		this.UpdateWithUsingReflection(update, exclusions);
 	}
 
 	#endregion
