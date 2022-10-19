@@ -388,6 +388,30 @@ public static class LocationExtensions
 		}
 	}
 
+	/// <summary>
+	/// Update the location's HasHeading location flag.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <param name="value"> True to set HasHeading otherwise clear. </param>
+	public static void UpdateHasHeading(this ILocation location, bool value)
+	{
+		location.LocationFlags = value
+			? location.LocationFlags.SetFlag(LocationFlags.HasHeading)
+			: location.LocationFlags.ClearFlag(LocationFlags.HasHeading);
+	}
+
+	/// <summary>
+	/// Update the location's HasSpeed location flag.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <param name="value"> True to set HasSpeedy otherwise clear. </param>
+	public static void UpdateHasSpeed(this ILocation location, bool value)
+	{
+		location.LocationFlags = value
+			? location.LocationFlags.SetFlag(LocationFlags.HasSpeed)
+			: location.LocationFlags.ClearFlag(LocationFlags.HasSpeed);
+	}
+
 	private static double ToDegrees(double radians)
 	{
 		return (radians * 180) / PI;

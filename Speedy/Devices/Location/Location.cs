@@ -85,10 +85,7 @@ public class Location : BasicLocation, ILocation, ICloneable
 	public bool HasHeading
 	{
 		get => this.HasHeading();
-		set =>
-			LocationFlags = value
-				? LocationFlags.SetFlag(LocationFlags.HasHeading)
-				: LocationFlags.ClearFlag(LocationFlags.HasHeading);
+		set => this.UpdateHasHeading(value);
 	}
 
 	/// <summary>
@@ -102,10 +99,7 @@ public class Location : BasicLocation, ILocation, ICloneable
 	public bool HasSpeed
 	{
 		get => this.HasSpeed();
-		set =>
-			LocationFlags = value
-				? LocationFlags.SetFlag(LocationFlags.HasSpeed)
-				: LocationFlags.ClearFlag(LocationFlags.HasSpeed);
+		set => this.UpdateHasSpeed(value);
 	}
 
 	/// <inheritdoc />

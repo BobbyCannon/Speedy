@@ -3985,6 +3985,20 @@
             <param name="update"> The new location. </param>
             <param name="exclusions"> An optional set of exclusions. </param>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasHeading(Speedy.Devices.Location.ILocation,System.Boolean)">
+            <summary>
+            Update the location's HasHeading location flag.
+            </summary>
+            <param name="location"> The location to validate. </param>
+            <param name="value"> True to set HasHeading otherwise clear. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasSpeed(Speedy.Devices.Location.ILocation,System.Boolean)">
+            <summary>
+            Update the location's HasSpeed location flag.
+            </summary>
+            <param name="location"> The location to validate. </param>
+            <param name="value"> True to set HasSpeedy otherwise clear. </param>
+        </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
             Extensions for logging.
