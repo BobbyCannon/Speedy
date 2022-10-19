@@ -17,6 +17,36 @@ namespace Speedy.UnitTests
 	{
 		#region Methods
 
+		public const double ChangingAltitudeFilterOffset = double.MinValue + 1;
+
+		[TestMethod]
+		public void name()
+		{
+			double t1 = 0.0;
+			double t2 = 1.0;
+
+			(t1.Equals(t2)).Dump();
+
+			// 1.0 E -54
+
+			decimal d3 = decimal.MinValue;
+			decimal d4 = decimal.MinValue +1;
+
+			(d3.Equals(d4)).Dump();
+
+
+			
+
+			var test = double.MinValue;
+			test.Equals(double.MinValue + 1).Dump("1");
+			test.Equals(double.MinValue + 2).Dump("2");
+			test.Equals(double.MinValue + 3).Dump("3");
+			test.Equals(double.MinValue).Dump();
+
+			(test == double.MinValue).Dump();
+			(Math.Abs(test - (double.MinValue )) < double.Epsilon).Dump();
+		}
+
 		[TestMethod]
 		public void CopyOverloadForICloneableToClipboard()
 		{

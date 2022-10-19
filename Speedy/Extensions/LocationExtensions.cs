@@ -204,6 +204,16 @@ public static class LocationExtensions
 		return value;
 	}
 
+	public static bool GreaterThan(this IVerticalLocation left, IVerticalLocation right)
+	{
+		return InternalGreaterThan(left, right, false);
+	}
+
+	public static bool GreaterThanOrEqualTo(this IVerticalLocation left, IVerticalLocation right)
+	{
+		return InternalGreaterThan(left, right, true);
+	}
+
 	/// <summary>
 	/// Check a location to determine if <see cref="ILocation.Accuracy" /> is available.
 	/// </summary>
@@ -335,6 +345,16 @@ public static class LocationExtensions
 		return kilometers * .62137119;
 	}
 
+	public static bool LessThan(this IVerticalLocation left, IVerticalLocation right)
+	{
+		return InternalLessThan(left, right, false);
+	}
+
+	public static bool LessThanOrEqualTo(this IVerticalLocation left, IVerticalLocation right)
+	{
+		return InternalLessThan(left, right, true);
+	}
+
 	/// <summary>
 	/// Calculate the meters per second.
 	/// </summary>
@@ -410,6 +430,30 @@ public static class LocationExtensions
 		location.LocationFlags = value
 			? location.LocationFlags.SetFlag(LocationFlags.HasSpeed)
 			: location.LocationFlags.ClearFlag(LocationFlags.HasSpeed);
+	}
+
+	private static bool InternalGreaterThan(this IVerticalLocation left, IVerticalLocation right, bool inclusive)
+	{
+		if (left.AltitudeReference == right.AltitudeReference)
+		{
+			return inclusive
+				? left.Altitude >= right.Altitude
+				: left.Altitude > right.Altitude;
+		}
+
+		return false;
+	}
+
+	private static bool InternalLessThan(this IVerticalLocation left, IVerticalLocation right, bool inclusive)
+	{
+		if (left.AltitudeReference == right.AltitudeReference)
+		{
+			return inclusive
+				? left.Altitude <= right.Altitude
+				: left.Altitude < right.Altitude;
+		}
+
+		return false;
 	}
 
 	private static double ToDegrees(double radians)

@@ -2383,6 +2383,61 @@
             Cleanup the settings to be sure they are in range.
             </summary>
         </member>
+        <member name="T:Speedy.Devices.Location.VerticalLocation">
+            <summary>
+            Represents a minimal location (lat, long, alt, alt ref).
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor">
+            <summary>
+            This constructor is only for serialization, do not actually use.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Initialize an instance of the BasicLocation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor(Speedy.Devices.Location.IVerticalLocation,Speedy.IDispatcher)">
+            <summary>
+            Initialize an instance of the BasicLocation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor(System.Double,Speedy.Devices.Location.AltitudeReferenceType,Speedy.IDispatcher)">
+            <summary>
+            Initialize an instance of the BasicLocation.
+            </summary>
+            <param name="altitude"> The default value. </param>
+            <param name="altitudeReference"> The default value. </param>
+            <param name="dispatcher"> The default value. </param>
+        </member>
+        <member name="P:Speedy.Devices.Location.VerticalLocation.Altitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.VerticalLocation.AltitudeReference">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.CompareTo(Speedy.Devices.Location.VerticalLocation)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.CompareTo(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.Equals(Speedy.Devices.Location.VerticalLocation)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(Speedy.Devices.Location.IVerticalLocation,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Devices.RuntimeInformation">
             <summary>
             Gets information about the current runtime.
