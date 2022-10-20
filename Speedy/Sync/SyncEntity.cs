@@ -139,7 +139,7 @@ namespace Speedy.Sync
 		/// <returns> The values to exclude during update. </returns>
 		protected virtual HashSet<string> GetDefaultExclusionsForSyncUpdate()
 		{
-			return new HashSet<string> { nameof(Id) };
+			return new HashSet<string> { nameof(Id), nameof(SyncId) };
 		}
 
 		/// <summary>

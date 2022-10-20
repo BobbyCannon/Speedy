@@ -183,6 +183,27 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
+	/// Tries to get an ellipsoid altitude for the vertical location.
+	/// </summary>
+	/// <param name="location"> The location to process. </param>
+	/// <param name="relativeTo"> A relative location to base non-ellipsoid vertical locations to. </param>
+	/// <returns> The final ellipsoid altitude or best guess. </returns>
+	public static double GetEllipsoidAltitude(this IVerticalLocation location, IVerticalLocation relativeTo = null)
+	{
+		if (location == null)
+		{
+			return 0;
+		}
+
+		return location.AltitudeReference switch
+		{
+			AltitudeReferenceType.Ellipsoid => location.Altitude,
+			AltitudeReferenceType.Terrain => location.Altitude + (relativeTo?.GetEllipsoidAltitude() ?? 0),
+			_ => relativeTo?.GetEllipsoidAltitude() ?? 0
+		};
+	}
+
+	/// <summary>
 	/// Gets the radius of a set of locations.
 	/// </summary>
 	/// <param name="locations"> The locations to get the center for. </param>

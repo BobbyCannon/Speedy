@@ -3936,6 +3936,14 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The center of the locations. </returns>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.GetEllipsoidAltitude(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
+            <summary>
+            Tries to get an ellipsoid altitude for the vertical location.
+            </summary>
+            <param name="location"> The location to process. </param>
+            <param name="relativeTo"> A relative location to base non-ellipsoid vertical locations to. </param>
+            <returns> The final ellipsoid altitude or best guess. </returns>
+        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.GetRadius(System.Collections.Generic.IEnumerable{Speedy.Devices.Location.IBasicLocation})">
             <summary>
             Gets the radius of a set of locations.
