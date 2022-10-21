@@ -1,9 +1,12 @@
 ﻿#region References
 
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation.Tests;
 using Speedy.Collections;
+using Speedy.Serialization;
 
 #endregion
 

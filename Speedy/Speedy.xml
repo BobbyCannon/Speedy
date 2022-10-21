@@ -170,39 +170,9 @@
             <summary>
             Instantiates an instance of a filtered collection.
             </summary>
-            <param name="collection"> The collection to filter. </param>
+            <param name="originalCollection"> The collection to filter. </param>
             <param name="filter"> The filter expression. </param>
             <param name="dispatcher"> An optional dispatcher. </param>
-        </member>
-        <member name="P:Speedy.Collections.FilteredCollection`1.Count">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Collections.FilteredCollection`1.GetEnumerator">
-            <summary>
-            Returns an enumerator that iterates through the collection.
-            </summary>
-            <returns>
-            A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-            </returns>
-        </member>
-        <member name="M:Speedy.Collections.FilteredCollection`1.GetEnumerable">
-            <summary>
-            Returns an enumerator that iterates through the collection.
-            </summary>
-            <returns>
-            A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-            </returns>
-        </member>
-        <member name="M:Speedy.Collections.FilteredCollection`1.System#Collections#IEnumerable#GetEnumerator">
-            <summary>
-            Returns an enumerator that iterates through a collection.
-            </summary>
-            <returns>
-            An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
-            </returns>
-        </member>
-        <member name="E:Speedy.Collections.FilteredCollection`1.CollectionChanged">
-            <inheritdoc />
         </member>
         <member name="T:Speedy.Collections.GenericComparer`1">
             <summary>

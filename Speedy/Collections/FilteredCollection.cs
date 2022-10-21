@@ -1,8 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -17,13 +15,13 @@ namespace Speedy.Collections;
 /// </summary>
 /// <typeparam name="T"> The type for the relationship. </typeparam>
 [Serializable]
-public class FilteredCollection<T> : Bindable, IReadOnlyCollection<T>, INotifyCollectionChanged
+public class FilteredCollection<T> : BaseObservableCollection<T>
 {
 	#region Fields
 
-	private readonly ObservableCollection<T> _collection;
-
 	private readonly Func<T, bool> _filter;
+
+	private readonly ObservableCollection<T> _originalCollection;
 
 	#endregion
 
@@ -32,79 +30,56 @@ public class FilteredCollection<T> : Bindable, IReadOnlyCollection<T>, INotifyCo
 	/// <summary>
 	/// Instantiates an instance of a filtered collection.
 	/// </summary>
-	/// <param name="collection"> The collection to filter. </param>
+	/// <param name="originalCollection"> The collection to filter. </param>
 	/// <param name="filter"> The filter expression. </param>
 	/// <param name="dispatcher"> An optional dispatcher. </param>
-	public FilteredCollection(ObservableCollection<T> collection, Func<T, bool> filter, IDispatcher dispatcher = null) : base(dispatcher)
+	public FilteredCollection(ObservableCollection<T> originalCollection, Func<T, bool> filter, IDispatcher dispatcher = null) : base(dispatcher)
 	{
-		_collection = collection;
-		_collection.CollectionChanged += new WeakEventHandler<NotifyCollectionChangedEventArgs>(CollectionOnCollectionChanged).Handler;
+		_originalCollection = originalCollection;
+		_originalCollection.CollectionChanged += new WeakEventHandler<NotifyCollectionChangedEventArgs>(OriginalCollectionOnCollectionChanged).Handler;
 		_filter = filter;
 	}
 
 	#endregion
 
-	#region Properties
-
-	/// <inheritdoc />
-	public int Count => _collection.Where(_filter).Count();
-
-	#endregion
-
 	#region Methods
 
-	/// <summary>
-	/// Returns an enumerator that iterates through the collection.
-	/// </summary>
-	/// <returns>
-	/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-	/// </returns>
-	public IEnumerator<T> GetEnumerator()
-	{
-		return GetEnumerable().GetEnumerator();
-	}
-
-	private void CollectionOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+	private void OriginalCollectionOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 	{
 		// Need to determine if our collection has changed.
-		var hasChanged = e.OldItems?.Cast<T>().Any(x => _filter.Invoke(x))
-			?? e.NewItems?.Cast<T>().Any(x => _filter.Invoke(x))
-			?? false;
+		var oldItems = e.OldItems?.Cast<T>().Where(x => _filter.Invoke(x)).ToList();
+		var newItems = e.NewItems?.Cast<T>().Where(x => _filter.Invoke(x)).ToList();
+		var hasChanged = oldItems is { Count: > 0 } || newItems is { Count: > 0 };
 
-		if (hasChanged)
+		if (!hasChanged)
 		{
-			CollectionChanged?.Invoke(this, e);
+			return;
+		}
+
+		switch (e.Action)
+		{
+			case NotifyCollectionChangedAction.Add:
+			{
+				newItems?.ForEach(Add);
+				break;
+			}
+			case NotifyCollectionChangedAction.Remove:
+			{
+				oldItems?.ForEach(x => Remove(x));
+				break;
+			}
+			case NotifyCollectionChangedAction.Reset:
+			{
+				break;
+			}
+			case NotifyCollectionChangedAction.Move:
+			case NotifyCollectionChangedAction.Replace:
+			default:
+			{
+				return;
+			}
 		}
 	}
-
-	/// <summary>
-	/// Returns an enumerator that iterates through the collection.
-	/// </summary>
-	/// <returns>
-	/// A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-	/// </returns>
-	private IEnumerable<T> GetEnumerable()
-	{
-		return _collection.Where(_filter);
-	}
-
-	/// <summary>
-	/// Returns an enumerator that iterates through a collection.
-	/// </summary>
-	/// <returns>
-	/// An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
-	/// </returns>
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return GetEnumerator();
-	}
-
-	#endregion
-
-	#region Events
-
-	/// <inheritdoc />
-	public event NotifyCollectionChangedEventHandler CollectionChanged;
 
 	#endregion
 }
