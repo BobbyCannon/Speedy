@@ -35,7 +35,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 {
 	private bool _deferringUpdates;
 	private readonly CLLocationManager _manager;
-	private T _lastPosition;
 	private LocationProviderSettings _locationProviderSettings;
 
 	/// <summary>
@@ -201,36 +200,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 
 		tcs = new TaskCompletionSource<T>();
-		if (_lastPosition == null)
-		{
-			if (cancelToken != CancellationToken.None)
-			{
-				cancelToken.Value.Register(() => tcs.TrySetCanceled());
-			}
-
-			EventHandler<LocationProviderError> gotError = null;
-			gotError = (s, e) =>
-			{
-				tcs.TrySetException(new LocationProviderException(e));
-				PositionError -= gotError;
-			};
-
-			PositionError += gotError;
-
-			EventHandler<T> gotPosition = null;
-			gotPosition = (s, e) =>
-			{
-				tcs.TrySetResult(e);
-				PositionChanged -= gotPosition;
-			};
-
-			PositionChanged += gotPosition;
-		}
-		else
-		{
-			tcs.SetResult(_lastPosition);
-		}
-
+		tcs.SetResult(LastReadLocation);
 		return await tcs.Task;
 	}
 
@@ -364,7 +334,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		#endif
 
 		_locationProviderSettings = null;
-		_lastPosition = null;
 
 		return Task.CompletedTask;
 	}
@@ -406,62 +375,58 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private void UpdatePosition(CLLocation location)
 	{
-		var p = _lastPosition ?? new T();
-
 		if (location.HorizontalAccuracy > -1)
 		{
-			p.Accuracy = location.HorizontalAccuracy;
-			p.AccuracyReference = AccuracyReferenceType.Meters;
-			p.Latitude = location.Coordinate.Latitude;
-			p.Longitude = location.Coordinate.Longitude;
+			LastReadLocation.Accuracy = location.HorizontalAccuracy;
+			LastReadLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			LastReadLocation.Latitude = location.Coordinate.Latitude;
+			LastReadLocation.Longitude = location.Coordinate.Longitude;
 		}
 		else
 		{
-			p.AccuracyReference = AccuracyReferenceType.Unknown;
+			LastReadLocation.AccuracyReference = AccuracyReferenceType.Unknown;
 		}
 
 		if (location.VerticalAccuracy > -1)
 		{
-			p.Altitude = location.EllipsoidalAltitude;
-			p.AltitudeAccuracy = location.VerticalAccuracy;
-			p.AltitudeAccuracyReference = AccuracyReferenceType.Meters;
-			p.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+			LastReadLocation.Altitude = location.EllipsoidalAltitude;
+			LastReadLocation.AltitudeAccuracy = location.VerticalAccuracy;
+			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Meters;
+			LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 		}
 		else
 		{
-			p.AltitudeAccuracyReference = AccuracyReferenceType.Unknown;
+			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Unknown;
 		}
 
 		#if __IOS__ || __MACOS__
 		if (location.Speed > -1)
 		{
-			p.HasSpeed = true;
-			p.Speed = location.Speed;
+			LastReadLocation.HasSpeed = true;
+			LastReadLocation.Speed = location.Speed;
 		}
 		else
 		{
-			p.HasSpeed = false;
+			LastReadLocation.HasSpeed = false;
 		}
 
 		if (location.Course > -1)
 		{
-			p.HasHeading = true;
-			p.Heading = location.Course;
+			LastReadLocation.HasHeading = true;
+			LastReadLocation.Heading = location.Course;
 		}
 		#endif
 
 		try
 		{
-			p.StatusTime = location.Timestamp.ToDateTime().ToUniversalTime();
+			LastReadLocation.StatusTime = location.Timestamp.ToDateTime().ToUniversalTime();
 		}
 		catch (Exception)
 		{
-			p.StatusTime = TimeService.UtcNow;
+			LastReadLocation.StatusTime = TimeService.UtcNow;
 		}
 
-		_lastPosition = p;
-
-		OnPositionChanged(p);
+		OnPositionChanged(LastReadLocation);
 
 		location.Dispose();
 	}

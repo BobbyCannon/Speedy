@@ -23,7 +23,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 {
 	#region Fields
 
-	private double _desiredAccuracy;
 	private Geolocator _locator;
 
 	#endregion
@@ -36,7 +35,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	public LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_locator = new Geolocator();
-		_desiredAccuracy = 10;
 	}
 
 	#endregion
