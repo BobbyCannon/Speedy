@@ -413,7 +413,7 @@ namespace Speedy.UnitTests
 		public static IDispatcher GetDispatcher()
 		{
 			var dispatcher = new Mock<IDispatcher>();
-			dispatcher.Setup(x => x.HasThreadAccess).Returns(true);
+			dispatcher.Setup(x => x.IsDispatcherThread).Returns(true);
 			return dispatcher.Object;
 		}
 

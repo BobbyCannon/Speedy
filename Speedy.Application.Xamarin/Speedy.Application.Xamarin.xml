@@ -4,15 +4,85 @@
         <name>Speedy.Application.Xamarin</name>
     </assembly>
     <members>
+        <member name="T:Speedy.Application.Xamarin.Converter.BooleanConverter">
+            <summary>
+            Represents a converter for a boolean value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.Converter.BooleanConverter.Inverted">
+            <summary>
+            Flag to determine if this converter is inverting the logic.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Converter.BooleanConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Converter.BooleanConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Xamarin.Converter.StringConverter">
+            <summary>
+            Represents a converter for to string value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Converter.StringConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Converter.StringConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Xamarin.Converter.VisibilityConverter">
+            <summary>
+            Represents a converter for a visibility value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.Converter.VisibilityConverter.Inverted">
+            <summary>
+            Flag to determine if this converter is inverting the logic.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Converter.VisibilityConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Converter.VisibilityConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.Xamarin.Extensions.DeviceIdExtensions">
             <summary>
             Extension methods for <see cref="T:Speedy.Application.DeviceId" />.
             </summary>
         </member>
+        <member name="T:Speedy.Application.Xamarin.XamarinDispatcher">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Xamarin.XamarinDispatcher.IsDispatcherThread">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.ExecuteOnDispatcher(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.ExecuteOnDispatcherAsync(System.Action)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.Xamarin.XamarinLocationProvider`2">
             <summary>
             Implementation for LocationProvider.
             </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinLocationProvider`2.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Xamarin.XamarinRuntimeInformation">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationName">
             <inheritdoc />
@@ -57,16 +127,6 @@
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationEnabled">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.ProvidersToUse">
-            <summary>
-            Gets or sets the location manager providers to ignore when getting position.
-            </summary>
-        </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.ProvidersToUseWhileListening">
-            <summary>
-            Gets or sets the location manager providers to ignore when doing continuous listening.
-            </summary>
-        </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <summary>
             Gets position async with specified parameters
@@ -80,6 +140,11 @@
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StopListeningAsync">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Xamarin.PlatformExtensions">
+            <summary>
+            Extensions for the Android platform.
+            </summary>
         </member>
     </members>
 </doc>

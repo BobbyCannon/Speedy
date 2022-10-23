@@ -93,7 +93,7 @@ namespace Speedy
 			// todo: move this to another virtual method that would then be called by this on property changed
 			// I had to move this dispatcher code up. Also would be nice to only dispatch specific properties, right?
 
-			if (Dispatcher?.HasThreadAccess == false)
+			if (Dispatcher?.IsDispatcherThread == false)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(propertyName));
 				return;

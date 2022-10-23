@@ -34,8 +34,8 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 
 	public GeolocationContinuousListener(LocationManager manager, TimeSpan timePeriod, IList<string> providers)
 	{
-		_manager = manager;
 		_activeProviders = new HashSet<string>();
+		_manager = manager;
 		_timePeriod = timePeriod;
 		_providers = providers;
 
@@ -92,7 +92,7 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 		{
 			if (_activeProviders.Remove(provider) && (_activeProviders.Count == 0))
 			{
-				PositionError?.Invoke(this, LocationProviderError.PositionUnavailable);
+				OnPositionError(LocationProviderError.PositionUnavailable);
 			}
 		}
 	}
@@ -127,6 +127,11 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 	private TimeSpan GetTimeSpan(long time)
 	{
 		return new TimeSpan(TimeSpan.TicksPerMillisecond * time);
+	}
+
+	private void OnPositionError(LocationProviderError e)
+	{
+		PositionError?.Invoke(this, e);
 	}
 
 	#endregion

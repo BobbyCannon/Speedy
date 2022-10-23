@@ -14,7 +14,6 @@ using Speedy.Devices.Location;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-using Location = Android.Locations.Location;
 
 #endregion
 
@@ -49,13 +48,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		ListeningProviders = new List<string>();
 	}
-
-	static LocationProviderImplementation()
-	{
-		ProvidersToUse = Array.Empty<string>();
-		ProvidersToUseWhileListening = Array.Empty<string>();
-	}
-
+	
 	#endregion
 
 	#region Properties
@@ -79,16 +72,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private string[] Providers => Manager.GetProviders(false).ToArray();
 
-	/// <summary>
-	/// Gets or sets the location manager providers to ignore when getting position.
-	/// </summary>
-	private static string[] ProvidersToUse { get; }
-
-	/// <summary>
-	/// Gets or sets the location manager providers to ignore when doing continuous listening.
-	/// </summary>
-	private static string[] ProvidersToUseWhileListening { get; }
-
 	#endregion
 
 	#region Methods
@@ -101,7 +84,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// <returns> ProviderLocation </returns>
 	public override async Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
-		var timeoutMilliseconds = timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : Timeout.Infinite;
+		var timeoutMilliseconds = timeout.HasValue
+			? (int) timeout.Value.TotalMilliseconds
+			: Timeout.Infinite;
+
 		if ((timeoutMilliseconds <= 0) && (timeoutMilliseconds != Timeout.Infinite))
 		{
 			throw new ArgumentOutOfRangeException(nameof(timeout), "timeout must be greater than or equal to 0");
@@ -120,22 +106,11 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		if (!IsListening)
 		{
 			var providers = new List<string>();
-			if ((ProvidersToUse == null) || (ProvidersToUse.Length == 0))
-			{
-				providers.AddRange(Providers);
-			}
-			else
-			{
-				// Only add providers requested.
-				foreach (var provider in Providers)
-				{
-					if ((ProvidersToUse == null) || !ProvidersToUse.Contains(provider))
-					{
-						continue;
-					}
 
-					providers.Add(provider);
-				}
+			// Only add providers requested.
+			foreach (var provider in Providers)
+			{
+				providers.Add(provider);
 			}
 
 			void singleListenerFinishCallback()
@@ -224,19 +199,18 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		LocationProviderSettings.Cleanup();
 
-		bool hasPermission;
-
 		if (LocationProviderSettings.RequireLocationAlwaysPermission)
 		{
-			hasPermission = await CheckAlwaysPermissions();
+			HasPermission = await CheckAlwaysPermissions();
 		}
 		else
 		{
-			hasPermission = await CheckWhenInUsePermission();
+			HasPermission = await CheckWhenInUsePermission();
 		}
 
-		if (!hasPermission)
+		if (!HasPermission)
 		{
+			OnListenerPositionError(this, LocationProviderError.Unauthorized);
 			return;
 		}
 
@@ -252,16 +226,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			var provider = providers[i];
 
-			// we have limited set of providers
-			if (ProvidersToUseWhileListening is { Length: > 0 })
-			{
-				//the provider is not in the list, so don't use it.
-				if (!ProvidersToUseWhileListening.Contains(provider))
-				{
-					continue;
-				}
-			}
-
 			ListeningProviders.Add(provider);
 			Manager.RequestLocationUpdates(provider,
 				(long) LocationProviderSettings.MinimumTime.TotalMilliseconds,
@@ -269,6 +233,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 				_listener,
 				looper);
 		}
+
+		OnPropertyChanged(nameof(IsListening));
 	}
 
 	/// <inheritdoc />
@@ -301,6 +267,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 
 		_listener = null;
+		OnPropertyChanged(nameof(IsListening));
 		return Task.CompletedTask;
 	}
 
@@ -312,7 +279,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return true;
 		}
 
-		Console.WriteLine("Currently does not have Location permissions, requesting permissions");
+		Status = "Currently does not have Location permissions, requesting permissions";
 
 		status = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
 
@@ -321,7 +288,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return true;
 		}
 
-		Console.WriteLine("Location permission denied, can not get positions async.");
+		Status = "Location permission denied, can not get positions async.";
 		return false;
 	}
 
@@ -333,7 +300,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return true;
 		}
 
-		Console.WriteLine("Currently does not have Location permissions, requesting permissions");
+		Status = "Currently does not have Location permissions, requesting permissions";
 
 		status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
 
@@ -342,7 +309,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return true;
 		}
 
-		Console.WriteLine("Location permission denied, can not get positions async.");
+		Status = "Location permission denied, can not get positions async.";
 		return false;
 	}
 
@@ -356,7 +323,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		lock (_positionSync)
 		{
-			LastReadLocation.UpdateWith(e);
+			UpdateLastReadLocation(e);
 			OnPositionChanged(e);
 		}
 	}

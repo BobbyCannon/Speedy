@@ -1575,7 +1575,7 @@
             Represents a default dispatcher
             </summary>
         </member>
-        <member name="P:Speedy.DefaultDispatcher.HasThreadAccess">
+        <member name="P:Speedy.DefaultDispatcher.IsDispatcherThread">
             <inheritdoc />
         </member>
         <member name="M:Speedy.DefaultDispatcher.Run(System.Action)">
@@ -1996,6 +1996,11 @@
             Specifies if the Altitude value is valid
             </summary>
         </member>
+        <member name="P:Speedy.Devices.Location.ILocation.HasAltitudeAccuracy">
+            <summary>
+            Specifies if the Altitude Accuracy value is valid
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.Location.ILocation.HasHeading">
             <summary>
             Specifies if the Heading value is valid
@@ -2073,20 +2078,17 @@
             Instantiates an instance of the location provider.
             </summary>
         </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider`2.HasPermission">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.IsListening">
-            <summary>
-            Gets if the provider is listening for location changes.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.IsLocationAvailable">
-            <summary>
-            Gets if location is available from the provider.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.IsLocationEnabled">
-            <summary>
-            Gets if location is enabled on the provider.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.LastReadLocation">
             <inheritdoc />
@@ -2095,30 +2097,19 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.StartListeningCommand">
-            <summary>
-            The command for starting to listen for location changes.
-            </summary>
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider`2.Status">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.StopListeningCommand">
-            <summary>
-            The command to stop to listening for location changes.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.GetCurrentLocation(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <summary>
-            Gets the current location from the provider.
-            </summary>
-            <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="P:Speedy.Devices.Location.LocationProvider`2.LocationProviderSettings" />. </param>
-            <param name="cancelToken"> An optional cancellation token. </param>
-            <returns> The current location or null if not available. </returns>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <summary>
-            Gets the current location from the provider.
-            </summary>
-            <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="P:Speedy.Devices.Location.LocationProvider`2.LocationProviderSettings" />. </param>
-            <param name="cancelToken"> An optional cancellation token. </param>
-            <returns> The current location or null if not available. </returns>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.GetHorizontalLocation">
             <inheritdoc />
@@ -2127,14 +2118,10 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.StartListeningAsync">
-            <summary>
-            Start listening for location changes.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.StopListeningAsync">
-            <summary>
-            Stop listening for location changes.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.OnPositionChanged(`0)">
             <summary>
@@ -2148,15 +2135,20 @@
             </summary>
             <param name="e"> The value for the event handler. </param>
         </member>
-        <member name="E:Speedy.Devices.Location.LocationProvider`2.PositionChanged">
+        <member name="M:Speedy.Devices.Location.LocationProvider`2.UpdateLastReadLocation(`0)">
             <summary>
-            Provider location changed event handler.
+            Update the last read location.
             </summary>
+            <param name="update"> The newly read location. </param>
+            <remarks>
+            Ensure you are adhering to the <seealso cref="P:Speedy.Devices.Location.LocationProvider`2.LocationProviderSettings" /> options.
+            </remarks>
+        </member>
+        <member name="E:Speedy.Devices.Location.LocationProvider`2.PositionChanged">
+            <inheritdoc />
         </member>
         <member name="E:Speedy.Devices.Location.LocationProvider`2.PositionError">
-            <summary>
-            ProviderLocation error event handler
-            </summary>
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.ILocationProvider`2">
             <summary>
@@ -2165,9 +2157,24 @@
             <typeparam name="T"> The location type. </typeparam>
             <typeparam name="T2"> The setting type. </typeparam>
         </member>
+        <member name="P:Speedy.Devices.Location.ILocationProvider`2.HasPermission">
+            <summary>
+            Gets if the app has permission to access location information.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.Location.ILocationProvider`2.IsListening">
             <summary>
             Gets if the provider is listening for location changes.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationProvider`2.IsLocationAvailable">
+            <summary>
+            Gets if location is available from the provider.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationProvider`2.IsLocationEnabled">
+            <summary>
+            Gets if location is enabled on the provider.
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.ILocationProvider`2.LastReadLocation">
@@ -2183,6 +2190,11 @@
         <member name="P:Speedy.Devices.Location.ILocationProvider`2.StartListeningCommand">
             <summary>
             The command for starting to listen for location changes.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationProvider`2.Status">
+            <summary>
+            The status of the provider
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.ILocationProvider`2.StopListeningCommand">
@@ -2311,6 +2323,26 @@
         <member name="P:Speedy.Devices.Location.LocationProviderSettings.DesiredAccuracyUpperLimit">
             <summary>
             The upper range limit for <see cref="P:Speedy.Devices.Location.LocationProviderSettings.DesiredAccuracy" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.EnableLocationFiltering">
+            <summary>
+            Enable location filtering. This allows the provider to ignore less accurate reads.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationFilterMaximumRapidHorizontalChange">
+            <summary>
+            The maximum rapid horizontal change range.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationFilterMaximumRapidVerticalChange">
+            <summary>
+            The maximum rapid vertical change range.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationFilterTimeout">
+            <summary>
+            The maximum amount of time to filter a last read location.
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.LocationProviderSettings.MinimumDistance">
@@ -3906,6 +3938,43 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The center of the locations. </returns>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateIfBetter(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            See if the location is better.
+            </summary>
+            <param name="location"> The location to check. </param>
+            <param name="update"> The values to compare with. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HasBetterVerticalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            See if the vertical location (altitude) is better.
+            </summary>
+            <param name="location"> The location to check. </param>
+            <param name="update"> The values to compare with. </param>
+            <returns> True if the location is better than the update. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HasBetterHorizontalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            See if the horizontal location (lat, long) is better.
+            </summary>
+            <param name="location"> The location to check. </param>
+            <param name="update"> The values to compare with. </param>
+            <returns> True if the location is better than the update. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            Update the altitude.
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update with new values. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            Update the horizontal location (lat, long).
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update with new values. </param>
+        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.GetEllipsoidAltitude(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
             <summary>
             Tries to get an ellipsoid altitude for the vertical location.
@@ -5128,28 +5197,52 @@
             <param name="options"> The database options to use for the new database instance. </param>
             <returns> The database instance. </returns>
         </member>
+        <member name="T:Speedy.Dispatcher">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Dispatcher.IsDispatcherThread">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.Run(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.RunAsync(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcher(System.Action)">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+        </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcherAsync(System.Action)">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+        </member>
         <member name="T:Speedy.IDispatcher">
             <summary>
-            Represents a thread dispatcher to help with cross threaded request.
+            Represents a dispatcher to help with handling dispatcher thread access.
             </summary>
         </member>
-        <member name="P:Speedy.IDispatcher.HasThreadAccess">
+        <member name="P:Speedy.IDispatcher.IsDispatcherThread">
             <summary>
-            Has access to the dispatching thread.
+            Returns true if currently executing on the dispatcher thread.
             </summary>
         </member>
         <member name="M:Speedy.IDispatcher.Run(System.Action)">
             <summary>
             Run an action on the dispatching thread.
             </summary>
-            <param name="action"> </param>
+            <param name="action"> The action to be executed. </param>
         </member>
         <member name="M:Speedy.IDispatcher.RunAsync(System.Action)">
             <summary>
             Run an asynchronous action on the dispatching thread.
             </summary>
-            <param name="action"> </param>
-            <returns> </returns>
+            <param name="action"> The action to be executed. </param>
+            <returns> The task. </returns>
         </member>
         <member name="T:Speedy.IIncludableQueryable`2">
             <summary>

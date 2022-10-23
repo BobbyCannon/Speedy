@@ -14,34 +14,35 @@ namespace Speedy.Application.Maui;
 internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelegate
 	where T : class, ILocation, new()
 {
-	private bool haveLocation;
-	private readonly T position = new T();
-	private readonly double desiredAccuracy;
-	private readonly bool includeHeading;
-	private readonly TaskCompletionSource<T> tcs;
-	private readonly CLLocationManager manager;
+	private bool _haveLocation;
+	private readonly T _position;
+	private readonly double _desiredAccuracy;
+	private readonly bool _includeHeading;
+	private readonly TaskCompletionSource<T> _tcs;
+	private readonly CLLocationManager _manager;
 
 	public LocationProviderSingleUpdateDelegate(CLLocationManager manager, double desiredAccuracy, bool includeHeading, int timeout, CancellationToken cancelToken)
 	{
-		this.manager = manager;
-		tcs = new TaskCompletionSource<T>(manager);
-		this.desiredAccuracy = desiredAccuracy;
-		this.includeHeading = includeHeading;
+		_manager = manager;
+		_position = new T();
+		_tcs = new TaskCompletionSource<T>(manager);
+		_desiredAccuracy = desiredAccuracy;
+		_includeHeading = includeHeading;
 
 		if (timeout != Timeout.Infinite)
 		{
 			Timer t = null;
 			t = new Timer(s =>
 			{
-				if (haveLocation)
+				if (_haveLocation)
 				{
 					var response = new T();
-					response.UpdateWith(position);
-					tcs.TrySetResult(response);
+					response.UpdateWith(_position);
+					_tcs.TrySetResult(response);
 				}
 				else
 				{
-					tcs.TrySetCanceled();
+					_tcs.TrySetCanceled();
 				}
 
 				StopListening();
@@ -60,11 +61,11 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		cancelToken.Register(() =>
 		{
 			StopListening();
-			tcs.TrySetCanceled();
+			_tcs.TrySetCanceled();
 		});
 	}
 
-	public Task<T> Task => tcs?.Task;
+	public Task<T> Task => _tcs?.Task;
 
 	public override void AuthorizationChanged(CLLocationManager manager, CLAuthorizationStatus status)
 	{
@@ -72,7 +73,7 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		if ((status == CLAuthorizationStatus.Denied) || (status == CLAuthorizationStatus.Restricted))
 		{
 			StopListening();
-			tcs.TrySetException(new LocationProviderException(LocationProviderError.Unauthorized));
+			_tcs.TrySetException(new LocationProviderException(LocationProviderError.Unauthorized));
 		}
 	}
 
@@ -82,11 +83,11 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		{
 			case CLError.Network:
 				StopListening();
-				tcs.SetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+				_tcs.SetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
 				break;
 			case CLError.LocationUnknown:
 				StopListening();
-				tcs.TrySetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+				_tcs.TrySetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
 				break;
 		}
 	}
@@ -115,46 +116,46 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 			return;
 		}
 
-		if (haveLocation && (newLocation.HorizontalAccuracy > position.Accuracy))
+		if (_haveLocation && (newLocation.HorizontalAccuracy > _position.Accuracy))
 		{
 			return;
 		}
 
-		position.Accuracy = newLocation.HorizontalAccuracy;
-		position.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown;
+		_position.Accuracy = newLocation.HorizontalAccuracy;
+		_position.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown;
 
-		position.Altitude = newLocation.EllipsoidalAltitude;
-		position.AltitudeAccuracy = newLocation.VerticalAccuracy;
-		position.AltitudeAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown;
-		position.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+		_position.Altitude = newLocation.EllipsoidalAltitude;
+		_position.AltitudeAccuracy = newLocation.VerticalAccuracy;
+		_position.AltitudeAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown;
+		_position.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 
-		position.Latitude = newLocation.Coordinate.Latitude;
-		position.Longitude = newLocation.Coordinate.Longitude;
+		_position.Latitude = newLocation.Coordinate.Latitude;
+		_position.Longitude = newLocation.Coordinate.Longitude;
 
 		#if __IOS__ || __MACOS__
-		position.HasSpeed = newLocation.Speed > -1;
-		position.Speed = newLocation.Speed;
+		_position.HasSpeed = newLocation.Speed > -1;
+		_position.Speed = newLocation.Speed;
 
-		if (includeHeading)
+		if (_includeHeading)
 		{
-			position.HasHeading = newLocation.Course > -1;
-			position.Heading = newLocation.Course;
+			_position.HasHeading = newLocation.Course > -1;
+			_position.Heading = newLocation.Course;
 		}
 		#endif
 
 		try
 		{
-			position.StatusTime = newLocation.Timestamp.ToDateTime().ToUniversalTime();
+			_position.StatusTime = newLocation.Timestamp.ToDateTime().ToUniversalTime();
 		}
 		catch (Exception)
 		{
-			position.StatusTime = TimeService.UtcNow;
+			_position.StatusTime = TimeService.UtcNow;
 		}
-		haveLocation = true;
+		_haveLocation = true;
 	}
 
 	private void StopListening()
 	{
-		manager.StopUpdatingLocation();
+		_manager.StopUpdatingLocation();
 	}
 }

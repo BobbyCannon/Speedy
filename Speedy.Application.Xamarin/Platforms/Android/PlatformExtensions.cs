@@ -8,6 +8,9 @@ using Speedy.Devices.Location;
 // ReSharper disable once CheckNamespace
 namespace Speedy.Application.Xamarin;
 
+/// <summary>
+/// Extensions for the Android platform.
+/// </summary>
 public static class PlatformExtensions
 {
 	#region Fields

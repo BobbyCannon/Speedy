@@ -98,7 +98,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		cancelToken.Value.Register(o => ((IAsyncOperation<Geoposition>) o).Cancel(), pos);
 
 		var timer = new Timeout(timeoutMilliseconds, pos.Cancel);
-
 		var tcs = new TaskCompletionSource<T>();
 
 		pos.Completed = (op, s) =>
@@ -135,11 +134,11 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	/// <inheritdoc />
-	public override Task<bool> StartListeningAsync()
+	public override Task StartListeningAsync()
 	{
 		if (IsListening)
 		{
-			return Task.FromResult(true);
+			return Task.CompletedTask;
 		}
 
 		IsListening = true;
@@ -152,17 +151,17 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		geolocator.PositionChanged += OnLocatorPositionChanged;
 		geolocator.StatusChanged += OnLocatorStatusChanged;
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	/// <summary>
 	/// Stop listening
 	/// </summary>
-	public override Task<bool> StopListeningAsync()
+	public override Task StopListeningAsync()
 	{
 		if (!IsListening)
 		{
-			return Task.FromResult(true);
+			return Task.CompletedTask;
 		}
 
 		_locator.PositionChanged -= OnLocatorPositionChanged;
@@ -170,7 +169,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		IsListening = false;
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	private Geolocator GetGeolocator()
@@ -239,7 +238,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	{
 		if (string.IsNullOrWhiteSpace(mapKey) && string.IsNullOrWhiteSpace(MapService.ServiceToken))
 		{
-			Debug.WriteLine("Map API key is required on UWP to reverse geo locate.");
+			Debug.WriteLine("Map API key is required on UWP to reverse geolocate.");
 			throw new ArgumentNullException(nameof(mapKey));
 		}
 

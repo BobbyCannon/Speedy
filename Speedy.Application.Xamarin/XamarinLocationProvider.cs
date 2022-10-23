@@ -1,8 +1,7 @@
 ﻿#region References
 
-using System.ComponentModel;
 using Speedy.Devices.Location;
-using Speedy.Extensions;
+
 #if !(NETCOREAPP || WINDOWS_UWP || MONOANDROID || XAMARIN_IOS)
 using Speedy.Application.Internal;
 #endif
@@ -25,6 +24,7 @@ public class XamarinLocationProvider<T, T2>
 {
 	#region Constructors
 
+	/// <inheritdoc />
 	public XamarinLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}

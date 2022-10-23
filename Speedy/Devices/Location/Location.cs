@@ -309,6 +309,11 @@ public interface ILocation : IBasicLocation, IUpdatable<ILocation>
 	/// Specifies if the Altitude value is valid
 	/// </summary>
 	bool HasAltitude { get; }
+	
+	/// <summary>
+	/// Specifies if the Altitude Accuracy value is valid
+	/// </summary>
+	bool HasAltitudeAccuracy { get; }
 
 	/// <summary>
 	/// Specifies if the Heading value is valid

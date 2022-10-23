@@ -82,6 +82,26 @@ public class LocationProviderSettings : Bindable
 	public static double DesiredAccuracyUpperLimit { get; set; }
 
 	/// <summary>
+	/// Enable location filtering. This allows the provider to ignore less accurate reads.
+	/// </summary>
+	public bool EnableLocationFiltering { get; set; }
+
+	/// <summary>
+	/// The maximum rapid horizontal change range.
+	/// </summary>
+	public int LocationFilterMaximumRapidHorizontalChange { get; set; }
+
+	/// <summary>
+	/// The maximum rapid vertical change range.
+	/// </summary>
+	public int LocationFilterMaximumRapidVerticalChange { get; set; }
+
+	/// <summary>
+	/// The maximum amount of time to filter a last read location.
+	/// </summary>
+	public TimeSpan LocationFilterTimeout { get; set; }
+
+	/// <summary>
 	/// The minimum distance to travel for updates.
 	/// </summary>
 	public double MinimumDistance { get; set; }

@@ -70,7 +70,7 @@ namespace Speedy.Sync
 				return;
 			}
 
-			if (Dispatcher?.HasThreadAccess == false)
+			if (Dispatcher?.IsDispatcherThread == false)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(propertyName));
 				return;

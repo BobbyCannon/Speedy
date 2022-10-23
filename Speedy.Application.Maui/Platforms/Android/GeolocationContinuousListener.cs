@@ -136,7 +136,6 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 	#region Events
 
 	public event EventHandler<T> PositionChanged;
-
 	public event EventHandler<LocationProviderError> PositionError;
 
 	#endregion

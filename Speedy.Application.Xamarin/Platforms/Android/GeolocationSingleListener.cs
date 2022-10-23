@@ -36,16 +36,16 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 
 	public GeolocationSingleListener(LocationManager manager, float desiredAccuracy, int timeout, IEnumerable<string> activeProviders, Action finishedCallback)
 	{
-		_desiredAccuracy = desiredAccuracy;
-		_completionSource = new TaskCompletionSource<T>();
-		_finishedCallback = finishedCallback;
-
 		_activeProviders = new HashSet<string>(activeProviders);
+		_completionSource = new TaskCompletionSource<T>();
+		_desiredAccuracy = desiredAccuracy;
+		_finishedCallback = finishedCallback;
 		_locationSync = new object();
 
-		foreach (var provider in activeProviders)
+		foreach (var provider in _activeProviders)
 		{
 			var location = manager.GetLastKnownLocation(provider);
+
 			if ((location != null) && location.IsBetterLocation(_bestLocation))
 			{
 				_bestLocation = location;

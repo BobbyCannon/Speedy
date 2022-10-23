@@ -90,7 +90,7 @@ namespace Speedy.Collections
 		/// <param name="values"> The values to be set to. </param>
 		public void Reset(params T[] values)
 		{
-			if (Dispatcher?.HasThreadAccess == false)
+			if (Dispatcher?.IsDispatcherThread == false)
 			{
 				Dispatcher.Run(() => Reset(values));
 				return;
@@ -121,7 +121,7 @@ namespace Speedy.Collections
 				return;
 			}
 
-			if (Dispatcher?.HasThreadAccess == false)
+			if (Dispatcher?.IsDispatcherThread == false)
 			{
 				Dispatcher.Run(ClearItems);
 				return;
@@ -138,7 +138,7 @@ namespace Speedy.Collections
 		/// <inheritdoc />
 		protected override void InsertItem(int index, T item)
 		{
-			if (Dispatcher?.HasThreadAccess == false)
+			if (Dispatcher?.IsDispatcherThread == false)
 			{
 				Dispatcher.Run(() => InsertItem(index, item));
 				return;
@@ -181,7 +181,7 @@ namespace Speedy.Collections
 		/// <inheritdoc />
 		protected sealed override void OnPropertyChanged(PropertyChangedEventArgs e)
 		{
-			if (Dispatcher?.HasThreadAccess == false)
+			if (Dispatcher?.IsDispatcherThread == false)
 			{
 				Dispatcher.Run(() => OnPropertyChanged(e));
 				return;

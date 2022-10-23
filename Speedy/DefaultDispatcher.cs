@@ -15,7 +15,7 @@ namespace Speedy
 		#region Properties
 
 		/// <inheritdoc />
-		public bool HasThreadAccess { get; private set; }
+		public bool IsDispatcherThread { get; private set; }
 
 		#endregion
 
@@ -24,10 +24,10 @@ namespace Speedy
 		/// <inheritdoc />
 		public void Run(Action action)
 		{
-			if (HasThreadAccess == false)
+			if (IsDispatcherThread == false)
 			{
 				// Go ahead and mark thread access as true
-				HasThreadAccess = true;
+				IsDispatcherThread = true;
 			}
 
 			action();
@@ -36,10 +36,10 @@ namespace Speedy
 		/// <inheritdoc />
 		public Task RunAsync(Action action)
 		{
-			if (HasThreadAccess == false)
+			if (IsDispatcherThread == false)
 			{
 				// Go ahead and mark thread access as true
-				HasThreadAccess = true;
+				IsDispatcherThread = true;
 			}
 
 			action();

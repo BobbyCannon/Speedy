@@ -1,22 +1,18 @@
-﻿#region References
+﻿namespace Speedy.Application.Maui;
 
-using mDispatcher = Microsoft.Maui.Dispatching.IDispatcher;
-
-#endregion
-
-namespace Speedy.Application.Maui;
-
-public class MauiDispatcher : IDispatcher
+/// <inheritdoc />
+public class MauiDispatcher : Dispatcher
 {
 	#region Fields
 
-	private readonly mDispatcher _dispatcher;
+	private readonly Microsoft.Maui.Dispatching.IDispatcher _dispatcher;
 
 	#endregion
 
 	#region Constructors
 
-	public MauiDispatcher(mDispatcher dispatcher)
+	/// <inheritdoc />
+	public MauiDispatcher(Microsoft.Maui.Dispatching.IDispatcher dispatcher)
 	{
 		_dispatcher = dispatcher;
 	}
@@ -26,34 +22,22 @@ public class MauiDispatcher : IDispatcher
 	#region Properties
 
 	/// <inheritdoc />
-	public bool HasThreadAccess => !_dispatcher.IsDispatchRequired;
+	public override bool IsDispatcherThread => !_dispatcher.IsDispatchRequired;
 
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public void Run(Action action)
+	protected override void ExecuteOnDispatcher(Action action)
 	{
-		if (!HasThreadAccess)
-		{
-			_dispatcher.Dispatch(action);
-			return;
-		}
-
-		action();
+		_dispatcher.Dispatch(action);
 	}
 
 	/// <inheritdoc />
-	public Task RunAsync(Action action)
+	protected override Task ExecuteOnDispatcherAsync(Action action)
 	{
-		if (!HasThreadAccess)
-		{
-			return _dispatcher.DispatchAsync(action);
-		}
-
-		action();
-		return Task.CompletedTask;
+		return _dispatcher.DispatchAsync(action);
 	}
 
 	#endregion

@@ -84,7 +84,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// </summary>
 	/// <param name="timeout"> Timeout to wait, Default Infinite </param>
 	/// <param name="cancelToken"> Cancellation token </param>
-	/// 
 	/// <returns> ProviderLocation </returns>
 	public override Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
@@ -110,12 +109,17 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			switch (s)
 			{
 				case AsyncStatus.Canceled:
+				{
 					tcs.SetCanceled();
 					break;
+				}
 				case AsyncStatus.Completed:
+				{
 					tcs.SetResult(UpdateLastReadPosition(op.GetResults()));
 					break;
+				}
 				case AsyncStatus.Error:
+				{
 					var ex = op.ErrorCode;
 					if (ex is UnauthorizedAccessException)
 					{
@@ -124,6 +128,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 					tcs.SetException(ex);
 					break;
+				}
 			}
 		};
 
@@ -138,17 +143,28 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return Task.CompletedTask;
 		}
 
-		IsListening = true;
+		try
+		{
+			// todo: support HasPermission?
 
-		var geolocator = GetGeolocator();
+			var geolocator = GetGeolocator();
 
-		geolocator.ReportInterval = (uint) LocationProviderSettings.MinimumTime.TotalMilliseconds;
-		geolocator.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy < 100 ? PositionAccuracy.High : PositionAccuracy.Default;
-		geolocator.MovementThreshold = LocationProviderSettings.MinimumDistance;
-		geolocator.PositionChanged += OnLocatorPositionChanged;
-		geolocator.StatusChanged += OnLocatorStatusChanged;
+			geolocator.ReportInterval = (uint)LocationProviderSettings.MinimumTime.TotalMilliseconds;
+			geolocator.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy < 100 ? PositionAccuracy.High : PositionAccuracy.Default;
+			geolocator.MovementThreshold = LocationProviderSettings.MinimumDistance;
+			geolocator.PositionChanged += OnLocatorPositionChanged;
+			geolocator.StatusChanged += OnLocatorStatusChanged;
 
-		return Task.CompletedTask;
+			IsListening = true;
+
+			return Task.CompletedTask;
+		}
+		catch
+		{
+			IsListening = false;
+
+			throw;
+		}
 	}
 
 	/// <summary>
@@ -190,27 +206,36 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		return loc.LocationStatus;
 	}
 
-	private void OnLocatorPositionChanged(Geolocator sender, PositionChangedEventArgs e)
+	private void OnLocatorPositionChanged(Geolocator sender, PositionChangedEventArgs args)
 	{
-		UpdateLastReadPosition(e.Position);
+		UpdateLastReadPosition(args.Position);
 		OnPositionChanged(LastReadLocation);
 	}
 
-	private async void OnLocatorStatusChanged(Geolocator sender, StatusChangedEventArgs e)
+	private async void OnLocatorStatusChanged(Geolocator sender, StatusChangedEventArgs args)
 	{
 		LocationProviderError error;
-		switch (e.Status)
+
+		switch (args.Status)
 		{
 			case PositionStatus.Disabled:
+			{
 				error = LocationProviderError.Unauthorized;
 				break;
-
+			}
 			case PositionStatus.NoData:
+			{
 				error = LocationProviderError.PositionUnavailable;
 				break;
-
+			}
+			case PositionStatus.Ready:
+			case PositionStatus.Initializing:
+			case PositionStatus.NotInitialized:
+			case PositionStatus.NotAvailable:
 			default:
+			{
 				return;
+			}
 		}
 
 		if (IsListening)

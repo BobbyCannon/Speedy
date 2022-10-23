@@ -10,8 +10,11 @@
 		<None Remove="Speedy.ico" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Speedy.Application.Wpf\Speedy.Application.Wpf.csproj" />
+		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 		<ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />
 		<ProjectReference Include="..\Speedy.UnitTests\Speedy.UnitTests.csproj" />
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Speedy.ico">

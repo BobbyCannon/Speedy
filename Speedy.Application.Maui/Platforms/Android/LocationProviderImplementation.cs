@@ -24,7 +24,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 {
 	#region Fields
 
-	private T _lastPosition;
 	private GeolocationContinuousListener<T> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
@@ -206,38 +205,18 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		// If we're already listening, just use the current listener
 		lock (_positionSync)
 		{
-			if (_lastPosition == null)
-			{
-				if (cancelToken != CancellationToken.None)
-				{
-					cancelToken.Value.Register(() => tcs.TrySetCanceled());
-				}
-
-				EventHandler<T> gotPosition = null;
-
-				gotPosition = (_, e) =>
-				{
-					tcs.TrySetResult(e);
-					PositionChanged -= gotPosition;
-				};
-
-				PositionChanged += gotPosition;
-			}
-			else
-			{
-				tcs.SetResult(_lastPosition);
-			}
+			tcs.SetResult(LastReadLocation);
 		}
 
 		return await tcs.Task;
 	}
 
 	/// <inheritdoc />
-	public override async Task<bool> StartListeningAsync()
+	public override async Task StartListeningAsync()
 	{
 		if (IsListening)
 		{
-			return true;
+			return;
 		}
 
 		LocationProviderSettings.Cleanup();
@@ -255,7 +234,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		if (!hasPermission)
 		{
-			return false;
+			return;
 		}
 
 		var providers = Providers;
@@ -287,21 +266,19 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 				_listener,
 				looper);
 		}
-
-		return true;
 	}
 
 	/// <inheritdoc />
-	public override Task<bool> StopListeningAsync()
+	public override Task StopListeningAsync()
 	{
 		if (_listener == null)
 		{
-			return Task.FromResult(true);
+			return Task.CompletedTask;
 		}
 
 		if (ListeningProviders == null)
 		{
-			return Task.FromResult(true);
+			return Task.CompletedTask;
 		}
 
 		var providers = ListeningProviders;
@@ -321,7 +298,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 
 		_listener = null;
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	private async Task<bool> CheckAlwaysPermissions()
@@ -376,8 +353,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		lock (_positionSync)
 		{
-			_lastPosition = e;
-
+			LastReadLocation.UpdateWith(e);
 			OnPositionChanged(e);
 		}
 	}
@@ -385,7 +361,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	private async void OnListenerPositionError(object sender, LocationProviderError e)
 	{
 		await StopListeningAsync();
-
 		OnPositionError(e);
 	}
 

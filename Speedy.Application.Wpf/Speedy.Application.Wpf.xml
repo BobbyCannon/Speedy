@@ -215,6 +215,21 @@
         <member name="M:Speedy.Application.Wpf.WindowsSecureVault.WriteCredentialAsync">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Application.Wpf.WpfDispatcher">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.#ctor(System.Windows.Threading.Dispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Wpf.WpfDispatcher.IsDispatcherThread">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcher(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync(System.Action)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationName">
             <inheritdoc />
         </member>

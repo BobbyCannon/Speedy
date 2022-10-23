@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Application xmlns="http://xamarin.com/schemas/2014/forms"
+		xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+		xmlns:converter="clr-namespace:Speedy.Application.Xamarin.Converter;assembly=Speedy.Application.Xamarin"
+		x:Class="Speedy.Samples.Xamarin.App">
+	<Application.Resources>
+		<converter:BooleanConverter x:Key="BooleanConverter" />
+		<converter:BooleanConverter x:Key="InvertedBooleanConverter" Inverted="True" />
+		<converter:StringConverter x:Key="StringConverter" />
+		<converter:VisibilityConverter x:Key="VisibilityConverter" />
+		<converter:VisibilityConverter x:Key="InvertedVisibilityConverter" Inverted="True" />
+	</Application.Resources>
+</Application>

@@ -11,14 +11,17 @@ using DeviceType = Speedy.Devices.DeviceType;
 
 namespace Speedy.Application.Xamarin;
 
+/// <inheritdoc />
 public class XamarinRuntimeInformation : RuntimeInformation
 {
 	#region Constructors
 
+	/// <inheritdoc />
 	public XamarinRuntimeInformation() : this(null)
 	{
 	}
 
+	/// <inheritdoc />
 	public XamarinRuntimeInformation(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}

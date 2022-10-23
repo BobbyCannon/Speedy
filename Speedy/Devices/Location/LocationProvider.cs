@@ -42,19 +42,16 @@ public abstract class LocationProvider<T, T2>
 
 	#region Properties
 
-	/// <summary>
-	/// Gets if the provider is listening for location changes.
-	/// </summary>
+	/// <inheritdoc />
+	public bool HasPermission { get; protected set; }
+
+	/// <inheritdoc />
 	public virtual bool IsListening { get; protected set; }
 
-	/// <summary>
-	/// Gets if location is available from the provider.
-	/// </summary>
+	/// <inheritdoc />
 	public virtual bool IsLocationAvailable { get; protected set; }
 
-	/// <summary>
-	/// Gets if location is enabled on the provider.
-	/// </summary>
+	/// <inheritdoc />
 	public virtual bool IsLocationEnabled { get; protected set; }
 
 	/// <inheritdoc />
@@ -63,37 +60,26 @@ public abstract class LocationProvider<T, T2>
 	/// <inheritdoc />
 	public T2 LocationProviderSettings { get; }
 
-	/// <summary>
-	/// The command for starting to listen for location changes.
-	/// </summary>
+	/// <inheritdoc />
 	public RelayCommand StartListeningCommand { get; }
 
-	/// <summary>
-	/// The command to stop to listening for location changes.
-	/// </summary>
+	/// <inheritdoc />
+	public string Status { get; protected set; }
+
+	/// <inheritdoc />
 	public RelayCommand StopListeningCommand { get; }
 
 	#endregion
 
 	#region Methods
 
-	/// <summary>
-	/// Gets the current location from the provider.
-	/// </summary>
-	/// <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="LocationProviderSettings" />. </param>
-	/// <param name="cancelToken"> An optional cancellation token. </param>
-	/// <returns> The current location or null if not available. </returns>
+	/// <inheritdoc />
 	public virtual T GetCurrentLocation(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		return GetCurrentLocationAsync().AwaitResults();
 	}
 
-	/// <summary>
-	/// Gets the current location from the provider.
-	/// </summary>
-	/// <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="LocationProviderSettings" />. </param>
-	/// <param name="cancelToken"> An optional cancellation token. </param>
-	/// <returns> The current location or null if not available. </returns>
+	/// <inheritdoc />
 	public abstract Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
 
 	/// <inheritdoc />
@@ -108,14 +94,10 @@ public abstract class LocationProvider<T, T2>
 		return LastReadLocation;
 	}
 
-	/// <summary>
-	/// Start listening for location changes.
-	/// </summary>
+	/// <inheritdoc />
 	public abstract Task StartListeningAsync();
 
-	/// <summary>
-	/// Stop listening for location changes.
-	/// </summary>
+	/// <inheritdoc />
 	public abstract Task StopListeningAsync();
 
 	/// <summary>
@@ -136,18 +118,44 @@ public abstract class LocationProvider<T, T2>
 		PositionError?.Invoke(this, e);
 	}
 
+	/// <summary>
+	/// Update the last read location.
+	/// </summary>
+	/// <param name="update"> The newly read location. </param>
+	/// <remarks>
+	/// Ensure you are adhering to the <seealso cref="LocationProviderSettings" /> options.
+	/// </remarks>
+	protected virtual void UpdateLastReadLocation(T update)
+	{
+		if (update == null)
+		{
+			return;
+		}
+
+		var lastReadHasFullyExpired =
+			// always consider reading expired if not filtering
+			!LocationProviderSettings.EnableLocationFiltering
+			// or if the status has timed out
+			|| (update.StatusTime - LastReadLocation.StatusTime) >= LocationProviderSettings.LocationFilterTimeout;
+
+		if (lastReadHasFullyExpired)
+		{
+			// Update everything
+			LastReadLocation.UpdateWith(update);
+		}
+
+		// Update only better values
+		LastReadLocation.UpdateIfBetter(update);
+	}
+
 	#endregion
 
 	#region Events
 
-	/// <summary>
-	/// Provider location changed event handler.
-	/// </summary>
+	/// <inheritdoc />
 	public event EventHandler<T> PositionChanged;
 
-	/// <summary>
-	/// ProviderLocation error event handler
-	/// </summary>
+	/// <inheritdoc />
 	public event EventHandler<LocationProviderError> PositionError;
 
 	#endregion
@@ -165,9 +173,24 @@ public interface ILocationProvider<T, out T2>
 	#region Properties
 
 	/// <summary>
+	/// Gets if the app has permission to access location information.
+	/// </summary>
+	bool HasPermission { get; }
+
+	/// <summary>
 	/// Gets if the provider is listening for location changes.
 	/// </summary>
 	bool IsListening { get; }
+
+	/// <summary>
+	/// Gets if location is available from the provider.
+	/// </summary>
+	bool IsLocationAvailable { get; }
+
+	/// <summary>
+	/// Gets if location is enabled on the provider.
+	/// </summary>
+	bool IsLocationEnabled { get; }
 
 	/// <summary>
 	/// The last read location.
@@ -183,6 +206,11 @@ public interface ILocationProvider<T, out T2>
 	/// The command for starting to listen for location changes.
 	/// </summary>
 	RelayCommand StartListeningCommand { get; }
+
+	/// <summary>
+	/// The status of the provider
+	/// </summary>
+	string Status { get; }
 
 	/// <summary>
 	/// The command to stop to listening for location changes.

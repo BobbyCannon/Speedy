@@ -8,17 +8,19 @@ using System.Windows.Threading;
 
 namespace Speedy.Application.Wpf;
 
-public class WpfDispatcher : IDispatcher
+/// <inheritdoc />
+public class WpfDispatcher : Dispatcher
 {
 	#region Fields
 
-	private readonly Dispatcher _dispatcher;
+	private readonly System.Windows.Threading.Dispatcher _dispatcher;
 
 	#endregion
 
 	#region Constructors
 
-	public WpfDispatcher(Dispatcher dispatcher)
+	/// <inheritdoc />
+	public WpfDispatcher(System.Windows.Threading.Dispatcher dispatcher)
 	{
 		_dispatcher = dispatcher;
 	}
@@ -27,31 +29,22 @@ public class WpfDispatcher : IDispatcher
 
 	#region Properties
 
-	public bool HasThreadAccess => _dispatcher.CheckAccess();
+	/// <inheritdoc />
+	public override bool IsDispatcherThread => _dispatcher.CheckAccess();
 
 	#endregion
 
 	#region Methods
 
-	public void Run(Action action)
+	/// <inheritdoc />
+	protected override void ExecuteOnDispatcher(Action action)
 	{
-		if (_dispatcher.CheckAccess())
-		{
-			action();
-			return;
-		}
-
 		_dispatcher.Invoke(action, DispatcherPriority.Normal);
 	}
 
-	public Task RunAsync(Action action)
+	/// <inheritdoc />
+	protected override Task ExecuteOnDispatcherAsync(Action action)
 	{
-		if (_dispatcher.CheckAccess())
-		{
-			action();
-			return Task.CompletedTask;
-		}
-
 		return _dispatcher.InvokeAsync(action, DispatcherPriority.Normal).Task;
 	}
 

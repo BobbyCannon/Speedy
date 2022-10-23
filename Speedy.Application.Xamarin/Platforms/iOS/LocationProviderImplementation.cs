@@ -12,12 +12,8 @@ using Xamarin.Essentials;
 
 #if __IOS__ || __TVOS__
 using UIKit;
-
 #elif __MACOS__
 using AppKit;
-#endif
-
-#if __IOS__
 #endif
 
 #endregion
@@ -122,14 +118,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 	#endif
 
-	/// <summary>
-	/// Gets if geolocation is available on device
-	/// </summary>
+	/// <inheritdoc />
 	public override bool IsLocationAvailable => true; //all iOS devices support Geolocation
 
-	/// <summary>
-	/// Gets if geolocation is enabled on device
-	/// </summary>
+	/// <inheritdoc />
 	public override bool IsLocationEnabled => CLLocationManager.LocationServicesEnabled;
 
 	private string GetSourceName(CLLocationSourceInformation information)
@@ -215,20 +207,19 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 
 		#if __IOS__
-		var hasPermission = false;
 		if (UIDevice.CurrentDevice.CheckSystemVersion(9, 0))
 		{
 			if (_locationProviderSettings.RequireLocationAlwaysPermission)
 			{
-				hasPermission = await CheckAlwaysPermissions();
+				HasPermission = await CheckAlwaysPermissions();
 			}
 			else
 			{
-				hasPermission = await CheckWhenInUsePermission();
+				HasPermission = await CheckWhenInUsePermission();
 			}
 		}
 
-		if (!hasPermission)
+		if (!HasPermission)
 		{
 			throw new LocationProviderException(LocationProviderError.Unauthorized);
 		}
@@ -431,6 +422,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		location.Dispose();
 	}
 
+	/// <inheritdoc />
 	protected override async void OnPositionError(LocationProviderError e)
 	{
 		await StopListeningAsync();
@@ -447,7 +439,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private void OnAuthorizationChanged(object sender, CLAuthorizationChangedEventArgs e)
 	{
-		if ((e.Status == CLAuthorizationStatus.Denied) || (e.Status == CLAuthorizationStatus.Restricted))
+		if ((e.Status == CLAuthorizationStatus.Denied)
+			|| (e.Status == CLAuthorizationStatus.Restricted))
 		{
 			OnPositionError(LocationProviderError.Unauthorized);
 		}

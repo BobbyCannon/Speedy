@@ -59,5 +59,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Xamarin.Essentials" Version="1.7.3" />
+		<PackageReference Include="Xamarin.Forms.Maps" Version="5.0.0.2515" />
 	</ItemGroup>
 </Project>

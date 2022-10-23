@@ -124,68 +124,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// <inheritdoc />
 	public override bool IsLocationEnabled => CLLocationManager.LocationServicesEnabled;
 
-	/// <summary>
-	/// Gets the last known and most accurate location.
-	/// This is usually cached and best to display first before querying for full position.
-	/// </summary>
-	/// <returns> Best and most recent location or null if none found </returns>
-	public async Task<T> GetLastKnownLocationAsync()
-	{
-		#if __IOS__
-		var hasPermission = await CheckWhenInUsePermission();
-		if (!hasPermission)
-		{
-			throw new LocationProviderException(LocationProviderError.Unauthorized);
-		}
-		#endif
-
-		var m = GetManager();
-		var newLocation = m?.Location;
-
-		if (newLocation == null)
-		{
-			return null;
-		}
-
-		//
-		// https://developer.apple.com/documentation/corelocation/cllocation/3861801-ellipsoidalaltitude
-		//
-		var position = new T
-		{
-			// A negative value indicates that the latitude and longitude are invalid.
-			Accuracy = newLocation.HorizontalAccuracy,
-			AccuracyReference = newLocation.HorizontalAccuracy >= 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown,
-			Altitude = newLocation.EllipsoidalAltitude,
-			AltitudeReference = AltitudeReferenceType.Ellipsoid,
-
-			// If verticalAccuracy is 0 or a negative number, altitude and ellipsoidalAltitude values are invalid
-			AltitudeAccuracy = newLocation.VerticalAccuracy,
-			AltitudeAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown,
-
-			Latitude = newLocation.Coordinate.Latitude,
-			Longitude = newLocation.Coordinate.Longitude,
-
-			SourceName = GetSourceName(newLocation.SourceInformation),
-
-			#if !__TVOS__
-			HasSpeed = newLocation.Speed >= 0,
-			Speed = newLocation.Speed,
-			#endif
-			HasHeading = newLocation.CourseAccuracy >= 0,
-			Heading = newLocation.Course
-		};
-
-		try
-		{
-			position.StatusTime = newLocation.Timestamp.ToDateTime().ToUniversalTime();
-		}
-		catch (Exception)
-		{
-			position.StatusTime = TimeService.UtcNow;
-		}
-
-		return position;
-	}
 
 	private string GetSourceName(CLLocationSourceInformation information)
 	{
@@ -235,11 +173,13 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			cancelToken = CancellationToken.None;
 		}
 
+		TaskCompletionSource<T> tcs;
 		if (!IsListening)
 		{
 			var m = GetManager();
 			m.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy;
 
+			tcs = new TaskCompletionSource<T>(m);
 			var singleListener = new LocationProviderSingleUpdateDelegate<T>(m, m.DesiredAccuracy, true, timeoutMilliseconds, cancelToken.Value);
 			m.Delegate = singleListener;
 
@@ -252,49 +192,19 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return await singleListener.Task;
 		}
 
-		var tcs = new TaskCompletionSource<T>();
-
-		if (_lastPosition == null)
-		{
-			if (cancelToken != CancellationToken.None)
-			{
-				cancelToken.Value.Register(() => tcs.TrySetCanceled());
-			}
-
-			EventHandler<LocationProviderError> gotError = null;
-			gotError = (s, e) =>
-			{
-				tcs.TrySetException(new LocationProviderException(e));
-				PositionError -= gotError;
-			};
-
-			PositionError += gotError;
-
-			EventHandler<T> gotPosition = null;
-			gotPosition = (s, e) =>
-			{
-				tcs.TrySetResult(e);
-				PositionChanged -= gotPosition;
-			};
-
-			PositionChanged += gotPosition;
-		}
-		else
-		{
-			tcs.SetResult(_lastPosition);
-		}
-
+		tcs = new TaskCompletionSource<T>();
+		tcs.SetResult(LastReadLocation);
 		return await tcs.Task;
 	}
 
 	/// <summary>
 	/// Start listening for changes
 	/// </summary>
-	public override async Task<bool> StartListeningAsync()
+	public override async Task StartListeningAsync()
 	{
 		if (IsListening)
 		{
-			return true;
+			return;
 		}
 
 		#if __IOS__
@@ -320,7 +230,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		// keep reference to settings so that we can stop the listener appropriately later
 		_locationProviderSettings = LocationProviderSettings.DeepClone();
 
-		var desiredAccuracy = LocationProviderSettings.DesiredAccuracy;
+		var desiredAccuracy = _locationProviderSettings.DesiredAccuracy;
 
 		// set background flag
 		#if __IOS__
@@ -381,18 +291,16 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		#elif __TVOS__
 		//not supported
 		#endif
-
-		return true;
 	}
 
 	/// <summary>
 	/// Stop listening
 	/// </summary>
-	public override Task<bool> StopListeningAsync()
+	public override Task StopListeningAsync()
 	{
 		if (!IsListening)
 		{
-			return Task.FromResult(true);
+			return Task.CompletedTask;
 		}
 
 		IsListening = false;
@@ -419,9 +327,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		#endif
 
 		_locationProviderSettings = null;
-		_lastPosition = null;
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	private CLLocationManager GetManager()
@@ -461,66 +368,63 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private void UpdatePosition(CLLocation location)
 	{
-		var p = _lastPosition ?? new T();
-
 		if (location.HorizontalAccuracy > -1)
 		{
-			p.Accuracy = location.HorizontalAccuracy;
-			p.AccuracyReference = AccuracyReferenceType.Meters;
-			p.Latitude = location.Coordinate.Latitude;
-			p.Longitude = location.Coordinate.Longitude;
+			LastReadLocation.Accuracy = location.HorizontalAccuracy;
+			LastReadLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			LastReadLocation.Latitude = location.Coordinate.Latitude;
+			LastReadLocation.Longitude = location.Coordinate.Longitude;
 		}
 		else
 		{
-			p.AccuracyReference = AccuracyReferenceType.Unknown;
+			LastReadLocation.AccuracyReference = AccuracyReferenceType.Unknown;
 		}
 
 		if (location.VerticalAccuracy > -1)
 		{
-			p.Altitude = location.EllipsoidalAltitude;
-			p.AltitudeAccuracy = location.VerticalAccuracy;
-			p.AltitudeAccuracyReference = AccuracyReferenceType.Meters;
-			p.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+			LastReadLocation.Altitude = location.EllipsoidalAltitude;
+			LastReadLocation.AltitudeAccuracy = location.VerticalAccuracy;
+			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Meters;
+			LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 		}
 		else
 		{
-			p.AltitudeAccuracyReference = AccuracyReferenceType.Unknown;
+			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Unknown;
 		}
 
 		#if __IOS__ || __MACOS__
 		if (location.Speed > -1)
 		{
-			p.HasSpeed = true;
-			p.Speed = location.Speed;
+			LastReadLocation.HasSpeed = true;
+			LastReadLocation.Speed = location.Speed;
 		}
 		else
 		{
-			p.HasSpeed = false;
+			LastReadLocation.HasSpeed = false;
 		}
 
 		if (location.Course > -1)
 		{
-			p.HasHeading = true;
-			p.Heading = location.Course;
+			LastReadLocation.HasHeading = true;
+			LastReadLocation.Heading = location.Course;
 		}
 		#endif
 
 		try
 		{
-			p.StatusTime = location.Timestamp.ToDateTime().ToUniversalTime();
+			LastReadLocation.StatusTime = location.Timestamp.ToDateTime().ToUniversalTime();
 		}
 		catch (Exception)
 		{
-			p.StatusTime = TimeService.UtcNow;
+			LastReadLocation.StatusTime = TimeService.UtcNow;
 		}
 
-		_lastPosition = p;
-
-		OnPositionChanged(p);
+		OnPositionChanged(LastReadLocation);
 
 		location.Dispose();
 	}
 
+	/// <inheritdoc />
 	protected override async void OnPositionError(LocationProviderError e)
 	{
 		await StopListeningAsync();

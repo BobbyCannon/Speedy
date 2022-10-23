@@ -3,6 +3,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using Speedy.Application.Wpf;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace Speedy.Benchmark
 		{
 			InitializeComponent();
 
-			var dispatcher = new InterfaceDispatcher(Dispatcher);
+			var dispatcher = new WpfDispatcher(Dispatcher);
 			ViewModel = new MainViewModel(dispatcher);
 			DataContext = ViewModel;
 

@@ -182,6 +182,136 @@ public static class LocationExtensions
 		return new BasicLocation(totalX / locationList.Count, totalY / locationList.Count);
 	}
 
+
+	/// <summary>
+	/// See if the location is better.
+	/// </summary>
+	/// <param name="location"> The location to check. </param>
+	/// <param name="update"> The values to compare with. </param>
+	public static void UpdateIfBetter(this ILocation location, ILocation update)
+	{
+		var wasUpdated = false;
+
+		if (update.HasBetterVerticalLocation(location))
+		{
+			location.UpdateVerticalLocation(update);
+			wasUpdated = true;
+		}
+
+		if (update.HasBetterHorizontalLocation(location))
+		{
+			location.UpdateHorizontalLocation(update);
+			wasUpdated = true;
+		}
+
+		if (!wasUpdated)
+		{
+			// Nothing updated so bounce
+			return;
+		}
+
+		// Update all other things
+		location.StatusTime = update.StatusTime;
+
+		location.HasHeading = update.HasHeading;
+		location.Heading = update.Heading;
+
+		location.HasSpeed = update.HasSpeed;
+		location.Speed = update.Speed;
+	}
+
+	/// <summary>
+	/// See if the vertical location (altitude) is better.
+	/// </summary>
+	/// <param name="location"> The location to check. </param>
+	/// <param name="update"> The values to compare with. </param>
+	/// <returns> True if the location is better than the update. </returns>
+	public static bool HasBetterVerticalLocation(this ILocation location, ILocation update)
+	{
+		if (location.HasAltitudeAccuracy 
+			&& update.HasAltitudeAccuracy
+			&& update.AltitudeAccuracy >= location.AltitudeAccuracy)
+		{
+			// Update is more accurate
+			return true;
+		}
+		
+		if (!location.HasAltitudeAccuracy 
+			&& update.HasAltitudeAccuracy)
+		{
+			// Update is more accurate
+			return true;
+		}
+
+		if (!location.HasAltitude && update.HasAltitude)
+		{
+			// Altitude is now available
+			return true;
+		}
+
+		// Location is better than update.
+		return false;
+	}
+	
+	/// <summary>
+	/// See if the horizontal location (lat, long) is better.
+	/// </summary>
+	/// <param name="location"> The location to check. </param>
+	/// <param name="update"> The values to compare with. </param>
+	/// <returns> True if the location is better than the update. </returns>
+	public static bool HasBetterHorizontalLocation(this ILocation location, ILocation update)
+	{
+		if (location.HasAccuracy 
+			&& update.HasAccuracy
+			&& update.Accuracy >= location.Accuracy)
+		{
+			// Update is more accurate
+			return true;
+		}
+		
+		if (!location.HasAccuracy 
+			&& update.HasAccuracy)
+		{
+			// Update is more accurate
+			return true;
+		}
+
+		if (!location.HasLatitudeLongitude && update.HasLatitudeLongitude)
+		{
+			// location is now available
+			return true;
+		}
+
+		// Location is better than update.
+		return false;
+	}
+
+	/// <summary>
+	/// Update the altitude.
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update with new values. </param>
+	public static void UpdateVerticalLocation(this ILocation location, ILocation update)
+	{
+		location.Altitude = update.Altitude;
+		location.AltitudeReference = update.AltitudeReference;
+		location.AltitudeAccuracy = update.AltitudeAccuracy;
+		location.AltitudeAccuracyReference = update.AltitudeAccuracyReference;
+	}
+	
+	/// <summary>
+	/// Update the horizontal location (lat, long).
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update with new values. </param>
+	public static void UpdateHorizontalLocation(this ILocation location, ILocation update)
+	{
+		location.Latitude = update.Latitude;
+		location.Longitude = update.Longitude;
+		location.Accuracy = update.Accuracy;
+		location.AccuracyReference = update.AccuracyReference;
+	}
+
 	/// <summary>
 	/// Tries to get an ellipsoid altitude for the vertical location.
 	/// </summary>

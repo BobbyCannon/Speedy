@@ -59,7 +59,7 @@
 		/// <inheritdoc />
 		protected override void InsertItem(int index, T item)
 		{
-			if (Dispatcher?.HasThreadAccess == false)
+			if (Dispatcher?.IsDispatcherThread == false)
 			{
 				Dispatcher.Run(() => InsertItem(index, item));
 				return;
