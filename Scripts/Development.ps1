@@ -17,10 +17,13 @@ Get-Process vbcs* | Stop-Process
 
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net6.0'
 
+
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Debug" -BuildNumber 0 -VersionSuffix 'RC1'
 
 & 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC1'
 & 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'pre'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'

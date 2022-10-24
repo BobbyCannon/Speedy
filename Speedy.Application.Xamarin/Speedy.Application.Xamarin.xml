@@ -113,19 +113,32 @@
         </member>
         <member name="T:Speedy.Application.Xamarin.LocationProviderImplementation`2">
             <summary>
-            Implementation for LocationProvider
+            Implementation for Feature
             </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
             <summary>
-            Constructor for Implementation
+            Default constructor
             </summary>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsListening">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationAvailable">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationEnabled">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.ProvidersToUse">
+            <summary>
+            Gets or sets the location manager providers to ignore when getting position.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.ProvidersToUseWhileListening">
+            <summary>
+            Gets or sets the location manager providers to ignore when doing continuous listening.
+            </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <summary>
@@ -139,8 +152,11 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StopListeningAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Xamarin.PlatformExtensions">
             <summary>
-            Stop listening
+            Extensions for the Android platform.
             </summary>
         </member>
     </members>

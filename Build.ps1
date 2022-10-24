@@ -13,8 +13,8 @@ $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = $PSScriptRoot
 $productName = "Speedy"
 
-#$scriptPath = "C:\Workspaces\EpicCoders\$productName"
-#$scriptPath = "C:\Workspaces\GitHub\$productName"
+# $scriptPath = "C:\Workspaces\EpicCoders\$productName"
+# $scriptPath = "C:\Workspaces\GitHub\$productName"
 
 if ($scriptPath.Length -le 0)
 {
