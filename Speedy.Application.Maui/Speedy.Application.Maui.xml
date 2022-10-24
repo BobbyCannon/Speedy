@@ -24,7 +24,13 @@
         <member name="M:Speedy.Application.Maui.MauiDispatcher.ExecuteOnDispatcher(System.Action)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Application.Maui.MauiDispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Maui.MauiDispatcher.ExecuteOnDispatcherAsync(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Maui.MauiLocationProvider`2">

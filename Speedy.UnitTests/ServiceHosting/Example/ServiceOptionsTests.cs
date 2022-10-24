@@ -8,7 +8,7 @@ using Speedy.ServiceHosting.Example;
 namespace Speedy.UnitTests.ServiceHosting.Example
 {
 	[TestClass]
-	public class ServiceOptionsTests : BaseTests
+	public class ServiceOptionsTests : SpeedyUnitTest
 	{
 		#region Methods
 

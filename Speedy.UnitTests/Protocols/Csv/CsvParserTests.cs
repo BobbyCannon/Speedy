@@ -12,7 +12,7 @@ namespace Speedy.UnitTests.Protocols.Csv
 	/// CSV-SPEC: https://csv-spec.org/
 	/// </summary>
 	[TestClass]
-	public class CsvParserTests : BaseTests
+	public class CsvParserTests : SpeedyUnitTest
 	{
 		#region Methods
 

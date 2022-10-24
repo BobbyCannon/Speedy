@@ -8,7 +8,7 @@ using Speedy.Extensions;
 namespace Speedy.UnitTests.Extensions
 {
 	[TestClass]
-	public class StringExtensionsTests : BaseTests
+	public class StringExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 

@@ -8,7 +8,7 @@ using Speedy.Profiling;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class TimerTests : BaseTests
+	public class TimerTests : SpeedyUnitTest
 	{
 		#region Methods
 

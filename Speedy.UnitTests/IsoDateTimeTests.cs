@@ -12,7 +12,7 @@ using Speedy.Serialization;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class IsoDateTimeTests : BaseTests
+	public class IsoDateTimeTests : SpeedyUnitTest
 	{
 		#region Methods
 

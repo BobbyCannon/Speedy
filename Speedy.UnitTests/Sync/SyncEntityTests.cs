@@ -13,7 +13,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
-	public class SyncEntityTests : BaseTests
+	public class SyncEntityTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -52,7 +52,7 @@ namespace Speedy.UnitTests.Sync
 			};
 
 			var actual = (AddressEntity) address.DeepClone();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 			Assert.AreNotSame(expected.Accounts, actual.Accounts);
 		}
 
@@ -91,7 +91,7 @@ namespace Speedy.UnitTests.Sync
 			};
 
 			var actual = (AddressEntity) address.ShallowClone();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 			Assert.AreSame(expected.Accounts, actual.Accounts);
 		}
 
@@ -115,11 +115,12 @@ namespace Speedy.UnitTests.Sync
 				ModifiedOn = date2,
 				Postal = "Postal 2",
 				State = "State 2",
-				SyncId = Guid.Parse("511EB735-7CE7-4362-B36F-066CD697303A")
+				SyncId = Guid.Parse("3584456b-cf36-4049-9491-7d83d0fd8255")
 			};
 
-			// SyncId changes but that's up to the user of the framework, should not exclude unless they want to
-			TestHelper.AreEqual(expected, entity);
+			// Current: Id, SyncId are excluded by default, must be overridden by the user of the framework. This is safer.
+			// Old Way:SyncId changes but that's up to the user of the framework, should not exclude unless they want to
+			AreEqual(expected, entity);
 		}
 
 		[TestMethod]
@@ -130,7 +131,7 @@ namespace Speedy.UnitTests.Sync
 
 			person.UpdateLocalSyncIds();
 
-			Assert.AreEqual(address.SyncId, person.AddressSyncId);
+			AreEqual(address.SyncId, person.AddressSyncId);
 		}
 
 		[TestMethod]
@@ -157,7 +158,7 @@ namespace Speedy.UnitTests.Sync
 			};
 
 			// We expecting all members to change except virtual members
-			TestHelper.AreEqual(expected, entity);
+			AreEqual(expected, entity);
 		}
 
 		[TestMethod]
@@ -186,7 +187,7 @@ namespace Speedy.UnitTests.Sync
 			};
 
 			// We expecting all members, *including* virtual members!
-			TestHelper.AreEqual(expected, entity);
+			AreEqual(expected, entity);
 		}
 
 		[TestMethod]
@@ -215,7 +216,7 @@ namespace Speedy.UnitTests.Sync
 			};
 
 			// We expecting all members, *including* virtual members!
-			TestHelper.AreEqual(expected, entity);
+			AreEqual(expected, entity);
 		}
 
 		[TestMethod]
@@ -229,27 +230,27 @@ namespace Speedy.UnitTests.Sync
 			// All properties excluded
 			var actual = new AddressEntity();
 			actual.UpdateWith(address, properties.ToArray());
-			TestHelper.AreEqual(expected, actual);
-			Assert.AreEqual(0, actual.Id);
-			Assert.AreEqual(Guid.Empty, actual.SyncId);
+			AreEqual(expected, actual);
+			AreEqual(0, actual.Id);
+			AreEqual(Guid.Empty, actual.SyncId);
 
 			// Remove Id exclusions
 			properties = properties.Except(new[] { nameof(AddressEntity.Id) }).ToList();
 			expected.Id = 1;
 			actual = new AddressEntity();
 			actual.UpdateWith(address, properties.ToArray());
-			TestHelper.AreEqual(expected, actual);
-			Assert.AreEqual(1, actual.Id);
-			Assert.AreEqual(Guid.Empty, actual.SyncId);
+			AreEqual(expected, actual);
+			AreEqual(1, actual.Id);
+			AreEqual(Guid.Empty, actual.SyncId);
 
 			// Remove SyncId exclusions
 			properties = properties.Except(new[] { nameof(AddressEntity.SyncId) }).ToList();
 			expected.SyncId = address.SyncId;
 			actual = new AddressEntity();
 			actual.UpdateWith(address, properties.ToArray());
-			TestHelper.AreEqual(expected, actual);
-			Assert.AreEqual(1, actual.Id);
-			Assert.AreEqual(expectedGuid, actual.SyncId);
+			AreEqual(expected, actual);
+			AreEqual(1, actual.Id);
+			AreEqual(expectedGuid, actual.SyncId);
 		}
 
 		[TestMethod]
@@ -271,7 +272,7 @@ namespace Speedy.UnitTests.Sync
 				item.Key.FullName.Dump();
 				(string.Join(",", expect) + " != " + string.Join(",", actual)).Dump();
 
-				TestHelper.AreEqual(expect, actual);
+				AreEqual(expect, actual);
 			}
 		}
 
@@ -300,7 +301,7 @@ namespace Speedy.UnitTests.Sync
 
 			actual.Data.Escape().Dump();
 
-			Assert.AreEqual(expect, actual.Data);
+			AreEqual(expect, actual.Data);
 		}
 
 		private static AddressEntity GetTestEntity(DateTime date)

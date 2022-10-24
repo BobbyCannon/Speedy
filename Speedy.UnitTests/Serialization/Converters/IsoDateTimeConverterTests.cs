@@ -13,7 +13,7 @@ using Speedy.Serialization.Converters;
 namespace Speedy.UnitTests.Serialization.Converters
 {
 	[TestClass]
-	public class IsoDateTimeConverterTests : BaseTests
+	public class IsoDateTimeConverterTests : SpeedyUnitTest
 	{
 		#region Methods
 

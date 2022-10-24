@@ -11,7 +11,7 @@ using Speedy.UnitTests.Protocols.Samples;
 namespace Speedy.UnitTests.Protocols.Osc
 {
 	[TestClass]
-	public class SampleOscCommandTests : BaseTests
+	public class SampleOscCommandTests : SpeedyUnitTest
 	{
 		#region Methods
 

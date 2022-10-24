@@ -10,7 +10,7 @@ using Speedy.Protocols.Osc;
 namespace Speedy.UnitTests.Protocols.Osc
 {
 	[TestClass]
-	public class OscBundleTests : BaseTests
+	public class OscBundleTests : SpeedyUnitTest
 	{
 		#region Methods
 

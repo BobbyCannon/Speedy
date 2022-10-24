@@ -10,7 +10,7 @@ using Speedy.Profiling;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class TimeServiceTests
+	public class TimeServiceTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -24,19 +24,19 @@ namespace Speedy.UnitTests
 
 			var id1 = TimeService.AddUtcNowProvider(provider1);
 			Assert.IsNotNull(id1);
-			Assert.AreEqual(provider1.Invoke(), TimeService.UtcNow);
+			AreEqual(provider1.Invoke(), TimeService.UtcNow);
 			var id2 = TimeService.AddUtcNowProvider(provider2);
 			Assert.IsNotNull(id2);
-			Assert.AreEqual(provider2.Invoke(), TimeService.UtcNow);
+			AreEqual(provider2.Invoke(), TimeService.UtcNow);
 			var id3 = TimeService.AddUtcNowProvider(provider3);
 			Assert.IsNotNull(id3);
-			Assert.AreEqual(provider3.Invoke(), TimeService.UtcNow);
+			AreEqual(provider3.Invoke(), TimeService.UtcNow);
 
-			Assert.AreEqual(provider3.Invoke(), TimeService.UtcNow);
+			AreEqual(provider3.Invoke(), TimeService.UtcNow);
 			TimeService.RemoveUtcNowProvider(id1.Value);
-			Assert.AreEqual(provider3.Invoke(), TimeService.UtcNow);
+			AreEqual(provider3.Invoke(), TimeService.UtcNow);
 			TimeService.RemoveUtcNowProvider(id2.Value);
-			Assert.AreEqual(provider3.Invoke(), TimeService.UtcNow);
+			AreEqual(provider3.Invoke(), TimeService.UtcNow);
 			TimeService.RemoveUtcNowProvider(id3.Value);
 			Assert.IsTrue(DateTime.UtcNow > start);
 		}
@@ -44,6 +44,7 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void LastProviderShouldBeUsed()
 		{
+			var start = TimeService.UtcNow;
 			var provider1 = () => new DateTime(2022, 08, 26, 02, 44, 00, DateTimeKind.Utc);
 			var provider2 = () => new DateTime(2022, 08, 26, 02, 44, 01, DateTimeKind.Utc);
 			var provider3 = () => new DateTime(2022, 08, 26, 02, 44, 02, DateTimeKind.Utc);
@@ -69,12 +70,20 @@ namespace Speedy.UnitTests
 			result1.Dump();
 			result2.Dump();
 
-			Assert.AreEqual(provider3.Invoke(), TimeService.UtcNow);
+			var expected = provider3.Invoke();
+			var actual = TimeService.UtcNow;
+			AreEqual(expected, actual);
 			TimeService.RemoveUtcNowProvider(id3.Value);
-			Assert.AreEqual(provider2.Invoke(), TimeService.UtcNow);
+			expected = provider2.Invoke();
+			actual = TimeService.UtcNow;
+			AreEqual(expected, actual);
 			TimeService.RemoveUtcNowProvider(id2.Value);
-			Assert.AreEqual(provider1.Invoke(), TimeService.UtcNow);
+			expected = provider1.Invoke();
+			actual = TimeService.UtcNow;
+			AreEqual(expected, actual);
 			TimeService.RemoveUtcNowProvider(id1.Value);
+			actual = TimeService.UtcNow;
+			IsTrue(actual > start);
 		}
 
 		[TestMethod]

@@ -7,7 +7,7 @@ using Speedy.Protocols.Nmea;
 
 namespace Speedy.UnitTests.Protocols.Nmea.Messages
 {
-	public abstract class BaseMessageTests : BaseTests
+	public abstract class BaseMessageTests : SpeedyUnitTest
 	{
 		#region Methods
 

@@ -11,7 +11,7 @@ using Speedy.Extensions;
 namespace Speedy.UnitTests.Extensions;
 
 [TestClass]
-public class LocationExtensionsTests : SpeedyTest
+public class LocationExtensionsTests : SpeedyUnitTest
 {
 	#region Methods
 

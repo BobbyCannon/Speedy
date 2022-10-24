@@ -1,7 +1,9 @@
 ﻿#region References
 
+using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 
@@ -10,7 +12,7 @@ using Speedy.Extensions;
 namespace Speedy.UnitTests.Extensions
 {
 	[TestClass]
-	public class ObjectExtensionsTests
+	public class ObjectExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -20,8 +22,12 @@ namespace Speedy.UnitTests.Extensions
 			var defaultEntity = new Address();
 			var nonDefaultEntity = new Address();
 			nonDefaultEntity.UpdateWithNonDefaultValues();
-			// Must set ID manually because it's excluded.
+			// These should still be default
+			Assert.AreEqual(0, nonDefaultEntity.Id);
+			Assert.AreEqual(Guid.Empty, nonDefaultEntity.SyncId);
+			// Must set Id, SyncId manually because they are excluded
 			nonDefaultEntity.Id = 64;
+			nonDefaultEntity.SyncId = Guid.NewGuid();
 			var properties = defaultEntity
 				.GetCachedProperties()
 				.ToList();
@@ -30,7 +36,7 @@ namespace Speedy.UnitTests.Extensions
 			{
 				var defaultValue = property.GetValue(defaultEntity);
 				var nonDefaultValue = property.GetValue(nonDefaultEntity);
-				TestHelper.AreNotEqual($"{property.Name}: {property.PropertyType.FullName}", defaultValue, nonDefaultValue);
+				AreNotEqual(defaultValue, nonDefaultValue, () => $"{property.Name}: {property.PropertyType.FullName}, {defaultValue}");
 			}
 		}
 

@@ -11,7 +11,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests.Extensions
 {
 	[TestClass]
-	public class UtilityExtensionsTests : BaseTests
+	public class UtilityExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 

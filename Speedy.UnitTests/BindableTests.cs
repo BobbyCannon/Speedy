@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Profiling;
 
 #endregion
@@ -8,14 +9,14 @@ using Speedy.Profiling;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class BindableTests : BaseModelTests<TrackerPathValue>
+	public class BindableTests : SpeedyUnitTest<TrackerPathValue>
 	{
 		#region Methods
 
 		[TestMethod]
 		public void AllPropertiesSet()
 		{
-			ValidateModel(GetModelWithNonDefaultValues());
+			ValidateAllValuesAreNotDefault(GetModelWithNonDefaultValues());
 		}
 
 		[TestMethod]

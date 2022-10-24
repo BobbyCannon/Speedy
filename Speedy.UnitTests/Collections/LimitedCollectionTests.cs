@@ -10,7 +10,7 @@ using Speedy.Collections;
 namespace Speedy.UnitTests.Collections
 {
 	[TestClass]
-	public class LimitedCollectionTests : BaseTests
+	public class LimitedCollectionTests : SpeedyUnitTest
 	{
 		#region Methods
 

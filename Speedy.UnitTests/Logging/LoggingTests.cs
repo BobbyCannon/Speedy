@@ -11,7 +11,7 @@ using Speedy.Logging;
 namespace Speedy.UnitTests.Logging
 {
 	[TestClass]
-	public class LoggingTests : BaseTests
+	public class LoggingTests : SpeedyUnitTest
 	{
 		#region Methods
 

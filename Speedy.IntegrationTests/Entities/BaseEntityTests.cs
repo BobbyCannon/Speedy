@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.Sync;
 using Speedy.UnitTests;
@@ -12,7 +13,7 @@ using Speedy.UnitTests;
 
 namespace Speedy.IntegrationTests.Entities
 {
-	public class BaseEntityTests<T> : BaseModelTests<T> where T : ISyncEntity, new()
+	public class BaseEntityTests<T> : SpeedyUnitTest<T> where T : ISyncEntity, new()
 	{
 		#region Methods
 
@@ -56,7 +57,7 @@ namespace Speedy.IntegrationTests.Entities
 			if (printOutput)
 			{
 				Clipboard.SetText(builder.ToString());
-				builder.ToString().Dump();
+				TestHelper.Dump(builder.ToString());
 
 				if (properties.Length != expected.Count)
 				{

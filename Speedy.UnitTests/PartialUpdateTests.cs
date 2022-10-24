@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
 using Speedy.Data.Updates;
 using Speedy.Exceptions;
@@ -22,7 +23,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class PartialUpdateTests
+	public class PartialUpdateTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -219,11 +220,11 @@ namespace Speedy.UnitTests
 
 			for (var i = 0; i < entities.Length; i++)
 			{
-				builder.AppendLine($"{{ entities[{i}], {entities[i].ToJson().Escape()} }},");
+				builder.AppendLine($"{{ entities[{i}], \"{entities[i].ToJson().Escape()}\" }},");
 			}
 
 			//Clipboard.SetText(builder.ToString());
-			builder.ToString().Dump();
+			//builder.ToString().Dump();
 
 			var expected = new Dictionary<IEntity, string>
 			{
@@ -240,7 +241,7 @@ namespace Speedy.UnitTests
 
 				var properties = actual.GetCachedProperties();
 				var exclusions = actual is ISyncEntity entity
-					? entity.GetExclusions(true, true, true)
+					? entity.GetExclusions(true, true, false)
 					: new HashSet<string>();
 
 				TestHelper.AreEqual(item.Key, actual, exclusions.ToArray());
@@ -266,7 +267,7 @@ namespace Speedy.UnitTests
 						continue;
 					}
 
-					TestHelper.AreNotEqual(e, a);
+					AreNotEqual(e, a, () => $"{e} != {a}");
 				}
 			}
 		}

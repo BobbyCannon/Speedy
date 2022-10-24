@@ -17,8 +17,7 @@ namespace Speedy.Automation.Tests;
 /// <summary>
 /// Represents a Speedy test.
 /// </summary>
-public abstract class SpeedyTest<T> : SpeedyTest
-	where T : new()
+public abstract class SpeedyTest<T> : SpeedyTest where T : new()
 {
 	#region Methods
 
@@ -51,7 +50,7 @@ public abstract class SpeedyTest
 {
 	#region Fields
 
-	private static Action<string> _clipboardProvider;
+	private Action<string> _clipboardProvider;
 
 	#endregion
 
@@ -60,7 +59,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Validates that the expected and actual are equal.
 	/// </summary>
-	public static void AreEqual<T>(T expected, T actual, Action<bool> process = null, params string[] membersToIgnore)
+	public virtual void AreEqual<T>(T expected, T actual, Action<bool> process = null, params string[] membersToIgnore)
 	{
 		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue };
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
@@ -73,7 +72,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Validates that the expected and actual are equal.
 	/// </summary>
-	public static void AreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, bool ignoreCollectionOrder = false, Action<bool> process = null, params string[] membersToIgnore)
+	public virtual void AreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, bool ignoreCollectionOrder = false, Action<bool> process = null, params string[] membersToIgnore)
 	{
 		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue, IgnoreCollectionOrder = ignoreCollectionOrder };
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
@@ -86,7 +85,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Validates that the expected and actual are equal.
 	/// </summary>
-	public static void AreEqual<T>(T[] expected, T[] actual, bool ignoreCollectionOrder = false, Action<bool> process = null, params string[] membersToIgnore)
+	public virtual void AreEqual<T>(T[] expected, T[] actual, bool ignoreCollectionOrder = false, Action<bool> process = null, params string[] membersToIgnore)
 	{
 		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue, IgnoreCollectionOrder = ignoreCollectionOrder };
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
@@ -99,7 +98,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Validates that the expected and actual are equal.
 	/// </summary>
-	public static void AreEqual<T>(T expected, T actual, params string[] membersToIgnore)
+	public virtual void AreEqual<T>(T expected, T actual, params string[] membersToIgnore)
 	{
 		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue };
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
@@ -111,7 +110,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Validates that the expected and actual are equal with custom message an optional exceptions.
 	/// </summary>
-	public static void AreEqual<T>(T expected, T actual, Func<string> message, params string[] membersToIgnore)
+	public virtual void AreEqual<T>(T expected, T actual, Func<string> message, params string[] membersToIgnore)
 	{
 		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue };
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
@@ -123,7 +122,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Validates that the expected and actual are not equal.
 	/// </summary>
-	public static void AreNotEqual<T>(T expected, T actual, params string[] membersToIgnore)
+	public virtual void AreNotEqual<T>(T expected, T actual, params string[] membersToIgnore)
 	{
 		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue };
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
@@ -135,13 +134,13 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Validates that the expected and actual are not equal.
 	/// </summary>
-	public static void AreNotEqual<T>(string message, T expected, T actual, params string[] membersToIgnore)
+	public virtual void AreNotEqual<T>(T expected, T actual, Func<string> message, params string[] membersToIgnore)
 	{
 		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue };
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
 		var logic = new CompareLogic(configuration);
 		var result = logic.Compare(expected, actual);
-		Assert.IsFalse(result.AreEqual, message + Environment.NewLine + result.DifferencesString);
+		Assert.IsFalse(result.AreEqual, message?.Invoke() + Environment.NewLine + result.DifferencesString);
 	}
 
 	/// <summary>
@@ -171,10 +170,48 @@ public abstract class SpeedyTest
 	}
 
 	/// <summary>
+	/// Tests whether the specified condition is true and throws an exception if the condition is false.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be true. </param>
+	public virtual void IsTrue(Func<bool> condition)
+	{
+		IsTrue(condition());
+	}
+
+	/// <summary>
+	/// Tests whether the specified condition is true and throws an exception if the condition is false.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be true. </param>
+	/// <param name="message"> The message is shown in test results. </param>
+	public virtual void IsTrue(Func<bool> condition, string message)
+	{
+		IsTrue(condition(), message);
+	}
+
+	/// <summary>
+	/// Tests whether the specified condition is true and throws an exception if the condition is false.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be true. </param>
+	public virtual void IsTrue(bool condition)
+	{
+		Assert.IsTrue(condition);
+	}
+
+	/// <summary>
+	/// Tests whether the specified condition is true and throws an exception if the condition is false.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be true. </param>
+	/// <param name="message"> The message is shown in test results. </param>
+	public virtual void IsTrue(bool condition, string message)
+	{
+		Assert.IsTrue(condition, message);
+	}
+
+	/// <summary>
 	/// Sets the clipboard provider.
 	/// </summary>
 	/// <param name="provider"> The provider to be set. </param>
-	public static void SetClipboardProvider(Action<string> provider)
+	public virtual void SetClipboardProvider(Action<string> provider)
 	{
 		_clipboardProvider = provider;
 	}

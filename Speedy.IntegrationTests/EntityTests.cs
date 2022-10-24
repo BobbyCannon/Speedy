@@ -111,7 +111,8 @@ namespace Speedy.IntegrationTests
 				nameof(AccountEntity.LastLoginDate),
 				nameof(AccountEntity.PasswordHash),
 				nameof(AccountEntity.Pets),
-				nameof(AccountEntity.Roles)
+				nameof(AccountEntity.Roles),
+				nameof(AccountEntity.SyncId)
 			);
 
 			Assert.AreEqual(null, actual.Address);

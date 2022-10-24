@@ -13,7 +13,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
-	public class SyncObjectTests : BaseTests
+	public class SyncObjectTests : SpeedyUnitTest
 	{
 		#region Methods
 

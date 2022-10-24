@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.Serialization;
@@ -15,7 +16,7 @@ using Speedy.UnitTests.Factories;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class PagedResultsTests : BaseModelTests<PagedResults<object>>
+	public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 	{
 		#region Methods
 

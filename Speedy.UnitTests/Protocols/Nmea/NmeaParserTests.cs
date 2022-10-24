@@ -14,7 +14,7 @@ using Speedy.Protocols.Nmea.Messages;
 namespace Speedy.UnitTests.Protocols.Nmea
 {
 	[TestClass]
-	public class NmeaParserTests : BaseTests
+	public class NmeaParserTests : SpeedyUnitTest
 	{
 		#region Methods
 

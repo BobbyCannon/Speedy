@@ -13,7 +13,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.IntegrationTests
 {
 	[TestClass]
-	public class CachedSyncClientTests : BaseTests
+	public class CachedSyncClientTests : SpeedyUnitTest
 	{
 		#region Methods
 

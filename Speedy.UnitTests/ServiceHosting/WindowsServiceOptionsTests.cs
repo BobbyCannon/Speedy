@@ -9,7 +9,7 @@ using Speedy.ServiceHosting;
 namespace Speedy.UnitTests.ServiceHosting
 {
 	[TestClass]
-	public class WindowsServiceOptionsTests : BaseTests
+	public class WindowsServiceOptionsTests : SpeedyUnitTest
 	{
 		#region Methods
 

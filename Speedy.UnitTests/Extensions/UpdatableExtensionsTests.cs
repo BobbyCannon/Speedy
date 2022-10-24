@@ -20,7 +20,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests.Extensions;
 
 [TestClass]
-public class UpdatableExtensionsTests : SpeedyTest
+public class UpdatableExtensionsTests : SpeedyUnitTest
 {
 	#region Methods
 

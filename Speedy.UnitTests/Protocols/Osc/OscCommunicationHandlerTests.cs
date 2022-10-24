@@ -10,7 +10,7 @@ using Speedy.UnitTests.Protocols.Samples;
 namespace Speedy.UnitTests.Protocols.Osc
 {
 	[TestClass]
-	public class OscCommunicationHandlerTests : BaseTests
+	public class OscCommunicationHandlerTests : SpeedyUnitTest
 	{
 		#region Methods
 

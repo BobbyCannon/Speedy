@@ -31,7 +31,7 @@ public class ClientAddressTest : SyncEntityTest<ClientAddress, long>
 			{ "ModifiedOn", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
 			{ "Postal", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
 			{ "State", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
-			{ "SyncId", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) }
+			{ "SyncId", (incoming: false, outgoing: false, syncUpdate: true, changeTracking: false) }
 		};
 		ValidateExclusions(expected, false);
 	}

@@ -4277,7 +4277,7 @@
             Validates that the expected and actual are not equal.
             </summary>
         </member>
-        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreNotEqual``1(System.String,``0,``0,System.String[])">
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreNotEqual``1(``0,``0,System.Func{System.String},System.String[])">
             <summary>
             Validates that the expected and actual are not equal.
             </summary>
@@ -4289,6 +4289,32 @@
             <typeparam name="T"> The type of the value. </typeparam>
             <param name="value"> The object to copy to the clipboard. Calls ToString on the value. </param>
             <returns> The value input to allow for method chaining. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsTrue(System.Func{System.Boolean})">
+            <summary>
+            Tests whether the specified condition is true and throws an exception if the condition is false.
+            </summary>
+            <param name="condition"> The condition the test expects to be true. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsTrue(System.Func{System.Boolean},System.String)">
+            <summary>
+            Tests whether the specified condition is true and throws an exception if the condition is false.
+            </summary>
+            <param name="condition"> The condition the test expects to be true. </param>
+            <param name="message"> The message is shown in test results. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsTrue(System.Boolean)">
+            <summary>
+            Tests whether the specified condition is true and throws an exception if the condition is false.
+            </summary>
+            <param name="condition"> The condition the test expects to be true. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsTrue(System.Boolean,System.String)">
+            <summary>
+            Tests whether the specified condition is true and throws an exception if the condition is false.
+            </summary>
+            <param name="condition"> The condition the test expects to be true. </param>
+            <param name="message"> The message is shown in test results. </param>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.SetClipboardProvider(System.Action{System.String})">
             <summary>
@@ -4390,6 +4416,13 @@
             <param name="waitFor"></param>
             <param name="postAction"></param>
             <returns></returns>
+        </member>
+        <member name="T:Speedy.Automation.Tests.Sync.SyncEntityTest`2">
+            <summary>
+            The based sync entity test to base all entity test on.
+            </summary>
+            <typeparam name="T"> The entity type. </typeparam>
+            <typeparam name="T2"> The primary key type for the entity. </typeparam>
         </member>
         <member name="T:Speedy.Automation.Tests.TestingExtensions">
             <summary>

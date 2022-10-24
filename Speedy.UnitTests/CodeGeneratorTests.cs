@@ -103,7 +103,7 @@ public class CodeGeneratorTests
 	[TestMethod]
 	public void GenerateUpdateWith()
 	{
-		var type = typeof(SyncDevice<int>);
+		var type = typeof(PagedResults<int>);
 		var builder = new StringBuilder();
 		var properties = type
 			.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)

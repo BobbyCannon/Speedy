@@ -14,9 +14,10 @@ $siteName = "Speedy"
 $productName = "Speedy"
 $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path(Get-Variable MyInvocation).Value.MyCommand.Path
-#$scriptPath = "C:\Workspaces\EpicCoders\$productName"
+# $scriptPath = "C:\Workspaces\GitHub\$productName"
 
-& nuget.exe restore "$scriptPath\Speedy.sln"
+#& nuget.exe restore "$scriptPath\Speedy.sln"
+& nuget.exe restore "$scriptPath\Speedy.Website\Speedy.Website.csproj"
 
 if ($LASTEXITCODE -ne 0)
 {

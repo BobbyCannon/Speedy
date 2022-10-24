@@ -448,7 +448,7 @@ public class PartialUpdate : Bindable
 
 		if (entity is ISyncEntity syncEntity)
 		{
-			var exclusions = syncEntity.GetExclusions(true, true, true);
+			var exclusions = syncEntity.GetExclusions(true, true, false);
 			updateOptions.ExcludedProperties.AddRange(exclusions);
 		}
 

@@ -8,7 +8,7 @@ using Speedy.Protocols.Osc;
 namespace Speedy.UnitTests.Protocols.Osc
 {
 	[TestClass]
-	public class OscSymbolTests : BaseTests
+	public class OscSymbolTests : SpeedyUnitTest
 	{
 		#region Methods
 

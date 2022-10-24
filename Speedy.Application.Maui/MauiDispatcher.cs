@@ -34,6 +34,7 @@ public class MauiDispatcher : Dispatcher
 		_dispatcher.Dispatch(action);
 	}
 
+	/// <inheritdoc />
 	protected override T ExecuteOnDispatcher<T>(Func<T> action)
 	{
 		T result = default;
@@ -47,6 +48,7 @@ public class MauiDispatcher : Dispatcher
 		return _dispatcher.DispatchAsync(action);
 	}
 
+	/// <inheritdoc />
 	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
 		return _dispatcher.DispatchAsync(action);

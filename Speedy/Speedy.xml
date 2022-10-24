@@ -6787,6 +6787,16 @@
             <param name="convert"> The function to convert from the current type into the requested type. </param>
             <returns> The new paged results for the provided type. </returns>
         </member>
+        <member name="M:Speedy.PagedResults`1.UpdateWith(Speedy.PagedResults{`0},System.String[])">
+            <summary>
+            Update the PagedResults`1 with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.PagedResults`1.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.PagedResults`1.GetExpandoObject">
             <inheritdoc />
         </member>

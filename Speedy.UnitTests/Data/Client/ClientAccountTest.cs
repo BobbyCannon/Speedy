@@ -31,7 +31,7 @@ public class ClientAccountTest : SyncEntityTest<ClientAccount, int>
 			{ "ModifiedOn", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
 			{ "Name", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
 			{ "Roles", (incoming: true, outgoing: false, syncUpdate: true, changeTracking: false) },
-			{ "SyncId", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) }
+			{ "SyncId", (incoming: false, outgoing: false, syncUpdate: true, changeTracking: false) }
 		};
 		ValidateExclusions(expected, false);
 	}

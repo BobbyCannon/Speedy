@@ -12,7 +12,7 @@ namespace Speedy.UnitTests.Sync
 	/// Summary description for SyncDatabaseProviderTests.
 	/// </summary>
 	[TestClass]
-	public class SyncDatabaseProviderTests : BaseTests
+	public class SyncDatabaseProviderTests : SpeedyUnitTest
 	{
 		#region Methods
 

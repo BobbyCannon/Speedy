@@ -110,11 +110,11 @@ public abstract class ClientAndServerSyncTest<TSyncType, TSyncManager, TSyncClie
     }
 
     public void ValidateSyncResults(SyncResults<TSyncType> results)
-    {
-        AreEqual(0, results.SyncIssues.Count,
-            () => string.Join(Environment.NewLine, results.SyncIssues.Select(x => x.Message))
-        );
-    }
+	{
+		AreEqual(0, results.SyncIssues.Count,
+			() => string.Join(Environment.NewLine, results.SyncIssues.Select(x => x.Message))
+		);
+	}
 
     #endregion
 }

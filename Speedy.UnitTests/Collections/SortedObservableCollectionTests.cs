@@ -16,7 +16,7 @@ using Speedy.Extensions;
 namespace Speedy.UnitTests.Collections
 {
 	[TestClass]
-	public class SortedObservableCollectionTests : BaseTests
+	public class SortedObservableCollectionTests : SpeedyUnitTest
 	{
 		#region Methods
 

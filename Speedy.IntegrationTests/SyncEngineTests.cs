@@ -23,7 +23,7 @@ namespace Speedy.IntegrationTests
 	/// Summary description for SyncEngineTests.
 	/// </summary>
 	[TestClass]
-	public class SyncEngineTests : BaseTests
+	public class SyncEngineTests : SpeedyUnitTest
 	{
 		#region Methods
 

@@ -28,7 +28,7 @@ namespace Speedy.IntegrationTests.Entities
 				{ "CreatedOn", (false, false, false, false) },
 				{ "IsDeleted", (false, false, true, false) },
 				{ "ModifiedOn", (false, false, false, false) },
-				{ "SyncId", (false, false, false, false) }
+				{ "SyncId", (false, false, true, false) }
 			};
 
 			ValidateExclusions(entity, expected, false);

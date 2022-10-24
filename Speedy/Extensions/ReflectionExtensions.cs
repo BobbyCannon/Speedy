@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
+using Speedy.Protocols.Osc;
 using Speedy.Sync;
 
 #endregion
@@ -648,6 +649,16 @@ public static class ReflectionExtensions
 		{
 			return TimeService.UtcNow;
 		}
+		if ((propertyType == typeof(OscTimeTag)) || (propertyType == typeof(OscTimeTag?)))
+		{
+			return OscTimeTag.UtcNow;
+		}
+		if ((propertyType == typeof(TimeSpan)) || (propertyType == typeof(TimeSpan?)))
+		{
+			_random.GetBytes(_buffer, 0, 4);
+			var ticks = BitConverter.ToInt32(_buffer, 0);
+			return TimeSpan.FromTicks(ticks == 0 ? 1 : ticks);
+		}
 		if (propertyType == typeof(double))
 		{
 			_random.GetBytes(_buffer, 0, 8);
@@ -669,6 +680,10 @@ public static class ReflectionExtensions
 		if ((propertyType == typeof(Guid)) || (propertyType == typeof(Guid?)))
 		{
 			return Guid.NewGuid();
+		}
+		if ((propertyType == typeof(ShortGuid)) || (propertyType == typeof(ShortGuid?)))
+		{
+			return ShortGuid.NewGuid();
 		}
 		if ((propertyType == typeof(int)) || (propertyType == typeof(int?)))
 		{
@@ -694,18 +709,7 @@ public static class ReflectionExtensions
 		{
 			return Guid.NewGuid().ToString();
 		}
-		if (propertyType.IsNullable())
-		{
-			try
-			{
-				return Activator.CreateInstance(propertyType);
-			}
-			catch
-			{
-				// ignore
-			}
-		}
-
+		
 		var isCollection = propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>));
 		if (isCollection)
 		{
@@ -716,7 +720,19 @@ public static class ReflectionExtensions
 
 		if (propertyType.IsArray)
 		{
-			return Array.CreateInstance(propertyType, 0);
+			return Array.CreateInstance(propertyType.GetElementType() ?? propertyType, 0);
+		}
+
+		if (propertyType.IsNullable())
+		{
+			try
+			{
+				return Activator.CreateInstance(propertyType);
+			}
+			catch
+			{
+				// ignore
+			}
 		}
 
 		return nonSupportedType?.Invoke(propertyInfo);

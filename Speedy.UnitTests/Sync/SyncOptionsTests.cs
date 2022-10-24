@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Sync;
 using Speedy.Website.Data.Entities;
 
@@ -11,14 +12,14 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
-	public class SyncOptionsTests : BaseModelTests<SyncOptions>
+	public class SyncOptionsTests : SpeedyUnitTest<SyncOptions>
 	{
 		#region Methods
 
 		[TestMethod]
 		public void AllPropertiesSet()
 		{
-			ValidateModel(GetModelWithNonDefaultValues());
+			ValidateAllValuesAreNotDefault(GetModelWithNonDefaultValues());
 		}
 
 		[TestMethod]

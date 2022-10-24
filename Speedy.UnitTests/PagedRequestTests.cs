@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.UnitTests.Factories;
@@ -11,7 +12,7 @@ using Speedy.UnitTests.Factories;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class PagedRequestTests : BaseModelTests<PagedRequest>
+	public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 	{
 		#region Methods
 

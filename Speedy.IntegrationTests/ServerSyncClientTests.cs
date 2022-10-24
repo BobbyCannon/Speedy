@@ -24,7 +24,7 @@ using Speedy.Website.WebApi;
 namespace Speedy.IntegrationTests
 {
 	[TestClass]
-	public class ServerSyncClientTests : BaseTests
+	public class ServerSyncClientTests : SpeedyUnitTest
 	{
 		#region Methods
 

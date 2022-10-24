@@ -10,6 +10,11 @@ using Speedy.Sync;
 
 namespace Speedy.Automation.Tests.Sync;
 
+/// <summary>
+/// The based sync entity test to base all entity test on.
+/// </summary>
+/// <typeparam name="T"> The entity type. </typeparam>
+/// <typeparam name="T2"> The primary key type for the entity. </typeparam>
 public abstract class SyncEntityTest<T, T2> : SpeedyTest 
 	where T : SyncEntity<T2>, new()
 {

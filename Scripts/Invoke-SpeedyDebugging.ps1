@@ -96,6 +96,8 @@ foreach ($file in $files)
 		continue
 	}
 	
+	# todo: need to support a different Framework when setting Maui, WPF, etc, add framework detection
+	
 	for ($i = 0; $i -le $packageReferences.Length; $i++)
 	{
 		if ($Rollback.IsPresent)

@@ -16,7 +16,7 @@ using Speedy.Storage.KeyValue;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class KeyValueRepositoryTests : BaseTests
+	public class KeyValueRepositoryTests : SpeedyUnitTest
 	{
 		#region Methods
 

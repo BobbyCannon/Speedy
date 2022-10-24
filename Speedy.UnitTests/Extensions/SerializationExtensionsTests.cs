@@ -11,7 +11,7 @@ using Speedy.UnitTests.Factories;
 namespace Speedy.UnitTests.Extensions
 {
 	[TestClass]
-	public class SerializationExtensionsTests : BaseTests
+	public class SerializationExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 

@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class ThreadSafeTests : BaseTests
+	public class ThreadSafeTests : SpeedyUnitTest
 	{
 		#region Methods
 

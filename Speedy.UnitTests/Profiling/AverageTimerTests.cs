@@ -9,7 +9,7 @@ using Speedy.Profiling;
 namespace Speedy.UnitTests.Profiling
 {
 	[TestClass]
-	public class AverageTimerTests : BaseTests
+	public class AverageTimerTests : SpeedyUnitTest
 	{
 		#region Methods
 

@@ -27,7 +27,7 @@ public class ClientLogEventTest : SyncEntityTest<ClientLogEvent, long>
 			{ "Level", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
 			{ "Message", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
 			{ "ModifiedOn", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) },
-			{ "SyncId", (incoming: false, outgoing: false, syncUpdate: false, changeTracking: false) }
+			{ "SyncId", (incoming: false, outgoing: false, syncUpdate: true, changeTracking: false) }
 		};
 		ValidateExclusions(expected, false);
 	}

@@ -11,7 +11,7 @@ using Speedy.Protocols.Osc;
 namespace Speedy.UnitTests.Protocols.Osc
 {
 	[TestClass]
-	public class OscTimeTagTests : BaseTests
+	public class OscTimeTagTests : SpeedyUnitTest
 	{
 		#region Methods
 
