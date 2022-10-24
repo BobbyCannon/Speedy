@@ -1,13 +1,14 @@
 ﻿#region References
 
-using System;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using Speedy.Application;
 using Speedy.Application.Xamarin;
+using Speedy.Collections;
 using Speedy.Devices.Location;
+using Speedy.Logging;
 
 #endregion
 
@@ -19,8 +20,11 @@ namespace Speedy.Samples.Xamarin
 
 		public MainViewModel(IDispatcher dispatcher) : base(dispatcher)
 		{
-			LocationProvider = new XamarinLocationProvider<Location, LocationProviderSettings>(dispatcher);
+			Logs = new LimitedObservableCollection<LogEventArgs>(100);
+			LocationProvider = new XamarinLocationProvider<Location, LocationProviderSettingsView>(dispatcher);
+			LocationProvider.LogEventWritten += LocationProviderOnLogEventWritten;
 			LocationProvider.PositionChanged += LocationProviderOnPositionChanged;
+
 			var plotModel = new PlotModel
 			{
 				Title = "Altitude History",
@@ -49,11 +53,18 @@ namespace Speedy.Samples.Xamarin
 
 		public PlotModel AltitudeChart { get; }
 
-		public XamarinLocationProvider<Location, LocationProviderSettings> LocationProvider { get; }
+		public XamarinLocationProvider<Location, LocationProviderSettingsView> LocationProvider { get; }
+
+		public ObservableCollection<LogEventArgs> Logs { get; }
 
 		#endregion
 
 		#region Methods
+
+		private void LocationProviderOnLogEventWritten(object sender, LogEventArgs e)
+		{
+			Dispatcher.Run(() => Logs.Insert(0, e));
+		}
 
 		private void LocationProviderOnPositionChanged(object sender, Location e)
 		{

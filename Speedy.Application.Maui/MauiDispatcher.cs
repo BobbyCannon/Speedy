@@ -34,8 +34,20 @@ public class MauiDispatcher : Dispatcher
 		_dispatcher.Dispatch(action);
 	}
 
+	protected override T ExecuteOnDispatcher<T>(Func<T> action)
+	{
+		T result = default;
+		_dispatcher.Dispatch(() => result = action());
+		return result;
+	}
+
 	/// <inheritdoc />
 	protected override Task ExecuteOnDispatcherAsync(Action action)
+	{
+		return _dispatcher.DispatchAsync(action);
+	}
+
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
 		return _dispatcher.DispatchAsync(action);
 	}

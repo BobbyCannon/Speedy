@@ -227,7 +227,13 @@
         <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcher(System.Action)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationName">

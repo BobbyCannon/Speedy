@@ -34,6 +34,18 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
+		public T Run<T>(Func<T> action)
+		{
+			if (IsDispatcherThread == false)
+			{
+				// Go ahead and mark thread access as true
+				IsDispatcherThread = true;
+			}
+
+			return action();
+		}
+
+		/// <inheritdoc />
 		public Task RunAsync(Action action)
 		{
 			if (IsDispatcherThread == false)
@@ -44,6 +56,18 @@ namespace Speedy
 
 			action();
 			return Task.CompletedTask;
+		}
+
+		/// <inheritdoc />
+		public Task<T> RunAsync<T>(Func<T> action)
+		{
+			if (IsDispatcherThread == false)
+			{
+				// Go ahead and mark thread access as true
+				IsDispatcherThread = true;
+			}
+
+			return Task.FromResult(action());
 		}
 
 		#endregion

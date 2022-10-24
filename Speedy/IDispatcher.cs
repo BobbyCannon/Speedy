@@ -32,12 +32,34 @@ public abstract class Dispatcher : IDispatcher
 	}
 
 	/// <inheritdoc />
+	public T Run<T>(Func<T> action)
+	{
+		if (IsDispatcherThread)
+		{
+			return action();
+		}
+
+		return ExecuteOnDispatcher(action);
+	}
+
+	/// <inheritdoc />
 	public Task RunAsync(Action action)
 	{
 		if (IsDispatcherThread)
 		{
 			action();
 			return Task.CompletedTask;
+		}
+
+		return ExecuteOnDispatcherAsync(action);
+	}
+
+	/// <inheritdoc />
+	public Task<T> RunAsync<T>(Func<T> action)
+	{
+		if (IsDispatcherThread)
+		{
+			return Task.FromResult(action());
 		}
 
 		return ExecuteOnDispatcherAsync(action);
@@ -53,7 +75,19 @@ public abstract class Dispatcher : IDispatcher
 	/// Execute the action on the dispatcher.
 	/// </summary>
 	/// <param name="action"> The action to execute. </param>
+	protected abstract T ExecuteOnDispatcher<T>(Func<T> action);
+
+	/// <summary>
+	/// Execute the action on the dispatcher.
+	/// </summary>
+	/// <param name="action"> The action to execute. </param>
 	protected abstract Task ExecuteOnDispatcherAsync(Action action);
+
+	/// <summary>
+	/// Execute the action on the dispatcher.
+	/// </summary>
+	/// <param name="action"> The action to execute. </param>
+	protected abstract Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action);
 
 	#endregion
 }
@@ -81,11 +115,24 @@ public interface IDispatcher
 	void Run(Action action);
 
 	/// <summary>
+	/// Run an action on the dispatching thread.
+	/// </summary>
+	/// <param name="action"> The action to be executed. </param>
+	T Run<T>(Func<T> action);
+
+	/// <summary>
 	/// Run an asynchronous action on the dispatching thread.
 	/// </summary>
 	/// <param name="action"> The action to be executed. </param>
 	/// <returns> The task. </returns>
 	Task RunAsync(Action action);
+
+	/// <summary>
+	/// Run an asynchronous action on the dispatching thread.
+	/// </summary>
+	/// <param name="action"> The action to be executed. </param>
+	/// <returns> The task. </returns>
+	Task<T> RunAsync<T>(Func<T> action);
 
 	#endregion
 }

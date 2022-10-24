@@ -12,15 +12,6 @@ namespace Speedy.Application.Xamarin;
 /// <inheritdoc />
 public class XamarinDispatcher : Dispatcher
 {
-	#region Constructors
-
-	/// <inheritdoc />
-	public XamarinDispatcher()
-	{
-	}
-
-	#endregion
-
 	#region Properties
 
 	/// <inheritdoc />
@@ -37,7 +28,19 @@ public class XamarinDispatcher : Dispatcher
 	}
 
 	/// <inheritdoc />
+	protected override T ExecuteOnDispatcher<T>(Func<T> action)
+	{
+		return XamarinForms.Device.InvokeOnMainThreadAsync(action).AwaitResults();
+	}
+
+	/// <inheritdoc />
 	protected override Task ExecuteOnDispatcherAsync(Action action)
+	{
+		return XamarinForms.Device.InvokeOnMainThreadAsync(action);
+	}
+
+	/// <inheritdoc />
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
 		return XamarinForms.Device.InvokeOnMainThreadAsync(action);
 	}

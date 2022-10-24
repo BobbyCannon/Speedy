@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Speedy.Commands;
 using Speedy.Extensions;
+using Speedy.Logging;
 
 #endregion
 
@@ -101,6 +102,15 @@ public abstract class LocationProvider<T, T2>
 	public abstract Task StopListeningAsync();
 
 	/// <summary>
+	/// Triggers event handler
+	/// </summary>
+	/// <param name="e"> The value for the event handler. </param>
+	protected virtual void OnLogEventWritten(LogEventArgs e)
+	{
+		LogEventWritten?.Invoke(this, e);
+	}
+
+	/// <summary>
 	/// Triggers event handler.
 	/// </summary>
 	/// <param name="e"> The value for the event handler. </param>
@@ -132,25 +142,15 @@ public abstract class LocationProvider<T, T2>
 			return;
 		}
 
-		var lastReadHasFullyExpired =
-			// always consider reading expired if not filtering
-			!LocationProviderSettings.EnableLocationFiltering
-			// or if the status has timed out
-			|| (update.StatusTime - LastReadLocation.StatusTime) >= LocationProviderSettings.LocationFilterTimeout;
-
-		if (lastReadHasFullyExpired)
-		{
-			// Update everything
-			LastReadLocation.UpdateWith(update);
-		}
-
-		// Update only better values
-		LastReadLocation.UpdateIfBetter(update);
+		LastReadLocation.UpdateWith(update);
 	}
 
 	#endregion
 
 	#region Events
+
+	/// <inheritdoc />
+	public event EventHandler<LogEventArgs> LogEventWritten;
 
 	/// <inheritdoc />
 	public event EventHandler<T> PositionChanged;
@@ -250,6 +250,11 @@ public interface ILocationProvider<T, out T2>
 	#endregion
 
 	#region Events
+
+	/// <summary>
+	/// Provider has written a log event.
+	/// </summary>
+	event EventHandler<LogEventArgs> LogEventWritten;
 
 	/// <summary>
 	/// Provider location changed event handler.

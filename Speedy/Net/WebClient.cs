@@ -227,7 +227,7 @@ namespace Speedy.Net
 		}
 
 		/// <inheritdoc />
-		public override void OnPropertyChanged(string propertyName)
+		protected override void PropertyHasChanged(string propertyName)
 		{
 			switch (propertyName)
 			{
@@ -238,7 +238,7 @@ namespace Speedy.Net
 				}
 			}
 
-			base.OnPropertyChanged(propertyName);
+			base.PropertyHasChanged(propertyName);
 		}
 
 		/// <summary>

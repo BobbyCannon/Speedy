@@ -43,7 +43,19 @@ public class WpfDispatcher : Dispatcher
 	}
 
 	/// <inheritdoc />
+	protected override T ExecuteOnDispatcher<T>(Func<T> action)
+	{
+		return _dispatcher.Invoke(action, DispatcherPriority.Normal);
+	}
+
+	/// <inheritdoc />
 	protected override Task ExecuteOnDispatcherAsync(Action action)
+	{
+		return _dispatcher.InvokeAsync(action, DispatcherPriority.Normal).Task;
+	}
+	
+	/// <inheritdoc />
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
 		return _dispatcher.InvokeAsync(action, DispatcherPriority.Normal).Task;
 	}

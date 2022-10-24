@@ -134,7 +134,7 @@ public static class PlatformExtensions
 		return response;
 	}
 
-	private static DateTimeOffset GetTimestamp(this Android.Locations.Location location)
+	internal static DateTimeOffset GetTimestamp(this Android.Locations.Location location)
 	{
 		try
 		{

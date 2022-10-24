@@ -182,136 +182,6 @@ public static class LocationExtensions
 		return new BasicLocation(totalX / locationList.Count, totalY / locationList.Count);
 	}
 
-
-	/// <summary>
-	/// See if the location is better.
-	/// </summary>
-	/// <param name="location"> The location to check. </param>
-	/// <param name="update"> The values to compare with. </param>
-	public static void UpdateIfBetter(this ILocation location, ILocation update)
-	{
-		var wasUpdated = false;
-
-		if (update.HasBetterVerticalLocation(location))
-		{
-			location.UpdateVerticalLocation(update);
-			wasUpdated = true;
-		}
-
-		if (update.HasBetterHorizontalLocation(location))
-		{
-			location.UpdateHorizontalLocation(update);
-			wasUpdated = true;
-		}
-
-		if (!wasUpdated)
-		{
-			// Nothing updated so bounce
-			return;
-		}
-
-		// Update all other things
-		location.StatusTime = update.StatusTime;
-
-		location.HasHeading = update.HasHeading;
-		location.Heading = update.Heading;
-
-		location.HasSpeed = update.HasSpeed;
-		location.Speed = update.Speed;
-	}
-
-	/// <summary>
-	/// See if the vertical location (altitude) is better.
-	/// </summary>
-	/// <param name="location"> The location to check. </param>
-	/// <param name="update"> The values to compare with. </param>
-	/// <returns> True if the location is better than the update. </returns>
-	public static bool HasBetterVerticalLocation(this ILocation location, ILocation update)
-	{
-		if (location.HasAltitudeAccuracy 
-			&& update.HasAltitudeAccuracy
-			&& update.AltitudeAccuracy >= location.AltitudeAccuracy)
-		{
-			// Update is more accurate
-			return true;
-		}
-		
-		if (!location.HasAltitudeAccuracy 
-			&& update.HasAltitudeAccuracy)
-		{
-			// Update is more accurate
-			return true;
-		}
-
-		if (!location.HasAltitude && update.HasAltitude)
-		{
-			// Altitude is now available
-			return true;
-		}
-
-		// Location is better than update.
-		return false;
-	}
-	
-	/// <summary>
-	/// See if the horizontal location (lat, long) is better.
-	/// </summary>
-	/// <param name="location"> The location to check. </param>
-	/// <param name="update"> The values to compare with. </param>
-	/// <returns> True if the location is better than the update. </returns>
-	public static bool HasBetterHorizontalLocation(this ILocation location, ILocation update)
-	{
-		if (location.HasAccuracy 
-			&& update.HasAccuracy
-			&& update.Accuracy >= location.Accuracy)
-		{
-			// Update is more accurate
-			return true;
-		}
-		
-		if (!location.HasAccuracy 
-			&& update.HasAccuracy)
-		{
-			// Update is more accurate
-			return true;
-		}
-
-		if (!location.HasLatitudeLongitude && update.HasLatitudeLongitude)
-		{
-			// location is now available
-			return true;
-		}
-
-		// Location is better than update.
-		return false;
-	}
-
-	/// <summary>
-	/// Update the altitude.
-	/// </summary>
-	/// <param name="location"> The location to update. </param>
-	/// <param name="update"> The update with new values. </param>
-	public static void UpdateVerticalLocation(this ILocation location, ILocation update)
-	{
-		location.Altitude = update.Altitude;
-		location.AltitudeReference = update.AltitudeReference;
-		location.AltitudeAccuracy = update.AltitudeAccuracy;
-		location.AltitudeAccuracyReference = update.AltitudeAccuracyReference;
-	}
-	
-	/// <summary>
-	/// Update the horizontal location (lat, long).
-	/// </summary>
-	/// <param name="location"> The location to update. </param>
-	/// <param name="update"> The update with new values. </param>
-	public static void UpdateHorizontalLocation(this ILocation location, ILocation update)
-	{
-		location.Latitude = update.Latitude;
-		location.Longitude = update.Longitude;
-		location.Accuracy = update.Accuracy;
-		location.AccuracyReference = update.AccuracyReference;
-	}
-
 	/// <summary>
 	/// Tries to get an ellipsoid altitude for the vertical location.
 	/// </summary>
@@ -366,10 +236,48 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
+	/// Handle property changes for ILocation. Triggers properties like HasAltitude when the
+	/// dependent properties are updated.
+	/// </summary>
+	/// <param name="location"> The location to process. </param>
+	/// <param name="propertyName"> The name of the property that has changed. </param>
+	public static void ProcessOnPropertyChange(this ILocation location, string propertyName)
+	{
+		switch (propertyName)
+		{
+			case nameof(ILocation.AccuracyReference):
+			{
+				location.OnPropertyChanged(nameof(ILocation.HasAccuracy));
+				location.OnPropertyChanged(nameof(ILocation.HasLatitudeLongitude));
+				break;
+			}
+			case nameof(ILocation.AltitudeReference):
+			{
+				location.OnPropertyChanged(nameof(ILocation.HasAltitude));
+				break;
+			}
+			case nameof(ILocation.AltitudeAccuracyReference):
+			{
+				location.OnPropertyChanged(nameof(ILocation.HasAltitudeAccuracy));
+				break;
+			}
+			case nameof(ILocation.LocationFlags):
+			{
+				location.OnPropertyChanged(nameof(ILocation.HasHeading));
+				location.OnPropertyChanged(nameof(ILocation.HasSpeed));
+				break;
+			}
+		}
+	}
+
+	/// <summary>
 	/// Check a location to determine if <see cref="ILocation.Accuracy" /> is available.
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// </remarks>
 	public static bool HasAccuracy(this ILocation location)
 	{
 		return location.AccuracyReference != AccuracyReferenceType.Unknown;
@@ -380,6 +288,9 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// </remarks>
 	public static bool HasAltitude(this ILocation location)
 	{
 		return location.AltitudeReference != AltitudeReferenceType.Unspecified;
@@ -390,9 +301,78 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// </remarks>
 	public static bool HasAltitudeAccuracy(this ILocation location)
 	{
 		return location.AltitudeAccuracyReference != AccuracyReferenceType.Unknown;
+	}
+
+	/// <summary>
+	/// See if the horizontal location (lat, long) is better.
+	/// </summary>
+	/// <param name="location"> The location to check. </param>
+	/// <param name="update"> The values to compare with. </param>
+	/// <returns> True if the location is better than the update. </returns>
+	public static bool HasBetterHorizontalLocation(this ILocation location, ILocation update)
+	{
+		if (location.HasAccuracy
+			&& update.HasAccuracy
+			&& (update.Accuracy >= location.Accuracy))
+		{
+			// Update is more accurate
+			return true;
+		}
+
+		if (!location.HasAccuracy
+			&& update.HasAccuracy)
+		{
+			// Update is more accurate
+			return true;
+		}
+
+		if (!location.HasLatitudeLongitude && update.HasLatitudeLongitude)
+		{
+			// location is now available
+			return true;
+		}
+
+		// Location is better than update.
+		return false;
+	}
+
+	/// <summary>
+	/// See if the vertical location (altitude) is better.
+	/// </summary>
+	/// <param name="location"> The location to check. </param>
+	/// <param name="update"> The values to compare with. </param>
+	/// <returns> True if the location is better than the update. </returns>
+	public static bool HasBetterVerticalLocation(this ILocation location, ILocation update)
+	{
+		if (location.HasAltitudeAccuracy
+			&& update.HasAltitudeAccuracy
+			&& (update.AltitudeAccuracy >= location.AltitudeAccuracy))
+		{
+			// Update is more accurate
+			return true;
+		}
+
+		if (!location.HasAltitudeAccuracy
+			&& update.HasAltitudeAccuracy)
+		{
+			// Update is more accurate
+			return true;
+		}
+
+		if (!location.HasAltitude && update.HasAltitude)
+		{
+			// Altitude is now available
+			return true;
+		}
+
+		// Location is better than update.
+		return false;
 	}
 
 	/// <summary>
@@ -400,6 +380,9 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// </remarks>
 	public static bool HasHeading(this ILocation location)
 	{
 		return location.LocationFlags.HasFlag(LocationFlags.HasHeading);
@@ -410,6 +393,9 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// </remarks>
 	public static bool HasLatitudeLongitude(this ILocation location)
 	{
 		return location.AccuracyReference != AccuracyReferenceType.Unknown;
@@ -420,6 +406,9 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// </remarks>
 	public static bool HasSpeed(this ILocation location)
 	{
 		return location.LocationFlags.HasFlag(LocationFlags.HasSpeed);
@@ -581,6 +570,132 @@ public static class LocationExtensions
 		location.LocationFlags = value
 			? location.LocationFlags.SetFlag(LocationFlags.HasSpeed)
 			: location.LocationFlags.ClearFlag(LocationFlags.HasSpeed);
+	}
+
+	/// <summary>
+	/// Update the horizontal location (lat, long).
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update with new values. </param>
+	public static void UpdateHorizontalLocation(this ILocation location, ILocation update)
+	{
+		location.Latitude = update.Latitude;
+		location.Longitude = update.Longitude;
+		location.Accuracy = update.Accuracy;
+		location.AccuracyReference = update.AccuracyReference;
+	}
+
+	/// <summary>
+	/// See if the location is better.
+	/// </summary>
+	/// <param name="location"> The location to check. </param>
+	/// <param name="update"> The values to compare with. </param>
+	public static void UpdateIfBetter(this ILocation location, ILocation update)
+	{
+		var wasUpdated = false;
+
+		if (update.HasBetterVerticalLocation(location))
+		{
+			location.UpdateVerticalLocation(update);
+			wasUpdated = true;
+		}
+
+		if (update.HasBetterHorizontalLocation(location))
+		{
+			location.UpdateHorizontalLocation(update);
+			wasUpdated = true;
+		}
+
+		if (!wasUpdated)
+		{
+			// Nothing updated so bounce
+			return;
+		}
+
+		// Update all other things
+		location.StatusTime = update.StatusTime;
+
+		location.HasHeading = update.HasHeading;
+		location.Heading = update.Heading;
+
+		location.HasSpeed = update.HasSpeed;
+		location.Speed = update.Speed;
+	}
+
+	/// <summary>
+	/// Update the altitude.
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update with new values. </param>
+	public static void UpdateVerticalLocation(this ILocation location, ILocation update)
+	{
+		location.Altitude = update.Altitude;
+		location.AltitudeReference = update.AltitudeReference;
+		location.AltitudeAccuracy = update.AltitudeAccuracy;
+		location.AltitudeAccuracyReference = update.AltitudeAccuracyReference;
+	}
+
+	internal static void CleanupLocation(this ILocation location, string propertyName)
+	{
+		switch (propertyName)
+		{
+			case nameof(ILocation.Accuracy):
+			{
+				if (double.IsNaN(location.Accuracy) || double.IsInfinity(location.Accuracy))
+				{
+					location.Accuracy = 0;
+				}
+				break;
+			}
+			case nameof(ILocation.Altitude):
+			{
+				if (double.IsNaN(location.Altitude) || double.IsInfinity(location.Altitude))
+				{
+					location.Altitude = 0;
+				}
+				break;
+			}
+			case nameof(ILocation.AltitudeAccuracy):
+			{
+				if (double.IsNaN(location.AltitudeAccuracy) || double.IsInfinity(location.AltitudeAccuracy))
+				{
+					location.AltitudeAccuracy = 0;
+				}
+				break;
+			}
+			case nameof(ILocation.Heading):
+			{
+				if (double.IsNaN(location.Heading) || double.IsInfinity(location.Heading))
+				{
+					location.Heading = 0;
+				}
+				break;
+			}
+			case nameof(ILocation.Latitude):
+			{
+				if (double.IsNaN(location.Latitude) || double.IsInfinity(location.Latitude))
+				{
+					location.Latitude = 0;
+				}
+				break;
+			}
+			case nameof(ILocation.Longitude):
+			{
+				if (double.IsNaN(location.Longitude) || double.IsInfinity(location.Longitude))
+				{
+					location.Longitude = 0;
+				}
+				break;
+			}
+			case nameof(ILocation.Speed):
+			{
+				if (double.IsNaN(location.Speed) || double.IsInfinity(location.Speed))
+				{
+					location.Speed = 0;
+				}
+				break;
+			}
+		}
 	}
 
 	private static bool InternalGreaterThan(this IVerticalLocation left, IVerticalLocation right, bool inclusive)

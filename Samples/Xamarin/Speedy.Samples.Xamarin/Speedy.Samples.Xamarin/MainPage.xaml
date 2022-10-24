@@ -5,6 +5,7 @@
 		x:Class="Speedy.Samples.Xamarin.MainPage"
 		xmlns:xamarin="clr-namespace:Speedy.Samples.Xamarin;assembly=Speedy.Samples.Xamarin" 
 		xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms"
+		xmlns:logging="clr-namespace:Speedy.Logging;assembly=Speedy"
 		x:DataType="xamarin:MainViewModel">
 
 	<ContentPage.Resources>
@@ -25,29 +26,88 @@
 
 	<ScrollView>
 		<StackLayout>
-			<Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
+			<Frame BackgroundColor="#2196F3" Padding="18" CornerRadius="0">
 				<Label Text="Welcome to Speedy Xamarin Sample!" HorizontalTextAlignment="Center"
-						TextColor="White" FontSize="36" />
+						TextColor="White" FontSize="32" />
 			</Frame>
 
-			<StackLayout Orientation="Horizontal" Margin="0,20,0,0" HorizontalOptions="Center">
-				<CheckBox IsChecked="{x:Binding LocationProvider.LocationProviderSettings.EnableLocationFiltering, Mode=TwoWay}" />
-				<Label Text="Location Filtering" />
+			<Label Text="Settings" Margin="0,10,0,0" Style="{StaticResource Title}" />
+			
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Desired Accuracy" />
+				<Label Text="{Binding LocationProvider.LocationProviderSettings.DesiredAccuracy, Mode=OneWay}" />
+			</StackLayout>
+			<Slider Maximum="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracyUpperLimitView, Mode=OneWay}"
+					Minimum="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracyLowerLimitView, Mode=OneWay}"
+					Value="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracy, Mode=TwoWay}"
+					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+			
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Location Change Timeout In Seconds" />
+				<Label Text="{Binding LocationProvider.LocationProviderSettings.LocationChangeTimeoutInSeconds, Mode=OneWay}" />
+			</StackLayout>
+			<Slider Maximum="{x:Binding LocationProvider.LocationProviderSettings.MinimumTimeUpperLimitInSeconds, Mode=OneWay}"
+					Minimum="{x:Binding LocationProvider.LocationProviderSettings.MinimumTimeLowerLimitInSeconds, Mode=OneWay}"
+					Value="{x:Binding LocationProvider.LocationProviderSettings.LocationChangeTimeoutInSeconds, Mode=TwoWay}"
+					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+			
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Location Change Accuracy Threshold" />
+				<Label Text="{Binding LocationProvider.LocationProviderSettings.LocationChangeAccuracyThreshold, Mode=OneWay}" />
+			</StackLayout>
+			<Slider Maximum="20.0" Minimum="0.0"
+					Value="{x:Binding LocationProvider.LocationProviderSettings.LocationChangeAccuracyThreshold, Mode=TwoWay}"
+					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+			
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Minimum Time In Seconds" />
+				<Label Text="{Binding LocationProvider.LocationProviderSettings.MinimumTimeInSeconds, Mode=OneWay}" />
+			</StackLayout>
+			<Slider Maximum="{x:Binding LocationProvider.LocationProviderSettings.MinimumTimeUpperLimitInSeconds, Mode=OneWay}"
+					Minimum="{x:Binding LocationProvider.LocationProviderSettings.MinimumTimeLowerLimitInSeconds, Mode=OneWay}"
+					Value="{x:Binding LocationProvider.LocationProviderSettings.MinimumTimeInSeconds, Mode=TwoWay}"
+					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+			
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Minimum Distance In Meters" />
+				<Label Text="{Binding LocationProvider.LocationProviderSettings.MinimumDistance, Mode=OneWay}" />
+			</StackLayout>
+			<Slider Maximum="{x:Binding LocationProvider.LocationProviderSettings.MinimumDistanceUpperLimitView, Mode=OneWay}"
+					Minimum="{x:Binding LocationProvider.LocationProviderSettings.MinimumDistanceLowerLimitView, Mode=OneWay}"
+					Value="{x:Binding LocationProvider.LocationProviderSettings.MinimumDistance, Mode=TwoWay}"
+					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+			
+			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
+					Text="Start" Command="{Binding LocationProvider.StartListeningCommand, Mode=OneTime}" />
+			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+					Text="Stop" Command="{Binding LocationProvider.StopListeningCommand, Mode=OneTime}" />
+			
+			<StackLayout Orientation="Horizontal" Margin="0,10,0,0" HorizontalOptions="Center">
+				<Label Text="Status Time" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.StatusTime, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal"  HorizontalOptions="Center">
+				<Label Text="Is Listening" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.IsListening, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Source Name" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.SourceName, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Status" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.Status, Mode=OneWay}" />
 			</StackLayout>
 
-			<Label Text="Maximum Rapid Horizontal Change" />
-			<Slider Minimum="0" Maximum="100" Value="{x:Binding LocationProvider.LocationProviderSettings.LocationFilterMaximumRapidHorizontalChange, Mode=TwoWay}" />
-			
-			<Label Text="Maximum Rapid Vertical Change" />
-			<Slider Minimum="0" Maximum="100" Value="{x:Binding LocationProvider.LocationProviderSettings.LocationFilterMaximumRapidVerticalChange, Mode=TwoWay}" />
-
-			
-			<Label Text="{x:Binding LocationProvider.LastReadLocation.StatusTime, Mode=OneWay}" />
-			<Label Text="{x:Binding LocationProvider.Status, Mode=OneWay}" />
-
 			<Label Text="Location" Margin="0,10,0,0" Style="{StaticResource Title}" />
-			<Label Text="{x:Binding LocationProvider.LastReadLocation.Latitude, Mode=OneWay}" />
-			<Label Text="{x:Binding LocationProvider.LastReadLocation.Longitude, Mode=OneWay}" />
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Latitude" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.Latitude, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Longitude" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.Longitude, Mode=OneWay}" />
+			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Accuracy" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.LastReadLocation.Accuracy, Mode=OneWay}" />
@@ -78,9 +138,6 @@
 				<Label Text="{x:Binding LocationProvider.LastReadLocation.HasAltitudeAccuracy, Mode=OneWay}" />
 			</StackLayout>
 			
-			<oxy:PlotView x:Name="AltitudeChart" Model="{x:Binding AltitudeChart, Mode=OneTime}"
-					HeightRequest="200" HorizontalOptions="StartAndExpand" />
-
 			<StackLayout Orientation="Horizontal" Margin="0,20,0,0" HorizontalOptions="Center">
 				<Label Text="Heading" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.LastReadLocation.Heading, Mode=OneWay}" />
@@ -99,20 +156,6 @@
 			</StackLayout>
 		
 			<StackLayout Orientation="Horizontal" Margin="0,20,0,0" HorizontalOptions="Center">
-				<Label Text="Is Listening" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.IsListening, Mode=OneWay}" />
-			</StackLayout>
-			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-				<Label Text="Source Name" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.SourceName, Mode=OneWay}" />
-			</StackLayout>
-
-			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
-					Text="Start" Command="{Binding LocationProvider.StartListeningCommand, Mode=OneTime}" />
-			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
-					Text="Stop" Command="{Binding LocationProvider.StopListeningCommand, Mode=OneTime}" />
-
-			<StackLayout Orientation="Horizontal" Margin="0,20,0,0" HorizontalOptions="Center">
 				<Label Text="Has Permission" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.HasPermission, Mode=OneWay}" />
 			</StackLayout>
@@ -124,6 +167,27 @@
 				<Label Text="Is Location Enabled" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.IsLocationEnabled, Mode=OneWay}" />
 			</StackLayout>
+
+			<oxy:PlotView x:Name="AltitudeChart" Model="{x:Binding AltitudeChart, Mode=OneTime}"
+					HeightRequest="200" HorizontalOptions="StartAndExpand" />
+
+			<ListView ItemsSource="{x:Binding Logs, Mode=OneWay}" HeightRequest="200"
+					HorizontalScrollBarVisibility="Always">
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="logging:LogEventArgs">
+						<ViewCell>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="100" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<Label Grid.Column="0" Text="{x:Binding DateTime}" />
+								<Label Grid.Column="1" Text="{x:Binding Message}" />
+							</Grid>
+						</ViewCell>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
 
 		</StackLayout>
 	</ScrollView>

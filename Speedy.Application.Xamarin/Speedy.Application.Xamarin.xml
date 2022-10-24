@@ -55,16 +55,19 @@
         <member name="T:Speedy.Application.Xamarin.XamarinDispatcher">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.#ctor">
-            <inheritdoc />
-        </member>
         <member name="P:Speedy.Application.Xamarin.XamarinDispatcher.IsDispatcherThread">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.ExecuteOnDispatcher(System.Action)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.ExecuteOnDispatcherAsync(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Xamarin.XamarinLocationProvider`2">
@@ -110,16 +113,13 @@
         </member>
         <member name="T:Speedy.Application.Xamarin.LocationProviderImplementation`2">
             <summary>
-            Implementation for Feature
+            Implementation for LocationProvider
             </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
             <summary>
-            Default constructor
+            Constructor for Implementation
             </summary>
-        </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsListening">
-            <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationAvailable">
             <inheritdoc />
@@ -139,11 +139,8 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StopListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Application.Xamarin.PlatformExtensions">
             <summary>
-            Extensions for the Android platform.
+            Stop listening
             </summary>
         </member>
     </members>

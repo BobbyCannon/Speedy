@@ -79,19 +79,19 @@ namespace Speedy.Sync
 		#region Methods
 
 		/// <inheritdoc />
-		public override void OnPropertyChanged(string propertyName)
+		protected override void PropertyHasChanged(string propertyName)
 		{
 			switch (propertyName)
 			{
 				case nameof(Count):
 				case nameof(Total):
 				{
-					base.OnPropertyChanged(nameof(Percent));
+					OnPropertyChanged(nameof(Percent));
 					break;
 				}
 			}
 
-			base.OnPropertyChanged(propertyName);
+			base.PropertyHasChanged(propertyName);
 		}
 
 		/// <inheritdoc />

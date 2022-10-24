@@ -36,16 +36,18 @@ namespace Speedy.Benchmark
 
 		#region Methods
 
-		public override void OnPropertyChanged(string propertyName)
+		protected override void PropertyHasChanged(string propertyName)
 		{
 			switch (propertyName)
 			{
 				case nameof(Percent):
+				{
 					OnPropertyChanged(nameof(Elapsed));
 					break;
+				}
 			}
 
-			base.OnPropertyChanged(propertyName);
+			base.PropertyHasChanged(propertyName);
 		}
 
 		public void Stop()

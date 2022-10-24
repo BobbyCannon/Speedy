@@ -128,10 +128,11 @@ public class Location : BasicLocation, ILocation, ICloneable
 	}
 
 	/// <inheritdoc />
-	public override void OnPropertyChanged(string propertyName)
+	protected override void PropertyHasChanged(string propertyName)
 	{
-		CleanupLocation(this, propertyName);
-		base.OnPropertyChanged(propertyName);
+		this.ProcessOnPropertyChange(propertyName);
+		this.CleanupLocation(propertyName);
+		base.PropertyHasChanged(propertyName);
 	}
 
 	/// <inheritdoc />
@@ -212,61 +213,6 @@ public class Location : BasicLocation, ILocation, ICloneable
 				base.UpdateWith(update, exclusions);
 				return;
 			}
-		}
-	}
-
-	private static void CleanupLocation(ILocation location, string propertyName)
-	{
-		switch (propertyName)
-		{
-			case nameof(Accuracy):
-				if (double.IsNaN(location.Accuracy) || double.IsInfinity(location.Accuracy))
-				{
-					location.Accuracy = 0;
-				}
-				break;
-
-			case nameof(Altitude):
-				if (double.IsNaN(location.Altitude) || double.IsInfinity(location.Altitude))
-				{
-					location.Altitude = 0;
-				}
-				break;
-
-			case nameof(AltitudeAccuracy):
-				if (double.IsNaN(location.AltitudeAccuracy) || double.IsInfinity(location.AltitudeAccuracy))
-				{
-					location.AltitudeAccuracy = 0;
-				}
-				break;
-
-			case nameof(Heading):
-				if (double.IsNaN(location.Heading) || double.IsInfinity(location.Heading))
-				{
-					location.Heading = 0;
-				}
-				break;
-
-			case nameof(Latitude):
-				if (double.IsNaN(location.Latitude) || double.IsInfinity(location.Latitude))
-				{
-					location.Latitude = 0;
-				}
-				break;
-
-			case nameof(Longitude):
-				if (double.IsNaN(location.Longitude) || double.IsInfinity(location.Longitude))
-				{
-					location.Longitude = 0;
-				}
-				break;
-
-			case nameof(Speed):
-				if (double.IsNaN(location.Speed) || double.IsInfinity(location.Speed))
-				{
-					location.Speed = 0;
-				}
-				break;
 		}
 	}
 

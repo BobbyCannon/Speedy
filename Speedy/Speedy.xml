@@ -60,6 +60,18 @@
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Bindable.PropertyHasChanged(System.String)">
+            <summary>
+            Indicates the property has changed on the bindable object. This call is already on the dispatcher thread.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
+        </member>
+        <member name="M:Speedy.Bindable.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
+            <summary>
+            Indicates the property has changed on the bindable object.
+            </summary>
+            <param name="propertyChangedEvent"> The changed event value of the property that changed. </param>
+        </member>
         <member name="E:Speedy.Bindable.PropertyChanged">
             <inheritdoc />
         </member>
@@ -1581,7 +1593,13 @@
         <member name="M:Speedy.DefaultDispatcher.Run(System.Action)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.DefaultDispatcher.Run``1(System.Func{``0})">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.DefaultDispatcher.RunAsync(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.DefaultDispatcher.RunAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.DevicePlatform">
@@ -1942,7 +1960,7 @@
         <member name="M:Speedy.Devices.Location.Location.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.Location.OnPropertyChanged(System.String)">
+        <member name="M:Speedy.Devices.Location.Location.PropertyHasChanged(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.Location.ShallowClone">
@@ -2123,6 +2141,12 @@
         <member name="M:Speedy.Devices.Location.LocationProvider`2.StopListeningAsync">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider`2.OnLogEventWritten(Speedy.Logging.LogEventArgs)">
+            <summary>
+            Triggers event handler
+            </summary>
+            <param name="e"> The value for the event handler. </param>
+        </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.OnPositionChanged(`0)">
             <summary>
             Triggers event handler.
@@ -2143,6 +2167,9 @@
             <remarks>
             Ensure you are adhering to the <seealso cref="P:Speedy.Devices.Location.LocationProvider`2.LocationProviderSettings" /> options.
             </remarks>
+        </member>
+        <member name="E:Speedy.Devices.Location.LocationProvider`2.LogEventWritten">
+            <inheritdoc />
         </member>
         <member name="E:Speedy.Devices.Location.LocationProvider`2.PositionChanged">
             <inheritdoc />
@@ -2226,6 +2253,11 @@
         <member name="M:Speedy.Devices.Location.ILocationProvider`2.StopListeningAsync">
             <summary>
             Stop listening for location changes.
+            </summary>
+        </member>
+        <member name="E:Speedy.Devices.Location.ILocationProvider`2.LogEventWritten">
+            <summary>
+            Provider has written a log event.
             </summary>
         </member>
         <member name="E:Speedy.Devices.Location.ILocationProvider`2.PositionChanged">
@@ -2325,24 +2357,14 @@
             The upper range limit for <see cref="P:Speedy.Devices.Location.LocationProviderSettings.DesiredAccuracy" />.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.EnableLocationFiltering">
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationChangeAccuracyThreshold">
             <summary>
-            Enable location filtering. This allows the provider to ignore less accurate reads.
+            The threshold for accuracy changes to allow provider to switch.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationFilterMaximumRapidHorizontalChange">
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationChangeTimeout">
             <summary>
-            The maximum rapid horizontal change range.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationFilterMaximumRapidVerticalChange">
-            <summary>
-            The maximum rapid vertical change range.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationFilterTimeout">
-            <summary>
-            The maximum amount of time to filter a last read location.
+            The timeout in which the last read location will expire.
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.LocationProviderSettings.MinimumDistance">
@@ -3938,43 +3960,6 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The center of the locations. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateIfBetter(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
-            <summary>
-            See if the location is better.
-            </summary>
-            <param name="location"> The location to check. </param>
-            <param name="update"> The values to compare with. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasBetterVerticalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
-            <summary>
-            See if the vertical location (altitude) is better.
-            </summary>
-            <param name="location"> The location to check. </param>
-            <param name="update"> The values to compare with. </param>
-            <returns> True if the location is better than the update. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasBetterHorizontalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
-            <summary>
-            See if the horizontal location (lat, long) is better.
-            </summary>
-            <param name="location"> The location to check. </param>
-            <param name="update"> The values to compare with. </param>
-            <returns> True if the location is better than the update. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
-            <summary>
-            Update the altitude.
-            </summary>
-            <param name="location"> The location to update. </param>
-            <param name="update"> The update with new values. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
-            <summary>
-            Update the horizontal location (lat, long).
-            </summary>
-            <param name="location"> The location to update. </param>
-            <param name="update"> The update with new values. </param>
-        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.GetEllipsoidAltitude(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
             <summary>
             Tries to get an ellipsoid altitude for the vertical location.
@@ -3990,12 +3975,23 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The radius of the locations. </returns>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)">
+            <summary>
+            Handle property changes for ILocation. Triggers properties like HasAltitude when the
+            dependent properties are updated.
+            </summary>
+            <param name="location"> The location to process. </param>
+            <param name="propertyName"> The name of the property that has changed. </param>
+        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasAccuracy(Speedy.Devices.Location.ILocation)">
             <summary>
             Check a location to determine if <see cref="P:Speedy.Devices.Location.ILocation.Accuracy" /> is available.
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            </remarks>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasAltitude(Speedy.Devices.Location.ILocation)">
             <summary>
@@ -4003,6 +3999,9 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            </remarks>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasAltitudeAccuracy(Speedy.Devices.Location.ILocation)">
             <summary>
@@ -4010,6 +4009,25 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            </remarks>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HasBetterHorizontalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            See if the horizontal location (lat, long) is better.
+            </summary>
+            <param name="location"> The location to check. </param>
+            <param name="update"> The values to compare with. </param>
+            <returns> True if the location is better than the update. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HasBetterVerticalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            See if the vertical location (altitude) is better.
+            </summary>
+            <param name="location"> The location to check. </param>
+            <param name="update"> The values to compare with. </param>
+            <returns> True if the location is better than the update. </returns>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasHeading(Speedy.Devices.Location.ILocation)">
             <summary>
@@ -4017,6 +4035,9 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            </remarks>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasLatitudeLongitude(Speedy.Devices.Location.ILocation)">
             <summary>
@@ -4024,6 +4045,9 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            </remarks>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasSpeed(Speedy.Devices.Location.ILocation)">
             <summary>
@@ -4031,6 +4055,9 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            </remarks>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.IsLocationInside(System.Collections.Generic.IList{Speedy.Devices.Location.IBasicLocation},Speedy.Devices.Location.IBasicLocation)">
             <summary>
@@ -4100,6 +4127,27 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <param name="value"> True to set HasSpeedy otherwise clear. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            Update the horizontal location (lat, long).
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update with new values. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateIfBetter(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            See if the location is better.
+            </summary>
+            <param name="location"> The location to check. </param>
+            <param name="update"> The values to compare with. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+            <summary>
+            Update the altitude.
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update with new values. </param>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -5055,6 +5103,12 @@
             Return true if the change notifications are paused or otherwise false.
             </summary>
         </member>
+        <member name="M:Speedy.IBindable.OnPropertyChanged(System.String)">
+            <summary>
+            Indicates the property has changed on the bindable object.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
+        </member>
         <member name="M:Speedy.IBindable.PausePropertyChangeNotifications(System.Boolean)">
             <summary>
             Pause / Un-pause the property change notifications
@@ -5206,7 +5260,13 @@
         <member name="M:Speedy.Dispatcher.Run(System.Action)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Dispatcher.Run``1(System.Func{``0})">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Dispatcher.RunAsync(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.RunAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Dispatcher.ExecuteOnDispatcher(System.Action)">
@@ -5215,7 +5275,19 @@
             </summary>
             <param name="action"> The action to execute. </param>
         </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+        </member>
         <member name="M:Speedy.Dispatcher.ExecuteOnDispatcherAsync(System.Action)">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+        </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <summary>
             Execute the action on the dispatcher.
             </summary>
@@ -5237,7 +5309,20 @@
             </summary>
             <param name="action"> The action to be executed. </param>
         </member>
+        <member name="M:Speedy.IDispatcher.Run``1(System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
         <member name="M:Speedy.IDispatcher.RunAsync(System.Action)">
+            <summary>
+            Run an asynchronous action on the dispatching thread.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+            <returns> The task. </returns>
+        </member>
+        <member name="M:Speedy.IDispatcher.RunAsync``1(System.Func{``0})">
             <summary>
             Run an asynchronous action on the dispatching thread.
             </summary>
@@ -6282,7 +6367,7 @@
         <member name="M:Speedy.Net.WebClient.Initialize">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Net.WebClient.OnPropertyChanged(System.String)">
+        <member name="M:Speedy.Net.WebClient.PropertyHasChanged(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebClient.Patch``1(System.String,``0,System.Nullable{System.TimeSpan})">
@@ -6438,7 +6523,7 @@
             </summary>
             <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
         </member>
-        <member name="M:Speedy.Net.WebCredential.OnPropertyChanged(System.String)">
+        <member name="M:Speedy.Net.WebCredential.PropertyHasChanged(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebCredential.Reset">
@@ -10152,7 +10237,7 @@
             </summary>
             <param name="propertyNames"> One or more properties to ignore. Leave empty to ignore the type entirely. </param>
         </member>
-        <member name="M:Speedy.Serialization.SerializerSettings.OnPropertyChanged(System.String)">
+        <member name="M:Speedy.Serialization.SerializerSettings.PropertyHasChanged(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Serialization.SerializerSettings.RemoveConverter``1">
@@ -12944,7 +13029,7 @@
             Gets or sets the total count of the items to process.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncEngineState.OnPropertyChanged(System.String)">
+        <member name="M:Speedy.Sync.SyncEngineState.PropertyHasChanged(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEngineState.ToString">

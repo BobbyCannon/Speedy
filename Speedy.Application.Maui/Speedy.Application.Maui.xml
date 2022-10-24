@@ -12,13 +12,19 @@
             Extension methods for <see cref="T:Speedy.Application.DeviceId" />.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Maui.MauiDispatcher.HasThreadAccess">
+        <member name="T:Speedy.Application.Maui.MauiDispatcher">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Maui.MauiDispatcher.Run(System.Action)">
+        <member name="M:Speedy.Application.Maui.MauiDispatcher.#ctor(Microsoft.Maui.Dispatching.IDispatcher)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Maui.MauiDispatcher.RunAsync(System.Action)">
+        <member name="P:Speedy.Application.Maui.MauiDispatcher.IsDispatcherThread">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiDispatcher.ExecuteOnDispatcher(System.Action)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiDispatcher.ExecuteOnDispatcherAsync(System.Action)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Maui.MauiLocationProvider`2">
