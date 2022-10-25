@@ -34,10 +34,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.78.0" />
-		<PackageReference Include="Fody" Version="6.6.4">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />

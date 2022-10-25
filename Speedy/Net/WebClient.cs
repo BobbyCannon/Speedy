@@ -91,7 +91,11 @@ namespace Speedy.Net
 				}
 
 				_credential = value;
-				_credential.PropertyChanged += CredentialOnPropertyChanged;
+
+				if (_credential != null)
+				{
+					_credential.PropertyChanged += CredentialOnPropertyChanged;
+				}
 			}
 		}
 
@@ -182,6 +186,12 @@ namespace Speedy.Net
 			if (!disposing)
 			{
 				return;
+			}
+
+			if (_credential != null)
+			{
+				_credential.PropertyChanged -= CredentialOnPropertyChanged;
+				_credential = null;
 			}
 
 			_handler.ServerCertificateCustomValidationCallback -= OnServerCertificateCustomValidationCallback;
