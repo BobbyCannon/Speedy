@@ -42,12 +42,6 @@
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
         </member>
-        <member name="M:Speedy.Bindable.PropertyHasChanged(System.String)">
-            <summary>
-            Indicates the property has changed on the bindable object. This call is already on the dispatcher thread.
-            </summary>
-            <param name="propertyName"> The name of the property has changed. </param>
-        </member>
         <member name="M:Speedy.Bindable.PausePropertyChangeNotifications(System.Boolean)">
             <inheritdoc />
         </member>
@@ -65,6 +59,18 @@
         </member>
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.PropertyHasChanged(System.String)">
+            <summary>
+            Indicates the property has changed on the bindable object. This call is already on the dispatcher thread.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
+        </member>
+        <member name="M:Speedy.Bindable.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
+            <summary>
+            Indicates the property has changed on the bindable object.
+            </summary>
+            <param name="propertyChangedEvent"> The changed event value of the property that changed. </param>
         </member>
         <member name="E:Speedy.Bindable.PropertyChanged">
             <inheritdoc />
@@ -1926,11 +1932,6 @@
             Specifies if the Heading value is valid
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.Location.HasLatitudeLongitude">
-            <summary>
-            Specifies if the Latitude and Longitude values are valid
-            </summary>
-        </member>
         <member name="P:Speedy.Devices.Location.Location.HasSpeed">
             <summary>
             Specifies if the Speed value is valid
@@ -2016,11 +2017,6 @@
         <member name="P:Speedy.Devices.Location.ILocation.HasHeading">
             <summary>
             Specifies if the Heading value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.HasLatitudeLongitude">
-            <summary>
-            Specifies if the Latitude and Longitude values are valid
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.ILocation.HasSpeed">
@@ -3993,17 +3989,6 @@
             <returns> True if the value is available. </returns>
             <remarks>
             Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
-            </remarks>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasLatitudeLongitude(Speedy.Devices.Location.ILocation)">
-            <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IHorizontalLocation.Latitude" /> and <see cref="P:Speedy.Devices.Location.IHorizontalLocation.Longitude" /> is available.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypes" />.
             </remarks>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasSpeed(Speedy.Devices.Location.ILocation)">

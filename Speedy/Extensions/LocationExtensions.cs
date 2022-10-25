@@ -263,20 +263,6 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
-	/// Check a location to determine if <see cref="IHorizontalLocation.Latitude" /> and <see cref="IHorizontalLocation.Longitude" /> is available.
-	/// </summary>
-	/// <param name="location"> The location to validate. </param>
-	/// <returns> True if the value is available. </returns>
-	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
-	/// Also not this is dependent on <see cref="SupportedAccuracyReferenceTypes" />.
-	/// </remarks>
-	public static bool HasLatitudeLongitude(this ILocation location)
-	{
-		return SupportedAccuracyReferenceTypes.Contains(location.AccuracyReference);
-	}
-
-	/// <summary>
 	/// Check a location to determine if <see cref="ILocation.Speed" /> is available.
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
@@ -480,7 +466,6 @@ public static class LocationExtensions
 			case nameof(ILocation.AccuracyReference):
 			{
 				location.OnPropertyChanged(nameof(ILocation.HasAccuracy));
-				location.OnPropertyChanged(nameof(ILocation.HasLatitudeLongitude));
 				break;
 			}
 			case nameof(ILocation.AltitudeReference):

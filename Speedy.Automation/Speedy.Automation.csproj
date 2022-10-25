@@ -34,11 +34,15 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.78.0" />
+		<PackageReference Include="Fody" Version="6.6.4">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="PropertyChanged.Fody" Version="4.0.5" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
 		<PackageReference Include="System.Management" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>

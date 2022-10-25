@@ -9,6 +9,13 @@
 		<Version>11.0.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
+	  <PackageReference Include="Fody" Version="6.6.4">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="PropertyChanged.Fody" Version="4.0.3" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 	</ItemGroup>

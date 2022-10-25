@@ -65,6 +65,13 @@
 		<Compile Include="**/Platforms/Windows/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <PackageReference Include="Fody" Version="6.6.4">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="PropertyChanged.Fody" Version="4.0.3" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 	</ItemGroup>

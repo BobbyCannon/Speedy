@@ -89,11 +89,6 @@ public class Location : BasicLocation, ILocation, ICloneable
 	}
 
 	/// <summary>
-	/// Specifies if the Latitude and Longitude values are valid
-	/// </summary>
-	public bool HasLatitudeLongitude => this.HasLatitudeLongitude();
-
-	/// <summary>
 	/// Specifies if the Speed value is valid
 	/// </summary>
 	public bool HasSpeed
@@ -265,11 +260,6 @@ public interface ILocation : IBasicLocation, IUpdatable<ILocation>
 	/// Specifies if the Heading value is valid
 	/// </summary>
 	bool HasHeading { get; set; }
-
-	/// <summary>
-	/// Specifies if the Latitude and Longitude values are valid
-	/// </summary>
-	bool HasLatitudeLongitude { get; }
 
 	/// <summary>
 	/// Specifies if the Speed value is valid

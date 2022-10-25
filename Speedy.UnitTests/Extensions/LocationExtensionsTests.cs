@@ -51,8 +51,6 @@ public class LocationExtensionsTests : SpeedyUnitTest
 			AreEqual(expected, location.HasAccuracy);
 			AreEqual(expected, location.HasSupportedAltitudeAccuracy());
 			AreEqual(expected, location.HasAltitudeAccuracy);
-			AreEqual(expected, location.HasLatitudeLongitude());
-			AreEqual(expected, location.HasLatitudeLongitude);
 		}
 
 		assert(false);
