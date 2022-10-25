@@ -89,7 +89,7 @@ public class WebCredential : Bindable
 	}
 
 	/// <inheritdoc />
-	protected override void PropertyHasChanged(string propertyName)
+	protected override void OnPropertyChangedInDispatcher(string propertyName)
 	{
 		switch (propertyName)
 		{
@@ -101,7 +101,7 @@ public class WebCredential : Bindable
 			}
 		}
 
-		base.PropertyHasChanged(propertyName);
+		base.OnPropertyChangedInDispatcher(propertyName);
 	}
 
 	/// <summary>

@@ -9,7 +9,7 @@
 		<Version>11.0.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />

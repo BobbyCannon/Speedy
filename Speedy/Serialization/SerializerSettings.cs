@@ -190,7 +190,7 @@ namespace Speedy.Serialization
 		}
 
 		/// <inheritdoc />
-		protected override void PropertyHasChanged(string propertyName)
+		protected override void OnPropertyChangedInDispatcher(string propertyName)
 		{
 			switch (propertyName)
 			{
@@ -206,7 +206,7 @@ namespace Speedy.Serialization
 				}
 			}
 
-			base.PropertyHasChanged(propertyName);
+			base.OnPropertyChangedInDispatcher(propertyName);
 		}
 
 		/// <summary>

@@ -59,7 +59,7 @@ namespace Speedy.Samples.Xamarin
 
 		#region Methods
 
-		protected override void PropertyHasChanged(string propertyName)
+		protected override void OnPropertyChangedInDispatcher(string propertyName)
 		{
 			switch (propertyName)
 			{
@@ -105,7 +105,7 @@ namespace Speedy.Samples.Xamarin
 				}
 			}
 
-			base.PropertyHasChanged(propertyName);
+			base.OnPropertyChangedInDispatcher(propertyName);
 		}
 
 		#endregion

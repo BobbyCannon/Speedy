@@ -100,7 +100,7 @@ public abstract class Bindable : IBindable, IUpdatable
 			return;
 		}
 
-		PropertyHasChanged(propertyName);
+		OnPropertyChangedInDispatcher(propertyName);
 
 		if (propertyName != nameof(HasChanges) && !HasChanges)
 		{
@@ -150,10 +150,10 @@ public abstract class Bindable : IBindable, IUpdatable
 	}
 
 	/// <summary>
-	/// Indicates the property has changed on the bindable object. This call is already on the dispatcher thread.
+	/// fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
 	/// </summary>
 	/// <param name="propertyName"> The name of the property has changed. </param>
-	protected virtual void PropertyHasChanged(string propertyName)
+	protected virtual void OnPropertyChangedInDispatcher(string propertyName)
 	{
 	}
 

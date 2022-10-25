@@ -39,7 +39,7 @@
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC1</Version>
+		<Version>11.0.0-RC2</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />
@@ -65,7 +65,7 @@
 		<Compile Include="**/Platforms/Windows/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

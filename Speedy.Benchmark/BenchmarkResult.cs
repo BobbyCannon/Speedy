@@ -36,7 +36,7 @@ namespace Speedy.Benchmark
 
 		#region Methods
 
-		protected override void PropertyHasChanged(string propertyName)
+		protected override void OnPropertyChangedInDispatcher(string propertyName)
 		{
 			switch (propertyName)
 			{
@@ -47,7 +47,7 @@ namespace Speedy.Benchmark
 				}
 			}
 
-			base.PropertyHasChanged(propertyName);
+			base.OnPropertyChangedInDispatcher(propertyName);
 		}
 
 		public void Stop()

@@ -123,11 +123,11 @@ public class Location : BasicLocation, ILocation, ICloneable
 	}
 
 	/// <inheritdoc />
-	protected override void PropertyHasChanged(string propertyName)
+	protected override void OnPropertyChangedInDispatcher(string propertyName)
 	{
 		this.ProcessOnPropertyChange(propertyName);
 		this.CleanupLocation(propertyName);
-		base.PropertyHasChanged(propertyName);
+		base.OnPropertyChangedInDispatcher(propertyName);
 	}
 
 	/// <inheritdoc />

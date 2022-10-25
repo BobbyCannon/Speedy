@@ -60,9 +60,9 @@
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable.PropertyHasChanged(System.String)">
+        <member name="M:Speedy.Bindable.OnPropertyChangedInDispatcher(System.String)">
             <summary>
-            Indicates the property has changed on the bindable object. This call is already on the dispatcher thread.
+            fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
         </member>
@@ -1955,7 +1955,7 @@
         <member name="M:Speedy.Devices.Location.Location.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.Location.PropertyHasChanged(System.String)">
+        <member name="M:Speedy.Devices.Location.Location.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.Location.ShallowClone">
@@ -6382,7 +6382,7 @@
         <member name="M:Speedy.Net.WebClient.Initialize">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Net.WebClient.PropertyHasChanged(System.String)">
+        <member name="M:Speedy.Net.WebClient.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebClient.Patch``1(System.String,``0,System.Nullable{System.TimeSpan})">
@@ -6538,7 +6538,7 @@
             </summary>
             <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
         </member>
-        <member name="M:Speedy.Net.WebCredential.PropertyHasChanged(System.String)">
+        <member name="M:Speedy.Net.WebCredential.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebCredential.Reset">
@@ -10262,7 +10262,7 @@
             </summary>
             <param name="propertyNames"> One or more properties to ignore. Leave empty to ignore the type entirely. </param>
         </member>
-        <member name="M:Speedy.Serialization.SerializerSettings.PropertyHasChanged(System.String)">
+        <member name="M:Speedy.Serialization.SerializerSettings.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Serialization.SerializerSettings.RemoveConverter``1">
@@ -13054,7 +13054,7 @@
             Gets or sets the total count of the items to process.
             </summary>
         </member>
-        <member name="M:Speedy.Sync.SyncEngineState.PropertyHasChanged(System.String)">
+        <member name="M:Speedy.Sync.SyncEngineState.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEngineState.ToString">

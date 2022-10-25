@@ -903,14 +903,14 @@ namespace Speedy.Protocols.Osc
 			}
 		}
 
-		protected override void PropertyHasChanged(string propertyName)
+		protected override void OnPropertyChangedInDispatcher(string propertyName)
 		{
 			if (propertyName != nameof(HasBeenUpdated))
 			{
 				HasBeenUpdated = true;
 			}
 
-			base.PropertyHasChanged(propertyName);
+			base.OnPropertyChangedInDispatcher(propertyName);
 		}
 
 		/// <summary>
