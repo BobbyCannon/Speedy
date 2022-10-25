@@ -67,17 +67,17 @@ public class Location : BasicLocation, ILocation, ICloneable
 	/// <summary>
 	/// Specifies if the Accuracy value is valid
 	/// </summary>
-	public bool HasAccuracy => this.HasAccuracy();
+	public bool HasAccuracy => this.HasSupportedAccuracy();
 
 	/// <summary>
 	/// Specifies if the Altitude value is valid
 	/// </summary>
-	public bool HasAltitude => this.HasAltitude();
+	public bool HasAltitude => this.HasSupportedAltitude();
 
 	/// <summary>
 	/// Specifies if the Altitude Accuracy value is valid
 	/// </summary>
-	public bool HasAltitudeAccuracy => this.HasAltitudeAccuracy();
+	public bool HasAltitudeAccuracy => this.HasSupportedAltitudeAccuracy();
 
 	/// <summary>
 	/// Specifies if the Heading value is valid

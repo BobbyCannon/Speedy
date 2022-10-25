@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Automation.Tests;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 
@@ -39,6 +38,97 @@ public class LocationExtensionsTests : SpeedyUnitTest
 			var actual = x.location.GetEllipsoidAltitude(x.relativeTo);
 			Assert.AreEqual(x.expected, actual);
 		}
+	}
+
+	[TestMethod]
+	public void SupportedAccuracyReferenceTypesShouldAffectExtensionMethods()
+	{
+		var location = new Location();
+
+		void assert(bool expected)
+		{
+			AreEqual(expected, location.HasSupportedAccuracy());
+			AreEqual(expected, location.HasAccuracy);
+			AreEqual(expected, location.HasSupportedAltitudeAccuracy());
+			AreEqual(expected, location.HasAltitudeAccuracy);
+			AreEqual(expected, location.HasLatitudeLongitude());
+			AreEqual(expected, location.HasLatitudeLongitude);
+		}
+
+		assert(false);
+
+		var expectedValues = new[]
+		{
+			AccuracyReferenceType.Meters
+		};
+
+		foreach (var value in expectedValues)
+		{
+			location.AccuracyReference = value;
+			location.AltitudeAccuracyReference = value;
+
+			assert(true);
+
+			LocationExtensions.SupportedAccuracyReferenceTypes.Remove(value);
+
+			assert(false);
+		}
+
+		// All values should no longer be supported
+		var allValues = EnumExtensions.GetEnumValues<AltitudeReferenceType>();
+
+		foreach (var value in allValues)
+		{
+			location.AltitudeReference = value;
+			assert(false);
+		}
+	}
+
+	[TestMethod]
+	public void SupportedAltitudeReferenceTypesShouldAffectExtensionMethods()
+	{
+		var location = new Location();
+		AreEqual(false, location.HasSupportedAltitude());
+
+		var expectedValues = new[]
+		{
+			AltitudeReferenceType.Ellipsoid,
+			AltitudeReferenceType.Geoid,
+			AltitudeReferenceType.Terrain
+		};
+
+		foreach (var value in expectedValues)
+		{
+			location.AltitudeReference = value;
+			AreEqual(true, location.HasAltitude);
+
+			LocationExtensions.SupportedAltitudeReferenceTypes.Remove(value);
+			AreEqual(false, location.HasAltitude);
+		}
+
+		// All values should no longer be supported
+		var allValues = EnumExtensions.GetEnumValues<AltitudeReferenceType>();
+
+		foreach (var value in allValues)
+		{
+			location.AltitudeReference = value;
+			AreEqual(false, location.HasAltitude);
+		}
+	}
+
+	[TestMethod]
+	public void SupportedTypesDefaults()
+	{
+		AreEqual(new[] { AccuracyReferenceType.Meters },
+			LocationExtensions.SupportedAccuracyReferenceTypes);
+
+		AreEqual(new[]
+			{
+				AltitudeReferenceType.Ellipsoid,
+				AltitudeReferenceType.Geoid,
+				AltitudeReferenceType.Terrain
+			},
+			LocationExtensions.SupportedAltitudeReferenceTypes);
 	}
 
 	#endregion

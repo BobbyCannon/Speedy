@@ -375,7 +375,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 		else
 		{
-			LastReadLocation.AccuracyReference = AccuracyReferenceType.Unknown;
+			LastReadLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
 		if (location.VerticalAccuracy > -1)
@@ -387,7 +387,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 		else
 		{
-			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Unknown;
+			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
 		#if __IOS__ || __MACOS__

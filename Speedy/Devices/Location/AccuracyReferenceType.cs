@@ -8,7 +8,7 @@ public enum AccuracyReferenceType
 	/// <summary>
 	/// Unknown altitude value
 	/// </summary>
-	Unknown = 0,
+	Unspecified = 0,
 
 	/// <summary>
 	/// Altitude in meters

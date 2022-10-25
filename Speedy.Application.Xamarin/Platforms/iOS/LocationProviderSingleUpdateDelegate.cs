@@ -124,11 +124,11 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		}
 
 		_position.Accuracy = newLocation.HorizontalAccuracy;
-		_position.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown;
+		_position.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
 
 		_position.Altitude = newLocation.EllipsoidalAltitude;
 		_position.AltitudeAccuracy = newLocation.VerticalAccuracy;
-		_position.AltitudeAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unknown;
+		_position.AltitudeAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
 		_position.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 
 		_position.Latitude = newLocation.Coordinate.Latitude;

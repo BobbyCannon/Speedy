@@ -34,7 +34,7 @@ namespace Speedy.UnitTests
 		public void PauseShouldStopNotifications()
 		{
 			var count = 0;
-			var actual = GetModelWithNonDefaultValues();
+			var actual = GetModel();
 			actual.PropertyChanged += (_, _) => count++;
 			Assert.AreEqual(0, count);
 
