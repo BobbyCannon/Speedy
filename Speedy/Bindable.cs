@@ -90,10 +90,9 @@ public abstract class Bindable : IBindable, IUpdatable
 			// Property change notifications have been paused so bounce
 			return;
 		}
-
-		// todo: move this to another virtual method that would then be called by this on property changed
-		// I had to move this dispatcher code up. Also would be nice to only dispatch specific properties, right?
-
+		
+		// If we have a dispatcher *and* not on the dispatcher thread
+		// then switch to to the dispatcher thread to trigger property changed
 		if (Dispatcher?.IsDispatcherThread == false)
 		{
 			Dispatcher.Run(() => OnPropertyChanged(propertyName));

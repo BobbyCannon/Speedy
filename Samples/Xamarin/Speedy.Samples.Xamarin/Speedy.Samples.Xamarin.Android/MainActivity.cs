@@ -4,12 +4,15 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
+using Speedy.Samples.Xamarin.Droid.Services;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Platform = Xamarin.Essentials.Platform;
 
 #endregion
 
+[assembly: Dependency(typeof(FileService))]
 namespace Speedy.Samples.Xamarin.Droid
 {
 	[Activity(Label = "Speedy.Samples.Xamarin", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
@@ -24,15 +27,25 @@ namespace Speedy.Samples.Xamarin.Droid
 			base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
 
-		protected override void OnCreate(Bundle savedInstanceState)
+		protected override async void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
 
 			Platform.Init(this, savedInstanceState);
 			Forms.Init(this, savedInstanceState);
 
-			OxyPlot.Xamarin.Forms.Platform.Android.PlotViewRenderer.Init();
-
+			var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+			if (status != PermissionStatus.Granted)
+			{
+				await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+			}
+			
+			status = await Permissions.CheckStatusAsync<Permissions.StorageWrite>();
+			if (status != PermissionStatus.Granted)
+			{
+				await Permissions.RequestAsync<Permissions.StorageWrite>();
+			}
+			
 			LoadApplication(new App());
 		}
 

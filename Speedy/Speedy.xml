@@ -5788,6 +5788,46 @@
             </summary>
             <returns> The unwrapped entity. </returns>
         </member>
+        <member name="T:Speedy.Logging.LogEventArgs">
+            <summary>
+            Represents a log event argument.
+            </summary>
+        </member>
+        <member name="M:Speedy.Logging.LogEventArgs.#ctor">
+            <summary>
+            Instantiates a log event argument.
+            </summary>
+        </member>
+        <member name="M:Speedy.Logging.LogEventArgs.#ctor(System.String)">
+            <summary>
+            Instantiates a log event argument.
+            </summary>
+        </member>
+        <member name="M:Speedy.Logging.LogEventArgs.#ctor(System.Diagnostics.Tracing.EventLevel,System.String)">
+            <summary>
+            Instantiates a log event argument.
+            </summary>
+        </member>
+        <member name="M:Speedy.Logging.LogEventArgs.#ctor(System.DateTime,System.Diagnostics.Tracing.EventLevel,System.String)">
+            <summary>
+            Instantiates a log event argument.
+            </summary>
+        </member>
+        <member name="P:Speedy.Logging.LogEventArgs.DateTime">
+            <summary>
+            The date time of the event args.
+            </summary>
+        </member>
+        <member name="P:Speedy.Logging.LogEventArgs.Level">
+            <summary>
+            The level of the event.
+            </summary>
+        </member>
+        <member name="P:Speedy.Logging.LogEventArgs.Message">
+            <summary>
+            The message for the event.
+            </summary>
+        </member>
         <member name="T:Speedy.Logging.Logger">
             <summary>
             Represents a logger for Speedy.

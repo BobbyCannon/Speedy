@@ -4,8 +4,8 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
 		x:Class="Speedy.Samples.Xamarin.MainPage"
 		xmlns:xamarin="clr-namespace:Speedy.Samples.Xamarin;assembly=Speedy.Samples.Xamarin" 
-		xmlns:oxy="clr-namespace:OxyPlot.Xamarin.Forms;assembly=OxyPlot.Xamarin.Forms"
 		xmlns:logging="clr-namespace:Speedy.Logging;assembly=Speedy"
+		xmlns:location="clr-namespace:Speedy.Devices.Location;assembly=Speedy"
 		x:DataType="xamarin:MainViewModel">
 
 	<ContentPage.Resources>
@@ -163,13 +163,91 @@
 				<Label Text="Is Location Available" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.IsLocationAvailable, Mode=OneWay}" />
 			</StackLayout>
-			<StackLayout Orientation="Horizontal" Margin="0,0,0,20" HorizontalOptions="Center">
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Is Location Enabled" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.IsLocationEnabled, Mode=OneWay}" />
 			</StackLayout>
 
-			<oxy:PlotView x:Name="AltitudeChart" Model="{x:Binding AltitudeChart, Mode=OneTime}"
-					HeightRequest="200" HorizontalOptions="StartAndExpand" />
+			<!--<forms:ChartView x:Name="ChartView" 
+					BackgroundColor="White" 
+					Chart="{x:Binding AltitudeChart, Mode=OneWay}"
+					HeightRequest="250" />-->
+
+			<ListView ItemsSource="{Binding Locations, Mode=OneWay}"
+					Background="#212121"
+					Margin="0,10,0,0"
+					SelectionMode="None"
+					HasUnevenRows="True"
+					VerticalOptions="StartAndExpand"
+					HorizontalScrollBarVisibility="Never"
+					VerticalScrollBarVisibility="Never">
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="location:Location">
+						<ViewCell>
+							<StackLayout Margin="0,1,0,10" HorizontalOptions="Fill">
+								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title}" />
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Status Time" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Latitude" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding Latitude, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Longitude" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding Longitude, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Accuracy" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding Accuracy, Mode=OneWay}" />
+									<Label Text="{x:Binding AccuracyReference, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Has Accuracy" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding HasAccuracy, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Altitude" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding Altitude, Mode=OneWay}" />
+									<Label Text="{x:Binding AltitudeReference, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Has Altitude" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding HasAltitude, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Accuracy" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding AltitudeAccuracy, Mode=OneWay}" />
+									<Label Text="{x:Binding AltitudeAccuracyReference, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Has Accuracy" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding HasAltitudeAccuracy, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Heading" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding Heading, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Has Heading" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding HasHeading, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Speed" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding Speed, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Has Speed" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding HasSpeed, Mode=OneWay}" />
+								</StackLayout>
+							</StackLayout>
+						</ViewCell>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+
+			<Button Text="Export History" Command="{Binding ExportHistoryCommand, Mode=OneTime}" />
 
 			<ListView ItemsSource="{x:Binding Logs, Mode=OneWay}" HeightRequest="200"
 					HorizontalScrollBarVisibility="Always">

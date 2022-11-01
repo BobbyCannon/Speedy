@@ -21,10 +21,11 @@ Clear-Host
 $ErrorActionPreference = "STOP"
 $scriptPath = $PSScriptRoot.Replace("\Scripts", "")
 
+# $Rollback = $true
 # $scriptPath = "C:\Workspaces\EpicCoders\Speedy"
 # $scriptPath = "C:\Workspaces\GitHub\Speedy"
 # $Version = "11.0.0.0"
-# $VersionSuffix = "RC1"
+# $VersionSuffix = "RC2"
 # $Framework = "netstandard2.0"
 
 
@@ -66,30 +67,36 @@ $directReferences = @()
 $directReferencesMarked = @()
 $platformReferences = @()
 
-foreach ($project in $projects)
+for ($i = 0; $i -le $projects.Length; $i++)
 {
+	$project = $projects[$i]
 	$packageReferences += "<PackageReference Include=`"$project`" Version=`"$version`" />"
 	$packageReferences2 += "<PackageReference Include=`"$project`"><Version>$version</Version></PackageReference>"
 	$oldReferences += "<Reference Include=`"$project, Version=$versionFull, Culture=neutral, PublicKeyToken=8db7b042d9663bf8, processorArchitecture=MSIL`"><HintPath>..\packages\$project.$version\lib\$Framework\$project.dll</HintPath></Reference>"
 	$directReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\$Framework\$project.dll</HintPath></Reference>"
 		
 	# Specific frameworks
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.0\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.1\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid10.0\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-windows\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-android\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-ios\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-maccatalyst\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\uap10.0.19041\$project.dll</HintPath></Reference>"
-	$platformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\xamarin.ios10\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences = @()
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.1\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid10.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-windows\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-android\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-ios\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-maccatalyst\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\uap10.0.19041\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\xamarin.ios10\$project.dll</HintPath></Reference>"
+	$platformReferences += ,@($projectPlatformReferences)
 	
 	# This allows us to roll back to the old package config direct references to local nuget files
 	$directReferencesMarked += "<Reference Include=`"$project`" PackageConfig=`"true`"><HintPath>$scriptPath\$project\bin\Debug\$Framework\$project.dll</HintPath></Reference>"
 }
+
+$platformReferences[0]
+$platformReferences[0][0]
 
 foreach ($file in $files)
 {
@@ -113,6 +120,12 @@ foreach ($file in $files)
 			
 			# then we'll try the new package reference
 			$data = $data.Replace($directReferences[$i], $packageReferences[$i])
+			
+			# then we'll try the each platform reference
+			foreach ($projectPlatformReference in $platformReferences[$i])
+			{
+				$data = $data.Replace($projectPlatformReference, $packageReferences[$i])
+			}
 		}
 		else
 		{

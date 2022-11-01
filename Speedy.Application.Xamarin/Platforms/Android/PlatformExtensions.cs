@@ -98,7 +98,7 @@ public static class PlatformExtensions
 			Longitude = location.Longitude,
 			Latitude = location.Latitude,
 			StatusTime = location.GetTimestamp().UtcDateTime,
-			SourceName = location.Provider
+			SourceName = location.Provider ?? "unknown"
 		};
 
 		if (location.HasAccuracy)
