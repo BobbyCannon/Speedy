@@ -111,5 +111,37 @@
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDeviceType">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Application.Xamarin.LocationProviderImplementation`2">
+            <summary>
+            Implementation for LocationProvider
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Constructor for Implementation
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationAvailable">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationEnabled">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets position async with specified parameters
+            </summary>
+            <param name="timeout"> Timeout to wait, Default Infinite </param>
+            <param name="cancelToken"> Cancellation token </param>
+            <returns> ProviderLocation </returns>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StartListeningAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StopListeningAsync">
+            <summary>
+            Stop listening
+            </summary>
+        </member>
     </members>
 </doc>

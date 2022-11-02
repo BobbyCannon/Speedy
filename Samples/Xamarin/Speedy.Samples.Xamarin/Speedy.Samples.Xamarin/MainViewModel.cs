@@ -22,7 +22,7 @@ public class MainViewModel : ViewModel
 	{
 		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<Location>>();
 		Locations = new BaseObservableCollection<Location>(dispatcher);
-		Logs = new LimitedObservableCollection<LogEventArgs>(100);
+		Logs = new LimitedObservableCollection<LogEventArgs>(25);
 		LocationProvider = new XamarinLocationProvider<Location, LocationProviderSettingsView>(dispatcher);
 		LocationProvider.LogEventWritten += LocationProviderOnLogEventWritten;
 		LocationProvider.PositionChanged += LocationProviderOnPositionChanged;
@@ -71,19 +71,27 @@ public class MainViewModel : ViewModel
 
 	private void LocationProviderOnPositionChanged(object sender, Location e)
 	{
-		var currentLocation = Locations.FirstOrDefault(x => x.SourceName == e.SourceName);
+		var current = (Location) e.ShallowClone();
+		current.SourceName = "Local Provider";
+		ProcessLocation(current);
+		ProcessLocation((Location) e.ShallowClone());
+	}
+
+	private void ProcessLocation(Location location)
+	{
+		var currentLocation = Locations.FirstOrDefault(x => x.SourceName == location.SourceName);
 		if (currentLocation == null)
 		{
-			Locations.Add(e);
-			currentLocation = e;
+			Locations.Add(location);
+			currentLocation = location;
 		}
 		else
 		{
-			currentLocation.UpdateWith(e);
+			currentLocation.UpdateWith(location);
 		}
 		
-		var history = LocationHistory.GetOrAdd(currentLocation.SourceName, _ => new BaseObservableCollection<Location>());
-		history.Add((Location) e.ShallowClone());
+		var history = LocationHistory.GetOrAdd(location.SourceName, _ => new BaseObservableCollection<Location>());
+		history.Add((Location) currentLocation.ShallowClone());
 	}
 
 	#endregion

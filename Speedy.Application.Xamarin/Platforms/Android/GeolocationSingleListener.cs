@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Locations;
@@ -22,9 +23,10 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 {
 	#region Fields
 
-	private readonly HashSet<string> _activeProviders;
+	private readonly HashSet<LocationProviderSource> _activeSources;
 	private Location _bestLocation;
 	private readonly TaskCompletionSource<T> _completionSource;
+	private readonly IDispatcher _dispatcher;
 	private readonly float _desiredAccuracy;
 	private readonly Action _finishedCallback;
 	private readonly object _locationSync;
@@ -34,17 +36,18 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 
 	#region Constructors
 
-	public GeolocationSingleListener(LocationManager manager, float desiredAccuracy, int timeout, IEnumerable<string> activeProviders, Action finishedCallback)
+	public GeolocationSingleListener(IDispatcher dispatcher, LocationManager manager, float desiredAccuracy, int timeout, IEnumerable<LocationProviderSource> activeSources, Action finishedCallback)
 	{
-		_activeProviders = new HashSet<string>(activeProviders);
+		_activeSources = new HashSet<LocationProviderSource>(activeSources);
 		_completionSource = new TaskCompletionSource<T>();
+		_dispatcher = dispatcher;
 		_desiredAccuracy = desiredAccuracy;
 		_finishedCallback = finishedCallback;
 		_locationSync = new object();
 
-		foreach (var provider in _activeProviders)
+		foreach (var source in _activeSources)
 		{
-			var location = manager.GetLastKnownLocation(provider);
+			var location = manager.GetLastKnownLocation(source.Provider);
 
 			if ((location != null) && location.IsBetterLocation(_bestLocation))
 			{
@@ -92,9 +95,15 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 
 	public void OnProviderDisabled(string provider)
 	{
-		lock (_activeProviders)
+		lock (_activeSources)
 		{
-			if (_activeProviders.Remove(provider) && (_activeProviders.Count == 0))
+			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			if (foundSource == null)
+			{
+				return;
+			}
+
+			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
 			{
 				_completionSource.TrySetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
 			}
@@ -103,9 +112,16 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 
 	public void OnProviderEnabled(string provider)
 	{
-		lock (_activeProviders)
+		lock (_activeSources)
 		{
-			_activeProviders.Add(provider);
+			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			if (foundSource != null)
+			{
+				foundSource.Enabled = true;
+				return;
+			}
+
+			_activeSources.Add(new LocationProviderSource(_dispatcher) { Enabled = true, Provider = provider });
 		}
 	}
 
@@ -114,12 +130,15 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 		switch (status)
 		{
 			case Availability.Available:
+			{
 				OnProviderEnabled(provider);
 				break;
-
+			}
 			case Availability.OutOfService:
+			{
 				OnProviderDisabled(provider);
 				break;
+			}
 		}
 	}
 

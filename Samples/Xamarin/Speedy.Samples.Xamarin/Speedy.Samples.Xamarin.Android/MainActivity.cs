@@ -4,6 +4,7 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
+using Speedy.Application.Xamarin;
 using Speedy.Samples.Xamarin.Droid.Services;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -33,6 +34,7 @@ namespace Speedy.Samples.Xamarin.Droid
 
 			Platform.Init(this, savedInstanceState);
 			Forms.Init(this, savedInstanceState);
+			XamarinPlatform.Initialize(this);
 
 			var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
 			if (status != PermissionStatus.Granted)

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using System.Linq;
 using System.Threading;
 using Android.Locations;
 using Android.OS;
@@ -23,31 +24,33 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 {
 	#region Fields
 
-	private string _activeProvider;
-	private readonly HashSet<string> _activeProviders;
+	private LocationProviderSource _activeSource;
+	private readonly HashSet<LocationProviderSource> _activeSources;
 	private Location _lastLocation;
-	private readonly LocationManager _manager;
-	private IList<string> _providers;
-	private readonly TimeSpan _locationTimeout;
 	private readonly double _locationThreshold;
+	private readonly TimeSpan _locationTimeout;
+	private readonly IDispatcher _dispatcher;
+	private readonly LocationManager _manager;
+	private IDictionary<string, LocationProviderSource> _sourceLookup;
 
 	#endregion
 
 	#region Constructors
 
-	public GeolocationContinuousListener(LocationManager manager, TimeSpan locationTimeout, double locationThreshold, IList<string> providers)
+	public GeolocationContinuousListener(IDispatcher dispatcher, LocationManager manager, TimeSpan locationTimeout, double locationThreshold, IList<LocationProviderSource> providerSources)
 	{
-		_activeProviders = new HashSet<string>();
+		_activeSources = new HashSet<LocationProviderSource>();
+		_dispatcher = dispatcher;
 		_manager = manager;
 		_locationTimeout = locationTimeout;
 		_locationThreshold = locationThreshold;
-		_providers = providers;
+		_sourceLookup = providerSources.ToDictionary(x => x.Provider, x => x);
 
-		foreach (var p in providers)
+		foreach (var source in providerSources)
 		{
-			if (manager.IsProviderEnabled(p))
+			if (manager.IsProviderEnabled(source.Provider))
 			{
-				_activeProviders.Add(p);
+				_activeSources.Add(source);
 			}
 		}
 	}
@@ -69,12 +72,12 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 		var elapsed = TimeSpan.MinValue;
 
 		// Check to see if the provider of this location is different than the current provider.
-		if (location.Provider != _activeProvider)
+		if (location.Provider != _activeSource?.Provider)
 		{
 			// Only test new location if there is an active provider and it's still enabled. There we can switch locations if
 			// - there is no active provider therefore we can just use this location provider
 			// - the current active provider was disabled, so switch to the new location provider
-			if ((_activeProvider != null) && _manager.IsProviderEnabled(_activeProvider))
+			if ((_activeSource?.Provider != null) && _manager.IsProviderEnabled(_activeSource.Provider))
 			{
 				// Get the provider for the location
 				var locationProvider = _manager.GetProvider(location.Provider);
@@ -89,14 +92,14 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 				var accuracyChange = Math.Abs(location.Accuracy - _lastLocation.Accuracy);
 				elapsed = GetTimeSpan(location.Time) - GetTimeSpan(_lastLocation.Time);
 				locationExpired = elapsed >= _locationTimeout;
-				
+
 				// See if we should ignore this location due to it
 				// - not having expired
 				// - and the new location less accurate (higher is less) that current
 				// - and the less accurate location is to large to accept
 				if (!locationExpired
-					&& location.Accuracy > _lastLocation.Accuracy
-					&& accuracyChange >= _locationThreshold)
+					&& (location.Accuracy > _lastLocation.Accuracy)
+					&& (accuracyChange >= _locationThreshold))
 				{
 					LogEventWritten?.Invoke(this, new LogEventArgs(location.GetTimestamp().UtcDateTime, EventLevel.Verbose,
 						$"Location ignored, source: {location.Provider}, {location.Accuracy} > {_lastLocation.Accuracy} ({accuracyChange})"));
@@ -109,13 +112,13 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			}
 
 			// Accept the location provider as the active provider
-			_activeProvider = location.Provider;
+			_activeSource = _activeSources.FirstOrDefault(x => x.Provider == location.Provider);
 		}
 
 		LogEventWritten?.Invoke(this, new LogEventArgs(location.GetTimestamp().UtcDateTime, EventLevel.Verbose,
 			locationExpired
 				? $"Location changed because it expired after {elapsed} time."
-				: location.Provider != _activeProvider
+				: location.Provider != _activeSource.Provider
 					? $"Location changed by new provider of {location.Provider}"
 					: "Location update by existing provider")
 		);
@@ -133,9 +136,15 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			return;
 		}
 
-		lock (_activeProviders)
+		lock (_activeSources)
 		{
-			if (_activeProviders.Remove(provider) && (_activeProviders.Count == 0))
+			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			if (foundSource == null)
+			{
+				return;
+			}
+
+			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
 			{
 				OnPositionError(LocationProviderError.PositionUnavailable);
 			}
@@ -149,9 +158,16 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			return;
 		}
 
-		lock (_activeProviders)
+		lock (_activeSources)
 		{
-			_activeProviders.Add(provider);
+			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			if (foundSource != null)
+			{
+				foundSource.Enabled = true;
+				return;
+			}
+
+			_activeSources.Add(new LocationProviderSource(_dispatcher) { Enabled = true, Provider = provider });
 		}
 	}
 

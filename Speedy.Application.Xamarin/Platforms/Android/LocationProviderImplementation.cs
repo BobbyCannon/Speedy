@@ -6,15 +6,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Gms.Location;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Java.Lang;
 using Speedy.Devices.Location;
+using Speedy.Extensions;
 using Speedy.Logging;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
+using Location = Android.Locations.Location;
+using LocationRequest = Android.Gms.Location.LocationRequest;
+using XamarinForms = Xamarin.Forms;
 
 #endregion
 
@@ -29,11 +34,20 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	where T : class, ILocation, new()
 	where T2 : LocationProviderSettings, new()
 {
+	#region Constants
+
+	private const string FusedGooglePlusKey = "fused g+";
+
+	#endregion
+
 	#region Fields
 
+	private FusedLocationProviderCallback _fusedCallback;
+	private FusedLocationProviderClient _fusedListener;
 	private GeolocationContinuousListener<T> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
+	private IDictionary<string, LocationProviderSource> _providerSources;
 	private GeolocationSingleListener<T> _singleListener;
 
 	#endregion
@@ -43,17 +57,9 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// <summary>
 	/// Default constructor
 	/// </summary>
-	public LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
+	protected LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_positionSync = new object();
-
-		ListeningProviders = new List<string>();
-	}
-
-	static LocationProviderImplementation()
-	{
-		ProvidersToUse = Array.Empty<string>();
-		ProvidersToUseWhileListening = Array.Empty<string>();
 	}
 
 	#endregion
@@ -64,30 +70,39 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	public override bool IsListening => _listener != null;
 
 	/// <inheritdoc />
-	public override bool IsLocationAvailable => Providers.Length > 0;
+	public override bool IsLocationAvailable => HasProviderSources;
 
 	/// <inheritdoc />
-	public override bool IsLocationEnabled =>
-		Providers.Any(p => !IgnoredProviders.Contains(p) &&
-			Manager.IsProviderEnabled(p));
+	public override bool IsLocationEnabled => ProviderSources.Any(x => x.Enabled && Manager.IsProviderEnabled(x.Provider));
 
-	private string[] IgnoredProviders => new[] { LocationManager.PassiveProvider, "local_database" };
+	/// <summary>
+	/// Gets all providers from the Location Manager.
+	/// </summary>
+	public override IEnumerable<LocationProviderSource> ProviderSources
+	{
+		get
+		{
+			if (_providerSources == null)
+			{
+				var defaultEnabled = new[] { LocationManager.GpsProvider, "fused" };
+				_providerSources = Manager.GetProviders(false)
+					.Select(x => new LocationProviderSource
+					{
+						Provider = x,
+						Enabled = defaultEnabled.Contains(x)
+					})
+					.ToDictionary(x => x.Provider, x => x);
+				var t = new LocationProviderSource { Enabled = true, Provider = FusedGooglePlusKey };
+				_providerSources.Add(t.Provider, t);
+			}
+			return _providerSources.Values;
+		}
+	}
 
-	private List<string> ListeningProviders { get; }
-
+	/// <summary>
+	/// The android location manager.
+	/// </summary>
 	private LocationManager Manager => _locationManager ??= (LocationManager) Android.App.Application.Context.GetSystemService(Context.LocationService);
-
-	private string[] Providers => Manager.GetProviders(false).ToArray();
-
-	/// <summary>
-	/// Gets or sets the location manager providers to ignore when getting position.
-	/// </summary>
-	private static string[] ProvidersToUse { get; }
-
-	/// <summary>
-	/// Gets or sets the location manager providers to ignore when doing continuous listening.
-	/// </summary>
-	private static string[] ProvidersToUseWhileListening { get; }
 
 	#endregion
 
@@ -99,6 +114,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// <param name="timeout"> Timeout to wait, Default Infinite </param>
 	/// <param name="cancelToken"> Cancellation token </param>
 	/// <returns> ProviderLocation </returns>
+	/// <remarks>
+	/// bug: we must work on thread safety of this method.
+	/// Touching "Manager", which is global, can be very dangerous.
+	/// </remarks>
 	public override async Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		var timeoutMilliseconds = timeout.HasValue
@@ -119,28 +138,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 
 		var tcs = new TaskCompletionSource<T>();
+		var providerSources = ProviderSources.ToArray();
 
 		if (!IsListening)
 		{
-			var providers = new List<string>();
-			if ((ProvidersToUse == null) || (ProvidersToUse.Length == 0))
-			{
-				providers.AddRange(Providers);
-			}
-			else
-			{
-				// Only add providers requested.
-				foreach (var provider in Providers)
-				{
-					if ((ProvidersToUse == null) || !ProvidersToUse.Contains(provider))
-					{
-						continue;
-					}
-
-					providers.Add(provider);
-				}
-			}
-
 			void singleListenerFinishCallback()
 			{
 				if (_singleListener == null)
@@ -148,16 +149,20 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 					return;
 				}
 
-				for (var i = 0; i < providers.Count; ++i)
+				for (var i = 0; i < providerSources.Length; ++i)
 				{
 					Manager.RemoveUpdates(_singleListener);
 				}
 			}
 
-			_singleListener = new GeolocationSingleListener<T>(Manager,
+			_singleListener = new GeolocationSingleListener<T>(Dispatcher,
+				Manager,
 				(float) LocationProviderSettings.DesiredAccuracy,
 				timeoutMilliseconds,
-				providers.Where(Manager.IsProviderEnabled),
+				ProviderSources
+					.Where(x => x.Enabled)
+					.Where(x => Manager.IsProviderEnabled(x.Provider))
+					.ToList(),
 				singleListenerFinishCallback);
 
 			if (cancelToken != CancellationToken.None)
@@ -166,7 +171,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 				{
 					_singleListener.Cancel();
 
-					for (var i = 0; i < providers.Count; ++i)
+					for (var i = 0; i < providerSources.Length; ++i)
 					{
 						Manager.RemoveUpdates(_singleListener);
 					}
@@ -178,19 +183,19 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 				var looper = Looper.MyLooper() ?? Looper.MainLooper;
 				var enabled = 0;
 
-				for (var i = 0; i < providers.Count; ++i)
+				for (var i = 0; i < providerSources.Length; ++i)
 				{
-					if (Manager.IsProviderEnabled(providers[i]))
+					if (Manager.IsProviderEnabled(providerSources[i].Provider))
 					{
 						enabled++;
 					}
 
-					Manager.RequestLocationUpdates(providers[i], 0, 0, _singleListener, looper);
+					Manager.RequestLocationUpdates(providerSources[i].Provider, 0, 0, _singleListener, looper);
 				}
 
 				if (enabled == 0)
 				{
-					for (var i = 0; i < providers.Count; ++i)
+					for (var i = 0; i < providerSources.Length; ++i)
 					{
 						Manager.RemoveUpdates(_singleListener);
 					}
@@ -242,39 +247,54 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return;
 		}
 
-		var providers = Providers;
+		var sources = ProviderSources.ToArray();
+		var looper = Looper.MyLooper() ?? Looper.MainLooper;
+		
+		if ((XamarinPlatform.MainActivity != null) && _providerSources[FusedGooglePlusKey].Enabled)
+		{
+			_fusedListener = LocationServices.GetFusedLocationProviderClient(XamarinPlatform.MainActivity);
+			var locationRequest = LocationRequest.Create();
+			locationRequest.SetPriority(LocationRequest.PriorityHighAccuracy);
+			locationRequest.SetInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
+			locationRequest.SetFastestInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
+			locationRequest.SetSmallestDisplacement((float) LocationProviderSettings.MinimumDistance);
+			_fusedCallback = new FusedLocationProviderCallback(FusedLocationProviderLocationChanged);
+			_fusedListener.RequestLocationUpdates(locationRequest, _fusedCallback, looper);
+			_providerSources[FusedGooglePlusKey].Listening = true;
+		}
 
-		_listener = new GeolocationContinuousListener<T>(Manager,
+		_listener = new GeolocationContinuousListener<T>(Dispatcher,
+			Manager,
 			LocationProviderSettings.LocationChangeTimeout,
 			LocationProviderSettings.LocationChangeAccuracyThreshold,
-			providers);
+			sources);
+
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
 		_listener.PositionChanged += ListenerPositionChanged;
 		_listener.PositionError += ListenerPositionError;
 
-		var looper = Looper.MyLooper() ?? Looper.MainLooper;
-		ListeningProviders.Clear();
-
-		for (var i = 0; i < providers.Length; ++i)
+		for (var i = 0; i < sources.Length; ++i)
 		{
-			var provider = providers[i];
+			var source = sources[i];
 
-			// we have limited set of providers
-			if (ProvidersToUseWhileListening is { Length: > 0 })
+			if (source.Provider == FusedGooglePlusKey)
 			{
-				//the provider is not in the list, so don't use it.
-				if (!ProvidersToUseWhileListening.Contains(provider))
-				{
-					continue;
-				}
+				continue;
 			}
 
-			ListeningProviders.Add(provider);
-			Manager.RequestLocationUpdates(provider,
+			if (!source.Enabled)
+			{
+				source.Listening = false;
+				continue;
+			}
+
+			Manager.RequestLocationUpdates(source.Provider,
 				(long) LocationProviderSettings.MinimumTime.TotalMilliseconds,
 				(float) LocationProviderSettings.MinimumDistance,
 				_listener,
 				looper);
+
+			source.Listening = true;
 		}
 
 		Status = "Is Listening";
@@ -289,17 +309,26 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return Task.CompletedTask;
 		}
 
-		if (ListeningProviders == null)
-		{
-			return Task.CompletedTask;
-		}
-
-		var providers = ListeningProviders;
 		_listener.LogEventWritten -= ListenerOnLogEventWritten;
 		_listener.PositionChanged -= ListenerPositionChanged;
 		_listener.PositionError -= ListenerPositionError;
 
-		for (var i = 0; i < providers.Count; i++)
+		if (_fusedListener != null)
+		{
+			_providerSources[FusedGooglePlusKey].Listening = false;
+			_fusedListener.RemoveLocationUpdates(_fusedCallback);
+
+			_fusedListener.Dispose();
+			_fusedCallback.Dispose();
+
+			_fusedListener = null;
+			_fusedCallback = null;
+		}
+
+		var count = ProviderSources.Count();
+
+		// Remove sources, todo: why we loop here? weird?
+		for (var i = 0; i < count; i++)
 		{
 			try
 			{
@@ -311,6 +340,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			}
 		}
 
+		_providerSources.ForEach(x => x.Value.Listening = false);
 		_listener = null;
 
 		Status = string.Empty;
@@ -361,6 +391,35 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		return false;
 	}
 
+	private void FusedLocationProviderLocationChanged(Location obj)
+	{
+		var t = obj.ToPosition<T>();
+		t.SourceName = FusedGooglePlusKey;
+		OnPositionChanged(t);
+	}
+
+	private bool IsGooglePlayServicesInstalled()
+	{
+		//var queryResult = GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(this);
+		//if (queryResult == ConnectionResult.Success)
+		//{
+		//	//Log.Info("MainActivity", "Google Play Services is installed on this device.");
+		//	return true;
+		//}
+
+		//if (GoogleApiAvailability.Instance.IsUserResolvableError(queryResult))
+		//{
+		//	// Check if there is a way the user can resolve the issue
+		//	var errorString = GoogleApiAvailability.Instance.GetErrorString(queryResult);
+		//	//Log.Error("MainActivity", "There is a problem with Google Play Services on this device: {0} - {1}",
+		//	//	queryResult, errorString);
+
+		//	// Alternately, display the error to the user.
+		//}
+
+		return false;
+	}
+
 	private void ListenerOnLogEventWritten(object sender, LogEventArgs e)
 	{
 		OnLogEventWritten(e);
@@ -385,6 +444,48 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	{
 		await StopListeningAsync();
 		OnPositionError(e);
+	}
+
+	#endregion
+
+	#region Classes
+
+	private class FusedLocationProviderCallback : LocationCallback
+	{
+		#region Fields
+
+		private readonly Action<Location> _callback;
+
+		#endregion
+
+		#region Constructors
+
+		public FusedLocationProviderCallback(Action<Location> callback)
+		{
+			_callback = callback;
+		}
+
+		#endregion
+
+		#region Methods
+
+		public override void OnLocationAvailability(LocationAvailability locationAvailability)
+		{
+			//Log.Debug("FusedLocationProviderSample", "IsLocationAvailable: {0}",locationAvailability.IsLocationAvailable);
+		}
+
+		public override void OnLocationResult(LocationResult result)
+		{
+			if (result.Locations.Any())
+			{
+				var location = result.Locations.First();
+				_callback.Invoke(location);
+				//Log.Debug("Sample", "The latitude is :" + location.Latitude);
+			}
+			// No locations to work with.
+		}
+
+		#endregion
 	}
 
 	#endregion

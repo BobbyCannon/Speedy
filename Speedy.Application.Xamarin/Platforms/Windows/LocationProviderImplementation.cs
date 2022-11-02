@@ -147,13 +147,13 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			// todo: support HasPermission?
 
-			var geolocator = GetGeolocator();
+			var locator = GetGeolocator();
 
-			geolocator.ReportInterval = (uint)LocationProviderSettings.MinimumTime.TotalMilliseconds;
-			geolocator.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy < 100 ? PositionAccuracy.High : PositionAccuracy.Default;
-			geolocator.MovementThreshold = LocationProviderSettings.MinimumDistance;
-			geolocator.PositionChanged += OnLocatorPositionChanged;
-			geolocator.StatusChanged += OnLocatorStatusChanged;
+			locator.ReportInterval = (uint) LocationProviderSettings.MinimumTime.TotalMilliseconds;
+			locator.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy < 100 ? PositionAccuracy.High : PositionAccuracy.Default;
+			locator.MovementThreshold = LocationProviderSettings.MinimumDistance;
+			locator.PositionChanged += OnLocatorPositionChanged;
+			locator.StatusChanged += OnLocatorStatusChanged;
 
 			IsListening = true;
 
@@ -195,15 +195,14 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 
 		_locator = new Geolocator();
-		_locator.StatusChanged += OnLocatorStatusChanged;
 
 		return _locator;
 	}
 
 	private PositionStatus GetGeolocatorStatus()
 	{
-		var loc = GetGeolocator();
-		return loc.LocationStatus;
+		var locator = GetGeolocator();
+		return locator.LocationStatus;
 	}
 
 	private void OnLocatorPositionChanged(Geolocator sender, PositionChangedEventArgs args)

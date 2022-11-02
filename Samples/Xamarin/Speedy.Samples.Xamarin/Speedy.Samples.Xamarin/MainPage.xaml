@@ -34,15 +34,6 @@
 			<Label Text="Settings" Margin="0,10,0,0" Style="{StaticResource Title}" />
 			
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-				<Label Text="Desired Accuracy" />
-				<Label Text="{Binding LocationProvider.LocationProviderSettings.DesiredAccuracy, Mode=OneWay}" />
-			</StackLayout>
-			<Slider Maximum="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracyUpperLimitView, Mode=OneWay}"
-					Minimum="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracyLowerLimitView, Mode=OneWay}"
-					Value="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracy, Mode=TwoWay}"
-					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
-			
-			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Location Change Timeout In Seconds" />
 				<Label Text="{Binding LocationProvider.LocationProviderSettings.LocationChangeTimeoutInSeconds, Mode=OneWay}" />
 			</StackLayout>
@@ -76,6 +67,52 @@
 					Minimum="{x:Binding LocationProvider.LocationProviderSettings.MinimumDistanceLowerLimitView, Mode=OneWay}"
 					Value="{x:Binding LocationProvider.LocationProviderSettings.MinimumDistance, Mode=TwoWay}"
 					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Desired Accuracy" />
+				<Label Text="{Binding LocationProvider.LocationProviderSettings.DesiredAccuracy, Mode=OneWay}" />
+			</StackLayout>
+			<Slider Maximum="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracyUpperLimitView, Mode=OneWay}"
+					Minimum="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracyLowerLimitView, Mode=OneWay}"
+					Value="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracy, Mode=TwoWay}"
+					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+
+
+			<StackLayout IsVisible="{x:Binding LocationProvider.HasProviderSources, Mode=OneWay}">
+				<Label Text="Provider Sources" Margin="0,10,0,0" Style="{StaticResource Title}" />
+
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="100" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="100" />
+					</Grid.ColumnDefinitions>
+					<Label Grid.Column="0" Text="Enabled" />
+					<Label Grid.Column="1" Text="Provider" />
+					<Label Grid.Column="2" Text="Listening" />
+				</Grid>
+
+				<FlexLayout BindableLayout.ItemsSource="{x:Binding LocationProvider.ProviderSources, Mode=OneWay}"
+						Direction="Column"
+						HorizontalOptions="Fill" VerticalOptions="Start">
+					<BindableLayout.ItemTemplate>
+						<DataTemplate x:DataType="location:LocationProviderSource">
+							<ContentView>
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="100" />
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="100" />
+									</Grid.ColumnDefinitions>
+									<CheckBox Grid.Column="0" IsChecked="{x:Binding Enabled, Mode=TwoWay}" />
+									<Label Grid.Column="1" Text="{x:Binding Provider, Mode=OneWay}" />
+									<Label Grid.Column="2" Text="{x:Binding Listening, Mode=OneWay, Converter={StaticResource StringConverter}}" />
+								</Grid>
+							</ContentView>
+						</DataTemplate>
+					</BindableLayout.ItemTemplate>
+				</FlexLayout>
+			</StackLayout>
 			
 			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
 					Text="Start" Command="{Binding LocationProvider.StartListeningCommand, Mode=OneTime}" />
@@ -173,17 +210,14 @@
 					Chart="{x:Binding AltitudeChart, Mode=OneWay}"
 					HeightRequest="250" />-->
 
-			<ListView ItemsSource="{Binding Locations, Mode=OneWay}"
+			<FlexLayout BindableLayout.ItemsSource="{Binding Locations, Mode=OneWay}"
+					Direction="Column"
 					Background="#212121"
 					Margin="0,10,0,0"
-					SelectionMode="None"
-					HasUnevenRows="True"
-					VerticalOptions="StartAndExpand"
-					HorizontalScrollBarVisibility="Never"
-					VerticalScrollBarVisibility="Never">
-				<ListView.ItemTemplate>
+					VerticalOptions="StartAndExpand">
+				<BindableLayout.ItemTemplate>
 					<DataTemplate x:DataType="location:Location">
-						<ViewCell>
+						<ContentView>
 							<StackLayout Margin="0,1,0,10" HorizontalOptions="Fill">
 								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title}" />
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
@@ -242,18 +276,17 @@
 									<Label Text="{x:Binding HasSpeed, Mode=OneWay}" />
 								</StackLayout>
 							</StackLayout>
-						</ViewCell>
+						</ContentView>
 					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
+				</BindableLayout.ItemTemplate>
+			</FlexLayout>
 
 			<Button Text="Export History" Command="{Binding ExportHistoryCommand, Mode=OneTime}" />
 
-			<ListView ItemsSource="{x:Binding Logs, Mode=OneWay}" HeightRequest="200"
-					HorizontalScrollBarVisibility="Always">
-				<ListView.ItemTemplate>
+			<FlexLayout BindableLayout.ItemsSource="{x:Binding Logs, Mode=OneWay}" Direction="Column">
+				<BindableLayout.ItemTemplate>
 					<DataTemplate x:DataType="logging:LogEventArgs">
-						<ViewCell>
+						<ContentView>
 							<Grid>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="100" />
@@ -262,10 +295,10 @@
 								<Label Grid.Column="0" Text="{x:Binding DateTime}" />
 								<Label Grid.Column="1" Text="{x:Binding Message}" />
 							</Grid>
-						</ViewCell>
+						</ContentView>
 					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
+				</BindableLayout.ItemTemplate>
+			</FlexLayout>
 
 		</StackLayout>
 	</ScrollView>

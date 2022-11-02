@@ -1,8 +1,13 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Speedy.Collections;
 using Speedy.Commands;
 using Speedy.Extensions;
 using Speedy.Logging;
@@ -29,6 +34,7 @@ public abstract class LocationProvider<T, T2>
 	protected LocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		// Set properties
+		ProviderSources = new BaseObservableCollection<LocationProviderSource>();
 		LastReadLocation = new T();
 		LastReadLocation.UpdateDispatcher(dispatcher);
 		LocationProviderSettings = new T2();
@@ -43,8 +49,18 @@ public abstract class LocationProvider<T, T2>
 
 	#region Properties
 
+	/// <summary>
+	/// Returns true if there is a set of internal providers.
+	/// </summary>
+	public bool HasProviderSources => ProviderSources.Any();
+
 	/// <inheritdoc />
 	public bool HasPermission { get; protected set; }
+
+	/// <summary>
+	/// A list of providers internal to the single location providers.
+	/// </summary>
+	public virtual IEnumerable<LocationProviderSource> ProviderSources { get; }
 
 	/// <inheritdoc />
 	public virtual bool IsListening { get; protected set; }

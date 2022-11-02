@@ -2086,8 +2086,18 @@
             Instantiates an instance of the location provider.
             </summary>
         </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider`2.HasProviderSources">
+            <summary>
+            Returns true if there is a set of internal providers.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.HasPermission">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider`2.ProviderSources">
+            <summary>
+            A list of providers internal to the single location providers.
+            </summary>
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.IsListening">
             <inheritdoc />
@@ -2395,6 +2405,26 @@
         <member name="M:Speedy.Devices.Location.LocationProviderSettings.Cleanup">
             <summary>
             Cleanup the settings to be sure they are in range.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationProviderSource">
+            <summary>
+            The source of a location provider.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSource.Enabled">
+            <summary>
+            The flag to determine if a source is enable or disabled.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSource.Listening">
+            <summary>
+            The flag to determine if the source is currently being used to listen for location updates.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSource.Provider">
+            <summary>
+            The source for the location provider.
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.VerticalLocation">

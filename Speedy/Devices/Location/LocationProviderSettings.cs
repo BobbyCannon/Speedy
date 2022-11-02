@@ -28,7 +28,7 @@ public class LocationProviderSettings : Bindable
 	{
 		DefaultTimeout = TimeSpan.FromSeconds(1);
 		DesiredAccuracy = 10;
-		LocationChangeTimeout = TimeSpan.FromSeconds(60);
+		LocationChangeTimeout = TimeSpan.FromSeconds(1);
 		MinimumDistance = 10;
 		MinimumTime = TimeSpan.FromSeconds(1);
 	}
