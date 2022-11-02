@@ -5,35 +5,34 @@ using System.Linq;
 
 #endregion
 
-namespace Speedy.Extensions
+namespace Speedy.Extensions;
+
+/// <summary>
+/// Extensions for logging.
+/// </summary>
+public static class LoggingExtensions
 {
+	#region Methods
+
 	/// <summary>
-	/// Extensions for logging.
+	/// Convert the event written event argument to its payload string
 	/// </summary>
-	public static class LoggingExtensions
+	/// <param name="args"> The item to process. </param>
+	/// <returns> The formatted message. </returns>
+	public static string GetDetailedMessage(this EventWrittenEventArgs args)
 	{
-		#region Methods
-
-		/// <summary>
-		/// Convert the event written event argument to its payload string
-		/// </summary>
-		/// <param name="args"> The item to process. </param>
-		/// <returns> The formatted message. </returns>
-		public static string GetDetailedMessage(this EventWrittenEventArgs args)
-		{
-			return $"{args.Payload[2]} - {args.Payload[0]} {args.Level} : {args.GetMessage()}";
-		}
-
-		/// <summary>
-		/// Convert the event written event argument to its payload string
-		/// </summary>
-		/// <param name="args"> The item to process. </param>
-		/// <returns> The formatted message. </returns>
-		public static string GetMessage(this EventWrittenEventArgs args)
-		{
-			return string.Format(args.Message, args.Payload.ToArray());
-		}
-
-		#endregion
+		return $"{args.Payload[2]} - {args.Payload[0]} {args.Level} : {args.GetMessage()}";
 	}
+
+	/// <summary>
+	/// Convert the event written event argument to its payload string
+	/// </summary>
+	/// <param name="args"> The item to process. </param>
+	/// <returns> The formatted message. </returns>
+	public static string GetMessage(this EventWrittenEventArgs args)
+	{
+		return string.Format(args.Message, args.Payload.ToArray());
+	}
+
+	#endregion
 }

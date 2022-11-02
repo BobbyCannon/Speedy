@@ -709,7 +709,7 @@ public static class ReflectionExtensions
 		{
 			return Guid.NewGuid().ToString();
 		}
-		
+
 		var isCollection = propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>));
 		if (isCollection)
 		{

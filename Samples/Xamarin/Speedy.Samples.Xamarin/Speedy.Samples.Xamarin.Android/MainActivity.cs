@@ -42,6 +42,12 @@ namespace Speedy.Samples.Xamarin.Droid
 				await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
 			}
 			
+			status = await Permissions.CheckStatusAsync<Permissions.StorageRead>();
+			if (status != PermissionStatus.Granted)
+			{
+				await Permissions.RequestAsync<Permissions.StorageRead>();
+			}
+			
 			status = await Permissions.CheckStatusAsync<Permissions.StorageWrite>();
 			if (status != PermissionStatus.Granted)
 			{

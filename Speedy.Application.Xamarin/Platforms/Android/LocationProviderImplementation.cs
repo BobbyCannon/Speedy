@@ -260,7 +260,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			_fusedListener = LocationServices.GetFusedLocationProviderClient(XamarinPlatform.MainActivity);
 			var locationRequest = LocationRequest.Create();
-			locationRequest.SetPriority(LocationRequest.PriorityHighAccuracy);
+			locationRequest.SetPriority(Priority.PriorityHighAccuracy);
 			locationRequest.SetInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
 			locationRequest.SetFastestInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
 			locationRequest.SetSmallestDisplacement((float) LocationProviderSettings.MinimumDistance);

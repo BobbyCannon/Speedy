@@ -3289,6 +3289,16 @@
             <param name="value"> The value if found otherwise the "default" value of the type. </param>
             <returns> True if the item was found otherwise false. </returns>
         </member>
+        <member name="T:Speedy.Extensions.CommandExtensions">
+            <summary>
+            Extensions for commands
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.CommandExtensions.Refresh(System.Windows.Input.ICommand)">
+            <summary>
+            Refresh the command state.
+            </summary>
+        </member>
         <member name="T:Speedy.Extensions.DateTimeExtensions">
             <summary>
             Extensions for date time
@@ -4733,27 +4743,6 @@
             Extensions for the string type.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.ToBase64(System.String)">
-            <summary>
-            Convert string to a base 64 string.
-            </summary>
-            <param name="data"> The data to be converted. </param>
-            <returns> The base 64 encoded string. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.StringExtensions.FromBase64(System.String)">
-            <summary>
-            Convert string from a base 64 string.
-            </summary>
-            <param name="data"> The data to be converted. </param>
-            <returns> The unencoded string. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.StringExtensions.FromBase64ToByteArray(System.String)">
-            <summary>
-            Convert string from a base 64 string.
-            </summary>
-            <param name="data"> The data to be converted. </param>
-            <returns> The unencoded byte array. </returns>
-        </member>
         <member name="M:Speedy.Extensions.StringExtensions.ConvertHexStringToByteArray(System.String)">
             <summary>
             Convert a hex string to a byte array.
@@ -4774,6 +4763,20 @@
             </summary>
             <param name="bytes"> bytes </param>
             <returns> a string </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.FromBase64(System.String)">
+            <summary>
+            Convert string from a base 64 string.
+            </summary>
+            <param name="data"> The data to be converted. </param>
+            <returns> The unencoded string. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.FromBase64ToByteArray(System.String)">
+            <summary>
+            Convert string from a base 64 string.
+            </summary>
+            <param name="data"> The data to be converted. </param>
+            <returns> The unencoded byte array. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.FromHexString(System.String)">
             <summary>
@@ -4811,6 +4814,13 @@
             </summary>
             <param name="value"> The value to reverse. </param>
             <returns> The string in a reversed order. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToBase64(System.String)">
+            <summary>
+            Convert string to a base 64 string.
+            </summary>
+            <param name="data"> The data to be converted. </param>
+            <returns> The base 64 encoded string. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.String,System.String,System.String)">
             <summary>
