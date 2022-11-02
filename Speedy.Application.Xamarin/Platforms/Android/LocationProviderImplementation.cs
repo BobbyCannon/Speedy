@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Gms.Common;
 using Android.Gms.Location;
 using Android.Locations;
 using Android.OS;
@@ -230,6 +231,11 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return;
 		}
 
+		if (!IsGooglePlayServicesInstalled())
+		{
+			return;
+		}
+
 		LocationProviderSettings.Cleanup();
 
 		if (LocationProviderSettings.RequireLocationAlwaysPermission)
@@ -400,22 +406,19 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private bool IsGooglePlayServicesInstalled()
 	{
-		//var queryResult = GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(this);
-		//if (queryResult == ConnectionResult.Success)
-		//{
-		//	//Log.Info("MainActivity", "Google Play Services is installed on this device.");
-		//	return true;
-		//}
+		var queryResult = GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(XamarinPlatform.MainActivity);
+		if (queryResult == ConnectionResult.Success)
+		{
+			Status = "Google Play Services is installed on this device.";
+			return true;
+		}
 
-		//if (GoogleApiAvailability.Instance.IsUserResolvableError(queryResult))
-		//{
-		//	// Check if there is a way the user can resolve the issue
-		//	var errorString = GoogleApiAvailability.Instance.GetErrorString(queryResult);
-		//	//Log.Error("MainActivity", "There is a problem with Google Play Services on this device: {0} - {1}",
-		//	//	queryResult, errorString);
-
-		//	// Alternately, display the error to the user.
-		//}
+		if (GoogleApiAvailability.Instance.IsUserResolvableError(queryResult))
+		{
+			// Check if there is a way the user can resolve the issue
+			var errorString = GoogleApiAvailability.Instance.GetErrorString(queryResult);
+			Status = $"There is a problem with Google Play Services on this device: {queryResult} - {errorString}";
+		}
 
 		return false;
 	}
