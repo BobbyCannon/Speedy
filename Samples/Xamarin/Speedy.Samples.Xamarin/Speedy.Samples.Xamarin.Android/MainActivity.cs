@@ -4,6 +4,7 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
+using Android.Views;
 using Speedy.Application.Xamarin;
 using Speedy.Samples.Xamarin.Droid.Services;
 using Xamarin.Essentials;

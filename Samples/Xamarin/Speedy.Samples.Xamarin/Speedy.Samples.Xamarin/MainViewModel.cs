@@ -12,8 +12,9 @@ using Speedy.Application;
 using Speedy.Application.Xamarin;
 using Speedy.Collections;
 using Speedy.Commands;
-using Speedy.Devices.Location;
 using Speedy.Logging;
+using Xamarin.Essentials;
+using Location = Speedy.Devices.Location.Location;
 
 #endregion
 
@@ -31,6 +32,8 @@ public class MainViewModel : ViewModel
 		LocationProvider = new XamarinLocationProvider<Location, LocationProviderSettingsView>(dispatcher);
 		LocationProvider.LogEventWritten += LocationProviderOnLogEventWritten;
 		LocationProvider.PositionChanged += LocationProviderOnPositionChanged;
+
+		DeviceDisplay.KeepScreenOn = true;
 
 		ExportHistoryCommand = new RelayCommand(x => OnExportHistoryRequest());
 	}
