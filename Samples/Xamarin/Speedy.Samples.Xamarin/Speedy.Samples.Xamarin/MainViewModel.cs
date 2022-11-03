@@ -3,6 +3,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.Painting.Effects;
+using SkiaSharp;
 using Speedy.Application;
 using Speedy.Application.Xamarin;
 using Speedy.Collections;
@@ -27,21 +32,59 @@ public class MainViewModel : ViewModel
 		LocationProvider.LogEventWritten += LocationProviderOnLogEventWritten;
 		LocationProvider.PositionChanged += LocationProviderOnPositionChanged;
 
-		//AltitudeChart = new LineChart()
-		//	{
-		//		Entries = new List<ChartEntry>(),
-		//		LineMode = LineMode.Straight,
-		//		LineSize = 8,
-		//		PointMode = PointMode.Square,
-		//		PointSize = 18
-		//	};
-
 		ExportHistoryCommand = new RelayCommand(x => OnExportHistoryRequest());
 	}
 
 	#endregion
 
 	#region Properties
+
+	public ISeries[] Series { get; set; }
+		= new ISeries[]
+		{
+			new LineSeries<int>
+			{
+				Values = new[] { 2, 5, 4, -2, 4, -3, 5 }
+			}
+		};
+
+
+	public Axis[] XAxes { get; set; }
+		= new Axis[]
+		{
+			new Axis
+			{
+				Name = "X Axis",
+				NamePaint = new SolidColorPaint(SKColors.Black), 
+
+				LabelsPaint = new SolidColorPaint(SKColors.Blue), 
+				TextSize = 10,
+
+				SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray)
+				{
+					StrokeThickness = 2
+				}
+			}
+		};
+
+	public Axis[] YAxes { get; set; }
+		= new Axis[]
+		{
+			new Axis
+			{
+				Name = "Y Axis",
+				NamePaint = new SolidColorPaint(SKColors.Red), 
+
+				LabelsPaint = new SolidColorPaint(SKColors.Green), 
+				TextSize = 20,
+
+				SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray) 
+				{ 
+					StrokeThickness = 2, 
+					PathEffect = new DashEffect(new float[] { 3, 3 }) 
+				} 
+			}
+		};
 
 	public RelayCommand ExportHistoryCommand { get; }
 
@@ -89,7 +132,7 @@ public class MainViewModel : ViewModel
 		{
 			currentLocation.UpdateWith(location);
 		}
-		
+
 		var history = LocationHistory.GetOrAdd(location.SourceName, _ => new BaseObservableCollection<Location>());
 		history.Add((Location) currentLocation.ShallowClone());
 	}

@@ -60,9 +60,6 @@
     <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microcharts.Android">
-      <Version>1.0.0-preview1</Version>
-    </PackageReference>
     <PackageReference Include="PropertyChanged.Fody" PrivateAssets="All">
       <Version>4.0.3</Version>
     </PackageReference>

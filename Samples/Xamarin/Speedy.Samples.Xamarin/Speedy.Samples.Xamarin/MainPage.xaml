@@ -6,6 +6,7 @@
 		xmlns:xamarin="clr-namespace:Speedy.Samples.Xamarin;assembly=Speedy.Samples.Xamarin" 
 		xmlns:logging="clr-namespace:Speedy.Logging;assembly=Speedy"
 		xmlns:location="clr-namespace:Speedy.Devices.Location;assembly=Speedy"
+		xmlns:forms="clr-namespace:LiveChartsCore.SkiaSharpView.Xamarin.Forms;assembly=LiveChartsCore.SkiaSharpView.XamarinForms"
 		x:DataType="xamarin:MainViewModel">
 
 	<ContentPage.Resources>
@@ -205,74 +206,81 @@
 				<Label Text="{x:Binding LocationProvider.IsLocationEnabled, Mode=OneWay}" />
 			</StackLayout>
 
-			<!--<forms:ChartView x:Name="ChartView" 
-					BackgroundColor="White" 
-					Chart="{x:Binding AltitudeChart, Mode=OneWay}"
-					HeightRequest="250" />-->
-
 			<FlexLayout BindableLayout.ItemsSource="{Binding Locations, Mode=OneWay}"
 					Direction="Column"
 					Background="#212121"
 					Margin="0,10,0,0"
+					Padding="0,10,0,10"
 					VerticalOptions="StartAndExpand">
 				<BindableLayout.ItemTemplate>
 					<DataTemplate x:DataType="location:Location">
 						<ContentView>
-							<StackLayout Margin="0,1,0,10" HorizontalOptions="Fill">
-								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title}" />
+							<ContentView.Resources>
+								<Style x:Key="Property2" TargetType="Label" BasedOn="{StaticResource Property}">
+									<Setter Property="TextColor" Value="AliceBlue" />
+								</Style>
+								<Style x:Key="Title2" TargetType="Label" BasedOn="{StaticResource Title}">
+									<Setter Property="TextColor" Value="AliceBlue" />
+								</Style>
+								<Style TargetType="Label">
+									<Setter Property="TextColor" Value="AliceBlue" />
+								</Style>
+							</ContentView.Resources>
+							<StackLayout Margin="0,0,0,10" HorizontalOptions="Fill">
+								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Status Time" Style="{StaticResource Property}" />
+									<Label Text="Status Time" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Latitude" Style="{StaticResource Property}" />
+									<Label Text="Latitude" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Latitude, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Longitude" Style="{StaticResource Property}" />
+									<Label Text="Longitude" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Longitude, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Accuracy" Style="{StaticResource Property}" />
+									<Label Text="Accuracy" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Accuracy, Mode=OneWay}" />
 									<Label Text="{x:Binding AccuracyReference, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Accuracy" Style="{StaticResource Property}" />
+									<Label Text="Has Accuracy" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding HasAccuracy, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Altitude" Style="{StaticResource Property}" />
+									<Label Text="Altitude" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Altitude, Mode=OneWay}" />
 									<Label Text="{x:Binding AltitudeReference, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Altitude" Style="{StaticResource Property}" />
+									<Label Text="Has Altitude" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding HasAltitude, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Accuracy" Style="{StaticResource Property}" />
+									<Label Text="Accuracy" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding AltitudeAccuracy, Mode=OneWay}" />
 									<Label Text="{x:Binding AltitudeAccuracyReference, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Accuracy" Style="{StaticResource Property}" />
+									<Label Text="Has Accuracy" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding HasAltitudeAccuracy, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Heading" Style="{StaticResource Property}" />
+									<Label Text="Heading" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Heading, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Heading" Style="{StaticResource Property}" />
+									<Label Text="Has Heading" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding HasHeading, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Speed" Style="{StaticResource Property}" />
+									<Label Text="Speed" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Speed, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Speed" Style="{StaticResource Property}" />
+									<Label Text="Has Speed" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding HasSpeed, Mode=OneWay}" />
 								</StackLayout>
 							</StackLayout>
@@ -299,6 +307,14 @@
 					</DataTemplate>
 				</BindableLayout.ItemTemplate>
 			</FlexLayout>
+
+			<forms:CartesianChart 
+					Series="{Binding Series}"
+					HeightRequest="230"
+					XAxes="{Binding XAxes}"
+					YAxes="{Binding YAxes}"
+					>
+			</forms:CartesianChart>
 
 		</StackLayout>
 	</ScrollView>
