@@ -115,9 +115,13 @@
 				</FlexLayout>
 			</StackLayout>
 			
-			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
+			<Button BackgroundColor="Accent"
+					TextColor="AliceBlue"
+					IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
 					Text="Start" Command="{Binding LocationProvider.StartListeningCommand, Mode=OneTime}" />
-			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+			<Button BackgroundColor="Accent"
+					TextColor="AliceBlue"
+					IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
 					Text="Stop" Command="{Binding LocationProvider.StopListeningCommand, Mode=OneTime}" />
 			
 			<StackLayout Orientation="Horizontal" Margin="0,10,0,0" HorizontalOptions="Center">
@@ -289,7 +293,10 @@
 				</BindableLayout.ItemTemplate>
 			</FlexLayout>
 
-			<Button Text="Export History" Command="{Binding ExportHistoryCommand, Mode=OneTime}" />
+			<Button BackgroundColor="Accent"
+					TextColor="AliceBlue"
+					Text="Export History"
+					Command="{Binding ExportHistoryCommand, Mode=OneTime}" />
 
 			<FlexLayout BindableLayout.ItemsSource="{x:Binding Logs, Mode=OneWay}" Direction="Column">
 				<BindableLayout.ItemTemplate>

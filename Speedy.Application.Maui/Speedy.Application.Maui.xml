@@ -76,32 +76,19 @@
         </member>
         <member name="T:Speedy.Application.Maui.LocationProviderImplementation`2">
             <summary>
-            Implementation for Feature
+            Implementation for LocationProvider
             </summary>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
             <summary>
-            Default constructor
+            Constructor for implementation
             </summary>
-        </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.IsListening">
-            <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.IsLocationAvailable">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.IsLocationEnabled">
             <inheritdoc />
-        </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.ProvidersToUse">
-            <summary>
-            Gets or sets the location manager providers to ignore when getting position.
-            </summary>
-        </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.ProvidersToUseWhileListening">
-            <summary>
-            Gets or sets the location manager providers to ignore when doing continuous listening.
-            </summary>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <summary>
@@ -112,9 +99,16 @@
             <returns> ProviderLocation </returns>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.StartListeningAsync">
-            <inheritdoc />
+            <summary>
+            Start listening for changes
+            </summary>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.StopListeningAsync">
+            <summary>
+            Stop listening
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.OnPositionError(Speedy.Devices.Location.LocationProviderError)">
             <inheritdoc />
         </member>
     </members>
