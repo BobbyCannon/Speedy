@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Sync;
 
@@ -103,11 +104,11 @@ public class CodeGeneratorTests
 	[TestMethod]
 	public void GenerateUpdateWith()
 	{
-		var type = typeof(PagedResults<int>);
+		var type = typeof(Location);
 		var builder = new StringBuilder();
 		var properties = type
-			.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
-			//.GetCachedProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Instance)
+			//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+			.GetCachedProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Instance)
 			.Where(x => x.CanWrite)
 			.OrderBy(x => x.Name)
 			.ToList();

@@ -1,8 +1,7 @@
 #region References
 
-using CoreLocation;
+using System;
 using Foundation;
-using Speedy.Devices.Location;
 
 #endregion
 

@@ -41,7 +41,5 @@ public class XamarinBarometerAltitudeProvider<T> : AltitudeProvider<T>
 		LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 	}
 
-
-
 	#endregion
 }

@@ -1582,6 +1582,20 @@
             Sqlite Database
             </summary>
         </member>
+        <member name="P:Speedy.Data.StateComparer`1.TypeFullName">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.StateComparer`1.GetCurrentState">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.StateComparer`1.IsBetter(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Data.StateManager">
+            <summary>
+            Manages different state
+            </summary>
+        </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
             Represents a default dispatcher
@@ -1791,6 +1805,9 @@
         <member name="P:Speedy.Devices.Location.BasicLocation.AltitudeReference">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Devices.Location.BasicLocation.HasAltitude">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Devices.Location.BasicLocation.Latitude">
             <inheritdoc />
         </member>
@@ -1828,12 +1845,42 @@
             Represents a horizontal location (lat, long).
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.Latitude">
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HasHorizontalAccuracy">
+            <summary>
+            Specifies if the Accuracy value is valid.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalAccuracy">
+            <summary>
+            The accuracy of the horizontal location. (latitude, longitude)
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalAccuracyReference">
+            <summary>
+            The reference system for accuracy.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalSourceName">
+            <summary>
+            The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalStatusTime">
+            <summary>
+            The original time of the location was captured.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.IMinimalHorizontalLocation">
+            <summary>
+            Represents a horizontal location (lat, long).
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IMinimalHorizontalLocation.Latitude">
             <summary>
             Ranges between -90 to 90 from North to South
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.Longitude">
+        <member name="P:Speedy.Devices.Location.IMinimalHorizontalLocation.Longitude">
             <summary>
             Ranges between -180 to 180 from West to East
             </summary>
@@ -1851,17 +1898,52 @@
         </member>
         <member name="T:Speedy.Devices.Location.IVerticalLocation">
             <summary>
+            Represents a vertical location (alt, alt ref, acc, acc ref).
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.HasVerticalAccuracy">
+            <summary>
+            Specifies if the Altitude Accuracy value is valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalAccuracy">
+            <summary>
+            The accuracy of the vertical location. (altitude)
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalAccuracyReference">
+            <summary>
+            The reference system for altitude accuracy.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalSourceName">
+            <summary>
+            The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalStatusTime">
+            <summary>
+            The original time of the location was captured.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.IMinimalVerticalLocation">
+            <summary>
             Represents a vertical location (alt, alt ref).
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.Altitude">
+        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude">
             <summary>
             The altitude of the location
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.AltitudeReference">
+        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.AltitudeReference">
             <summary>
             The reference type for the altitude value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.HasAltitude">
+            <summary>
+            Specifies if the Altitude value is valid
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.IVerticalLocationProvider`1">
@@ -1900,36 +1982,14 @@
             Instantiates a location for a LocationProvider.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.Location.Accuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.AccuracyReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.AltitudeAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.AltitudeAccuracyReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasAccuracy">
-            <summary>
-            Specifies if the Accuracy value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasAltitude">
-            <summary>
-            Specifies if the Altitude value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasAltitudeAccuracy">
-            <summary>
-            Specifies if the Altitude Accuracy value is valid
-            </summary>
-        </member>
         <member name="P:Speedy.Devices.Location.Location.HasHeading">
             <summary>
             Specifies if the Heading value is valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.HasHorizontalAccuracy">
+            <summary>
+            Specifies if the Accuracy value is valid
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.Location.HasSpeed">
@@ -1937,25 +1997,48 @@
             Specifies if the Speed value is valid
             </summary>
         </member>
+        <member name="P:Speedy.Devices.Location.Location.HasVerticalAccuracy">
+            <summary>
+            Specifies if the Altitude Accuracy value is valid
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.Location.Location.Heading">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.HorizontalAccuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.HorizontalAccuracyReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.HorizontalSourceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.HorizontalStatusTime">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.Location.LocationFlags">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.Location.SourceName">
+        <member name="P:Speedy.Devices.Location.Location.ProviderName">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.Location.Speed">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.Location.StatusTime">
+        <member name="P:Speedy.Devices.Location.Location.VerticalAccuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.VerticalAccuracyReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.VerticalSourceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.VerticalStatusTime">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.Location.DeepClone(System.Nullable{System.Int32})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.Location.ShallowClone">
@@ -1966,7 +2049,7 @@
         </member>
         <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.ILocation,System.String[])">
             <summary>
-            Update the ProviderLocation with an update.
+            Update the Location with an update.
             </summary>
             <param name="update"> The update to be applied. </param>
             <param name="exclusions"> An optional set of properties to exclude. </param>
@@ -1974,79 +2057,47 @@
         <member name="M:Speedy.Devices.Location.Location.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Devices.Location.Location.OnPropertyChangedInDispatcher(System.String)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Devices.Location.ILocation">
             <summary>
             Represents a provider location.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.Accuracy">
+        <member name="P:Speedy.Devices.Location.ILocation.ProviderName">
             <summary>
-            The accuracy of the horizontal location. (latitude, longitude)
+            The name of the provider that is the source of this location.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.AccuracyReference">
+        <member name="T:Speedy.Devices.Location.ILocationExtras">
             <summary>
-            The reference system for accuracy.
+            Extra members for location.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.AltitudeAccuracy">
-            <summary>
-            The accuracy of the vertical location. (altitude)
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.AltitudeAccuracyReference">
-            <summary>
-            The reference system for altitude accuracy.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.HasAccuracy">
-            <summary>
-            Specifies if the Accuracy value is valid.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.HasAltitude">
-            <summary>
-            Specifies if the Altitude value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.HasAltitudeAccuracy">
-            <summary>
-            Specifies if the Altitude Accuracy value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.HasHeading">
+        <member name="P:Speedy.Devices.Location.ILocationExtras.HasHeading">
             <summary>
             Specifies if the Heading value is valid
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.HasSpeed">
+        <member name="P:Speedy.Devices.Location.ILocationExtras.HasSpeed">
             <summary>
             Specifies if the Speed value is valid
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.Heading">
+        <member name="P:Speedy.Devices.Location.ILocationExtras.Heading">
             <summary>
             The heading of a device.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.LocationFlags">
+        <member name="P:Speedy.Devices.Location.ILocationExtras.LocationFlags">
             <summary>
             Flags for the location of the provider.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.SourceName">
-            <summary>
-            The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.Speed">
+        <member name="P:Speedy.Devices.Location.ILocationExtras.Speed">
             <summary>
             The speed of the device in meters per second.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation.StatusTime">
-            <summary>
-            The original time of the location was captured.
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.LocationFlags">
@@ -2086,17 +2137,12 @@
             Instantiates an instance of the location provider.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.HasProviderSources">
-            <summary>
-            Returns true if there is a set of internal providers.
-            </summary>
-        </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.HasPermission">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.ProviderSources">
+        <member name="P:Speedy.Devices.Location.LocationProvider`2.HasProviderSources">
             <summary>
-            A list of providers internal to the single location providers.
+            Returns true if there is a set of internal providers.
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.IsListening">
@@ -2113,6 +2159,11 @@
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.LocationProviderSettings">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider`2.ProviderSources">
+            <summary>
+            A list of providers internal to the single location providers.
+            </summary>
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.StartListeningCommand">
             <inheritdoc />
@@ -2427,6 +2478,17 @@
             The source for the location provider.
             </summary>
         </member>
+        <member name="T:Speedy.Devices.Location.LocationStateComparer">
+            <summary>
+            The state comparer for the <see cref="T:Speedy.Devices.Location.Location"/> type.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationStateComparer.IsBetter(Speedy.Devices.Location.Location)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationStateComparer.TryUpdateCurrentState(Speedy.Devices.Location.Location)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Devices.Location.VerticalLocation">
             <summary>
             Represents a minimal location (lat, long, alt, alt ref).
@@ -2442,7 +2504,7 @@
             Initialize an instance of the BasicLocation.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor(Speedy.Devices.Location.IVerticalLocation,Speedy.IDispatcher)">
+        <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.IDispatcher)">
             <summary>
             Initialize an instance of the BasicLocation.
             </summary>
@@ -2459,6 +2521,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.VerticalLocation.AltitudeReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.VerticalLocation.HasAltitude">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.CompareTo(Speedy.Devices.Location.VerticalLocation)">
@@ -2479,7 +2544,7 @@
         <member name="M:Speedy.Devices.Location.VerticalLocation.ToString">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(Speedy.Devices.Location.IVerticalLocation,System.String[])">
+        <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(Speedy.Devices.Location.IMinimalVerticalLocation,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.RuntimeInformation">
@@ -3913,7 +3978,12 @@
             Extensions for location related code.
             </summary>
         </member>
-        <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypes">
+        <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal">
+            <summary>
+            Globally supported Accuracy Reference types. Changing this affects extension methods like HasAccuracy.
+            </summary>
+        </member>
+        <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForVertical">
             <summary>
             Globally supported Accuracy Reference types. Changing this affects extension methods like HasAccuracy.
             </summary>
@@ -4006,7 +4076,7 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The center of the locations. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.GetEllipsoidAltitude(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.GetEllipsoidAltitude(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
             Tries to get an ellipsoid altitude for the vertical location.
             </summary>
@@ -4021,9 +4091,9 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The radius of the locations. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasHeading(Speedy.Devices.Location.ILocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasHeading(Speedy.Devices.Location.ILocationExtras)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.ILocation.Heading" /> is available.
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.ILocationExtras.Heading" /> is available.
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
@@ -4031,9 +4101,9 @@
             Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
             </remarks>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasSpeed(Speedy.Devices.Location.ILocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasSpeed(Speedy.Devices.Location.ILocationExtras)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.ILocation.Speed" /> is available.
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.ILocationExtras.Speed" /> is available.
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
@@ -4041,20 +4111,9 @@
             Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
             </remarks>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAccuracy(Speedy.Devices.Location.ILocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAltitude(Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.ILocation.Accuracy" /> is available.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypes" />.
-            </remarks>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAltitude(Speedy.Devices.Location.IVerticalLocation)">
-            <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IVerticalLocation.Altitude" /> is available.
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude" /> is available.
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
@@ -4063,15 +4122,26 @@
             Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAltitudeReferenceTypes" />.
             </remarks>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAltitudeAccuracy(Speedy.Devices.Location.ILocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedHorizontalAccuracy(Speedy.Devices.Location.IHorizontalLocation)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.ILocation.AltitudeAccuracy" /> is available.
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalAccuracy" /> is available.
             </summary>
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
             <remarks>
             Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypes" />.
+            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal" />.
+            </remarks>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedVerticalAccuracy(Speedy.Devices.Location.IVerticalLocation)">
+            <summary>
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.IVerticalLocation.VerticalAccuracy" /> is available.
+            </summary>
+            <param name="location"> The location to validate. </param>
+            <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForVertical" />.
             </remarks>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.IsGreaterThan(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
@@ -4123,6 +4193,28 @@
             <param name="longitude"> The longitude to check for. </param>
             <returns> True if the location is inside the set. </returns>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.IsSupportedHorizontalAccuracy(Speedy.Devices.Location.AccuracyReferenceType)">
+            <summary>
+            Check a accuracy reference type to see if it is supported for horizontal.
+            </summary>
+            <param name="accuracyReferenceType"> The accuracy reference type to validate. </param>
+            <returns> True if type is supported. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal" />.
+            </remarks>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.IsSupportedVerticalAccuracy(Speedy.Devices.Location.AccuracyReferenceType)">
+            <summary>
+            Check a accuracy reference type to see if it is supported for vertical.
+            </summary>
+            <param name="accuracyReferenceType"> The accuracy reference type to validate. </param>
+            <returns> True if type is supported. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)" /> if this changes.
+            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForVertical" />.
+            </remarks>
+        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.IsValidLocation(Speedy.Devices.Location.IBasicLocation)">
             <summary>
             Return true if the location is valid.
@@ -4155,7 +4247,31 @@
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)">
             <summary>
-            Handle property changes for ILocation. Triggers properties like HasAltitude when the
+            Handle property changes for IHorizontalLocation. Triggers properties like HasHorizontalAccuracy when the
+            dependent properties are updated.
+            </summary>
+            <param name="location"> The location to process. </param>
+            <param name="propertyName"> The name of the property that has changed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)">
+            <summary>
+            Handle property changes for IHorizontalLocation. Triggers properties like HasHorizontalAccuracy when the
+            dependent properties are updated.
+            </summary>
+            <param name="location"> The location to process. </param>
+            <param name="propertyName"> The name of the property that has changed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IVerticalLocation,System.String)">
+            <summary>
+            Handle property changes for IVerticalLocation. Triggers properties like HasAltitude when the
+            dependent properties are updated.
+            </summary>
+            <param name="location"> The location to process. </param>
+            <param name="propertyName"> The name of the property that has changed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocationExtras,System.String)">
+            <summary>
+            Handle property changes for ILocationExtras. Triggers properties like HasSpeed when the
             dependent properties are updated.
             </summary>
             <param name="location"> The location to process. </param>
@@ -4176,28 +4292,28 @@
             <param name="update"> The new location. </param>
             <param name="exclusions"> An optional set of exclusions. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasHeading(Speedy.Devices.Location.ILocation,System.Boolean)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasHeading(Speedy.Devices.Location.ILocationExtras,System.Boolean)">
             <summary>
             Update the location's HasHeading location flag.
             </summary>
             <param name="location"> The location to validate. </param>
             <param name="value"> True to set HasHeading otherwise clear. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasSpeed(Speedy.Devices.Location.ILocation,System.Boolean)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasSpeed(Speedy.Devices.Location.ILocationExtras,System.Boolean)">
             <summary>
             Update the location's HasSpeed location flag.
             </summary>
             <param name="location"> The location to validate. </param>
             <param name="value"> True to set HasSpeedy otherwise clear. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalLocation(Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IHorizontalLocation)">
             <summary>
             Update the horizontal location (lat, long).
             </summary>
             <param name="location"> The location to update. </param>
             <param name="update"> The update with new values. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalLocation(Speedy.Devices.Location.ILocation,Speedy.Devices.Location.ILocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalLocation(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
             <summary>
             Update the altitude.
             </summary>
@@ -12904,6 +13020,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncDevice`1.AltitudeReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncDevice`1.HasAltitude">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncDevice`1.ApplicationName">

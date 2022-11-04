@@ -26,10 +26,10 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 
 	private LocationProviderSource _activeSource;
 	private readonly HashSet<LocationProviderSource> _activeSources;
+	private readonly IDispatcher _dispatcher;
 	private Location _lastLocation;
 	private readonly double _locationThreshold;
 	private readonly TimeSpan _locationTimeout;
-	private readonly IDispatcher _dispatcher;
 	private readonly LocationManager _manager;
 	private IDictionary<string, LocationProviderSource> _sourceLookup;
 

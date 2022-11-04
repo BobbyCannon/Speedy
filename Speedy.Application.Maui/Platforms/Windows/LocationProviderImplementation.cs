@@ -33,6 +33,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	public LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_locator = new Geolocator();
+
+		LastReadLocation.ProviderName = "Xamarin Windows";
 	}
 
 	#endregion
@@ -141,17 +143,28 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return Task.CompletedTask;
 		}
 
-		IsListening = true;
+		try
+		{
+			// todo: support HasPermission?
 
-		var geolocator = GetGeolocator();
+			var locator = GetGeolocator();
 
-		geolocator.ReportInterval = (uint) LocationProviderSettings.MinimumTime.TotalMilliseconds;
-		geolocator.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy < 100 ? PositionAccuracy.High : PositionAccuracy.Default;
-		geolocator.MovementThreshold = LocationProviderSettings.MinimumDistance;
-		geolocator.PositionChanged += OnLocatorPositionChanged;
-		geolocator.StatusChanged += OnLocatorStatusChanged;
+			locator.ReportInterval = (uint) LocationProviderSettings.MinimumTime.TotalMilliseconds;
+			locator.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy < 100 ? PositionAccuracy.High : PositionAccuracy.Default;
+			locator.MovementThreshold = LocationProviderSettings.MinimumDistance;
+			locator.PositionChanged += OnLocatorPositionChanged;
+			locator.StatusChanged += OnLocatorStatusChanged;
 
-		return Task.CompletedTask;
+			IsListening = true;
+
+			return Task.CompletedTask;
+		}
+		catch
+		{
+			IsListening = false;
+
+			throw;
+		}
 	}
 
 	/// <summary>
@@ -182,15 +195,14 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 
 		_locator = new Geolocator();
-		_locator.StatusChanged += OnLocatorStatusChanged;
 
 		return _locator;
 	}
 
 	private PositionStatus GetGeolocatorStatus()
 	{
-		var loc = GetGeolocator();
-		return loc.LocationStatus;
+		var locator = GetGeolocator();
+		return locator.LocationStatus;
 	}
 
 	private void OnLocatorPositionChanged(Geolocator sender, PositionChangedEventArgs args)
@@ -250,11 +262,17 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private T UpdateLastReadPosition(Geoposition position)
 	{
-		LastReadLocation.Accuracy = position.Coordinate.Accuracy;
-		LastReadLocation.AccuracyReference = AccuracyReferenceType.Meters;
 		LastReadLocation.Latitude = position.Coordinate.Point.Position.Latitude;
 		LastReadLocation.Longitude = position.Coordinate.Point.Position.Longitude;
-		LastReadLocation.StatusTime = position.Coordinate.Timestamp.UtcDateTime;
+
+		LastReadLocation.HorizontalAccuracy = position.Coordinate.Accuracy;
+		LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
+
+		LastReadLocation.HorizontalSourceName = position.Coordinate.PositionSource.ToString();
+		LastReadLocation.HorizontalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
+
+		LastReadLocation.VerticalSourceName = position.Coordinate.PositionSource.ToString();
+		LastReadLocation.VerticalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
 
 		if (position.Coordinate.Heading != null)
 		{
@@ -270,12 +288,11 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		if (position.Coordinate.AltitudeAccuracy.HasValue)
 		{
-			LastReadLocation.AltitudeAccuracy = position.Coordinate.AltitudeAccuracy.Value;
+			LastReadLocation.VerticalAccuracy = position.Coordinate.AltitudeAccuracy.Value;
 		}
 
 		LastReadLocation.Altitude = position.Coordinate.Point.Position.Altitude;
 		LastReadLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
-		LastReadLocation.SourceName = position.Coordinate.PositionSource.ToString();
 
 		return LastReadLocation;
 	}

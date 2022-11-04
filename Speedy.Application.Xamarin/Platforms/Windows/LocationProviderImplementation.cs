@@ -35,6 +35,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	public LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_locator = new Geolocator();
+
+		LastReadLocation.ProviderName = "Xamarin Windows";
 	}
 
 	#endregion
@@ -262,11 +264,17 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private T UpdateLastReadPosition(Geoposition position)
 	{
-		LastReadLocation.Accuracy = position.Coordinate.Accuracy;
-		LastReadLocation.AccuracyReference = AccuracyReferenceType.Meters;
 		LastReadLocation.Latitude = position.Coordinate.Point.Position.Latitude;
 		LastReadLocation.Longitude = position.Coordinate.Point.Position.Longitude;
-		LastReadLocation.StatusTime = position.Coordinate.Timestamp.UtcDateTime;
+
+		LastReadLocation.HorizontalAccuracy = position.Coordinate.Accuracy;
+		LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
+
+		LastReadLocation.HorizontalSourceName = position.Coordinate.PositionSource.ToString();
+		LastReadLocation.HorizontalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
+
+		LastReadLocation.VerticalSourceName = position.Coordinate.PositionSource.ToString();
+		LastReadLocation.VerticalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
 
 		if (position.Coordinate.Heading != null)
 		{
@@ -282,12 +290,11 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		if (position.Coordinate.AltitudeAccuracy.HasValue)
 		{
-			LastReadLocation.AltitudeAccuracy = position.Coordinate.AltitudeAccuracy.Value;
+			LastReadLocation.VerticalAccuracy = position.Coordinate.AltitudeAccuracy.Value;
 		}
 
 		LastReadLocation.Altitude = position.Coordinate.Point.Position.Altitude;
 		LastReadLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
-		LastReadLocation.SourceName = position.Coordinate.PositionSource.ToString();
 
 		return LastReadLocation;
 	}

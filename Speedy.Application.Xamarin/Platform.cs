@@ -13,7 +13,6 @@ namespace Speedy.Application.Xamarin
 		#region Properties
 
 		#if MONOANDROID
-
 		public static Activity MainActivity { get; private set; }
 
 		#endif
@@ -23,7 +22,6 @@ namespace Speedy.Application.Xamarin
 		#region Methods
 
 		#if MONOANDROID
-
 		public static void Initialize(Activity activity)
 		{
 			MainActivity = activity;

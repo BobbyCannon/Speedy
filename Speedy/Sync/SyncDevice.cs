@@ -3,6 +3,7 @@
 using System;
 using Speedy.Devices;
 using Speedy.Devices.Location;
+using Speedy.Extensions;
 
 #endregion
 
@@ -21,6 +22,9 @@ public class SyncDevice<T> : SyncModel<T>, ISyncDevice
 
 	/// <inheritdoc />
 	public AltitudeReferenceType AltitudeReference { get; set; }
+
+	/// <inheritdoc />
+	public bool HasAltitude => this.HasSupportedAltitude();
 
 	/// <inheritdoc />
 	public string ApplicationName { get; set; }

@@ -14,12 +14,18 @@ namespace Speedy.Application.Maui;
 internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelegate
 	where T : class, ILocation, new()
 {
-	private bool _haveLocation;
-	private readonly T _position;
+	#region Fields
+
 	private readonly double _desiredAccuracy;
+	private bool _haveLocation;
 	private readonly bool _includeHeading;
-	private readonly TaskCompletionSource<T> _tcs;
 	private readonly CLLocationManager _manager;
+	private readonly T _position;
+	private readonly TaskCompletionSource<T> _tcs;
+
+	#endregion
+
+	#region Constructors
 
 	public LocationProviderSingleUpdateDelegate(CLLocationManager manager, double desiredAccuracy, bool includeHeading, int timeout, CancellationToken cancelToken)
 	{
@@ -50,13 +56,11 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 			}, null, timeout, 0);
 		}
 
-		#if __IOS__
 		manager.ShouldDisplayHeadingCalibration += locationManager =>
 		{
 			locationManager.DismissHeadingCalibrationDisplay();
 			return false;
 		};
-		#endif
 
 		cancelToken.Register(() =>
 		{
@@ -65,7 +69,15 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		});
 	}
 
+	#endregion
+
+	#region Properties
+
 	public Task<T> Task => _tcs?.Task;
+
+	#endregion
+
+	#region Methods
 
 	public override void AuthorizationChanged(CLLocationManager manager, CLAuthorizationStatus status)
 	{
@@ -92,64 +104,56 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		}
 	}
 
-	#if __IOS__
 	public override bool ShouldDisplayHeadingCalibration(CLLocationManager locationManager)
 	{
 		locationManager.DismissHeadingCalibrationDisplay();
 		return false;
 	}
-	#endif
 
-	#if __TVOS__
-		public override void LocationsUpdated(CLLocationManager manager, CLLocation[] locations)
-		{
-			var newLocation = locations.FirstOrDefault();
-			if (newLocation == null)
-				return;
-
-	#else
 	public override void UpdatedLocation(CLLocationManager manager, CLLocation newLocation, CLLocation oldLocation)
 	{
-		#endif
 		if (newLocation.HorizontalAccuracy < 0)
 		{
 			return;
 		}
 
-		if (_haveLocation && (newLocation.HorizontalAccuracy > _position.Accuracy))
+		if (_haveLocation && (newLocation.HorizontalAccuracy > _position.HorizontalAccuracy))
 		{
 			return;
 		}
 
-		_position.Accuracy = newLocation.HorizontalAccuracy;
-		_position.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
-
 		_position.Altitude = newLocation.EllipsoidalAltitude;
-		_position.AltitudeAccuracy = newLocation.VerticalAccuracy;
-		_position.AltitudeAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
 		_position.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 
+		_position.HorizontalAccuracy = newLocation.HorizontalAccuracy;
+		_position.HorizontalAccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
+		
 		_position.Latitude = newLocation.Coordinate.Latitude;
 		_position.Longitude = newLocation.Coordinate.Longitude;
 
-		#if __IOS__ || __MACOS__
 		_position.HasSpeed = newLocation.Speed > -1;
 		_position.Speed = newLocation.Speed;
+
+		_position.VerticalAccuracy = newLocation.VerticalAccuracy;
+		_position.VerticalAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
 
 		if (_includeHeading)
 		{
 			_position.HasHeading = newLocation.Course > -1;
 			_position.Heading = newLocation.Course;
 		}
-		#endif
 
 		try
 		{
-			_position.StatusTime = newLocation.Timestamp.ToDateTime().ToUniversalTime();
+			var statusTime = newLocation.Timestamp.ToDateTime().ToUniversalTime();
+			_position.HorizontalStatusTime = statusTime;
+			_position.VerticalStatusTime = statusTime;
 		}
 		catch (Exception)
 		{
-			_position.StatusTime = TimeService.UtcNow;
+			var statusTime = TimeService.UtcNow;
+			_position.HorizontalStatusTime = statusTime;
+			_position.VerticalStatusTime = statusTime;
 		}
 		_haveLocation = true;
 	}
@@ -158,4 +162,6 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 	{
 		_manager.StopUpdatingLocation();
 	}
+
+	#endregion
 }

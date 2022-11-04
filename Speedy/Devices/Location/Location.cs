@@ -52,33 +52,6 @@ public class Location : BasicLocation, ILocation, ICloneable
 
 	#region Properties
 
-	/// <inheritdoc />
-	public double Accuracy { get; set; }
-
-	/// <inheritdoc />
-	public AccuracyReferenceType AccuracyReference { get; set; }
-
-	/// <inheritdoc />
-	public double AltitudeAccuracy { get; set; }
-
-	/// <inheritdoc />
-	public AccuracyReferenceType AltitudeAccuracyReference { get; set; }
-
-	/// <summary>
-	/// Specifies if the Accuracy value is valid
-	/// </summary>
-	public bool HasAccuracy => this.HasSupportedAccuracy();
-
-	/// <summary>
-	/// Specifies if the Altitude value is valid
-	/// </summary>
-	public bool HasAltitude => this.HasSupportedAltitude();
-
-	/// <summary>
-	/// Specifies if the Altitude Accuracy value is valid
-	/// </summary>
-	public bool HasAltitudeAccuracy => this.HasSupportedAltitudeAccuracy();
-
 	/// <summary>
 	/// Specifies if the Heading value is valid
 	/// </summary>
@@ -89,6 +62,11 @@ public class Location : BasicLocation, ILocation, ICloneable
 	}
 
 	/// <summary>
+	/// Specifies if the Accuracy value is valid
+	/// </summary>
+	public bool HasHorizontalAccuracy => this.HasSupportedHorizontalAccuracy();
+
+	/// <summary>
 	/// Specifies if the Speed value is valid
 	/// </summary>
 	public bool HasSpeed
@@ -97,20 +75,46 @@ public class Location : BasicLocation, ILocation, ICloneable
 		set => this.UpdateHasSpeed(value);
 	}
 
+	/// <summary>
+	/// Specifies if the Altitude Accuracy value is valid
+	/// </summary>
+	public bool HasVerticalAccuracy => this.HasSupportedVerticalAccuracy();
+
 	/// <inheritdoc />
 	public double Heading { get; set; }
+
+	/// <inheritdoc />
+	public double HorizontalAccuracy { get; set; }
+
+	/// <inheritdoc />
+	public AccuracyReferenceType HorizontalAccuracyReference { get; set; }
+
+	/// <inheritdoc />
+	public string HorizontalSourceName { get; set; }
+
+	/// <inheritdoc />
+	public DateTime HorizontalStatusTime { get; set; }
 
 	/// <inheritdoc />
 	public LocationFlags LocationFlags { get; set; }
 
 	/// <inheritdoc />
-	public string SourceName { get; set; }
+	public string ProviderName { get; set; }
 
 	/// <inheritdoc />
 	public double Speed { get; set; }
 
 	/// <inheritdoc />
-	public DateTime StatusTime { get; set; }
+	public double VerticalAccuracy { get; set; }
+
+	/// <inheritdoc />
+	public AccuracyReferenceType VerticalAccuracyReference { get; set; }
+
+	/// <inheritdoc />
+	public string VerticalSourceName { get; set; }
+
+	/// <inheritdoc />
+	public DateTime VerticalStatusTime { get; set; }
 
 	#endregion
 
@@ -120,14 +124,6 @@ public class Location : BasicLocation, ILocation, ICloneable
 	public object DeepClone(int? maxDepth = null)
 	{
 		return ShallowClone();
-	}
-
-	/// <inheritdoc />
-	protected override void OnPropertyChangedInDispatcher(string propertyName)
-	{
-		this.ProcessOnPropertyChange(propertyName);
-		this.CleanupLocation(propertyName);
-		base.OnPropertyChangedInDispatcher(propertyName);
 	}
 
 	/// <inheritdoc />
@@ -141,11 +137,11 @@ public class Location : BasicLocation, ILocation, ICloneable
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		return $"{Latitude:N7}°  {Longitude:N7}°  {Altitude:N2} {AccuracyReference.ToDisplayShortName()}";
+		return $"{Latitude:N7}°  {Longitude:N7}°  {Altitude:N2} {HorizontalAccuracyReference.ToDisplayShortName()}";
 	}
 
 	/// <summary>
-	/// Update the ProviderLocation with an update.
+	/// Update the Location with an update.
 	/// </summary>
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
@@ -161,36 +157,48 @@ public class Location : BasicLocation, ILocation, ICloneable
 
 		if (exclusions.Length <= 0)
 		{
-			Accuracy = update.Accuracy;
 			Altitude = update.Altitude;
-			AltitudeAccuracy = update.AltitudeAccuracy;
 			AltitudeReference = update.AltitudeReference;
 			HasHeading = update.HasHeading;
 			HasSpeed = update.HasSpeed;
 			Heading = update.Heading;
+			HorizontalAccuracy = update.HorizontalAccuracy;
+			HorizontalAccuracyReference = update.HorizontalAccuracyReference;
+			HorizontalSourceName = update.HorizontalSourceName;
+			HorizontalStatusTime = update.HorizontalStatusTime;
 			Latitude = update.Latitude;
+			LocationFlags = update.LocationFlags;
 			Longitude = update.Longitude;
-			SourceName = update.SourceName;
+			ProviderName = update.ProviderName;
 			Speed = update.Speed;
-			StatusTime = update.StatusTime;
+			VerticalAccuracy = update.VerticalAccuracy;
+			VerticalAccuracyReference = update.VerticalAccuracyReference;
+			VerticalSourceName = update.VerticalSourceName;
+			VerticalStatusTime = update.VerticalStatusTime;
 		}
 		else
 		{
-			this.IfThen(_ => !exclusions.Contains(nameof(Accuracy)), x => x.Accuracy = update.Accuracy);
 			this.IfThen(_ => !exclusions.Contains(nameof(Altitude)), x => x.Altitude = update.Altitude);
-			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeAccuracy)), x => x.AltitudeAccuracy = update.AltitudeAccuracy);
 			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
 			this.IfThen(_ => !exclusions.Contains(nameof(HasHeading)), x => x.HasHeading = update.HasHeading);
 			this.IfThen(_ => !exclusions.Contains(nameof(HasSpeed)), x => x.HasSpeed = update.HasSpeed);
 			this.IfThen(_ => !exclusions.Contains(nameof(Heading)), x => x.Heading = update.Heading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracy)), x => x.HorizontalAccuracy = update.HorizontalAccuracy);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracyReference)), x => x.HorizontalAccuracyReference = update.HorizontalAccuracyReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalSourceName)), x => x.HorizontalSourceName = update.HorizontalSourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalStatusTime)), x => x.HorizontalStatusTime = update.HorizontalStatusTime);
 			this.IfThen(_ => !exclusions.Contains(nameof(Latitude)), x => x.Latitude = update.Latitude);
+			this.IfThen(_ => !exclusions.Contains(nameof(LocationFlags)), x => x.LocationFlags = update.LocationFlags);
 			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
-			this.IfThen(_ => !exclusions.Contains(nameof(SourceName)), x => x.SourceName = update.SourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(ProviderName)), x => x.ProviderName = update.ProviderName);
 			this.IfThen(_ => !exclusions.Contains(nameof(Speed)), x => x.Speed = update.Speed);
-			this.IfThen(_ => !exclusions.Contains(nameof(StatusTime)), x => x.StatusTime = update.StatusTime);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracy)), x => x.VerticalAccuracy = update.VerticalAccuracy);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracyReference)), x => x.VerticalAccuracyReference = update.VerticalAccuracyReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalSourceName)), x => x.VerticalSourceName = update.VerticalSourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalStatusTime)), x => x.VerticalStatusTime = update.VerticalStatusTime);
 		}
 
-		base.UpdateWith(update, exclusions);
+		//base.UpdateWith(update, exclusions);
 	}
 
 	/// <inheritdoc />
@@ -198,6 +206,11 @@ public class Location : BasicLocation, ILocation, ICloneable
 	{
 		switch (update)
 		{
+			case Location options:
+			{
+				UpdateWith(options, exclusions);
+				return;
+			}
 			case ILocation options:
 			{
 				UpdateWith(options, exclusions);
@@ -211,50 +224,39 @@ public class Location : BasicLocation, ILocation, ICloneable
 		}
 	}
 
+	/// <inheritdoc />
+	protected override void OnPropertyChangedInDispatcher(string propertyName)
+	{
+		this.ProcessOnPropertyChange(propertyName);
+		this.CleanupLocation(propertyName);
+		base.OnPropertyChangedInDispatcher(propertyName);
+	}
+
 	#endregion
 }
 
 /// <summary>
 /// Represents a provider location.
 /// </summary>
-public interface ILocation : IBasicLocation, IUpdatable<ILocation>
+public interface ILocation : IBasicLocation, IUpdatable<ILocation>,
+	IHorizontalLocation, IVerticalLocation, ILocationExtras
 {
 	#region Properties
 
 	/// <summary>
-	/// The accuracy of the horizontal location. (latitude, longitude)
+	/// The name of the provider that is the source of this location.
 	/// </summary>
-	double Accuracy { get; set; }
+	public string ProviderName { get; set; }
 
-	/// <summary>
-	/// The reference system for accuracy.
-	/// </summary>
-	AccuracyReferenceType AccuracyReference { get; set; }
+	#endregion
+}
 
-	/// <summary>
-	/// The accuracy of the vertical location. (altitude)
-	/// </summary>
-	double AltitudeAccuracy { get; set; }
-
-	/// <summary>
-	/// The reference system for altitude accuracy.
-	/// </summary>
-	AccuracyReferenceType AltitudeAccuracyReference { get; set; }
-
-	/// <summary>
-	/// Specifies if the Accuracy value is valid.
-	/// </summary>
-	bool HasAccuracy { get; }
-
-	/// <summary>
-	/// Specifies if the Altitude value is valid
-	/// </summary>
-	bool HasAltitude { get; }
-	
-	/// <summary>
-	/// Specifies if the Altitude Accuracy value is valid
-	/// </summary>
-	bool HasAltitudeAccuracy { get; }
+/// <summary>
+/// Extra members for location.
+/// </summary>
+public interface ILocationExtras : IBindable
+{
+	#region Properties
 
 	/// <summary>
 	/// Specifies if the Heading value is valid
@@ -277,19 +279,9 @@ public interface ILocation : IBasicLocation, IUpdatable<ILocation>
 	LocationFlags LocationFlags { get; set; }
 
 	/// <summary>
-	/// The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
-	/// </summary>
-	string SourceName { get; set; }
-
-	/// <summary>
 	/// The speed of the device in meters per second.
 	/// </summary>
 	double Speed { get; set; }
-
-	/// <summary>
-	/// The original time of the location was captured.
-	/// </summary>
-	DateTime StatusTime { get; set; }
 
 	#endregion
 }

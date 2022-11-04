@@ -26,8 +26,8 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 	private readonly HashSet<LocationProviderSource> _activeSources;
 	private Location _bestLocation;
 	private readonly TaskCompletionSource<T> _completionSource;
-	private readonly IDispatcher _dispatcher;
 	private readonly float _desiredAccuracy;
+	private readonly IDispatcher _dispatcher;
 	private readonly Action _finishedCallback;
 	private readonly object _locationSync;
 	private readonly Timer _timer;

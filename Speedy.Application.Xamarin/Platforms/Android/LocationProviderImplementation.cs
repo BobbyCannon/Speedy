@@ -158,7 +158,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 			_singleListener = new GeolocationSingleListener<T>(Dispatcher,
 				Manager,
-				(float) LocationProviderSettings.DesiredAccuracy,
+				LocationProviderSettings.DesiredAccuracy,
 				timeoutMilliseconds,
 				ProviderSources
 					.Where(x => x.Enabled)
@@ -255,7 +255,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		var sources = ProviderSources.ToArray();
 		var looper = Looper.MyLooper() ?? Looper.MainLooper;
-		
+
 		if ((XamarinPlatform.MainActivity != null) && _providerSources[FusedGooglePlusKey].Enabled)
 		{
 			_fusedListener = LocationServices.GetFusedLocationProviderClient(XamarinPlatform.MainActivity);
@@ -263,7 +263,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			locationRequest.SetPriority(Priority.PriorityHighAccuracy);
 			locationRequest.SetInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
 			locationRequest.SetFastestInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
-			locationRequest.SetSmallestDisplacement((float) LocationProviderSettings.MinimumDistance);
+			locationRequest.SetSmallestDisplacement(LocationProviderSettings.MinimumDistance);
 			_fusedCallback = new FusedLocationProviderCallback(FusedLocationProviderLocationChanged);
 			_fusedListener.RequestLocationUpdates(locationRequest, _fusedCallback, looper);
 			_providerSources[FusedGooglePlusKey].Listening = true;
@@ -296,7 +296,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 			Manager.RequestLocationUpdates(source.Provider,
 				(long) LocationProviderSettings.MinimumTime.TotalMilliseconds,
-				(float) LocationProviderSettings.MinimumDistance,
+				LocationProviderSettings.MinimumDistance,
 				_listener,
 				looper);
 
@@ -331,19 +331,13 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			_fusedCallback = null;
 		}
 
-		var count = ProviderSources.Count();
-
-		// Remove sources, todo: why we loop here? weird?
-		for (var i = 0; i < count; i++)
+		try
 		{
-			try
-			{
-				Manager.RemoveUpdates(_listener);
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine($"Unable to remove updates: {ex}");
-			}
+			Manager.RemoveUpdates(_listener);
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"Unable to remove updates: {ex}");
 		}
 
 		_providerSources.ForEach(x => x.Value.Listening = false);
@@ -400,7 +394,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	private void FusedLocationProviderLocationChanged(Location obj)
 	{
 		var t = obj.ToPosition<T>();
-		t.SourceName = FusedGooglePlusKey;
+		t.ProviderName = FusedGooglePlusKey;
 		OnPositionChanged(t);
 	}
 

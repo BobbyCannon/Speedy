@@ -1,3 +1,13 @@
+#region References
+
+#if (WINDOWS)
+using Colors = Microsoft.UI.Colors;
+using SolidColorBrush = Microsoft.UI.Xaml.Media.SolidColorBrush;
+using Thickness = Microsoft.UI.Xaml.Thickness;
+#endif
+
+#endregion
+
 namespace Speedy.Application.Maui.Controls;
 
 public partial class TextBox
@@ -64,11 +74,11 @@ public partial class TextBox
 		var textbox = Input.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.TextBox;
 		if (textbox != null)
 		{
-			textbox.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
+			textbox.BorderThickness = new Thickness(0);
 			textbox.FocusVisualPrimaryThickness = textbox.BorderThickness;
 			textbox.FocusVisualSecondaryThickness = textbox.BorderThickness;
-			textbox.FocusVisualPrimaryBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
-			textbox.FocusVisualSecondaryBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+			textbox.FocusVisualPrimaryBrush = new SolidColorBrush(Colors.Transparent);
+			textbox.FocusVisualSecondaryBrush = new SolidColorBrush(Colors.Transparent);
 		}
 		#endif
 		base.OnHandlerChanged();

@@ -8,12 +8,7 @@ using CoreLocation;
 using Foundation;
 using Speedy.Devices.Location;
 using Xamarin.Essentials;
-#if __IOS__ || __TVOS__
 using UIKit;
-
-#elif __MACOS__
-using AppKit;
-#endif
 
 #endregion
 
@@ -53,6 +48,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			_manager.UpdatedLocation += OnUpdatedLocation;
 		}
+
+		LastReadLocation.ProviderName = "Xamarin iOS";
 	}
 
 	#endregion
@@ -225,30 +222,28 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private void UpdatePosition(CLLocation location)
 	{
-		LastReadLocation.SourceName = GetSourceName(location.SourceInformation);
-
 		if (location.HorizontalAccuracy > -1)
 		{
-			LastReadLocation.Accuracy = location.HorizontalAccuracy;
-			LastReadLocation.AccuracyReference = AccuracyReferenceType.Meters;
 			LastReadLocation.Latitude = location.Coordinate.Latitude;
 			LastReadLocation.Longitude = location.Coordinate.Longitude;
+			LastReadLocation.HorizontalAccuracy = location.HorizontalAccuracy;
+			LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
 		}
 		else
 		{
-			LastReadLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
 		if (location.VerticalAccuracy > -1)
 		{
 			LastReadLocation.Altitude = location.EllipsoidalAltitude;
-			LastReadLocation.AltitudeAccuracy = location.VerticalAccuracy;
-			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Meters;
 			LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+			LastReadLocation.VerticalAccuracy = location.VerticalAccuracy;
+			LastReadLocation.VerticalAccuracyReference = AccuracyReferenceType.Meters;
 		}
 		else
 		{
-			LastReadLocation.AltitudeAccuracyReference = AccuracyReferenceType.Unspecified;
+			LastReadLocation.VerticalAccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
 		if (location.Speed > -1)
@@ -269,11 +264,15 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		try
 		{
-			LastReadLocation.StatusTime = location.Timestamp.ToDateTime().ToUniversalTime();
+			var statusTime = location.Timestamp.ToDateTime().ToUniversalTime();
+			LastReadLocation.HorizontalStatusTime = statusTime;
+			LastReadLocation.VerticalStatusTime = statusTime;
 		}
 		catch (Exception)
 		{
-			LastReadLocation.StatusTime = TimeService.UtcNow;
+			var statusTime = TimeService.UtcNow;
+			LastReadLocation.HorizontalStatusTime = statusTime;
+			LastReadLocation.VerticalStatusTime = statusTime;
 		}
 
 		OnPositionChanged(LastReadLocation);

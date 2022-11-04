@@ -1,8 +1,5 @@
-﻿#region References
+﻿// ReSharper disable once CheckNamespace
 
-#endregion
-
-// ReSharper disable once CheckNamespace
 namespace Speedy.Application.Maui;
 
 internal class Timeout
@@ -15,7 +12,7 @@ internal class Timeout
 
 	#region Fields
 
-	private readonly CancellationTokenSource canceller = new CancellationTokenSource();
+	private readonly CancellationTokenSource _cancellationToken;
 
 	#endregion
 
@@ -23,20 +20,27 @@ internal class Timeout
 
 	public Timeout(int timeout, Action timesup)
 	{
-		if (timeout == Infite)
+		_cancellationToken = new CancellationTokenSource();
+
+		switch (timeout)
 		{
-			return; // nothing to do
-		}
-		if (timeout < 0)
-		{
-			throw new ArgumentOutOfRangeException("timeoutMilliseconds");
-		}
-		if (timesup == null)
-		{
-			throw new ArgumentNullException("timesup");
+			case Infite:
+			{
+				// nothing to do
+				return;
+			}
+			case < 0:
+			{
+				throw new ArgumentOutOfRangeException(nameof(timeout));
+			}
 		}
 
-		Task.Delay(TimeSpan.FromMilliseconds(timeout), canceller.Token)
+		if (timesup == null)
+		{
+			throw new ArgumentNullException(nameof(timesup));
+		}
+
+		Task.Delay(TimeSpan.FromMilliseconds(timeout), _cancellationToken.Token)
 			.ContinueWith(t =>
 			{
 				if (!t.IsCanceled)
@@ -52,7 +56,7 @@ internal class Timeout
 
 	public void Cancel()
 	{
-		canceller.Cancel();
+		_cancellationToken.Cancel();
 	}
 
 	#endregion

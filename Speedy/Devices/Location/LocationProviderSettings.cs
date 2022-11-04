@@ -70,17 +70,17 @@ public class LocationProviderSettings : Bindable
 	/// <summary>
 	/// Desired accuracy in meters
 	/// </summary>
-	public double DesiredAccuracy { get; set; }
+	public int DesiredAccuracy { get; set; }
 
 	/// <summary>
 	/// The lower range limit for <see cref="DesiredAccuracy" />.
 	/// </summary>
-	public static double DesiredAccuracyLowerLimit { get; set; }
+	public static int DesiredAccuracyLowerLimit { get; set; }
 
 	/// <summary>
 	/// The upper range limit for <see cref="DesiredAccuracy" />.
 	/// </summary>
-	public static double DesiredAccuracyUpperLimit { get; set; }
+	public static int DesiredAccuracyUpperLimit { get; set; }
 
 	/// <summary>
 	/// The threshold for accuracy changes to allow provider to switch.
@@ -95,17 +95,17 @@ public class LocationProviderSettings : Bindable
 	/// <summary>
 	/// The minimum distance to travel for updates.
 	/// </summary>
-	public double MinimumDistance { get; set; }
+	public int MinimumDistance { get; set; }
 
 	/// <summary>
 	/// The lower range limit for <see cref="MinimumDistance" />.
 	/// </summary>
-	public static double MinimumDistanceLowerLimit { get; set; }
+	public static int MinimumDistanceLowerLimit { get; set; }
 
 	/// <summary>
 	/// The upper range limit for <see cref="MinimumDistance" />.
 	/// </summary>
-	public static double MinimumDistanceUpperLimit { get; set; }
+	public static int MinimumDistanceUpperLimit { get; set; }
 
 	/// <summary>
 	/// The requested time period between updates.

@@ -1,12 +1,16 @@
 #region References
 
 using Speedy.Devices.Location;
+using Location = Android.Locations.Location;
 
 #endregion
 
 // ReSharper disable once CheckNamespace
 namespace Speedy.Application.Maui;
 
+/// <summary>
+/// Extensions for the Android platform.
+/// </summary>
 public static class PlatformExtensions
 {
 	#region Fields
@@ -27,6 +31,18 @@ public static class PlatformExtensions
 	#endregion
 
 	#region Methods
+
+	internal static DateTimeOffset GetTimestamp(this Android.Locations.Location location)
+	{
+		try
+		{
+			return new DateTimeOffset(_epoch.AddMilliseconds(location.Time));
+		}
+		catch (Exception)
+		{
+			return new DateTimeOffset(_epoch);
+		}
+	}
 
 	internal static bool IsBetterLocation(this Android.Locations.Location location, Android.Locations.Location bestLocation)
 	{
@@ -87,20 +103,26 @@ public static class PlatformExtensions
 
 	internal static T ToPosition<T>(this Android.Locations.Location location) where T : class, ILocation, new()
 	{
+		var sourceName = location.Provider ?? "unknown";
+		var sourceTime = location.GetTimestamp().UtcDateTime;
+
 		var response = new T
 		{
 			HasHeading = location.HasBearing,
 			HasSpeed = location.HasSpeed,
+			HorizontalSourceName = sourceName,
+			HorizontalStatusTime = sourceTime,
 			Longitude = location.Longitude,
 			Latitude = location.Latitude,
-			StatusTime = location.GetTimestamp().UtcDateTime,
-			SourceName = location.Provider
+			ProviderName = "Xamarin Android",
+			VerticalSourceName = sourceName,
+			VerticalStatusTime = sourceTime
 		};
 
 		if (location.HasAccuracy)
 		{
-			response.Accuracy = location.Accuracy;
-			response.AccuracyReference = AccuracyReferenceType.Meters;
+			response.HorizontalAccuracy = location.Accuracy;
+			response.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
 		}
 
 		if (location.HasAltitude)
@@ -111,8 +133,8 @@ public static class PlatformExtensions
 
 		if (location.HasVerticalAccuracy)
 		{
-			response.AltitudeAccuracy = location.VerticalAccuracyMeters;
-			response.AltitudeAccuracyReference = AccuracyReferenceType.Meters;
+			response.VerticalAccuracy = location.VerticalAccuracyMeters;
+			response.VerticalAccuracyReference = AccuracyReferenceType.Meters;
 		}
 
 		if (response.HasHeading)
@@ -128,18 +150,6 @@ public static class PlatformExtensions
 		//response.IsFromMockProvider = (int) Build.VERSION.SdkInt >= 18 && location.IsFromMockProvider;
 
 		return response;
-	}
-
-	private static DateTimeOffset GetTimestamp(this Android.Locations.Location location)
-	{
-		try
-		{
-			return new DateTimeOffset(_epoch.AddMilliseconds(location.Time));
-		}
-		catch (Exception)
-		{
-			return new DateTimeOffset(_epoch);
-		}
 	}
 
 	#endregion

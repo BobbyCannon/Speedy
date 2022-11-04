@@ -118,14 +118,14 @@ public class MainViewModel : ViewModel
 	private void LocationProviderOnPositionChanged(object sender, Location e)
 	{
 		var current = (Location) e.ShallowClone();
-		current.SourceName = "Local Provider";
+		current.ProviderName = "Local Provider";
 		ProcessLocation(current);
 		ProcessLocation((Location) e.ShallowClone());
 	}
 
 	private void ProcessLocation(Location location)
 	{
-		var currentLocation = Locations.FirstOrDefault(x => x.SourceName == location.SourceName);
+		var currentLocation = Locations.FirstOrDefault(x => x.ProviderName == location.ProviderName);
 		if (currentLocation == null)
 		{
 			Locations.Add(location);
@@ -136,7 +136,7 @@ public class MainViewModel : ViewModel
 			currentLocation.UpdateWith(location);
 		}
 
-		var history = LocationHistory.GetOrAdd(location.SourceName, _ => new BaseObservableCollection<Location>());
+		var history = LocationHistory.GetOrAdd(location.ProviderName, _ => new BaseObservableCollection<Location>());
 		history.Add((Location) currentLocation.ShallowClone());
 	}
 

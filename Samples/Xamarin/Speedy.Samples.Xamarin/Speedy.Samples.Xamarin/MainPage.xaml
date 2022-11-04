@@ -126,15 +126,15 @@
 			
 			<StackLayout Orientation="Horizontal" Margin="0,10,0,0" HorizontalOptions="Center">
 				<Label Text="Status Time" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.StatusTime, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.HorizontalStatusTime, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal"  HorizontalOptions="Center">
 				<Label Text="Is Listening" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.IsListening, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-				<Label Text="Source Name" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.SourceName, Mode=OneWay}" />
+				<Label Text="Provider Name" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.ProviderName, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Status" Style="{StaticResource Property}" />
@@ -152,12 +152,12 @@
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.Accuracy, Mode=OneWay}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.AccuracyReference, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.HorizontalAccuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.HorizontalAccuracyReference, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.HasAccuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.HasHorizontalAccuracy, Mode=OneWay}" />
 			</StackLayout>
 
 			<Label Text="Altitude" Margin="0,20,0,0" Style="{StaticResource Title}" />
@@ -172,12 +172,12 @@
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.AltitudeAccuracy, Mode=OneWay}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.AltitudeAccuracyReference, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.VerticalAccuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.VerticalAccuracyReference, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.HasAltitudeAccuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.HasVerticalAccuracy, Mode=OneWay}" />
 			</StackLayout>
 			
 			<StackLayout Orientation="Horizontal" Margin="0,20,0,0" HorizontalOptions="Center">
@@ -231,10 +231,10 @@
 								</Style>
 							</ContentView.Resources>
 							<StackLayout Margin="0,0,0,10" HorizontalOptions="Fill">
-								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
+								<Label Text="{x:Binding ProviderName, Mode=OneWay}" Style="{StaticResource Title2}" />
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Status Time" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
+									<Label Text="{x:Binding HorizontalStatusTime, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Latitude" Style="{StaticResource Property2}" />
@@ -246,12 +246,12 @@
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding Accuracy, Mode=OneWay}" />
-									<Label Text="{x:Binding AccuracyReference, Mode=OneWay}" />
+									<Label Text="{x:Binding HorizontalAccuracy, Mode=OneWay}" />
+									<Label Text="{x:Binding HorizontalAccuracyReference, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Has Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HasAccuracy, Mode=OneWay}" />
+									<Label Text="{x:Binding HasHorizontalAccuracy, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Altitude" Style="{StaticResource Property2}" />
@@ -264,12 +264,12 @@
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding AltitudeAccuracy, Mode=OneWay}" />
-									<Label Text="{x:Binding AltitudeAccuracyReference, Mode=OneWay}" />
+									<Label Text="{x:Binding VerticalAccuracy, Mode=OneWay}" />
+									<Label Text="{x:Binding VerticalAccuracyReference, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Has Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HasAltitudeAccuracy, Mode=OneWay}" />
+									<Label Text="{x:Binding HasVerticalAccuracy, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Heading" Style="{StaticResource Property2}" />

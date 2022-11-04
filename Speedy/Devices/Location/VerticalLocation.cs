@@ -11,7 +11,7 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a minimal location (lat, long, alt, alt ref).
 /// </summary>
-public class VerticalLocation : Bindable, IVerticalLocation, IComparable, IComparable<VerticalLocation>, IEquatable<VerticalLocation>, IUpdatable<IVerticalLocation>
+public class VerticalLocation : Bindable, IMinimalVerticalLocation, IComparable, IComparable<VerticalLocation>, IEquatable<VerticalLocation>, IUpdatable<IMinimalVerticalLocation>
 {
 	#region Constructors
 
@@ -32,7 +32,7 @@ public class VerticalLocation : Bindable, IVerticalLocation, IComparable, ICompa
 	/// <summary>
 	/// Initialize an instance of the BasicLocation.
 	/// </summary>
-	public VerticalLocation(IVerticalLocation location, IDispatcher dispatcher = null)
+	public VerticalLocation(IMinimalVerticalLocation location, IDispatcher dispatcher = null)
 		: this(location.Altitude, location.AltitudeReference, dispatcher)
 	{
 	}
@@ -58,6 +58,9 @@ public class VerticalLocation : Bindable, IVerticalLocation, IComparable, ICompa
 
 	/// <inheritdoc />
 	public AltitudeReferenceType AltitudeReference { get; set; }
+
+	/// <inheritdoc />
+	public bool HasAltitude => this.HasSupportedAltitude();
 
 	#endregion
 
@@ -117,7 +120,7 @@ public class VerticalLocation : Bindable, IVerticalLocation, IComparable, ICompa
 	}
 
 	/// <inheritdoc />
-	public void UpdateWith(IVerticalLocation update, params string[] exclusions)
+	public void UpdateWith(IMinimalVerticalLocation update, params string[] exclusions)
 	{
 		this.UpdateWithUsingReflection(update, exclusions);
 	}

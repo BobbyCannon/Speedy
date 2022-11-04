@@ -81,7 +81,7 @@
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
             <summary>
-            Constructor for implementation
+            Constructor for Implementation
             </summary>
         </member>
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.IsLocationAvailable">
@@ -99,17 +99,12 @@
             <returns> ProviderLocation </returns>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.StartListeningAsync">
-            <summary>
-            Start listening for changes
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.StopListeningAsync">
             <summary>
             Stop listening
             </summary>
-        </member>
-        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.OnPositionError(Speedy.Devices.Location.LocationProviderError)">
-            <inheritdoc />
         </member>
     </members>
 </doc>

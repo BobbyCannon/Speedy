@@ -18,7 +18,7 @@ public class BasicLocation : Bindable, IBasicLocation, IComparable, IComparable<
 	/// <summary>
 	/// This constructor is only for serialization, do not actually use.
 	/// </summary>
-	public BasicLocation() : this(dispatcher: null)
+	public BasicLocation() : this(null)
 	{
 	}
 
@@ -62,6 +62,9 @@ public class BasicLocation : Bindable, IBasicLocation, IComparable, IComparable<
 
 	/// <inheritdoc />
 	public AltitudeReferenceType AltitudeReference { get; set; }
+
+	/// <inheritdoc />
+	public bool HasAltitude => this.HasSupportedAltitude();
 
 	/// <inheritdoc />
 	public double Latitude { get; set; }
@@ -144,6 +147,6 @@ public class BasicLocation : Bindable, IBasicLocation, IComparable, IComparable<
 /// <summary>
 /// Represents a minimal location (lat, long, alt, alt ref).
 /// </summary>
-public interface IBasicLocation : IHorizontalLocation, IVerticalLocation
+public interface IBasicLocation : IMinimalHorizontalLocation, IMinimalVerticalLocation
 {
 }

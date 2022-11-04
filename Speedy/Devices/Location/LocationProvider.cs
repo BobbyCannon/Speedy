@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,18 +47,13 @@ public abstract class LocationProvider<T, T2>
 
 	#region Properties
 
-	/// <summary>
-	/// Returns true if there is a set of internal providers.
-	/// </summary>
-	public bool HasProviderSources => ProviderSources.Any();
-
 	/// <inheritdoc />
 	public bool HasPermission { get; protected set; }
 
 	/// <summary>
-	/// A list of providers internal to the single location providers.
+	/// Returns true if there is a set of internal providers.
 	/// </summary>
-	public virtual IEnumerable<LocationProviderSource> ProviderSources { get; }
+	public bool HasProviderSources => ProviderSources.Any();
 
 	/// <inheritdoc />
 	public virtual bool IsListening { get; protected set; }
@@ -76,6 +69,11 @@ public abstract class LocationProvider<T, T2>
 
 	/// <inheritdoc />
 	public T2 LocationProviderSettings { get; }
+
+	/// <summary>
+	/// A list of providers internal to the single location providers.
+	/// </summary>
+	public virtual IEnumerable<LocationProviderSource> ProviderSources { get; }
 
 	/// <inheritdoc />
 	public RelayCommand StartListeningCommand { get; }

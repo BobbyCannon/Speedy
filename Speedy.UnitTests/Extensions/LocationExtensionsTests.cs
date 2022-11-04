@@ -17,19 +17,19 @@ public class LocationExtensionsTests : SpeedyUnitTest
 	[TestMethod]
 	public void GetEllipsoidValue()
 	{
-		var scenarios = new List<(IVerticalLocation location, IVerticalLocation relativeTo, double expected)>
+		var scenarios = new List<(IMinimalVerticalLocation location, IMinimalVerticalLocation relativeTo, double expected)>
 		{
 			// 10 Terrain above 100 Ellipsoid should be 110
-			(new VerticalLocation(10, AltitudeReferenceType.Terrain),
-				new VerticalLocation(100, AltitudeReferenceType.Ellipsoid),
+			(new Location { Altitude = 10, AltitudeReference = AltitudeReferenceType.Terrain },
+				new Location { Altitude = 100, AltitudeReference = AltitudeReferenceType.Ellipsoid },
 				110),
 			// 10 Ellipsoid should just be 10
-			(new VerticalLocation(10, AltitudeReferenceType.Ellipsoid),
-				new VerticalLocation(100, AltitudeReferenceType.Ellipsoid),
+			(new Location { Altitude = 10, AltitudeReference = AltitudeReferenceType.Ellipsoid },
+				new Location { Altitude = 100, AltitudeReference = AltitudeReferenceType.Ellipsoid },
 				10),
 			// Terrain above another Terrain should just be the original Terrain
-			(new VerticalLocation(12, AltitudeReferenceType.Ellipsoid),
-				new VerticalLocation(24, AltitudeReferenceType.Terrain),
+			(new Location { Altitude = 12, AltitudeReference = AltitudeReferenceType.Ellipsoid },
+				new Location { Altitude = 24, AltitudeReference = AltitudeReferenceType.Terrain },
 				12)
 		};
 
@@ -47,10 +47,10 @@ public class LocationExtensionsTests : SpeedyUnitTest
 
 		void assert(bool expected)
 		{
-			AreEqual(expected, location.HasSupportedAccuracy());
-			AreEqual(expected, location.HasAccuracy);
-			AreEqual(expected, location.HasSupportedAltitudeAccuracy());
-			AreEqual(expected, location.HasAltitudeAccuracy);
+			AreEqual(expected, location.HasSupportedHorizontalAccuracy());
+			AreEqual(expected, location.HasHorizontalAccuracy);
+			AreEqual(expected, location.HasSupportedVerticalAccuracy());
+			AreEqual(expected, location.HasVerticalAccuracy);
 		}
 
 		assert(false);
@@ -62,12 +62,12 @@ public class LocationExtensionsTests : SpeedyUnitTest
 
 		foreach (var value in expectedValues)
 		{
-			location.AccuracyReference = value;
-			location.AltitudeAccuracyReference = value;
+			location.HorizontalAccuracyReference = value;
+			location.VerticalAccuracyReference = value;
 
 			assert(true);
 
-			LocationExtensions.SupportedAccuracyReferenceTypes.Remove(value);
+			LocationExtensions.SupportedAccuracyReferenceTypesForVertical.Remove(value);
 
 			assert(false);
 		}
@@ -118,7 +118,7 @@ public class LocationExtensionsTests : SpeedyUnitTest
 	public void SupportedTypesDefaults()
 	{
 		AreEqual(new[] { AccuracyReferenceType.Meters },
-			LocationExtensions.SupportedAccuracyReferenceTypes);
+			LocationExtensions.SupportedAccuracyReferenceTypesForVertical);
 
 		AreEqual(new[]
 			{
