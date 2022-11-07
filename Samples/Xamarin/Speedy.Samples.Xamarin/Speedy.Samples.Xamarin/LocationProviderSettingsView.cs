@@ -21,12 +21,6 @@ namespace Speedy.Samples.Xamarin
 		/// </summary>
 		public double DesiredAccuracyUpperLimitView => DesiredAccuracyUpperLimit;
 
-		public int LocationChangeTimeoutInSeconds
-		{
-			get => (int) LocationChangeTimeout.TotalSeconds;
-			set => LocationChangeTimeout = TimeSpan.FromSeconds(value);
-		}
-
 		/// <summary>
 		/// Cannot bind to static properties, so we must create a "view" version.
 		/// </summary>
@@ -96,11 +90,6 @@ namespace Speedy.Samples.Xamarin
 				case nameof(MinimumTimeUpperLimit):
 				{
 					OnPropertyChanged(nameof(MinimumTimeUpperLimitInSeconds));
-					break;
-				}
-				case nameof(LocationChangeTimeout):
-				{
-					OnPropertyChanged(nameof(LocationChangeTimeoutInSeconds));
 					break;
 				}
 			}

@@ -2,16 +2,15 @@
 
 using System;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
 namespace Speedy.Devices.Location;
 
 /// <summary>
-/// Represents a minimal location (lat, long, alt, alt ref).
+/// Represents a vertical location.
 /// </summary>
-public class VerticalLocation : Bindable, IMinimalVerticalLocation, IComparable, IComparable<VerticalLocation>, IEquatable<VerticalLocation>, IUpdatable<IMinimalVerticalLocation>
+public class VerticalLocation : Bindable, IVerticalLocation
 {
 	#region Constructors
 
@@ -62,67 +61,29 @@ public class VerticalLocation : Bindable, IMinimalVerticalLocation, IComparable,
 	/// <inheritdoc />
 	public bool HasAltitude => this.HasSupportedAltitude();
 
+	/// <inheritdoc />
+	public bool HasVerticalAccuracy => this.HasSupportedVerticalAccuracy();
+
+	/// <inheritdoc />
+	public double VerticalAccuracy { get; set; }
+
+	/// <inheritdoc />
+	public AccuracyReferenceType VerticalAccuracyReference { get; set; }
+
+	/// <inheritdoc />
+	public string VerticalSourceName { get; set; }
+
+	/// <inheritdoc />
+	public DateTime VerticalStatusTime { get; set; }
+
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public int CompareTo(VerticalLocation other)
-	{
-		var altitude = Altitude.CompareTo(other.Altitude);
-		var altitudeReference = AltitudeReference.CompareTo(other.AltitudeReference);
-
-		return (altitude == 0) && (altitudeReference == 0) ? 0 : 1;
-	}
-
-	/// <inheritdoc />
-	public int CompareTo(object obj)
-	{
-		return CompareTo(obj as VerticalLocation);
-	}
-
-	/// <inheritdoc />
-	public bool Equals(VerticalLocation other)
-	{
-		if (ReferenceEquals(null, other))
-		{
-			return false;
-		}
-		if (ReferenceEquals(this, other))
-		{
-			return true;
-		}
-		return Altitude.Equals(other.Altitude)
-			&& AltitudeReference.Equals(other.AltitudeReference);
-	}
-
-	/// <inheritdoc />
-	public override bool Equals(object obj)
-	{
-		return Equals(obj as VerticalLocation);
-	}
-
-	/// <inheritdoc />
-	public override int GetHashCode()
-	{
-		unchecked
-		{
-			var hashCode = Altitude.GetHashCode();
-			hashCode = (hashCode * 397) ^ AltitudeReference.GetHashCode();
-			return hashCode;
-		}
-	}
-
-	/// <inheritdoc />
 	public override string ToString()
 	{
 		return $"{Altitude:F3} / {AltitudeReference.GetDisplayName()}";
-	}
-
-	/// <inheritdoc />
-	public void UpdateWith(IMinimalVerticalLocation update, params string[] exclusions)
-	{
-		this.UpdateWithUsingReflection(update, exclusions);
 	}
 
 	#endregion

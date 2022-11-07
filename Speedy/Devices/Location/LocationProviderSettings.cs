@@ -28,7 +28,6 @@ public class LocationProviderSettings : Bindable
 	{
 		DefaultTimeout = TimeSpan.FromSeconds(1);
 		DesiredAccuracy = 10;
-		LocationChangeTimeout = TimeSpan.FromSeconds(1);
 		MinimumDistance = 10;
 		MinimumTime = TimeSpan.FromSeconds(1);
 	}
@@ -81,16 +80,6 @@ public class LocationProviderSettings : Bindable
 	/// The upper range limit for <see cref="DesiredAccuracy" />.
 	/// </summary>
 	public static int DesiredAccuracyUpperLimit { get; set; }
-
-	/// <summary>
-	/// The threshold for accuracy changes to allow provider to switch.
-	/// </summary>
-	public double LocationChangeAccuracyThreshold { get; set; }
-
-	/// <summary>
-	/// The timeout in which the last read location will expire.
-	/// </summary>
-	public TimeSpan LocationChangeTimeout { get; set; }
 
 	/// <summary>
 	/// The minimum distance to travel for updates.

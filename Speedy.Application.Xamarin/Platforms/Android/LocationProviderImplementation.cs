@@ -269,12 +269,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			_providerSources[FusedGooglePlusKey].Listening = true;
 		}
 
-		_listener = new GeolocationContinuousListener<T>(Dispatcher,
-			Manager,
-			LocationProviderSettings.LocationChangeTimeout,
-			LocationProviderSettings.LocationChangeAccuracyThreshold,
-			sources);
-
+		_listener = new GeolocationContinuousListener<T>(Dispatcher, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
 		_listener.PositionChanged += ListenerPositionChanged;
 		_listener.PositionError += ListenerPositionError;
@@ -394,7 +389,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	private void FusedLocationProviderLocationChanged(Location obj)
 	{
 		var t = obj.ToPosition<T>();
-		t.ProviderName = FusedGooglePlusKey;
+		t.HorizontalSourceName = FusedGooglePlusKey;
+		t.VerticalSourceName = FusedGooglePlusKey;
 		OnPositionChanged(t);
 	}
 

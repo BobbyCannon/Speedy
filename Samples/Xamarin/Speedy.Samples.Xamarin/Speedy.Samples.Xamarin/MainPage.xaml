@@ -23,6 +23,14 @@
 			<Setter Property="Margin" Value="0,0,10,0" />
 			<Setter Property="HorizontalTextAlignment" Value="Start" />
 		</Style>
+		<Style TargetType="Button">
+			<Setter Property="BackgroundColor" Value="Accent" />
+			<Setter Property="TextColor" Value="AliceBlue" />
+		</Style>
+		<Style TargetType="Slider">
+			<Setter Property="MinimumTrackColor" Value="Accent" />
+			<Setter Property="MaximumTrackColor" Value="Accent" />
+		</Style>
 	</ContentPage.Resources>
 
 	<ScrollView>
@@ -33,23 +41,6 @@
 			</Frame>
 
 			<Label Text="Settings" Margin="0,10,0,0" Style="{StaticResource Title}" />
-			
-			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-				<Label Text="Location Change Timeout In Seconds" />
-				<Label Text="{Binding LocationProvider.LocationProviderSettings.LocationChangeTimeoutInSeconds, Mode=OneWay}" />
-			</StackLayout>
-			<Slider Maximum="{x:Binding LocationProvider.LocationProviderSettings.MinimumTimeUpperLimitInSeconds, Mode=OneWay}"
-					Minimum="{x:Binding LocationProvider.LocationProviderSettings.MinimumTimeLowerLimitInSeconds, Mode=OneWay}"
-					Value="{x:Binding LocationProvider.LocationProviderSettings.LocationChangeTimeoutInSeconds, Mode=TwoWay}"
-					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
-			
-			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-				<Label Text="Location Change Accuracy Threshold" />
-				<Label Text="{Binding LocationProvider.LocationProviderSettings.LocationChangeAccuracyThreshold, Mode=OneWay}" />
-			</StackLayout>
-			<Slider Maximum="20.0" Minimum="0.0"
-					Value="{x:Binding LocationProvider.LocationProviderSettings.LocationChangeAccuracyThreshold, Mode=TwoWay}"
-					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
 			
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Minimum Time In Seconds" />
@@ -78,7 +69,6 @@
 					Value="{x:Binding LocationProvider.LocationProviderSettings.DesiredAccuracy, Mode=TwoWay}"
 					IsEnabled="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
 
-
 			<StackLayout IsVisible="{x:Binding LocationProvider.HasProviderSources, Mode=OneWay}">
 				<Label Text="Provider Sources" Margin="0,10,0,0" Style="{StaticResource Title}" />
 
@@ -94,8 +84,7 @@
 				</Grid>
 
 				<FlexLayout BindableLayout.ItemsSource="{x:Binding LocationProvider.ProviderSources, Mode=OneWay}"
-						Direction="Column"
-						HorizontalOptions="Fill" VerticalOptions="Start">
+						Direction="Column" HorizontalOptions="Fill" VerticalOptions="Start">
 					<BindableLayout.ItemTemplate>
 						<DataTemplate x:DataType="location:LocationProviderSource">
 							<ContentView>
@@ -115,26 +104,32 @@
 				</FlexLayout>
 			</StackLayout>
 			
-			<Button BackgroundColor="Accent"
-					TextColor="AliceBlue"
-					IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
+			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
 					Text="Start" Command="{Binding LocationProvider.StartListeningCommand, Mode=OneTime}" />
-			<Button BackgroundColor="Accent"
-					TextColor="AliceBlue"
-					IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+			<Button IsVisible="{x:Binding LocationProvider.IsListening, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
 					Text="Stop" Command="{Binding LocationProvider.StopListeningCommand, Mode=OneTime}" />
 			
+			<Label Text="{x:Binding LocationProvider.LastReadLocation.ProviderName, Mode=OneWay}" Margin="0,20,0,0" Style="{StaticResource Title}" />
+
 			<StackLayout Orientation="Horizontal" Margin="0,10,0,0" HorizontalOptions="Center">
+				<Label Text="Horizontal Source" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.HorizontalSourceName, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Status Time" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.LastReadLocation.HorizontalStatusTime, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Vertical Source" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.VerticalSourceName, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Status Time" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationProvider.LastReadLocation.VerticalStatusTime, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal"  HorizontalOptions="Center">
 				<Label Text="Is Listening" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationProvider.IsListening, Mode=OneWay}" />
-			</StackLayout>
-			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-				<Label Text="Provider Name" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationProvider.LastReadLocation.ProviderName, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Status" Style="{StaticResource Property}" />
@@ -214,7 +209,7 @@
 					Direction="Column"
 					Background="#212121"
 					Margin="0,10,0,0"
-					Padding="0,10,0,10"
+					Padding="0,00,0,10"
 					VerticalOptions="StartAndExpand">
 				<BindableLayout.ItemTemplate>
 					<DataTemplate x:DataType="location:Location">
@@ -230,8 +225,9 @@
 									<Setter Property="TextColor" Value="AliceBlue" />
 								</Style>
 							</ContentView.Resources>
-							<StackLayout Margin="0,0,0,10" HorizontalOptions="Fill">
-								<Label Text="{x:Binding ProviderName, Mode=OneWay}" Style="{StaticResource Title2}" />
+							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
+								<Label Text="{x:Binding HorizontalSourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
+
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Status Time" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding HorizontalStatusTime, Mode=OneWay}" />

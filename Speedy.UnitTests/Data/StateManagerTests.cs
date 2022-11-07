@@ -14,7 +14,7 @@ public class StateManagerTests : SpeedyUnitTest
 	[TestMethod]
 	public void BasicStateComparerWithValueType()
 	{
-		var comparer = new BasicStateComparer<int>((c, u) => u > c, (c, u) => (u, true));
+		var comparer = new BasicComparer<int>((c, u) => u > c, (c, u) => (u, true));
 
 		Assert.AreEqual(0, comparer.CurrentState);
 

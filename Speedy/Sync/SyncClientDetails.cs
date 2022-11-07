@@ -8,6 +8,31 @@ using Speedy.Devices;
 namespace Speedy.Sync;
 
 /// <summary>
+/// The sync client details.
+/// </summary>
+public class SyncClientDetails : ISyncClientDetails
+{
+	#region Properties
+
+	/// <inheritdoc />
+	public string ApplicationName { get; set; }
+
+	/// <inheritdoc />
+	public Version ApplicationVersion { get; set; }
+
+	/// <inheritdoc />
+	public string DeviceId { get; set; }
+
+	/// <inheritdoc />
+	public DevicePlatform DevicePlatform { get; set; }
+
+	/// <inheritdoc />
+	public DeviceType DeviceType { get; set; }
+
+	#endregion
+}
+
+/// <summary>
 /// The details for a sync client.
 /// </summary>
 public interface ISyncClientDetails

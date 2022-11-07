@@ -1582,14 +1582,22 @@
             Sqlite Database
             </summary>
         </member>
-        <member name="P:Speedy.Data.StateComparer`1.TypeFullName">
+        <member name="P:Speedy.Data.Comparer`1.TypeFullName">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Data.StateComparer`1.GetCurrentState">
+        <member name="M:Speedy.Data.Comparer`1.GetCurrentState">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Data.StateComparer`1.IsBetter(System.Object)">
+        <member name="M:Speedy.Data.Comparer`1.ValidateUpdate(System.Object)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.Comparer`1.Refresh(`0)">
+            <summary>
+            Refresh the comparer with an update.
+            </summary>
+            <param name="update"> The update to be checked and optionally applied. </param>
+            <returns> True if the update was accepted and applied otherwise false. </returns>
+            <remarks> Note: the update could and may have been partially applied. </remarks>
         </member>
         <member name="T:Speedy.Data.StateManager">
             <summary>
@@ -1840,6 +1848,32 @@
             Represents a minimal location (lat, long, alt, alt ref).
             </summary>
         </member>
+        <member name="T:Speedy.Devices.Location.HorizontalLocation">
+            <summary>
+            Represents a horizontal location.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.HasHorizontalAccuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalAccuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalAccuracyReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalSourceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalStatusTime">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.Latitude">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.Longitude">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Devices.Location.IHorizontalLocation">
             <summary>
             Represents a horizontal location (lat, long).
@@ -1959,7 +1993,7 @@
         </member>
         <member name="T:Speedy.Devices.Location.Location">
             <summary>
-            Represents a full location from a LocationProvider.
+            Represents a full location from a LocationProvider. Contains horizontal and vertical location.
             </summary>
         </member>
         <member name="M:Speedy.Devices.Location.Location.#ctor">
@@ -2099,6 +2133,28 @@
             <summary>
             The speed of the device in meters per second.
             </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationComparer">
+            <summary>
+            The state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationComparer.AlwaysTrustSameSource">
+            <summary>
+            If true all updates from the existing source will always be accepted regardless of
+            the quality of the data.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationComparer.SourceTimeout">
+            <summary>
+            The timeout before the current data will expire and allow data that is lower quality.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer.ValidateUpdate(Speedy.Devices.Location.Location)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer.TryUpdateCurrentState(Speedy.Devices.Location.Location)">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.LocationFlags">
             <summary>
@@ -2408,16 +2464,6 @@
             The upper range limit for <see cref="P:Speedy.Devices.Location.LocationProviderSettings.DesiredAccuracy" />.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationChangeAccuracyThreshold">
-            <summary>
-            The threshold for accuracy changes to allow provider to switch.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.LocationChangeTimeout">
-            <summary>
-            The timeout in which the last read location will expire.
-            </summary>
-        </member>
         <member name="P:Speedy.Devices.Location.LocationProviderSettings.MinimumDistance">
             <summary>
             The minimum distance to travel for updates.
@@ -2478,20 +2524,9 @@
             The source for the location provider.
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.LocationStateComparer">
-            <summary>
-            The state comparer for the <see cref="T:Speedy.Devices.Location.Location"/> type.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationStateComparer.IsBetter(Speedy.Devices.Location.Location)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationStateComparer.TryUpdateCurrentState(Speedy.Devices.Location.Location)">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Devices.Location.VerticalLocation">
             <summary>
-            Represents a minimal location (lat, long, alt, alt ref).
+            Represents a vertical location.
             </summary>
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor">
@@ -2526,25 +2561,22 @@
         <member name="P:Speedy.Devices.Location.VerticalLocation.HasAltitude">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.CompareTo(Speedy.Devices.Location.VerticalLocation)">
+        <member name="P:Speedy.Devices.Location.VerticalLocation.HasVerticalAccuracy">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.CompareTo(System.Object)">
+        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalAccuracy">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.Equals(Speedy.Devices.Location.VerticalLocation)">
+        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalAccuracyReference">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.Equals(System.Object)">
+        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalSourceName">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.GetHashCode">
+        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalStatusTime">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(Speedy.Devices.Location.IMinimalVerticalLocation,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.RuntimeInformation">
@@ -4144,7 +4176,7 @@
             Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForVertical" />.
             </remarks>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsGreaterThan(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.IsGreaterThan(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
             Is the left location greater than the right.
             </summary>
@@ -4152,7 +4184,7 @@
             <param name="right"> The right location. </param>
             <returns> True if the location is greater than the provided location. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsGreaterThanOrEqualTo(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.IsGreaterThanOrEqualTo(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
             Is the left location greater than or equal to the right.
             </summary>
@@ -4160,7 +4192,7 @@
             <param name="right"> The right location. </param>
             <returns> True if the location is greater than or equal to the provided location. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsLessThan(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.IsLessThan(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
             Is the left location less than the right.
             </summary>
@@ -4168,7 +4200,7 @@
             <param name="right"> The right location. </param>
             <returns> True if the location is less than the provided location. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsLessThanOrEqualTo(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.IsLessThanOrEqualTo(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
             Is the left location less than or equal to the right.
             </summary>
@@ -5016,19 +5048,47 @@
             The key for the DeviceType value for Sync Client Details.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.ISyncDevice,Speedy.Sync.SyncOptions)">
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.AddOrUpdateSyncClientDetails(System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues},Speedy.Sync.ISyncClientDetails)">
+            <summary>
+            Update the sync options with the provided sync client details.
+            </summary>
+            <param name="dictionary"> The dictionary to update. </param>
+            <param name="clientDetails"> The client details to use. </param>
+        </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.AddOrUpdateSyncClientDetails(System.Collections.Generic.IDictionary{System.String,System.String},Speedy.Sync.ISyncClientDetails)">
+            <summary>
+            Update the sync options with the provided sync client details.
+            </summary>
+            <param name="dictionary"> The dictionary to update. </param>
+            <param name="clientDetails"> The client details to use. </param>
+        </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.AddOrUpdateSyncClientDetails(Speedy.Sync.SyncOptions,Speedy.Sync.ISyncClientDetails)">
+            <summary>
+            Update the sync options with the provided sync client details.
+            </summary>
+            <param name="syncOptions"> The options to update. </param>
+            <param name="clientDetails"> The client details to use. </param>
+        </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.ISyncClientDetails,Speedy.Sync.SyncOptions)">
             <summary>
             Load the sync client details into the provided sync options.
             </summary>
             <param name="device"> The device to load options into. </param>
             <param name="syncOptions"> The options to load. </param>
         </member>
-        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.SyncOptions,Speedy.Sync.ISyncClientDetails)">
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.ISyncClientDetails,System.Collections.Generic.IDictionary{System.String,Microsoft.Extensions.Primitives.StringValues})">
             <summary>
             Load the sync client details into the provided sync options.
             </summary>
-            <param name="syncOptions"> The options to load. </param>
-            <param name="clientDetails"> The client details to load. </param>
+            <param name="device"> The device to load options into. </param>
+            <param name="values"> The values to load. </param>
+        </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.ISyncClientDetails,System.Collections.Generic.IDictionary{System.String,System.String})">
+            <summary>
+            Load the sync client details into the provided sync options.
+            </summary>
+            <param name="device"> The device to load options into. </param>
+            <param name="values"> The values to load. </param>
         </member>
         <member name="M:Speedy.Extensions.SyncDeviceExtensions.Validate(Speedy.Sync.ISyncClientDetails)">
             <summary>
@@ -12858,6 +12918,26 @@
             <param name="destination"> The destination sync entity to be updated. </param>
             <param name="status"> The status of the update. </param>
             <returns> Return true if the entity was updated and should be saved. </returns>
+        </member>
+        <member name="T:Speedy.Sync.SyncClientDetails">
+            <summary>
+            The sync client details.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncClientDetails.ApplicationName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncClientDetails.ApplicationVersion">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncClientDetails.DeviceId">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncClientDetails.DevicePlatform">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncClientDetails.DeviceType">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.ISyncClientDetails">
             <summary>

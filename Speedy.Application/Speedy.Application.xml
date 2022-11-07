@@ -291,5 +291,16 @@
             Set to mark this setting as a syncable setting.
             </summary>
         </member>
+        <member name="T:Speedy.Application.ViewModel">
+            <summary>
+            Represents a viewmodel.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.ViewModel.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates a viewmodel.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
     </members>
 </doc>

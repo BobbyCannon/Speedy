@@ -16,7 +16,7 @@ public class LocationStateComparerTests : SpeedyUnitTest
 	[TestMethod]
 	public void LocationComparerShouldWork()
 	{
-		var comparer = new LocationStateComparer();
+		var comparer = new LocationComparer();
 		var providerLocation = new Speedy.Devices.Location.Location();
 		AreEqual(providerLocation, comparer.CurrentState);
 

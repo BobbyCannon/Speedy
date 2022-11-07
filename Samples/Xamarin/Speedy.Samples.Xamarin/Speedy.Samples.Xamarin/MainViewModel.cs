@@ -1,8 +1,5 @@
 ﻿#region References
 
-using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -13,6 +10,9 @@ using Speedy.Application.Xamarin;
 using Speedy.Collections;
 using Speedy.Commands;
 using Speedy.Logging;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using Xamarin.Essentials;
 using Location = Speedy.Devices.Location.Location;
 
@@ -43,8 +43,7 @@ public class MainViewModel : ViewModel
 	#region Properties
 
 	public ISeries[] Series { get; set; }
-		= new ISeries[]
-		{
+		= {
 			new LineSeries<int>
 			{
 				Values = new[] { 2, 5, 4, -2, 4, -3, 5 }
@@ -53,8 +52,7 @@ public class MainViewModel : ViewModel
 
 
 	public Axis[] XAxes { get; set; }
-		= new Axis[]
-		{
+		= {
 			new Axis
 			{
 				Name = "X Axis",
@@ -71,8 +69,7 @@ public class MainViewModel : ViewModel
 		};
 
 	public Axis[] YAxes { get; set; }
-		= new Axis[]
-		{
+		= {
 			new Axis
 			{
 				Name = "Y Axis",
@@ -117,15 +114,12 @@ public class MainViewModel : ViewModel
 
 	private void LocationProviderOnPositionChanged(object sender, Location e)
 	{
-		var current = (Location) e.ShallowClone();
-		current.ProviderName = "Local Provider";
-		ProcessLocation(current);
 		ProcessLocation((Location) e.ShallowClone());
 	}
 
 	private void ProcessLocation(Location location)
 	{
-		var currentLocation = Locations.FirstOrDefault(x => x.ProviderName == location.ProviderName);
+		var currentLocation = Locations.FirstOrDefault(x => x.HorizontalSourceName == location.HorizontalSourceName);
 		if (currentLocation == null)
 		{
 			Locations.Add(location);
@@ -136,7 +130,7 @@ public class MainViewModel : ViewModel
 			currentLocation.UpdateWith(location);
 		}
 
-		var history = LocationHistory.GetOrAdd(location.ProviderName, _ => new BaseObservableCollection<Location>());
+		var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new BaseObservableCollection<Location>());
 		history.Add((Location) currentLocation.ShallowClone());
 	}
 

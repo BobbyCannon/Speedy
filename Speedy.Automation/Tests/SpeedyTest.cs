@@ -50,7 +50,7 @@ public abstract class SpeedyTest
 {
 	#region Fields
 
-	private Action<string> _clipboardProvider;
+	private static Action<string> _clipboardProvider;
 
 	#endregion
 
@@ -211,7 +211,7 @@ public abstract class SpeedyTest
 	/// Sets the clipboard provider.
 	/// </summary>
 	/// <param name="provider"> The provider to be set. </param>
-	public virtual void SetClipboardProvider(Action<string> provider)
+	public static void SetClipboardProvider(Action<string> provider)
 	{
 		_clipboardProvider = provider;
 	}

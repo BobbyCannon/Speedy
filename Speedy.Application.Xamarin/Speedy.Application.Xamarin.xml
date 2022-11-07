@@ -52,6 +52,13 @@
             Extension methods for <see cref="T:Speedy.Application.DeviceId" />.
             </summary>
         </member>
+        <member name="M:Speedy.Application.Xamarin.Extensions.DeviceIdExtensions.AddVendorId(Speedy.Application.DeviceId)">
+            <summary>
+            Add an ID from the Vendor (platform).
+            </summary>
+            <param name="builder"> The device ID builder. </param>
+            <returns> The device ID updated with the vendor ID if available. </returns>
+        </member>
         <member name="T:Speedy.Application.Xamarin.XamarinDispatcher">
             <inheritdoc />
         </member>

@@ -12,7 +12,7 @@ using ICloneable = Speedy.Serialization.ICloneable;
 namespace Speedy.Devices.Location;
 
 /// <summary>
-/// Represents a full location from a LocationProvider.
+/// Represents a full location from a LocationProvider. Contains horizontal and vertical location.
 /// </summary>
 public class Location : BasicLocation, ILocation, ICloneable
 {

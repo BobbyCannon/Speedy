@@ -188,7 +188,7 @@ namespace Speedy.EntityFramework
 		/// </summary>
 		/// <param name="database"> The database to validate mappings for. </param>
 		/// <returns> The list of entities with their missing properties. </returns>
-		public static IDictionary<string, ICollection<string>> ValidateMappings(this EntityFrameworkDatabase database)
+		public static IDictionary<string, ICollection<string>> ValidateMappings(this IDatabase database)
 		{
 			var assembly = database.GetMappingAssembly();
 			return ValidateMappings(assembly);

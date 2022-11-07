@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Primitives;
 using Speedy.Converters;
 using Speedy.Devices;
 using Speedy.Sync;
@@ -47,34 +49,71 @@ public static class SyncDeviceExtensions
 	#region Methods
 
 	/// <summary>
-	/// Load the sync client details into the provided sync options.
+	/// Update the sync options with the provided sync client details.
 	/// </summary>
-	/// <param name="device"> The device to load options into. </param>
-	/// <param name="syncOptions"> The options to load. </param>
-	public static void Load(this ISyncDevice device, SyncOptions syncOptions)
+	/// <param name="dictionary"> The dictionary to update. </param>
+	/// <param name="clientDetails"> The client details to use. </param>
+	public static void AddOrUpdateSyncClientDetails(this IDictionary<string, StringValues> dictionary, ISyncClientDetails clientDetails)
 	{
-		device.ApplicationName = TryGetValue(syncOptions.Values, ApplicationNameValueKey, string.Empty);
-		device.ApplicationVersion = TryGetValue(syncOptions.Values, ApplicationVersionValueKey, new Version(0, 0, 0, 0));
-		device.DeviceId = TryGetValue(syncOptions.Values, DeviceIdValueKey, string.Empty);
-		device.DevicePlatform = TryGetValue(syncOptions.Values, DevicePlatformValueKey, DevicePlatform.Unknown);
-		device.DeviceType = TryGetValue(syncOptions.Values, DeviceTypeValueKey, DeviceType.Unknown);
+		AddOrUpdateSyncClientDetails(dictionary.ToDictionary(x => x.Key, x => string.Join("", x.Value)), clientDetails);
+	}
 
-		device.Validate();
+	/// <summary>
+	/// Update the sync options with the provided sync client details.
+	/// </summary>
+	/// <param name="dictionary"> The dictionary to update. </param>
+	/// <param name="clientDetails"> The client details to use. </param>
+	public static void AddOrUpdateSyncClientDetails(this IDictionary<string, string> dictionary, ISyncClientDetails clientDetails)
+	{
+		dictionary.AddIfMissing(ApplicationNameValueKey, clientDetails.ApplicationName);
+		dictionary.AddIfMissing(ApplicationVersionValueKey, clientDetails.ApplicationVersion.ToString());
+		dictionary.AddIfMissing(DeviceIdValueKey, clientDetails.DeviceId);
+		dictionary.AddIfMissing(DevicePlatformValueKey, ((int) clientDetails.DevicePlatform).ToString());
+		dictionary.AddIfMissing(DeviceTypeValueKey, ((int) clientDetails.DeviceType).ToString());
+	}
+
+	/// <summary>
+	/// Update the sync options with the provided sync client details.
+	/// </summary>
+	/// <param name="syncOptions"> The options to update. </param>
+	/// <param name="clientDetails"> The client details to use. </param>
+	public static void AddOrUpdateSyncClientDetails(this SyncOptions syncOptions, ISyncClientDetails clientDetails)
+	{
+		syncOptions.Values.AddOrUpdateSyncClientDetails(clientDetails);
 	}
 
 	/// <summary>
 	/// Load the sync client details into the provided sync options.
 	/// </summary>
+	/// <param name="device"> The device to load options into. </param>
 	/// <param name="syncOptions"> The options to load. </param>
-	/// <param name="clientDetails"> The client details to load. </param>
-	public static void Load(this SyncOptions syncOptions, ISyncClientDetails clientDetails)
+	public static void Load(this ISyncClientDetails device, SyncOptions syncOptions)
 	{
-		// Add all keys that are required
-		syncOptions.Values.AddIfMissing(ApplicationNameValueKey, clientDetails.ApplicationName);
-		syncOptions.Values.AddIfMissing(ApplicationVersionValueKey, clientDetails.ApplicationVersion.ToString());
-		syncOptions.Values.AddIfMissing(DeviceIdValueKey, clientDetails.DeviceId);
-		syncOptions.Values.AddIfMissing(DevicePlatformValueKey, ((int) clientDetails.DevicePlatform).ToString());
-		syncOptions.Values.AddIfMissing(DeviceTypeValueKey, ((int) clientDetails.DeviceType).ToString());
+		device.Load(syncOptions.Values);
+	}
+
+	/// <summary>
+	/// Load the sync client details into the provided sync options.
+	/// </summary>
+	/// <param name="device"> The device to load options into. </param>
+	/// <param name="values"> The values to load. </param>
+	public static void Load(this ISyncClientDetails device, IDictionary<string, StringValues> values)
+	{
+		Load(device, values.ToDictionary(x => x.Key, x => string.Join("", x.Value)));
+	}
+
+	/// <summary>
+	/// Load the sync client details into the provided sync options.
+	/// </summary>
+	/// <param name="device"> The device to load options into. </param>
+	/// <param name="values"> The values to load. </param>
+	public static void Load(this ISyncClientDetails device, IDictionary<string, string> values)
+	{
+		device.ApplicationName = TryGetValue(values, ApplicationNameValueKey, string.Empty);
+		device.ApplicationVersion = TryGetValue(values, ApplicationVersionValueKey, new Version(0, 0, 0, 0));
+		device.DeviceId = TryGetValue(values, DeviceIdValueKey, string.Empty);
+		device.DevicePlatform = TryGetValue(values, DevicePlatformValueKey, DevicePlatform.Unknown);
+		device.DeviceType = TryGetValue(values, DeviceTypeValueKey, DeviceType.Unknown);
 	}
 
 	/// <summary>
@@ -109,12 +148,12 @@ public static class SyncDeviceExtensions
 		}
 	}
 
-	private static string TryGetValue(Dictionary<string, string> dictionary, string name, string defaultValue)
+	private static string TryGetValue(IDictionary<string, string> dictionary, string name, string defaultValue)
 	{
 		return dictionary.TryGetValue(name, out var value) ? value : defaultValue;
 	}
 
-	private static T TryGetValue<T>(Dictionary<string, string> dictionary, string name, T defaultValue)
+	private static T TryGetValue<T>(IDictionary<string, string> dictionary, string name, T defaultValue)
 	{
 		try
 		{

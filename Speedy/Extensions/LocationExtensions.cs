@@ -329,7 +329,7 @@ public static class LocationExtensions
 	/// <param name="left"> The left location. </param>
 	/// <param name="right"> The right location. </param>
 	/// <returns> True if the location is greater than the provided location. </returns>
-	public static bool IsGreaterThan(this IVerticalLocation left, IVerticalLocation right)
+	public static bool IsGreaterThan(this IMinimalVerticalLocation left, IMinimalVerticalLocation right)
 	{
 		return InternalGreaterThan(left, right, false);
 	}
@@ -340,7 +340,7 @@ public static class LocationExtensions
 	/// <param name="left"> The left location. </param>
 	/// <param name="right"> The right location. </param>
 	/// <returns> True if the location is greater than or equal to the provided location. </returns>
-	public static bool IsGreaterThanOrEqualTo(this IVerticalLocation left, IVerticalLocation right)
+	public static bool IsGreaterThanOrEqualTo(this IMinimalVerticalLocation left, IMinimalVerticalLocation right)
 	{
 		return InternalGreaterThan(left, right, true);
 	}
@@ -351,7 +351,7 @@ public static class LocationExtensions
 	/// <param name="left"> The left location. </param>
 	/// <param name="right"> The right location. </param>
 	/// <returns> True if the location is less than the provided location. </returns>
-	public static bool IsLessThan(this IVerticalLocation left, IVerticalLocation right)
+	public static bool IsLessThan(this IMinimalVerticalLocation left, IMinimalVerticalLocation right)
 	{
 		return InternalLessThan(left, right, false);
 	}
@@ -362,7 +362,7 @@ public static class LocationExtensions
 	/// <param name="left"> The left location. </param>
 	/// <param name="right"> The right location. </param>
 	/// <returns> True if the location is less than or equal to the provided location. </returns>
-	public static bool IsLessThanOrEqualTo(this IVerticalLocation left, IVerticalLocation right)
+	public static bool IsLessThanOrEqualTo(this IMinimalVerticalLocation left, IMinimalVerticalLocation right)
 	{
 		return InternalLessThan(left, right, true);
 	}
@@ -716,7 +716,7 @@ public static class LocationExtensions
 		}
 	}
 
-	private static bool InternalGreaterThan(this IVerticalLocation left, IVerticalLocation right, bool inclusive)
+	private static bool InternalGreaterThan(this IMinimalVerticalLocation left, IMinimalVerticalLocation right, bool inclusive)
 	{
 		if (left.AltitudeReference == right.AltitudeReference)
 		{
@@ -728,7 +728,7 @@ public static class LocationExtensions
 		return false;
 	}
 
-	private static bool InternalLessThan(this IVerticalLocation left, IVerticalLocation right, bool inclusive)
+	private static bool InternalLessThan(this IMinimalVerticalLocation left, IMinimalVerticalLocation right, bool inclusive)
 	{
 		if (left.AltitudeReference == right.AltitudeReference)
 		{
