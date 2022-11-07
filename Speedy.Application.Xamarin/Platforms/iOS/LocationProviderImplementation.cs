@@ -262,6 +262,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			LastReadLocation.Heading = location.Course;
 		}
 
+		var sourceName = GetSourceName(location.SourceInformation);
+		LastReadLocation.HorizontalSourceName = sourceName;
+		LastReadLocation.VerticalSourceName = sourceName;
+
 		try
 		{
 			var statusTime = location.Timestamp.ToDateTime().ToUniversalTime();

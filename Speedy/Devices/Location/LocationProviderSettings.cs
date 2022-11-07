@@ -40,7 +40,7 @@ public class LocationProviderSettings : Bindable
 		DesiredAccuracyLowerLimit = 1;
 		DesiredAccuracyUpperLimit = 100;
 
-		MinimumDistanceLowerLimit = 1;
+		MinimumDistanceLowerLimit = 0;
 		MinimumDistanceUpperLimit = 100;
 
 		MinimumTimeLowerLimit = TimeSpan.FromSeconds(1);

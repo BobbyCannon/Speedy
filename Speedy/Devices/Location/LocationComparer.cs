@@ -12,11 +12,18 @@ namespace Speedy.Devices.Location;
 /// </summary>
 public class LocationComparer : Comparer<Location>
 {
+	#region Constructors
+
+	/// <summary>
+	/// Instantiate a state comparer for the <see cref="Location" /> type.
+	/// </summary>
 	public LocationComparer()
 	{
 		AlwaysTrustSameSource = true;
 		SourceTimeout = TimeSpan.FromSeconds(1);
 	}
+
+	#endregion
 
 	#region Properties
 
@@ -61,14 +68,14 @@ public class LocationComparer : Comparer<Location>
 		if (ShouldUpdateHorizontalLocation(update))
 		{
 			CurrentState.Heading = update.Heading;
+			CurrentState.HorizontalAccuracy = update.HorizontalAccuracy;
+			CurrentState.HorizontalAccuracyReference = update.HorizontalAccuracyReference;
 			CurrentState.HorizontalSourceName = update.HorizontalSourceName;
 			CurrentState.HorizontalStatusTime = update.HorizontalStatusTime;
 			CurrentState.Latitude = update.Latitude;
 			CurrentState.LocationFlags = update.LocationFlags;
 			CurrentState.Longitude = update.Longitude;
 			CurrentState.Speed = update.Speed;
-			CurrentState.HorizontalAccuracy = update.HorizontalAccuracy;
-			CurrentState.HorizontalAccuracyReference = update.HorizontalAccuracyReference;
 			updated = true;
 		}
 
@@ -96,7 +103,7 @@ public class LocationComparer : Comparer<Location>
 			// Both have altitude and accuracy and the update is better
 			return true;
 		}
-		
+
 		if (update.HasHorizontalAccuracy && !CurrentState.HasHorizontalAccuracy)
 		{
 			// The update has accuracy but the current state does not, so take the update

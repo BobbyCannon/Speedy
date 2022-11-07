@@ -2139,6 +2139,11 @@
             The state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
             </summary>
         </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer.#ctor">
+            <summary>
+            Instantiate a state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.Location.LocationComparer.AlwaysTrustSameSource">
             <summary>
             If true all updates from the existing source will always be accepted regardless of

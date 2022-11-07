@@ -120,32 +120,19 @@
         </member>
         <member name="T:Speedy.Application.Xamarin.LocationProviderImplementation`2">
             <summary>
-            Implementation for Feature
+            Implementation for LocationProvider
             </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
             <summary>
-            Default constructor
+            Constructor for Implementation
             </summary>
-        </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsListening">
-            <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationAvailable">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationEnabled">
             <inheritdoc />
-        </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.ProviderSources">
-            <summary>
-            Gets all providers from the Location Manager.
-            </summary>
-        </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.Manager">
-            <summary>
-            The android location manager.
-            </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <summary>
@@ -154,20 +141,13 @@
             <param name="timeout"> Timeout to wait, Default Infinite </param>
             <param name="cancelToken"> Cancellation token </param>
             <returns> ProviderLocation </returns>
-            <remarks>
-            bug: we must work on thread safety of this method.
-            Touching "Manager", which is global, can be very dangerous.
-            </remarks>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StartListeningAsync">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StopListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Application.Xamarin.PlatformExtensions">
             <summary>
-            Extensions for the Android platform.
+            Stop listening
             </summary>
         </member>
     </members>
