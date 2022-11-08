@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using CoreLocation;
 using Foundation;
 using Speedy.Devices.Location;
-using Xamarin.Essentials;
 using UIKit;
+using Xamarin.Essentials;
 
 #endregion
 
@@ -163,6 +163,18 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		base.OnPositionError(e);
 	}
 
+	private async Task<bool> CheckAlwaysPermissions()
+	{
+		var status = await Permissions.RequestAsync<Permissions.LocationAlways>();
+		return status == PermissionStatus.Granted;
+	}
+
+	private async Task<bool> CheckWhenInUsePermission()
+	{
+		var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+		return status == PermissionStatus.Granted;
+	}
+
 	private CLLocationManager GetManager()
 	{
 		CLLocationManager m = null;
@@ -248,18 +260,18 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		if (location.Speed > -1)
 		{
-			LastReadLocation.HasSpeed = true;
-			LastReadLocation.Speed = location.Speed;
+			LastReadLocation.HasHorizontalSpeed = true;
+			LastReadLocation.HorizontalSpeed = location.Speed;
 		}
 		else
 		{
-			LastReadLocation.HasSpeed = false;
+			LastReadLocation.HasHorizontalSpeed = false;
 		}
 
 		if (location.Course > -1)
 		{
-			LastReadLocation.HasHeading = true;
-			LastReadLocation.Heading = location.Course;
+			LastReadLocation.HasHorizontalHeading = true;
+			LastReadLocation.HorizontalHeading = location.Course;
 		}
 
 		var sourceName = GetSourceName(location.SourceInformation);
@@ -285,18 +297,4 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	#endregion
-
-	#if __IOS__
-	private async Task<bool> CheckWhenInUsePermission()
-	{
-		var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-		return status == PermissionStatus.Granted;
-	}
-
-	private async Task<bool> CheckAlwaysPermissions()
-	{
-		var status = await Permissions.RequestAsync<Permissions.LocationAlways>();
-		return status == PermissionStatus.Granted;
-	}
-	#endif
 }

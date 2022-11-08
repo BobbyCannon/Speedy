@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Linq;
 using Speedy.Extensions;
 using Speedy.Storage;
 
@@ -11,7 +12,9 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a minimal location (lat, long, alt, alt ref).
 /// </summary>
-public class BasicLocation : Bindable, IBasicLocation, IComparable, IComparable<BasicLocation>, IEquatable<BasicLocation>, IUpdatable<IBasicLocation>
+public class BasicLocation : Bindable, IBasicLocation, 
+	IComparable, IComparable<BasicLocation>,
+	IEquatable<BasicLocation>, IUpdatable<IBasicLocation>
 {
 	#region Constructors
 
@@ -135,10 +138,60 @@ public class BasicLocation : Bindable, IBasicLocation, IComparable, IComparable<
 		return $"{Latitude:F7}, {Longitude:F7}, {Altitude:F3} / {AltitudeReference.GetDisplayName()}";
 	}
 
-	/// <inheritdoc />
+	/// <summary>
+	/// Update the BasicLocation with an update.
+	/// </summary>
+	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional set of properties to exclude. </param>
 	public void UpdateWith(IBasicLocation update, params string[] exclusions)
 	{
-		this.UpdateWithUsingReflection(update, exclusions);
+		// If the update is null then there is nothing to do.
+		if (update == null)
+		{
+			return;
+		}
+
+		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+		if (exclusions.Length <= 0)
+		{
+			Altitude = update.Altitude;
+			AltitudeReference = update.AltitudeReference;
+			Latitude = update.Latitude;
+			Longitude = update.Longitude;
+		}
+		else
+		{
+			this.IfThen(_ => !exclusions.Contains(nameof(Altitude)), x => x.Altitude = update.Altitude);
+			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(Latitude)), x => x.Latitude = update.Latitude);
+			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
+		}
+
+		//base.UpdateWith(update, exclusions);
+	}
+
+	/// <inheritdoc />
+	public override void UpdateWith(object update, params string[] exclusions)
+	{
+		switch (update)
+		{
+			case BasicLocation options:
+			{
+				UpdateWith(options, exclusions);
+				return;
+			}
+			case IBasicLocation options:
+			{
+				UpdateWith(options, exclusions);
+				return;
+			}
+			default:
+			{
+				base.UpdateWith(update, exclusions);
+				return;
+			}
+		}
 	}
 
 	#endregion

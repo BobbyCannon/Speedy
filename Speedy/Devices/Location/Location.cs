@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Speedy.Extensions;
 using Speedy.Protocols;
+using Speedy.Serialization;
 using Speedy.Storage;
 using ICloneable = Speedy.Serialization.ICloneable;
 
@@ -14,7 +15,7 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a full location from a LocationProvider. Contains horizontal and vertical location.
 /// </summary>
-public class Location : BasicLocation, ILocation, ICloneable
+public class Location : BasicLocation, ILocation
 {
 	#region Constructors
 
@@ -53,26 +54,26 @@ public class Location : BasicLocation, ILocation, ICloneable
 	#region Properties
 
 	/// <summary>
-	/// Specifies if the Heading value is valid
-	/// </summary>
-	public bool HasHeading
-	{
-		get => this.HasHeading();
-		set => this.UpdateHasHeading(value);
-	}
-
-	/// <summary>
 	/// Specifies if the Accuracy value is valid
 	/// </summary>
 	public bool HasHorizontalAccuracy => this.HasSupportedHorizontalAccuracy();
 
 	/// <summary>
+	/// Specifies if the Heading value is valid
+	/// </summary>
+	public bool HasHorizontalHeading
+	{
+		get => this.HasHorizontalHeading();
+		set => this.UpdateHorizontalHeading(value);
+	}
+
+	/// <summary>
 	/// Specifies if the Speed value is valid
 	/// </summary>
-	public bool HasSpeed
+	public bool HasHorizontalSpeed
 	{
-		get => this.HasSpeed();
-		set => this.UpdateHasSpeed(value);
+		get => this.HasHorizontalSpeed();
+		set => this.UpdateHorizontalSpeed(value);
 	}
 
 	/// <summary>
@@ -81,7 +82,18 @@ public class Location : BasicLocation, ILocation, ICloneable
 	public bool HasVerticalAccuracy => this.HasSupportedVerticalAccuracy();
 
 	/// <inheritdoc />
-	public double Heading { get; set; }
+	public bool HasVerticalHeading
+	{
+		get => this.HasVerticalSpeed();
+		set => this.UpdateVerticalSpeed(value);
+	}
+
+	/// <inheritdoc />
+	public bool HasVerticalSpeed
+	{
+		get => this.HasVerticalSpeed();
+		set => this.UpdateVerticalSpeed(value);
+	}
 
 	/// <inheritdoc />
 	public double HorizontalAccuracy { get; set; }
@@ -90,19 +102,22 @@ public class Location : BasicLocation, ILocation, ICloneable
 	public AccuracyReferenceType HorizontalAccuracyReference { get; set; }
 
 	/// <inheritdoc />
+	public LocationFlags HorizontalFlags { get; set; }
+
+	/// <inheritdoc />
+	public double HorizontalHeading { get; set; }
+
+	/// <inheritdoc />
 	public string HorizontalSourceName { get; set; }
+
+	/// <inheritdoc />
+	public double HorizontalSpeed { get; set; }
 
 	/// <inheritdoc />
 	public DateTime HorizontalStatusTime { get; set; }
 
 	/// <inheritdoc />
-	public LocationFlags LocationFlags { get; set; }
-
-	/// <inheritdoc />
 	public string ProviderName { get; set; }
-
-	/// <inheritdoc />
-	public double Speed { get; set; }
 
 	/// <inheritdoc />
 	public double VerticalAccuracy { get; set; }
@@ -111,7 +126,16 @@ public class Location : BasicLocation, ILocation, ICloneable
 	public AccuracyReferenceType VerticalAccuracyReference { get; set; }
 
 	/// <inheritdoc />
+	public LocationFlags VerticalFlags { get; set; }
+
+	/// <inheritdoc />
+	public double VerticalHeading { get; set; }
+
+	/// <inheritdoc />
 	public string VerticalSourceName { get; set; }
+
+	/// <inheritdoc />
+	public double VerticalSpeed { get; set; }
 
 	/// <inheritdoc />
 	public DateTime VerticalStatusTime { get; set; }
@@ -121,13 +145,13 @@ public class Location : BasicLocation, ILocation, ICloneable
 	#region Methods
 
 	/// <inheritdoc />
-	public object DeepClone(int? maxDepth = null)
+	public ILocation DeepClone(int? maxDepth = null)
 	{
 		return ShallowClone();
 	}
 
 	/// <inheritdoc />
-	public object ShallowClone()
+	public ILocation ShallowClone()
 	{
 		var response = new Location(Dispatcher);
 		response.UpdateWith(this);
@@ -137,7 +161,7 @@ public class Location : BasicLocation, ILocation, ICloneable
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		return $"{Latitude:N7}°  {Longitude:N7}°  {Altitude:N2} {HorizontalAccuracyReference.ToDisplayShortName()}";
+		return $"{Latitude:N7}°  {Longitude:N7}°  {Altitude:N2} {VerticalAccuracyReference.ToDisplayShortName()}";
 	}
 
 	/// <summary>
@@ -159,42 +183,52 @@ public class Location : BasicLocation, ILocation, ICloneable
 		{
 			Altitude = update.Altitude;
 			AltitudeReference = update.AltitudeReference;
-			HasHeading = update.HasHeading;
-			HasSpeed = update.HasSpeed;
-			Heading = update.Heading;
+			HasHorizontalHeading = update.HasHorizontalHeading;
+			HasHorizontalSpeed = update.HasHorizontalSpeed;
+			HasVerticalHeading = update.HasVerticalHeading;
+			HasVerticalSpeed = update.HasVerticalSpeed;
 			HorizontalAccuracy = update.HorizontalAccuracy;
 			HorizontalAccuracyReference = update.HorizontalAccuracyReference;
+			HorizontalFlags = update.HorizontalFlags;
+			HorizontalHeading = update.HorizontalHeading;
 			HorizontalSourceName = update.HorizontalSourceName;
+			HorizontalSpeed = update.HorizontalSpeed;
 			HorizontalStatusTime = update.HorizontalStatusTime;
 			Latitude = update.Latitude;
-			LocationFlags = update.LocationFlags;
 			Longitude = update.Longitude;
 			ProviderName = update.ProviderName;
-			Speed = update.Speed;
 			VerticalAccuracy = update.VerticalAccuracy;
 			VerticalAccuracyReference = update.VerticalAccuracyReference;
+			VerticalFlags = update.VerticalFlags;
+			VerticalHeading = update.VerticalHeading;
 			VerticalSourceName = update.VerticalSourceName;
+			VerticalSpeed = update.VerticalSpeed;
 			VerticalStatusTime = update.VerticalStatusTime;
 		}
 		else
 		{
 			this.IfThen(_ => !exclusions.Contains(nameof(Altitude)), x => x.Altitude = update.Altitude);
 			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasHeading)), x => x.HasHeading = update.HasHeading);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasSpeed)), x => x.HasSpeed = update.HasSpeed);
-			this.IfThen(_ => !exclusions.Contains(nameof(Heading)), x => x.Heading = update.Heading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasHorizontalHeading)), x => x.HasHorizontalHeading = update.HasHorizontalHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasHorizontalSpeed)), x => x.HasHorizontalSpeed = update.HasHorizontalSpeed);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasVerticalHeading)), x => x.HasVerticalHeading = update.HasVerticalHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasVerticalSpeed)), x => x.HasVerticalSpeed = update.HasVerticalSpeed);
 			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracy)), x => x.HorizontalAccuracy = update.HorizontalAccuracy);
 			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracyReference)), x => x.HorizontalAccuracyReference = update.HorizontalAccuracyReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalFlags)), x => x.HorizontalFlags = update.HorizontalFlags);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalHeading)), x => x.HorizontalHeading = update.HorizontalHeading);
 			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalSourceName)), x => x.HorizontalSourceName = update.HorizontalSourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalSpeed)), x => x.HorizontalSpeed = update.HorizontalSpeed);
 			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalStatusTime)), x => x.HorizontalStatusTime = update.HorizontalStatusTime);
 			this.IfThen(_ => !exclusions.Contains(nameof(Latitude)), x => x.Latitude = update.Latitude);
-			this.IfThen(_ => !exclusions.Contains(nameof(LocationFlags)), x => x.LocationFlags = update.LocationFlags);
 			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
 			this.IfThen(_ => !exclusions.Contains(nameof(ProviderName)), x => x.ProviderName = update.ProviderName);
-			this.IfThen(_ => !exclusions.Contains(nameof(Speed)), x => x.Speed = update.Speed);
 			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracy)), x => x.VerticalAccuracy = update.VerticalAccuracy);
 			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracyReference)), x => x.VerticalAccuracyReference = update.VerticalAccuracyReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalFlags)), x => x.VerticalFlags = update.VerticalFlags);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalHeading)), x => x.VerticalHeading = update.VerticalHeading);
 			this.IfThen(_ => !exclusions.Contains(nameof(VerticalSourceName)), x => x.VerticalSourceName = update.VerticalSourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalSpeed)), x => x.VerticalSpeed = update.VerticalSpeed);
 			this.IfThen(_ => !exclusions.Contains(nameof(VerticalStatusTime)), x => x.VerticalStatusTime = update.VerticalStatusTime);
 		}
 
@@ -232,14 +266,27 @@ public class Location : BasicLocation, ILocation, ICloneable
 		base.OnPropertyChangedInDispatcher(propertyName);
 	}
 
+	/// <inheritdoc />
+	object ICloneable.DeepClone(int? maxDepth)
+	{
+		return DeepClone(maxDepth);
+	}
+
+	/// <inheritdoc />
+	object ICloneable.ShallowClone()
+	{
+		return ShallowClone();
+	}
+
 	#endregion
 }
 
 /// <summary>
 /// Represents a provider location.
 /// </summary>
-public interface ILocation : IBasicLocation, IUpdatable<ILocation>,
-	IHorizontalLocation, IVerticalLocation, ILocationExtras
+public interface ILocation : IBasicLocation,
+	ICloneable<ILocation>, IUpdatable<ILocation>,
+	IHorizontalLocation, IVerticalLocation
 {
 	#region Properties
 
@@ -247,41 +294,6 @@ public interface ILocation : IBasicLocation, IUpdatable<ILocation>,
 	/// The name of the provider that is the source of this location.
 	/// </summary>
 	public string ProviderName { get; set; }
-
-	#endregion
-}
-
-/// <summary>
-/// Extra members for location.
-/// </summary>
-public interface ILocationExtras : IBindable
-{
-	#region Properties
-
-	/// <summary>
-	/// Specifies if the Heading value is valid
-	/// </summary>
-	bool HasHeading { get; set; }
-
-	/// <summary>
-	/// Specifies if the Speed value is valid
-	/// </summary>
-	bool HasSpeed { get; set; }
-
-	/// <summary>
-	/// The heading of a device.
-	/// </summary>
-	double Heading { get; set; }
-
-	/// <summary>
-	/// Flags for the location of the provider.
-	/// </summary>
-	LocationFlags LocationFlags { get; set; }
-
-	/// <summary>
-	/// The speed of the device in meters per second.
-	/// </summary>
-	double Speed { get; set; }
 
 	#endregion
 }

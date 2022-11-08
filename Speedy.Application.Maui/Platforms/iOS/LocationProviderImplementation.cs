@@ -243,18 +243,18 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		if (location.Speed > -1)
 		{
-			LastReadLocation.HasSpeed = true;
-			LastReadLocation.Speed = location.Speed;
+			LastReadLocation.HasHorizontalSpeed = true;
+			LastReadLocation.HorizontalSpeed = location.Speed;
 		}
 		else
 		{
-			LastReadLocation.HasSpeed = false;
+			LastReadLocation.HasHorizontalSpeed = false;
 		}
 
 		if (location.Course > -1)
 		{
-			LastReadLocation.HasHeading = true;
-			LastReadLocation.Heading = location.Course;
+			LastReadLocation.HasHorizontalHeading = true;
+			LastReadLocation.HorizontalHeading = location.Course;
 		}
 
 		try

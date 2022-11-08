@@ -20,7 +20,7 @@ public class LocationComparer : Comparer<Location>
 	public LocationComparer()
 	{
 		AlwaysTrustSameSource = true;
-		SourceTimeout = TimeSpan.FromSeconds(1);
+		SourceTimeout = TimeSpan.FromSeconds(10);
 	}
 
 	#endregion
@@ -50,39 +50,40 @@ public class LocationComparer : Comparer<Location>
 	}
 
 	/// <inheritdoc />
-	protected override bool TryUpdateCurrentState(Location update)
+	protected override bool TryUpdateValue(Location update)
 	{
 		var updated = false;
 
 		if (ShouldUpdateVerticalLocation(update))
 		{
-			CurrentState.Altitude = update.Altitude;
-			CurrentState.AltitudeReference = update.AltitudeReference;
-			CurrentState.VerticalAccuracy = update.VerticalAccuracy;
-			CurrentState.VerticalAccuracyReference = update.VerticalAccuracyReference;
-			CurrentState.VerticalSourceName = update.VerticalSourceName;
-			CurrentState.VerticalStatusTime = update.VerticalStatusTime;
+			Value.Altitude = update.Altitude;
+			Value.AltitudeReference = update.AltitudeReference;
+			Value.VerticalAccuracy = update.VerticalAccuracy;
+			Value.VerticalAccuracyReference = update.VerticalAccuracyReference;
+			Value.VerticalFlags = update.VerticalFlags;
+			Value.VerticalSourceName = update.VerticalSourceName;
+			Value.VerticalStatusTime = update.VerticalStatusTime;
 			updated = true;
 		}
 
 		if (ShouldUpdateHorizontalLocation(update))
 		{
-			CurrentState.Heading = update.Heading;
-			CurrentState.HorizontalAccuracy = update.HorizontalAccuracy;
-			CurrentState.HorizontalAccuracyReference = update.HorizontalAccuracyReference;
-			CurrentState.HorizontalSourceName = update.HorizontalSourceName;
-			CurrentState.HorizontalStatusTime = update.HorizontalStatusTime;
-			CurrentState.Latitude = update.Latitude;
-			CurrentState.LocationFlags = update.LocationFlags;
-			CurrentState.Longitude = update.Longitude;
-			CurrentState.Speed = update.Speed;
+			Value.HorizontalHeading = update.HorizontalHeading;
+			Value.HorizontalAccuracy = update.HorizontalAccuracy;
+			Value.HorizontalAccuracyReference = update.HorizontalAccuracyReference;
+			Value.HorizontalFlags = update.HorizontalFlags;
+			Value.HorizontalSourceName = update.HorizontalSourceName;
+			Value.HorizontalStatusTime = update.HorizontalStatusTime;
+			Value.Latitude = update.Latitude;
+			Value.Longitude = update.Longitude;
+			Value.HorizontalSpeed = update.HorizontalSpeed;
 			updated = true;
 		}
 
 		if (updated)
 		{
 			// General updates...
-			CurrentState.ProviderName = update.ProviderName;
+			Value.ProviderName = update.ProviderName;
 		}
 
 		return updated;
@@ -90,34 +91,34 @@ public class LocationComparer : Comparer<Location>
 
 	private bool ShouldUpdateHorizontalLocation(IHorizontalLocation update)
 	{
-		if (update.HorizontalStatusTime < CurrentState.HorizontalStatusTime)
+		if (update.HorizontalStatusTime < Value.HorizontalStatusTime)
 		{
 			// This is an old update so reject it
 			return false;
 		}
 
 		if (update.HasHorizontalAccuracy
-			&& CurrentState.HasHorizontalAccuracy
-			&& (update.HorizontalAccuracy <= CurrentState.HorizontalAccuracy))
+			&& Value.HasHorizontalAccuracy
+			&& (update.HorizontalAccuracy <= Value.HorizontalAccuracy))
 		{
 			// Both have altitude and accuracy and the update is better
 			return true;
 		}
 
-		if (update.HasHorizontalAccuracy && !CurrentState.HasHorizontalAccuracy)
+		if (update.HasHorizontalAccuracy && !Value.HasHorizontalAccuracy)
 		{
 			// The update has accuracy but the current state does not, so take the update
 			return true;
 		}
 
 		// You may have an update from the same source but it's not as accurate
-		if (AlwaysTrustSameSource && (CurrentState.HorizontalSourceName == update.HorizontalSourceName))
+		if (AlwaysTrustSameSource && (Value.HorizontalSourceName == update.HorizontalSourceName))
 		{
 			return true;
 		}
 
 		// Has the current state expired?
-		var elapsed = update.HorizontalStatusTime - CurrentState.HorizontalStatusTime;
+		var elapsed = update.HorizontalStatusTime - Value.HorizontalStatusTime;
 		if (elapsed >= SourceTimeout)
 		{
 			return true;
@@ -128,7 +129,7 @@ public class LocationComparer : Comparer<Location>
 
 	private bool ShouldUpdateVerticalLocation(IVerticalLocation update)
 	{
-		if (update.VerticalStatusTime < CurrentState.VerticalStatusTime)
+		if (update.VerticalStatusTime < Value.VerticalStatusTime)
 		{
 			// This is an old update so reject it
 			return false;
@@ -136,9 +137,9 @@ public class LocationComparer : Comparer<Location>
 
 		if (update.HasVerticalAccuracy
 			&& update.HasAltitude
-			&& CurrentState.HasVerticalAccuracy
-			&& CurrentState.HasAltitude
-			&& (update.VerticalAccuracy <= CurrentState.VerticalAccuracy))
+			&& Value.HasVerticalAccuracy
+			&& Value.HasAltitude
+			&& (update.VerticalAccuracy <= Value.VerticalAccuracy))
 		{
 			// Both have altitude and accuracy and the update is better
 			return true;
@@ -146,20 +147,20 @@ public class LocationComparer : Comparer<Location>
 
 		// todo: should we have an accuracy limit? or does "better" accurate update handle
 
-		if (update.HasVerticalAccuracy && !CurrentState.HasVerticalAccuracy)
+		if (update.HasVerticalAccuracy && !Value.HasVerticalAccuracy)
 		{
 			// The update has accuracy but the current state does not, so take the update
 			return true;
 		}
 
 		// You may have an update from the same source but it's not as accurate
-		if (AlwaysTrustSameSource && (CurrentState.VerticalSourceName == update.VerticalSourceName))
+		if (AlwaysTrustSameSource && (Value.VerticalSourceName == update.VerticalSourceName))
 		{
 			return true;
 		}
 
 		// Has the current state expired?
-		var elapsed = update.VerticalStatusTime - CurrentState.VerticalStatusTime;
+		var elapsed = update.VerticalStatusTime - Value.VerticalStatusTime;
 		if (elapsed >= SourceTimeout)
 		{
 			return true;

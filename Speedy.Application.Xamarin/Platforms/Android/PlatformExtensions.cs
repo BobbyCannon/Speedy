@@ -108,8 +108,8 @@ public static class PlatformExtensions
 
 		var response = new T
 		{
-			HasHeading = location.HasBearing,
-			HasSpeed = location.HasSpeed,
+			HasHorizontalHeading = location.HasBearing,
+			HasHorizontalSpeed = location.HasSpeed,
 			HorizontalSourceName = sourceName,
 			HorizontalStatusTime = sourceTime,
 			Longitude = location.Longitude,
@@ -137,14 +137,14 @@ public static class PlatformExtensions
 			response.VerticalAccuracyReference = AccuracyReferenceType.Meters;
 		}
 
-		if (response.HasHeading)
+		if (response.HasHorizontalHeading)
 		{
-			response.Heading = location.Bearing;
+			response.HorizontalHeading = location.Bearing;
 		}
 
-		if (response.HasSpeed)
+		if (response.HasHorizontalSpeed)
 		{
-			response.Speed = location.Speed;
+			response.HorizontalSpeed = location.Speed;
 		}
 
 		//response.IsFromMockProvider = (int) Build.VERSION.SdkInt >= 18 && location.IsFromMockProvider;

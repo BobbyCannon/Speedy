@@ -16,7 +16,7 @@ public class StateManagerTests : SpeedyUnitTest
 	{
 		var comparer = new BasicComparer<int>((c, u) => u > c, (c, u) => (u, true));
 
-		Assert.AreEqual(0, comparer.CurrentState);
+		Assert.AreEqual(0, comparer.Value);
 
 		(int update, int expected)[] scenarios = {
 			// Refreshing with 2 from a state of 0 should update
@@ -31,10 +31,10 @@ public class StateManagerTests : SpeedyUnitTest
 
 		foreach (var scenario in scenarios)
 		{
-			$"{comparer.CurrentState} updating with {scenario.update} and expect {scenario.expected}".Dump();
+			$"{comparer.Value} updating with {scenario.update} and expect {scenario.expected}".Dump();
 
 			comparer.Refresh(scenario.update);
-			Assert.AreEqual(scenario.expected, comparer.CurrentState);
+			Assert.AreEqual(scenario.expected, comparer.Value);
 		}
 	}
 }

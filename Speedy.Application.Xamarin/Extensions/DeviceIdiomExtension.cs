@@ -8,6 +8,9 @@ using DeviceType = Speedy.Devices.DeviceType;
 
 namespace Speedy.Application.Xamarin.Extensions;
 
+/// <summary>
+/// Device Idiom Extension
+/// </summary>
 public static class DeviceIdiomExtension
 {
 	#region Fields
@@ -46,11 +49,21 @@ public static class DeviceIdiomExtension
 
 	#region Methods
 
+	/// <summary>
+	/// Convert DeviceType to a DeviceIdiom.
+	/// </summary>
+	/// <param name="deviceType"> The device type to convert. </param>
+	/// <returns> The DeviceIdiom for the DeviceType. </returns>
 	public static DeviceIdiom ToDeviceIdiom(this DeviceType deviceType)
 	{
 		return _mauiLookup.ContainsKey(deviceType) ? _mauiLookup[deviceType] : DeviceIdiom.Unknown;
 	}
 
+	/// <summary>
+	/// Convert DeviceIdiom to a DeviceType.
+	/// </summary>
+	/// <param name="deviceIdiom"> The device idiom to convert. </param>
+	/// <returns> The DeviceType for the DeviceIdiom. </returns>
 	public static DeviceType ToDeviceType(this DeviceIdiom deviceIdiom)
 	{
 		return _speedyLookup.ContainsKey(deviceIdiom) ? _speedyLookup[deviceIdiom] : DeviceType.Unknown;

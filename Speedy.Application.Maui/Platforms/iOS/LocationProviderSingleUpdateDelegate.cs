@@ -131,16 +131,16 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		_position.Latitude = newLocation.Coordinate.Latitude;
 		_position.Longitude = newLocation.Coordinate.Longitude;
 
-		_position.HasSpeed = newLocation.Speed > -1;
-		_position.Speed = newLocation.Speed;
+		_position.HasHorizontalSpeed = newLocation.Speed > -1;
+		_position.HorizontalSpeed = newLocation.Speed;
 
 		_position.VerticalAccuracy = newLocation.VerticalAccuracy;
 		_position.VerticalAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
 
 		if (_includeHeading)
 		{
-			_position.HasHeading = newLocation.Course > -1;
-			_position.Heading = newLocation.Course;
+			_position.HasHorizontalHeading = newLocation.Course > -1;
+			_position.HorizontalHeading = newLocation.Course;
 		}
 
 		try

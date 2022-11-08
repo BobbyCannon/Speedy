@@ -26,7 +26,7 @@ public enum LocationFlags
 	/// Location has speed.
 	/// </summary>
 	HasSpeed = 0b10,
-
+	
 	/// <summary>
 	/// All flags
 	/// </summary>

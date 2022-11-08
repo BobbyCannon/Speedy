@@ -59,6 +59,72 @@
             <param name="builder"> The device ID builder. </param>
             <returns> The device ID updated with the vendor ID if available. </returns>
         </member>
+        <member name="T:Speedy.Application.Xamarin.Extensions.DeviceIdiomExtension">
+            <summary>
+            Device Idiom Extension
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Extensions.DeviceIdiomExtension.ToDeviceIdiom(Speedy.Devices.DeviceType)">
+            <summary>
+            Convert DeviceType to a DeviceIdiom.
+            </summary>
+            <param name="deviceType"> The device type to convert. </param>
+            <returns> The DeviceIdiom for the DeviceType. </returns>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Extensions.DeviceIdiomExtension.ToDeviceType(Xamarin.Essentials.DeviceIdiom)">
+            <summary>
+            Convert DeviceIdiom to a DeviceType.
+            </summary>
+            <param name="deviceIdiom"> The device idiom to convert. </param>
+            <returns> The DeviceType for the DeviceIdiom. </returns>
+        </member>
+        <member name="T:Speedy.Application.Xamarin.Extensions.DevicePlatformExtension">
+            <summary>
+            Device Platform Extension
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Extensions.DevicePlatformExtension.ToDevicePlatform(Xamarin.Essentials.DevicePlatform)">
+            <summary>
+            Converts a Xamarin Device Platform to a Speedy Device Platform.
+            </summary>
+            <param name="platform"> The Xamarin Device Platform. </param>
+            <returns> The Speedy Device Platform. </returns>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.Extensions.DevicePlatformExtension.ToDevicePlatform(Speedy.Devices.DevicePlatform)">
+            <summary>
+            Converts a Speedy Device Platform to a Xamarin Device Platform.
+            </summary>
+            <param name="platform"> The Speedy Device Platform. </param>
+            <returns> The Xamarin Device Platform. </returns>
+        </member>
+        <member name="T:Speedy.Application.Xamarin.XamarinPlatform">
+            <summary>
+            Xamarin platform specific implementations.
+            </summary>
+        </member>
+        <member name="T:Speedy.Application.Xamarin.XamarinBarometerVerticalLocationProvider`1">
+            <summary>
+            Location provider for the Xamarin Barometer.
+            </summary>
+            <typeparam name="T"> </typeparam>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinBarometerVerticalLocationProvider`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates the xamarin barometer altitude provider.
+            </summary>
+            <param name="dispatcher"> </param>
+        </member>
+        <member name="P:Speedy.Application.Xamarin.XamarinBarometerVerticalLocationProvider`1.Pressure">
+            <summary>
+            The Pressure in Hectopascals.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinBarometerVerticalLocationProvider`1.StartListening">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinBarometerVerticalLocationProvider`1.StopListening">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.Xamarin.XamarinDispatcher">
             <inheritdoc />
         </member>
@@ -125,7 +191,7 @@
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
             <summary>
-            Constructor for Implementation
+            Constructor for implementation
             </summary>
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`2.IsLocationAvailable">
@@ -143,11 +209,26 @@
             <returns> ProviderLocation </returns>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StartListeningAsync">
-            <inheritdoc />
+            <summary>
+            Start listening for changes
+            </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.StopListeningAsync">
             <summary>
             Stop listening
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`2.OnPositionError(Speedy.Devices.Location.LocationProviderError)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Xamarin.PlatformExtensions">
+            <summary>
+            iOS Platform extensions
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.PlatformExtensions.ToDateTime(Foundation.NSDate)">
+            <summary>
+            Converts NSDate to DateTime.
             </summary>
         </member>
     </members>

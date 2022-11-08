@@ -6,8 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Gms.Common;
-using Android.Gms.Location;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
@@ -18,9 +16,14 @@ using Speedy.Logging;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-using Location = Android.Locations.Location;
+
+#if GOOGLEPLAY
+using Android.Gms.Common;
+using Android.Gms.Location;
 using LocationRequest = Android.Gms.Location.LocationRequest;
 using XamarinForms = Xamarin.Forms;
+using Location = Android.Locations.Location;
+#endif
 
 #endregion
 
@@ -35,21 +38,20 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	where T : class, ILocation, new()
 	where T2 : LocationProviderSettings, new()
 {
-	#region Constants
-
-	private const string FusedGooglePlusKey = "fused g+";
-
-	#endregion
-
 	#region Fields
 
-	private FusedLocationProviderCallback _fusedCallback;
+	#if GOOGLEPLAY
+	private const string FusedGooglePlusKey = "fused g+";
 	private FusedLocationProviderClient _fusedListener;
+	private FusedLocationProviderCallback _fusedCallback;
+	#endif
+
 	private GeolocationContinuousListener<T> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
 	private IDictionary<string, LocationProviderSource> _providerSources;
 	private GeolocationSingleListener<T> _singleListener;
+	private readonly LocationComparer _comparer;
 
 	#endregion
 
@@ -60,6 +62,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// </summary>
 	protected LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
+		_comparer = new LocationComparer();
 		_positionSync = new object();
 	}
 
@@ -93,8 +96,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 						Enabled = defaultEnabled.Contains(x)
 					})
 					.ToDictionary(x => x.Provider, x => x);
+				#if GOOGLEPLAY
 				var t = new LocationProviderSource { Enabled = true, Provider = FusedGooglePlusKey };
 				_providerSources.Add(t.Provider, t);
+				#endif
 			}
 			return _providerSources.Values;
 		}
@@ -231,10 +236,12 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			return;
 		}
 
+		#if GOOGLEPLAY
 		if (!IsGooglePlayServicesInstalled())
 		{
 			return;
 		}
+		#endif
 
 		LocationProviderSettings.Cleanup();
 
@@ -256,6 +263,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		var sources = ProviderSources.ToArray();
 		var looper = Looper.MyLooper() ?? Looper.MainLooper;
 
+		#if GOOGLEPLAY
 		if ((XamarinPlatform.MainActivity != null) && _providerSources[FusedGooglePlusKey].Enabled)
 		{
 			_fusedListener = LocationServices.GetFusedLocationProviderClient(XamarinPlatform.MainActivity);
@@ -268,6 +276,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			_fusedListener.RequestLocationUpdates(locationRequest, _fusedCallback, looper);
 			_providerSources[FusedGooglePlusKey].Listening = true;
 		}
+		#endif
 
 		_listener = new GeolocationContinuousListener<T>(Dispatcher, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
@@ -278,10 +287,12 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			var source = sources[i];
 
+			#if GOOGLEPLAY
 			if (source.Provider == FusedGooglePlusKey)
 			{
 				continue;
 			}
+			#endif
 
 			if (!source.Enabled)
 			{
@@ -314,6 +325,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		_listener.PositionChanged -= ListenerPositionChanged;
 		_listener.PositionError -= ListenerPositionError;
 
+		#if GOOGLEPLAY
 		if (_fusedListener != null)
 		{
 			_providerSources[FusedGooglePlusKey].Listening = false;
@@ -325,6 +337,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			_fusedListener = null;
 			_fusedCallback = null;
 		}
+		#endif
 
 		try
 		{
@@ -386,6 +399,8 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		return false;
 	}
 
+	#if GOOGLEPLAY
+
 	private void FusedLocationProviderLocationChanged(Location obj)
 	{
 		var t = obj.ToPosition<T>();
@@ -393,6 +408,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		t.VerticalSourceName = FusedGooglePlusKey;
 		OnPositionChanged(t);
 	}
+
 
 	private bool IsGooglePlayServicesInstalled()
 	{
@@ -413,6 +429,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		return false;
 	}
 
+	#endif
 	private void ListenerOnLogEventWritten(object sender, LogEventArgs e)
 	{
 		OnLogEventWritten(e);
@@ -421,15 +438,21 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	private void ListenerPositionChanged(object sender, T e)
 	{
 		// Ignore anything that might come in after stop listening
-		if (!IsListening)
+		if (!IsListening || e is null)
 		{
 			return;
 		}
 
 		lock (_positionSync)
 		{
-			UpdateLastReadLocation(e);
-			OnPositionChanged(e);
+			if (!_comparer.Refresh(e))
+			{
+				// Comparer did not update so bounce
+				return;
+			}
+
+			LastReadLocation.UpdateWith(_comparer.Value);
+			OnPositionChanged((T) LastReadLocation.ShallowClone());
 		}
 	}
 
@@ -443,6 +466,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	#region Classes
 
+	#if GOOGLEPLAY
 	private class FusedLocationProviderCallback : LocationCallback
 	{
 		#region Fields
@@ -480,6 +504,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		#endregion
 	}
+	#endif
 
 	#endregion
 }

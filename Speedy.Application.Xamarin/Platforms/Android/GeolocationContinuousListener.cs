@@ -124,11 +124,6 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 		}
 	}
 
-	private TimeSpan GetTimeSpan(long time)
-	{
-		return new TimeSpan(TimeSpan.TicksPerMillisecond * time);
-	}
-
 	private void OnPositionError(LocationProviderError e)
 	{
 		PositionError?.Invoke(this, e);

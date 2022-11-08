@@ -43,6 +43,8 @@ public partial class MainPage
 			.OrderBy(x => x.Name)
 			.ToList();
 
+		var now = TimeService.Now;
+
 		foreach (var history in ViewModel.LocationHistory)
 		{
 			var builder = new StringBuilder();
@@ -56,7 +58,7 @@ public partial class MainPage
 			
 			DependencyService
 				.Get<IFileService>()
-				.WriteFile($"location-export-{history.Key}.csv", builder.ToString());
+				.WriteFile($"{now:yy-MM-dd-hh-mm-ss}-location-export-{history.Key}.csv", builder.ToString());
 		}
 	}
 

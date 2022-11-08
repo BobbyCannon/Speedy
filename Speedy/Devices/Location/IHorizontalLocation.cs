@@ -38,6 +38,31 @@ public interface IHorizontalLocation : IMinimalHorizontalLocation
 	/// </summary>
 	DateTime HorizontalStatusTime { get; set; }
 
+	/// <summary>
+	/// Specifies if the Heading value is valid
+	/// </summary>
+	bool HasHorizontalHeading { get; set; }
+
+	/// <summary>
+	/// Specifies if the Speed value is valid
+	/// </summary>
+	bool HasHorizontalSpeed { get; set; }
+
+	/// <summary>
+	/// The heading of a device.
+	/// </summary>
+	double HorizontalHeading { get; set; }
+
+	/// <summary>
+	/// The speed of the device in meters per second.
+	/// </summary>
+	double HorizontalSpeed { get; set; }
+
+	/// <summary>
+	/// Flags for the location of the provider.
+	/// </summary>
+	LocationFlags HorizontalFlags { get; set; }
+
 	#endregion
 }
 

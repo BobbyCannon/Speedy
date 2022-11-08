@@ -8,25 +8,44 @@ using Xamarin.Essentials;
 
 namespace Speedy.Application.Xamarin;
 
-public class XamarinBarometerAltitudeProvider<T> : AltitudeProvider<T>
+/// <summary>
+/// Location provider for the Xamarin Barometer.
+/// </summary>
+/// <typeparam name="T"> </typeparam>
+public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvider<T>
 	where T : class, IVerticalLocation, new()
 {
 	#region Constructors
 
-	public XamarinBarometerAltitudeProvider(IDispatcher dispatcher) : base(dispatcher)
+	/// <summary>
+	/// Instantiates the xamarin barometer altitude provider.
+	/// </summary>
+	/// <param name="dispatcher"> </param>
+	public XamarinBarometerVerticalLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}
 
 	#endregion
 
+	#region Properties
+
+	/// <summary>
+	/// The Pressure in Hectopascals.
+	/// </summary>
+	public double Pressure { get; set; }
+
+	#endregion
+
 	#region Methods
 
+	/// <inheritdoc />
 	public override void StartListening()
 	{
 		Barometer.Start(SensorSpeed.Default);
 		Barometer.ReadingChanged += BarometerOnReadingChanged;
 	}
 
+	/// <inheritdoc />
 	public override void StopListening()
 	{
 		Barometer.Stop();

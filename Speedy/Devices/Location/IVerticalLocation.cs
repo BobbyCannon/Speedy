@@ -19,6 +19,16 @@ public interface IVerticalLocation : IMinimalVerticalLocation
 	bool HasVerticalAccuracy { get; }
 
 	/// <summary>
+	/// Specifies if the Heading value is valid
+	/// </summary>
+	bool HasVerticalHeading { get; set; }
+
+	/// <summary>
+	/// Specifies if the Speed value is valid
+	/// </summary>
+	bool HasVerticalSpeed { get; set; }
+
+	/// <summary>
 	/// The accuracy of the vertical location. (altitude)
 	/// </summary>
 	double VerticalAccuracy { get; set; }
@@ -29,9 +39,24 @@ public interface IVerticalLocation : IMinimalVerticalLocation
 	AccuracyReferenceType VerticalAccuracyReference { get; set; }
 
 	/// <summary>
+	/// Flags for the location of the provider.
+	/// </summary>
+	LocationFlags VerticalFlags { get; set; }
+
+	/// <summary>
+	/// The heading of a device.
+	/// </summary>
+	double VerticalHeading { get; set; }
+
+	/// <summary>
 	/// The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
 	/// </summary>
 	string VerticalSourceName { get; set; }
+
+	/// <summary>
+	/// The vertical speed of the device in meters per second.
+	/// </summary>
+	double VerticalSpeed { get; set; }
 
 	/// <summary>
 	/// The original time of the location was captured.

@@ -1,12 +1,16 @@
 ﻿namespace Speedy.Data;
 
-public abstract class Comparer<T> : StateComparer where T : new()
+/// <inheritdoc />
+public abstract class Comparer<T> : Comparer where T : new()
 {
 	#region Constructors
 
+	/// <summary>
+	/// Instantiates a new comparer.
+	/// </summary>
 	protected Comparer()
 	{
-		CurrentState = new T();
+		Value = new T();
 	}
 
 	#endregion
@@ -16,24 +20,19 @@ public abstract class Comparer<T> : StateComparer where T : new()
 	/// <inheritdoc />
 	public sealed override string TypeFullName => typeof(T).FullName;
 
-	public T CurrentState { get; protected set; }
+	/// <summary>
+	/// The value of the comparer.
+	/// </summary>
+	public T Value { get; protected set; }
 
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public sealed override object GetCurrentState()
+	public sealed override object GetValue()
 	{
-		return CurrentState;
-	}
-
-	public abstract bool ValidateUpdate(T update);
-
-	/// <inheritdoc />
-	public sealed override bool ValidateUpdate(object update)
-	{
-		return ValidateUpdate((T) update);
+		return Value;
 	}
 
 	/// <summary>
@@ -47,31 +46,62 @@ public abstract class Comparer<T> : StateComparer where T : new()
 		return base.Refresh(update);
 	}
 
-	protected abstract bool TryUpdateCurrentState(T update);
+	/// <summary>
+	/// Validates an update to see if it should be applied.
+	/// </summary>
+	/// <param name="update"> The update to validate. </param>
+	/// <returns> True if the update should be applied. </returns>
+	public abstract bool ValidateUpdate(T update);
 
-	protected override bool TryUpdateCurrentState(object update)
+	/// <inheritdoc />
+	public sealed override bool ValidateUpdate(object update)
 	{
-		return TryUpdateCurrentState((T) update);
+		return ValidateUpdate((T) update);
+	}
+
+	/// <summary>
+	/// Try to update the value.
+	/// </summary>
+	/// <param name="update"> The update to apply. </param>
+	/// <returns> True if the value was updated otherwise false. </returns>
+	protected abstract bool TryUpdateValue(T update);
+
+	/// <inheritdoc />
+	protected sealed override bool TryUpdateValue(object update)
+	{
+		return TryUpdateValue((T) update);
 	}
 
 	#endregion
 }
 
-public abstract class StateComparer
+/// <summary>
+/// The comparer for an object.
+/// </summary>
+public abstract class Comparer
 {
 	#region Properties
 
+	/// <summary>
+	/// The full name of the type this comparer is for.
+	/// </summary>
 	public abstract string TypeFullName { get; }
 
 	#endregion
 
 	#region Methods
 
-	
-	public abstract object GetCurrentState();
-	
-	public abstract bool ValidateUpdate(object state);
+	/// <summary>
+	/// Get the value.
+	/// </summary>
+	/// <returns> The value of the comparer. </returns>
+	public abstract object GetValue();
 
+	/// <summary>
+	/// Try to refresh the value.
+	/// </summary>
+	/// <param name="update"> The update to apply. </param>
+	/// <returns> True if the value was updated otherwise false. </returns>
 	public bool Refresh(object update)
 	{
 		if (!ValidateUpdate(update))
@@ -79,10 +109,22 @@ public abstract class StateComparer
 			return false;
 		}
 
-		return TryUpdateCurrentState(update);
+		return TryUpdateValue(update);
 	}
 
-	protected abstract bool TryUpdateCurrentState(object update);
+	/// <summary>
+	/// Validate an update.
+	/// </summary>
+	/// <param name="update"> The update to validate. </param>
+	/// <returns> True if the update is valid otherwise false. </returns>
+	public abstract bool ValidateUpdate(object update);
+
+	/// <summary>
+	/// Try to update the value.
+	/// </summary>
+	/// <param name="update"> The update to apply. </param>
+	/// <returns> True if the value was updated otherwise false. </returns>
+	protected abstract bool TryUpdateValue(object update);
 
 	#endregion
 }

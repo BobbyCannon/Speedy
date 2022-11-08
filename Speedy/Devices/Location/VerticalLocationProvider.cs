@@ -4,7 +4,7 @@
 /// Represent a provider of vertical location also known as altitude.
 /// </summary>
 /// <typeparam name="T"> The type that implements IVerticalLocation. </typeparam>
-public abstract class AltitudeProvider<T> : Bindable, IVerticalLocationProvider<T>
+public abstract class VerticalLocationProvider<T> : Bindable, IVerticalLocationProvider<T>
 	where T : class, IVerticalLocation, new()
 {
 	#region Constructors
@@ -13,7 +13,7 @@ public abstract class AltitudeProvider<T> : Bindable, IVerticalLocationProvider<
 	/// Create an instance of the altitude provider.
 	/// </summary>
 	/// <param name="dispatcher"> An optional dispatcher. </param>
-	protected AltitudeProvider(IDispatcher dispatcher) : base(dispatcher)
+	protected VerticalLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		LastReadLocation = new T();
 		LastReadLocation.UpdateDispatcher(dispatcher);
@@ -32,11 +32,6 @@ public abstract class AltitudeProvider<T> : Bindable, IVerticalLocationProvider<
 	/// 
 	/// </summary>
 	public T LastReadLocation { get; }
-
-	/// <summary>
-	/// 
-	/// </summary>
-	public double Pressure { get; protected set; }
 
 	#endregion
 

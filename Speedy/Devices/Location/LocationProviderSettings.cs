@@ -10,7 +10,7 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Settings for a location provider.
 /// </summary>
-public class LocationProviderSettings : Bindable
+public class LocationProviderSettings : Bindable, ILocationProviderSettings
 {
 	#region Constructors
 
@@ -27,8 +27,8 @@ public class LocationProviderSettings : Bindable
 	public LocationProviderSettings(IDispatcher dispatcher) : base(dispatcher)
 	{
 		DefaultTimeout = TimeSpan.FromSeconds(1);
-		DesiredAccuracy = 10;
-		MinimumDistance = 10;
+		DesiredAccuracy = 3;
+		MinimumDistance = 3;
 		MinimumTime = TimeSpan.FromSeconds(1);
 	}
 
@@ -137,6 +137,41 @@ public class LocationProviderSettings : Bindable
 		this.IfThen(x => x.MinimumTime < MinimumTimeLowerLimit, x => x.MinimumTime = MinimumTimeLowerLimit);
 		this.IfThen(x => x.MinimumTime > MinimumTimeUpperLimit, x => x.MinimumTime = MinimumTimeUpperLimit);
 	}
+
+	#endregion
+}
+
+/// <summary>
+/// Represents settings for a location provider.
+/// </summary>
+public interface ILocationProviderSettings
+{
+	#region Properties
+
+	/// <summary>
+	/// Default timeout to be used when timeout is not provided.
+	/// </summary>
+	TimeSpan DefaultTimeout { get; set; }
+
+	/// <summary>
+	/// Desired accuracy in meters
+	/// </summary>
+	int DesiredAccuracy { get; set; }
+
+	/// <summary>
+	/// The minimum distance to travel for updates.
+	/// </summary>
+	int MinimumDistance { get; set; }
+
+	/// <summary>
+	/// The requested time period between updates.
+	/// </summary>
+	TimeSpan MinimumTime { get; set; }
+
+	/// <summary>
+	/// Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
+	/// </summary>
+	bool RequireLocationAlwaysPermission { get; set; }
 
 	#endregion
 }

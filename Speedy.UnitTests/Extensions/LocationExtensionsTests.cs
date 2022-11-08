@@ -45,7 +45,7 @@ public class LocationExtensionsTests : SpeedyUnitTest
 	{
 		var location = new Location();
 
-		void assert(bool expected)
+		void validate(bool expected)
 		{
 			AreEqual(expected, location.HasSupportedHorizontalAccuracy());
 			AreEqual(expected, location.HasHorizontalAccuracy);
@@ -53,7 +53,7 @@ public class LocationExtensionsTests : SpeedyUnitTest
 			AreEqual(expected, location.HasVerticalAccuracy);
 		}
 
-		assert(false);
+		validate(false);
 
 		var expectedValues = new[]
 		{
@@ -65,11 +65,12 @@ public class LocationExtensionsTests : SpeedyUnitTest
 			location.HorizontalAccuracyReference = value;
 			location.VerticalAccuracyReference = value;
 
-			assert(true);
+			validate(true);
 
+			LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal.Remove(value);
 			LocationExtensions.SupportedAccuracyReferenceTypesForVertical.Remove(value);
 
-			assert(false);
+			validate(false);
 		}
 
 		// All values should no longer be supported
@@ -78,7 +79,7 @@ public class LocationExtensionsTests : SpeedyUnitTest
 		foreach (var value in allValues)
 		{
 			location.AltitudeReference = value;
-			assert(false);
+			validate(false);
 		}
 	}
 

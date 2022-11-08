@@ -142,23 +142,6 @@ public abstract class LocationProvider<T, T2>
 		PositionError?.Invoke(this, e);
 	}
 
-	/// <summary>
-	/// Update the last read location.
-	/// </summary>
-	/// <param name="update"> The newly read location. </param>
-	/// <remarks>
-	/// Ensure you are adhering to the <seealso cref="LocationProviderSettings" /> options.
-	/// </remarks>
-	protected virtual void UpdateLastReadLocation(T update)
-	{
-		if (update == null)
-		{
-			return;
-		}
-
-		LastReadLocation.UpdateWith(update);
-	}
-
 	#endregion
 
 	#region Events

@@ -256,29 +256,29 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
-	/// Check a location to determine if <see cref="ILocationExtras.Heading" /> is available.
+	/// Check a location to determine if <see cref="IHorizontalLocation.HorizontalHeading" /> is available.
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
 	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// Update <see cref="ProcessOnPropertyChange(IHorizontalLocation,string)" /> if this changes.
 	/// </remarks>
-	public static bool HasHeading(this ILocationExtras location)
+	public static bool HasHorizontalHeading(this IHorizontalLocation location)
 	{
-		return location.LocationFlags.HasFlag(LocationFlags.HasHeading);
+		return location.HorizontalFlags.HasFlag(LocationFlags.HasHeading);
 	}
 
 	/// <summary>
-	/// Check a location to determine if <see cref="ILocationExtras.Speed" /> is available.
+	/// Check a location to determine if <see cref="IHorizontalLocation.HorizontalSpeed" /> is available.
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
 	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// Update <see cref="ProcessOnPropertyChange(IHorizontalLocation,string)" /> if this changes.
 	/// </remarks>
-	public static bool HasSpeed(this ILocationExtras location)
+	public static bool HasHorizontalSpeed(this IHorizontalLocation location)
 	{
-		return location.LocationFlags.HasFlag(LocationFlags.HasSpeed);
+		return location.HorizontalFlags.HasFlag(LocationFlags.HasSpeed);
 	}
 
 	/// <summary>
@@ -287,7 +287,7 @@ public static class LocationExtensions
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
 	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// Update <see cref="ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
 	/// Also not this is dependent on <see cref="SupportedAltitudeReferenceTypes" />.
 	/// </remarks>
 	public static bool HasSupportedAltitude(this IMinimalVerticalLocation location)
@@ -301,7 +301,7 @@ public static class LocationExtensions
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
 	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// Update <see cref="ProcessOnPropertyChange(IHorizontalLocation,string)" /> if this changes.
 	/// Also not this is dependent on <see cref="SupportedAccuracyReferenceTypesForHorizontal" />.
 	/// </remarks>
 	public static bool HasSupportedHorizontalAccuracy(this IHorizontalLocation location)
@@ -315,12 +315,38 @@ public static class LocationExtensions
 	/// <param name="location"> The location to validate. </param>
 	/// <returns> True if the value is available. </returns>
 	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// Update <see cref="ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
 	/// Also not this is dependent on <see cref="SupportedAccuracyReferenceTypesForVertical" />.
 	/// </remarks>
 	public static bool HasSupportedVerticalAccuracy(this IVerticalLocation location)
 	{
 		return SupportedAccuracyReferenceTypesForVertical.Contains(location.VerticalAccuracyReference);
+	}
+
+	/// <summary>
+	/// Check a location to determine if <see cref="IVerticalLocation.VerticalHeading" /> is available.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
+	/// </remarks>
+	public static bool HasVerticalHeading(this IVerticalLocation location)
+	{
+		return location.VerticalFlags.HasFlag(LocationFlags.HasHeading);
+	}
+
+	/// <summary>
+	/// Check a location to determine if <see cref="IVerticalLocation.VerticalSpeed" /> is available.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
+	/// </remarks>
+	public static bool HasVerticalSpeed(this IVerticalLocation location)
+	{
+		return location.VerticalFlags.HasFlag(LocationFlags.HasSpeed);
 	}
 
 	/// <summary>
@@ -417,7 +443,7 @@ public static class LocationExtensions
 	/// <param name="accuracyReferenceType"> The accuracy reference type to validate. </param>
 	/// <returns> True if type is supported. </returns>
 	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// Update <see cref="ProcessOnPropertyChange(IHorizontalLocation,string)" /> if this changes.
 	/// Also not this is dependent on <see cref="SupportedAccuracyReferenceTypesForHorizontal" />.
 	/// </remarks>
 	public static bool IsSupportedHorizontalAccuracy(this AccuracyReferenceType accuracyReferenceType)
@@ -431,7 +457,7 @@ public static class LocationExtensions
 	/// <param name="accuracyReferenceType"> The accuracy reference type to validate. </param>
 	/// <returns> True if type is supported. </returns>
 	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange" /> if this changes.
+	/// Update <see cref="ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
 	/// Also not this is dependent on <see cref="SupportedAccuracyReferenceTypesForVertical" />.
 	/// </remarks>
 	public static bool IsSupportedVerticalAccuracy(this AccuracyReferenceType accuracyReferenceType)
@@ -497,9 +523,8 @@ public static class LocationExtensions
 	{
 		ProcessOnPropertyChange((IHorizontalLocation) location, propertyName);
 		ProcessOnPropertyChange((IVerticalLocation) location, propertyName);
-		ProcessOnPropertyChange((ILocationExtras) location, propertyName);
 	}
-	
+
 	/// <summary>
 	/// Handle property changes for IHorizontalLocation. Triggers properties like HasHorizontalAccuracy when the
 	/// dependent properties are updated.
@@ -513,6 +538,12 @@ public static class LocationExtensions
 			case nameof(IHorizontalLocation.HorizontalAccuracyReference):
 			{
 				location.OnPropertyChanged(nameof(IHorizontalLocation.HasHorizontalAccuracy));
+				break;
+			}
+			case nameof(IHorizontalLocation.HorizontalFlags):
+			{
+				location.OnPropertyChanged(nameof(IHorizontalLocation.HasHorizontalHeading));
+				location.OnPropertyChanged(nameof(IHorizontalLocation.HasHorizontalSpeed));
 				break;
 			}
 		}
@@ -538,23 +569,10 @@ public static class LocationExtensions
 				location.OnPropertyChanged(nameof(IVerticalLocation.HasVerticalAccuracy));
 				break;
 			}
-		}
-	}
-
-	/// <summary>
-	/// Handle property changes for ILocationExtras. Triggers properties like HasSpeed when the
-	/// dependent properties are updated.
-	/// </summary>
-	/// <param name="location"> The location to process. </param>
-	/// <param name="propertyName"> The name of the property that has changed. </param>
-	public static void ProcessOnPropertyChange(this ILocationExtras location, string propertyName)
-	{
-		switch (propertyName)
-		{
-			case nameof(ILocationExtras.LocationFlags):
+			case nameof(IVerticalLocation.VerticalFlags):
 			{
-				location.OnPropertyChanged(nameof(ILocationExtras.HasHeading));
-				location.OnPropertyChanged(nameof(ILocationExtras.HasSpeed));
+				location.OnPropertyChanged(nameof(IVerticalLocation.HasVerticalHeading));
+				location.OnPropertyChanged(nameof(IVerticalLocation.HasVerticalSpeed));
 				break;
 			}
 		}
@@ -608,23 +626,11 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <param name="value"> True to set HasHeading otherwise clear. </param>
-	public static void UpdateHasHeading(this ILocationExtras location, bool value)
+	public static void UpdateHorizontalHeading(this IHorizontalLocation location, bool value)
 	{
-		location.LocationFlags = value
-			? location.LocationFlags.SetFlag(LocationFlags.HasHeading)
-			: location.LocationFlags.ClearFlag(LocationFlags.HasHeading);
-	}
-
-	/// <summary>
-	/// Update the location's HasSpeed location flag.
-	/// </summary>
-	/// <param name="location"> The location to validate. </param>
-	/// <param name="value"> True to set HasSpeedy otherwise clear. </param>
-	public static void UpdateHasSpeed(this ILocationExtras location, bool value)
-	{
-		location.LocationFlags = value
-			? location.LocationFlags.SetFlag(LocationFlags.HasSpeed)
-			: location.LocationFlags.ClearFlag(LocationFlags.HasSpeed);
+		location.HorizontalFlags = value
+			? location.HorizontalFlags.SetFlag(LocationFlags.HasHeading)
+			: location.HorizontalFlags.ClearFlag(LocationFlags.HasHeading);
 	}
 
 	/// <summary>
@@ -641,6 +647,30 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
+	/// Update the location's HasSpeed location flag.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <param name="value"> True to set HasSpeedy otherwise clear. </param>
+	public static void UpdateHorizontalSpeed(this IHorizontalLocation location, bool value)
+	{
+		location.HorizontalFlags = value
+			? location.HorizontalFlags.SetFlag(LocationFlags.HasSpeed)
+			: location.HorizontalFlags.ClearFlag(LocationFlags.HasSpeed);
+	}
+
+	/// <summary>
+	/// Update the location's HasHeading location flag.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <param name="value"> True to set HasHeading otherwise clear. </param>
+	public static void UpdateVerticalHeading(this IVerticalLocation location, bool value)
+	{
+		location.VerticalFlags = value
+			? location.VerticalFlags.SetFlag(LocationFlags.HasHeading)
+			: location.VerticalFlags.ClearFlag(LocationFlags.HasHeading);
+	}
+
+	/// <summary>
 	/// Update the altitude.
 	/// </summary>
 	/// <param name="location"> The location to update. </param>
@@ -651,6 +681,18 @@ public static class LocationExtensions
 		location.AltitudeReference = update.AltitudeReference;
 		location.VerticalAccuracy = update.VerticalAccuracy;
 		location.VerticalAccuracyReference = update.VerticalAccuracyReference;
+	}
+
+	/// <summary>
+	/// Update the location's HasSpeed location flag.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <param name="value"> True to set HasSpeedy otherwise clear. </param>
+	public static void UpdateVerticalSpeed(this IVerticalLocation location, bool value)
+	{
+		location.VerticalFlags = value
+			? location.VerticalFlags.SetFlag(LocationFlags.HasSpeed)
+			: location.VerticalFlags.ClearFlag(LocationFlags.HasSpeed);
 	}
 
 	internal static void CleanupLocation(this ILocation location, string propertyName)
@@ -681,11 +723,11 @@ public static class LocationExtensions
 				}
 				break;
 			}
-			case nameof(ILocation.Heading):
+			case nameof(ILocation.HorizontalHeading):
 			{
-				if (double.IsNaN(location.Heading) || double.IsInfinity(location.Heading))
+				if (double.IsNaN(location.HorizontalHeading) || double.IsInfinity(location.HorizontalHeading))
 				{
-					location.Heading = 0;
+					location.HorizontalHeading = 0;
 				}
 				break;
 			}
@@ -705,11 +747,11 @@ public static class LocationExtensions
 				}
 				break;
 			}
-			case nameof(ILocation.Speed):
+			case nameof(ILocation.HorizontalSpeed):
 			{
-				if (double.IsNaN(location.Speed) || double.IsInfinity(location.Speed))
+				if (double.IsNaN(location.HorizontalSpeed) || double.IsInfinity(location.HorizontalSpeed))
 				{
-					location.Speed = 0;
+					location.HorizontalSpeed = 0;
 				}
 				break;
 			}

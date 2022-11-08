@@ -276,14 +276,14 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		if (position.Coordinate.Heading != null)
 		{
-			LastReadLocation.HasHeading = true;
-			LastReadLocation.Heading = position.Coordinate.Heading.Value;
+			LastReadLocation.HasHorizontalHeading = true;
+			LastReadLocation.HorizontalHeading = position.Coordinate.Heading.Value;
 		}
 
 		if (position.Coordinate.Speed != null)
 		{
-			LastReadLocation.HasSpeed = true;
-			LastReadLocation.Speed = position.Coordinate.Speed.Value;
+			LastReadLocation.HasHorizontalSpeed = true;
+			LastReadLocation.HorizontalSpeed = position.Coordinate.Speed.Value;
 		}
 
 		if (position.Coordinate.AltitudeAccuracy.HasValue)
