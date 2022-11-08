@@ -80,6 +80,7 @@ for ($i = 0; $i -le $projects.Length; $i++)
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.1\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid10.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid12.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-windows\$project.dll</HintPath></Reference>"
