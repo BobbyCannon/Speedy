@@ -10,15 +10,24 @@ using AltitudeReferenceSystem = Windows.Devices.Geolocation.AltitudeReferenceSys
 // ReSharper disable once CheckNamespace
 namespace Speedy.Application.Maui;
 
+/// <summary>
+/// Extension for the Windows platform.
+/// </summary>
 public static class PlatformExtensions
 {
 	#region Methods
 
+	/// <summary>
+	/// Converts an IAsyncOperation to a ConfigurableTaskAwaitable.
+	/// </summary>
 	public static ConfiguredTaskAwaitable<T> AsTask<T>(this IAsyncOperation<T> self, bool continueOnCapturedContext)
 	{
 		return self.AsTask().ConfigureAwait(continueOnCapturedContext);
 	}
 
+	/// <summary>
+	/// Convert altitude reference type to system.
+	/// </summary>
 	public static AltitudeReferenceSystem ToAltitudeReferenceSystem(this AltitudeReferenceType altitudeReference)
 	{
 		return altitudeReference switch
@@ -31,6 +40,9 @@ public static class PlatformExtensions
 		};
 	}
 
+	/// <summary>
+	/// Convert altitude reference system to type.
+	/// </summary>
 	public static AltitudeReferenceType ToAltitudeReferenceType(this AltitudeReferenceSystem altitudeReference)
 	{
 		return altitudeReference switch

@@ -11,7 +11,6 @@ namespace Speedy.Application.Xamarin.Extensions;
 /// <summary>
 /// Device Platform Extension
 /// </summary>
-
 public static class DevicePlatformExtension
 {
 	#region Fields

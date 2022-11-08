@@ -21,6 +21,11 @@ public static class DeviceIdExtensions
 {
 	#region Methods
 
+	/// <summary>
+	/// Add an ID from the Vendor (platform).
+	/// </summary>
+	/// <param name="builder"> The device ID builder. </param>
+	/// <returns> The device ID updated with the vendor ID if available. </returns>
 	public static DeviceId AddVendorId(this DeviceId builder)
 	{
 		#if ANDROID

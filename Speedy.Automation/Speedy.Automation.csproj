@@ -23,7 +23,7 @@
 		<DocumentationFile>Speedy.Automation.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC2</Version>
+		<Version>11.0.0-RC3</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Speedy.Automation.js" />

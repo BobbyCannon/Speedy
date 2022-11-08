@@ -1,9 +1,11 @@
 #region References
 
+using System.Diagnostics.Tracing;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Speedy.Devices.Location;
+using Speedy.Logging;
 using Location = Android.Locations.Location;
 using Object = Java.Lang.Object;
 
@@ -18,29 +20,24 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 {
 	#region Fields
 
-	private string _activeProvider;
-	private readonly HashSet<string> _activeProviders;
+	private readonly HashSet<LocationProviderSource> _activeSources;
+	private readonly IDispatcher _dispatcher;
 	private Location _lastLocation;
-	private readonly LocationManager _manager;
-	private IList<string> _providers;
-	private readonly TimeSpan _timePeriod;
-
+	
 	#endregion
 
 	#region Constructors
 
-	public GeolocationContinuousListener(LocationManager manager, TimeSpan timePeriod, IList<string> providers)
+	public GeolocationContinuousListener(IDispatcher dispatcher, LocationManager manager, IList<LocationProviderSource> providerSources)
 	{
-		_activeProviders = new HashSet<string>();
-		_manager = manager;
-		_timePeriod = timePeriod;
-		_providers = providers;
-
-		foreach (var p in providers)
+		_activeSources = new HashSet<LocationProviderSource>();
+		_dispatcher = dispatcher;
+		
+		foreach (var source in providerSources)
 		{
-			if (manager.IsProviderEnabled(p))
+			if (manager.IsProviderEnabled(source.Provider))
 			{
-				_activeProviders.Add(p);
+				_activeSources.Add(source);
 			}
 		}
 	}
@@ -51,29 +48,15 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 
 	public void OnLocationChanged(Location location)
 	{
-		if (location.Provider != _activeProvider)
+		if (location.Provider == null)
 		{
-			if ((_activeProvider != null) && _manager.IsProviderEnabled(_activeProvider))
-			{
-				var pr = _manager.GetProvider(location.Provider);
-				var lapsed = GetTimeSpan(location.Time) - GetTimeSpan(_lastLocation.Time);
-
-				if ((pr.Accuracy > _manager.GetProvider(_activeProvider).Accuracy)
-					&& (lapsed < _timePeriod.Add(_timePeriod)))
-				{
-					location.Dispose();
-					return;
-				}
-			}
-
-			_activeProvider = location.Provider;
+			return;
 		}
+
+		LogEventWritten?.Invoke(this, new LogEventArgs(location.GetTimestamp().UtcDateTime, EventLevel.Verbose, $"Location updated, source: {location.Provider}"));
 
 		var previous = Interlocked.Exchange(ref _lastLocation, location);
-		if (previous != null)
-		{
-			previous.Dispose();
-		}
+		previous?.Dispose();
 
 		PositionChanged?.Invoke(this, location.ToPosition<T>());
 	}
@@ -85,9 +68,15 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			return;
 		}
 
-		lock (_activeProviders)
+		lock (_activeSources)
 		{
-			if (_activeProviders.Remove(provider) && (_activeProviders.Count == 0))
+			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			if (foundSource == null)
+			{
+				return;
+			}
+
+			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
 			{
 				OnPositionError(LocationProviderError.PositionUnavailable);
 			}
@@ -101,9 +90,16 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			return;
 		}
 
-		lock (_activeProviders)
+		lock (_activeSources)
 		{
-			_activeProviders.Add(provider);
+			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			if (foundSource != null)
+			{
+				foundSource.Enabled = true;
+				return;
+			}
+
+			_activeSources.Add(new LocationProviderSource(_dispatcher) { Enabled = true, Provider = provider });
 		}
 	}
 
@@ -112,18 +108,16 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 		switch (status)
 		{
 			case Availability.Available:
+			{
 				OnProviderEnabled(provider);
 				break;
-
+			}
 			case Availability.OutOfService:
+			{
 				OnProviderDisabled(provider);
 				break;
+			}
 		}
-	}
-
-	private TimeSpan GetTimeSpan(long time)
-	{
-		return new TimeSpan(TimeSpan.TicksPerMillisecond * time);
 	}
 
 	private void OnPositionError(LocationProviderError e)
@@ -135,6 +129,7 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 
 	#region Events
 
+	public event EventHandler<LogEventArgs> LogEventWritten;
 	public event EventHandler<T> PositionChanged;
 	public event EventHandler<LocationProviderError> PositionError;
 

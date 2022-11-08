@@ -10,14 +10,17 @@ using Speedy.Devices;
 
 namespace Speedy.Application.Wpf;
 
+/// <inheritdoc />
 public class WpfRuntimeInformation : RuntimeInformation
 {
 	#region Constructors
 
+	/// <inheritdoc />
 	public WpfRuntimeInformation() : this(null)
 	{
 	}
 
+	/// <inheritdoc />
 	public WpfRuntimeInformation(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}
@@ -31,6 +34,9 @@ public class WpfRuntimeInformation : RuntimeInformation
 
 	#region Properties
 
+	/// <summary>
+	/// The global instance of the WPF runtime information.
+	/// </summary>
 	public static WpfRuntimeInformation Instance { get; }
 
 	#endregion

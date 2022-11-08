@@ -16,7 +16,6 @@ using Speedy.Logging;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-
 #if GOOGLEPLAY
 using Android.Gms.Common;
 using Android.Gms.Location;
@@ -359,16 +358,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private async Task<bool> CheckAlwaysPermissions()
 	{
-		var permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
-		if (permissionStatus == PermissionStatus.Granted)
-		{
-			return true;
-		}
-
-		Status = "Currently does not have Location permissions, requesting permissions";
-
-		permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
-
+		var permissionStatus = await Permissions.RequestAsync<Permissions.LocationAlways>();
 		if (permissionStatus == PermissionStatus.Granted)
 		{
 			return true;
@@ -380,7 +370,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private async Task<bool> CheckWhenInUsePermission()
 	{
-		var permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+		var permissionStatus = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
 		if (permissionStatus == PermissionStatus.Granted)
 		{
 			return true;
@@ -400,7 +390,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	#if GOOGLEPLAY
-
 	private void FusedLocationProviderLocationChanged(Location obj)
 	{
 		var t = obj.ToPosition<T>();

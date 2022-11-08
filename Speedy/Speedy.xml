@@ -2583,19 +2583,24 @@
             Instantiates an instance of the settings.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.DefaultTimeout">
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.DefaultDesiredAccuracy">
             <summary>
-            Default timeout to be used when timeout is not provided.
+            Global default desired accuracy in meters
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.DefaultTimeoutLowerLimit">
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.DefaultMinimumDistance">
             <summary>
-            The lower range limit for <see cref="P:Speedy.Devices.Location.LocationProviderSettings.DefaultTimeout" />.
+            The default minimum distance to travel for updates.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSettings.DefaultTimeoutUpperLimit">
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.DefaultMinimumTime">
             <summary>
-            The upper range limit for <see cref="P:Speedy.Devices.Location.LocationProviderSettings.DefaultTimeout" />.
+            The default requested time period between updates.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProviderSettings.DefaultRequireLocationAlwaysPermission">
+            <summary>
+            Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.LocationProviderSettings.DesiredAccuracy">
@@ -2648,6 +2653,11 @@
             Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
             </summary>
         </member>
+        <member name="M:Speedy.Devices.Location.LocationProviderSettings.Reset">
+            <summary>
+            Reset the settings back to defaults.
+            </summary>
+        </member>
         <member name="M:Speedy.Devices.Location.LocationProviderSettings.Cleanup">
             <summary>
             Cleanup the settings to be sure they are in range.
@@ -2656,11 +2666,6 @@
         <member name="T:Speedy.Devices.Location.ILocationProviderSettings">
             <summary>
             Represents settings for a location provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProviderSettings.DefaultTimeout">
-            <summary>
-            Default timeout to be used when timeout is not provided.
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.ILocationProviderSettings.DesiredAccuracy">
@@ -2681,6 +2686,11 @@
         <member name="P:Speedy.Devices.Location.ILocationProviderSettings.RequireLocationAlwaysPermission">
             <summary>
             Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.ILocationProviderSettings.Reset">
+            <summary>
+            Reset the settings back to defaults.
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.LocationProviderSource">

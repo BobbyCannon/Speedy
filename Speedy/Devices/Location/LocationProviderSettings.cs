@@ -26,25 +26,24 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 	/// </summary>
 	public LocationProviderSettings(IDispatcher dispatcher) : base(dispatcher)
 	{
-		DefaultTimeout = TimeSpan.FromSeconds(1);
-		DesiredAccuracy = 3;
-		MinimumDistance = 3;
-		MinimumTime = TimeSpan.FromSeconds(1);
+		ResetToDefaults();
 	}
 
 	static LocationProviderSettings()
 	{
-		DefaultTimeoutLowerLimit = TimeSpan.FromSeconds(1);
-		DefaultTimeoutUpperLimit = TimeSpan.FromSeconds(100);
-
+		DefaultDesiredAccuracy = 3;
 		DesiredAccuracyLowerLimit = 1;
 		DesiredAccuracyUpperLimit = 100;
 
+		DefaultMinimumDistance = 3;
 		MinimumDistanceLowerLimit = 0;
 		MinimumDistanceUpperLimit = 100;
 
+		DefaultMinimumTime = TimeSpan.FromSeconds(1);
 		MinimumTimeLowerLimit = TimeSpan.FromSeconds(1);
 		MinimumTimeUpperLimit = TimeSpan.FromSeconds(100);
+
+		DefaultRequireLocationAlwaysPermission = true;
 	}
 
 	#endregion
@@ -52,19 +51,24 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 	#region Properties
 
 	/// <summary>
-	/// Default timeout to be used when timeout is not provided.
+	/// Global default desired accuracy in meters
 	/// </summary>
-	public TimeSpan DefaultTimeout { get; set; }
+	public static int DefaultDesiredAccuracy { get; set; }
 
 	/// <summary>
-	/// The lower range limit for <see cref="DefaultTimeout" />.
+	/// The default minimum distance to travel for updates.
 	/// </summary>
-	public static TimeSpan DefaultTimeoutLowerLimit { get; set; }
+	public static int DefaultMinimumDistance { get; set; }
 
 	/// <summary>
-	/// The upper range limit for <see cref="DefaultTimeout" />.
+	/// The default requested time period between updates.
 	/// </summary>
-	public static TimeSpan DefaultTimeoutUpperLimit { get; set; }
+	public static TimeSpan DefaultMinimumTime { get; set; }
+
+	/// <summary>
+	/// Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
+	/// </summary>
+	public static bool DefaultRequireLocationAlwaysPermission { get; set; }
 
 	/// <summary>
 	/// Desired accuracy in meters
@@ -121,13 +125,18 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 	#region Methods
 
 	/// <summary>
+	/// Reset the settings back to defaults.
+	/// </summary>
+	public virtual void Reset()
+	{
+		ResetToDefaults();
+	}
+
+	/// <summary>
 	/// Cleanup the settings to be sure they are in range.
 	/// </summary>
 	protected internal virtual void Cleanup()
 	{
-		this.IfThen(x => x.DefaultTimeout < DefaultTimeoutLowerLimit, x => x.DefaultTimeout = DefaultTimeoutLowerLimit);
-		this.IfThen(x => x.DefaultTimeout > DefaultTimeoutUpperLimit, x => x.DefaultTimeout = DefaultTimeoutUpperLimit);
-
 		this.IfThen(x => x.DesiredAccuracy < DesiredAccuracyLowerLimit, x => x.DesiredAccuracy = DesiredAccuracyLowerLimit);
 		this.IfThen(x => x.DesiredAccuracy > DesiredAccuracyUpperLimit, x => x.DesiredAccuracy = DesiredAccuracyUpperLimit);
 
@@ -136,6 +145,14 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 
 		this.IfThen(x => x.MinimumTime < MinimumTimeLowerLimit, x => x.MinimumTime = MinimumTimeLowerLimit);
 		this.IfThen(x => x.MinimumTime > MinimumTimeUpperLimit, x => x.MinimumTime = MinimumTimeUpperLimit);
+	}
+
+	private void ResetToDefaults()
+	{
+		DesiredAccuracy = DefaultDesiredAccuracy;
+		MinimumDistance = DefaultMinimumDistance;
+		MinimumTime = DefaultMinimumTime;
+		RequireLocationAlwaysPermission = DefaultRequireLocationAlwaysPermission;
 	}
 
 	#endregion
@@ -147,11 +164,6 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 public interface ILocationProviderSettings
 {
 	#region Properties
-
-	/// <summary>
-	/// Default timeout to be used when timeout is not provided.
-	/// </summary>
-	TimeSpan DefaultTimeout { get; set; }
 
 	/// <summary>
 	/// Desired accuracy in meters
@@ -172,6 +184,15 @@ public interface ILocationProviderSettings
 	/// Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
 	/// </summary>
 	bool RequireLocationAlwaysPermission { get; set; }
+
+	#endregion
+
+	#region Methods
+
+	/// <summary>
+	/// Reset the settings back to defaults.
+	/// </summary>
+	void Reset();
 
 	#endregion
 }

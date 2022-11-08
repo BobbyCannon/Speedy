@@ -236,6 +236,20 @@
         <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Application.Wpf.WpfRuntimeInformation">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Wpf.WpfRuntimeInformation.Instance">
+            <summary>
+            The global instance of the WPF runtime information.
+            </summary>
+        </member>
         <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationName">
             <inheritdoc />
         </member>

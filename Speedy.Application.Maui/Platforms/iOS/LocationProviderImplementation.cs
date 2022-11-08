@@ -158,6 +158,18 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		base.OnPositionError(e);
 	}
 
+	private async Task<bool> CheckAlwaysPermissions()
+	{
+		var status = await Permissions.RequestAsync<Permissions.LocationAlways>();
+		return status == PermissionStatus.Granted;
+	}
+
+	private async Task<bool> CheckWhenInUsePermission()
+	{
+		var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+		return status == PermissionStatus.Granted;
+	}
+
 	private CLLocationManager GetManager()
 	{
 		CLLocationManager m = null;
@@ -257,6 +269,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			LastReadLocation.HorizontalHeading = location.Course;
 		}
 
+		var sourceName = GetSourceName(location.SourceInformation);
+		LastReadLocation.HorizontalSourceName = sourceName;
+		LastReadLocation.VerticalSourceName = sourceName;
+
 		try
 		{
 			var statusTime = location.Timestamp.ToDateTime().ToUniversalTime();
@@ -276,18 +292,4 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	#endregion
-
-	#if __IOS__
-	private async Task<bool> CheckWhenInUsePermission()
-	{
-		var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-		return status == PermissionStatus.Granted;
-	}
-
-	private async Task<bool> CheckAlwaysPermissions()
-	{
-		var status = await Permissions.RequestAsync<Permissions.LocationAlways>();
-		return status == PermissionStatus.Granted;
-	}
-	#endif
 }

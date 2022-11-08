@@ -292,7 +292,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			LastReadLocation.VerticalAccuracy = position.Coordinate.AltitudeAccuracy.Value;
 		}
-		
+
 		LastReadLocation.Altitude = position.Coordinate.Point.Position.Altitude;
 		LastReadLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
 
