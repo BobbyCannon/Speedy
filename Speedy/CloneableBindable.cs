@@ -1,58 +1,119 @@
 ﻿#region References
 
-using System;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Storage;
-using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
-namespace Speedy
+namespace Speedy;
+
+/// <summary>
+/// Represents a bindable object.
+/// </summary>
+public abstract class CloneableBindable<T, T2> : CloneableBindable<T>, ICloneable<T2>
+	where T : T2, new()
 {
+	#region Constructors
+
 	/// <summary>
-	/// Represents a bindable object.
+	/// Instantiates a bindable object.
 	/// </summary>
-	public abstract class CloneableBindable<T> : Bindable, IUpdatable<T>, ICloneable where T : new()
+	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	protected CloneableBindable(IDispatcher dispatcher = null) : base(dispatcher)
 	{
-		#region Constructors
+	}
 
-		/// <summary>
-		/// Instantiates a bindable object.
-		/// </summary>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
-		protected CloneableBindable(IDispatcher dispatcher = null) : base(dispatcher)
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	T2 ICloneable<T2>.DeepClone(int? maxDepth = null)
+	{
+		return DeepClone(maxDepth);
+	}
+
+	/// <inheritdoc />
+	T2 ICloneable<T2>.ShallowClone()
+	{
+		return DeepClone();
+	}
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a bindable object.
+/// </summary>
+public abstract class CloneableBindable<T> : Bindable, IUpdatable<T>, ICloneable<T> where T : new()
+{
+	#region Constructors
+
+	/// <summary>
+	/// Instantiates a bindable object.
+	/// </summary>
+	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	protected CloneableBindable(IDispatcher dispatcher = null) : base(dispatcher)
+	{
+	}
+
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	public T DeepClone(int? maxDepth = null)
+	{
+		var response = new T();
+
+		switch (response)
 		{
-		}
-
-		#endregion
-
-		#region Methods
-
-		/// <inheritdoc />
-		public virtual object DeepClone(int? maxDepth = null)
-		{
-			return (T) this.DeepCloneObject(maxDepth);
-		}
-
-		/// <inheritdoc />
-		public virtual object ShallowClone()
-		{
-			var test = Activator.CreateInstance<T>();
-			if (test is Entity entity)
+			case Entity entity:
 			{
 				entity.UpdateWith(this, false, false, false);
+				break;
 			}
-			else
+			case IUpdatable<T> updatable:
 			{
-				test.UpdateWithUsingReflection(this);
+				updatable.UpdateWith(this);
+				break;
 			}
-			return test;
+			case IUpdatable updatable:
+			{
+				updatable.UpdateWith(this);
+				break;
+			}
+			default:
+			{
+				response.UpdateWithUsingReflection(this);
+				break;
+			}
 		}
 
-		/// <inheritdoc />
-		public abstract void UpdateWith(T update, params string[] exclusions);
-
-		#endregion
+		return response;
 	}
+
+	/// <inheritdoc />
+	public T ShallowClone()
+	{
+		return DeepClone();
+	}
+
+	/// <inheritdoc />
+	public abstract void UpdateWith(T update, params string[] exclusions);
+
+	/// <inheritdoc />
+	object ICloneable.DeepClone(int? maxDepth)
+	{
+		return DeepClone(maxDepth);
+	}
+
+	/// <inheritdoc />
+	object ICloneable.ShallowClone()
+	{
+		return ShallowClone();
+	}
+
+	#endregion
 }

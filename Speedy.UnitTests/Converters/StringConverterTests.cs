@@ -77,12 +77,8 @@ namespace Speedy.UnitTests.Converters
 				new ValueTuple<string, Type, object>("123456", typeof(int), 123456),
 				new ValueTuple<string, Type, object>("2147483647", typeof(int), int.MaxValue),
 				new ValueTuple<string, Type, object>("-2147483648", typeof(int), int.MinValue),
-				new ValueTuple<string, Type, object>("9223372036854775807", typeof(nint), nint.MaxValue),
-				new ValueTuple<string, Type, object>("-9223372036854775808", typeof(nint), nint.MinValue),
 				new ValueTuple<string, Type, object>("4294967295", typeof(uint), uint.MaxValue),
 				new ValueTuple<string, Type, object>("0", typeof(uint), uint.MinValue),
-				new ValueTuple<string, Type, object>("18446744073709551615", typeof(nuint), nuint.MaxValue),
-				new ValueTuple<string, Type, object>("0", typeof(nuint), nuint.MinValue),
 				new ValueTuple<string, Type, object>("255", typeof(byte), byte.MaxValue),
 				new ValueTuple<string, Type, object>("0", typeof(byte), byte.MinValue),
 				new ValueTuple<string, Type, object>("9223372036854775807", typeof(long), long.MaxValue),
@@ -119,7 +115,14 @@ namespace Speedy.UnitTests.Converters
 				new ValueTuple<string, Type, object>("-32768", typeof(short), short.MinValue),
 				new ValueTuple<string, Type, object>("1.0", typeof(Version), new Version(1, 0)),
 				new ValueTuple<string, Type, object>("1.2.3", typeof(Version), new Version(1, 2, 3)),
-				new ValueTuple<string, Type, object>("1.2.3.4", typeof(Version), new Version(1, 2, 3, 4))
+				new ValueTuple<string, Type, object>("1.2.3.4", typeof(Version), new Version(1, 2, 3, 4)),
+
+				#if NET6_0_OR_GREATER
+				new ValueTuple<string, Type, object>("9223372036854775807", typeof(nint), nint.MaxValue),
+				new ValueTuple<string, Type, object>("-9223372036854775808", typeof(nint), nint.MinValue),
+				new ValueTuple<string, Type, object>("18446744073709551615", typeof(nuint), nuint.MaxValue),
+				new ValueTuple<string, Type, object>("0", typeof(nuint), nuint.MinValue),
+				#endif
 			};
 
 			foreach (var scenario in scenarios)

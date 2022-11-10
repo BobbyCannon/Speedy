@@ -1,4 +1,6 @@
-﻿#region References
+﻿#if NET6_0_OR_GREATER
+
+#region References
 
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -371,3 +373,5 @@ namespace Speedy.UnitTests.Extensions
 		#endregion
 	}
 }
+
+#endif

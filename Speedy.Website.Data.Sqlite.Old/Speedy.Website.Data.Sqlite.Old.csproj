@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net5.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
@@ -8,9 +8,9 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.30" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.30" />
-		<PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.31" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.31" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.EntityFramework\Speedy.EntityFramework.csproj" />

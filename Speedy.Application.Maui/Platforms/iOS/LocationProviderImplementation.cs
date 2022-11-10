@@ -3,6 +3,7 @@
 using CoreLocation;
 using Foundation;
 using Speedy.Devices.Location;
+using Speedy.Serialization;
 using UIKit;
 
 #endregion
@@ -15,7 +16,7 @@ namespace Speedy.Application.Maui;
 /// </summary>
 [Preserve(AllMembers = true)]
 public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, new()
+	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
 	#region Fields
@@ -72,7 +73,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		var hasPermission = await CheckWhenInUsePermission();
 		if (!hasPermission)
 		{
-			throw new LocationProviderException(LocationProviderError.Unauthorized);
+			throw new LocationProviderException(Devices.Location.LocationProviderError.Unauthorized);
 		}
 
 		var timeoutMilliseconds = timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : Timeout.Infinite;
@@ -124,7 +125,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		if (!HasPermission)
 		{
-			throw new LocationProviderException(LocationProviderError.Unauthorized);
+			throw new LocationProviderException(Devices.Location.LocationProviderError.Unauthorized);
 		}
 
 		IsListening = true;
@@ -152,10 +153,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	/// <inheritdoc />
-	protected override async void OnPositionError(LocationProviderError e)
+	protected override async void OnLocationProviderError(LocationProviderError e)
 	{
 		await StopListeningAsync();
-		base.OnPositionError(e);
+		base.OnLocationProviderError(e);
 	}
 
 	private async Task<bool> CheckAlwaysPermissions()
@@ -202,7 +203,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		if ((e.Status == CLAuthorizationStatus.Denied)
 			|| (e.Status == CLAuthorizationStatus.Restricted))
 		{
-			OnPositionError(LocationProviderError.Unauthorized);
+			OnLocationProviderError(Devices.Location.LocationProviderError.Unauthorized);
 		}
 	}
 
@@ -210,7 +211,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	{
 		if ((CLError) (int) e.Error.Code == CLError.Network)
 		{
-			OnPositionError(LocationProviderError.PositionUnavailable);
+			OnLocationProviderError(Devices.Location.LocationProviderError.PositionUnavailable);
 		}
 	}
 
@@ -286,7 +287,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			LastReadLocation.VerticalStatusTime = statusTime;
 		}
 
-		OnPositionChanged(LastReadLocation);
+		OnLocationChanged(LastReadLocation);
 
 		location.Dispose();
 	}

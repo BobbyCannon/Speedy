@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.1;net6.0-windows;net7.0-windows</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<IsPackable>false</IsPackable>
@@ -13,16 +13,16 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
-		<PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
 		<PackageReference Include="System.IO.Ports" Version="6.0.0" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.30">
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.30">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.31">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -33,6 +33,16 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

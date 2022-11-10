@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CoreLocation;
 using Foundation;
 using Speedy.Devices.Location;
+using Speedy.Serialization;
 using UIKit;
 using Xamarin.Essentials;
 
@@ -20,7 +21,7 @@ namespace Speedy.Application.Xamarin;
 /// </summary>
 [Preserve(AllMembers = true)]
 public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, new()
+	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
 	#region Fields
@@ -157,10 +158,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	/// <inheritdoc />
-	protected override async void OnPositionError(LocationProviderError e)
+	protected override async void OnLocationProviderError(LocationProviderError e)
 	{
 		await StopListeningAsync();
-		base.OnPositionError(e);
+		base.OnLocationProviderError(e);
 	}
 
 	private async Task<bool> CheckAlwaysPermissions()
@@ -207,7 +208,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		if ((e.Status == CLAuthorizationStatus.Denied)
 			|| (e.Status == CLAuthorizationStatus.Restricted))
 		{
-			OnPositionError(LocationProviderError.Unauthorized);
+			OnLocationProviderError(LocationProviderError.Unauthorized);
 		}
 	}
 
@@ -215,7 +216,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	{
 		if ((CLError) (int) e.Error.Code == CLError.Network)
 		{
-			OnPositionError(LocationProviderError.PositionUnavailable);
+			OnLocationProviderError(LocationProviderError.PositionUnavailable);
 		}
 	}
 
@@ -291,7 +292,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			LastReadLocation.VerticalStatusTime = statusTime;
 		}
 
-		OnPositionChanged(LastReadLocation);
+		OnLocationChanged(LastReadLocation);
 
 		location.Dispose();
 	}

@@ -157,8 +157,8 @@ foreach ($file in $files)
 			if ($data.Contains("<Reference Include=`"Mono.Android`" />"))
 			{
 				#Write-Host "Xamarin Android detected"
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\monoandroid10.0\Speedy.Application.Xamarin.dll")
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\monoandroid10.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\monoandroid12.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\monoandroid12.0\Speedy.Application.Xamarin.dll")
 			}
 			
 			if ($data.Contains("\Xamarin\iOS\Xamarin.iOS.CSharp.targets"))

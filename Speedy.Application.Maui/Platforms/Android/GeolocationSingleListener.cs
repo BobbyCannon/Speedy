@@ -5,6 +5,7 @@ using Android.OS;
 using Android.Runtime;
 using Speedy.Devices.Location;
 using Location = Android.Locations.Location;
+using LocationManager = Android.Locations.LocationManager;
 using Object = Java.Lang.Object;
 
 #endregion

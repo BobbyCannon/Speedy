@@ -12,7 +12,7 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a minimal location (lat, long, alt, alt ref).
 /// </summary>
-public class BasicLocation : Bindable, IBasicLocation, 
+public class BasicLocation : Bindable, IBasicLocation,
 	IComparable, IComparable<BasicLocation>,
 	IEquatable<BasicLocation>, IUpdatable<IBasicLocation>
 {

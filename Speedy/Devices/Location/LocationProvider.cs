@@ -9,6 +9,7 @@ using Speedy.Collections;
 using Speedy.Commands;
 using Speedy.Extensions;
 using Speedy.Logging;
+using Speedy.Serialization;
 
 #endregion
 
@@ -21,7 +22,7 @@ namespace Speedy.Devices.Location;
 /// <typeparam name="T2"> The setting type. </typeparam>
 public abstract class LocationProvider<T, T2>
 	: Bindable, ILocationProvider<T, T2>, IHorizontalLocationProvider<T>, IVerticalLocationProvider<T>
-	where T : class, ILocation, new()
+	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, IBindable, new()
 {
 	#region Constructors
@@ -116,6 +117,42 @@ public abstract class LocationProvider<T, T2>
 	public abstract Task StopListeningAsync();
 
 	/// <summary>
+	/// Triggers event handler.
+	/// </summary>
+	/// <param name="e"> The value for the event handler. </param>
+	protected virtual void OnLocationChanged(T e)
+	{
+		LocationChanged?.Invoke(this, e);
+	}
+
+	/// <summary>
+	/// Trigger the horizontal location changed event.
+	/// </summary>
+	/// <param name="e"> The updated location. </param>
+	protected virtual void OnLocationChangedHorizontalOnly(T e)
+	{
+		LocationChangedHorizontalOnly?.Invoke(this, e);
+	}
+
+	/// <summary>
+	/// Trigger the vertical location changed event.
+	/// </summary>
+	/// <param name="e"> The updated location. </param>
+	protected virtual void OnLocationChangedVerticalOnly(T e)
+	{
+		LocationChangedVerticalOnly?.Invoke(this, e);
+	}
+
+	/// <summary>
+	/// Triggers event handler.
+	/// </summary>
+	/// <param name="e"> The value for the event handler. </param>
+	protected virtual void OnLocationProviderError(LocationProviderError e)
+	{
+		ErrorReceived?.Invoke(this, e);
+	}
+
+	/// <summary>
 	/// Triggers event handler
 	/// </summary>
 	/// <param name="e"> The value for the event handler. </param>
@@ -124,36 +161,24 @@ public abstract class LocationProvider<T, T2>
 		LogEventWritten?.Invoke(this, e);
 	}
 
-	/// <summary>
-	/// Triggers event handler.
-	/// </summary>
-	/// <param name="e"> The value for the event handler. </param>
-	protected virtual void OnPositionChanged(T e)
-	{
-		PositionChanged?.Invoke(this, e);
-	}
-
-	/// <summary>
-	/// Triggers event handler.
-	/// </summary>
-	/// <param name="e"> The value for the event handler. </param>
-	protected virtual void OnPositionError(LocationProviderError e)
-	{
-		PositionError?.Invoke(this, e);
-	}
-
 	#endregion
 
 	#region Events
 
 	/// <inheritdoc />
+	public event EventHandler<LocationProviderError> ErrorReceived;
+
+	/// <inheritdoc />
+	public event EventHandler<T> LocationChanged;
+
+	/// <inheritdoc />
+	public event EventHandler<T> LocationChangedHorizontalOnly;
+
+	/// <inheritdoc />
+	public event EventHandler<T> LocationChangedVerticalOnly;
+
+	/// <inheritdoc />
 	public event EventHandler<LogEventArgs> LogEventWritten;
-
-	/// <inheritdoc />
-	public event EventHandler<T> PositionChanged;
-
-	/// <inheritdoc />
-	public event EventHandler<LocationProviderError> PositionError;
 
 	#endregion
 }
@@ -163,8 +188,8 @@ public abstract class LocationProvider<T, T2>
 /// </summary>
 /// <typeparam name="T"> The location type. </typeparam>
 /// <typeparam name="T2"> The setting type. </typeparam>
-public interface ILocationProvider<T, out T2>
-	where T : class, ILocation, new()
+public interface ILocationProvider<T, out T2> : ILocationProvider<T>
+	where T : class, ILocation, ICloneable<T>
 	where T2 : LocationProviderSettings
 {
 	#region Properties
@@ -175,11 +200,6 @@ public interface ILocationProvider<T, out T2>
 	bool HasPermission { get; }
 
 	/// <summary>
-	/// Gets if the provider is listening for location changes.
-	/// </summary>
-	bool IsListening { get; }
-
-	/// <summary>
 	/// Gets if location is available from the provider.
 	/// </summary>
 	bool IsLocationAvailable { get; }
@@ -188,11 +208,6 @@ public interface ILocationProvider<T, out T2>
 	/// Gets if location is enabled on the provider.
 	/// </summary>
 	bool IsLocationEnabled { get; }
-
-	/// <summary>
-	/// The last read location.
-	/// </summary>
-	T LastReadLocation { get; }
 
 	/// <summary>
 	/// The settings for when the location provider.
@@ -234,6 +249,69 @@ public interface ILocationProvider<T, out T2>
 	/// <returns> The current location or null if not available. </returns>
 	Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
 
+	#endregion
+
+	#region Events
+
+	/// <summary>
+	/// ProviderLocation error event handler
+	/// </summary>
+	event EventHandler<LocationProviderError> ErrorReceived;
+
+	/// <summary>
+	/// Provider location changed event handler.
+	/// </summary>
+	event EventHandler<T> LocationChanged;
+
+	/// <summary>
+	/// Provider has written a log event.
+	/// </summary>
+	event EventHandler<LogEventArgs> LogEventWritten;
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a location provider for a location for a specific type.
+/// </summary>
+public interface ILocationProvider<T> : ILocationProvider
+	where T : class, ICloneable<T>
+{
+	#region Properties
+
+	/// <summary>
+	/// The last read location.
+	/// </summary>
+	public T LastReadLocation { get; }
+
+	#endregion
+
+	#region Events
+
+	/// <summary>
+	/// The location changed.
+	/// </summary>
+	event EventHandler<T> LocationChanged;
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a location provider for a location.
+/// </summary>
+public interface ILocationProvider : IBindable
+{
+	#region Properties
+
+	/// <summary>
+	/// Gets if the provider is listening for altitude changes.
+	/// </summary>
+	bool IsListening { get; }
+
+	#endregion
+
+	#region Methods
+
 	/// <summary>
 	/// Start listening for location changes.
 	/// </summary>
@@ -243,25 +321,6 @@ public interface ILocationProvider<T, out T2>
 	/// Stop listening for location changes.
 	/// </summary>
 	Task StopListeningAsync();
-
-	#endregion
-
-	#region Events
-
-	/// <summary>
-	/// Provider has written a log event.
-	/// </summary>
-	event EventHandler<LogEventArgs> LogEventWritten;
-
-	/// <summary>
-	/// Provider location changed event handler.
-	/// </summary>
-	event EventHandler<T> PositionChanged;
-
-	/// <summary>
-	/// ProviderLocation error event handler
-	/// </summary>
-	event EventHandler<LocationProviderError> PositionError;
 
 	#endregion
 }

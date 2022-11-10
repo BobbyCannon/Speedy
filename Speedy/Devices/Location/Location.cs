@@ -6,7 +6,6 @@ using Speedy.Extensions;
 using Speedy.Protocols;
 using Speedy.Serialization;
 using Speedy.Storage;
-using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -15,7 +14,7 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a full location from a LocationProvider. Contains horizontal and vertical location.
 /// </summary>
-public class Location : BasicLocation, ILocation
+public class Location : CloneableBindable<Location, ILocation>, ILocation
 {
 	#region Constructors
 
@@ -45,40 +44,45 @@ public class Location : BasicLocation, ILocation
 	/// Instantiates a location for a LocationProvider.
 	/// </summary>
 	public Location(double latitude = 0, double longitude = 0, double altitude = 0, AltitudeReferenceType altitudeReference = AltitudeReferenceType.Unspecified, IDispatcher dispatcher = null)
-		: base(latitude, longitude, altitude, altitudeReference, dispatcher)
+		: base(dispatcher)
 	{
+		Altitude = altitude;
+		AltitudeReference = altitudeReference;
+		Latitude = latitude;
+		Longitude = longitude;
 	}
 
 	#endregion
 
 	#region Properties
 
-	/// <summary>
-	/// Specifies if the Accuracy value is valid
-	/// </summary>
+	/// <inheritdoc />
+	public double Altitude { get; set; }
+
+	/// <inheritdoc />
+	public AltitudeReferenceType AltitudeReference { get; set; }
+
+	/// <inheritdoc />
+	public bool HasAltitude => this.HasSupportedAltitude();
+
+	/// <inheritdoc />
 	public bool HasHorizontalAccuracy => this.HasSupportedHorizontalAccuracy();
 
-	/// <summary>
-	/// Specifies if the Heading value is valid
-	/// </summary>
+	/// <inheritdoc />
 	public bool HasHorizontalHeading
 	{
 		get => this.HasHorizontalHeading();
 		set => this.UpdateHorizontalHeading(value);
 	}
 
-	/// <summary>
-	/// Specifies if the Speed value is valid
-	/// </summary>
+	/// <inheritdoc />
 	public bool HasHorizontalSpeed
 	{
 		get => this.HasHorizontalSpeed();
 		set => this.UpdateHorizontalSpeed(value);
 	}
 
-	/// <summary>
-	/// Specifies if the Altitude Accuracy value is valid
-	/// </summary>
+	/// <inheritdoc />
 	public bool HasVerticalAccuracy => this.HasSupportedVerticalAccuracy();
 
 	/// <inheritdoc />
@@ -117,6 +121,12 @@ public class Location : BasicLocation, ILocation
 	public DateTime HorizontalStatusTime { get; set; }
 
 	/// <inheritdoc />
+	public double Latitude { get; set; }
+
+	/// <inheritdoc />
+	public double Longitude { get; set; }
+
+	/// <inheritdoc />
 	public string ProviderName { get; set; }
 
 	/// <inheritdoc />
@@ -145,23 +155,91 @@ public class Location : BasicLocation, ILocation
 	#region Methods
 
 	/// <inheritdoc />
-	public ILocation DeepClone(int? maxDepth = null)
-	{
-		return ShallowClone();
-	}
-
-	/// <inheritdoc />
-	public ILocation ShallowClone()
-	{
-		var response = new Location(Dispatcher);
-		response.UpdateWith(this);
-		return response;
-	}
-
-	/// <inheritdoc />
 	public override string ToString()
 	{
 		return $"{Latitude:N7}°  {Longitude:N7}°  {Altitude:N2} {VerticalAccuracyReference.ToDisplayShortName()}";
+	}
+
+	/// <inheritdoc />
+	public void UpdateWith(IVerticalLocation update, params string[] exclusions)
+	{
+		// If the update is null then there is nothing to do.
+		if (update == null)
+		{
+			return;
+		}
+
+		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+		if (exclusions.Length <= 0)
+		{
+			Altitude = update.Altitude;
+			AltitudeReference = update.AltitudeReference;
+			HasVerticalHeading = update.HasVerticalHeading;
+			HasVerticalSpeed = update.HasVerticalSpeed;
+			VerticalAccuracy = update.VerticalAccuracy;
+			VerticalAccuracyReference = update.VerticalAccuracyReference;
+			VerticalFlags = update.VerticalFlags;
+			VerticalHeading = update.VerticalHeading;
+			VerticalSourceName = update.VerticalSourceName;
+			VerticalSpeed = update.VerticalSpeed;
+			VerticalStatusTime = update.VerticalStatusTime;
+		}
+		else
+		{
+			this.IfThen(_ => !exclusions.Contains(nameof(Altitude)), x => x.Altitude = update.Altitude);
+			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasVerticalHeading)), x => x.HasVerticalHeading = update.HasVerticalHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasVerticalSpeed)), x => x.HasVerticalSpeed = update.HasVerticalSpeed);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracy)), x => x.VerticalAccuracy = update.VerticalAccuracy);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracyReference)), x => x.VerticalAccuracyReference = update.VerticalAccuracyReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalFlags)), x => x.VerticalFlags = update.VerticalFlags);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalHeading)), x => x.VerticalHeading = update.VerticalHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalSourceName)), x => x.VerticalSourceName = update.VerticalSourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalSpeed)), x => x.VerticalSpeed = update.VerticalSpeed);
+			this.IfThen(_ => !exclusions.Contains(nameof(VerticalStatusTime)), x => x.VerticalStatusTime = update.VerticalStatusTime);
+		}
+	}
+
+	/// <inheritdoc />
+	public void UpdateWith(IHorizontalLocation update, params string[] exclusions)
+	{
+		// If the update is null then there is nothing to do.
+		if (update == null)
+		{
+			return;
+		}
+
+		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+		if (exclusions.Length <= 0)
+		{
+			HasHorizontalHeading = update.HasHorizontalHeading;
+			HasHorizontalSpeed = update.HasHorizontalSpeed;
+			HorizontalAccuracy = update.HorizontalAccuracy;
+			HorizontalAccuracyReference = update.HorizontalAccuracyReference;
+			HorizontalFlags = update.HorizontalFlags;
+			HorizontalHeading = update.HorizontalHeading;
+			HorizontalSourceName = update.HorizontalSourceName;
+			HorizontalSpeed = update.HorizontalSpeed;
+			HorizontalStatusTime = update.HorizontalStatusTime;
+			Latitude = update.Latitude;
+			Longitude = update.Longitude;
+		}
+		else
+		{
+			this.IfThen(_ => !exclusions.Contains(nameof(HasHorizontalHeading)), x => x.HasHorizontalHeading = update.HasHorizontalHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasHorizontalSpeed)), x => x.HasHorizontalSpeed = update.HasHorizontalSpeed);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracy)), x => x.HorizontalAccuracy = update.HorizontalAccuracy);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracyReference)), x => x.HorizontalAccuracyReference = update.HorizontalAccuracyReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalFlags)), x => x.HorizontalFlags = update.HorizontalFlags);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalHeading)), x => x.HorizontalHeading = update.HorizontalHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalSourceName)), x => x.HorizontalSourceName = update.HorizontalSourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalSpeed)), x => x.HorizontalSpeed = update.HorizontalSpeed);
+			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalStatusTime)), x => x.HorizontalStatusTime = update.HorizontalStatusTime);
+			this.IfThen(_ => !exclusions.Contains(nameof(Latitude)), x => x.Latitude = update.Latitude);
+			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
+		}
 	}
 
 	/// <summary>
@@ -259,6 +337,12 @@ public class Location : BasicLocation, ILocation
 	}
 
 	/// <inheritdoc />
+	public override void UpdateWith(Location update, params string[] exclusions)
+	{
+		UpdateWith(update, exclusions);
+	}
+
+	/// <inheritdoc />
 	protected override void OnPropertyChangedInDispatcher(string propertyName)
 	{
 		this.ProcessOnPropertyChange(propertyName);
@@ -267,15 +351,35 @@ public class Location : BasicLocation, ILocation
 	}
 
 	/// <inheritdoc />
-	object ICloneable.DeepClone(int? maxDepth)
+	IHorizontalLocation ICloneable<IHorizontalLocation>.DeepClone(int? maxDepth)
 	{
-		return DeepClone(maxDepth);
+		var response = new HorizontalLocation(Dispatcher);
+		response.UpdateWith(this);
+		return response;
 	}
 
 	/// <inheritdoc />
-	object ICloneable.ShallowClone()
+	IVerticalLocation ICloneable<IVerticalLocation>.DeepClone(int? maxDepth)
 	{
-		return ShallowClone();
+		var response = new VerticalLocation(Dispatcher);
+		response.UpdateWith(this);
+		return response;
+	}
+
+	/// <inheritdoc />
+	IHorizontalLocation ICloneable<IHorizontalLocation>.ShallowClone()
+	{
+		var response = new HorizontalLocation(Dispatcher);
+		response.UpdateWith(this);
+		return response;
+	}
+
+	/// <inheritdoc />
+	IVerticalLocation ICloneable<IVerticalLocation>.ShallowClone()
+	{
+		var response = new VerticalLocation(Dispatcher);
+		response.UpdateWith(this);
+		return response;
 	}
 
 	#endregion

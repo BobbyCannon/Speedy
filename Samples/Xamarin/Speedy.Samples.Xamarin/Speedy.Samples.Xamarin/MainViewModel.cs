@@ -30,8 +30,8 @@ public class MainViewModel : ViewModel
 		Locations = new BaseObservableCollection<Location>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
 		LocationProvider = new XamarinLocationProvider<Location, LocationProviderSettingsView>(dispatcher);
+		LocationProvider.LocationChanged += LocationProviderOnLocationChanged;
 		LocationProvider.LogEventWritten += LocationProviderOnLogEventWritten;
-		LocationProvider.PositionChanged += LocationProviderOnPositionChanged;
 
 		DeviceDisplay.KeepScreenOn = true;
 
@@ -112,7 +112,7 @@ public class MainViewModel : ViewModel
 		Dispatcher.Run(() => Logs.Insert(0, e));
 	}
 
-	private void LocationProviderOnPositionChanged(object sender, Location e)
+	private void LocationProviderOnLocationChanged(object sender, Location e)
 	{
 		ProcessLocation((Location) e.ShallowClone());
 	}

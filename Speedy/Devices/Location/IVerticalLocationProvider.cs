@@ -1,10 +1,17 @@
-﻿namespace Speedy.Devices.Location;
+﻿#region References
+
+using Speedy.Serialization;
+using System;
+
+#endregion
+
+namespace Speedy.Devices.Location;
 
 /// <summary>
 /// Represents a vertical location provider.
 /// </summary>
-public interface IVerticalLocationProvider<out T> : IBindable
-	where T : IVerticalLocation
+public interface IVerticalLocationProvider<T> : ILocationProvider<T>
+	where T : class, IVerticalLocation, ICloneable<T>
 {
 	#region Methods
 

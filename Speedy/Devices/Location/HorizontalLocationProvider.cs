@@ -9,11 +9,11 @@ using Speedy.Serialization;
 namespace Speedy.Devices.Location;
 
 /// <summary>
-/// Represent a provider of vertical location also known as altitude.
+/// Represent a provider of horizontal location also known as altitude.
 /// </summary>
-/// <typeparam name="T"> The type that implements IVerticalLocation. </typeparam>
-public abstract class VerticalLocationProvider<T> : Bindable, IVerticalLocationProvider<T>
-	where T : class, IVerticalLocation, ICloneable<T>, new()
+/// <typeparam name="T"> The type that implements IHorizontalLocation. </typeparam>
+public abstract class HorizontalLocationProvider<T> : Bindable, IHorizontalLocationProvider<T>
+	where T : class, IHorizontalLocation, ICloneable<T>, new()
 {
 	#region Constructors
 
@@ -21,7 +21,7 @@ public abstract class VerticalLocationProvider<T> : Bindable, IVerticalLocationP
 	/// Create an instance of the altitude provider.
 	/// </summary>
 	/// <param name="dispatcher"> An optional dispatcher. </param>
-	protected VerticalLocationProvider(IDispatcher dispatcher) : base(dispatcher)
+	protected HorizontalLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		LastReadLocation = new T();
 		LastReadLocation.UpdateDispatcher(dispatcher);
@@ -42,7 +42,7 @@ public abstract class VerticalLocationProvider<T> : Bindable, IVerticalLocationP
 	#region Methods
 
 	/// <inheritdoc />
-	public T GetVerticalLocation()
+	public T GetHorizontalLocation()
 	{
 		return LastReadLocation;
 	}
@@ -54,7 +54,7 @@ public abstract class VerticalLocationProvider<T> : Bindable, IVerticalLocationP
 	public abstract Task StopListeningAsync();
 
 	/// <summary>
-	/// Trigger the vertical location changed event.
+	/// Trigger the horizontal location changed event.
 	/// </summary>
 	/// <param name="e"> The updated location. </param>
 	protected virtual void OnLocationChanged(T e)

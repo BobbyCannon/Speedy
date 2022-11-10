@@ -193,7 +193,7 @@ namespace Speedy
 			var match = _durationRegex.Match(duration);
 
 			int years = 0, months = 0, days = 0, hours = 0, minutes = 0;
-			var seconds = 0.0;
+			var seconds = 0.0m;
 
 			var groupNames = _durationRegex.GetGroupNames();
 
@@ -228,21 +228,24 @@ namespace Speedy
 					}
 					case "Seconds":
 					{
-						seconds = double.TryParse(match.Groups[name].Value, out var v) ? v : 0.0;
+						seconds = decimal.TryParse(match.Groups[name].Value, out var v) ? v : 0.0m;
 						break;
 					}
 				}
 			}
 
+			var milliseconds = (seconds % 1) * 1000;
 			var end = start
 				.AddYears(years)
 				.AddMonths(months)
 				.AddDays(days)
 				.AddHours(hours)
 				.AddMinutes(minutes)
-				.AddSeconds(seconds);
+				.AddSeconds((int) seconds)
+				.AddMilliseconds((double) milliseconds);
 
-			return end - start;
+			var result = end - start;
+			return result;
 		}
 
 		/// <inheritdoc />
@@ -302,7 +305,9 @@ namespace Speedy
 					x.Append("T");
 					x.IfThen(_ => duration.Hours > 0, _ => x.Append($"{duration.Hours}H"));
 					x.IfThen(_ => duration.Minutes > 0, _ => x.Append($"{duration.Minutes}M"));
-					x.IfThen(_ => (duration.Seconds > 0) || (duration.Milliseconds > 0), _ => x.Append($"{duration.Seconds}.{duration.Milliseconds}S"));
+					x.IfThen(_ => (duration.Seconds > 0) || (duration.Milliseconds > 0),
+						_ => x.Append($"{duration.Seconds}.{duration.Milliseconds}S")
+					);
 				}
 			);
 

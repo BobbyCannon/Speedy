@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
@@ -12,8 +11,22 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a horizontal location.
 /// </summary>
-public class HorizontalLocation : Bindable, IHorizontalLocation, IUpdatable<IHorizontalLocation>
+public class HorizontalLocation : CloneableBindable<HorizontalLocation, IHorizontalLocation>, IHorizontalLocation
 {
+	#region Constructors
+
+	/// <inheritdoc />
+	public HorizontalLocation() : this(null)
+	{
+	}
+
+	/// <inheritdoc />
+	public HorizontalLocation(IDispatcher dispatcher) : base(dispatcher)
+	{
+	}
+
+	#endregion
+
 	#region Properties
 
 	/// <inheritdoc />
@@ -55,6 +68,16 @@ public class HorizontalLocation : Bindable, IHorizontalLocation, IUpdatable<IHor
 	#endregion
 
 	#region Methods
+
+	/// <summary>
+	/// Update the HorizontalLocation with an update.
+	/// </summary>
+	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional set of properties to exclude. </param>
+	public override void UpdateWith(HorizontalLocation update, params string[] exclusions)
+	{
+		UpdateWith(update, exclusions);
+	}
 
 	/// <summary>
 	/// Update the HorizontalLocation with an update.

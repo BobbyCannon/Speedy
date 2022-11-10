@@ -88,17 +88,17 @@ namespace Speedy.UnitTests
 			var info = new DirectoryInfo(path ?? "/");
 
 			ApplicationPathForWinFormsX64 = $"{info.FullName.Replace("Speedy.AutomationTests", "Speedy.Winforms.Example")}\\Speedy.Winforms.Example.exe"
-				.Replace("net6.0-windows", "net48")
+				.Replace("net7.0-windows", "net48")
 				.Replace("\\bin\\Debug\\", "\\bin\\x64\\Debug\\");
 
 			ApplicationPathForWinFormsX86 = ApplicationPathForWinFormsX64.Replace("\\x64\\", "\\x86\\");
 
 			// Need to convert
-			// - from C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\Debug\net6.0-windows
+			// - from C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\Debug\net7.0-windows
 			// - to   C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\x86\Debug\AppX\Speedy.TestUwp.exe
 			ApplicationPathForUwp = info.FullName
 					.Replace("Speedy.AutomationTests", "Speedy.TestUwp")
-					.Replace("x86\\Debug\\net6.0-windows", "x86\\Debug\\AppX")
+					.Replace("x86\\Debug\\net7.0-windows", "x86\\Debug\\AppX")
 				+ "\\Speedy.TestUwp.exe";
 
 			Initialize();

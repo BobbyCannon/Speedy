@@ -4,13 +4,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Speedy.Devices.Location;
+using Speedy.Serialization;
 
 #endregion
 
 namespace Speedy.Application.Internal;
 
 public class InactiveLocationProvider<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, new()
+	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
 	#region Constructors

@@ -1,4 +1,6 @@
-﻿#region References
+﻿#if NET6_0_OR_GREATER
+
+#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Application.Wpf;
@@ -22,3 +24,5 @@ public class RuntimeInformationTests
 
 	#endregion
 }
+
+#endif

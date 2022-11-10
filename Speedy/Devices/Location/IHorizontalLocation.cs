@@ -1,6 +1,8 @@
 ﻿#region References
 
 using System;
+using Speedy.Serialization;
+using Speedy.Storage;
 
 #endregion
 
@@ -9,7 +11,10 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a horizontal location (lat, long).
 /// </summary>
-public interface IHorizontalLocation : IMinimalHorizontalLocation
+public interface IHorizontalLocation
+	: ICloneable<IHorizontalLocation>,
+		IUpdatable<IHorizontalLocation>,
+		IMinimalHorizontalLocation
 {
 	#region Properties
 
@@ -17,26 +22,6 @@ public interface IHorizontalLocation : IMinimalHorizontalLocation
 	/// Specifies if the Accuracy value is valid.
 	/// </summary>
 	bool HasHorizontalAccuracy { get; }
-
-	/// <summary>
-	/// The accuracy of the horizontal location. (latitude, longitude)
-	/// </summary>
-	double HorizontalAccuracy { get; set; }
-
-	/// <summary>
-	/// The reference system for accuracy.
-	/// </summary>
-	AccuracyReferenceType HorizontalAccuracyReference { get; set; }
-
-	/// <summary>
-	/// The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
-	/// </summary>
-	string HorizontalSourceName { get; set; }
-
-	/// <summary>
-	/// The original time of the location was captured.
-	/// </summary>
-	DateTime HorizontalStatusTime { get; set; }
 
 	/// <summary>
 	/// Specifies if the Heading value is valid
@@ -49,9 +34,29 @@ public interface IHorizontalLocation : IMinimalHorizontalLocation
 	bool HasHorizontalSpeed { get; set; }
 
 	/// <summary>
+	/// The accuracy of the horizontal location. (latitude, longitude)
+	/// </summary>
+	double HorizontalAccuracy { get; set; }
+
+	/// <summary>
+	/// The reference system for accuracy.
+	/// </summary>
+	AccuracyReferenceType HorizontalAccuracyReference { get; set; }
+
+	/// <summary>
+	/// Flags for the location of the provider.
+	/// </summary>
+	LocationFlags HorizontalFlags { get; set; }
+
+	/// <summary>
 	/// The heading of a device.
 	/// </summary>
 	double HorizontalHeading { get; set; }
+
+	/// <summary>
+	/// The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
+	/// </summary>
+	string HorizontalSourceName { get; set; }
 
 	/// <summary>
 	/// The speed of the device in meters per second.
@@ -59,9 +64,9 @@ public interface IHorizontalLocation : IMinimalHorizontalLocation
 	double HorizontalSpeed { get; set; }
 
 	/// <summary>
-	/// Flags for the location of the provider.
+	/// The original time of the location was captured.
 	/// </summary>
-	LocationFlags HorizontalFlags { get; set; }
+	DateTime HorizontalStatusTime { get; set; }
 
 	#endregion
 }

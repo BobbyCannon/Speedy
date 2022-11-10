@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0-windows</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0-windows;net7.0-windows</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy.ServiceHosting</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
@@ -35,7 +35,7 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>

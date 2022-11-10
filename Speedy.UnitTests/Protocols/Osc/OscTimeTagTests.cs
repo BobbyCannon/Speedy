@@ -138,7 +138,15 @@ namespace Speedy.UnitTests.Protocols.Osc
 		{
 			var time = OscTimeTag.FromDateTime(OscTimeTag.MinDateTime.AddMilliseconds(1234.56));
 			var actual = time.Value;
-			Assert.AreEqual(5304284610u, actual);
+			var dateTime = time.ToDateTime();
+
+			#if NET7_0
+			AreEqual(5302394395u, actual);
+			AreEqual(1234.5599, dateTime.TimeOfDay.TotalMilliseconds);
+			#else
+			AreEqual(5304284610u, actual);
+			AreEqual(1235, dateTime.TimeOfDay.TotalMilliseconds);
+			#endif
 		}
 
 		[TestMethod]

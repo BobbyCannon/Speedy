@@ -2,10 +2,9 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
-		<AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
 	</PropertyGroup>
 	<ItemGroup>
-	  <PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
+	  <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

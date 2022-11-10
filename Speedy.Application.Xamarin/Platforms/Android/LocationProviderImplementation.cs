@@ -6,16 +6,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Java.Lang;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
+using Speedy.Serialization;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
+using LocationManager = Android.Locations.LocationManager;
+
 #if GOOGLEPLAY
 using Android.Gms.Common;
 using Android.Gms.Location;
@@ -34,7 +36,7 @@ namespace Speedy.Application.Xamarin;
 /// </summary>
 [Preserve(AllMembers = true)]
 public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, new()
+	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
 	#region Fields
@@ -136,7 +138,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		cancelToken ??= CancellationToken.None;
 
-		var hasPermission = await CheckWhenInUsePermission();
+		var hasPermission = CheckWhenInUsePermission();
 		if (!hasPermission)
 		{
 			throw new LocationProviderException(LocationProviderError.Unauthorized);
@@ -228,11 +230,11 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	/// <inheritdoc />
-	public override async Task StartListeningAsync()
+	public override Task StartListeningAsync()
 	{
 		if (IsListening)
 		{
-			return;
+			return Task.CompletedTask;
 		}
 
 		#if GOOGLEPLAY
@@ -244,19 +246,14 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		LocationProviderSettings.Cleanup();
 
-		if (LocationProviderSettings.RequireLocationAlwaysPermission)
-		{
-			HasPermission = await CheckAlwaysPermissions();
-		}
-		else
-		{
-			HasPermission = await CheckWhenInUsePermission();
-		}
+		HasPermission = LocationProviderSettings.RequireLocationAlwaysPermission
+			? CheckAlwaysPermissions()
+			: CheckWhenInUsePermission();
 
 		if (!HasPermission)
 		{
 			ListenerPositionError(this, LocationProviderError.Unauthorized);
-			return;
+			return Task.CompletedTask;
 		}
 
 		var sources = ProviderSources.ToArray();
@@ -310,6 +307,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		Status = "Is Listening";
 		OnPropertyChanged(nameof(IsListening));
+		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
@@ -356,9 +354,23 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		return Task.CompletedTask;
 	}
 
-	private async Task<bool> CheckAlwaysPermissions()
+	private bool CheckAlwaysPermissions()
 	{
-		var permissionStatus = await Permissions.RequestAsync<Permissions.LocationAlways>();
+		var permissionStatus = Permissions
+			.CheckStatusAsync<Permissions.LocationWhenInUse>()
+			.AwaitResults(TimeSpan.FromSeconds(1));
+
+		if (permissionStatus == PermissionStatus.Granted)
+		{
+			return true;
+		}
+
+		Status = "Currently does not have Location permissions, requesting permissions";
+
+		permissionStatus = Permissions
+			.RequestAsync<Permissions.LocationAlways>()
+			.AwaitResults(new TimeSpan(0, 0, 1));
+
 		if (permissionStatus == PermissionStatus.Granted)
 		{
 			return true;
@@ -368,9 +380,12 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		return false;
 	}
 
-	private async Task<bool> CheckWhenInUsePermission()
+	private bool CheckWhenInUsePermission()
 	{
-		var permissionStatus = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+		var permissionStatus = Permissions
+			.CheckStatusAsync<Permissions.LocationWhenInUse>()
+			.AwaitResults(TimeSpan.FromSeconds(1));
+
 		if (permissionStatus == PermissionStatus.Granted)
 		{
 			return true;
@@ -378,7 +393,9 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		Status = "Currently does not have Location permissions, requesting permissions";
 
-		permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+		permissionStatus = Permissions
+			.RequestAsync<Permissions.LocationWhenInUse>()
+			.AwaitResults(TimeSpan.FromSeconds(1));
 
 		if (permissionStatus == PermissionStatus.Granted)
 		{
@@ -441,14 +458,14 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			}
 
 			LastReadLocation.UpdateWith(_comparer.Value);
-			OnPositionChanged((T) LastReadLocation.ShallowClone());
+			OnLocationChanged(((ICloneable<T>) LastReadLocation).ShallowClone());
 		}
 	}
 
 	private async void ListenerPositionError(object sender, LocationProviderError e)
 	{
 		await StopListeningAsync();
-		OnPositionError(e);
+		OnLocationProviderError(e);
 	}
 
 	#endregion

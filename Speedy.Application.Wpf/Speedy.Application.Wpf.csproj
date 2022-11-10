@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+		<TargetFrameworks>net6.0-windows;net7.0-windows</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<UseWPF>true</UseWPF>
 		<AssemblyTitle>Speedy.Application.Wpf</AssemblyTitle>
@@ -42,7 +42,12 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Management.Infrastructure" Version="2.0.0" />
-		<PackageReference Include="PropertyChanged.Fody" Version="4.0.3" PrivateAssets="All" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
 		<PackageReference Include="System.Management" Version="6.0.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">
+		<PackageReference Include="System.Management" Version="7.0.0" />
 	</ItemGroup>
 </Project>

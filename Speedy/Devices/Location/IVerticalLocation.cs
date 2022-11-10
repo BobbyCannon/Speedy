@@ -1,6 +1,8 @@
 ﻿#region References
 
 using System;
+using Speedy.Serialization;
+using Speedy.Storage;
 
 #endregion
 
@@ -9,7 +11,10 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a vertical location (alt, alt ref, acc, acc ref).
 /// </summary>
-public interface IVerticalLocation : IMinimalVerticalLocation
+public interface IVerticalLocation
+	: ICloneable<IVerticalLocation>,
+		IUpdatable<IVerticalLocation>,
+		IMinimalVerticalLocation
 {
 	#region Properties
 

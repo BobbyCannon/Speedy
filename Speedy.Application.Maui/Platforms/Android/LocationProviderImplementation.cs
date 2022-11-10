@@ -1,16 +1,16 @@
 #region References
 
 using Android.Content;
-using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Java.Lang;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
+using Speedy.Serialization;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-
+using LocationManager = Android.Locations.LocationManager;
 #if GOOGLEPLAY
 using Android.Gms.Common;
 using Android.Gms.Location;
@@ -29,7 +29,7 @@ namespace Speedy.Application.Maui;
 /// </summary>
 [Preserve(AllMembers = true)]
 public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, new()
+	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
 	#region Fields
@@ -394,7 +394,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	#if GOOGLEPLAY
-
 	private void FusedLocationProviderLocationChanged(Location obj)
 	{
 		var t = obj.ToPosition<T>();
@@ -446,14 +445,14 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			}
 
 			LastReadLocation.UpdateWith(_comparer.Value);
-			OnPositionChanged((T) LastReadLocation.ShallowClone());
+			OnLocationChanged(((ICloneable<T>) LastReadLocation).ShallowClone());
 		}
 	}
 
 	private async void ListenerPositionError(object sender, LocationProviderError e)
 	{
 		await StopListeningAsync();
-		OnPositionError(e);
+		OnLocationProviderError(e);
 	}
 
 	#endregion

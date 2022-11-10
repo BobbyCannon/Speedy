@@ -5,6 +5,7 @@ using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Services.Maps;
 using Speedy.Devices.Location;
+using Speedy.Serialization;
 using PositionChangedEventArgs = Windows.Devices.Geolocation.PositionChangedEventArgs;
 
 #endregion
@@ -16,7 +17,7 @@ namespace Speedy.Application.Maui;
 /// Implementation for LocationProvider
 /// </summary>
 public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, new()
+	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
 	#region Fields
@@ -123,7 +124,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 					var ex = op.ErrorCode;
 					if (ex is UnauthorizedAccessException)
 					{
-						ex = new LocationProviderException(LocationProviderError.Unauthorized, ex);
+						ex = new LocationProviderException(Devices.Location.LocationProviderError.Unauthorized, ex);
 					}
 
 					tcs.SetException(ex);
@@ -208,7 +209,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	private void OnLocatorPositionChanged(Geolocator sender, PositionChangedEventArgs args)
 	{
 		UpdateLastReadPosition(args.Position);
-		OnPositionChanged(LastReadLocation);
+		OnLocationChanged(LastReadLocation);
 	}
 
 	private async void OnLocatorStatusChanged(Geolocator sender, StatusChangedEventArgs args)
@@ -219,12 +220,12 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			case PositionStatus.Disabled:
 			{
-				error = LocationProviderError.Unauthorized;
+				error = Devices.Location.LocationProviderError.Unauthorized;
 				break;
 			}
 			case PositionStatus.NoData:
 			{
-				error = LocationProviderError.PositionUnavailable;
+				error = Devices.Location.LocationProviderError.PositionUnavailable;
 				break;
 			}
 			case PositionStatus.Ready:
@@ -240,7 +241,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		if (IsListening)
 		{
 			await StopListeningAsync();
-			OnPositionError(error);
+			OnLocationProviderError(error);
 		}
 
 		_locator = null;

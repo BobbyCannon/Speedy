@@ -10,7 +10,34 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// The state comparer for the <see cref="Location" /> type.
 /// </summary>
-public class LocationComparer : Comparer<Location>
+public class LocationComparer : LocationComparer<Location, IHorizontalLocation, IVerticalLocation>
+{
+	#region Methods
+
+	/// <inheritdoc />
+	protected override bool TryUpdateValue(Location update)
+	{
+		var response = base.TryUpdateValue(update);
+
+		if (response)
+		{
+			// General updates...
+			Value.ProviderName = update.ProviderName;
+		}
+
+		return response;
+	}
+
+	#endregion
+}
+
+/// <summary>
+/// The state comparer for the <see cref="Location" /> type.
+/// </summary>
+public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLocation>
+	where TLocation : class, THorizontal, TVertical, new()
+	where THorizontal : IHorizontalLocation
+	where TVertical : IVerticalLocation
 {
 	#region Constructors
 
@@ -43,14 +70,14 @@ public class LocationComparer : Comparer<Location>
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool ValidateUpdate(Location update)
+	public override bool ValidateUpdate(TLocation update)
 	{
 		return ShouldUpdateVerticalLocation(update)
 			|| ShouldUpdateHorizontalLocation(update);
 	}
 
 	/// <inheritdoc />
-	protected override bool TryUpdateValue(Location update)
+	protected override bool TryUpdateValue(TLocation update)
 	{
 		var updated = false;
 
@@ -80,45 +107,50 @@ public class LocationComparer : Comparer<Location>
 			updated = true;
 		}
 
-		if (updated)
-		{
-			// General updates...
-			Value.ProviderName = update.ProviderName;
-		}
-
 		return updated;
 	}
 
 	private bool ShouldUpdateHorizontalLocation(IHorizontalLocation update)
 	{
-		if (update.HorizontalStatusTime < Value.HorizontalStatusTime)
+		var current = new LocationProxy((IHorizontalLocation) Value);
+		var updateProxy = new LocationProxy(update);
+		return ShouldUpdateLocation(current, updateProxy);
+	}
+
+	private bool ShouldUpdateLocation(LocationProxy current, LocationProxy update)
+	{
+		if (update.StatusTime < current.StatusTime)
 		{
 			// This is an old update so reject it
 			return false;
 		}
 
-		if (update.HasHorizontalAccuracy
-			&& Value.HasHorizontalAccuracy
-			&& (update.HorizontalAccuracy <= Value.HorizontalAccuracy))
+		if (update.HasAccuracy
+			&& update.HasLocation
+			&& current.HasAccuracy
+			&& current.HasLocation
+			&& (update.Accuracy <= current.Accuracy))
 		{
 			// Both have altitude and accuracy and the update is better
 			return true;
 		}
 
-		if (update.HasHorizontalAccuracy && !Value.HasHorizontalAccuracy)
+		// todo: should we have an accuracy limit? or does "better" accurate update handle
+
+		if (update.HasAccuracy && !current.HasAccuracy)
 		{
 			// The update has accuracy but the current state does not, so take the update
 			return true;
 		}
 
 		// You may have an update from the same source but it's not as accurate
-		if (AlwaysTrustSameSource && (Value.HorizontalSourceName == update.HorizontalSourceName))
+		if (AlwaysTrustSameSource && (current.SourceName == update.SourceName))
 		{
 			return true;
 		}
 
 		// Has the current state expired?
-		var elapsed = update.HorizontalStatusTime - Value.HorizontalStatusTime;
+		var elapsed = update.StatusTime - current.StatusTime;
 		if (elapsed >= SourceTimeout)
 		{
 			return true;
@@ -129,44 +161,9 @@ public class LocationComparer : Comparer<Location>
 
 	private bool ShouldUpdateVerticalLocation(IVerticalLocation update)
 	{
-		if (update.VerticalStatusTime < Value.VerticalStatusTime)
-		{
-			// This is an old update so reject it
-			return false;
-		}
-
-		if (update.HasVerticalAccuracy
-			&& update.HasAltitude
-			&& Value.HasVerticalAccuracy
-			&& Value.HasAltitude
-			&& (update.VerticalAccuracy <= Value.VerticalAccuracy))
-		{
-			// Both have altitude and accuracy and the update is better
-			return true;
-		}
-
-		// todo: should we have an accuracy limit? or does "better" accurate update handle
-
-		if (update.HasVerticalAccuracy && !Value.HasVerticalAccuracy)
-		{
-			// The update has accuracy but the current state does not, so take the update
-			return true;
-		}
-
-		// You may have an update from the same source but it's not as accurate
-		if (AlwaysTrustSameSource && (Value.VerticalSourceName == update.VerticalSourceName))
-		{
-			return true;
-		}
-
-		// Has the current state expired?
-		var elapsed = update.VerticalStatusTime - Value.VerticalStatusTime;
-		if (elapsed >= SourceTimeout)
-		{
-			return true;
-		}
-
-		return false;
+		var current = new LocationProxy((IVerticalLocation) Value);
+		var updateProxy = new LocationProxy(update);
+		return ShouldUpdateLocation(current, updateProxy);
 	}
 
 	#endregion

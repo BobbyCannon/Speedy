@@ -1,7 +1,9 @@
 ﻿#region References
 
 using System;
+using System.Threading.Tasks;
 using Speedy.Devices.Location;
+using Speedy.Serialization;
 using Xamarin.Essentials;
 
 #endregion
@@ -13,7 +15,7 @@ namespace Speedy.Application.Xamarin;
 /// </summary>
 /// <typeparam name="T"> </typeparam>
 public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvider<T>
-	where T : class, IVerticalLocation, new()
+	where T : class, IVerticalLocation, ICloneable<T>, new()
 {
 	#region Constructors
 
@@ -39,17 +41,19 @@ public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvi
 	#region Methods
 
 	/// <inheritdoc />
-	public override void StartListening()
+	public override Task StartListeningAsync()
 	{
 		Barometer.Start(SensorSpeed.Default);
 		Barometer.ReadingChanged += BarometerOnReadingChanged;
+		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
-	public override void StopListening()
+	public override Task StopListeningAsync()
 	{
 		Barometer.Stop();
 		Barometer.ReadingChanged -= BarometerOnReadingChanged;
+		return Task.CompletedTask;
 	}
 
 	private void BarometerOnReadingChanged(object sender, BarometerChangedEventArgs e)
@@ -58,6 +62,7 @@ public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvi
 		var altitudeAboveSeaLevel = Math.Round(44307.69 * (1.0 - Math.Pow(Pressure / 1013.25, 0.190284)) * 10.0) / 10.0;
 		LastReadLocation.Altitude = altitudeAboveSeaLevel;
 		LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+		OnLocationChanged((T) ((IVerticalLocation) LastReadLocation).ShallowClone());
 	}
 
 	#endregion

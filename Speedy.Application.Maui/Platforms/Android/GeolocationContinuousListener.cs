@@ -7,6 +7,7 @@ using Android.Runtime;
 using Speedy.Devices.Location;
 using Speedy.Logging;
 using Location = Android.Locations.Location;
+using LocationManager = Android.Locations.LocationManager;
 using Object = Java.Lang.Object;
 
 #endregion
@@ -28,7 +29,7 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 
 	#region Constructors
 
-	public GeolocationContinuousListener(IDispatcher dispatcher, LocationManager manager, IList<LocationProviderSource> providerSources)
+	public GeolocationContinuousListener(IDispatcher dispatcher, LocationManager manager, IEnumerable<LocationProviderSource> providerSources)
 	{
 		_activeSources = new HashSet<LocationProviderSource>();
 		_dispatcher = dispatcher;

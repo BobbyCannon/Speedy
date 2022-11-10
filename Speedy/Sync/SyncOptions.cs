@@ -126,12 +126,6 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 		_filters.Add(filter.RepositoryType, filter);
 	}
 
-	/// <inheritdoc />
-	public override object DeepClone(int? maxDepth = null)
-	{
-		return ShallowClone();
-	}
-
 	/// <summary>
 	/// Gets the type of sync these options are for
 	/// </summary>
@@ -171,28 +165,6 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 	public void ResetFilters()
 	{
 		_filters.Clear();
-	}
-
-	/// <inheritdoc />
-	public override object ShallowClone()
-	{
-		var response = new SyncOptions
-		{
-			IncludeIssueDetails = IncludeIssueDetails,
-			ItemsPerSyncRequest = ItemsPerSyncRequest,
-			LastSyncedOnClient = LastSyncedOnClient,
-			LastSyncedOnServer = LastSyncedOnServer,
-			PermanentDeletions = PermanentDeletions,
-			SyncDirection = SyncDirection,
-			Values = Values.DeepClone()
-		};
-
-		foreach (var lookup in _filters)
-		{
-			response.AddSyncableFilter(lookup.Value);
-		}
-
-		return response;
 	}
 
 	/// <summary>

@@ -79,14 +79,6 @@ namespace Speedy
 
 		#region Methods
 
-		/// <inheritdoc />
-		public override object DeepClone(int? maxDepth = null)
-		{
-			var response = new DatabaseOptions();
-			response.UpdateWith(this);
-			return response;
-		}
-
 		/// <summary>
 		/// Update these database options.
 		/// </summary>
