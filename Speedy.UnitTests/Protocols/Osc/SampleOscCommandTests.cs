@@ -185,7 +185,9 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.IsNotNull(message);
 
 			TestHelper.ExpectedException<InvalidCastException>(() => OscCommand.FromMessage<SampleOscCommand>(message),
-				"Unable to cast object of type 'System.String' to type 'Speedy.UnitTests.Protocols.Samples.SampleCustomValue'.");
+				"Unable to cast object of type 'System.String' to type 'Speedy.UnitTests.Protocols.Samples.SampleCustomValue'.",
+				"Specified cast is not valid."
+			);
 		}
 
 		[TestMethod]

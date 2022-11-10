@@ -2,7 +2,6 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Serialization.Converters;
 

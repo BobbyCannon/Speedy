@@ -29,14 +29,15 @@ using Speedy.Profiling;
 using Speedy.Serialization;
 using Speedy.Storage.KeyValue;
 using Speedy.Sync;
+using Speedy.Website.Core.Models;
+using Speedy.Website.Core.Services;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Middleware;
-using Speedy.Website.Models;
 using Speedy.Website.Services;
 using Speedy.Website.WebApi;
 using AuthenticationService = Speedy.Website.Services.AuthenticationService;
-using IAuthenticationService = Speedy.Website.Services.IAuthenticationService;
+using IAuthenticationService = Speedy.Website.Core.Services.IAuthenticationService;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 #endregion

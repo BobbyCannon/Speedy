@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFrameworks>netcoreapp3.1;net6.0-windows;net7.0-windows</TargetFrameworks>
+		<TargetFrameworks>net48;netcoreapp3.1;net6.0-windows;net7.0-windows</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<IsPackable>false</IsPackable>
@@ -17,7 +17,7 @@
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
 		<PackageReference Include="System.IO.Ports" Version="6.0.0" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netcoreapp3.1'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -1,4 +1,4 @@
-﻿namespace Speedy.Website.Services
+﻿namespace Speedy.Website.Core.Services
 {
 	public enum AnalyticEvents
 	{

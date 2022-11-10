@@ -10,29 +10,33 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using KellermanSoftware.CompareNetObjects;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Speedy.Automation;
 using Speedy.Automation.Web;
 using Speedy.Client.Data;
-using Speedy.Data;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Serialization;
 using Speedy.Sync;
+using Speedy.Website.Core.Services;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 using Speedy.Website.Data.Enumerations;
 using Speedy.Website.Data.Sql;
 using Speedy.Website.Data.Sqlite;
 using Speedy.Website.Data.Sync;
-using Speedy.Website.Services;
 using Timer = Speedy.Profiling.Timer;
+
+#if !NET48
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Speedy.Data;
+using Speedy.Website.Services;
+#endif
 
 #endregion
 
@@ -377,13 +381,6 @@ namespace Speedy.UnitTests
 			Console.WriteLine(item.Replace("\r\n", "\\r\\n").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\"", "\\\""));
 		}
 
-		public static IAuthenticationService GetAuthenticationService()
-		{
-			var service = new Mock<IAuthenticationService>();
-			service.Setup(x => x.LogIn(It.IsAny<Credentials>())).Returns<Credentials>(x => true);
-			return service.Object;
-		}
-
 		public static ISyncableDatabaseProvider<ContosoClientMemoryDatabase> GetClientProvider()
 		{
 			var database = new ContosoClientMemoryDatabase();
@@ -392,15 +389,6 @@ namespace Speedy.UnitTests
 				database.Options.UpdateWith(x);
 				return database;
 			}, ContosoClientMemoryDatabase.GetDefaultOptions(), null);
-		}
-
-		public static ControllerContext GetControllerContext(AccountEntity account)
-		{
-			var ticket = AuthenticationService.CreateTicket(account, true, CookieAuthenticationDefaults.AuthenticationScheme);
-			return new ControllerContext
-			{
-				HttpContext = new DefaultHttpContext { User = ticket.Principal }
-			};
 		}
 
 		public static IEnumerable<IDatabaseProvider<IContosoDatabase>> GetDataContexts(DatabaseOptions options = null, DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -945,6 +933,24 @@ namespace Speedy.UnitTests
 
 			return true;
 		}
+
+		#if !NET48
+		public static ControllerContext GetControllerContext(AccountEntity account)
+		{
+			var ticket = AuthenticationService.CreateTicket(account, true, CookieAuthenticationDefaults.AuthenticationScheme);
+			return new ControllerContext
+			{
+				HttpContext = new DefaultHttpContext { User = ticket.Principal }
+			};
+		}
+
+		public static IAuthenticationService GetAuthenticationService()
+		{
+			var service = new Mock<IAuthenticationService>();
+			service.Setup(x => x.LogIn(It.IsAny<Credentials>())).Returns<Credentials>(x => true);
+			return service.Object;
+		}
+		#endif
 
 		#endregion
 	}

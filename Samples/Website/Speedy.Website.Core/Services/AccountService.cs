@@ -11,7 +11,7 @@ using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.Website.Services
+namespace Speedy.Website.Core.Services
 {
 	public class AccountService : BaseService
 	{

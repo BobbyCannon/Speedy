@@ -17,7 +17,10 @@ using Speedy.UnitTests.Factories;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 using Speedy.Website.Data.Sync;
+
+#if !NET48
 using Speedy.Website.WebApi;
+#endif
 
 #endregion
 
@@ -27,6 +30,8 @@ namespace Speedy.IntegrationTests
 	public class ServerSyncClientTests : SpeedyUnitTest
 	{
 		#region Methods
+
+		#if !NET48
 
 		[TestMethod]
 		public void LogEventsShouldNotBeUpdatable()
@@ -73,6 +78,8 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(LogLevel.Debug, actual.Level);
 			}
 		}
+
+		#endif
 
 		[TestMethod]
 		public void SettingsShouldDelete()

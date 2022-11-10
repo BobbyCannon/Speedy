@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Net.Http.Headers;
 using Speedy.Profiling;
+using Speedy.Website.Core.Services;
 using Speedy.Website.Services;
 
 #endregion

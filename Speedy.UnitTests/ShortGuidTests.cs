@@ -68,7 +68,12 @@ namespace Speedy.UnitTests
 			var guid2 = new ShortGuid(Guid.Parse("B2751797-F420-4FFD-A9B9-722C0A3C4FDF"));
 
 			Assert.AreEqual(0, guid1.GetHashCode());
+
+			#if NET48
+			Assert.AreEqual(878008501, guid2.GetHashCode());
+			#else
 			Assert.AreEqual(246769172, guid2.GetHashCode());
+			#endif
 		}
 
 		[TestMethod]

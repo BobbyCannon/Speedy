@@ -1,4 +1,4 @@
-﻿namespace Speedy.Website.Models
+﻿namespace Speedy.Website.Core.Models
 {
 	public class ConnectionStrings
 	{

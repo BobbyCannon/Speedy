@@ -19,6 +19,11 @@ namespace Speedy.UnitTests.Serialization
 		{
 			var data = GetTestClass();
 			var expected = "{\"$id\":\"1\",\"age\":21,\"createdOn\":\"2020-02-17T12:12:45Z\",\"id\":42,\"isDeleted\":false,\"modifiedOn\":\"2020-02-17T12:12:45Z\",\"name\":\"John Doe\",\"percent\":1.23,\"syncId\":\"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\"testEnum\":1,\"version\":\"1.2.3.4\"}";
+
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\",\"build\":3,\"major\":1,\"majorRevision\":0,\"minor\":2,\"minorRevision\":4,\"revision\":4}");
+			#endif
+
 			ToFromJson(data, expected, x => x.CamelCase = true);
 		}
 
@@ -27,6 +32,11 @@ namespace Speedy.UnitTests.Serialization
 		{
 			var data = GetTestClass();
 			var expected = "{\"$id\":\"1\",\"Age\":21,\"CreatedOn\":\"2020-02-17T12:12:45Z\",\"Id\":42,\"IsDeleted\":false,\"ModifiedOn\":\"2020-02-17T12:12:45Z\",\"Name\":\"John Doe\",\"Percent\":1.23,\"SyncId\":\"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\"TestEnum\":\"Second\",\"Version\":\"1.2.3.4\"}";
+
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}");
+			#endif
+
 			ToFromJson(data, expected, x => x.ConvertEnumsToString = true);
 		}
 
@@ -35,6 +45,11 @@ namespace Speedy.UnitTests.Serialization
 		{
 			var data = GetTestClass();
 			var expected = "{\"$id\":\"1\",\"Age\":21,\"CreatedOn\":\"2020-02-17T12:12:45Z\",\"Id\":42,\"IsDeleted\":false,\"ModifiedOn\":\"2020-02-17T12:12:45Z\",\"Name\":\"John Doe\",\"Percent\":1.23,\"SyncId\":\"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\"TestEnum\":1,\"Version\":\"1.2.3.4\"}";
+			
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}");
+			#endif
+
 			ToFromJson(data, expected, _ => { });
 		}
 
@@ -46,10 +61,20 @@ namespace Speedy.UnitTests.Serialization
 			var membersToIgnore = new[] { nameof(ISyncEntity.CreatedOn), nameof(ISyncEntity.ModifiedOn), "Id", nameof(ISyncEntity.SyncId), nameof(ISyncEntity.IsDeleted) };
 			settings.Ignore(membersToIgnore);
 			var expected = "{\"$id\":\"1\",\"Age\":22,\"Name\":\"John Doe\",\"Percent\":1.23,\"TestEnum\":1,\"Version\":\"1.2.3.4\"}";
+			
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}");
+			#endif
+
 			ToFromJson(data, expected, settings, membersToIgnore);
 
 			settings.Reset();
 			expected = "{\"$id\":\"1\",\"Age\":22,\"CreatedOn\":\"2020-02-17T12:12:45Z\",\"Id\":42,\"IsDeleted\":false,\"ModifiedOn\":\"2020-02-17T12:12:45Z\",\"Name\":\"John Doe\",\"Percent\":1.23,\"SyncId\":\"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\"TestEnum\":1,\"Version\":\"1.2.3.4\"}";
+			
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}");
+			#endif
+
 			ToFromJson(data, expected, settings);
 		}
 
@@ -58,6 +83,11 @@ namespace Speedy.UnitTests.Serialization
 		{
 			var data = GetTestClass(null, 22);
 			var expected = "{\"$id\":\"1\",\"Age\":22,\"CreatedOn\":\"2020-02-17T12:12:45Z\",\"Id\":42,\"IsDeleted\":false,\"ModifiedOn\":\"2020-02-17T12:12:45Z\",\"Percent\":1.23,\"SyncId\":\"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\"TestEnum\":1,\"Version\":\"1.2.3.4\"}";
+			
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}");
+			#endif
+
 			var actual = data.ToJson(ignoreNullValues: true);
 			//actual.Escape().CopyToClipboard().Dump();
 			Assert.IsNull(data.Name);
@@ -72,12 +102,23 @@ namespace Speedy.UnitTests.Serialization
 		{
 			var data = GetTestClass();
 			var expected = "{\"$id\":\"1\",\"Age\":21,\"CreatedOn\":\"2020-02-17T12:12:45Z\",\"Id\":42,\"IsDeleted\":false,\"ModifiedOn\":\"2020-02-17T12:12:45Z\",\"Percent\":1.23,\"SyncId\":\"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\"TestEnum\":1,\"Version\":\"1.2.3.4\"}";
+			
+			#if NET48
+			// todo: this is a bug in .NET Framework
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\"}");
+			#endif
+
 			var actual = data.ToJson(ignoreReadOnly: true);
 			//actual.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual("John Doe", data.Name);
 			Assert.AreEqual(expected, actual);
 
+			#if NET48
+			// todo: this is a bug in .NET Framework
+			ToFromJson(data, expected, x => x.IgnoreReadOnly = true, nameof(TestClass.Name), nameof(TestClass.Version));
+			#else
 			ToFromJson(data, expected, x => x.IgnoreReadOnly = true, nameof(TestClass.Name));
+			#endif
 		}
 
 		[TestMethod]
@@ -85,6 +126,11 @@ namespace Speedy.UnitTests.Serialization
 		{
 			var data = GetTestClass();
 			var expected = "{\"$id\":\"1\",\"Age\":21,\"CreatedOn\":\"2020-02-17T12:12:45Z\",\"Id\":42,\"IsDeleted\":false,\"ModifiedOn\":\"2020-02-17T12:12:45Z\",\"Name\":\"John Doe\",\"SyncId\":\"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\"TestEnum\":1,\"Version\":\"1.2.3.4\"}";
+			
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\"$id\":\"2\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}");
+			#endif
+
 			var actual = data.ToJson(ignoreVirtuals: true);
 			//actual.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual(expected, actual);
@@ -97,6 +143,11 @@ namespace Speedy.UnitTests.Serialization
 		{
 			var data = GetTestClass();
 			var expected = "{\r\n  \"$id\": \"1\",\r\n  \"Age\": 21,\r\n  \"CreatedOn\": \"2020-02-17T12:12:45Z\",\r\n  \"Id\": 42,\r\n  \"IsDeleted\": false,\r\n  \"ModifiedOn\": \"2020-02-17T12:12:45Z\",\r\n  \"Name\": \"John Doe\",\r\n  \"Percent\": 1.23,\r\n  \"SyncId\": \"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\r\n  \"TestEnum\": 1,\r\n  \"Version\": \"1.2.3.4\"\r\n}";
+			
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\r\n    \"$id\": \"2\",\r\n    \"Build\": 3,\r\n    \"Major\": 1,\r\n    \"MajorRevision\": 0,\r\n    \"Minor\": 2,\r\n    \"MinorRevision\": 4,\r\n    \"Revision\": 4\r\n  }");
+			#endif
+
 			var actual = data.ToJson(true);
 			//actual.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual(expected, actual);
@@ -108,8 +159,13 @@ namespace Speedy.UnitTests.Serialization
 		public void ToJson()
 		{
 			var data = GetTestClass();
-			var json = "{\r\n  \"age\": 21,\r\n  \"createdOn\": \"2020-02-17T12:12:45Z\",\r\n  \"id\": 42,\r\n  \"isDeleted\": false,\r\n  \"modifiedOn\": \"2020-02-17T12:12:45Z\",\r\n  \"name\": \"John Doe\",\r\n  \"percent\": 1.23,\r\n  \"syncId\": \"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\r\n  \"testEnum\": \"second\",\r\n  \"version\": \"1.2.3.4\"\r\n}";
-			ToFromJson(data, json);
+			var expected = "{\r\n  \"age\": 21,\r\n  \"createdOn\": \"2020-02-17T12:12:45Z\",\r\n  \"id\": 42,\r\n  \"isDeleted\": false,\r\n  \"modifiedOn\": \"2020-02-17T12:12:45Z\",\r\n  \"name\": \"John Doe\",\r\n  \"percent\": 1.23,\r\n  \"syncId\": \"a7dd0efd-37e8-4777-bdda-5cb296e74806\",\r\n  \"testEnum\": \"second\",\r\n  \"version\": \"1.2.3.4\"\r\n}";
+
+			#if NET48
+			expected = expected.Replace("\"1.2.3.4\"", "{\r\n    \"build\": 3,\r\n    \"major\": 1,\r\n    \"majorRevision\": 0,\r\n    \"minor\": 2,\r\n    \"minorRevision\": 4,\r\n    \"revision\": 4\r\n  }");
+			#endif
+
+			ToFromJson(data, expected);
 		}
 
 		private static TestClass GetTestClass(string name = "John Doe", int age = 21, Action<TestClass> update = null)

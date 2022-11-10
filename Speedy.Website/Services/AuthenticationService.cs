@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Speedy.Data;
+using Speedy.Website.Core.Services;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
+using IAuthenticationService = Speedy.Website.Core.Services.IAuthenticationService;
 
 #endregion
 

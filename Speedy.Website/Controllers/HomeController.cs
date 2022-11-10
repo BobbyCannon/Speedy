@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Speedy.Website.Models;
+using Speedy.Website.Core.Models;
 
 #endregion
 
