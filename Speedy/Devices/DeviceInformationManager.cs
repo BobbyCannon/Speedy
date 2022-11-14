@@ -91,7 +91,7 @@ public abstract class DeviceInformationManager<T> : Bindable
 
 	private void ProviderOnRefreshed(object sender, object update)
 	{
-		var provider = (IDeviceInformationProvider) sender;
+		var provider = (IDeviceInformationProvider)sender;
 		if (provider == null)
 		{
 			return;
@@ -109,7 +109,7 @@ public abstract class DeviceInformationManager<T> : Bindable
 
 		if (objectValue is ICloneable cValue)
 		{
-			OnRefreshed((T) cValue.ShallowClone());
+			OnRefreshed((T)cValue.ShallowClone());
 			return;
 		}
 
