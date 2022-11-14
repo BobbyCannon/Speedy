@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using Speedy.Serialization;
 using Speedy.Storage;
 
 #endregion
@@ -12,8 +11,7 @@ namespace Speedy.Devices.Location;
 /// Represents a horizontal location (lat, long).
 /// </summary>
 public interface IHorizontalLocation
-	: ICloneable<IHorizontalLocation>,
-		IUpdatable<IHorizontalLocation>,
+	: IUpdatable<IHorizontalLocation>,
 		IMinimalHorizontalLocation
 {
 	#region Properties
@@ -32,6 +30,11 @@ public interface IHorizontalLocation
 	/// Specifies if the Speed value is valid
 	/// </summary>
 	bool HasHorizontalSpeed { get; set; }
+
+	/// <summary>
+	/// Specifies if the Latitude / Longitude value are valid
+	/// </summary>
+	bool HasLatitudeLongitude { get; }
 
 	/// <summary>
 	/// The accuracy of the horizontal location. (latitude, longitude)

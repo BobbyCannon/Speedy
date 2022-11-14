@@ -9,6 +9,9 @@ using Speedy.Serialization;
 
 namespace Speedy.Application.Wpf;
 
+/// <summary>
+/// A secure vault for Windows.
+/// </summary>
 public class WindowsSecureVault : SecureVault
 {
 	#region Fields
@@ -21,6 +24,11 @@ public class WindowsSecureVault : SecureVault
 
 	#region Constructors
 
+	/// <summary>
+	/// Create an instance of the Windows secure value.
+	/// </summary>
+	/// <param name="information"> The runtime information. </param>
+	/// <param name="dispatcher"> An optional dispatcher. </param>
 	public WindowsSecureVault(RuntimeInformation information, IDispatcher dispatcher) : base(dispatcher)
 	{
 		_information = information;

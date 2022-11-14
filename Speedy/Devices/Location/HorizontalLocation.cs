@@ -33,10 +33,25 @@ public class HorizontalLocation : CloneableBindable<HorizontalLocation, IHorizon
 	public bool HasHorizontalAccuracy => this.HasSupportedHorizontalAccuracy();
 
 	/// <inheritdoc />
-	public bool HasHorizontalHeading { get; set; }
+	public bool HasHorizontalHeading
+	{
+		get => this.HasHorizontalHeading();
+		set => this.UpdateHorizontalHeading(value);
+	}
 
 	/// <inheritdoc />
-	public bool HasHorizontalSpeed { get; set; }
+	public bool HasHorizontalSpeed
+	{
+		get => this.HasHorizontalSpeed();
+		set => this.UpdateHorizontalSpeed(value);
+	}
+
+	/// <inheritdoc />
+	public bool HasLatitudeLongitude
+	{
+		get => this.HasLatitudeLongitude();
+		set => this.UpdateLatitudeLongitude(value);
+	}
 
 	/// <inheritdoc />
 	public double HorizontalAccuracy { get; set; }

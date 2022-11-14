@@ -1,7 +1,10 @@
 ﻿#region References
 
 using System;
+using System.Linq;
 using Speedy.Devices;
+using Speedy.Extensions;
+using Speedy.Storage;
 
 #endregion
 
@@ -10,7 +13,7 @@ namespace Speedy.Sync;
 /// <summary>
 /// The sync client details.
 /// </summary>
-public class SyncClientDetails : ISyncClientDetails
+public class SyncClientDetails : Bindable, ISyncClientDetails, IUpdatable<ISyncClientDetails>
 {
 	#region Properties
 
@@ -28,6 +31,51 @@ public class SyncClientDetails : ISyncClientDetails
 
 	/// <inheritdoc />
 	public DeviceType DeviceType { get; set; }
+
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	public override void UpdateWith(object update, params string[] exclusions)
+	{
+		switch (update)
+		{
+			case ISyncClientDetails entityUpdate:
+			{
+				UpdateWith(entityUpdate, exclusions);
+				break;
+			}
+			default:
+			{
+				base.UpdateWith(update, exclusions);
+				break;
+			}
+		}
+	}
+
+	/// <inheritdoc />
+	public void UpdateWith(ISyncClientDetails update, params string[] exclusions)
+	{
+		// ****** You can use CodeGeneratorTests.GenerateProperties to update this ******
+
+		if (exclusions == null)
+		{
+			this.IfThen(e => e.ApplicationName != update.ApplicationName, e => e.ApplicationName = update.ApplicationName);
+			this.IfThen(e => e.ApplicationVersion != update.ApplicationVersion, e => e.ApplicationVersion = update.ApplicationVersion);
+			this.IfThen(e => e.DeviceId != update.DeviceId, e => e.DeviceId = update.DeviceId);
+			this.IfThen(e => e.DevicePlatform != update.DevicePlatform, e => e.DevicePlatform = update.DevicePlatform);
+			this.IfThen(e => e.DeviceType != update.DeviceType, e => e.DeviceType = update.DeviceType);
+		}
+		else
+		{
+			this.IfThen(e => !exclusions.Contains(nameof(ApplicationName)) && (e.ApplicationName != update.ApplicationName), e => e.ApplicationName = update.ApplicationName);
+			this.IfThen(e => !exclusions.Contains(nameof(ApplicationVersion)) && (e.ApplicationVersion != update.ApplicationVersion), e => e.ApplicationVersion = update.ApplicationVersion);
+			this.IfThen(e => !exclusions.Contains(nameof(DeviceId)) && (e.DeviceId != update.DeviceId), e => e.DeviceId = update.DeviceId);
+			this.IfThen(e => !exclusions.Contains(nameof(DevicePlatform)) && (e.DevicePlatform != update.DevicePlatform), e => e.DevicePlatform = update.DevicePlatform);
+			this.IfThen(e => !exclusions.Contains(nameof(DeviceType)) && (e.DeviceType != update.DeviceType), e => e.DeviceType = update.DeviceType);
+		}
+	}
 
 	#endregion
 }

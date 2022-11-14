@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using Speedy.Serialization;
 using Speedy.Storage;
 
 #endregion
@@ -12,11 +11,15 @@ namespace Speedy.Devices.Location;
 /// Represents a vertical location (alt, alt ref, acc, acc ref).
 /// </summary>
 public interface IVerticalLocation
-	: ICloneable<IVerticalLocation>,
-		IUpdatable<IVerticalLocation>,
+	: IUpdatable<IVerticalLocation>,
 		IMinimalVerticalLocation
 {
 	#region Properties
+
+	/// <summary>
+	/// Specifies if the Altitude value is valid
+	/// </summary>
+	bool HasAltitude { get; }
 
 	/// <summary>
 	/// Specifies if the Altitude Accuracy value is valid
@@ -87,11 +90,6 @@ public interface IMinimalVerticalLocation : IBindable
 	/// The reference type for the altitude value.
 	/// </summary>
 	AltitudeReferenceType AltitudeReference { get; set; }
-
-	/// <summary>
-	/// Specifies if the Altitude value is valid
-	/// </summary>
-	bool HasAltitude { get; }
 
 	#endregion
 }

@@ -81,13 +81,13 @@ for ($i = 0; $i -le $projects.Length; $i++)
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.1\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid10.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid12.0\$project.dll</HintPath></Reference>"
-	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows\$project.dll</HintPath></Reference>"
-	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net5.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
-	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-windows\$project.dll</HintPath></Reference>"
-	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
-	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-android\$project.dll</HintPath></Reference>"
-	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-ios\$project.dll</HintPath></Reference>"
-	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net6.0-maccatalyst\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-windows\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-windows\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-android\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-ios\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-maccatalyst\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\uap10.0.19041\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\xamarin.ios10\$project.dll</HintPath></Reference>"
 	$platformReferences += ,@($projectPlatformReferences)
@@ -144,14 +144,14 @@ foreach ($file in $files)
 				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\uap10.0.19041\Speedy.Application.Xamarin.dll")
 			}
 			
-			if ($data.Contains("<TargetFramework>net5.0-windows</TargetFramework>") -or $data.Contains("<TargetFramework>net5.0-windows10.0.19041.0</TargetFramework>"))
+			if ($data.Contains("<TargetFramework>net7.0-windows</TargetFramework>") -or $data.Contains("<TargetFramework>net7.0-windows10.0.19041.0</TargetFramework>"))
 			{
-				#Write-Host ".NET 5 windows detected"
-				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.0\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net5.0-windows\Speedy.Application.Wpf.dll")
-				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.1\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net5.0-windows\Speedy.Application.Wpf.dll")
+				#Write-Host ".NET 7 windows detected"
+				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.0\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
+				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.1\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
 				
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net5.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net5.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
 			}
 			
 			if ($data.Contains("<Reference Include=`"Mono.Android`" />"))

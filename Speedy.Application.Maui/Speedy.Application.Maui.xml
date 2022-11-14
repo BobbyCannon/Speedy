@@ -7,6 +7,49 @@
         <member name="M:Speedy.Application.Maui.Controls.TextBox.OnHandlerChanged">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Application.Maui.Converter.BooleanConverter">
+            <summary>
+            Represents a converter for a boolean value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Maui.Converter.BooleanConverter.Inverted">
+            <summary>
+            Flag to determine if this converter is inverting the logic.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.Converter.BooleanConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.Converter.BooleanConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Maui.Converter.StringConverter">
+            <summary>
+            Represents a converter for to string value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.Converter.StringConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.Converter.StringConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Maui.Converter.VisibilityConverter">
+            <summary>
+            Represents a converter for a visibility value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Maui.Converter.VisibilityConverter.Inverted">
+            <summary>
+            Flag to determine if this converter is inverting the logic.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.Converter.VisibilityConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.Converter.VisibilityConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.Maui.Extensions.DeviceIdExtensions">
             <summary>
             Extension methods for <see cref="T:Speedy.Application.DeviceId" />.

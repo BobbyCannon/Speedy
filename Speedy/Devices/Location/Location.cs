@@ -83,6 +83,13 @@ public class Location : CloneableBindable<Location, ILocation>, ILocation
 	}
 
 	/// <inheritdoc />
+	public bool HasLatitudeLongitude
+	{
+		get => this.HasLatitudeLongitude();
+		set => this.UpdateLatitudeLongitude(value);
+	}
+
+	/// <inheritdoc />
 	public bool HasVerticalAccuracy => this.HasSupportedVerticalAccuracy();
 
 	/// <inheritdoc />
@@ -350,38 +357,6 @@ public class Location : CloneableBindable<Location, ILocation>, ILocation
 		base.OnPropertyChangedInDispatcher(propertyName);
 	}
 
-	/// <inheritdoc />
-	IHorizontalLocation ICloneable<IHorizontalLocation>.DeepClone(int? maxDepth)
-	{
-		var response = new HorizontalLocation(Dispatcher);
-		response.UpdateWith(this);
-		return response;
-	}
-
-	/// <inheritdoc />
-	IVerticalLocation ICloneable<IVerticalLocation>.DeepClone(int? maxDepth)
-	{
-		var response = new VerticalLocation(Dispatcher);
-		response.UpdateWith(this);
-		return response;
-	}
-
-	/// <inheritdoc />
-	IHorizontalLocation ICloneable<IHorizontalLocation>.ShallowClone()
-	{
-		var response = new HorizontalLocation(Dispatcher);
-		response.UpdateWith(this);
-		return response;
-	}
-
-	/// <inheritdoc />
-	IVerticalLocation ICloneable<IVerticalLocation>.ShallowClone()
-	{
-		var response = new VerticalLocation(Dispatcher);
-		response.UpdateWith(this);
-		return response;
-	}
-
 	#endregion
 }
 
@@ -397,7 +372,7 @@ public interface ILocation : IBasicLocation,
 	/// <summary>
 	/// The name of the provider that is the source of this location.
 	/// </summary>
-	public string ProviderName { get; set; }
+	string ProviderName { get; set; }
 
 	#endregion
 }

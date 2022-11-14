@@ -4225,6 +4225,42 @@
             <param name="horizontalPercent"> The percentage to scroll horizontally. </param>
             <param name="verticalPercent"> The percentage to scroll vertically. </param>
         </member>
+        <member name="T:Speedy.Automation.Tests.Database.DatabaseTest`2">
+            <summary>
+            Base for database testing.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="T2"></typeparam>
+        </member>
+        <member name="P:Speedy.Automation.Tests.Database.DatabaseTest`2.DatabaseProvider">
+            <summary>
+            The provider for database instances.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Database.DatabaseTest`2.GetDatabaseProvider">
+            <summary>
+            Gets the database provider.
+            </summary>
+            <returns> The database provider. </returns>
+        </member>
+        <member name="T:Speedy.Automation.Tests.Database.SyncableDatabaseTest`2">
+            <summary>
+            Represents a syncable database test.
+            </summary>
+            <typeparam name="T"> The database provider type. </typeparam>
+            <typeparam name="T2"> The database type. </typeparam>
+        </member>
+        <member name="P:Speedy.Automation.Tests.Database.SyncableDatabaseTest`2.DatabaseProvider">
+            <summary>
+            The database provider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Database.SyncableDatabaseTest`2.GetDatabaseProvider">
+            <summary>
+            Gets the database provider.
+            </summary>
+            <returns> The database provider. </returns>
+        </member>
         <member name="T:Speedy.Automation.Tests.SpeedyTest`1">
             <summary>
             Represents a Speedy test.
@@ -4382,6 +4418,19 @@
             <param name="excludeVirtuals"> Exclude virtuals during the test. </param>
             <param name="exclusions"> An optional set of exclusions. </param>
         </member>
+        <member name="T:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`7">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9">
+            <summary>
+            Base for client and server sync test.
+            </summary>
+        </member>
+        <member name="P:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.ClientDatabaseProvider">
+            <summary>
+            The client database provider.
+            </summary>
+        </member>
         <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.CreateClientSyncAccount">
             <inheritdoc />
         </member>
@@ -4410,12 +4459,107 @@
             <summary>
             Process the sync.
             </summary>
-            <param name="type"></param>
-            <param name="setupSync"></param>
-            <param name="updateOptions"></param>
-            <param name="waitFor"></param>
-            <param name="postAction"></param>
-            <returns></returns>
+            <param name="type"> </param>
+            <param name="setupSync"> </param>
+            <param name="updateOptions"> </param>
+            <param name="waitFor"> </param>
+            <param name="postAction"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientAndServerSyncTest`9.ValidateSyncResults(Speedy.Sync.SyncResults{`0})">
+            <summary>
+            Validate the sync results.
+            </summary>
+            <param name="results"> The results to be tested. </param>
+        </member>
+        <member name="T:Speedy.Automation.Tests.Sync.ClientSyncTest`6">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientSyncTest`6.CreateClientSyncAccount">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientSyncTest`6.GetClientDatabaseProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientSyncTest`6.GetClientSyncManager(`2)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ClientSyncTest`6.GetRuntimeInformationProvider">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Automation.Tests.Sync.IClientSyncTest`6">
+            <summary>
+            The contract for client sync test.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IClientSyncTest`6.CreateClientSyncAccount">
+            <summary>
+            Create a client sync account.
+            </summary>
+            <returns> The account for the client. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IClientSyncTest`6.GetClientDatabaseProvider">
+            <summary>
+            Get a client database provider.
+            </summary>
+            <returns> The database provider for a client database. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IClientSyncTest`6.GetClientSyncManager(`2)">
+            <summary>
+            Get a client sync manager.
+            </summary>
+            <param name="serverClient"> The client for the server side. </param>
+            <returns> The sync manager for the client. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IClientSyncTest`6.GetRuntimeInformationProvider">
+            <summary>
+            Get the runtime information provider for the client.
+            </summary>
+            <returns> The runtime information provider. </returns>
+        </member>
+        <member name="T:Speedy.Automation.Tests.Sync.ServerSyncTest`4">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ServerSyncTest`4.GetRuntimeInformationProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ServerSyncTest`4.GetServerDatabaseProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ServerSyncTest`4.GetServerSyncAccount">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.ServerSyncTest`4.GetServerSyncClient">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Automation.Tests.Sync.IServerSyncTest`4">
+            <summary>
+            The contract for server sync test.
+            </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IServerSyncTest`4.GetRuntimeInformationProvider">
+            <summary>
+            Get the runtime information provider for the server.
+            </summary>
+            <returns> The runtime information provider. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IServerSyncTest`4.GetServerDatabaseProvider">
+            <summary>
+            Get a server database provider.
+            </summary>
+            <returns> The database provider for a server database. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IServerSyncTest`4.GetServerSyncAccount">
+            <summary>
+            Create a server sync account.
+            </summary>
+            <returns> The account for the client. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.IServerSyncTest`4.GetServerSyncClient">
+            <summary>
+            Create a server sync client.
+            </summary>
+            <returns> The sync client for the server. </returns>
         </member>
         <member name="T:Speedy.Automation.Tests.Sync.SyncEntityTest`2">
             <summary>
@@ -4423,6 +4567,21 @@
             </summary>
             <typeparam name="T"> The entity type. </typeparam>
             <typeparam name="T2"> The primary key type for the entity. </typeparam>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.SyncEntityTest`2.ValidateExclusions(System.Collections.Generic.Dictionary{System.String,System.ValueTuple{System.Boolean,System.Boolean,System.Boolean,System.Boolean}},System.Boolean)">
+            <summary>
+            Validate the sync entity exclusions.
+            </summary>
+            <param name="expected"> An expected set of value. </param>
+            <param name="printOutput"> An optional flag to print the expected output. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.Sync.SyncEntityTest`2.ValidateExclusions(`0,System.Collections.Generic.Dictionary{System.String,System.ValueTuple{System.Boolean,System.Boolean,System.Boolean,System.Boolean}},System.Boolean)">
+            <summary>
+            Validate the sync entity exclusions.
+            </summary>
+            <param name="entity"> The entity to be validated. </param>
+            <param name="expected"> An expected set of value. </param>
+            <param name="printOutput"> An optional flag to print the expected output. </param>
         </member>
         <member name="T:Speedy.Automation.Tests.TestingExtensions">
             <summary>

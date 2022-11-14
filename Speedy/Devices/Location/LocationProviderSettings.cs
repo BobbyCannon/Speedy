@@ -161,7 +161,7 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 /// <summary>
 /// Represents settings for a location provider.
 /// </summary>
-public interface ILocationProviderSettings
+public interface ILocationProviderSettings : IBindable
 {
 	#region Properties
 

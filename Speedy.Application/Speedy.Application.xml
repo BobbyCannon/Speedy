@@ -110,6 +110,17 @@
             </summary>
             <returns> The component value. </returns>
         </member>
+        <member name="T:Speedy.Application.INotificationService">
+            <summary>
+            Represents a service for notifications.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.INotificationService.Notify(System.String)">
+            <summary>
+            Notify with the provided message.
+            </summary>
+            <param name="message"> The message. </param>
+        </member>
         <member name="T:Speedy.Application.Internal.Base32ByteArrayEncoder">
             <summary>
             An implementation of <see cref="T:Speedy.Application.Internal.IByteArrayEncoder" /> that encodes byte arrays as Base32 strings.
@@ -244,6 +255,52 @@
             <param name="components"> A dictionary containing the components. </param>
             <returns> The device identifier string. </returns>
         </member>
+        <member name="T:Speedy.Application.Internal.InactiveLocationProvider`2">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`2.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`2.StartListeningAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`2.StopListeningAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Internal.LocationProviderSource">
+            <summary>
+            The source of a location provider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Internal.LocationProviderSource.#ctor">
+            <summary>
+            Instantiate an instance of a location provider source.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Internal.LocationProviderSource.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiate an instance of a location provider source.
+            </summary>
+            
+        </member>
+        <member name="P:Speedy.Application.Internal.LocationProviderSource.Enabled">
+            <summary>
+            The flag to determine if a source is enable or disabled.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Internal.LocationProviderSource.Listening">
+            <summary>
+            The flag to determine if the source is currently being used to listen for location updates.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Internal.LocationProviderSource.Provider">
+            <summary>
+            The source for the location provider.
+            </summary>
+        </member>
         <member name="T:Speedy.Application.Internal.MacAddressDeviceIdComponent">
             <summary>
             An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that uses the MAC Address of the PC.
@@ -278,6 +335,28 @@
             <param name="input"> The MAC address to format. </param>
             <returns> The formatted MAC address. </returns>
         </member>
+        <member name="T:Speedy.Application.Sync.SettingsManager">
+            <summary>
+            The manager for settings
+            </summary>
+        </member>
+        <member name="T:Speedy.Application.Sync.SyncableSetting`1">
+            <summary>
+            Represents a syncable setting.
+            </summary>
+            <typeparam name="T"> The type of the ID of the setting. </typeparam>
+        </member>
+        <member name="P:Speedy.Application.Sync.SyncableSetting`1.CanSync">
+            <summary>
+            Set to mark this setting as a syncable setting.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Sync.SyncableSetting`1.Category">
+            <summary>
+            The category for the settings.
+            todo: should this be "group" instead?
+            </summary>
+        </member>
         <member name="P:Speedy.Application.Sync.SyncableSetting`1.ExpiresOn">
             <summary>
             Optionally expires on value, DateTime.MinValue means there is no expiration.
@@ -286,9 +365,14 @@
         <member name="P:Speedy.Application.Sync.SyncableSetting`1.Id">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Sync.SyncableSetting`1.CanSync">
+        <member name="P:Speedy.Application.Sync.SyncableSetting`1.Name">
             <summary>
-            Set to mark this setting as a syncable setting.
+            The name of the setting.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Sync.SyncableSetting`1.Value">
+            <summary>
+            The value of the setting in JSON format.
             </summary>
         </member>
         <member name="T:Speedy.Application.ViewModel">

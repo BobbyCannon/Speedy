@@ -1,12 +1,15 @@
-﻿namespace Speedy.Samples.Maui
-{
-	public partial class App : Application
-	{
-		public App()
-		{
-			InitializeComponent();
+﻿namespace Speedy.Samples.Maui;
 
-			MainPage = new AppShell();
-		}
+public partial class App
+{
+	#region Constructors
+
+	public App()
+	{
+		InitializeComponent();
+
+		MainPage = new AppShell();
 	}
+
+	#endregion
 }

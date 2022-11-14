@@ -78,7 +78,7 @@ public abstract class Comparer<T> : Comparer where T : new()
 /// <summary>
 /// The comparer for an object.
 /// </summary>
-public abstract class Comparer
+public abstract class Comparer : Bindable
 {
 	#region Properties
 

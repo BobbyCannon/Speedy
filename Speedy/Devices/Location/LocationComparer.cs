@@ -79,30 +79,36 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 	/// <inheritdoc />
 	protected override bool TryUpdateValue(TLocation update)
 	{
+		return TryUpdateValue(Value, update);
+	}
+
+	/// <inheritdoc />
+	protected override bool TryUpdateValue(TLocation value, TLocation update)
+	{
 		var updated = false;
 
-		if (ShouldUpdateVerticalLocation(update))
+		if (ShouldUpdateVerticalLocation(value, update))
 		{
-			Value.Altitude = update.Altitude;
-			Value.AltitudeReference = update.AltitudeReference;
-			Value.VerticalAccuracy = update.VerticalAccuracy;
-			Value.VerticalAccuracyReference = update.VerticalAccuracyReference;
-			Value.VerticalFlags = update.VerticalFlags;
-			Value.VerticalSourceName = update.VerticalSourceName;
-			Value.VerticalStatusTime = update.VerticalStatusTime;
+			value.Altitude = update.Altitude;
+			value.AltitudeReference = update.AltitudeReference;
+			value.VerticalAccuracy = update.VerticalAccuracy;
+			value.VerticalAccuracyReference = update.VerticalAccuracyReference;
+			value.VerticalFlags = update.VerticalFlags;
+			value.VerticalSourceName = update.VerticalSourceName;
+			value.VerticalStatusTime = update.VerticalStatusTime;
 			updated = true;
 		}
 
-		if (ShouldUpdateHorizontalLocation(update))
+		if (ShouldUpdateHorizontalLocation(value, update))
 		{
-			Value.HorizontalHeading = update.HorizontalHeading;
-			Value.HorizontalAccuracy = update.HorizontalAccuracy;
-			Value.HorizontalAccuracyReference = update.HorizontalAccuracyReference;
-			Value.HorizontalFlags = update.HorizontalFlags;
-			Value.HorizontalSourceName = update.HorizontalSourceName;
-			Value.HorizontalStatusTime = update.HorizontalStatusTime;
+			value.HorizontalHeading = update.HorizontalHeading;
+			value.HorizontalAccuracy = update.HorizontalAccuracy;
+			value.HorizontalAccuracyReference = update.HorizontalAccuracyReference;
+			value.HorizontalFlags = update.HorizontalFlags;
+			value.HorizontalSourceName = update.HorizontalSourceName;
+			value.HorizontalStatusTime = update.HorizontalStatusTime;
 			Value.Latitude = update.Latitude;
-			Value.Longitude = update.Longitude;
+			value.Longitude = update.Longitude;
 			Value.HorizontalSpeed = update.HorizontalSpeed;
 			updated = true;
 		}
@@ -112,12 +118,17 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 
 	private bool ShouldUpdateHorizontalLocation(IHorizontalLocation update)
 	{
-		var current = new LocationProxy((IHorizontalLocation) Value);
+		return ShouldUpdateHorizontalLocation(Value, update);
+	}
+
+	private bool ShouldUpdateHorizontalLocation(IHorizontalLocation value, IHorizontalLocation update)
+	{
+		var current = new LocationProxy(value);
 		var updateProxy = new LocationProxy(update);
 		return ShouldUpdateLocation(current, updateProxy);
 	}
 
-	private bool ShouldUpdateLocation(LocationProxy current, LocationProxy update)
+	private bool ShouldUpdateLocation(ILocationProxy current, ILocationProxy update)
 	{
 		if (update.StatusTime < current.StatusTime)
 		{
@@ -161,7 +172,12 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 
 	private bool ShouldUpdateVerticalLocation(IVerticalLocation update)
 	{
-		var current = new LocationProxy((IVerticalLocation) Value);
+		return ShouldUpdateVerticalLocation(Value, update);
+	}
+	
+	private bool ShouldUpdateVerticalLocation(IVerticalLocation value, IVerticalLocation update)
+	{
+		var current = new LocationProxy(value);
 		var updateProxy = new LocationProxy(update);
 		return ShouldUpdateLocation(current, updateProxy);
 	}

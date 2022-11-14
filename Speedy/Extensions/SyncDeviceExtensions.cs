@@ -103,7 +103,7 @@ public static class SyncDeviceExtensions
 	}
 
 	/// <summary>
-	/// Load the sync client details into the provided sync options.
+	/// Load the sync client details from the provided dictionary.
 	/// </summary>
 	/// <param name="device"> The device to load options into. </param>
 	/// <param name="values"> The values to load. </param>

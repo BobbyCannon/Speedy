@@ -9,6 +9,7 @@ using Android.Content;
 using Android.OS;
 using Android.Runtime;
 using Java.Lang;
+using Speedy.Application.Internal;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
@@ -75,7 +76,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	public override bool IsListening => _listener != null;
 
 	/// <inheritdoc />
-	public override bool IsLocationAvailable => HasProviderSources;
+	public override bool IsLocationAvailable => ProviderSources.Any();
 
 	/// <inheritdoc />
 	public override bool IsLocationEnabled => ProviderSources.Any(x => x.Enabled && Manager.IsProviderEnabled(x.Provider));
@@ -83,7 +84,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// <summary>
 	/// Gets all providers from the Location Manager.
 	/// </summary>
-	public override IEnumerable<LocationProviderSource> ProviderSources
+	internal IEnumerable<LocationProviderSource> ProviderSources
 	{
 		get
 		{

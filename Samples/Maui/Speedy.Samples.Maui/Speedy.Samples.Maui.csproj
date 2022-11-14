@@ -48,4 +48,10 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Speedy.Application.Maui\Speedy.Application.Maui.csproj" />
+		<ProjectReference Include="..\..\..\Speedy.Application\Speedy.Application.csproj" />
+		<ProjectReference Include="..\..\..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+
 </Project>

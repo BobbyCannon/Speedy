@@ -4,6 +4,7 @@ using System.Diagnostics.Tracing;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
+using Speedy.Application.Internal;
 using Speedy.Devices.Location;
 using Speedy.Logging;
 using Location = Android.Locations.Location;

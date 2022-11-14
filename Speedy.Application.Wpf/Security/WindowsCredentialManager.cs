@@ -11,16 +11,28 @@ using Microsoft.Win32.SafeHandles;
 
 namespace Speedy.Application.Wpf.Security;
 
+/// <summary>
+/// The manager for Windows credential.
+/// </summary>
 public static class WindowsCredentialManager
 {
 	#region Methods
 
+	/// <summary>
+	/// Delete a Windows credential.
+	/// </summary>
+	/// <param name="credential"></param>
 	public static void Delete(WindowsCredential credential)
 	{
 		CredDelete(credential.ApplicationName, credential.CredentialType, 0);
 		//Trace.Assert(result, "Failed to delete the credential.");
 	}
 
+	/// <summary>
+	/// Enumerate all Windows Credentials.
+	/// </summary>
+	/// <param name="filter"> An optional filter. </param>
+	/// <returns> The Windows credentials. </returns>
 	public static IEnumerable<WindowsCredential> EnumerateCredentials(Func<WindowsCredential, bool> filter = null)
 	{
 		var pCredentials = IntPtr.Zero;
@@ -55,6 +67,11 @@ public static class WindowsCredentialManager
 		return response;
 	}
 
+	/// <summary>
+	/// Read a single Windows credential.
+	/// </summary>
+	/// <param name="applicationName"> The name of the application. </param>
+	/// <returns> The deleted credential otherwise null. </returns>
 	public static WindowsCredential ReadCredential(string applicationName)
 	{
 		var read = CredRead(applicationName, CredentialType.Generic, 0, out var nCredPtr);
@@ -67,11 +84,23 @@ public static class WindowsCredentialManager
 		return ConvertCredential(handle.GetCredential());
 	}
 
+	/// <summary>
+	/// Write the provided credential.
+	/// </summary>
+	/// <param name="applicationName"> The credential application name to write .</param>
+	/// <param name="userName"> The credential user name to write .</param>
+	/// <param name="password"> The credential password to write .</param>
+	/// <returns> The created Windows credential. </returns>
 	public static WindowsCredential WriteCredential(string applicationName, string userName, SecureString password)
 	{
 		return WriteCredential(new WindowsCredential(CredentialType.Generic, applicationName, userName, password));
 	}
 
+	/// <summary>
+	/// Write the provided credential.
+	/// </summary>
+	/// <param name="credential"> The credential to write .</param>
+	/// <returns> The created Windows credential. </returns>
 	public static WindowsCredential WriteCredential(WindowsCredential credential)
 	{
 		if (credential.Password.Length > 256)
@@ -224,15 +253,49 @@ public static class WindowsCredentialManager
 
 	#region Enumerations
 
+	/// <summary>
+	/// The type of credential
+	/// </summary>
 	public enum CredentialType
 	{
+		/// <summary>
+		/// Generic
+		/// </summary>
 		Generic = 1,
+		
+		/// <summary>
+		/// Domain Password
+		/// </summary>
 		DomainPassword = 2,
+		
+		/// <summary>
+		/// Domain Certificate
+		/// </summary>
 		DomainCertificate = 3,
+
+		/// <summary>
+		/// Domain Visible Password
+		/// </summary>
 		DomainVisiblePassword = 4,
+
+		/// <summary>
+		/// Generic Certificate
+		/// </summary>
 		GenericCertificate = 5,
+
+		/// <summary>
+		/// Domain Extended
+		/// </summary>
 		DomainExtended = 6,
+
+		/// <summary>
+		/// Maximum
+		/// </summary>
 		Maximum = 7,
+
+		/// <summary>
+		/// Maximum Ex
+		/// </summary>
 		MaximumEx = Maximum + 1000
 	}
 

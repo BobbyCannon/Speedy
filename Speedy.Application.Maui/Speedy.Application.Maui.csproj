@@ -71,4 +71,9 @@
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <MauiXaml Update="Themes\Generic.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 </Project>

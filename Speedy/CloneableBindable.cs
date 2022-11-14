@@ -29,7 +29,7 @@ public abstract class CloneableBindable<T, T2> : CloneableBindable<T>, ICloneabl
 	#region Methods
 
 	/// <inheritdoc />
-	T2 ICloneable<T2>.DeepClone(int? maxDepth = null)
+	T2 ICloneable<T2>.DeepClone(int? maxDepth)
 	{
 		return DeepClone(maxDepth);
 	}

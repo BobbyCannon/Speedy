@@ -1975,6 +1975,9 @@
         <member name="P:Speedy.Devices.Location.HorizontalLocation.HasHorizontalSpeed">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.HasLatitudeLongitude">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalAccuracy">
             <inheritdoc />
         </member>
@@ -2019,42 +2022,6 @@
         <member name="M:Speedy.Devices.Location.HorizontalLocation.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Devices.Location.HorizontalLocationProvider`1">
-            <summary>
-            Represent a provider of horizontal location also known as altitude.
-            </summary>
-            <typeparam name="T"> The type that implements IHorizontalLocation. </typeparam>
-        </member>
-        <member name="M:Speedy.Devices.Location.HorizontalLocationProvider`1.#ctor(Speedy.IDispatcher)">
-            <summary>
-            Create an instance of the altitude provider.
-            </summary>
-            <param name="dispatcher"> An optional dispatcher. </param>
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocationProvider`1.IsListening">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocationProvider`1.LastReadLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.HorizontalLocationProvider`1.GetHorizontalLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.HorizontalLocationProvider`1.StartListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.HorizontalLocationProvider`1.StopListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.HorizontalLocationProvider`1.OnLocationChanged(`0)">
-            <summary>
-            Trigger the horizontal location changed event.
-            </summary>
-            <param name="e"> The updated location. </param>
-        </member>
-        <member name="E:Speedy.Devices.Location.HorizontalLocationProvider`1.LocationChanged">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Devices.Location.IHorizontalLocation">
             <summary>
             Represents a horizontal location (lat, long).
@@ -2073,6 +2040,11 @@
         <member name="P:Speedy.Devices.Location.IHorizontalLocation.HasHorizontalSpeed">
             <summary>
             Specifies if the Speed value is valid
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HasLatitudeLongitude">
+            <summary>
+            Specifies if the Latitude / Longitude value are valid
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalAccuracy">
@@ -2125,20 +2097,14 @@
             Ranges between -180 to 180 from West to East
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.IHorizontalLocationProvider`1">
-            <summary>
-            Represents a horizontal location provider.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.IHorizontalLocationProvider`1.GetHorizontalLocation">
-            <summary>
-            Gets the horizontal location.
-            </summary>
-            <returns> The horizontal location. </returns>
-        </member>
         <member name="T:Speedy.Devices.Location.IVerticalLocation">
             <summary>
             Represents a vertical location (alt, alt ref, acc, acc ref).
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IVerticalLocation.HasAltitude">
+            <summary>
+            Specifies if the Altitude value is valid
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.IVerticalLocation.HasVerticalAccuracy">
@@ -2206,22 +2172,6 @@
             The reference type for the altitude value.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.HasAltitude">
-            <summary>
-            Specifies if the Altitude value is valid
-            </summary>
-        </member>
-        <member name="T:Speedy.Devices.Location.IVerticalLocationProvider`1">
-            <summary>
-            Represents a vertical location provider.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.IVerticalLocationProvider`1.GetVerticalLocation">
-            <summary>
-            Gets the vertical location.
-            </summary>
-            <returns> The vertical location. </returns>
-        </member>
         <member name="T:Speedy.Devices.Location.Location">
             <summary>
             Represents a full location from a LocationProvider. Contains horizontal and vertical location.
@@ -2263,6 +2213,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.Location.HasHorizontalSpeed">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.Location.HasLatitudeLongitude">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.Location.HasVerticalAccuracy">
@@ -2350,18 +2303,6 @@
         <member name="M:Speedy.Devices.Location.Location.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.Location.Speedy#Serialization#ICloneable{Speedy#Devices#Location#IHorizontalLocation}#DeepClone(System.Nullable{System.Int32})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.Speedy#Serialization#ICloneable{Speedy#Devices#Location#IVerticalLocation}#DeepClone(System.Nullable{System.Int32})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.Speedy#Serialization#ICloneable{Speedy#Devices#Location#IHorizontalLocation}#ShallowClone">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.Speedy#Serialization#ICloneable{Speedy#Devices#Location#IVerticalLocation}#ShallowClone">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Devices.Location.ILocation">
             <summary>
             Represents a provider location.
@@ -2427,6 +2368,11 @@
             Location has speed.
             </summary>
         </member>
+        <member name="F:Speedy.Devices.Location.LocationFlags.HasPrimaryValue">
+            <summary>
+            Location has primary value (ex. alt or lat/long)
+            </summary>
+        </member>
         <member name="F:Speedy.Devices.Location.LocationFlags.All">
             <summary>
             All flags
@@ -2437,67 +2383,45 @@
             The manager for location.
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.LocationManager`3">
+        <member name="M:Speedy.Devices.Location.LocationManager.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationManager`4">
             <summary>
             The manager for location.
             </summary>
             <typeparam name="TLocation"> The full location type. </typeparam>
             <typeparam name="THorizontal"> The horizontal type. </typeparam>
             <typeparam name="TVertical"> The vertical type. </typeparam>
+            <typeparam name="TLocationProviderSettings"> The location settings for the provider. </typeparam>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`3.#ctor">
+        <member name="M:Speedy.Devices.Location.LocationManager`4.#ctor(Speedy.IDispatcher)">
             <summary>
             Instantiates a location manager.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`3.Comparer">
+        <member name="P:Speedy.Devices.Location.LocationManager`4.Comparer">
             <summary>
             The comparer for location updates.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`3.HorizontalLocationProviders">
+        <member name="P:Speedy.Devices.Location.LocationManager`4.LocationProviders">
             <summary>
-            A read only list of horizontal location providers.
+            The list of location providers.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`3.IsListening">
+        <member name="P:Speedy.Devices.Location.LocationManager`4.Settings">
             <summary>
-            The manager is listening.
+            Default settings for the location providers.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`3.LastReadLocation">
+        <member name="M:Speedy.Devices.Location.LocationManager`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`3.VerticalLocationProviders">
-            <summary>
-            A read only list of vertical location providers.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`3.AddProvider(Speedy.Devices.Location.IVerticalLocationProvider{`2})">
-            <summary>
-            Add a vertical location provider.
-            </summary>
-            <param name="provider"> The provider to add. </param>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`3.AddProvider(Speedy.Devices.Location.IHorizontalLocationProvider{`1})">
-            <summary>
-            Add a horizontal location provider.
-            </summary>
-            <param name="provider"> The provider to add. </param>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`3.StartListeningAsync">
+        <member name="M:Speedy.Devices.Location.LocationManager`4.StartListeningAsync">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`3.StopListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`3.OnLocationChanged(`0)">
-            <summary>
-            Triggers the <see cref="E:Speedy.Devices.Location.LocationManager`3.LocationChanged" /> event.
-            </summary>
-            <param name="e"> The location that changed. </param>
-        </member>
-        <member name="E:Speedy.Devices.Location.LocationManager`3.LocationChanged">
+        <member name="M:Speedy.Devices.Location.LocationManager`4.StopListeningAsync">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.LocationProvider`2">
@@ -2515,11 +2439,6 @@
         <member name="P:Speedy.Devices.Location.LocationProvider`2.HasPermission">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.HasProviderSources">
-            <summary>
-            Returns true if there is a set of internal providers.
-            </summary>
-        </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.IsListening">
             <inheritdoc />
         </member>
@@ -2534,11 +2453,6 @@
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.LocationProviderSettings">
             <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.ProviderSources">
-            <summary>
-            A list of providers internal to the single location providers.
-            </summary>
         </member>
         <member name="P:Speedy.Devices.Location.LocationProvider`2.StartListeningCommand">
             <inheritdoc />
@@ -2555,12 +2469,6 @@
         <member name="M:Speedy.Devices.Location.LocationProvider`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.GetHorizontalLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.GetVerticalLocation">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.StartListeningAsync">
             <inheritdoc />
         </member>
@@ -2572,18 +2480,6 @@
             Triggers event handler.
             </summary>
             <param name="e"> The value for the event handler. </param>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.OnLocationChangedHorizontalOnly(`0)">
-            <summary>
-            Trigger the horizontal location changed event.
-            </summary>
-            <param name="e"> The updated location. </param>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.OnLocationChangedVerticalOnly(`0)">
-            <summary>
-            Trigger the vertical location changed event.
-            </summary>
-            <param name="e"> The updated location. </param>
         </member>
         <member name="M:Speedy.Devices.Location.LocationProvider`2.OnLocationProviderError(Speedy.Devices.Location.LocationProviderError)">
             <summary>
@@ -2601,12 +2497,6 @@
             <inheritdoc />
         </member>
         <member name="E:Speedy.Devices.Location.LocationProvider`2.LocationChanged">
-            <inheritdoc />
-        </member>
-        <member name="E:Speedy.Devices.Location.LocationProvider`2.LocationChangedHorizontalOnly">
-            <inheritdoc />
-        </member>
-        <member name="E:Speedy.Devices.Location.LocationProvider`2.LocationChangedVerticalOnly">
             <inheritdoc />
         </member>
         <member name="E:Speedy.Devices.Location.LocationProvider`2.LogEventWritten">
@@ -2673,11 +2563,6 @@
         <member name="E:Speedy.Devices.Location.ILocationProvider`2.ErrorReceived">
             <summary>
             ProviderLocation error event handler
-            </summary>
-        </member>
-        <member name="E:Speedy.Devices.Location.ILocationProvider`2.LocationChanged">
-            <summary>
-            Provider location changed event handler.
             </summary>
         </member>
         <member name="E:Speedy.Devices.Location.ILocationProvider`2.LogEventWritten">
@@ -2887,26 +2772,6 @@
             Reset the settings back to defaults.
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.LocationProviderSource">
-            <summary>
-            The source of a location provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSource.Enabled">
-            <summary>
-            The flag to determine if a source is enable or disabled.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSource.Listening">
-            <summary>
-            The flag to determine if the source is currently being used to listen for location updates.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProviderSource.Provider">
-            <summary>
-            The source for the location provider.
-            </summary>
-        </member>
         <member name="T:Speedy.Devices.Location.LocationProxy">
             <summary>
             Represents a horizontal location (lat, long).
@@ -3051,42 +2916,6 @@
             <param name="exclusions"> An optional set of properties to exclude. </param>
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Devices.Location.VerticalLocationProvider`1">
-            <summary>
-            Represent a provider of vertical location also known as altitude.
-            </summary>
-            <typeparam name="T"> The type that implements IVerticalLocation. </typeparam>
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocationProvider`1.#ctor(Speedy.IDispatcher)">
-            <summary>
-            Create an instance of the altitude provider.
-            </summary>
-            <param name="dispatcher"> An optional dispatcher. </param>
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocationProvider`1.IsListening">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocationProvider`1.LastReadLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocationProvider`1.GetVerticalLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocationProvider`1.StartListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocationProvider`1.StopListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocationProvider`1.OnLocationChanged(`0)">
-            <summary>
-            Trigger the vertical location changed event.
-            </summary>
-            <param name="e"> The updated location. </param>
-        </member>
-        <member name="E:Speedy.Devices.Location.VerticalLocationProvider`1.LocationChanged">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.RuntimeInformation">
@@ -4653,6 +4482,16 @@
             Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)" /> if this changes.
             </remarks>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HasLatitudeLongitude(Speedy.Devices.Location.IHorizontalLocation)">
+            <summary>
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalHorizontalLocation.Latitude" />, <see cref="P:Speedy.Devices.Location.IMinimalHorizontalLocation.Longitude" /> are available.
+            </summary>
+            <param name="location"> The location to validate. </param>
+            <returns> True if the value is available. </returns>
+            <remarks>
+            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)" /> if this changes.
+            </remarks>
+        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAltitude(Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
             Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude" /> is available.
@@ -4866,6 +4705,13 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <param name="value"> True to set HasSpeedy otherwise clear. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateLatitudeLongitude(Speedy.Devices.Location.IHorizontalLocation,System.Boolean)">
+            <summary>
+            Update the location's HasPrimaryValue location flag.
+            </summary>
+            <param name="location"> The location to validate. </param>
+            <param name="value"> True to set HasPrimaryValue otherwise clear. </param>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalHeading(Speedy.Devices.Location.IVerticalLocation,System.Boolean)">
             <summary>
@@ -5621,7 +5467,7 @@
         </member>
         <member name="M:Speedy.Extensions.SyncDeviceExtensions.Load(Speedy.Sync.ISyncClientDetails,System.Collections.Generic.IDictionary{System.String,System.String})">
             <summary>
-            Load the sync client details into the provided sync options.
+            Load the sync client details from the provided dictionary.
             </summary>
             <param name="device"> The device to load options into. </param>
             <param name="values"> The values to load. </param>
@@ -13493,6 +13339,12 @@
         <member name="P:Speedy.Sync.SyncClientDetails.DeviceType">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Sync.SyncClientDetails.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncClientDetails.UpdateWith(Speedy.Sync.ISyncClientDetails,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Sync.ISyncClientDetails">
             <summary>
             The details for a sync client.
@@ -13654,9 +13506,6 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncDevice`1.AltitudeReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Sync.SyncDevice`1.HasAltitude">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncDevice`1.ApplicationName">

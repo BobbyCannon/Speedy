@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
+using Speedy.Application.Internal;
 using Speedy.Devices.Location;
 using Location = Android.Locations.Location;
 using LocationManager = Android.Locations.LocationManager;

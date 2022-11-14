@@ -13,6 +13,7 @@
             <summary>
             Adds the MAC address to the device identifier, optionally excluding wireless adapters and/or non-physical adapters.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <param name="excludeWireless"> A value indicating whether wireless adapters should be excluded. </param>
             <param name="excludeNonPhysical"> A value indicating whether non-physical adapters should be excluded. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
@@ -21,24 +22,28 @@
             <summary>
             Adds the Machine GUID (from HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MachineGuid) to the device identifier.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
         </member>
         <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddMotherboardSerialNumber(Speedy.Application.DeviceId)">
             <summary>
             Adds the motherboard serial number to the device identifier.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
         </member>
         <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddProcessorId(Speedy.Application.DeviceId)">
             <summary>
             Adds the processor ID to the device identifier.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
         </member>
         <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddRegistryValue(Speedy.Application.DeviceId,System.String,Microsoft.Win32.RegistryView,Microsoft.Win32.RegistryHive,System.String,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent" /> class.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <param name="componentName"> The name of the component. </param>
             <param name="registryView"> The registry view. </param>
             <param name="registryHive"> The registry hive. </param>
@@ -49,18 +54,21 @@
             <summary>
             Adds the system serial drive number to the device identifier.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
         </member>
         <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddSystemSerialDriveNumber(Speedy.Application.DeviceId)">
             <summary>
             Adds the system serial drive number to the device identifier.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
         </member>
         <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddSystemUuid(Speedy.Application.DeviceId)">
             <summary>
             Adds the system UUID to the device identifier.
             </summary>
+            <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
         </member>
         <member name="M:Speedy.Application.Wpf.Internal.ManagementObjectDeviceIdComponent.GetValue">
@@ -205,6 +213,176 @@
             Gets the component value.
             </summary>
             <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Application.Wpf.Security.WindowsCredential">
+            <summary>
+            Represents a credential for windows.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.#ctor">
+            <summary>
+            Create an instance of a windows credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.#ctor(System.String,System.String,System.Security.SecureString,System.String)">
+            <summary>
+            Create an instance of a windows credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.#ctor(Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType,System.String,System.String,System.Security.SecureString,System.String)">
+            <summary>
+            Create an instance of a windows credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.ApplicationName">
+            <summary>
+            The name of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.Attributes">
+            <summary>
+            Attributes for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.Comment">
+            <summary>
+            A comment for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.CredentialType">
+            <summary>
+            The type of the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.Password">
+            <summary>
+            The password.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.UserName">
+            <summary>
+            The UserName.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.AsWebCredential">
+            <summary>
+            Return the secure credential as a web credential. Web credentials are not secure.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.FromInsecureJson(System.Object)">
+            <summary>
+            Convert from insecure json.
+            </summary>
+            <param name="t"> The dynamic object. </param>
+            <returns> The credential from json. </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.ToInsecureJson">
+            <summary>
+            Convert the credential to insecure json.
+            </summary>
+            <returns> The json value of the credential. </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Wpf.Security.WindowsCredentialManager">
+            <summary>
+            The manager for Windows credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredentialManager.Delete(Speedy.Application.Wpf.Security.WindowsCredential)">
+            <summary>
+            Delete a Windows credential.
+            </summary>
+            <param name="credential"></param>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredentialManager.EnumerateCredentials(System.Func{Speedy.Application.Wpf.Security.WindowsCredential,System.Boolean})">
+            <summary>
+            Enumerate all Windows Credentials.
+            </summary>
+            <param name="filter"> An optional filter. </param>
+            <returns> The Windows credentials. </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredentialManager.ReadCredential(System.String)">
+            <summary>
+            Read a single Windows credential.
+            </summary>
+            <param name="applicationName"> The name of the application. </param>
+            <returns> The deleted credential otherwise null. </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredentialManager.WriteCredential(System.String,System.String,System.Security.SecureString)">
+            <summary>
+            Write the provided credential.
+            </summary>
+            <param name="applicationName"> The credential application name to write .</param>
+            <param name="userName"> The credential user name to write .</param>
+            <param name="password"> The credential password to write .</param>
+            <returns> The created Windows credential. </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.Security.WindowsCredentialManager.WriteCredential(Speedy.Application.Wpf.Security.WindowsCredential)">
+            <summary>
+            Write the provided credential.
+            </summary>
+            <param name="credential"> The credential to write .</param>
+            <returns> The created Windows credential. </returns>
+        </member>
+        <member name="T:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType">
+            <summary>
+            The type of credential
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.Generic">
+            <summary>
+            Generic
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.DomainPassword">
+            <summary>
+            Domain Password
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.DomainCertificate">
+            <summary>
+            Domain Certificate
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.DomainVisiblePassword">
+            <summary>
+            Domain Visible Password
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.GenericCertificate">
+            <summary>
+            Generic Certificate
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.DomainExtended">
+            <summary>
+            Domain Extended
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.Maximum">
+            <summary>
+            Maximum
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType.MaximumEx">
+            <summary>
+            Maximum Ex
+            </summary>
+        </member>
+        <member name="T:Speedy.Application.Wpf.WindowsSecureVault">
+            <summary>
+            A secure vault for Windows.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WindowsSecureVault.#ctor(Speedy.Devices.RuntimeInformation,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the Windows secure value.
+            </summary>
+            <param name="information"> The runtime information. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
         </member>
         <member name="M:Speedy.Application.Wpf.WindowsSecureVault.ClearCredential">
             <inheritdoc />

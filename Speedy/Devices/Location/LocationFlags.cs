@@ -28,7 +28,12 @@ public enum LocationFlags
 	HasSpeed = 0b10,
 
 	/// <summary>
+	/// Location has primary value (ex. alt or lat/long)
+	/// </summary>
+	HasPrimaryValue = 0b100,
+
+	/// <summary>
 	/// All flags
 	/// </summary>
-	All = 0b11
+	All = 0b111
 }

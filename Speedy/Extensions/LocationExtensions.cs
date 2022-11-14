@@ -280,6 +280,19 @@ public static class LocationExtensions
 	{
 		return location.HorizontalFlags.HasFlag(LocationFlags.HasSpeed);
 	}
+	
+	/// <summary>
+	/// Check a location to determine if <see cref="IMinimalHorizontalLocation.Latitude" />, <see cref="IMinimalHorizontalLocation.Longitude" /> are available.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <returns> True if the value is available. </returns>
+	/// <remarks>
+	/// Update <see cref="ProcessOnPropertyChange(IHorizontalLocation,string)" /> if this changes.
+	/// </remarks>
+	public static bool HasLatitudeLongitude(this IHorizontalLocation location)
+	{
+		return location.HorizontalFlags.HasFlag(LocationFlags.HasPrimaryValue);
+	}
 
 	/// <summary>
 	/// Check a location to determine if <see cref="IMinimalVerticalLocation.Altitude" /> is available.
@@ -544,6 +557,7 @@ public static class LocationExtensions
 			{
 				location.OnPropertyChanged(nameof(IHorizontalLocation.HasHorizontalHeading));
 				location.OnPropertyChanged(nameof(IHorizontalLocation.HasHorizontalSpeed));
+				location.OnPropertyChanged(nameof(IHorizontalLocation.HasLatitudeLongitude));
 				break;
 			}
 		}
@@ -573,6 +587,7 @@ public static class LocationExtensions
 			{
 				location.OnPropertyChanged(nameof(IVerticalLocation.HasVerticalHeading));
 				location.OnPropertyChanged(nameof(IVerticalLocation.HasVerticalSpeed));
+				location.OnPropertyChanged(nameof(IVerticalLocation.HasAltitude));
 				break;
 			}
 		}
@@ -656,6 +671,18 @@ public static class LocationExtensions
 		location.HorizontalFlags = value
 			? location.HorizontalFlags.SetFlag(LocationFlags.HasSpeed)
 			: location.HorizontalFlags.ClearFlag(LocationFlags.HasSpeed);
+	}
+	
+	/// <summary>
+	/// Update the location's HasPrimaryValue location flag.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <param name="value"> True to set HasPrimaryValue otherwise clear. </param>
+	public static void UpdateLatitudeLongitude(this IHorizontalLocation location, bool value)
+	{
+		location.HorizontalFlags = value
+			? location.HorizontalFlags.SetFlag(LocationFlags.HasPrimaryValue)
+			: location.HorizontalFlags.ClearFlag(LocationFlags.HasPrimaryValue);
 	}
 
 	/// <summary>

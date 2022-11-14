@@ -1,10 +1,13 @@
-﻿namespace Speedy.Samples.Maui
+﻿namespace Speedy.Samples.Maui;
+
+public partial class AppShell : Shell
 {
-	public partial class AppShell : Shell
+	#region Constructors
+
+	public AppShell()
 	{
-		public AppShell()
-		{
-			InitializeComponent();
-		}
+		InitializeComponent();
 	}
+
+	#endregion
 }

@@ -5,6 +5,8 @@ namespace Speedy.Samples.Maui
 {
 	public class Program
 	{
+		#region Methods
+
 		// This is the main entry point of the application.
 		static void Main(string[] args)
 		{
@@ -12,5 +14,7 @@ namespace Speedy.Samples.Maui
 			// you can specify it here.
 			UIApplication.Main(args, null, typeof(AppDelegate));
 		}
+
+		#endregion
 	}
 }

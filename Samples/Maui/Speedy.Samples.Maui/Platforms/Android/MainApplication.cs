@@ -1,16 +1,30 @@
-﻿using Android.App;
+﻿#region References
+
+using Android.App;
 using Android.Runtime;
 
-namespace Speedy.Samples.Maui
-{
-	[Application]
-	public class MainApplication : MauiApplication
-	{
-		public MainApplication(IntPtr handle, JniHandleOwnership ownership)
-			: base(handle, ownership)
-		{
-		}
+#endregion
 
-		protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+namespace Speedy.Samples.Maui;
+
+[Application]
+public class MainApplication : MauiApplication
+{
+	#region Constructors
+
+	public MainApplication(IntPtr handle, JniHandleOwnership ownership)
+		: base(handle, ownership)
+	{
 	}
+
+	#endregion
+
+	#region Methods
+
+	protected override MauiApp CreateMauiApp()
+	{
+		return MauiProgram.CreateMauiApp();
+	}
+
+	#endregion
 }

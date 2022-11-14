@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Speedy.Devices.Location;
 using Speedy.Serialization;
@@ -13,9 +14,10 @@ namespace Speedy.Application.Xamarin;
 /// <summary>
 /// Location provider for the Xamarin Barometer.
 /// </summary>
-/// <typeparam name="T"> </typeparam>
-public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvider<T>
-	where T : class, IVerticalLocation, ICloneable<T>, new()
+/// <typeparam name="T"> The vertical location type. </typeparam>
+public class XamarinBarometerLocationProvider<T>
+	: LocationProvider<T, LocationProviderSettings>
+	where T : class, ILocation, new()
 {
 	#region Constructors
 
@@ -23,7 +25,7 @@ public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvi
 	/// Instantiates the xamarin barometer altitude provider.
 	/// </summary>
 	/// <param name="dispatcher"> </param>
-	public XamarinBarometerVerticalLocationProvider(IDispatcher dispatcher) : base(dispatcher)
+	public XamarinBarometerLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}
 
@@ -39,6 +41,12 @@ public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvi
 	#endregion
 
 	#region Methods
+
+	/// <inheritdoc />
+	public override Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
+	{
+		return Task.FromResult(((ICloneable<T>) LastReadLocation).ShallowClone());
+	}
 
 	/// <inheritdoc />
 	public override Task StartListeningAsync()
@@ -62,7 +70,7 @@ public class XamarinBarometerVerticalLocationProvider<T> : VerticalLocationProvi
 		var altitudeAboveSeaLevel = Math.Round(44307.69 * (1.0 - Math.Pow(Pressure / 1013.25, 0.190284)) * 10.0) / 10.0;
 		LastReadLocation.Altitude = altitudeAboveSeaLevel;
 		LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-		OnLocationChanged((T) ((IVerticalLocation) LastReadLocation).ShallowClone());
+		OnLocationChanged((T) LastReadLocation.ShallowClone());
 	}
 
 	#endregion

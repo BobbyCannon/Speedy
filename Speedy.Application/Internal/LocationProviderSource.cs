@@ -1,16 +1,23 @@
-﻿namespace Speedy.Devices.Location;
+﻿namespace Speedy.Application.Internal;
 
 /// <summary>
 /// The source of a location provider.
 /// </summary>
-public class LocationProviderSource : Bindable
+internal class LocationProviderSource : Bindable
 {
 	#region Constructors
 
+	/// <summary>
+	/// Instantiate an instance of a location provider source.
+	/// </summary>
 	public LocationProviderSource() : this(null)
 	{
 	}
 
+	/// <summary>
+	/// Instantiate an instance of a location provider source.
+	/// </summary>
+	/// 
 	public LocationProviderSource(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}

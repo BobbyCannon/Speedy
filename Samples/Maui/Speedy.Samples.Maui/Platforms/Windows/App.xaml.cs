@@ -10,6 +10,8 @@ namespace Speedy.Samples.Maui.WinUI
 	/// </summary>
 	public partial class App : MauiWinUIApplication
 	{
+		#region Constructors
+
 		/// <summary>
 		/// Initializes the singleton application object.  This is the first line of authored code
 		/// executed, and as such is the logical equivalent of main() or WinMain().
@@ -19,6 +21,12 @@ namespace Speedy.Samples.Maui.WinUI
 			this.InitializeComponent();
 		}
 
+		#endregion
+
+		#region Methods
+
 		protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+
+		#endregion
 	}
 }

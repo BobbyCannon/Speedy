@@ -1,15 +1,11 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Speedy.Collections;
 using Speedy.Commands;
 using Speedy.Extensions;
 using Speedy.Logging;
-using Speedy.Serialization;
 
 #endregion
 
@@ -21,10 +17,12 @@ namespace Speedy.Devices.Location;
 /// <typeparam name="T"> The location type. </typeparam>
 /// <typeparam name="T2"> The setting type. </typeparam>
 public abstract class LocationProvider<T, T2>
-	: Bindable, ILocationProvider<T, T2>, IHorizontalLocationProvider<T>, IVerticalLocationProvider<T>
-	where T : class, ILocation, ICloneable<T>, new()
-	where T2 : LocationProviderSettings, IBindable, new()
+	: DeviceInformationProvider<T>, ILocationProvider<T, T2>
+	where T : class, ILocation, new()
+	where T2 : ILocationProviderSettings, IBindable, new()
 {
+	private readonly LocationComparer<T, IHorizontalLocation, IVerticalLocation> _locationComparer;
+
 	#region Constructors
 
 	/// <summary>
@@ -32,8 +30,8 @@ public abstract class LocationProvider<T, T2>
 	/// </summary>
 	protected LocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		// Set properties
-		ProviderSources = new BaseObservableCollection<LocationProviderSource>();
+		_locationComparer = new LocationComparer<T, IHorizontalLocation, IVerticalLocation>();
+
 		LastReadLocation = new T();
 		LastReadLocation.UpdateDispatcher(dispatcher);
 		LocationProviderSettings = new T2();
@@ -51,11 +49,6 @@ public abstract class LocationProvider<T, T2>
 	/// <inheritdoc />
 	public bool HasPermission { get; protected set; }
 
-	/// <summary>
-	/// Returns true if there is a set of internal providers.
-	/// </summary>
-	public bool HasProviderSources => ProviderSources.Any();
-
 	/// <inheritdoc />
 	public virtual bool IsListening { get; protected set; }
 
@@ -71,11 +64,6 @@ public abstract class LocationProvider<T, T2>
 	/// <inheritdoc />
 	public T2 LocationProviderSettings { get; }
 
-	/// <summary>
-	/// A list of providers internal to the single location providers.
-	/// </summary>
-	public virtual IEnumerable<LocationProviderSource> ProviderSources { get; }
-
 	/// <inheritdoc />
 	public RelayCommand StartListeningCommand { get; }
 
@@ -90,6 +78,18 @@ public abstract class LocationProvider<T, T2>
 	#region Methods
 
 	/// <inheritdoc />
+	public override bool ApplyUpdate(ref T value, T update)
+	{
+		throw new NotImplementedException();
+	}
+
+	/// <inheritdoc />
+	public override bool ShouldApplyUpdate(ref T value, T update)
+	{
+		_locationComparer.ValidateUpdate(update);
+	}
+
+	/// <inheritdoc />
 	public virtual T GetCurrentLocation(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		return GetCurrentLocationAsync().AwaitResults();
@@ -97,18 +97,6 @@ public abstract class LocationProvider<T, T2>
 
 	/// <inheritdoc />
 	public abstract Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
-
-	/// <inheritdoc />
-	public T GetHorizontalLocation()
-	{
-		return LastReadLocation;
-	}
-
-	/// <inheritdoc />
-	public T GetVerticalLocation()
-	{
-		return LastReadLocation;
-	}
 
 	/// <inheritdoc />
 	public abstract Task StartListeningAsync();
@@ -123,24 +111,6 @@ public abstract class LocationProvider<T, T2>
 	protected virtual void OnLocationChanged(T e)
 	{
 		LocationChanged?.Invoke(this, e);
-	}
-
-	/// <summary>
-	/// Trigger the horizontal location changed event.
-	/// </summary>
-	/// <param name="e"> The updated location. </param>
-	protected virtual void OnLocationChangedHorizontalOnly(T e)
-	{
-		LocationChangedHorizontalOnly?.Invoke(this, e);
-	}
-
-	/// <summary>
-	/// Trigger the vertical location changed event.
-	/// </summary>
-	/// <param name="e"> The updated location. </param>
-	protected virtual void OnLocationChangedVerticalOnly(T e)
-	{
-		LocationChangedVerticalOnly?.Invoke(this, e);
 	}
 
 	/// <summary>
@@ -172,12 +142,6 @@ public abstract class LocationProvider<T, T2>
 	public event EventHandler<T> LocationChanged;
 
 	/// <inheritdoc />
-	public event EventHandler<T> LocationChangedHorizontalOnly;
-
-	/// <inheritdoc />
-	public event EventHandler<T> LocationChangedVerticalOnly;
-
-	/// <inheritdoc />
 	public event EventHandler<LogEventArgs> LogEventWritten;
 
 	#endregion
@@ -189,8 +153,8 @@ public abstract class LocationProvider<T, T2>
 /// <typeparam name="T"> The location type. </typeparam>
 /// <typeparam name="T2"> The setting type. </typeparam>
 public interface ILocationProvider<T, out T2> : ILocationProvider<T>
-	where T : class, ILocation, ICloneable<T>
-	where T2 : LocationProviderSettings
+	where T : class, ILocation, new()
+	where T2 : ILocationProviderSettings
 {
 	#region Properties
 
@@ -259,11 +223,6 @@ public interface ILocationProvider<T, out T2> : ILocationProvider<T>
 	event EventHandler<LocationProviderError> ErrorReceived;
 
 	/// <summary>
-	/// Provider location changed event handler.
-	/// </summary>
-	event EventHandler<T> LocationChanged;
-
-	/// <summary>
 	/// Provider has written a log event.
 	/// </summary>
 	event EventHandler<LogEventArgs> LogEventWritten;
@@ -274,8 +233,8 @@ public interface ILocationProvider<T, out T2> : ILocationProvider<T>
 /// <summary>
 /// Represents a location provider for a location for a specific type.
 /// </summary>
-public interface ILocationProvider<T> : ILocationProvider
-	where T : class, ICloneable<T>
+public interface ILocationProvider<T> : ILocationProvider, IDeviceInformationProvider<T>
+	where T : class, new()
 {
 	#region Properties
 
@@ -299,7 +258,7 @@ public interface ILocationProvider<T> : ILocationProvider
 /// <summary>
 /// Represents a location provider for a location.
 /// </summary>
-public interface ILocationProvider : IBindable
+public interface ILocationProvider : IDeviceInformationProvider
 {
 	#region Properties
 

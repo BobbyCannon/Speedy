@@ -1,8 +1,11 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Threading;
 using System.Threading.Tasks;
+using Speedy.Collections;
 using Speedy.Serialization;
 
 #endregion
@@ -12,8 +15,16 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// The manager for location.
 /// </summary>
-public class LocationManager : LocationManager<Location, IHorizontalLocation, IVerticalLocation>
+public class LocationManager : LocationManager<Location, IHorizontalLocation, IVerticalLocation, LocationProviderSettings>
 {
+	#region Constructors
+
+	/// <inheritdoc />
+	public LocationManager(IDispatcher dispatcher) : base(dispatcher)
+	{
+	}
+
+	#endregion
 }
 
 /// <summary>
@@ -22,30 +33,27 @@ public class LocationManager : LocationManager<Location, IHorizontalLocation, IV
 /// <typeparam name="TLocation"> The full location type. </typeparam>
 /// <typeparam name="THorizontal"> The horizontal type. </typeparam>
 /// <typeparam name="TVertical"> The vertical type. </typeparam>
-public abstract class LocationManager<TLocation, THorizontal, TVertical>
-	: Bindable, ILocationProvider<TLocation>
-	where TLocation : class, ICloneable<TLocation>, THorizontal, TVertical, new()
-	where THorizontal : class, IHorizontalLocation, ICloneable<THorizontal>
-	where TVertical : class, IVerticalLocation, ICloneable<TVertical>
+/// <typeparam name="TLocationProviderSettings"> The location settings for the provider. </typeparam>
+public class LocationManager<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	: LocationProvider<TLocation, TLocationProviderSettings>
+	where TLocation : class, ILocation, THorizontal, TVertical, new()
+	where THorizontal : class, IHorizontalLocation
+	where TVertical : class, IVerticalLocation
+	where TLocationProviderSettings : class, ILocationProviderSettings, new()
 {
-	#region Fields
-
-	private readonly List<IHorizontalLocationProvider<THorizontal>> _horizontalProviders;
-	private readonly List<IVerticalLocationProvider<TVertical>> _verticalProviders;
-
-	#endregion
-
 	#region Constructors
 
 	/// <summary>
 	/// Instantiates a location manager.
 	/// </summary>
-	protected LocationManager()
+	public LocationManager(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_horizontalProviders = new List<IHorizontalLocationProvider<THorizontal>>();
-		_verticalProviders = new List<IVerticalLocationProvider<TVertical>>();
+		LocationProviders = new BaseObservableCollection<ILocationProvider<TLocation>>();
+		LocationProviders.CollectionChanged += LocationProvidersOnCollectionChanged;
 
 		Comparer = new LocationComparer<TLocation, THorizontal, TVertical>();
+		Settings = new TLocationProviderSettings();
+		Settings.UpdateDispatcher(dispatcher);
 	}
 
 	#endregion
@@ -58,55 +66,31 @@ public abstract class LocationManager<TLocation, THorizontal, TVertical>
 	public LocationComparer<TLocation, THorizontal, TVertical> Comparer { get; }
 
 	/// <summary>
-	/// A read only list of horizontal location providers.
+	/// The list of location providers.
 	/// </summary>
-	public IReadOnlyList<IHorizontalLocationProvider<THorizontal>> HorizontalLocationProviders => _horizontalProviders.AsReadOnly();
+	public ObservableCollection<ILocationProvider<TLocation>> LocationProviders { get; }
 
 	/// <summary>
-	/// The manager is listening.
+	/// Default settings for the location providers.
 	/// </summary>
-	public bool IsListening { get; private set; }
-
-	/// <inheritdoc />
-	public TLocation LastReadLocation => Comparer.Value;
-
-	/// <summary>
-	/// A read only list of vertical location providers.
-	/// </summary>
-	public IReadOnlyList<IVerticalLocationProvider<TVertical>> VerticalLocationProviders => _verticalProviders.AsReadOnly();
+	public TLocationProviderSettings Settings { get; }
 
 	#endregion
 
 	#region Methods
 
-	/// <summary>
-	/// Add a vertical location provider.
-	/// </summary>
-	/// <param name="provider"> The provider to add. </param>
-	public void AddProvider(IVerticalLocationProvider<TVertical> provider)
+	/// <inheritdoc />
+	public override Task<TLocation> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
-		_verticalProviders.Add(provider);
-	}
-
-	/// <summary>
-	/// Add a horizontal location provider.
-	/// </summary>
-	/// <param name="provider"> The provider to add. </param>
-	public void AddProvider(IHorizontalLocationProvider<THorizontal> provider)
-	{
-		_horizontalProviders.Add(provider);
+		return Task.FromResult(Comparer.Value);
 	}
 
 	/// <inheritdoc />
-	public async Task StartListeningAsync()
+	public override async Task StartListeningAsync()
 	{
-		foreach (var provider in _horizontalProviders)
+		foreach (var provider in LocationProviders)
 		{
-			await provider.StartListeningAsync();
-		}
-
-		foreach (var provider in _verticalProviders)
-		{
+			provider.LocationChanged += ProviderOnLocationChanged;
 			await provider.StartListeningAsync();
 		}
 
@@ -114,36 +98,31 @@ public abstract class LocationManager<TLocation, THorizontal, TVertical>
 	}
 
 	/// <inheritdoc />
-	public async Task StopListeningAsync()
+	public override async Task StopListeningAsync()
 	{
-		foreach (var provider in _horizontalProviders)
+		foreach (var provider in LocationProviders)
 		{
-			await provider.StopListeningAsync();
-		}
-
-		foreach (var provider in _verticalProviders)
-		{
+			provider.LocationChanged -= ProviderOnLocationChanged;
 			await provider.StopListeningAsync();
 		}
 
 		IsListening = false;
 	}
 
-	/// <summary>
-	/// Triggers the <see cref="LocationChanged" /> event.
-	/// </summary>
-	/// <param name="e"> The location that changed. </param>
-	protected virtual void OnLocationChanged(TLocation e)
+	private void LocationProvidersOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 	{
-		LocationChanged?.Invoke(this, e);
+		// todo:
 	}
 
-	#endregion
+	private void ProviderOnLocationChanged(object sender, TLocation e)
+	{
+		if (!Comparer.Refresh(e))
+		{
+			return;
+		}
 
-	#region Events
-
-	/// <inheritdoc />
-	public event EventHandler<TLocation> LocationChanged;
+		OnLocationChanged(((ICloneable<TLocation>) Comparer.Value).ShallowClone());
+	}
 
 	#endregion
 }

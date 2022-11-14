@@ -500,11 +500,6 @@ namespace Speedy.EntityFramework
 							p.SetColumnType("uniqueidentifier");
 							break;
 						}
-						case Type _ when p.ClrType == typeof(string):
-						{
-							p.SetIsUnicode(false);
-							break;
-						}
 					}
 				}
 			}

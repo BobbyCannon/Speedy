@@ -17,12 +17,3 @@ public class NotificationService : INotificationService
 
 	#endregion
 }
-
-public interface INotificationService
-{
-	#region Methods
-
-	void Notify(string message);
-
-	#endregion
-}
