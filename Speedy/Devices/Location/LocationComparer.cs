@@ -15,14 +15,14 @@ public class LocationComparer : LocationComparer<Location, IHorizontalLocation, 
 	#region Methods
 
 	/// <inheritdoc />
-	protected override bool TryUpdateValue(Location update)
+	public override bool TryUpdateValue(ref Location value, Location update)
 	{
-		var response = base.TryUpdateValue(update);
+		var response = base.TryUpdateValue(ref value, update);
 
 		if (response)
 		{
 			// General updates...
-			Value.ProviderName = update.ProviderName;
+			CurrentValue.ProviderName = update.ProviderName;
 		}
 
 		return response;
@@ -44,7 +44,15 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 	/// <summary>
 	/// Instantiate a state comparer for the <see cref="Location" /> type.
 	/// </summary>
-	public LocationComparer()
+	public LocationComparer() : this(null)
+	{
+	}
+	
+	/// <summary>
+	/// Instantiate a state comparer for the <see cref="Location" /> type.
+	/// </summary>
+	/// <param name="dispatcher"> An optional dispatcher. </param>
+	public LocationComparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 		AlwaysTrustSameSource = true;
 		SourceTimeout = TimeSpan.FromSeconds(10);
@@ -70,20 +78,14 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool ValidateUpdate(TLocation update)
+	public override bool ShouldApplyUpdate(TLocation value, TLocation update)
 	{
-		return ShouldUpdateVerticalLocation(update)
-			|| ShouldUpdateHorizontalLocation(update);
+		return ShouldUpdateVerticalLocation(value, update)
+			|| ShouldUpdateHorizontalLocation(value, update);
 	}
 
 	/// <inheritdoc />
-	protected override bool TryUpdateValue(TLocation update)
-	{
-		return TryUpdateValue(Value, update);
-	}
-
-	/// <inheritdoc />
-	protected override bool TryUpdateValue(TLocation value, TLocation update)
+	public override bool TryUpdateValue(ref TLocation value, TLocation update)
 	{
 		var updated = false;
 
@@ -107,18 +109,13 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 			value.HorizontalFlags = update.HorizontalFlags;
 			value.HorizontalSourceName = update.HorizontalSourceName;
 			value.HorizontalStatusTime = update.HorizontalStatusTime;
-			Value.Latitude = update.Latitude;
+			CurrentValue.Latitude = update.Latitude;
 			value.Longitude = update.Longitude;
-			Value.HorizontalSpeed = update.HorizontalSpeed;
+			CurrentValue.HorizontalSpeed = update.HorizontalSpeed;
 			updated = true;
 		}
 
 		return updated;
-	}
-
-	private bool ShouldUpdateHorizontalLocation(IHorizontalLocation update)
-	{
-		return ShouldUpdateHorizontalLocation(Value, update);
 	}
 
 	private bool ShouldUpdateHorizontalLocation(IHorizontalLocation value, IHorizontalLocation update)
@@ -170,11 +167,6 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 		return false;
 	}
 
-	private bool ShouldUpdateVerticalLocation(IVerticalLocation update)
-	{
-		return ShouldUpdateVerticalLocation(Value, update);
-	}
-	
 	private bool ShouldUpdateVerticalLocation(IVerticalLocation value, IVerticalLocation update)
 	{
 		var current = new LocationProxy(value);

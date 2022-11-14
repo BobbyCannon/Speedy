@@ -1,76 +1,127 @@
 ﻿namespace Speedy.Data;
 
-/// <inheritdoc />
-public abstract class Comparer<T> : Comparer where T : new()
+/// <summary>
+/// The comparer for an object.
+/// </summary>
+public abstract class Comparer<T> : Comparer, IComparer<T>
+	where T : new()
 {
+	#region Fields
+
+	private T _currentValue;
+
+	#endregion
+
 	#region Constructors
 
 	/// <summary>
 	/// Instantiates a new comparer.
 	/// </summary>
-	protected Comparer()
+	/// <param name="dispatcher"> An optional dispatcher. </param>
+	protected Comparer(IDispatcher dispatcher) : base(dispatcher)
 	{
-		Value = new T();
+		CurrentValue = new T();
 	}
 
 	#endregion
 
 	#region Properties
 
-	/// <inheritdoc />
-	public sealed override string TypeFullName => typeof(T).FullName;
-
 	/// <summary>
 	/// The value of the comparer.
 	/// </summary>
-	public T Value { get; protected set; }
+	public T CurrentValue
+	{
+		get => _currentValue;
+		protected set => _currentValue = value;
+	}
+
+	/// <inheritdoc />
+	public sealed override string TypeFullName => typeof(T).FullName;
 
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public sealed override object GetValue()
+	public sealed override object GetCurrentValue()
 	{
-		return Value;
+		return CurrentValue;
 	}
 
 	/// <summary>
-	/// Refresh the comparer with an update.
+	/// Try to apply an update to the provided value.
 	/// </summary>
-	/// <param name="update"> The update to be checked and optionally applied. </param>
-	/// <returns> True if the update was accepted and applied otherwise false. </returns>
-	/// <remarks> Note: the update could and may have been partially applied. </remarks>
-	public bool Refresh(T update)
+	/// <param name="value"> The value to be updated. </param>
+	/// <param name="update"> The update to be applied. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	public bool Refresh(ref T value, T update)
 	{
-		return base.Refresh(update);
+		return ShouldApplyUpdate(value, update)
+			&& TryUpdateValue(ref value, update);
 	}
-
-	/// <summary>
-	/// Validates an update to see if it should be applied.
-	/// </summary>
-	/// <param name="update"> The update to validate. </param>
-	/// <returns> True if the update should be applied. </returns>
-	public abstract bool ValidateUpdate(T update);
 
 	/// <inheritdoc />
-	public sealed override bool ValidateUpdate(object update)
+	public override bool ShouldApplyUpdate(object update)
 	{
-		return ValidateUpdate((T) update);
+		return ShouldApplyUpdate(_currentValue, (T) update);
+	}
+
+	/// <inheritdoc />
+	public override bool ShouldApplyUpdate(object value, object update)
+	{
+		return value is T tValue 
+			&& ShouldApplyUpdate(tValue, (T) update);
 	}
 
 	/// <summary>
-	/// Try to update the value.
+	/// Determine if the update should be applied to the current value.
 	/// </summary>
-	/// <param name="update"> The update to apply. </param>
-	/// <returns> True if the value was updated otherwise false. </returns>
-	protected abstract bool TryUpdateValue(T update);
+	/// <param name="update"> The update to be tested. </param>
+	/// <returns> True if the update should be applied otherwise false. </returns>
+	public bool ShouldApplyUpdate(T update)
+	{
+		return ShouldApplyUpdate(_currentValue, update);
+	}
+
+	/// <summary>
+	/// Determine if the update should be applied to the provided value.
+	/// </summary>
+	/// <param name="value"> The current value state. </param>
+	/// <param name="update"> The update to be tested. </param>
+	/// <returns> True if the update should be applied otherwise false. </returns>
+	public abstract bool ShouldApplyUpdate(T value, T update);
 
 	/// <inheritdoc />
-	protected sealed override bool TryUpdateValue(object update)
+	public sealed override bool TryUpdateValue(object update)
 	{
 		return TryUpdateValue((T) update);
 	}
+
+	/// <inheritdoc />
+	public override bool TryUpdateValue(ref object value, object update)
+	{
+		return value is T tValue
+			&& TryUpdateValue(ref tValue, (T) update);
+	}
+
+	/// <summary>
+	/// Apply the update to the current value.
+	/// </summary>
+	/// <param name="update"> The update to be applied. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	public bool TryUpdateValue(T update)
+	{
+		return TryUpdateValue(ref _currentValue, update);
+	}
+
+	/// <summary>
+	/// Apply the update to the provided value.
+	/// </summary>
+	/// <param name="value"> The value to be updated. </param>
+	/// <param name="update"> The update to be applied. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	public abstract bool TryUpdateValue(ref T value, T update);
 
 	#endregion
 }
@@ -78,8 +129,20 @@ public abstract class Comparer<T> : Comparer where T : new()
 /// <summary>
 /// The comparer for an object.
 /// </summary>
-public abstract class Comparer : Bindable
+public abstract class Comparer : Bindable, IComparer
 {
+	#region Constructors
+
+	/// <summary>
+	/// Instantiates an instance of a comparer for an object.
+	/// </summary>
+	/// <param name="dispatcher"> An optional dispatcher. </param>
+	protected Comparer(IDispatcher dispatcher) : base(dispatcher)
+	{
+	}
+
+	#endregion
+
 	#region Properties
 
 	/// <summary>
@@ -95,7 +158,7 @@ public abstract class Comparer : Bindable
 	/// Get the value.
 	/// </summary>
 	/// <returns> The value of the comparer. </returns>
-	public abstract object GetValue();
+	public abstract object GetCurrentValue();
 
 	/// <summary>
 	/// Try to refresh the value.
@@ -104,27 +167,113 @@ public abstract class Comparer : Bindable
 	/// <returns> True if the value was updated otherwise false. </returns>
 	public bool Refresh(object update)
 	{
-		if (!ValidateUpdate(update))
-		{
-			return false;
-		}
-
-		return TryUpdateValue(update);
+		return ShouldApplyUpdate(update)
+			&& TryUpdateValue(update);
 	}
 
-	/// <summary>
-	/// Validate an update.
-	/// </summary>
-	/// <param name="update"> The update to validate. </param>
-	/// <returns> True if the update is valid otherwise false. </returns>
-	public abstract bool ValidateUpdate(object update);
+	/// <inheritdoc />
+	public bool Refresh(ref object value, object update)
+	{
+		return ShouldApplyUpdate(value, update)
+			&& TryUpdateValue(ref value, update);
+	}
+
+	/// <inheritdoc />
+	public abstract bool ShouldApplyUpdate(object update);
+
+	/// <inheritdoc />
+	public abstract bool ShouldApplyUpdate(object value, object update);
+
+	/// <inheritdoc />
+	public abstract bool TryUpdateValue(object update);
+
+	/// <inheritdoc />
+	public abstract bool TryUpdateValue(ref object value, object update);
+
+	#endregion
+}
+
+/// <summary>
+/// The comparer for an object.
+/// </summary>
+public interface IComparer<out T> : IComparer
+{
+	#region Properties
 
 	/// <summary>
-	/// Try to update the value.
+	/// The value of the comparer.
+	/// </summary>
+	public T CurrentValue { get; }
+
+	#endregion
+}
+
+/// <summary>
+/// The comparer for an object.
+/// </summary>
+public interface IComparer : IBindable
+{
+	#region Properties
+
+	/// <summary>
+	/// The full name of the type this comparer is for.
+	/// </summary>
+	string TypeFullName { get; }
+
+	#endregion
+
+	#region Methods
+
+	/// <summary>
+	/// Get the value.
+	/// </summary>
+	/// <returns> The value of the comparer. </returns>
+	object GetCurrentValue();
+
+	/// <summary>
+	/// Try to refresh the value.
 	/// </summary>
 	/// <param name="update"> The update to apply. </param>
 	/// <returns> True if the value was updated otherwise false. </returns>
-	protected abstract bool TryUpdateValue(object update);
+	bool Refresh(object update);
+
+	/// <summary>
+	/// Try to refresh the value.
+	/// </summary>
+	/// <param name="value"> The value to be updated. </param>
+	/// <param name="update"> The update to apply. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	bool Refresh(ref object value, object update);
+
+	/// <summary>
+	/// Determine if the update should be applied to the current value.
+	/// </summary>
+	/// <param name="update"> The update to be tested. </param>
+	/// <returns> True if the update should be applied otherwise false. </returns>
+	bool ShouldApplyUpdate(object update);
+
+	/// <summary>
+	/// Determine if the update should be applied to the provided value.
+	/// </summary>
+	/// <param name="value"> The current value state. </param>
+	/// <param name="update"> The update to be tested. </param>
+	/// <returns> True if the update should be applied otherwise false. </returns>
+	bool ShouldApplyUpdate(object value, object update);
+
+	/// <summary>
+	/// Apply the update to the current value.
+	/// </summary>
+	/// <param name="update"> The update to be applied. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	bool TryUpdateValue(object update);
+
+	/// <summary>
+	/// Apply the update to the provided value.
+	/// </summary>
+	/// <param name="value"> The value to be updated. </param>
+	/// <param name="update"> The update to be applied. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	abstract bool TryUpdateValue(ref object value, object update);
 
 	#endregion
 }

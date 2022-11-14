@@ -82,7 +82,7 @@ public class LocationManager<TLocation, THorizontal, TVertical, TLocationProvide
 	/// <inheritdoc />
 	public override Task<TLocation> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
-		return Task.FromResult(Comparer.Value);
+		return Task.FromResult(Comparer.CurrentValue);
 	}
 
 	/// <inheritdoc />
@@ -121,7 +121,7 @@ public class LocationManager<TLocation, THorizontal, TVertical, TLocationProvide
 			return;
 		}
 
-		OnLocationChanged(((ICloneable<TLocation>) Comparer.Value).ShallowClone());
+		OnLocationChanged(((ICloneable<TLocation>) Comparer.CurrentValue).ShallowClone());
 	}
 
 	#endregion

@@ -21,7 +21,11 @@ public abstract class LocationProvider<T, T2>
 	where T : class, ILocation, new()
 	where T2 : ILocationProviderSettings, IBindable, new()
 {
+	#region Fields
+
 	private readonly LocationComparer<T, IHorizontalLocation, IVerticalLocation> _locationComparer;
+
+	#endregion
 
 	#region Constructors
 
@@ -78,18 +82,6 @@ public abstract class LocationProvider<T, T2>
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool ApplyUpdate(ref T value, T update)
-	{
-		throw new NotImplementedException();
-	}
-
-	/// <inheritdoc />
-	public override bool ShouldApplyUpdate(ref T value, T update)
-	{
-		_locationComparer.ValidateUpdate(update);
-	}
-
-	/// <inheritdoc />
 	public virtual T GetCurrentLocation(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		return GetCurrentLocationAsync().AwaitResults();
@@ -99,10 +91,22 @@ public abstract class LocationProvider<T, T2>
 	public abstract Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
 
 	/// <inheritdoc />
+	public override bool ShouldApplyUpdate(T value, T update)
+	{
+		return _locationComparer.ShouldApplyUpdate(value, update);
+	}
+
+	/// <inheritdoc />
 	public abstract Task StartListeningAsync();
 
 	/// <inheritdoc />
 	public abstract Task StopListeningAsync();
+
+	/// <inheritdoc />
+	public override bool TryUpdateValue(ref T value, T update)
+	{
+		return _locationComparer.TryUpdateValue(ref value, update);
+	}
 
 	/// <summary>
 	/// Triggers event handler.

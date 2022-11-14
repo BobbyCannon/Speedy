@@ -7,7 +7,9 @@ using Speedy.Storage;
 
 namespace Speedy.Devices.Location;
 
-/// <inheritdoc />
+/// <summary>
+/// Represents a location proxy that generalizes accessors.
+/// </summary>
 public class LocationProxy : Bindable, ILocationProxy
 {
 	#region Fields
@@ -104,6 +106,10 @@ public class LocationProxy : Bindable, ILocationProxy
 	/// <inheritdoc />
 	public object ValueObject => (object) _hLocation ?? _vLocation;
 
+	#endregion
+
+	#region Methods
+
 	/// <inheritdoc />
 	public void UpdateValues(ILocationProxy value)
 	{
@@ -126,12 +132,40 @@ public class LocationProxy : Bindable, ILocationProxy
 		}
 	}
 
-	#endregion
-
+	/// <inheritdoc />
 	public void UpdateWith(ILocationProxy update, params string[] exclusions)
 	{
-		
+		if (ProxyType != update.ProxyType)
+		{
+			return;
+		}
+
+		switch (ProxyType)
+		{
+			case LocationProxyType.Horizontal:
+			{
+				if (update.ValueObject is not IHorizontalLocation hUpdate)
+				{
+					return;
+				}
+
+				_hLocation.UpdateWith(hUpdate);
+				break;
+			}
+			case LocationProxyType.Vertical:
+			{
+				if (update.ValueObject is not IVerticalLocation hUpdate)
+				{
+					return;
+				}
+
+				_vLocation.UpdateWith(hUpdate);
+				break;
+			}
+		}
 	}
+
+	#endregion
 }
 
 /// <summary>

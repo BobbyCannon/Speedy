@@ -458,7 +458,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 				return;
 			}
 
-			LastReadLocation.UpdateWith(_comparer.Value);
+			LastReadLocation.UpdateWith(_comparer.CurrentValue);
 			OnLocationChanged(((ICloneable<T>) LastReadLocation).ShallowClone());
 		}
 	}

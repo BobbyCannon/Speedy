@@ -54,7 +54,7 @@ public class ComparerManager : Bindable
 			return default;
 		}
 
-		var currentState = comparer.GetValue();
+		var currentState = comparer.GetCurrentValue();
 		return currentState is T state ? state : default;
 	}
 

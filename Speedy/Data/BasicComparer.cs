@@ -23,11 +23,22 @@ public class BasicComparer<T> : Comparer<T> where T : new()
 	#region Constructors
 
 	/// <summary>
-	/// Instantiates on instance of a basic comparer. 
+	/// Instantiates on instance of a basic comparer.
 	/// </summary>
 	/// <param name="validate"> The validate method. </param>
 	/// <param name="update"> The update method. </param>
 	public BasicComparer(Func<T, T, bool> validate, Func<T, T, (T, bool)> update)
+		: this(validate, update, null)
+	{
+	}
+
+	/// <summary>
+	/// Instantiates on instance of a basic comparer.
+	/// </summary>
+	/// <param name="validate"> The validate method. </param>
+	/// <param name="update"> The update method. </param>
+	/// <param name="dispatcher"> An optional dispatcher. </param>
+	public BasicComparer(Func<T, T, bool> validate, Func<T, T, (T, bool)> update, IDispatcher dispatcher) : base(dispatcher)
 	{
 		_validate = validate;
 		_update = update;
@@ -37,27 +48,19 @@ public class BasicComparer<T> : Comparer<T> where T : new()
 
 	#region Methods
 
-	/// <summary>
-	/// Validates an update to see if it should be applied.
-	/// </summary>
-	/// <param name="update"> The update to validate. </param>
-	/// <returns> True if the update should be applied. </returns>
-	public override bool ValidateUpdate(T update)
+	/// <inheritdoc />
+	public override bool ShouldApplyUpdate(T value, T update)
 	{
-		return _validate.Invoke(Value, update);
+		return _validate.Invoke(value, update);
 	}
 
-	/// <summary>
-	/// Try to update the value.
-	/// </summary>
-	/// <param name="update"> The update to apply. </param>
-	/// <returns> True if the value was updated otherwise false. </returns>
-	protected override bool TryUpdateValue(T update)
+	/// <inheritdoc />
+	public override bool TryUpdateValue(ref T value, T update)
 	{
-		var result = _update.Invoke(Value, update);
+		var result = _update.Invoke(value, update);
 		if (result.Item2)
 		{
-			Value = result.Item1;
+			value = result.Item1;
 		}
 
 		return result.Item2;

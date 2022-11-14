@@ -85,7 +85,7 @@ public abstract class DeviceInformationManager<T> where T : new()
 		}
 
 		var currentValue = (object) CurrentValue;
-		provider.TryApplyUpdate(ref currentValue, update);
+		provider.Refresh(ref currentValue, update);
 	}
 
 	#endregion

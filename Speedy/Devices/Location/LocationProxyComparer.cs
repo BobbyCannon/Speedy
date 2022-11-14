@@ -2,7 +2,6 @@
 
 using System;
 using Speedy.Data;
-using Speedy.Extensions;
 
 #endregion
 
@@ -19,7 +18,14 @@ public class LocationProxyComparer<TLocation> : Comparer<TLocation>
 	/// <summary>
 	/// Instantiate a state comparer for the <see cref="Location" /> type.
 	/// </summary>
-	public LocationProxyComparer()
+	public LocationProxyComparer() : this(null)
+	{
+	}
+
+	/// <summary>
+	/// Instantiate a state comparer for the <see cref="Location" /> type.
+	/// </summary>
+	public LocationProxyComparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 		AlwaysTrustSameSource = true;
 		SourceTimeout = TimeSpan.FromSeconds(10);
@@ -45,33 +51,7 @@ public class LocationProxyComparer<TLocation> : Comparer<TLocation>
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool ValidateUpdate(TLocation update)
-	{
-		return ShouldUpdateLocation(Value, update);
-	}
-
-	/// <inheritdoc />
-	protected override bool TryUpdateValue(TLocation update)
-	{
-		var updated = false;
-
-		if (ShouldUpdateLocation(Value, update))
-		{
-			Value.UpdateValues(update);
-			//Value.Altitude = update.Altitude;
-			//Value.Reference = update.AltitudeReference;
-			//Value.VerticalAccuracy = update.VerticalAccuracy;
-			//Value.VerticalAccuracyReference = update.VerticalAccuracyReference;
-			//Value.VerticalFlags = update.VerticalFlags;
-			//Value.VerticalSourceName = update.VerticalSourceName;
-			//Value.VerticalStatusTime = update.VerticalStatusTime;
-			updated = true;
-		}
-		
-		return updated;
-	}
-
-	private bool ShouldUpdateLocation(ILocationProxy current, ILocationProxy update)
+	public override bool ShouldApplyUpdate(TLocation current, TLocation update)
 	{
 		if (update.StatusTime < current.StatusTime)
 		{
@@ -111,6 +91,20 @@ public class LocationProxyComparer<TLocation> : Comparer<TLocation>
 		}
 
 		return false;
+	}
+
+	/// <inheritdoc />
+	public override bool TryUpdateValue(ref TLocation value, TLocation update)
+	{
+		var updated = false;
+
+		if (ShouldApplyUpdate(CurrentValue, update))
+		{
+			CurrentValue.UpdateValues(update);
+			updated = true;
+		}
+
+		return updated;
 	}
 
 	#endregion
