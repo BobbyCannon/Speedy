@@ -28,16 +28,16 @@ public class MainViewModel : ViewModel
 	public MainViewModel(IDispatcher dispatcher) : base(dispatcher)
 	{
 		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<Location>>();
-		LocationManager = new LocationManager<Location, IHorizontalLocation, IVerticalLocation, LocationProviderSettingsView>(dispatcher);
-		LocationManager.LocationChanged += LocationManagerOnLocationChanged;
+		LocationManager = new LocationManager(dispatcher);
+		LocationManager.Refreshed += LocationManagerOnRefreshed;
 		Locations = new BaseObservableCollection<Location>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
 		
 		var provider = new XamarinLocationProvider<Location, LocationProviderSettingsView>(dispatcher);
 		var provider2 = new XamarinBarometerLocationProvider<Location>(dispatcher);
 		
-		LocationManager.LocationProviders.Add(provider);
-		LocationManager.LocationProviders.Add(provider2);
+		LocationManager.Add(provider);
+		LocationManager.Add(provider2);
 
 		DeviceDisplay.KeepScreenOn = true;
 
@@ -98,7 +98,7 @@ public class MainViewModel : ViewModel
 
 	//public LineChart AltitudeChart { get; }
 
-	public LocationManager<Location, IHorizontalLocation, IVerticalLocation, LocationProviderSettingsView> LocationManager { get; }
+	public LocationManager LocationManager { get; }
 
 	public BaseObservableCollection<Location> Locations { get; }
 
@@ -118,9 +118,9 @@ public class MainViewModel : ViewModel
 		Dispatcher.Run(() => Logs.Insert(0, e));
 	}
 
-	private void LocationManagerOnLocationChanged(object sender, Location e)
+	private void LocationManagerOnRefreshed(object sender, Location e)
 	{
-		ProcessLocation((Location) e.ShallowClone());
+		ProcessLocation(e);
 	}
 
 	private void ProcessLocation(Location location)

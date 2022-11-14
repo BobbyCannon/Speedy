@@ -30,7 +30,7 @@ public abstract class DeviceInformationProvider<T> : Comparer<T>, IDeviceInforma
 	/// <summary>
 	/// Triggers the <see cref="Refreshed" /> event with the provided value;
 	/// </summary>
-	/// <param name="e"> </param>
+	/// <param name="e"> The value that was updated. </param>
 	protected virtual void OnRefreshed(T e)
 	{
 		Refreshed?.Invoke(this, e);

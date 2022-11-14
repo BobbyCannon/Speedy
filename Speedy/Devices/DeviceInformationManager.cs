@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -13,9 +14,12 @@ namespace Speedy.Devices;
 /// Manages a group of information providers and comparers to track a single state of information.
 /// </summary>
 /// <typeparam name="T"> The type of the value to track. </typeparam>
-public abstract class DeviceInformationManager<T> where T : new()
+public abstract class DeviceInformationManager<T> : Bindable
+	where T : new()
 {
 	#region Fields
+
+	private T _currentValue;
 
 	private readonly ConcurrentDictionary<Type, IDeviceInformationProvider> _providers;
 
@@ -26,11 +30,11 @@ public abstract class DeviceInformationManager<T> where T : new()
 	/// <summary>
 	/// Create an instance of the device information manager.
 	/// </summary>
-	protected DeviceInformationManager()
+	protected DeviceInformationManager(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_providers = new ConcurrentDictionary<Type, IDeviceInformationProvider>();
 
-		CurrentValue = new T();
+		_currentValue = new T();
 	}
 
 	#endregion
@@ -40,7 +44,7 @@ public abstract class DeviceInformationManager<T> where T : new()
 	/// <summary>
 	/// The current final state.
 	/// </summary>
-	public T CurrentValue { get; }
+	public T CurrentValue => _currentValue;
 
 	/// <summary>
 	/// The providers for each type.
@@ -76,6 +80,15 @@ public abstract class DeviceInformationManager<T> where T : new()
 			});
 	}
 
+	/// <summary>
+	/// Triggers the <see cref="Refreshed" /> event with the provided value;
+	/// </summary>
+	/// <param name="e"> The value that was updated. </param>
+	protected virtual void OnRefreshed(T e)
+	{
+		Refreshed?.Invoke(this, e);
+	}
+
 	private void ProviderOnRefreshed(object sender, object update)
 	{
 		var provider = (IDeviceInformationProvider) sender;
@@ -84,9 +97,33 @@ public abstract class DeviceInformationManager<T> where T : new()
 			return;
 		}
 
-		var currentValue = (object) CurrentValue;
-		provider.Refresh(ref currentValue, update);
+		if (_currentValue is not object objectValue)
+		{
+			return;
+		}
+
+		if (!provider.Refresh(ref objectValue, update))
+		{
+			return;
+		}
+
+		if (objectValue is ICloneable cValue)
+		{
+			OnRefreshed((T) cValue.ShallowClone());
+			return;
+		}
+
+		OnRefreshed(_currentValue);
 	}
+
+	#endregion
+
+	#region Events
+
+	/// <summary>
+	/// An event to notify when the current value is refreshed.
+	/// </summary>
+	public event EventHandler<T> Refreshed;
 
 	#endregion
 }
