@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using Speedy.Devices;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
@@ -13,7 +12,7 @@ namespace Speedy.Sync;
 /// <summary>
 /// The sync client details.
 /// </summary>
-public class SyncClientDetails : Bindable, ISyncClientDetails, IUpdatable<ISyncClientDetails>
+public class SyncClientDetails : Bindable<ISyncClientDetails>, ISyncClientDetails
 {
 	#region Properties
 
@@ -37,25 +36,18 @@ public class SyncClientDetails : Bindable, ISyncClientDetails, IUpdatable<ISyncC
 	#region Methods
 
 	/// <inheritdoc />
-	public override void UpdateWith(object update, params string[] exclusions)
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		switch (update)
+		return update switch
 		{
-			case ISyncClientDetails entityUpdate:
-			{
-				UpdateWith(entityUpdate, exclusions);
-				break;
-			}
-			default:
-			{
-				base.UpdateWith(update, exclusions);
-				break;
-			}
-		}
+			SyncClientDetails entityUpdate => UpdateWith(entityUpdate, exclusions),
+			ISyncClientDetails entityUpdate => UpdateWith(entityUpdate, exclusions),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
 
 	/// <inheritdoc />
-	public void UpdateWith(ISyncClientDetails update, params string[] exclusions)
+	public override bool UpdateWith(ISyncClientDetails update, params string[] exclusions)
 	{
 		// ****** You can use CodeGeneratorTests.GenerateProperties to update this ******
 
@@ -75,6 +67,8 @@ public class SyncClientDetails : Bindable, ISyncClientDetails, IUpdatable<ISyncC
 			this.IfThen(e => !exclusions.Contains(nameof(DevicePlatform)) && (e.DevicePlatform != update.DevicePlatform), e => e.DevicePlatform = update.DevicePlatform);
 			this.IfThen(e => !exclusions.Contains(nameof(DeviceType)) && (e.DeviceType != update.DeviceType), e => e.DeviceType = update.DeviceType);
 		}
+
+		return true;
 	}
 
 	#endregion

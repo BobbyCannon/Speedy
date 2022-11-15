@@ -4,16 +4,18 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Speedy.Devices.Location;
-using Speedy.Serialization;
 
 #endregion
 
 namespace Speedy.Application.Internal;
 
 /// <inheritdoc />
-public class InactiveLocationProvider<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, ICloneable<T>, new()
-	where T2 : LocationProviderSettings, new()
+public class InactiveLocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
+	: LocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
+	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
+	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
+	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
+	where T2 : ILocationProviderSettings, new()
 {
 	#region Constructors
 
@@ -29,7 +31,7 @@ public class InactiveLocationProvider<T, T2> : LocationProvider<T, T2>
 	/// <inheritdoc />
 	public override Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? token = null)
 	{
-		return Task.FromResult(LastReadLocation);
+		return Task.FromResult(CurrentValue);
 	}
 
 	/// <inheritdoc />

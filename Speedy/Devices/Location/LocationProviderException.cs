@@ -27,7 +27,7 @@ public class LocationProviderException : SpeedyException
 	/// <param name="error"> The error for the location provider. </param>
 	/// <param name="innerException"> An inner exception. </param>
 	public LocationProviderException(LocationProviderError error, Exception innerException = null)
-		: base("A location provider error occurred: " + error, innerException)
+		: base($"A location provider error occurred: {error}", innerException)
 	{
 		if (!Enum.IsDefined(typeof(LocationProviderError), error))
 		{

@@ -199,7 +199,7 @@ namespace Speedy.Profiling
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object update, params string[] exclusions)
+		public override bool UpdateWith(object update, params string[] exclusions)
 		{
 			if (update is AverageTimer timer)
 			{
@@ -210,7 +210,7 @@ namespace Speedy.Profiling
 				_timer.UpdateWith(timer._timer);
 			}
 
-			base.UpdateWith(update, exclusions);
+			return base.UpdateWith(update, exclusions);
 		}
 
 		#endregion

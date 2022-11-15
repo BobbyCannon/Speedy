@@ -21,8 +21,10 @@ using Object = Java.Lang.Object;
 namespace Speedy.Application.Xamarin;
 
 [Preserve(AllMembers = true)]
-internal class GeolocationContinuousListener<T> : Object, ILocationListener
-	where T : class, ILocation, new()
+internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object, ILocationListener
+	where T : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
 {
 	#region Fields
 
@@ -64,7 +66,7 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 		var previous = Interlocked.Exchange(ref _lastLocation, location);
 		previous?.Dispose();
 
-		PositionChanged?.Invoke(this, location.ToPosition<T>());
+		PositionChanged?.Invoke(this, location.ToPosition<T, THorizontal, TVertical>());
 	}
 
 	public void OnProviderDisabled(string provider)
@@ -84,7 +86,7 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 
 			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
 			{
-				OnPositionError(LocationProviderError.PositionUnavailable);
+				OnPositionError(LocationProviderError.LocationUnavailable);
 			}
 		}
 	}

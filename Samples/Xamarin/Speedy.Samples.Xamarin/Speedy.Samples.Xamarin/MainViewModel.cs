@@ -33,8 +33,8 @@ public class MainViewModel : ViewModel
 		Locations = new BaseObservableCollection<Location>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
 		
-		var provider = new XamarinLocationProvider<Location, LocationProviderSettingsView>(dispatcher);
-		var provider2 = new XamarinBarometerLocationProvider<Location>(dispatcher);
+		var provider = new XamarinLocationProvider<Location, HorizontalLocation, VerticalLocation, LocationProviderSettingsView>(dispatcher);
+		var provider2 = new XamarinBarometerLocationProvider<VerticalLocation>(dispatcher);
 		
 		LocationManager.Add(provider);
 		LocationManager.Add(provider2);
@@ -125,19 +125,19 @@ public class MainViewModel : ViewModel
 
 	private void ProcessLocation(Location location)
 	{
-		var currentLocation = Locations.FirstOrDefault(x => x.HorizontalSourceName == location.HorizontalSourceName);
-		if (currentLocation == null)
-		{
-			Locations.Add(location);
-			currentLocation = location;
-		}
-		else
-		{
-			currentLocation.UpdateWith(location);
-		}
+		//var currentLocation = Locations.FirstOrDefault(x => x.HorizontalSourceName == location.HorizontalSourceName);
+		//if (currentLocation == null)
+		//{
+		//	Locations.Add(location);
+		//	currentLocation = location;
+		//}
+		//else
+		//{
+		//	currentLocation.UpdateWith(location);
+		//}
 
-		var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new BaseObservableCollection<Location>());
-		history.Add((Location) currentLocation.ShallowClone());
+		//var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new BaseObservableCollection<Location>());
+		//history.Add((Location) currentLocation.ShallowClone());
 	}
 
 	#endregion

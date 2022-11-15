@@ -312,7 +312,7 @@ namespace Speedy.Sync
 			}
 
 			// Handle all one to one properties (same name & type) and all sync entity base properties
-			var convert = () => destination.UpdateWith(source,
+			Action convert = () => destination.UpdateWith(source,
 				(status == SyncObjectStatus.Added) || (status == SyncObjectStatus.Deleted),
 				false, (status == SyncObjectStatus.Modified) || (status == SyncObjectStatus.Deleted));
 

@@ -117,22 +117,22 @@ public class WebCredential : Bindable
 	/// Update with the provided credential.
 	/// </summary>
 	/// <param name="credential"> The credential to update with. </param>
-	public void UpdateWith(WebCredential credential)
+	public bool UpdateWith(WebCredential credential)
 	{
 		UserName = credential.UserName;
 		Password = credential.Password;
+		return true;
 	}
 
 	/// <inheritdoc />
-	public override void UpdateWith(object update, params string[] exclusions)
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
 		if (update is WebCredential webCredential)
 		{
-			UpdateWith(webCredential);
-			return;
+			return UpdateWith(webCredential);
 		}
 
-		base.UpdateWith(update, exclusions);
+		return base.UpdateWith(update, exclusions);
 	}
 
 	#endregion

@@ -2,7 +2,6 @@
 
 using Speedy.Extensions;
 using Speedy.Serialization;
-using Speedy.Storage;
 
 #endregion
 
@@ -46,7 +45,8 @@ public abstract class CloneableBindable<T, T2> : CloneableBindable<T>, ICloneabl
 /// <summary>
 /// Represents a bindable object.
 /// </summary>
-public abstract class CloneableBindable<T> : Bindable, IUpdatable<T>, ICloneable<T> where T : new()
+public abstract class CloneableBindable<T> : Bindable<T>, ICloneable<T>
+	where T : new()
 {
 	#region Constructors
 
@@ -99,9 +99,6 @@ public abstract class CloneableBindable<T> : Bindable, IUpdatable<T>, ICloneable
 	{
 		return DeepClone();
 	}
-
-	/// <inheritdoc />
-	public abstract void UpdateWith(T update, params string[] exclusions);
 
 	/// <inheritdoc />
 	object ICloneable.DeepClone(int? maxDepth)

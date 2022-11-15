@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using Speedy.Data;
 
 #endregion
 
@@ -10,34 +9,8 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// The state comparer for the <see cref="Location" /> type.
 /// </summary>
-public class LocationComparer : LocationComparer<Location, IHorizontalLocation, IVerticalLocation>
-{
-	#region Methods
-
-	/// <inheritdoc />
-	public override bool TryUpdateValue(ref Location value, Location update)
-	{
-		var response = base.TryUpdateValue(ref value, update);
-
-		if (response)
-		{
-			// General updates...
-			CurrentValue.ProviderName = update.ProviderName;
-		}
-
-		return response;
-	}
-
-	#endregion
-}
-
-/// <summary>
-/// The state comparer for the <see cref="Location" /> type.
-/// </summary>
-public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLocation>
-	where TLocation : class, THorizontal, TVertical, new()
-	where THorizontal : IHorizontalLocation
-	where TVertical : IVerticalLocation
+public class LocationComparer<T> : Comparer<T>
+	where T : ILocationDeviceInformation, IUpdatable<T>
 {
 	#region Constructors
 
@@ -78,54 +51,7 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool ShouldApplyUpdate(TLocation value, TLocation update)
-	{
-		return ShouldUpdateVerticalLocation(value, update)
-			|| ShouldUpdateHorizontalLocation(value, update);
-	}
-
-	/// <inheritdoc />
-	public override bool TryUpdateValue(ref TLocation value, TLocation update)
-	{
-		var updated = false;
-
-		if (ShouldUpdateVerticalLocation(value, update))
-		{
-			value.Altitude = update.Altitude;
-			value.AltitudeReference = update.AltitudeReference;
-			value.VerticalAccuracy = update.VerticalAccuracy;
-			value.VerticalAccuracyReference = update.VerticalAccuracyReference;
-			value.VerticalFlags = update.VerticalFlags;
-			value.VerticalSourceName = update.VerticalSourceName;
-			value.VerticalStatusTime = update.VerticalStatusTime;
-			updated = true;
-		}
-
-		if (ShouldUpdateHorizontalLocation(value, update))
-		{
-			value.HorizontalHeading = update.HorizontalHeading;
-			value.HorizontalAccuracy = update.HorizontalAccuracy;
-			value.HorizontalAccuracyReference = update.HorizontalAccuracyReference;
-			value.HorizontalFlags = update.HorizontalFlags;
-			value.HorizontalSourceName = update.HorizontalSourceName;
-			value.HorizontalStatusTime = update.HorizontalStatusTime;
-			CurrentValue.Latitude = update.Latitude;
-			value.Longitude = update.Longitude;
-			CurrentValue.HorizontalSpeed = update.HorizontalSpeed;
-			updated = true;
-		}
-
-		return updated;
-	}
-
-	private bool ShouldUpdateHorizontalLocation(IHorizontalLocation value, IHorizontalLocation update)
-	{
-		var current = new LocationProxy(value);
-		var updateProxy = new LocationProxy(update);
-		return ShouldUpdateLocation(current, updateProxy);
-	}
-
-	private bool ShouldUpdateLocation(ILocationProxy current, ILocationProxy update)
+	public override bool ShouldUpdate(T current, T update)
 	{
 		if (update.StatusTime < current.StatusTime)
 		{
@@ -134,9 +60,9 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 		}
 
 		if (update.HasAccuracy
-			&& update.HasLocation
+			&& update.HasValue
 			&& current.HasAccuracy
-			&& current.HasLocation
+			&& current.HasValue
 			&& (update.Accuracy <= current.Accuracy))
 		{
 			// Both have altitude and accuracy and the update is better
@@ -167,11 +93,10 @@ public class LocationComparer<TLocation, THorizontal, TVertical> : Comparer<TLoc
 		return false;
 	}
 
-	private bool ShouldUpdateVerticalLocation(IVerticalLocation value, IVerticalLocation update)
+	/// <inheritdoc />
+	public override bool UpdateWith(ref T value, T update, params string[] exclusions)
 	{
-		var current = new LocationProxy(value);
-		var updateProxy = new LocationProxy(update);
-		return ShouldUpdateLocation(current, updateProxy);
+		return value.UpdateWith(update, exclusions);
 	}
 
 	#endregion

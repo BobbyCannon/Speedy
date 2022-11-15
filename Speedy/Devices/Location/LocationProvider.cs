@@ -3,8 +3,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Speedy.Commands;
-using Speedy.Extensions;
 using Speedy.Logging;
 
 #endregion
@@ -12,109 +10,76 @@ using Speedy.Logging;
 namespace Speedy.Devices.Location;
 
 /// <summary>
-/// Represents a location provider for a location (horizontal and vertical location).
+/// Represents a location provider.
 /// </summary>
-/// <typeparam name="T"> The location type. </typeparam>
-/// <typeparam name="T2"> The setting type. </typeparam>
-public abstract class LocationProvider<T, T2>
-	: DeviceInformationProvider<T>, ILocationProvider<T, T2>
-	where T : class, ILocation, new()
-	where T2 : ILocationProviderSettings, IBindable, new()
+public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
+	: DeviceInformationProvider<T>
+	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
+	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
+	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
+	where T2 : ILocationProviderSettings, new()
 {
-	#region Fields
-
-	private readonly LocationComparer<T, IHorizontalLocation, IVerticalLocation> _locationComparer;
-
-	#endregion
-
 	#region Constructors
 
 	/// <summary>
-	/// Instantiates an instance of the location provider.
+	/// Creates an instance of a location provider.
 	/// </summary>
+	/// <param name="dispatcher"> An optional dispatcher. </param>
 	protected LocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_locationComparer = new LocationComparer<T, IHorizontalLocation, IVerticalLocation>();
+		ComparerForHorizontal = new LocationComparer<THorizontalLocation>(dispatcher);
+		ComparerForVertical = new LocationComparer<TVerticalLocation>(dispatcher);
 
-		LastReadLocation = new T();
-		LastReadLocation.UpdateDispatcher(dispatcher);
 		LocationProviderSettings = new T2();
-		LocationProviderSettings.UpdateDispatcher(dispatcher);
-
-		// Commands
-		StartListeningCommand = new RelayCommand(_ => StartListeningAsync(), x => !IsListening);
-		StopListeningCommand = new RelayCommand(_ => StopListeningAsync(), x => !IsListening);
 	}
 
 	#endregion
 
 	#region Properties
 
-	/// <inheritdoc />
-	public bool HasPermission { get; protected set; }
-
-	/// <inheritdoc />
-	public virtual bool IsListening { get; protected set; }
-
-	/// <inheritdoc />
-	public virtual bool IsLocationAvailable { get; protected set; }
-
-	/// <inheritdoc />
-	public virtual bool IsLocationEnabled { get; protected set; }
-
-	/// <inheritdoc />
-	public T LastReadLocation { get; }
-
-	/// <inheritdoc />
+	/// <summary>
+	/// The settings for the location provider.
+	/// </summary>
 	public T2 LocationProviderSettings { get; }
 
-	/// <inheritdoc />
-	public RelayCommand StartListeningCommand { get; }
-
-	/// <inheritdoc />
+	/// <summary>
+	/// The status of the provider.
+	/// </summary>
 	public string Status { get; protected set; }
 
-	/// <inheritdoc />
-	public RelayCommand StopListeningCommand { get; }
+	/// <summary>
+	/// Comparer for the horizontal location.
+	/// </summary>
+	protected LocationComparer<THorizontalLocation> ComparerForHorizontal { get; }
+
+	/// <summary>
+	/// Comparer for the vertical location.
+	/// </summary>
+	protected LocationComparer<TVerticalLocation> ComparerForVertical { get; }
 
 	#endregion
 
 	#region Methods
 
-	/// <inheritdoc />
-	public virtual T GetCurrentLocation(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
-	{
-		return GetCurrentLocationAsync().AwaitResults();
-	}
-
-	/// <inheritdoc />
+	/// <summary>
+	/// Gets position async with specified parameters
+	/// </summary>
+	/// <param name="timeout"> Timeout to wait, Default Infinite </param>
+	/// <param name="cancelToken"> Cancellation token </param>
+	/// <returns> ProviderLocation </returns>
 	public abstract Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
 
 	/// <inheritdoc />
-	public override bool ShouldApplyUpdate(T value, T update)
+	public override bool ShouldUpdate(T value, T update)
 	{
-		return _locationComparer.ShouldApplyUpdate(value, update);
+		return ComparerForHorizontal.ShouldUpdate(value, update)
+			|| ComparerForVertical.ShouldUpdate(value, update);
 	}
 
 	/// <inheritdoc />
-	public abstract Task StartListeningAsync();
-
-	/// <inheritdoc />
-	public abstract Task StopListeningAsync();
-
-	/// <inheritdoc />
-	public override bool TryUpdateValue(ref T value, T update)
+	public override bool UpdateWith(ref T value, T update, params string[] exclusions)
 	{
-		return _locationComparer.TryUpdateValue(ref value, update);
-	}
-
-	/// <summary>
-	/// Triggers event handler.
-	/// </summary>
-	/// <param name="e"> The value for the event handler. </param>
-	protected virtual void OnLocationChanged(T e)
-	{
-		LocationChanged?.Invoke(this, e);
+		return value.HorizontalLocation.UpdateWith(update, exclusions);
 	}
 
 	/// <summary>
@@ -139,151 +104,15 @@ public abstract class LocationProvider<T, T2>
 
 	#region Events
 
-	/// <inheritdoc />
-	public event EventHandler<LocationProviderError> ErrorReceived;
-
-	/// <inheritdoc />
-	public event EventHandler<T> LocationChanged;
-
-	/// <inheritdoc />
-	public event EventHandler<LogEventArgs> LogEventWritten;
-
-	#endregion
-}
-
-/// <summary>
-/// Represents a location provider for a location (horizontal and vertical location).
-/// </summary>
-/// <typeparam name="T"> The location type. </typeparam>
-/// <typeparam name="T2"> The setting type. </typeparam>
-public interface ILocationProvider<T, out T2> : ILocationProvider<T>
-	where T : class, ILocation, new()
-	where T2 : ILocationProviderSettings
-{
-	#region Properties
-
-	/// <summary>
-	/// Gets if the app has permission to access location information.
-	/// </summary>
-	bool HasPermission { get; }
-
-	/// <summary>
-	/// Gets if location is available from the provider.
-	/// </summary>
-	bool IsLocationAvailable { get; }
-
-	/// <summary>
-	/// Gets if location is enabled on the provider.
-	/// </summary>
-	bool IsLocationEnabled { get; }
-
-	/// <summary>
-	/// The settings for when the location provider.
-	/// </summary>
-	T2 LocationProviderSettings { get; }
-
-	/// <summary>
-	/// The command for starting to listen for location changes.
-	/// </summary>
-	RelayCommand StartListeningCommand { get; }
-
-	/// <summary>
-	/// The status of the provider
-	/// </summary>
-	string Status { get; }
-
-	/// <summary>
-	/// The command to stop to listening for location changes.
-	/// </summary>
-	RelayCommand StopListeningCommand { get; }
-
-	#endregion
-
-	#region Methods
-
-	/// <summary>
-	/// Gets the current location from the provider.
-	/// </summary>
-	/// <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="LocationProviderSettings" />. </param>
-	/// <param name="cancelToken"> An optional cancellation token. </param>
-	/// <returns> The current location or null if not available. </returns>
-	T GetCurrentLocation(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
-
-	/// <summary>
-	/// Gets the current location from the provider.
-	/// </summary>
-	/// <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="LocationProviderSettings" />. </param>
-	/// <param name="cancelToken"> An optional cancellation token. </param>
-	/// <returns> The current location or null if not available. </returns>
-	Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
-
-	#endregion
-
-	#region Events
-
 	/// <summary>
 	/// ProviderLocation error event handler
 	/// </summary>
-	event EventHandler<LocationProviderError> ErrorReceived;
+	public event EventHandler<LocationProviderError> ErrorReceived;
 
 	/// <summary>
 	/// Provider has written a log event.
 	/// </summary>
-	event EventHandler<LogEventArgs> LogEventWritten;
-
-	#endregion
-}
-
-/// <summary>
-/// Represents a location provider for a location for a specific type.
-/// </summary>
-public interface ILocationProvider<T> : ILocationProvider, IDeviceInformationProvider<T>
-	where T : class, new()
-{
-	#region Properties
-
-	/// <summary>
-	/// The last read location.
-	/// </summary>
-	public T LastReadLocation { get; }
-
-	#endregion
-
-	#region Events
-
-	/// <summary>
-	/// The location changed.
-	/// </summary>
-	event EventHandler<T> LocationChanged;
-
-	#endregion
-}
-
-/// <summary>
-/// Represents a location provider for a location.
-/// </summary>
-public interface ILocationProvider : IDeviceInformationProvider
-{
-	#region Properties
-
-	/// <summary>
-	/// Gets if the provider is listening for altitude changes.
-	/// </summary>
-	bool IsListening { get; }
-
-	#endregion
-
-	#region Methods
-
-	/// <summary>
-	/// Start listening for location changes.
-	/// </summary>
-	Task StartListeningAsync();
-
-	/// <summary>
-	/// Stop listening for location changes.
-	/// </summary>
-	Task StopListeningAsync();
+	public event EventHandler<LogEventArgs> LogEventWritten;
 
 	#endregion
 }

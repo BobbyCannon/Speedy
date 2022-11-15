@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
@@ -12,9 +11,10 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a minimal location (lat, long, alt, alt ref).
 /// </summary>
-public class BasicLocation : Bindable, IBasicLocation,
-	IComparable, IComparable<BasicLocation>,
-	IEquatable<BasicLocation>, IUpdatable<IBasicLocation>
+public class BasicLocation
+	: Bindable<BasicLocation>,
+		IBasicLocation, IComparable, IComparable<BasicLocation>,
+		IEquatable<BasicLocation>
 {
 	#region Constructors
 
@@ -66,7 +66,9 @@ public class BasicLocation : Bindable, IBasicLocation,
 	/// <inheritdoc />
 	public AltitudeReferenceType AltitudeReference { get; set; }
 
-	/// <inheritdoc />
+	/// <summary>
+	/// Check a location to determine if <see cref="IMinimalVerticalLocation.Altitude" /> is available.
+	/// </summary>
 	public bool HasAltitude => this.HasSupportedAltitude();
 
 	/// <inheritdoc />
@@ -138,17 +140,23 @@ public class BasicLocation : Bindable, IBasicLocation,
 		return $"{Latitude:F7}, {Longitude:F7}, {Altitude:F3} / {AltitudeReference.GetDisplayName()}";
 	}
 
+	/// <inheritdoc />
+	public override bool UpdateWith(BasicLocation update, params string[] exclusions)
+	{
+		return UpdateWith(update, exclusions);
+	}
+
 	/// <summary>
 	/// Update the BasicLocation with an update.
 	/// </summary>
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	public void UpdateWith(IBasicLocation update, params string[] exclusions)
+	public bool UpdateWith(IBasicLocation update, params string[] exclusions)
 	{
 		// If the update is null then there is nothing to do.
 		if (update == null)
 		{
-			return;
+			return false;
 		}
 
 		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
@@ -168,30 +176,18 @@ public class BasicLocation : Bindable, IBasicLocation,
 			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
 		}
 
-		//base.UpdateWith(update, exclusions);
+		return true;
 	}
 
 	/// <inheritdoc />
-	public override void UpdateWith(object update, params string[] exclusions)
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		switch (update)
+		return update switch
 		{
-			case BasicLocation options:
-			{
-				UpdateWith(options, exclusions);
-				return;
-			}
-			case IBasicLocation options:
-			{
-				UpdateWith(options, exclusions);
-				return;
-			}
-			default:
-			{
-				base.UpdateWith(update, exclusions);
-				return;
-			}
-		}
+			BasicLocation options => UpdateWith(options, exclusions),
+			IBasicLocation options => UpdateWith(options, exclusions),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
 
 	#endregion

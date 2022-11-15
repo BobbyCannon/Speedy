@@ -11,9 +11,9 @@ public enum LocationProviderError
 	Unknown = 0,
 
 	/// <summary>
-	/// The provider was unable to retrieve any position data.
+	/// The provider was unable to retrieve any location data.
 	/// </summary>
-	PositionUnavailable = 1,
+	LocationUnavailable = 1,
 
 	/// <summary>
 	/// The app is not, or no longer, authorized to receive location data.

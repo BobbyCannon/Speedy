@@ -20,8 +20,10 @@ using Object = Java.Lang.Object;
 namespace Speedy.Application.Xamarin;
 
 [Preserve(AllMembers = true)]
-internal class GeolocationSingleListener<T> : Object, ILocationListener
-	where T : class, ILocation, new()
+internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, ILocationListener
+	where T : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
 {
 	#region Fields
 
@@ -107,7 +109,7 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 
 			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
 			{
-				_completionSource.TrySetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+				_completionSource.TrySetException(new LocationProviderException(LocationProviderError.LocationUnavailable));
 			}
 		}
 	}
@@ -147,7 +149,7 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 	private void Finish(Location location)
 	{
 		_finishedCallback?.Invoke();
-		_completionSource.TrySetResult(location.ToPosition<T>());
+		_completionSource.TrySetResult(location.ToPosition<T, THorizontal, TVertical>());
 	}
 
 	private void TimesUp(object state)

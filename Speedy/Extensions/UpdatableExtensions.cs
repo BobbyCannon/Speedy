@@ -21,11 +21,11 @@ public static class UpdatableExtensions
 	/// <param name="value"> The value to be updated. </param>
 	/// <param name="update"> The source of the updates. </param>
 	/// <param name="exclusions"> An optional list of members to exclude. </param>
-	public static void UpdateWithUsingReflection<T, T2>(this T value, T2 update, params string[] exclusions)
+	public static bool UpdateWithUsingReflection<T, T2>(this T value, T2 update, params string[] exclusions)
 	{
 		if ((value == null) || (update == null))
 		{
-			return;
+			return false;
 		}
 
 		var destinationType = value.GetRealType();
@@ -71,6 +71,8 @@ public static class UpdatableExtensions
 				thisProperty.SetValue(value, updateValue);
 			}
 		}
+
+		return true;
 	}
 
 	#endregion

@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Linq;
 using Speedy.Extensions;
 using Speedy.Serialization;
-using Speedy.Storage;
 using Speedy.Sync;
 using ICloneable = Speedy.Serialization.ICloneable;
 
@@ -14,11 +13,11 @@ using ICloneable = Speedy.Serialization.ICloneable;
 
 namespace Speedy
 {
-	/// <summary>
-	/// Represents a Speedy entity.
-	/// </summary>
-	/// <typeparam name="T"> The type of the entity primary ID. </typeparam>
-	public abstract class Entity<T> : Entity
+    /// <summary>
+    /// Represents a Speedy entity.
+    /// </summary>
+    /// <typeparam name="T"> The type of the entity primary ID. </typeparam>
+    public abstract class Entity<T> : Entity
 	{
 		#region Properties
 
@@ -75,13 +74,13 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object update, params string[] exclusions)
+		public override bool UpdateWith(object update, params string[] exclusions)
 		{
-			this.UpdateWithUsingReflection(update, exclusions);
+			return this.UpdateWithUsingReflection(update, exclusions);
 		}
 
 		/// <inheritdoc />
-		public sealed override void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
+		public sealed override bool UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
 		{
 			var totalExclusions = new HashSet<string>(exclusions);
 			if (excludeVirtuals)
@@ -89,14 +88,14 @@ namespace Speedy
 				totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
 			}
 
-			UpdateWith(update, totalExclusions.ToArray());
+			return UpdateWith(update, totalExclusions.ToArray());
 		}
 
 		/// <inheritdoc />
-		public sealed override void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		public sealed override bool UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 		{
 			var exclusions = SyncEntity.GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
-			UpdateWith(update, exclusions.ToArray());
+			return UpdateWith(update, exclusions.ToArray());
 		}
 
 		#endregion
@@ -297,10 +296,16 @@ namespace Speedy
 		}
 
 		/// <inheritdoc />
-		public abstract void UpdateWith(object update, params string[] exclusions);
+		public virtual bool ShouldUpdate(object update)
+		{
+			return true;
+		}
 
 		/// <inheritdoc />
-		public abstract void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions);
+		public abstract bool UpdateWith(object update, params string[] exclusions);
+
+		/// <inheritdoc />
+		public abstract bool UpdateWith(object update, bool excludeVirtuals, params string[] exclusions);
 
 		/// <summary>
 		/// Allows updating of one type to another based on member Name and Type. Virtual properties are ignore by default.
@@ -309,7 +314,7 @@ namespace Speedy
 		/// <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>
 		/// <param name="excludePropertiesForOutgoingSync"> If true excluded properties will not be set during outgoing sync. </param>
 		/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
-		public abstract void UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate);
+		public abstract bool UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate);
 
 		/// <summary>
 		/// Gets the default exclusions for change tracking. Warning: this is called during constructor, overrides need to be

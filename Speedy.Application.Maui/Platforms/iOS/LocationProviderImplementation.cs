@@ -15,7 +15,7 @@ namespace Speedy.Application.Maui;
 /// Implementation for LocationProvider
 /// </summary>
 [Preserve(AllMembers = true)]
-public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
+public class LocationProviderImplementation<T, T2> : LocationDeviceInformationProvider<T, T2>
 	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
@@ -211,7 +211,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	{
 		if ((CLError) (int) e.Error.Code == CLError.Network)
 		{
-			OnLocationProviderError(Devices.Location.LocationProviderError.PositionUnavailable);
+			OnLocationProviderError(Devices.Location.LocationProviderError.LocationUnavailable);
 		}
 	}
 
@@ -232,59 +232,63 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	{
 		if (location.HorizontalAccuracy > -1)
 		{
-			LastReadLocation.Latitude = location.Coordinate.Latitude;
-			LastReadLocation.Longitude = location.Coordinate.Longitude;
-			LastReadLocation.HorizontalAccuracy = location.HorizontalAccuracy;
-			LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
+			LastReadLocation.HorizontalLocation.Latitude = location.Coordinate.Latitude;
+			LastReadLocation.HorizontalLocation.Longitude = location.Coordinate.Longitude;
+			LastReadLocation.HorizontalLocation.Accuracy = location.HorizontalAccuracy;
+			LastReadLocation.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 		}
 		else
 		{
-			LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Unspecified;
+			LastReadLocation.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
 		if (location.VerticalAccuracy > -1)
 		{
-			LastReadLocation.Altitude = location.EllipsoidalAltitude;
-			LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-			LastReadLocation.VerticalAccuracy = location.VerticalAccuracy;
-			LastReadLocation.VerticalAccuracyReference = AccuracyReferenceType.Meters;
+			LastReadLocation.VerticalLocation.Altitude = location.EllipsoidalAltitude;
+			LastReadLocation.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+			LastReadLocation.VerticalLocation.Accuracy = location.VerticalAccuracy;
+			LastReadLocation.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 		}
 		else
 		{
-			LastReadLocation.VerticalAccuracyReference = AccuracyReferenceType.Unspecified;
+			LastReadLocation.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
 		if (location.Speed > -1)
 		{
-			LastReadLocation.HasHorizontalSpeed = true;
-			LastReadLocation.HorizontalSpeed = location.Speed;
+			LastReadLocation.HorizontalLocation.HasSpeed = true;
+			LastReadLocation.HorizontalLocation.Speed = location.Speed;
 		}
 		else
 		{
-			LastReadLocation.HasHorizontalSpeed = false;
+			LastReadLocation.HorizontalLocation.HasSpeed = false;
 		}
 
 		if (location.Course > -1)
 		{
-			LastReadLocation.HasHorizontalHeading = true;
-			LastReadLocation.HorizontalHeading = location.Course;
+			LastReadLocation.HorizontalLocation.HasHeading = true;
+			LastReadLocation.HorizontalLocation.Heading = location.Course;
+		}
+		else
+		{
+			LastReadLocation.HorizontalLocation.HasHeading = false;
 		}
 
 		var sourceName = GetSourceName(location.SourceInformation);
-		LastReadLocation.HorizontalSourceName = sourceName;
-		LastReadLocation.VerticalSourceName = sourceName;
+		LastReadLocation.HorizontalLocation.SourceName = sourceName;
+		LastReadLocation.VerticalLocation.SourceName = sourceName;
 
 		try
 		{
 			var statusTime = location.Timestamp.ToDateTime().ToUniversalTime();
-			LastReadLocation.HorizontalStatusTime = statusTime;
-			LastReadLocation.VerticalStatusTime = statusTime;
+			LastReadLocation.HorizontalLocation.StatusTime = statusTime;
+			LastReadLocation.VerticalLocation.StatusTime = statusTime;
 		}
 		catch (Exception)
 		{
 			var statusTime = TimeService.UtcNow;
-			LastReadLocation.HorizontalStatusTime = statusTime;
-			LastReadLocation.VerticalStatusTime = statusTime;
+			LastReadLocation.HorizontalLocation.StatusTime = statusTime;
+			LastReadLocation.VerticalLocation.StatusTime = statusTime;
 		}
 
 		OnLocationChanged(LastReadLocation);

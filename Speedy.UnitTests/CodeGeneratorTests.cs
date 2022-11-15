@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Devices;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Sync;
@@ -104,7 +105,7 @@ public class CodeGeneratorTests
 	[TestMethod]
 	public void GenerateUpdateWith()
 	{
-		var type = typeof(VerticalLocation);
+		var type = typeof(IDeviceInformation);
 		var builder = new StringBuilder();
 		var properties = type
 			//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
@@ -118,7 +119,7 @@ public class CodeGeneratorTests
 /// </summary>
 /// <param name=""update""> The update to be applied. </param>
 /// <param name=""exclusions""> An optional set of properties to exclude. </param>
-public void UpdateWith({type.Name} update, params string[] exclusions)
+public bool UpdateWith({type.Name} update, params string[] exclusions)
 {{");
 		builder.AppendLine("\t// If the update is null then there is nothing to do.");
 		builder.AppendLine("\tif (update == null)\r\n\t{\r\n\t\treturn;\r\n\t}\r\n");
@@ -142,7 +143,7 @@ public void UpdateWith({type.Name} update, params string[] exclusions)
 		}
 
 		builder.AppendLine("\t}\r\n");
-		builder.AppendLine("\t//base.UpdateWith(update, exclusions);");
+		builder.AppendLine("\treturn true;");
 		builder.AppendLine("}\r\n");
 		builder.AppendLine($"/// <inheritdoc />\r\npublic override void UpdateWith(object update, params string[] exclusions)\r\n{{\r\n\tswitch (update)\r\n\t{{\r\n\t\tcase {type.Name} options:\r\n\t\t{{\r\n\t\t\tUpdateWith(options, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t\tdefault:\r\n\t\t{{\r\n\t\t\tbase.UpdateWith(update, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t}}\r\n}}");
 

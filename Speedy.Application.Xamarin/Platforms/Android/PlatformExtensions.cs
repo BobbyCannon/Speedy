@@ -101,50 +101,57 @@ public static class PlatformExtensions
 		return provider1.Equals(provider2);
 	}
 
-	internal static T ToPosition<T>(this Android.Locations.Location location) where T : class, ILocation, new()
+	internal static T ToPosition<T, THorizontal, TVertical>(this Android.Locations.Location location)
+		where T : class, ILocation<THorizontal, TVertical>, new()
+		where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+		where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
 	{
 		var sourceName = location.Provider ?? "unknown";
 		var sourceTime = location.GetTimestamp().UtcDateTime;
 
 		var response = new T
 		{
-			HasHorizontalHeading = location.HasBearing,
-			HasHorizontalSpeed = location.HasSpeed,
-			HorizontalSourceName = sourceName,
-			HorizontalStatusTime = sourceTime,
-			Longitude = location.Longitude,
-			Latitude = location.Latitude,
+			HorizontalLocation = { 
+				HasHeading = location.HasBearing,
+				HasSpeed = location.HasSpeed,
+				SourceName = sourceName,
+				StatusTime = sourceTime,
+				Longitude = location.Longitude,
+				Latitude = location.Latitude,
+			},
 			ProviderName = "Xamarin Android",
-			VerticalSourceName = sourceName,
-			VerticalStatusTime = sourceTime
+			VerticalLocation = {
+				SourceName = sourceName,
+				StatusTime = sourceTime
+			}
 		};
 
 		if (location.HasAccuracy)
 		{
-			response.HorizontalAccuracy = location.Accuracy;
-			response.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
+			response.HorizontalLocation.Accuracy = location.Accuracy;
+			response.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 		}
 
 		if (location.HasAltitude)
 		{
-			response.Altitude = location.Altitude;
-			response.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+			response.VerticalLocation.Altitude = location.Altitude;
+			response.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 		}
 
 		if (location.HasVerticalAccuracy)
 		{
-			response.VerticalAccuracy = location.VerticalAccuracyMeters;
-			response.VerticalAccuracyReference = AccuracyReferenceType.Meters;
+			response.VerticalLocation.Accuracy = location.VerticalAccuracyMeters;
+			response.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 		}
 
-		if (response.HasHorizontalHeading)
+		if (response.HorizontalLocation.HasHeading)
 		{
-			response.HorizontalHeading = location.Bearing;
+			response.HorizontalLocation.Heading = location.Bearing;
 		}
 
-		if (response.HasHorizontalSpeed)
+		if (response.HorizontalLocation.HasSpeed)
 		{
-			response.HorizontalSpeed = location.Speed;
+			response.HorizontalLocation.Speed = location.Speed;
 		}
 
 		//response.IsFromMockProvider = (int) Build.VERSION.SdkInt >= 18 && location.IsFromMockProvider;

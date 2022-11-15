@@ -16,8 +16,8 @@ namespace Speedy.Application.Xamarin;
 /// </summary>
 /// <typeparam name="T"> The vertical location type. </typeparam>
 public class XamarinBarometerLocationProvider<T>
-	: LocationProvider<T, LocationProviderSettings>
-	where T : class, ILocation, new()
+	: LocationDeviceInformationProvider<T>
+	where T : class, IVerticalLocation, new()
 {
 	#region Constructors
 
@@ -45,7 +45,7 @@ public class XamarinBarometerLocationProvider<T>
 	/// <inheritdoc />
 	public override Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
-		return Task.FromResult(((ICloneable<T>) LastReadLocation).ShallowClone());
+		return Task.FromResult(((ICloneable<T>) CurrentValue).ShallowClone());
 	}
 
 	/// <inheritdoc />
@@ -68,9 +68,9 @@ public class XamarinBarometerLocationProvider<T>
 	{
 		Pressure = e.Reading.PressureInHectopascals;
 		var altitudeAboveSeaLevel = Math.Round(44307.69 * (1.0 - Math.Pow(Pressure / 1013.25, 0.190284)) * 10.0) / 10.0;
-		LastReadLocation.Altitude = altitudeAboveSeaLevel;
-		LastReadLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-		OnLocationChanged((T) LastReadLocation.ShallowClone());
+		CurrentValue.Altitude = altitudeAboveSeaLevel;
+		CurrentValue.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+		OnChanged(((ICloneable<T>) CurrentValue).ShallowClone());
 	}
 
 	#endregion

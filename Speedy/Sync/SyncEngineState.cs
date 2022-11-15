@@ -114,12 +114,12 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="update"> The update to be applied. </param>
 		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public override void UpdateWith(SyncEngineState update, params string[] exclusions)
+		public override bool UpdateWith(SyncEngineState update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)
 			{
-				return;
+				return false;
 			}
 
 			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
@@ -138,24 +138,18 @@ namespace Speedy.Sync
 				this.IfThen(x => !exclusions.Contains(nameof(Status)), x => x.Status = update.Status);
 				this.IfThen(x => !exclusions.Contains(nameof(Total)), x => x.Total = update.Total);
 			}
+
+			return true;
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object update, params string[] exclusions)
+		public override bool UpdateWith(object update, params string[] exclusions)
 		{
-			switch (update)
+			return update switch
 			{
-				case SyncEngineState options:
-				{
-					UpdateWith(options, exclusions);
-					return;
-				}
-				default:
-				{
-					base.UpdateWith(update, exclusions);
-					return;
-				}
-			}
+				SyncEngineState options => UpdateWith(options, exclusions),
+				_ => base.UpdateWith(update, exclusions)
+			};
 		}
 
 		#endregion

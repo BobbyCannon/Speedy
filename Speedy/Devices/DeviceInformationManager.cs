@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Speedy.Serialization;
 using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
@@ -58,12 +59,10 @@ public abstract class DeviceInformationManager<T> : Bindable
 	/// <summary>
 	/// Add a provider of device information to the manager.
 	/// </summary>
-	/// <typeparam name="T1"> The type the device information provider is for. </typeparam>
 	/// <param name="provider"> The provider of device information for the type. </param>
-	public void Add<T1>(IDeviceInformationProvider<T1> provider)
-		where T1 : new()
+	public void Add(IDeviceInformationProvider provider)
 	{
-		_providers.AddOrUpdate(typeof(T1),
+		_providers.AddOrUpdate(provider.CurrentValueType,
 			_ =>
 			{
 				provider.Refreshed += ProviderOnRefreshed;
@@ -91,29 +90,36 @@ public abstract class DeviceInformationManager<T> : Bindable
 
 	private void ProviderOnRefreshed(object sender, object update)
 	{
-		var provider = (IDeviceInformationProvider)sender;
+		var provider = (IDeviceInformationProvider) sender;
 		if (provider == null)
 		{
+			// Invalid provider?
 			return;
 		}
 
+		// Just a cast to get to object
 		if (_currentValue is not object objectValue)
 		{
 			return;
 		}
 
+		// Try to refresh the Manager's CurrentValue
 		if (!provider.Refresh(ref objectValue, update))
 		{
+			// Current Value was not refresh so do not notify
 			return;
 		}
 
+		// If the value is clone, clone it
 		if (objectValue is ICloneable cValue)
 		{
-			OnRefreshed((T)cValue.ShallowClone());
+			// Notify of the value
+			OnRefreshed((T) cValue.ShallowClone());
 			return;
 		}
 
-		OnRefreshed(_currentValue);
+		// Notify of the current value with deep clone
+		OnRefreshed(_currentValue.DeepClone());
 	}
 
 	#endregion

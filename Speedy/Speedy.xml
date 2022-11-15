@@ -4,6 +4,23 @@
         <name>Speedy</name>
     </assembly>
     <members>
+        <member name="T:Speedy.Bindable`1">
+            <summary>
+            Represents a bindable object.
+            </summary>
+        </member>
+        <member name="M:Speedy.Bindable`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates a bindable object.
+            </summary>
+            <param name="dispatcher"> The dispatcher to update with. </param>
+        </member>
+        <member name="M:Speedy.Bindable`1.ShouldUpdate(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Bindable">
             <summary>
             Represents a bindable object.
@@ -51,6 +68,9 @@
             </summary>
             <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
         </member>
+        <member name="M:Speedy.Bindable.ShouldUpdate(System.Object)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
@@ -60,17 +80,17 @@
         <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable.OnPropertyChangedInDispatcher(System.String)">
-            <summary>
-            fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
-            </summary>
-            <param name="propertyName"> The name of the property has changed. </param>
-        </member>
         <member name="M:Speedy.Bindable.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
             <summary>
             Indicates the property has changed on the bindable object.
             </summary>
             <param name="propertyChangedEvent"> The changed event value of the property that changed. </param>
+        </member>
+        <member name="M:Speedy.Bindable.OnPropertyChangedInDispatcher(System.String)">
+            <summary>
+            fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
         </member>
         <member name="E:Speedy.Bindable.PropertyChanged">
             <inheritdoc />
@@ -107,9 +127,6 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.CloneableBindable`1.ShallowClone">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.CloneableBindable`1.UpdateWith(`0,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.CloneableBindable`1.Speedy#Serialization#ICloneable#DeepClone(System.Nullable{System.Int32})">
@@ -1602,148 +1619,6 @@
             Sqlite Database
             </summary>
         </member>
-        <member name="T:Speedy.Data.BasicComparer`1">
-            <summary>
-            Represents a basic comparer.
-            </summary>
-            <typeparam name="T"> The type to be compared. </typeparam>
-        </member>
-        <member name="M:Speedy.Data.BasicComparer`1.#ctor(System.Func{`0,`0,System.Boolean},System.Func{`0,`0,System.ValueTuple{`0,System.Boolean}})">
-            <summary>
-            Instantiates on instance of a basic comparer. 
-            </summary>
-            <param name="validate"> The validate method. </param>
-            <param name="update"> The update method. </param>
-        </member>
-        <member name="M:Speedy.Data.BasicComparer`1.ValidateUpdate(`0)">
-            <summary>
-            Validates an update to see if it should be applied.
-            </summary>
-            <param name="update"> The update to validate. </param>
-            <returns> True if the update should be applied. </returns>
-        </member>
-        <member name="M:Speedy.Data.BasicComparer`1.TryUpdateValue(`0)">
-            <summary>
-            Try to update the value.
-            </summary>
-            <param name="update"> The update to apply. </param>
-            <returns> True if the value was updated otherwise false. </returns>
-        </member>
-        <member name="T:Speedy.Data.Comparer`1">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Data.Comparer`1.#ctor">
-            <summary>
-            Instantiates a new comparer.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.Comparer`1.TypeFullName">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Data.Comparer`1.Value">
-            <summary>
-            The value of the comparer.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.Comparer`1.GetValue">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Data.Comparer`1.Refresh(`0)">
-            <summary>
-            Refresh the comparer with an update.
-            </summary>
-            <param name="update"> The update to be checked and optionally applied. </param>
-            <returns> True if the update was accepted and applied otherwise false. </returns>
-            <remarks> Note: the update could and may have been partially applied. </remarks>
-        </member>
-        <member name="M:Speedy.Data.Comparer`1.ValidateUpdate(`0)">
-            <summary>
-            Validates an update to see if it should be applied.
-            </summary>
-            <param name="update"> The update to validate. </param>
-            <returns> True if the update should be applied. </returns>
-        </member>
-        <member name="M:Speedy.Data.Comparer`1.ValidateUpdate(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Data.Comparer`1.TryUpdateValue(`0)">
-            <summary>
-            Try to update the value.
-            </summary>
-            <param name="update"> The update to apply. </param>
-            <returns> True if the value was updated otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Data.Comparer`1.TryUpdateValue(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Data.Comparer">
-            <summary>
-            The comparer for an object.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.Comparer.TypeFullName">
-            <summary>
-            The full name of the type this comparer is for.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.Comparer.GetValue">
-            <summary>
-            Get the value.
-            </summary>
-            <returns> The value of the comparer. </returns>
-        </member>
-        <member name="M:Speedy.Data.Comparer.Refresh(System.Object)">
-            <summary>
-            Try to refresh the value.
-            </summary>
-            <param name="update"> The update to apply. </param>
-            <returns> True if the value was updated otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Data.Comparer.ValidateUpdate(System.Object)">
-            <summary>
-            Validate an update.
-            </summary>
-            <param name="update"> The update to validate. </param>
-            <returns> True if the update is valid otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Data.Comparer.TryUpdateValue(System.Object)">
-            <summary>
-            Try to update the value.
-            </summary>
-            <param name="update"> The update to apply. </param>
-            <returns> True if the value was updated otherwise false. </returns>
-        </member>
-        <member name="T:Speedy.Data.ComparerManager">
-            <summary>
-            Manages a set of comparers.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.ComparerManager.#ctor">
-            <summary>
-            Instantiates an instance of the manager for comparers.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.ComparerManager.AddComparer(Speedy.Data.Comparer)">
-            <summary>
-            Add a comparer to the manager.
-            </summary>
-            <param name="comparer"> The comparer to be added. </param>
-        </member>
-        <member name="M:Speedy.Data.ComparerManager.GetValue``1">
-            <summary>
-            Get the value of a type from the loaded comparer.
-            </summary>
-            <typeparam name="T"> The type to get the value for. </typeparam>
-            <returns> The type if a comparer was found otherwise default(T). </returns>
-        </member>
-        <member name="M:Speedy.Data.ComparerManager.TryRefresh``1(``0)">
-            <summary>
-            Try to refresh a comparer with an update.
-            </summary>
-            <typeparam name="T"> The type the update is for. </typeparam>
-            <param name="update"> The update to try and refresh a comparer with. </param>
-            <returns> True if the comparer was found and refreshed otherwise false. </returns>
-        </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
             Represents a default dispatcher
@@ -1763,6 +1638,167 @@
         </member>
         <member name="M:Speedy.DefaultDispatcher.RunAsync``1(System.Func{``0})">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Devices.DeviceInformationManager`1">
+            <summary>
+            Manages a group of information providers and comparers to track a single state of information.
+            </summary>
+            <typeparam name="T"> The type of the value to track. </typeparam>
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the device information manager.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.CurrentValue">
+            <summary>
+            The current final state.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.Providers">
+            <summary>
+            The providers for each type.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.Add(Speedy.Devices.IDeviceInformationProvider)">
+            <summary>
+            Add a provider of device information to the manager.
+            </summary>
+            <param name="provider"> The provider of device information for the type. </param>
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.OnRefreshed(`0)">
+            <summary>
+            Triggers the <see cref="E:Speedy.Devices.DeviceInformationManager`1.Refreshed" /> event with the provided value;
+            </summary>
+            <param name="e"> The value that was updated. </param>
+        </member>
+        <member name="E:Speedy.Devices.DeviceInformationManager`1.Refreshed">
+            <summary>
+            An event to notify when the current value is refreshed.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.DeviceInformationProvider`1">
+            <summary>
+            Represents a provider of device information.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Represents a provider of device information.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.CurrentValue">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.CurrentValueType">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.HasPermission">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.IsListening">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(`0@,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(System.Object@,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.StartListeningAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.StopListeningAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.OnChanged(`0)">
+            <summary>
+            Triggers the <see cref="M:Speedy.Devices.DeviceInformationProvider`1.OnChanged(`0)" /> event when the device information changes.
+            </summary>
+            <param name="e"> The new value. </param>
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.OnRefreshed(`0)">
+            <summary>
+            Triggers the <see cref="E:Speedy.Devices.DeviceInformationProvider`1.Refreshed" /> event with the provided value;
+            </summary>
+            <param name="e"> The value that was updated. </param>
+        </member>
+        <member name="E:Speedy.Devices.DeviceInformationProvider`1.Changed">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Devices.DeviceInformationProvider`1.Refreshed">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Devices.IDeviceInformationProvider`1">
+            <summary>
+            Represents a provider of device information.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformationProvider`1.CurrentValue">
+            <summary>
+            Represents the current value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.IDeviceInformationProvider`1.Refresh(`0)">
+            <summary>
+            Try to apply an update to the provided value.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Devices.IDeviceInformationProvider`1.Refresh(`0@,`0)">
+            <summary>
+            Try to apply an update to the provided value.
+            </summary>
+            <param name="value"> The value to be updated. </param>
+            <param name="update"> The update to be applied. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.Devices.IDeviceInformationProvider">
+            <summary>
+            Represents a provider of device information.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(System.Object)">
+            <summary>
+            Try to apply an update to the provided value.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(System.Object@,System.Object)">
+            <summary>
+            Try to apply an update to the provided value.
+            </summary>
+            <param name="value"> The value to be updated. </param>
+            <param name="update"> The update to be applied. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.StartListeningAsync">
+            <summary>
+            Start monitoring for device information changes.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.StopListeningAsync">
+            <summary>
+            Stop monitoring for device information changes.
+            </summary>
+        </member>
+        <member name="E:Speedy.Devices.IDeviceInformationProvider.Changed">
+            <summary>
+            An event to notify when the device information has changed.
+            </summary>
+        </member>
+        <member name="E:Speedy.Devices.IDeviceInformationProvider.Refreshed">
+            <summary>
+            An event to notify when the device information current value was refreshed.
+            </summary>
         </member>
         <member name="T:Speedy.Devices.DevicePlatform">
             <summary>
@@ -1832,6 +1868,45 @@
         <member name="F:Speedy.Devices.DeviceType.TV">
             <summary>
             TV
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.IDeviceInformation">
+            <summary>
+            Represents information for a device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.Accuracy">
+            <summary>
+            The accuracy of the information.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.AccuracyReference">
+            <summary>
+            The reference system for accuracy.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.HasAccuracy">
+            <summary>
+            Specifies if the Accuracy value is valid.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.HasValue">
+            <summary>
+            Determines if the device information has a value.
+            </summary>
+            <remarks>
+            Each device information could / will have different value members.
+            Ex. VerticalLocation will have Altitude, where HorizontalLocation will have Latitude, Longitude.
+            </remarks>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.SourceName">
+            <summary>
+            The name of the source of the information. Ex. Hardware, Software, Simulated, Wifi, GPS, etc
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.StatusTime">
+            <summary>
+            The original time of the information was captured.
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.AccuracyReferenceType">
@@ -1914,7 +1989,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.BasicLocation.HasAltitude">
-            <inheritdoc />
+            <summary>
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude" /> is available.
+            </summary>
         </member>
         <member name="P:Speedy.Devices.Location.BasicLocation.Latitude">
             <inheritdoc />
@@ -1938,6 +2015,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.BasicLocation.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.BasicLocation.UpdateWith(Speedy.Devices.Location.BasicLocation,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.BasicLocation.UpdateWith(Speedy.Devices.Location.IBasicLocation,System.String[])">
@@ -1966,51 +2046,20 @@
         <member name="M:Speedy.Devices.Location.HorizontalLocation.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HasHorizontalAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HasHorizontalHeading">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HasHorizontalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HasLatitudeLongitude">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalAccuracyReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalFlags">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalHeading">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalSourceName">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.HorizontalLocation.HorizontalStatusTime">
-            <inheritdoc />
-        </member>
         <member name="P:Speedy.Devices.Location.HorizontalLocation.Latitude">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.HorizontalLocation.Longitude">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.HorizontalLocation.UpdateWith(Speedy.Devices.Location.HorizontalLocation,System.String[])">
-            <summary>
-            Update the HorizontalLocation with an update.
-            </summary>
-            <param name="update"> The update to be applied. </param>
-            <param name="exclusions"> An optional set of properties to exclude. </param>
+        <member name="M:Speedy.Devices.Location.HorizontalLocation.DeepClone(System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.HorizontalLocation.ShallowClone">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.HorizontalLocation.ShouldUpdate(Speedy.Devices.Location.IHorizontalLocation)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.HorizontalLocation.UpdateWith(Speedy.Devices.Location.IHorizontalLocation,System.String[])">
             <summary>
@@ -2025,61 +2074,6 @@
         <member name="T:Speedy.Devices.Location.IHorizontalLocation">
             <summary>
             Represents a horizontal location (lat, long).
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HasHorizontalAccuracy">
-            <summary>
-            Specifies if the Accuracy value is valid.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HasHorizontalHeading">
-            <summary>
-            Specifies if the Heading value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HasHorizontalSpeed">
-            <summary>
-            Specifies if the Speed value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HasLatitudeLongitude">
-            <summary>
-            Specifies if the Latitude / Longitude value are valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalAccuracy">
-            <summary>
-            The accuracy of the horizontal location. (latitude, longitude)
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalAccuracyReference">
-            <summary>
-            The reference system for accuracy.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalFlags">
-            <summary>
-            Flags for the location of the provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalHeading">
-            <summary>
-            The heading of a device.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalSourceName">
-            <summary>
-            The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalSpeed">
-            <summary>
-            The speed of the device in meters per second.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalStatusTime">
-            <summary>
-            The original time of the location was captured.
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.IMinimalHorizontalLocation">
@@ -2097,81 +2091,6 @@
             Ranges between -180 to 180 from West to East
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.IVerticalLocation">
-            <summary>
-            Represents a vertical location (alt, alt ref, acc, acc ref).
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.HasAltitude">
-            <summary>
-            Specifies if the Altitude value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.HasVerticalAccuracy">
-            <summary>
-            Specifies if the Altitude Accuracy value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.HasVerticalHeading">
-            <summary>
-            Specifies if the Heading value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.HasVerticalSpeed">
-            <summary>
-            Specifies if the Speed value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalAccuracy">
-            <summary>
-            The accuracy of the vertical location. (altitude)
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalAccuracyReference">
-            <summary>
-            The reference system for altitude accuracy.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalFlags">
-            <summary>
-            Flags for the location of the provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalHeading">
-            <summary>
-            The heading of a device.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalSourceName">
-            <summary>
-            The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalSpeed">
-            <summary>
-            The vertical speed of the device in meters per second.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IVerticalLocation.VerticalStatusTime">
-            <summary>
-            The original time of the location was captured.
-            </summary>
-        </member>
-        <member name="T:Speedy.Devices.Location.IMinimalVerticalLocation">
-            <summary>
-            Represents a vertical location (alt, alt ref).
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude">
-            <summary>
-            The altitude of the location
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.AltitudeReference">
-            <summary>
-            The reference type for the altitude value.
-            </summary>
-        </member>
         <member name="T:Speedy.Devices.Location.Location">
             <summary>
             Represents a full location from a LocationProvider. Contains horizontal and vertical location.
@@ -2187,120 +2106,16 @@
             Instantiates a location for a LocationProvider.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.Location.#ctor(Speedy.Devices.Location.IBasicLocation,Speedy.IDispatcher)">
-            <summary>
-            Instantiates a location for a LocationProvider.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.#ctor(System.Double,System.Double,System.Double,Speedy.Devices.Location.AltitudeReferenceType,Speedy.IDispatcher)">
-            <summary>
-            Instantiates a location for a LocationProvider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.Altitude">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.AltitudeReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasAltitude">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasHorizontalAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasHorizontalHeading">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasHorizontalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasLatitudeLongitude">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasVerticalAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasVerticalHeading">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HasVerticalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HorizontalAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HorizontalAccuracyReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HorizontalFlags">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HorizontalHeading">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HorizontalSourceName">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HorizontalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.HorizontalStatusTime">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.Latitude">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.Longitude">
+        <member name="P:Speedy.Devices.Location.Location.HorizontalLocation">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.Location.ProviderName">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.Location.VerticalAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.VerticalAccuracyReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.VerticalFlags">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.VerticalHeading">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.VerticalSourceName">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.VerticalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.Location.VerticalStatusTime">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.IVerticalLocation,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.IHorizontalLocation,System.String[])">
+        <member name="P:Speedy.Devices.Location.Location.VerticalLocation">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.ILocation,System.String[])">
-            <summary>
-            Update the Location with an update.
-            </summary>
-            <param name="update"> The update to be applied. </param>
-            <param name="exclusions"> An optional set of properties to exclude. </param>
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.Location,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.Location.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.ILocation">
@@ -2308,44 +2123,147 @@
             Represents a provider location.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.ILocation.ProviderName">
+        <member name="T:Speedy.Devices.Location.ILocation`2">
+            <summary>
+            Represents a provider location.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocation`2.HorizontalLocation">
+            <summary>
+            The horizontal location.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocation`2.ProviderName">
             <summary>
             The name of the provider that is the source of this location.
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.LocationComparer">
+        <member name="P:Speedy.Devices.Location.ILocation`2.VerticalLocation">
+            <summary>
+            The vertical location.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationComparer`1">
             <summary>
             The state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer.TryUpdateValue(Speedy.Devices.Location.Location)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Devices.Location.LocationComparer`3">
-            <summary>
-            The state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer`3.#ctor">
+        <member name="M:Speedy.Devices.Location.LocationComparer`1.#ctor">
             <summary>
             Instantiate a state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationComparer`3.AlwaysTrustSameSource">
+        <member name="M:Speedy.Devices.Location.LocationComparer`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiate a state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationComparer`1.AlwaysTrustSameSource">
             <summary>
             If true all updates from the existing source will always be accepted regardless of
             the quality of the data.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationComparer`3.SourceTimeout">
+        <member name="P:Speedy.Devices.Location.LocationComparer`1.SourceTimeout">
             <summary>
             The timeout before the current data will expire and allow data that is lower quality.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer`3.ValidateUpdate(`0)">
+        <member name="M:Speedy.Devices.Location.LocationComparer`1.ShouldUpdate(`0,`0)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer`3.TryUpdateValue(`0)">
+        <member name="M:Speedy.Devices.Location.LocationComparer`1.UpdateWith(`0@,`0,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationDeviceInformation">
+            <summary>
+            Represents location information for a device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformation.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates location information for a device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.Accuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.AccuracyReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.Flags">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.HasAccuracy">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.HasHeading">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.HasSpeed">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.HasValue">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.Heading">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.SourceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.Speed">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.StatusTime">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.Flags">
+            <summary>
+            Flags for the location of the provider.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.HasHeading">
+            <summary>
+            Specifies if the Heading value is valid.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.HasSpeed">
+            <summary>
+            Specifies if the Speed value is valid.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.Heading">
+            <summary>
+            The heading of a device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.Speed">
+            <summary>
+            The speed of the device in meters per second.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationProvider`1.GetCurrentLocation(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets the current location from the provider.
+            </summary>
+            <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="T:Speedy.Devices.Location.LocationProviderSettings" />. </param>
+            <param name="cancelToken"> An optional cancellation token. </param>
+            <returns> The current location or null if not available. </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationProvider`1.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets the current location from the provider.
+            </summary>
+            <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="T:Speedy.Devices.Location.LocationProviderSettings" />. </param>
+            <param name="cancelToken"> An optional cancellation token. </param>
+            <returns> The current location or null if not available. </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationProvider`1.ShouldUpdate(`0,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationProvider`1.UpdateWith(`0@,`0,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.LocationFlags">
@@ -2368,7 +2286,7 @@
             Location has speed.
             </summary>
         </member>
-        <member name="F:Speedy.Devices.Location.LocationFlags.HasPrimaryValue">
+        <member name="F:Speedy.Devices.Location.LocationFlags.HasLocation">
             <summary>
             Location has primary value (ex. alt or lat/long)
             </summary>
@@ -2386,223 +2304,71 @@
         <member name="M:Speedy.Devices.Location.LocationManager.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Devices.Location.LocationManager`4">
+        <member name="T:Speedy.Devices.Location.LocationProvider`4">
             <summary>
-            The manager for location.
-            </summary>
-            <typeparam name="TLocation"> The full location type. </typeparam>
-            <typeparam name="THorizontal"> The horizontal type. </typeparam>
-            <typeparam name="TVertical"> The vertical type. </typeparam>
-            <typeparam name="TLocationProviderSettings"> The location settings for the provider. </typeparam>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`4.#ctor(Speedy.IDispatcher)">
-            <summary>
-            Instantiates a location manager.
+            Represents a location provider.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`4.Comparer">
+        <member name="M:Speedy.Devices.Location.LocationProvider`4.#ctor(Speedy.IDispatcher)">
             <summary>
-            The comparer for location updates.
+            Creates an instance of a location provider.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationProvider`4.LocationProviderSettings">
+            <summary>
+            The settings for the location provider.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`4.LocationProviders">
+        <member name="P:Speedy.Devices.Location.LocationProvider`4.Status">
             <summary>
-            The list of location providers.
+            The status of the provider.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationManager`4.Settings">
+        <member name="P:Speedy.Devices.Location.LocationProvider`4.ComparerForHorizontal">
             <summary>
-            Default settings for the location providers.
+            Comparer for the horizontal location.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`4.StartListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationManager`4.StopListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Devices.Location.LocationProvider`2">
+        <member name="P:Speedy.Devices.Location.LocationProvider`4.ComparerForVertical">
             <summary>
-            Represents a location provider for a location (horizontal and vertical location).
-            </summary>
-            <typeparam name="T"> The location type. </typeparam>
-            <typeparam name="T2"> The setting type. </typeparam>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.#ctor(Speedy.IDispatcher)">
-            <summary>
-            Instantiates an instance of the location provider.
+            Comparer for the vertical location.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.HasPermission">
+        <member name="M:Speedy.Devices.Location.LocationProvider`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets position async with specified parameters
+            </summary>
+            <param name="timeout"> Timeout to wait, Default Infinite </param>
+            <param name="cancelToken"> Cancellation token </param>
+            <returns> ProviderLocation </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProvider`4.ShouldUpdate(`0,`0)">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.IsListening">
+        <member name="M:Speedy.Devices.Location.LocationProvider`4.UpdateWith(`0@,`0,System.String[])">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.IsLocationAvailable">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.IsLocationEnabled">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.LastReadLocation">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.LocationProviderSettings">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.StartListeningCommand">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.Status">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProvider`2.StopListeningCommand">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.GetCurrentLocation(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.StartListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.StopListeningAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.OnLocationChanged(`0)">
+        <member name="M:Speedy.Devices.Location.LocationProvider`4.OnLocationProviderError(Speedy.Devices.Location.LocationProviderError)">
             <summary>
             Triggers event handler.
             </summary>
             <param name="e"> The value for the event handler. </param>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.OnLocationProviderError(Speedy.Devices.Location.LocationProviderError)">
-            <summary>
-            Triggers event handler.
-            </summary>
-            <param name="e"> The value for the event handler. </param>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProvider`2.OnLogEventWritten(Speedy.Logging.LogEventArgs)">
+        <member name="M:Speedy.Devices.Location.LocationProvider`4.OnLogEventWritten(Speedy.Logging.LogEventArgs)">
             <summary>
             Triggers event handler
             </summary>
             <param name="e"> The value for the event handler. </param>
         </member>
-        <member name="E:Speedy.Devices.Location.LocationProvider`2.ErrorReceived">
-            <inheritdoc />
-        </member>
-        <member name="E:Speedy.Devices.Location.LocationProvider`2.LocationChanged">
-            <inheritdoc />
-        </member>
-        <member name="E:Speedy.Devices.Location.LocationProvider`2.LogEventWritten">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Devices.Location.ILocationProvider`2">
-            <summary>
-            Represents a location provider for a location (horizontal and vertical location).
-            </summary>
-            <typeparam name="T"> The location type. </typeparam>
-            <typeparam name="T2"> The setting type. </typeparam>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`2.HasPermission">
-            <summary>
-            Gets if the app has permission to access location information.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`2.IsLocationAvailable">
-            <summary>
-            Gets if location is available from the provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`2.IsLocationEnabled">
-            <summary>
-            Gets if location is enabled on the provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`2.LocationProviderSettings">
-            <summary>
-            The settings for when the location provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`2.StartListeningCommand">
-            <summary>
-            The command for starting to listen for location changes.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`2.Status">
-            <summary>
-            The status of the provider
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`2.StopListeningCommand">
-            <summary>
-            The command to stop to listening for location changes.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.ILocationProvider`2.GetCurrentLocation(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <summary>
-            Gets the current location from the provider.
-            </summary>
-            <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="P:Speedy.Devices.Location.ILocationProvider`2.LocationProviderSettings" />. </param>
-            <param name="cancelToken"> An optional cancellation token. </param>
-            <returns> The current location or null if not available. </returns>
-        </member>
-        <member name="M:Speedy.Devices.Location.ILocationProvider`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <summary>
-            Gets the current location from the provider.
-            </summary>
-            <param name="timeout"> Timeout to wait. If null we use the default time from <see cref="P:Speedy.Devices.Location.ILocationProvider`2.LocationProviderSettings" />. </param>
-            <param name="cancelToken"> An optional cancellation token. </param>
-            <returns> The current location or null if not available. </returns>
-        </member>
-        <member name="E:Speedy.Devices.Location.ILocationProvider`2.ErrorReceived">
+        <member name="E:Speedy.Devices.Location.LocationProvider`4.ErrorReceived">
             <summary>
             ProviderLocation error event handler
             </summary>
         </member>
-        <member name="E:Speedy.Devices.Location.ILocationProvider`2.LogEventWritten">
+        <member name="E:Speedy.Devices.Location.LocationProvider`4.LogEventWritten">
             <summary>
             Provider has written a log event.
-            </summary>
-        </member>
-        <member name="T:Speedy.Devices.Location.ILocationProvider`1">
-            <summary>
-            Represents a location provider for a location for a specific type.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider`1.LastReadLocation">
-            <summary>
-            The last read location.
-            </summary>
-        </member>
-        <member name="E:Speedy.Devices.Location.ILocationProvider`1.LocationChanged">
-            <summary>
-            The location changed.
-            </summary>
-        </member>
-        <member name="T:Speedy.Devices.Location.ILocationProvider">
-            <summary>
-            Represents a location provider for a location.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocationProvider.IsListening">
-            <summary>
-            Gets if the provider is listening for altitude changes.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.ILocationProvider.StartListeningAsync">
-            <summary>
-            Start listening for location changes.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.ILocationProvider.StopListeningAsync">
-            <summary>
-            Stop listening for location changes.
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.LocationProviderError">
@@ -2615,9 +2381,9 @@
             The provider ran into an unknown error.
             </summary>
         </member>
-        <member name="F:Speedy.Devices.Location.LocationProviderError.PositionUnavailable">
+        <member name="F:Speedy.Devices.Location.LocationProviderError.LocationUnavailable">
             <summary>
-            The provider was unable to retrieve any position data.
+            The provider was unable to retrieve any location data.
             </summary>
         </member>
         <member name="F:Speedy.Devices.Location.LocationProviderError.Unauthorized">
@@ -2732,15 +2498,11 @@
             Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationProviderSettings.Reset">
-            <summary>
-            Reset the settings back to defaults.
-            </summary>
-        </member>
         <member name="M:Speedy.Devices.Location.LocationProviderSettings.Cleanup">
-            <summary>
-            Cleanup the settings to be sure they are in range.
-            </summary>
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationProviderSettings.Reset">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.ILocationProviderSettings">
             <summary>
@@ -2767,79 +2529,14 @@
             Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
             </summary>
         </member>
+        <member name="M:Speedy.Devices.Location.ILocationProviderSettings.Cleanup">
+            <summary>
+            Cleanup the settings to be sure they are in range.
+            </summary>
+        </member>
         <member name="M:Speedy.Devices.Location.ILocationProviderSettings.Reset">
             <summary>
             Reset the settings back to defaults.
-            </summary>
-        </member>
-        <member name="T:Speedy.Devices.Location.LocationProxy">
-            <summary>
-            Represents a horizontal location (lat, long).
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProxy.#ctor(Speedy.Devices.Location.IHorizontalLocation)">
-            <summary>
-            Create a proxy for a horizontal location.
-            </summary>
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationProxy.#ctor(Speedy.Devices.Location.IVerticalLocation)">
-            <summary>
-            Create a proxy for a vertical location.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.Accuracy">
-            <summary>
-            The accuracy of the horizontal location. (latitude, longitude)
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.AccuracyReference">
-            <summary>
-            The reference system for accuracy.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.Flags">
-            <summary>
-            Flags for the location of the provider.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.HasAccuracy">
-            <summary>
-            Specifies if the Accuracy value is valid.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.HasHeading">
-            <summary>
-            Specifies if the Heading value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.HasLocation">
-            <summary>
-            The location has a location.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.HasSpeed">
-            <summary>
-            Specifies if the Speed value is valid
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.Heading">
-            <summary>
-            The heading of a device.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.SourceName">
-            <summary>
-            The name of the source of the location. Ex. Wifi, GPS, Hardware, Simulated, etc
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.Speed">
-            <summary>
-            The speed of the device in meters per second.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.LocationProxy.StatusTime">
-            <summary>
-            The original time of the location was captured.
             </summary>
         </member>
         <member name="T:Speedy.Devices.Location.VerticalLocation">
@@ -2865,48 +2562,14 @@
         <member name="P:Speedy.Devices.Location.VerticalLocation.AltitudeReference">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.HasAltitude">
+        <member name="M:Speedy.Devices.Location.VerticalLocation.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.HasVerticalAccuracy">
+        <member name="M:Speedy.Devices.Location.VerticalLocation.ShallowClone">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.HasVerticalHeading">
+        <member name="M:Speedy.Devices.Location.VerticalLocation.ShouldUpdate(Speedy.Devices.Location.IVerticalLocation)">
             <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.HasVerticalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalAccuracy">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalAccuracyReference">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalFlags">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalHeading">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalSourceName">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalSpeed">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.VerticalStatusTime">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(Speedy.Devices.Location.VerticalLocation,System.String[])">
-            <summary>
-            Update the VerticalLocation with an update.
-            </summary>
-            <param name="update"> The update to be applied. </param>
-            <param name="exclusions"> An optional set of properties to exclude. </param>
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(Speedy.Devices.Location.IVerticalLocation,System.String[])">
             <summary>
@@ -2917,6 +2580,29 @@
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.UpdateWith(Speedy.Devices.Location.ILocationDeviceInformation,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Devices.Location.IVerticalLocation">
+            <summary>
+            Represents a vertical location (alt, alt ref, acc, acc ref).
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.IMinimalVerticalLocation">
+            <summary>
+            Represents a vertical location (alt, alt ref).
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude">
+            <summary>
+            The altitude of the location
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.IMinimalVerticalLocation.AltitudeReference">
+            <summary>
+            The reference type for the altitude value.
+            </summary>
         </member>
         <member name="T:Speedy.Devices.RuntimeInformation">
             <summary>
@@ -3187,6 +2873,9 @@
             <summary>
             Update all local sync IDs.
             </summary>
+        </member>
+        <member name="M:Speedy.Entity.ShouldUpdate(System.Object)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
@@ -4349,14 +4038,19 @@
             Extensions for location related code.
             </summary>
         </member>
-        <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal">
+        <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypes">
             <summary>
             Globally supported Accuracy Reference types. Changing this affects extension methods like HasAccuracy.
             </summary>
         </member>
+        <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal">
+            <summary>
+            Globally supported Accuracy Reference types for horizontal locations. Changing this affects extension methods like HasAccuracy.
+            </summary>
+        </member>
         <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForVertical">
             <summary>
-            Globally supported Accuracy Reference types. Changing this affects extension methods like HasAccuracy.
+            Globally supported Accuracy Reference types for vertical locations. Changing this affects extension methods like HasAccuracy.
             </summary>
         </member>
         <member name="P:Speedy.Extensions.LocationExtensions.SupportedAltitudeReferenceTypes">
@@ -4462,36 +4156,6 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The radius of the locations. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasHorizontalHeading(Speedy.Devices.Location.IHorizontalLocation)">
-            <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalHeading" /> is available.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)" /> if this changes.
-            </remarks>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasHorizontalSpeed(Speedy.Devices.Location.IHorizontalLocation)">
-            <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalSpeed" /> is available.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)" /> if this changes.
-            </remarks>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasLatitudeLongitude(Speedy.Devices.Location.IHorizontalLocation)">
-            <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalHorizontalLocation.Latitude" />, <see cref="P:Speedy.Devices.Location.IMinimalHorizontalLocation.Longitude" /> are available.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)" /> if this changes.
-            </remarks>
-        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAltitude(Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
             Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude" /> is available.
@@ -4499,51 +4163,37 @@
             <param name="location"> The location to validate. </param>
             <returns> True if the value is available. </returns>
             <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IVerticalLocation,System.String)" /> if this changes.
+            Update <see cref="!:ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
             Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAltitudeReferenceTypes" />.
             </remarks>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedHorizontalAccuracy(Speedy.Devices.Location.IHorizontalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasAccuracy(Speedy.Devices.IDeviceInformation)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IHorizontalLocation.HorizontalAccuracy" /> is available.
+            Check a information to determine if <see cref="P:Speedy.Devices.IDeviceInformation.Accuracy" /> is available.
             </summary>
-            <param name="location"> The location to validate. </param>
+            <param name="information"> The information to validate. </param>
             <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal" />.
-            </remarks>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedVerticalAccuracy(Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasHeading(Speedy.Devices.Location.ILocationDeviceInformation)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IVerticalLocation.VerticalAccuracy" /> is available.
+            Check a information to determine if a location device information has a heading.
             </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IVerticalLocation,System.String)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForVertical" />.
-            </remarks>
+            <param name="information"> The information to validate. </param>
+            <returns> True if the heading is available otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasVerticalHeading(Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasLocation(Speedy.Devices.Location.ILocationDeviceInformation)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IVerticalLocation.VerticalHeading" /> is available.
+            Check a information to determine if a location device information has a location.
             </summary>
-            <param name="location"> The location to validate. </param>
+            <param name="information"> The information to validate. </param>
             <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IVerticalLocation,System.String)" /> if this changes.
-            </remarks>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasVerticalSpeed(Speedy.Devices.Location.IVerticalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.HasSpeed(Speedy.Devices.Location.ILocationDeviceInformation)">
             <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IVerticalLocation.VerticalSpeed" /> is available.
+            Check a information to determine if a location device information has a speed.
             </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IVerticalLocation,System.String)" /> if this changes.
-            </remarks>
+            <param name="information"> The information to validate. </param>
+            <returns> True if the speed is available otherwise false. </returns>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.IsGreaterThan(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
@@ -4594,28 +4244,6 @@
             <param name="longitude"> The longitude to check for. </param>
             <returns> True if the location is inside the set. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsSupportedHorizontalAccuracy(Speedy.Devices.Location.AccuracyReferenceType)">
-            <summary>
-            Check a accuracy reference type to see if it is supported for horizontal.
-            </summary>
-            <param name="accuracyReferenceType"> The accuracy reference type to validate. </param>
-            <returns> True if type is supported. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal" />.
-            </remarks>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsSupportedVerticalAccuracy(Speedy.Devices.Location.AccuracyReferenceType)">
-            <summary>
-            Check a accuracy reference type to see if it is supported for vertical.
-            </summary>
-            <param name="accuracyReferenceType"> The accuracy reference type to validate. </param>
-            <returns> True if type is supported. </returns>
-            <remarks>
-            Update <see cref="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IVerticalLocation,System.String)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypesForVertical" />.
-            </remarks>
-        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.IsValidLocation(Speedy.Devices.Location.IBasicLocation)">
             <summary>
             Return true if the location is valid.
@@ -4646,30 +4274,6 @@
             <param name="miles"> </param>
             <returns> </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.ILocation,System.String)">
-            <summary>
-            Handle property changes for IHorizontalLocation. Triggers properties like HasHorizontalAccuracy when the
-            dependent properties are updated.
-            </summary>
-            <param name="location"> The location to process. </param>
-            <param name="propertyName"> The name of the property that has changed. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IHorizontalLocation,System.String)">
-            <summary>
-            Handle property changes for IHorizontalLocation. Triggers properties like HasHorizontalAccuracy when the
-            dependent properties are updated.
-            </summary>
-            <param name="location"> The location to process. </param>
-            <param name="propertyName"> The name of the property that has changed. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.ProcessOnPropertyChange(Speedy.Devices.Location.IVerticalLocation,System.String)">
-            <summary>
-            Handle property changes for IVerticalLocation. Triggers properties like HasAltitude when the
-            dependent properties are updated.
-            </summary>
-            <param name="location"> The location to process. </param>
-            <param name="propertyName"> The name of the property that has changed. </param>
-        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.ToBasicLocation(Speedy.Devices.Location.IBasicLocation)">
             <summary>
             Extension method to convert a basic location to another instance.
@@ -4685,54 +4289,33 @@
             <param name="update"> The new location. </param>
             <param name="exclusions"> An optional set of exclusions. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalHeading(Speedy.Devices.Location.IHorizontalLocation,System.Boolean)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasLocation(Speedy.Devices.Location.ILocationDeviceInformation,System.Boolean)">
+            <summary>
+            Update the location's HasLocation flag.
+            </summary>
+            <param name="location"> The location to validate. </param>
+            <param name="value"> True to set HasLocation flag otherwise clear the flag. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasHeading(Speedy.Devices.Location.ILocationDeviceInformation,System.Boolean)">
             <summary>
             Update the location's HasHeading location flag.
             </summary>
             <param name="location"> The location to validate. </param>
-            <param name="value"> True to set HasHeading otherwise clear. </param>
+            <param name="value"> True to set HasHeading flag otherwise clear the flag. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalLocation(Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IHorizontalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateLocation(Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IHorizontalLocation)">
             <summary>
             Update the horizontal location (lat, long).
             </summary>
             <param name="location"> The location to update. </param>
             <param name="update"> The update with new values. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHorizontalSpeed(Speedy.Devices.Location.IHorizontalLocation,System.Boolean)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasSpeed(Speedy.Devices.Location.ILocationDeviceInformation,System.Boolean)">
             <summary>
             Update the location's HasSpeed location flag.
             </summary>
             <param name="location"> The location to validate. </param>
-            <param name="value"> True to set HasSpeedy otherwise clear. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateLatitudeLongitude(Speedy.Devices.Location.IHorizontalLocation,System.Boolean)">
-            <summary>
-            Update the location's HasPrimaryValue location flag.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <param name="value"> True to set HasPrimaryValue otherwise clear. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalHeading(Speedy.Devices.Location.IVerticalLocation,System.Boolean)">
-            <summary>
-            Update the location's HasHeading location flag.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <param name="value"> True to set HasHeading otherwise clear. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalLocation(Speedy.Devices.Location.IVerticalLocation,Speedy.Devices.Location.IVerticalLocation)">
-            <summary>
-            Update the altitude.
-            </summary>
-            <param name="location"> The location to update. </param>
-            <param name="update"> The update with new values. </param>
-        </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateVerticalSpeed(Speedy.Devices.Location.IVerticalLocation,System.Boolean)">
-            <summary>
-            Update the location's HasSpeed location flag.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <param name="value"> True to set HasSpeedy otherwise clear. </param>
+            <param name="value"> True to set HasSpeedy flag otherwise clear the flag. </param>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -5698,6 +5281,11 @@
             <param name="version"> The version to check. </param>
             <returns> True if the version is the default value of 0.0.0.0. </returns>
         </member>
+        <member name="T:Speedy.IBindable`1">
+            <summary>
+            Represents a bindable object.
+            </summary>
+        </member>
         <member name="T:Speedy.IBindable">
             <summary>
             Represents a bindable object.
@@ -5732,6 +5320,74 @@
             Updates the entity for this entity.
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
+        </member>
+        <member name="T:Speedy.Comparer`1">
+            <summary>
+            Represents a comparer for a type.
+            </summary>
+            <typeparam name="T"> The type to be compared. </typeparam>
+        </member>
+        <member name="M:Speedy.Comparer`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of a comparer.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="M:Speedy.Comparer`1.ShouldUpdate(`0,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Comparer`1.ShouldUpdate(System.Object,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Comparer`1.UpdateWith(`0@,`0,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Comparer`1.UpdateWith(System.Object@,System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.IComparer`1">
+            <summary>
+            Represents an interface to compare two instances of a type.
+            </summary>
+        </member>
+        <member name="M:Speedy.IComparer`1.ShouldUpdate(`0,`0)">
+            <summary>
+            Determine if the update should be applied.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <param name="update"> The update to be tested. </param>
+            <returns> True if the update should be applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IComparer`1.UpdateWith(`0@,`0,System.String[])">
+            <summary>
+            Apply the update to the provided value.
+            </summary>
+            <param name="value"> The value to be updated. </param>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.IComparer">
+            <summary>
+            Represents an interface to compare two instances of a type.
+            </summary>
+        </member>
+        <member name="M:Speedy.IComparer.ShouldUpdate(System.Object,System.Object)">
+            <summary>
+            Determine if the update should be applied.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <param name="update"> The update to be tested. </param>
+            <returns> True if the update should be applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IComparer.UpdateWith(System.Object@,System.Object,System.String[])">
+            <summary>
+            Apply the update to the provided value.
+            </summary>
+            <param name="value"> The value to be updated. </param>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
         </member>
         <member name="T:Speedy.IDatabase">
             <summary>
@@ -6385,6 +6041,54 @@
             Unwraps an object from the object proxy.
             </summary>
             <returns> The unwrapped entity. </returns>
+        </member>
+        <member name="T:Speedy.IUpdatable`1">
+            <summary>
+            Represents an updatable item
+            </summary>
+            <typeparam name="T"> The type that is update is for. </typeparam>
+        </member>
+        <member name="M:Speedy.IUpdatable`1.ShouldUpdate(`0)">
+            <summary>
+            Determine if the update should be applied.
+            </summary>
+            <param name="update"> The update to be tested. </param>
+            <returns> True if the update should be applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IUpdatable`1.UpdateWith(`0,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the update. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.IUpdatable">
+            <summary>
+            Represents an updatable item
+            </summary>
+        </member>
+        <member name="M:Speedy.IUpdatable.ShouldUpdate(System.Object)">
+            <summary>
+            Determine if the update should be applied.
+            </summary>
+            <param name="update"> The update to be tested. </param>
+            <returns> True if the update should be applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IUpdatable.UpdateWith(System.Object,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the update. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+        </member>
+        <member name="M:Speedy.IUpdatable.UpdateWith(System.Object,System.Boolean,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the update. </param>
+            <param name="excludeVirtuals"> An optional value to exclude virtual members. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
         <member name="T:Speedy.Logging.LogEventArgs">
             <summary>
@@ -7439,6 +7143,9 @@
             <typeparam name="T2"> The type to convert into. </typeparam>
             <param name="convert"> The function to convert from the current type into the requested type. </param>
             <returns> The new paged results for the provided type. </returns>
+        </member>
+        <member name="M:Speedy.PagedResults`1.ShouldUpdate(Speedy.PagedResults{`0})">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.PagedResults`1.UpdateWith(Speedy.PagedResults{`0},System.String[])">
             <summary>
@@ -11288,39 +10995,6 @@
             Validates all entities in the repository.
             </summary>
         </member>
-        <member name="T:Speedy.Storage.IUpdatable">
-            <summary>
-            Represents an updatable item
-            </summary>
-        </member>
-        <member name="M:Speedy.Storage.IUpdatable.UpdateWith(System.Object,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the update. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
-        <member name="M:Speedy.Storage.IUpdatable.UpdateWith(System.Object,System.Boolean,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the update. </param>
-            <param name="excludeVirtuals"> An optional value to exclude virtual members. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
-        <member name="T:Speedy.Storage.IUpdatable`1">
-            <summary>
-            Represents an updatable item
-            </summary>
-            <typeparam name="T"> The type that is update is for. </typeparam>
-        </member>
-        <member name="M:Speedy.Storage.IUpdatable`1.UpdateWith(`0,System.String[])">
-            <summary>
-            Allows updating of one type to another based on member Name and Type.
-            </summary>
-            <param name="update"> The source of the update. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-        </member>
         <member name="T:Speedy.Storage.KeyValue.IKeyValueRepository`1">
             <summary>
             Represents a repository of key value pairs.
@@ -13953,6 +13627,9 @@
             <returns> The converted sync entity in a sync object format. </returns>
         </member>
         <member name="M:Speedy.Sync.SyncIssue.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncIssue.ShouldUpdate(Speedy.Sync.SyncIssue)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncIssue.UpdateWith(Speedy.Sync.SyncIssue,System.String[])">

@@ -36,9 +36,12 @@ namespace Speedy.Application.Xamarin;
 /// Implementation for Feature
 /// </summary>
 [Preserve(AllMembers = true)]
-public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, ICloneable<T>, new()
-	where T2 : LocationProviderSettings, new()
+public class LocationProviderImplementation<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	where TLocation : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+	where TLocationProviderSettings : ILocationProviderSettings, IBindable, new()
 {
 	#region Fields
 
@@ -48,13 +51,12 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	private FusedLocationProviderCallback _fusedCallback;
 	#endif
 
-	private GeolocationContinuousListener<T> _listener;
+	private GeolocationContinuousListener<TLocation, THorizontal, TVertical> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
 	private IDictionary<string, LocationProviderSource> _providerSources;
-	private GeolocationSingleListener<T> _singleListener;
-	private readonly LocationComparer _comparer;
-
+	private GeolocationSingleListener<TLocation, THorizontal, TVertical> _singleListener;
+	
 	#endregion
 
 	#region Constructors
@@ -64,7 +66,6 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// </summary>
 	protected LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_comparer = new LocationComparer();
 		_positionSync = new object();
 	}
 
@@ -73,13 +74,10 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	#region Properties
 
 	/// <inheritdoc />
-	public override bool IsListening => _listener != null;
+	public bool IsLocationAvailable => ProviderSources.Any();
 
 	/// <inheritdoc />
-	public override bool IsLocationAvailable => ProviderSources.Any();
-
-	/// <inheritdoc />
-	public override bool IsLocationEnabled => ProviderSources.Any(x => x.Enabled && Manager.IsProviderEnabled(x.Provider));
+	public bool IsLocationEnabled => ProviderSources.Any(x => x.Enabled && Manager.IsProviderEnabled(x.Provider));
 
 	/// <summary>
 	/// Gets all providers from the Location Manager.
@@ -126,7 +124,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// bug: we must work on thread safety of this method.
 	/// Touching "Manager", which is global, can be very dangerous.
 	/// </remarks>
-	public override async Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
+	public override async Task<TLocation> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		var timeoutMilliseconds = timeout.HasValue
 			? (int) timeout.Value.TotalMilliseconds
@@ -145,7 +143,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			throw new LocationProviderException(LocationProviderError.Unauthorized);
 		}
 
-		var tcs = new TaskCompletionSource<T>();
+		var tcs = new TaskCompletionSource<TLocation>();
 		var providerSources = ProviderSources.ToArray();
 
 		if (!IsListening)
@@ -163,7 +161,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 				}
 			}
 
-			_singleListener = new GeolocationSingleListener<T>(Dispatcher,
+			_singleListener = new GeolocationSingleListener<TLocation, THorizontal, TVertical>(Dispatcher,
 				Manager,
 				LocationProviderSettings.DesiredAccuracy,
 				timeoutMilliseconds,
@@ -208,7 +206,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 						Manager.RemoveUpdates(_singleListener);
 					}
 
-					tcs.SetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+					tcs.SetException(new LocationProviderException(LocationProviderError.LocationUnavailable));
 					return await tcs.Task;
 				}
 			}
@@ -224,7 +222,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		// If we're already listening, just use the current listener
 		lock (_positionSync)
 		{
-			tcs.SetResult(LastReadLocation);
+			tcs.SetResult(CurrentValue);
 		}
 
 		return await tcs.Task;
@@ -247,11 +245,11 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		LocationProviderSettings.Cleanup();
 
-		HasPermission = LocationProviderSettings.RequireLocationAlwaysPermission
+		var hasPermission = LocationProviderSettings.RequireLocationAlwaysPermission
 			? CheckAlwaysPermissions()
 			: CheckWhenInUsePermission();
 
-		if (!HasPermission)
+		if (!hasPermission)
 		{
 			ListenerPositionError(this, LocationProviderError.Unauthorized);
 			return Task.CompletedTask;
@@ -275,7 +273,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 		#endif
 
-		_listener = new GeolocationContinuousListener<T>(Dispatcher, Manager, sources);
+		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(Dispatcher, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
 		_listener.PositionChanged += ListenerPositionChanged;
 		_listener.PositionError += ListenerPositionError;
@@ -442,7 +440,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		OnLogEventWritten(e);
 	}
 
-	private void ListenerPositionChanged(object sender, T e)
+	private void ListenerPositionChanged(object sender, TLocation e)
 	{
 		// Ignore anything that might come in after stop listening
 		if (!IsListening || e is null)
@@ -452,14 +450,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 		lock (_positionSync)
 		{
-			if (!_comparer.Refresh(e))
-			{
-				// Comparer did not update so bounce
-				return;
-			}
-
-			LastReadLocation.UpdateWith(_comparer.CurrentValue);
-			OnLocationChanged(((ICloneable<T>) LastReadLocation).ShallowClone());
+			Refresh(e);
 		}
 	}
 

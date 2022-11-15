@@ -8,7 +8,6 @@ using System.Threading;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 

@@ -10,7 +10,6 @@ using Speedy.Devices.Location;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Serialization;
-using Speedy.Storage;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Data.Entities;
 
@@ -40,7 +39,7 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 		};
 		var typeExclusions = new Dictionary<Type, string[]>
 		{
-			{ typeof(Location), new[] { nameof(Location.HorizontalFlags), nameof(Location.VerticalFlags) } },
+			//{ typeof(Location), new[] { nameof(Location.HorizontalFlags), nameof(Location.VerticalFlags) } },
 			{ typeof(Bindable), new[] { nameof(Bindable.HasChanges) } },
 			{ typeof(SerializerSettings), new[] { nameof(SerializerSettings.JsonSettings) } },
 			{ typeof(CommandLineArgument), new[]

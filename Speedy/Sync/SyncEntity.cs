@@ -106,10 +106,10 @@ namespace Speedy.Sync
 		}
 
 		/// <inheritdoc />
-		public void UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
+		public bool UpdateWith(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 		{
 			var exclusions = SyncEntity.GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
-			UpdateWith(update, exclusions.ToArray());
+			return UpdateWith(update, exclusions.ToArray());
 		}
 
 		/// <summary>

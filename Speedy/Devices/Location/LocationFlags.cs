@@ -30,7 +30,7 @@ public enum LocationFlags
 	/// <summary>
 	/// Location has primary value (ex. alt or lat/long)
 	/// </summary>
-	HasPrimaryValue = 0b100,
+	HasLocation = 0b100,
 
 	/// <summary>
 	/// All flags

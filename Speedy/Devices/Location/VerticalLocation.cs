@@ -3,6 +3,8 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
+using Speedy.Serialization;
+using ICloneable = Speedy.Serialization.ICloneable;
 
 #endregion
 
@@ -11,7 +13,7 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a vertical location.
 /// </summary>
-public class VerticalLocation : CloneableBindable<VerticalLocation, IVerticalLocation>, IVerticalLocation
+public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 {
 	#region Constructors
 
@@ -48,47 +50,28 @@ public class VerticalLocation : CloneableBindable<VerticalLocation, IVerticalLoc
 	/// <inheritdoc />
 	public AltitudeReferenceType AltitudeReference { get; set; }
 
-	/// <inheritdoc />
-	public bool HasAltitude => this.HasSupportedAltitude();
-
-	/// <inheritdoc />
-	public bool HasVerticalAccuracy => this.HasSupportedVerticalAccuracy();
-
-	/// <inheritdoc />
-	public bool HasVerticalHeading { get; set; }
-
-	/// <inheritdoc />
-	public bool HasVerticalSpeed { get; set; }
-
-	/// <inheritdoc />
-	public double VerticalAccuracy { get; set; }
-
-	/// <inheritdoc />
-	public AccuracyReferenceType VerticalAccuracyReference { get; set; }
-
-	/// <inheritdoc />
-	public LocationFlags VerticalFlags { get; set; }
-
-	/// <inheritdoc />
-	public double VerticalHeading { get; set; }
-
-	/// <inheritdoc />
-	public string VerticalSourceName { get; set; }
-
-	/// <inheritdoc />
-	public double VerticalSpeed { get; set; }
-
-	/// <inheritdoc />
-	public DateTime VerticalStatusTime { get; set; }
-
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public override string ToString()
+	public IVerticalLocation DeepClone(int? maxDepth = null)
 	{
-		return $"{Altitude:F3} / {AltitudeReference.GetDisplayName()}";
+		return ShallowClone();
+	}
+
+	/// <inheritdoc />
+	public IVerticalLocation ShallowClone()
+	{
+		var response = new VerticalLocation();
+		response.UpdateWith(this);
+		return response;
+	}
+
+	/// <inheritdoc />
+	public bool ShouldUpdate(IVerticalLocation update)
+	{
+		return base.ShouldUpdate(update);
 	}
 
 	/// <summary>
@@ -96,80 +79,107 @@ public class VerticalLocation : CloneableBindable<VerticalLocation, IVerticalLoc
 	/// </summary>
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	public override void UpdateWith(VerticalLocation update, params string[] exclusions)
-	{
-		UpdateWith(update, exclusions);
-	}
-
-	/// <summary>
-	/// Update the VerticalLocation with an update.
-	/// </summary>
-	/// <param name="update"> The update to be applied. </param>
-	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	public void UpdateWith(IVerticalLocation update, params string[] exclusions)
+	public bool UpdateWith(IVerticalLocation update, params string[] exclusions)
 	{
 		// If the update is null then there is nothing to do.
 		if (update == null)
 		{
-			return;
+			return false;
 		}
 
 		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
 
 		if (exclusions.Length <= 0)
 		{
+			Accuracy = update.Accuracy;
+			AccuracyReference = update.AccuracyReference;
 			Altitude = update.Altitude;
 			AltitudeReference = update.AltitudeReference;
-			HasVerticalHeading = update.HasVerticalHeading;
-			HasVerticalSpeed = update.HasVerticalSpeed;
-			VerticalAccuracy = update.VerticalAccuracy;
-			VerticalAccuracyReference = update.VerticalAccuracyReference;
-			VerticalFlags = update.VerticalFlags;
-			VerticalHeading = update.VerticalHeading;
-			VerticalSourceName = update.VerticalSourceName;
-			VerticalSpeed = update.VerticalSpeed;
-			VerticalStatusTime = update.VerticalStatusTime;
+			Flags = update.Flags;
+			HasHeading = update.HasHeading;
+			HasSpeed = update.HasSpeed;
+			HasValue = update.HasValue;
+			Heading = update.Heading;
+			SourceName = update.SourceName;
+			Speed = update.Speed;
+			StatusTime = update.StatusTime;
 		}
 		else
 		{
+			this.IfThen(_ => !exclusions.Contains(nameof(Accuracy)), x => x.Accuracy = update.Accuracy);
+			this.IfThen(_ => !exclusions.Contains(nameof(AccuracyReference)), x => x.AccuracyReference = update.AccuracyReference);
 			this.IfThen(_ => !exclusions.Contains(nameof(Altitude)), x => x.Altitude = update.Altitude);
 			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasVerticalHeading)), x => x.HasVerticalHeading = update.HasVerticalHeading);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasVerticalSpeed)), x => x.HasVerticalSpeed = update.HasVerticalSpeed);
-			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracy)), x => x.VerticalAccuracy = update.VerticalAccuracy);
-			this.IfThen(_ => !exclusions.Contains(nameof(VerticalAccuracyReference)), x => x.VerticalAccuracyReference = update.VerticalAccuracyReference);
-			this.IfThen(_ => !exclusions.Contains(nameof(VerticalFlags)), x => x.VerticalFlags = update.VerticalFlags);
-			this.IfThen(_ => !exclusions.Contains(nameof(VerticalHeading)), x => x.VerticalHeading = update.VerticalHeading);
-			this.IfThen(_ => !exclusions.Contains(nameof(VerticalSourceName)), x => x.VerticalSourceName = update.VerticalSourceName);
-			this.IfThen(_ => !exclusions.Contains(nameof(VerticalSpeed)), x => x.VerticalSpeed = update.VerticalSpeed);
-			this.IfThen(_ => !exclusions.Contains(nameof(VerticalStatusTime)), x => x.VerticalStatusTime = update.VerticalStatusTime);
+			this.IfThen(_ => !exclusions.Contains(nameof(Flags)), x => x.Flags = update.Flags);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasHeading)), x => x.HasHeading = update.HasHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasSpeed)), x => x.HasSpeed = update.HasSpeed);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasValue)), x => x.HasValue = update.HasValue);
+			this.IfThen(_ => !exclusions.Contains(nameof(Heading)), x => x.Heading = update.Heading);
+			this.IfThen(_ => !exclusions.Contains(nameof(SourceName)), x => x.SourceName = update.SourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(Speed)), x => x.Speed = update.Speed);
+			this.IfThen(_ => !exclusions.Contains(nameof(StatusTime)), x => x.StatusTime = update.StatusTime);
 		}
 
-		//base.UpdateWith(update, exclusions);
+		return true;
 	}
 
 	/// <inheritdoc />
-	public override void UpdateWith(object update, params string[] exclusions)
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		switch (update)
+		return update switch
 		{
-			case VerticalLocation options:
-			{
-				UpdateWith(options, exclusions);
-				return;
-			}
-			case IVerticalLocation options:
-			{
-				UpdateWith(options, exclusions);
-				return;
-			}
-			default:
-			{
-				base.UpdateWith(update, exclusions);
-				return;
-			}
-		}
+			VerticalLocation options => UpdateWith(options, exclusions),
+			IVerticalLocation options => UpdateWith(options, exclusions),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
+
+	/// <inheritdoc />
+	public override bool UpdateWith(ILocationDeviceInformation update, params string[] exclusions)
+	{
+		return UpdateWith((object) update, exclusions);
+	}
+
+	object ICloneable.DeepClone(int? maxDepth)
+	{
+		return DeepClone(maxDepth);
+	}
+
+	object ICloneable.ShallowClone()
+	{
+		return ShallowClone();
+	}
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a vertical location (alt, alt ref, acc, acc ref).
+/// </summary>
+public interface IVerticalLocation
+	: ILocationDeviceInformation,
+		IUpdatable<IVerticalLocation>,
+		ICloneable<IVerticalLocation>,
+		IMinimalVerticalLocation
+{
+}
+
+/// <summary>
+/// Represents a vertical location (alt, alt ref).
+/// </summary>
+public interface IMinimalVerticalLocation : IBindable
+{
+	#region Properties
+
+	/// <summary>
+	/// The altitude of the location
+	/// </summary>
+	double Altitude { get; set; }
+
+	/// <summary>
+	/// The reference type for the altitude value.
+	/// </summary>
+	AltitudeReferenceType AltitudeReference { get; set; }
 
 	#endregion
 }

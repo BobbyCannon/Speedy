@@ -29,7 +29,7 @@ namespace Speedy.Application.Maui;
 /// Implementation for Feature
 /// </summary>
 [Preserve(AllMembers = true)]
-public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
+public class LocationProviderImplementation<T, T2> : LocationDeviceInformationProvider<T, T2>
 	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
@@ -201,7 +201,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 						Manager.RemoveUpdates(_singleListener);
 					}
 
-					tcs.SetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+					tcs.SetException(new LocationProviderException(LocationProviderError.LocationUnavailable));
 					return await tcs.Task;
 				}
 			}

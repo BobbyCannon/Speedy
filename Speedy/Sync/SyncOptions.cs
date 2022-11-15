@@ -198,12 +198,12 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 	/// </summary>
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	public override void UpdateWith(SyncOptions update, params string[] exclusions)
+	public override bool UpdateWith(SyncOptions update, params string[] exclusions)
 	{
 		// If the update is null then there is nothing to do.
 		if (update == null)
 		{
-			return;
+			return false;
 		}
 
 		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
@@ -233,24 +233,18 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 		{
 			AddSyncableFilter(lookup.Value);
 		}
+
+		return true;
 	}
 
 	/// <inheritdoc />
-	public override void UpdateWith(object update, params string[] exclusions)
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		switch (update)
+		return update switch
 		{
-			case SyncOptions options:
-			{
-				UpdateWith(options, exclusions);
-				return;
-			}
-			default:
-			{
-				base.UpdateWith(update, exclusions);
-				return;
-			}
-		}
+			SyncOptions options => UpdateWith(options, exclusions),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
 
 	/// <summary>

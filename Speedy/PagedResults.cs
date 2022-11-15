@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
@@ -119,17 +118,23 @@ public class PagedResults<T> : PagedRequest, IPagedResults, IUpdatable<PagedResu
 		return response;
 	}
 
+	/// <inheritdoc />
+	public virtual bool ShouldUpdate(PagedResults<T> update)
+	{
+		return true;
+	}
+
 	/// <summary>
 	/// Update the PagedResults`1 with an update.
 	/// </summary>
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	public void UpdateWith(PagedResults<T> update, params string[] exclusions)
+	public bool UpdateWith(PagedResults<T> update, params string[] exclusions)
 	{
 		// If the update is null then there is nothing to do.
 		if (update == null)
 		{
-			return;
+			return false;
 		}
 
 		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
@@ -145,25 +150,17 @@ public class PagedResults<T> : PagedRequest, IPagedResults, IUpdatable<PagedResu
 			this.IfThen(_ => !exclusions.Contains(nameof(TotalCount)), x => x.TotalCount = update.TotalCount);
 		}
 
-		base.UpdateWith(update, exclusions);
+		return base.UpdateWith(update, exclusions);
 	}
 
 	/// <inheritdoc />
-	public override void UpdateWith(object update, params string[] exclusions)
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		switch (update)
+		return update switch
 		{
-			case PagedResults<T> results:
-			{
-				UpdateWith(results, exclusions);
-				return;
-			}
-			default:
-			{
-				base.UpdateWith(update, exclusions);
-				return;
-			}
-		}
+			PagedResults<T> results => UpdateWith(results, exclusions),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
 
 	/// <inheritdoc />

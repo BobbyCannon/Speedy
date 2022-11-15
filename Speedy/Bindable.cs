@@ -8,11 +8,41 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
 namespace Speedy;
+
+/// <summary>
+/// Represents a bindable object.
+/// </summary>
+public abstract class Bindable<T> : Bindable, IUpdatable<T>
+{
+	#region Constructors
+
+	/// <summary>
+	/// Instantiates a bindable object.
+	/// </summary>
+	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	protected Bindable(IDispatcher dispatcher = null) : base(dispatcher)
+	{
+	}
+
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	public bool ShouldUpdate(T update)
+	{
+		return true;
+	}
+
+	/// <inheritdoc />
+	public abstract bool UpdateWith(T update, params string[] exclusions);
+
+	#endregion
+}
 
 /// <summary>
 /// Represents a bindable object.
@@ -90,7 +120,7 @@ public abstract class Bindable : IBindable, IUpdatable
 			// Property change notifications have been paused so bounce
 			return;
 		}
-		
+
 		// If we have a dispatcher *and* not on the dispatcher thread
 		// then switch to to the dispatcher thread to trigger property changed
 		if (Dispatcher?.IsDispatcherThread == false)
@@ -101,7 +131,7 @@ public abstract class Bindable : IBindable, IUpdatable
 
 		OnPropertyChangedInDispatcher(propertyName);
 
-		if (propertyName != nameof(HasChanges) && !HasChanges)
+		if ((propertyName != nameof(HasChanges)) && !HasChanges)
 		{
 			HasChanges = true;
 		}
@@ -125,19 +155,26 @@ public abstract class Bindable : IBindable, IUpdatable
 	}
 
 	/// <inheritdoc />
+	public bool ShouldUpdate(object update)
+	{
+		return true;
+	}
+
+	/// <inheritdoc />
 	public virtual void UpdateDispatcher(IDispatcher dispatcher)
 	{
 		Dispatcher = dispatcher;
 	}
 
 	/// <inheritdoc />
-	public virtual void UpdateWith(object update, params string[] exclusions)
+	public virtual bool UpdateWith(object update, params string[] exclusions)
 	{
 		this.UpdateWithUsingReflection(update, exclusions);
+		return true;
 	}
 
 	/// <inheritdoc />
-	public void UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
+	public bool UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
 	{
 		var totalExclusions = new HashSet<string>(exclusions);
 		if (excludeVirtuals)
@@ -145,15 +182,7 @@ public abstract class Bindable : IBindable, IUpdatable
 			totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
 		}
 
-		UpdateWith(update, totalExclusions.ToArray());
-	}
-
-	/// <summary>
-	/// fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
-	/// </summary>
-	/// <param name="propertyName"> The name of the property has changed. </param>
-	protected virtual void OnPropertyChangedInDispatcher(string propertyName)
-	{
+		return UpdateWith(update, totalExclusions.ToArray());
 	}
 
 	/// <summary>
@@ -163,6 +192,14 @@ public abstract class Bindable : IBindable, IUpdatable
 	protected void OnPropertyChanged(PropertyChangedEventArgs propertyChangedEvent)
 	{
 		OnPropertyChanged(propertyChangedEvent.PropertyName);
+	}
+
+	/// <summary>
+	/// fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
+	/// </summary>
+	/// <param name="propertyName"> The name of the property has changed. </param>
+	protected virtual void OnPropertyChangedInDispatcher(string propertyName)
+	{
 	}
 
 	#endregion

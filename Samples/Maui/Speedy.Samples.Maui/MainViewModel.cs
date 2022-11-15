@@ -70,19 +70,19 @@ public class MainViewModel : ViewModel
 
 	private void ProcessLocation(Location location)
 	{
-		var currentLocation = Locations.FirstOrDefault(x => x.HorizontalSourceName == location.HorizontalSourceName);
-		if (currentLocation == null)
-		{
-			Locations.Add(location);
-			currentLocation = location;
-		}
-		else
-		{
-			currentLocation.UpdateWith(location);
-		}
+		//var currentLocation = Locations.FirstOrDefault(x => x.HorizontalSourceName == location.HorizontalSourceName);
+		//if (currentLocation == null)
+		//{
+		//	Locations.Add(location);
+		//	currentLocation = location;
+		//}
+		//else
+		//{
+		//	currentLocation.UpdateWith(location);
+		//}
 
-		var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new BaseObservableCollection<Location>());
-		history.Add(currentLocation.ShallowClone());
+		//var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new BaseObservableCollection<Location>());
+		//history.Add(currentLocation.ShallowClone());
 	}
 
 	#endregion

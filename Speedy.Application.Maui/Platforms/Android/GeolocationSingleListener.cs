@@ -102,7 +102,7 @@ internal class GeolocationSingleListener<T> : Object, ILocationListener
 
 			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
 			{
-				_completionSource.TrySetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+				_completionSource.TrySetException(new LocationProviderException(LocationProviderError.LocationUnavailable));
 			}
 		}
 	}

@@ -3,16 +3,15 @@
 using System;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Storage;
 
 #endregion
 
 namespace Speedy.Sync
 {
-	/// <summary>
-	/// Represents as issue that occurred during sync.
-	/// </summary>
-	public class SyncIssue : Bindable, IUpdatable<SyncIssue>
+    /// <summary>
+    /// Represents as issue that occurred during sync.
+    /// </summary>
+    public class SyncIssue : Bindable, IUpdatable<SyncIssue>
 	{
 		#region Properties
 
@@ -62,17 +61,23 @@ namespace Speedy.Sync
 			return $"{IssueType}:{TypeName} - {Message}";
 		}
 
+		/// <inheritdoc />
+		public virtual bool ShouldUpdate(SyncIssue update)
+		{
+			return true;
+		}
+
 		/// <summary>
 		/// Update the SyncStatistics with an update.
 		/// </summary>
 		/// <param name="update"> The update to be applied. </param>
 		/// <param name="exclusions"> An optional set of properties to exclude. </param>
-		public void UpdateWith(SyncIssue update, params string[] exclusions)
+		public bool UpdateWith(SyncIssue update, params string[] exclusions)
 		{
 			// If the update is null then there is nothing to do.
 			if (update == null)
 			{
-				return;
+				return false;
 			}
 
 			// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
@@ -91,24 +96,18 @@ namespace Speedy.Sync
 				this.IfThen(x => !exclusions.Contains(nameof(Message)), x => x.Message = update.Message);
 				this.IfThen(x => !exclusions.Contains(nameof(TypeName)), x => x.TypeName = update.TypeName);
 			}
+
+			return true;
 		}
 
 		/// <inheritdoc />
-		public override void UpdateWith(object update, params string[] exclusions)
+		public override bool UpdateWith(object update, params string[] exclusions)
 		{
-			switch (update)
+			return update switch
 			{
-				case SyncIssue options:
-				{
-					UpdateWith(options, exclusions);
-					return;
-				}
-				default:
-				{
-					base.UpdateWith(update, exclusions);
-					return;
-				}
-			}
+				SyncIssue options => UpdateWith(options, exclusions),
+				_ => base.UpdateWith(update, exclusions)
+			};
 		}
 
 		#endregion

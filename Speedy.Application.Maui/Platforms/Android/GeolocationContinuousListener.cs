@@ -80,7 +80,7 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 
 			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
 			{
-				OnPositionError(LocationProviderError.PositionUnavailable);
+				OnPositionError(LocationProviderError.LocationUnavailable);
 			}
 		}
 	}

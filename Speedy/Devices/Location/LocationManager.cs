@@ -1,8 +1,4 @@
-﻿#region References
-
-#endregion
-
-namespace Speedy.Devices.Location;
+﻿namespace Speedy.Devices.Location;
 
 /// <summary>
 /// The manager for location.

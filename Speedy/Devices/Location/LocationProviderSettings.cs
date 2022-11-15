@@ -124,18 +124,8 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 
 	#region Methods
 
-	/// <summary>
-	/// Reset the settings back to defaults.
-	/// </summary>
-	public virtual void Reset()
-	{
-		ResetToDefaults();
-	}
-
-	/// <summary>
-	/// Cleanup the settings to be sure they are in range.
-	/// </summary>
-	protected internal virtual void Cleanup()
+	/// <inheritdoc />
+	public virtual void Cleanup()
 	{
 		this.IfThen(x => x.DesiredAccuracy < DesiredAccuracyLowerLimit, x => x.DesiredAccuracy = DesiredAccuracyLowerLimit);
 		this.IfThen(x => x.DesiredAccuracy > DesiredAccuracyUpperLimit, x => x.DesiredAccuracy = DesiredAccuracyUpperLimit);
@@ -145,6 +135,12 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 
 		this.IfThen(x => x.MinimumTime < MinimumTimeLowerLimit, x => x.MinimumTime = MinimumTimeLowerLimit);
 		this.IfThen(x => x.MinimumTime > MinimumTimeUpperLimit, x => x.MinimumTime = MinimumTimeUpperLimit);
+	}
+
+	/// <inheritdoc />
+	public virtual void Reset()
+	{
+		ResetToDefaults();
 	}
 
 	private void ResetToDefaults()
@@ -188,6 +184,11 @@ public interface ILocationProviderSettings : IBindable
 	#endregion
 
 	#region Methods
+
+	/// <summary>
+	/// Cleanup the settings to be sure they are in range.
+	/// </summary>
+	void Cleanup();
 
 	/// <summary>
 	/// Reset the settings back to defaults.

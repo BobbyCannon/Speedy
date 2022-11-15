@@ -1,8 +1,8 @@
 ﻿#region References
 
-using System;
 using System.Linq;
 using Speedy.Extensions;
+using Speedy.Serialization;
 
 #endregion
 
@@ -11,7 +11,7 @@ namespace Speedy.Devices.Location;
 /// <summary>
 /// Represents a horizontal location.
 /// </summary>
-public class HorizontalLocation : CloneableBindable<HorizontalLocation, IHorizontalLocation>, IHorizontalLocation
+public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
 {
 	#region Constructors
 
@@ -30,51 +30,6 @@ public class HorizontalLocation : CloneableBindable<HorizontalLocation, IHorizon
 	#region Properties
 
 	/// <inheritdoc />
-	public bool HasHorizontalAccuracy => this.HasSupportedHorizontalAccuracy();
-
-	/// <inheritdoc />
-	public bool HasHorizontalHeading
-	{
-		get => this.HasHorizontalHeading();
-		set => this.UpdateHorizontalHeading(value);
-	}
-
-	/// <inheritdoc />
-	public bool HasHorizontalSpeed
-	{
-		get => this.HasHorizontalSpeed();
-		set => this.UpdateHorizontalSpeed(value);
-	}
-
-	/// <inheritdoc />
-	public bool HasLatitudeLongitude
-	{
-		get => this.HasLatitudeLongitude();
-		set => this.UpdateLatitudeLongitude(value);
-	}
-
-	/// <inheritdoc />
-	public double HorizontalAccuracy { get; set; }
-
-	/// <inheritdoc />
-	public AccuracyReferenceType HorizontalAccuracyReference { get; set; }
-
-	/// <inheritdoc />
-	public LocationFlags HorizontalFlags { get; set; }
-
-	/// <inheritdoc />
-	public double HorizontalHeading { get; set; }
-
-	/// <inheritdoc />
-	public string HorizontalSourceName { get; set; }
-
-	/// <inheritdoc />
-	public double HorizontalSpeed { get; set; }
-
-	/// <inheritdoc />
-	public DateTime HorizontalStatusTime { get; set; }
-
-	/// <inheritdoc />
 	public double Latitude { get; set; }
 
 	/// <inheritdoc />
@@ -84,14 +39,24 @@ public class HorizontalLocation : CloneableBindable<HorizontalLocation, IHorizon
 
 	#region Methods
 
-	/// <summary>
-	/// Update the HorizontalLocation with an update.
-	/// </summary>
-	/// <param name="update"> The update to be applied. </param>
-	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	public override void UpdateWith(HorizontalLocation update, params string[] exclusions)
+	/// <inheritdoc />
+	public IHorizontalLocation DeepClone(int? maxDepth = null)
 	{
-		UpdateWith(update, exclusions);
+		return ShallowClone();
+	}
+
+	/// <inheritdoc />
+	public IHorizontalLocation ShallowClone()
+	{
+		var response = new HorizontalLocation();
+		response.UpdateWith(this);
+		return response;
+	}
+
+	/// <inheritdoc />
+	public bool ShouldUpdate(IHorizontalLocation update)
+	{
+		return base.ShouldUpdate(update);
 	}
 
 	/// <summary>
@@ -99,70 +64,101 @@ public class HorizontalLocation : CloneableBindable<HorizontalLocation, IHorizon
 	/// </summary>
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	public void UpdateWith(IHorizontalLocation update, params string[] exclusions)
+	public bool UpdateWith(IHorizontalLocation update, params string[] exclusions)
 	{
 		// If the update is null then there is nothing to do.
 		if (update == null)
 		{
-			return;
+			return false;
 		}
 
 		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
 
 		if (exclusions.Length <= 0)
 		{
-			HasHorizontalHeading = update.HasHorizontalHeading;
-			HasHorizontalSpeed = update.HasHorizontalSpeed;
-			HorizontalAccuracy = update.HorizontalAccuracy;
-			HorizontalAccuracyReference = update.HorizontalAccuracyReference;
-			HorizontalFlags = update.HorizontalFlags;
-			HorizontalHeading = update.HorizontalHeading;
-			HorizontalSourceName = update.HorizontalSourceName;
-			HorizontalSpeed = update.HorizontalSpeed;
-			HorizontalStatusTime = update.HorizontalStatusTime;
+			Accuracy = update.Accuracy;
+			AccuracyReference = update.AccuracyReference;
+			Flags = update.Flags;
+			HasHeading = update.HasHeading;
+			HasSpeed = update.HasSpeed;
+			HasValue = update.HasValue;
+			Heading = update.Heading;
 			Latitude = update.Latitude;
 			Longitude = update.Longitude;
+			SourceName = update.SourceName;
+			Speed = update.Speed;
+			StatusTime = update.StatusTime;
 		}
 		else
 		{
-			this.IfThen(_ => !exclusions.Contains(nameof(HasHorizontalHeading)), x => x.HasHorizontalHeading = update.HasHorizontalHeading);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasHorizontalSpeed)), x => x.HasHorizontalSpeed = update.HasHorizontalSpeed);
-			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracy)), x => x.HorizontalAccuracy = update.HorizontalAccuracy);
-			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalAccuracyReference)), x => x.HorizontalAccuracyReference = update.HorizontalAccuracyReference);
-			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalFlags)), x => x.HorizontalFlags = update.HorizontalFlags);
-			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalHeading)), x => x.HorizontalHeading = update.HorizontalHeading);
-			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalSourceName)), x => x.HorizontalSourceName = update.HorizontalSourceName);
-			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalSpeed)), x => x.HorizontalSpeed = update.HorizontalSpeed);
-			this.IfThen(_ => !exclusions.Contains(nameof(HorizontalStatusTime)), x => x.HorizontalStatusTime = update.HorizontalStatusTime);
+			this.IfThen(_ => !exclusions.Contains(nameof(Accuracy)), x => x.Accuracy = update.Accuracy);
+			this.IfThen(_ => !exclusions.Contains(nameof(AccuracyReference)), x => x.AccuracyReference = update.AccuracyReference);
+			this.IfThen(_ => !exclusions.Contains(nameof(Flags)), x => x.Flags = update.Flags);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasHeading)), x => x.HasHeading = update.HasHeading);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasSpeed)), x => x.HasSpeed = update.HasSpeed);
+			this.IfThen(_ => !exclusions.Contains(nameof(HasValue)), x => x.HasValue = update.HasValue);
+			this.IfThen(_ => !exclusions.Contains(nameof(Heading)), x => x.Heading = update.Heading);
 			this.IfThen(_ => !exclusions.Contains(nameof(Latitude)), x => x.Latitude = update.Latitude);
 			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
+			this.IfThen(_ => !exclusions.Contains(nameof(SourceName)), x => x.SourceName = update.SourceName);
+			this.IfThen(_ => !exclusions.Contains(nameof(Speed)), x => x.Speed = update.Speed);
+			this.IfThen(_ => !exclusions.Contains(nameof(StatusTime)), x => x.StatusTime = update.StatusTime);
 		}
 
-		//base.UpdateWith(update, exclusions);
+		return true;
 	}
 
 	/// <inheritdoc />
-	public override void UpdateWith(object update, params string[] exclusions)
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		switch (update)
+		return update switch
 		{
-			case HorizontalLocation location:
-			{
-				UpdateWith(location, exclusions);
-				return;
-			}
-			case IHorizontalLocation location:
-			{
-				UpdateWith(location, exclusions);
-				return;
-			}
-			default:
-			{
-				base.UpdateWith(update, exclusions);
-				return;
-			}
-		}
+			HorizontalLocation options => UpdateWith(options, exclusions),
+			IHorizontalLocation options => UpdateWith(options, exclusions),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
+
+	object ICloneable.DeepClone(int? maxDepth)
+	{
+		return DeepClone(maxDepth);
+	}
+
+	object ICloneable.ShallowClone()
+	{
+		return ShallowClone();
+	}
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a horizontal location (lat, long).
+/// </summary>
+public interface IHorizontalLocation
+	: ILocationDeviceInformation,
+		IUpdatable<IHorizontalLocation>,
+		ICloneable<IHorizontalLocation>,
+		IMinimalHorizontalLocation
+{
+}
+
+/// <summary>
+/// Represents a horizontal location (lat, long).
+/// </summary>
+public interface IMinimalHorizontalLocation : IBindable
+{
+	#region Properties
+
+	/// <summary>
+	/// Ranges between -90 to 90 from North to South
+	/// </summary>
+	double Latitude { get; set; }
+
+	/// <summary>
+	/// Ranges between -180 to 180 from West to East
+	/// </summary>
+	double Longitude { get; set; }
 
 	#endregion
 }

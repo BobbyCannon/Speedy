@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 #endregion
@@ -12,7 +11,10 @@ namespace Speedy.Collections
 	/// Exposes a method that compares two objects.
 	/// </summary>
 	/// <typeparam name="T"> The type of the object to compare. </typeparam>
-	public class GenericComparer<T> : IComparer, IComparer<T>, IEqualityComparer<T>
+	public class GenericComparer<T> 
+		: System.Collections.IComparer, 
+			System.Collections.Generic.IComparer<T>,
+			IEqualityComparer<T>
 	{
 		#region Fields
 

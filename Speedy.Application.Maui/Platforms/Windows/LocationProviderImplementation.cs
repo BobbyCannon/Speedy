@@ -16,7 +16,7 @@ namespace Speedy.Application.Maui;
 /// <summary>
 /// Implementation for LocationProvider
 /// </summary>
-public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
+public class LocationProviderImplementation<T, T2> : LocationDeviceInformationProvider<T, T2>
 	where T : class, ILocation, ICloneable<T>, new()
 	where T2 : LocationProviderSettings, new()
 {
@@ -225,7 +225,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 			}
 			case PositionStatus.NoData:
 			{
-				error = Devices.Location.LocationProviderError.PositionUnavailable;
+				error = Devices.Location.LocationProviderError.LocationUnavailable;
 				break;
 			}
 			case PositionStatus.Ready:
@@ -263,37 +263,45 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 
 	private T UpdateLastReadPosition(Geoposition position)
 	{
-		LastReadLocation.Latitude = position.Coordinate.Point.Position.Latitude;
-		LastReadLocation.Longitude = position.Coordinate.Point.Position.Longitude;
+		LastReadLocation.HorizontalLocation.Heading = position.Coordinate.Point.Position.Latitude;
+		LastReadLocation.HorizontalLocation.Longitude = position.Coordinate.Point.Position.Longitude;
 
-		LastReadLocation.HorizontalAccuracy = position.Coordinate.Accuracy;
-		LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
+		LastReadLocation.HorizontalLocation.Accuracy = position.Coordinate.Accuracy;
+		LastReadLocation.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 
-		LastReadLocation.HorizontalSourceName = position.Coordinate.PositionSource.ToString();
-		LastReadLocation.HorizontalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
+		LastReadLocation.HorizontalLocation.SourceName = position.Coordinate.PositionSource.ToString();
+		LastReadLocation.HorizontalLocation.StatusTime = position.Coordinate.Timestamp.UtcDateTime;
 
-		LastReadLocation.VerticalSourceName = position.Coordinate.PositionSource.ToString();
-		LastReadLocation.VerticalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
+		LastReadLocation.VerticalLocation.SourceName = position.Coordinate.PositionSource.ToString();
+		LastReadLocation.VerticalLocation.StatusTime = position.Coordinate.Timestamp.UtcDateTime;
 
 		if (position.Coordinate.Heading != null)
 		{
-			LastReadLocation.HasHorizontalHeading = true;
-			LastReadLocation.HorizontalHeading = position.Coordinate.Heading.Value;
+			LastReadLocation.HorizontalLocation.HasHeading = true;
+			LastReadLocation.HorizontalLocation.Heading = position.Coordinate.Heading.Value;
+		}
+		else
+		{
+			LastReadLocation.HorizontalLocation.HasHeading = false;
 		}
 
 		if (position.Coordinate.Speed != null)
 		{
-			LastReadLocation.HasHorizontalSpeed = true;
-			LastReadLocation.HorizontalSpeed = position.Coordinate.Speed.Value;
+			LastReadLocation.HorizontalLocation.HasSpeed = true;
+			LastReadLocation.HorizontalLocation.Speed = position.Coordinate.Speed.Value;
+		}
+		else
+		{
+			LastReadLocation.HorizontalLocation.HasSpeed = false;
 		}
 
 		if (position.Coordinate.AltitudeAccuracy.HasValue)
 		{
-			LastReadLocation.VerticalAccuracy = position.Coordinate.AltitudeAccuracy.Value;
+			LastReadLocation.VerticalLocation.Accuracy = position.Coordinate.AltitudeAccuracy.Value;
 		}
 
-		LastReadLocation.Altitude = position.Coordinate.Point.Position.Altitude;
-		LastReadLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
+		LastReadLocation.VerticalLocation.Altitude = position.Coordinate.Point.Position.Altitude;
+		LastReadLocation.VerticalLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
 
 		return LastReadLocation;
 	}

@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -10,7 +9,7 @@ using System.Globalization;
 namespace Speedy.Storage
 {
 	/// <inheritdocs />
-	public class SyncKeyComparer : IComparer<string>
+	public class SyncKeyComparer : System.Collections.Generic.IComparer<string>
 	{
 		#region Fields
 

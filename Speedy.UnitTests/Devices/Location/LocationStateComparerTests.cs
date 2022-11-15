@@ -16,54 +16,40 @@ public class LocationStateComparerTests : SpeedyUnitTest
 	[TestMethod]
 	public void LocationComparerShouldWork()
 	{
-		var comparer = new LocationComparer();
-		var providerLocation = new Speedy.Devices.Location.Location();
-		AreEqual(providerLocation, comparer.CurrentValue);
+		var location1 = new VerticalLocation();
+		var location2 = new VerticalLocation();
+		var comparer = new LocationComparer<VerticalLocation>();
+		AreEqual(location1, location2);
 
-		providerLocation.Altitude = 123.45;
-		providerLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-		providerLocation.VerticalAccuracy = 1.234;
-		providerLocation.VerticalAccuracyReference = AccuracyReferenceType.Meters;
-		providerLocation.VerticalSourceName = "VP1";
-		providerLocation.VerticalStatusTime = new DateTime(2022, 11, 04, 11, 21, 13, DateTimeKind.Utc);
+		location2.Altitude = 123.45;
+		location2.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+		location2.Accuracy = 1.234;
+		location2.AccuracyReference = AccuracyReferenceType.Meters;
+		location2.SourceName = "VP1";
+		location2.StatusTime = new DateTime(2022, 11, 04, 11, 21, 13, DateTimeKind.Utc);
 
-		comparer.Refresh(providerLocation);
+		AreEqual(true, comparer.ShouldUpdate(location1, location2));
+		AreEqual(true, comparer.UpdateWith(ref location1, location2));
 
 		// These should have changed
-		AreEqual(123.45, comparer.CurrentValue.Altitude);
-		AreEqual(AltitudeReferenceType.Ellipsoid, comparer.CurrentValue.AltitudeReference);
-		AreEqual(1.234, comparer.CurrentValue.VerticalAccuracy);
-		AreEqual(AccuracyReferenceType.Meters, comparer.CurrentValue.VerticalAccuracyReference);
-		AreEqual("VP1", comparer.CurrentValue.VerticalSourceName);
-		AreEqual(new DateTime(2022, 11, 04, 11, 21, 13, DateTimeKind.Utc), comparer.CurrentValue.VerticalStatusTime);
-
-		// These item should not have changed
-		AreEqual(0, comparer.CurrentValue.Latitude);
-		AreEqual(0, comparer.CurrentValue.Longitude);
-		AreEqual(0, comparer.CurrentValue.HorizontalAccuracy);
-		AreEqual(AccuracyReferenceType.Unspecified, comparer.CurrentValue.HorizontalAccuracyReference);
-		AreEqual(null, comparer.CurrentValue.HorizontalSourceName);
-		AreEqual(DateTime.MinValue, comparer.CurrentValue.HorizontalStatusTime);
+		AreEqual(123.45, location1.Altitude);
+		AreEqual(AltitudeReferenceType.Ellipsoid, location1.AltitudeReference);
+		AreEqual(1.234, location1.Accuracy);
+		AreEqual(AccuracyReferenceType.Meters, location1.AccuracyReference);
+		AreEqual("VP1", location1.SourceName);
+		AreEqual(new DateTime(2022, 11, 04, 11, 21, 13, DateTimeKind.Utc), location1.StatusTime);
 
 		//
 		// A less accurate device should not update
 		//
-		providerLocation.Altitude = 123.45;
-		providerLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-		providerLocation.VerticalAccuracy = 1.234;
-		providerLocation.VerticalAccuracyReference = AccuracyReferenceType.Unspecified;
-		providerLocation.VerticalSourceName = "VP2";
-		providerLocation.VerticalStatusTime = new DateTime(2022, 11, 04, 11, 21, 14, DateTimeKind.Utc);
+		location2.Altitude = 123.45;
+		location2.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+		location2.Accuracy = 1.234;
+		location2.AccuracyReference = AccuracyReferenceType.Unspecified;
+		location2.SourceName = "VP2";
+		location2.StatusTime = new DateTime(2022, 11, 04, 11, 21, 14, DateTimeKind.Utc);
 
-		comparer.Refresh(providerLocation);
-
-		// These should not have changed
-		AreEqual(123.45, comparer.CurrentValue.Altitude);
-		AreEqual(AltitudeReferenceType.Ellipsoid, comparer.CurrentValue.AltitudeReference);
-		AreEqual(1.234, comparer.CurrentValue.VerticalAccuracy);
-		AreEqual(AccuracyReferenceType.Meters, comparer.CurrentValue.VerticalAccuracyReference);
-		AreEqual("VP1", comparer.CurrentValue.VerticalSourceName);
-		AreEqual(new DateTime(2022, 11, 04, 11, 21, 13, DateTimeKind.Utc), comparer.CurrentValue.VerticalStatusTime);
+		AreEqual(false, comparer.ShouldUpdate(location1, location2));
 	}
 
 	#endregion

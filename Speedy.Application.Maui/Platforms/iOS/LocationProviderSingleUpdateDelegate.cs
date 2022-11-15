@@ -95,11 +95,11 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 		{
 			case CLError.Network:
 				StopListening();
-				_tcs.SetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+				_tcs.SetException(new LocationProviderException(LocationProviderError.LocationUnavailable));
 				break;
 			case CLError.LocationUnknown:
 				StopListening();
-				_tcs.TrySetException(new LocationProviderException(LocationProviderError.PositionUnavailable));
+				_tcs.TrySetException(new LocationProviderException(LocationProviderError.LocationUnavailable));
 				break;
 		}
 	}
@@ -117,44 +117,42 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 			return;
 		}
 
-		if (_haveLocation && (newLocation.HorizontalAccuracy > _position.HorizontalAccuracy))
+		if (_haveLocation && (newLocation.HorizontalAccuracy > _position.HorizontalLocation.Accuracy))
 		{
 			return;
 		}
 
-		_position.Altitude = newLocation.EllipsoidalAltitude;
-		_position.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+		_position.VerticalLocation.Altitude = newLocation.EllipsoidalAltitude;
+		_position.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 
-		_position.HorizontalAccuracy = newLocation.HorizontalAccuracy;
-		_position.HorizontalAccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
+		_position.HorizontalLocation.Accuracy = newLocation.HorizontalAccuracy;
+		_position.HorizontalLocation.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
 		
-		_position.Latitude = newLocation.Coordinate.Latitude;
-		_position.Longitude = newLocation.Coordinate.Longitude;
+		_position.HorizontalLocation.Latitude = newLocation.Coordinate.Latitude;
+		_position.HorizontalLocation.Longitude = newLocation.Coordinate.Longitude;
 
-		_position.HasHorizontalSpeed = newLocation.Speed > -1;
-		_position.HorizontalSpeed = newLocation.Speed;
+		_position.HorizontalLocation.HasHeading = newLocation.Course > -1;
+		_position.HorizontalLocation.Heading = newLocation.Course;
 
-		_position.VerticalAccuracy = newLocation.VerticalAccuracy;
-		_position.VerticalAccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
+		_position.HorizontalLocation.HasSpeed = newLocation.Speed > -1;
+		_position.HorizontalLocation.Speed = newLocation.Speed;
 
-		if (_includeHeading)
-		{
-			_position.HasHorizontalHeading = newLocation.Course > -1;
-			_position.HorizontalHeading = newLocation.Course;
-		}
+		_position.VerticalLocation.Accuracy = newLocation.VerticalAccuracy;
+		_position.VerticalLocation.AccuracyReference = newLocation.VerticalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
 
 		try
 		{
 			var statusTime = newLocation.Timestamp.ToDateTime().ToUniversalTime();
-			_position.HorizontalStatusTime = statusTime;
-			_position.VerticalStatusTime = statusTime;
+			_position.HorizontalLocation.StatusTime = statusTime;
+			_position.VerticalLocation.StatusTime = statusTime;
 		}
 		catch (Exception)
 		{
 			var statusTime = TimeService.UtcNow;
-			_position.HorizontalStatusTime = statusTime;
-			_position.VerticalStatusTime = statusTime;
+			_position.HorizontalLocation.StatusTime = statusTime;
+			_position.VerticalLocation.StatusTime = statusTime;
 		}
+
 		_haveLocation = true;
 	}
 

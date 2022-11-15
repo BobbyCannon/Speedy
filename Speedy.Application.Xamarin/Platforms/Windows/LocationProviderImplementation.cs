@@ -8,7 +8,6 @@ using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Services.Maps;
 using Speedy.Devices.Location;
-using Speedy.Serialization;
 
 #endregion
 
@@ -18,9 +17,12 @@ namespace Speedy.Application.Xamarin;
 /// <summary>
 /// Implementation for LocationProvider
 /// </summary>
-public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
-	where T : class, ILocation, ICloneable<T>, new()
-	where T2 : LocationProviderSettings, new()
+public class LocationProviderImplementation<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	where TLocation : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+	where TLocationProviderSettings : ILocationProviderSettings, IBindable, new()
 {
 	#region Fields
 
@@ -37,7 +39,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	{
 		_locator = new Geolocator();
 
-		LastReadLocation.ProviderName = "Xamarin Windows";
+		CurrentValue.ProviderName = "Xamarin Windows";
 	}
 
 	#endregion
@@ -45,7 +47,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	#region Properties
 
 	/// <inheritdoc />
-	public override bool IsLocationAvailable
+	public bool IsLocationAvailable
 	{
 		get
 		{
@@ -62,7 +64,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	}
 
 	/// <inheritdoc />
-	public override bool IsLocationEnabled
+	public bool IsLocationEnabled
 	{
 		get
 		{
@@ -88,7 +90,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	/// <param name="timeout"> Timeout to wait, Default Infinite </param>
 	/// <param name="cancelToken"> Cancellation token </param>
 	/// <returns> ProviderLocation </returns>
-	public override Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
+	public override Task<TLocation> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		var timeoutMilliseconds = timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : Timeout.Infite;
 
@@ -103,7 +105,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		cancelToken.Value.Register(o => ((IAsyncOperation<Geoposition>) o).Cancel(), pos);
 
 		var timer = new Timeout(timeoutMilliseconds, pos.Cancel);
-		var tcs = new TaskCompletionSource<T>();
+		var tcs = new TaskCompletionSource<TLocation>();
 
 		pos.Completed = (op, s) =>
 		{
@@ -126,7 +128,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 					var ex = op.ErrorCode;
 					if (ex is UnauthorizedAccessException)
 					{
-						ex = new LocationProviderException(Devices.Location.LocationProviderError.Unauthorized, ex);
+						ex = new LocationProviderException(LocationProviderError.Unauthorized, ex);
 					}
 
 					tcs.SetException(ex);
@@ -211,7 +213,7 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 	private void OnLocatorPositionChanged(Geolocator sender, PositionChangedEventArgs args)
 	{
 		UpdateLastReadPosition(args.Position);
-		OnLocationChanged(LastReadLocation);
+		OnChanged(CurrentValue);
 	}
 
 	private async void OnLocatorStatusChanged(Geolocator sender, StatusChangedEventArgs args)
@@ -222,12 +224,12 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		{
 			case PositionStatus.Disabled:
 			{
-				error = Devices.Location.LocationProviderError.Unauthorized;
+				error = LocationProviderError.Unauthorized;
 				break;
 			}
 			case PositionStatus.NoData:
 			{
-				error = Devices.Location.LocationProviderError.PositionUnavailable;
+				error = LocationProviderError.LocationUnavailable;
 				break;
 			}
 			case PositionStatus.Ready:
@@ -263,41 +265,54 @@ public class LocationProviderImplementation<T, T2> : LocationProvider<T, T2>
 		}
 	}
 
-	private T UpdateLastReadPosition(Geoposition position)
+	private TLocation UpdateLastReadPosition(Geoposition position)
 	{
-		LastReadLocation.Latitude = position.Coordinate.Point.Position.Latitude;
-		LastReadLocation.Longitude = position.Coordinate.Point.Position.Longitude;
+		CurrentValue.HorizontalLocation.Latitude = position.Coordinate.Point.Position.Latitude;
+		CurrentValue.HorizontalLocation.Longitude = position.Coordinate.Point.Position.Longitude;
 
-		LastReadLocation.HorizontalAccuracy = position.Coordinate.Accuracy;
-		LastReadLocation.HorizontalAccuracyReference = AccuracyReferenceType.Meters;
+		CurrentValue.HorizontalLocation.Accuracy = position.Coordinate.Accuracy;
+		CurrentValue.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 
-		LastReadLocation.HorizontalSourceName = position.Coordinate.PositionSource.ToString();
-		LastReadLocation.HorizontalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
+		CurrentValue.HorizontalLocation.SourceName = position.Coordinate.PositionSource.ToString();
+		CurrentValue.HorizontalLocation.StatusTime = position.Coordinate.Timestamp.UtcDateTime;
 
-		LastReadLocation.VerticalSourceName = position.Coordinate.PositionSource.ToString();
-		LastReadLocation.VerticalStatusTime = position.Coordinate.Timestamp.UtcDateTime;
+		CurrentValue.VerticalLocation.SourceName = position.Coordinate.PositionSource.ToString();
+		CurrentValue.VerticalLocation.StatusTime = position.Coordinate.Timestamp.UtcDateTime;
 
 		if (position.Coordinate.Heading != null)
 		{
-			LastReadLocation.HasHorizontalHeading = true;
-			LastReadLocation.HorizontalHeading = position.Coordinate.Heading.Value;
+			CurrentValue.HorizontalLocation.HasHeading = true;
+			CurrentValue.HorizontalLocation.Heading = position.Coordinate.Heading.Value;
+		}
+		else
+		{
+			CurrentValue.HorizontalLocation.HasHeading = false;
 		}
 
 		if (position.Coordinate.Speed != null)
 		{
-			LastReadLocation.HasHorizontalSpeed = true;
-			LastReadLocation.HorizontalSpeed = position.Coordinate.Speed.Value;
+			CurrentValue.HorizontalLocation.HasSpeed = true;
+			CurrentValue.HorizontalLocation.Speed = position.Coordinate.Speed.Value;
+		}
+		else
+		{
+			CurrentValue.HorizontalLocation.HasSpeed = false;
 		}
 
 		if (position.Coordinate.AltitudeAccuracy.HasValue)
 		{
-			LastReadLocation.VerticalAccuracy = position.Coordinate.AltitudeAccuracy.Value;
+			CurrentValue.VerticalLocation.Accuracy = position.Coordinate.AltitudeAccuracy.Value;
+			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+		}
+		else
+		{
+			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
-		LastReadLocation.Altitude = position.Coordinate.Point.Position.Altitude;
-		LastReadLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
+		CurrentValue.VerticalLocation.Altitude = position.Coordinate.Point.Position.Altitude;
+		CurrentValue.VerticalLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
 
-		return LastReadLocation;
+		return CurrentValue;
 	}
 
 	#endregion
