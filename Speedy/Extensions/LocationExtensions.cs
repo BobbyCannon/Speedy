@@ -263,20 +263,6 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
-	/// Check a location to determine if <see cref="IMinimalVerticalLocation.Altitude" /> is available.
-	/// </summary>
-	/// <param name="location"> The location to validate. </param>
-	/// <returns> True if the value is available. </returns>
-	/// <remarks>
-	/// Update <see cref="ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
-	/// Also not this is dependent on <see cref="SupportedAltitudeReferenceTypes" />.
-	/// </remarks>
-	public static bool HasSupportedAltitude(this IMinimalVerticalLocation location)
-	{
-		return SupportedAltitudeReferenceTypes.Contains(location.AltitudeReference);
-	}
-
-	/// <summary>
 	/// Check a information to determine if <see cref="IDeviceInformation.Accuracy" /> is available.
 	/// </summary>
 	/// <param name="information"> The information to validate. </param>
@@ -286,7 +272,7 @@ public static class LocationExtensions
 		return information switch
 		{
 			IHorizontalLocation => SupportedAccuracyReferenceTypesForHorizontal.Contains(information.AccuracyReference),
-			VerticalLocation => SupportedAccuracyReferenceTypesForVertical.Contains(information.AccuracyReference),
+			IVerticalLocation => SupportedAccuracyReferenceTypesForVertical.Contains(information.AccuracyReference),
 			_ => SupportedAccuracyReferenceTypes.Contains(information.AccuracyReference)
 		};
 	}
@@ -319,6 +305,16 @@ public static class LocationExtensions
 	public static bool HasSpeed(this ILocationDeviceInformation information)
 	{
 		return information.Flags.HasFlag(LocationFlags.HasSpeed);
+	}
+
+	/// <summary>
+	/// Check a location to determine if <see cref="IMinimalVerticalLocation.Altitude" /> is available.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <returns> True if the value is available. </returns>
+	public static bool HasSupportedAltitude(this IMinimalVerticalLocation location)
+	{
+		return SupportedAltitudeReferenceTypes.Contains(location.AltitudeReference);
 	}
 
 	/// <summary>
@@ -501,6 +497,18 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
+	/// Update the location's HasHeading location flag.
+	/// </summary>
+	/// <param name="location"> The location to validate. </param>
+	/// <param name="value"> True to set HasHeading flag otherwise clear the flag. </param>
+	public static void UpdateHasHeading(this ILocationDeviceInformation location, bool value)
+	{
+		location.Flags = value
+			? location.Flags.SetFlag(LocationFlags.HasHeading)
+			: location.Flags.ClearFlag(LocationFlags.HasHeading);
+	}
+
+	/// <summary>
 	/// Update the location's HasLocation flag.
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
@@ -513,15 +521,15 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
-	/// Update the location's HasHeading location flag.
+	/// Update the location's HasSpeed location flag.
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
-	/// <param name="value"> True to set HasHeading flag otherwise clear the flag. </param>
-	public static void UpdateHasHeading(this ILocationDeviceInformation location, bool value)
+	/// <param name="value"> True to set HasSpeedy flag otherwise clear the flag. </param>
+	public static void UpdateHasSpeed(this ILocationDeviceInformation location, bool value)
 	{
 		location.Flags = value
-			? location.Flags.SetFlag(LocationFlags.HasHeading)
-			: location.Flags.ClearFlag(LocationFlags.HasHeading);
+			? location.Flags.SetFlag(LocationFlags.HasSpeed)
+			: location.Flags.ClearFlag(LocationFlags.HasSpeed);
 	}
 
 	/// <summary>
@@ -535,18 +543,6 @@ public static class LocationExtensions
 		location.Longitude = update.Longitude;
 		location.Accuracy = update.Accuracy;
 		location.AccuracyReference = update.AccuracyReference;
-	}
-
-	/// <summary>
-	/// Update the location's HasSpeed location flag.
-	/// </summary>
-	/// <param name="location"> The location to validate. </param>
-	/// <param name="value"> True to set HasSpeedy flag otherwise clear the flag. </param>
-	public static void UpdateHasSpeed(this ILocationDeviceInformation location, bool value)
-	{
-		location.Flags = value
-			? location.Flags.SetFlag(LocationFlags.HasSpeed)
-			: location.Flags.ClearFlag(LocationFlags.HasSpeed);
 	}
 
 	private static bool InternalGreaterThan(this IMinimalVerticalLocation left, IMinimalVerticalLocation right, bool inclusive)

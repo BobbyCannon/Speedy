@@ -2,8 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Speedy.Serialization;
-using ICloneable = Speedy.Serialization.ICloneable;
+using ICloneable = Speedy.ICloneable;
 
 #endregion
 
@@ -172,10 +171,19 @@ public interface IDeviceInformationProvider : IUpdatable
 {
 	#region Properties
 
+	/// <summary>
+	/// Get the type of the current value.
+	/// </summary>
 	Type CurrentValueType { get; }
 
+	/// <summary>
+	/// Determines if the provider has permission.
+	/// </summary>
 	bool HasPermission { get; }
 
+	/// <summary>
+	/// Determines if the provider is listening.
+	/// </summary>
 	bool IsListening { get; }
 
 	#endregion

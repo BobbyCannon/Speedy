@@ -4,16 +4,16 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using ICloneable = Speedy.Serialization.ICloneable;
+using ICloneable = Speedy.ICloneable;
 
 #endregion
 
 namespace Speedy.Net
 {
-	/// <summary>
-	/// Represents a web client contract.
-	/// </summary>
-	public interface IWebClient : IDisposable, ICloneable
+    /// <summary>
+    /// Represents a web client contract.
+    /// </summary>
+    public interface IWebClient : IDisposable, ICloneable
 	{
 		#region Properties
 

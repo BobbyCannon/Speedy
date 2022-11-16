@@ -1,10 +1,8 @@
 ﻿#region References
 
-using System;
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Serialization;
-using ICloneable = Speedy.Serialization.ICloneable;
+using ICloneable = Speedy.ICloneable;
 
 #endregion
 
@@ -49,6 +47,9 @@ public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 
 	/// <inheritdoc />
 	public AltitudeReferenceType AltitudeReference { get; set; }
+
+	/// <inheritdoc />
+	public override bool HasValue => this.HasSupportedAltitude();
 
 	#endregion
 

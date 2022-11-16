@@ -7,7 +7,7 @@ using System.Linq;
 using Speedy.Extensions;
 using Speedy.Serialization;
 using Speedy.Sync;
-using ICloneable = Speedy.Serialization.ICloneable;
+using ICloneable = Speedy.ICloneable;
 
 #endregion
 

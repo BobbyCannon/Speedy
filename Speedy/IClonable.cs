@@ -1,4 +1,4 @@
-﻿namespace Speedy.Serialization;
+﻿namespace Speedy;
 
 /// <summary>
 /// Represents a cloneable item.

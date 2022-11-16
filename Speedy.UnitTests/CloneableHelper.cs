@@ -3,13 +3,13 @@
 using System;
 using System.Collections.Generic;
 using Speedy.Profiling;
-using ICloneable = Speedy.Serialization.ICloneable;
+using ICloneable = Speedy.ICloneable;
 
 #endregion
 
 namespace Speedy.UnitTests
 {
-	public static class CloneableHelper
+    public static class CloneableHelper
 	{
 		#region Methods
 

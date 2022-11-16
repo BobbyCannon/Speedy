@@ -14,7 +14,7 @@ namespace Speedy;
 /// Represents a page of results for a paged request to a service.
 /// </summary>
 /// <typeparam name="T"> The type of the items in the results collection. </typeparam>
-public class PagedResults<T> : PagedRequest, IPagedResults, IUpdatable<PagedResults<T>>
+public class PagedResults<T> : PartialUpdate<PagedResults<T>>, IPagedResults, IUpdatable<PagedResults<T>>
 {
 	#region Constructors
 
@@ -46,8 +46,42 @@ public class PagedResults<T> : PagedRequest, IPagedResults, IUpdatable<PagedResu
 
 	#region Properties
 
+	/// <summary>
+	/// An optional filter value.
+	/// </summary>
+	public string Filter
+	{
+		get => Get(nameof(Filter), string.Empty);
+		set => Set(nameof(Filter), value);
+	}
+
 	/// <inheritdoc />
 	public bool HasMore => (Page > 0) && (Page < TotalPages);
+
+	/// <inheritdoc />
+	public string Order
+	{
+		get => Get(nameof(Order), string.Empty);
+		set => Set(nameof(Order), value);
+	}
+
+	/// <summary>
+	/// The page to start the request on.
+	/// </summary>
+	public int Page
+	{
+		get => Get(nameof(Page), PageDefault);
+		set => Set(nameof(Page), value);
+	}
+
+	/// <summary>
+	/// The number of items per page.
+	/// </summary>
+	public int PerPage
+	{
+		get => Get(nameof(PerPage), PerPageDefault);
+		set => Set(nameof(PerPage), value);
+	}
 
 	/// <summary>
 	/// The results for a paged request.
@@ -63,6 +97,21 @@ public class PagedResults<T> : PagedRequest, IPagedResults, IUpdatable<PagedResu
 
 	/// <inheritdoc />
 	public int TotalPages => TotalCount > 0 ? (TotalCount / PerPage) + ((TotalCount % PerPage) > 0 ? 1 : 0) : 1;
+
+	/// <summary>
+	/// Default value for Page.
+	/// </summary>
+	protected virtual int PageDefault => 1;
+
+	/// <summary>
+	/// Default value for PerPage.
+	/// </summary>
+	protected virtual int PerPageDefault => 10;
+
+	/// <summary>
+	/// Default value for PerPage maximum value.
+	/// </summary>
+	protected virtual int PerPageMaxDefault => 1000;
 
 	#endregion
 

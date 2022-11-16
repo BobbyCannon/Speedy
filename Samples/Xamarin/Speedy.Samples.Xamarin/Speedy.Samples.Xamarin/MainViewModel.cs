@@ -1,5 +1,8 @@
 ﻿#region References
 
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -9,11 +12,8 @@ using Speedy.Application;
 using Speedy.Application.Xamarin;
 using Speedy.Collections;
 using Speedy.Commands;
-using Speedy.Logging;
-using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using Speedy.Devices.Location;
+using Speedy.Logging;
 using Xamarin.Essentials;
 using Location = Speedy.Devices.Location.Location;
 
@@ -27,15 +27,16 @@ public class MainViewModel : ViewModel
 
 	public MainViewModel(IDispatcher dispatcher) : base(dispatcher)
 	{
-		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<Location>>();
+		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<ILocationDeviceInformation>>();
 		LocationManager = new LocationManager(dispatcher);
+		LocationManager.Changed += LocationManagerOnChanged;
 		LocationManager.Refreshed += LocationManagerOnRefreshed;
-		Locations = new BaseObservableCollection<Location>(dispatcher);
+		Locations = new BaseObservableCollection<ILocationDeviceInformation>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
-		
+
 		var provider = new XamarinLocationProvider<Location, HorizontalLocation, VerticalLocation, LocationProviderSettingsView>(dispatcher);
 		var provider2 = new XamarinBarometerLocationProvider<VerticalLocation>(dispatcher);
-		
+
 		LocationManager.Add(provider);
 		LocationManager.Add(provider2);
 
@@ -48,23 +49,36 @@ public class MainViewModel : ViewModel
 
 	#region Properties
 
+	public RelayCommand ExportHistoryCommand { get; }
+
+	public ConcurrentDictionary<string, BaseObservableCollection<ILocationDeviceInformation>> LocationHistory { get; }
+
+	//public LineChart AltitudeChart { get; }
+
+	public LocationManager LocationManager { get; }
+
+	public BaseObservableCollection<ILocationDeviceInformation> Locations { get; }
+
+	public BaseObservableCollection<LogEventArgs> Logs { get; }
+
 	public ISeries[] Series { get; set; }
-		= {
+		=
+		{
 			new LineSeries<int>
 			{
 				Values = new[] { 2, 5, 4, -2, 4, -3, 5 }
 			}
 		};
 
-
 	public Axis[] XAxes { get; set; }
-		= {
+		=
+		{
 			new Axis
 			{
 				Name = "X Axis",
-				NamePaint = new SolidColorPaint(SKColors.Black), 
+				NamePaint = new SolidColorPaint(SKColors.Black),
 
-				LabelsPaint = new SolidColorPaint(SKColors.Blue), 
+				LabelsPaint = new SolidColorPaint(SKColors.Blue),
 				TextSize = 10,
 
 				SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray)
@@ -75,34 +89,23 @@ public class MainViewModel : ViewModel
 		};
 
 	public Axis[] YAxes { get; set; }
-		= {
+		=
+		{
 			new Axis
 			{
 				Name = "Y Axis",
-				NamePaint = new SolidColorPaint(SKColors.Red), 
+				NamePaint = new SolidColorPaint(SKColors.Red),
 
-				LabelsPaint = new SolidColorPaint(SKColors.Green), 
+				LabelsPaint = new SolidColorPaint(SKColors.Green),
 				TextSize = 20,
 
-				SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray) 
-				{ 
-					StrokeThickness = 2, 
-					PathEffect = new DashEffect(new float[] { 3, 3 }) 
-				} 
+				SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray)
+				{
+					StrokeThickness = 2,
+					PathEffect = new DashEffect(new float[] { 3, 3 })
+				}
 			}
 		};
-
-	public RelayCommand ExportHistoryCommand { get; }
-
-	public ConcurrentDictionary<string, BaseObservableCollection<Location>> LocationHistory { get; }
-
-	//public LineChart AltitudeChart { get; }
-
-	public LocationManager LocationManager { get; }
-
-	public BaseObservableCollection<Location> Locations { get; }
-
-	public BaseObservableCollection<LogEventArgs> Logs { get; }
 
 	#endregion
 
@@ -113,31 +116,41 @@ public class MainViewModel : ViewModel
 		ExportHistoryRequest?.Invoke(this, EventArgs.Empty);
 	}
 
+	private void LocationManagerOnChanged(object sender, object e)
+	{
+		ProcessLocation(e as ILocationDeviceInformation);
+	}
+
+	private void LocationManagerOnRefreshed(object sender, object e)
+	{
+		// todo: nothing?
+	}
+
 	private void LocationProviderOnLogEventWritten(object sender, LogEventArgs e)
 	{
 		Dispatcher.Run(() => Logs.Insert(0, e));
 	}
 
-	private void LocationManagerOnRefreshed(object sender, Location e)
+	private void ProcessLocation(ILocationDeviceInformation location)
 	{
-		ProcessLocation(e);
-	}
+		if (location == null)
+		{
+			return;
+		}
 
-	private void ProcessLocation(Location location)
-	{
-		//var currentLocation = Locations.FirstOrDefault(x => x.HorizontalSourceName == location.HorizontalSourceName);
-		//if (currentLocation == null)
-		//{
-		//	Locations.Add(location);
-		//	currentLocation = location;
-		//}
-		//else
-		//{
-		//	currentLocation.UpdateWith(location);
-		//}
+		var currentLocation = Locations.FirstOrDefault(x => x.SourceName == location.SourceName);
+		if (currentLocation == null)
+		{
+			Locations.Add(location);
+			currentLocation = location;
+		}
+		else
+		{
+			currentLocation.UpdateWith(location);
+		}
 
-		//var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new BaseObservableCollection<Location>());
-		//history.Add((Location) currentLocation.ShallowClone());
+		var history = LocationHistory.GetOrAdd(location.SourceName, _ => new BaseObservableCollection<ILocationDeviceInformation>());
+		history.Add(currentLocation);
 	}
 
 	#endregion

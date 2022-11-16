@@ -46,7 +46,12 @@ public class Location : CloneableBindable<Location, ILocation<HorizontalLocation
 
 	#region Methods
 
-	
+	/// <inheritdoc />
+	public bool ShouldUpdate(ILocation<HorizontalLocation, VerticalLocation> update)
+	{
+		throw new NotImplementedException();
+	}
+
 	/// <inheritdoc />
 	public bool UpdateWith(ILocation update, params string[] exclusions)
 	{
@@ -65,14 +70,7 @@ public class Location : CloneableBindable<Location, ILocation<HorizontalLocation
 		return result;
 	}
 
-	#endregion
-
 	public override bool UpdateWith(Location update, params string[] exclusions)
-	{
-		throw new NotImplementedException();
-	}
-
-	public bool ShouldUpdate(ILocation<HorizontalLocation, VerticalLocation> update)
 	{
 		throw new NotImplementedException();
 	}
@@ -81,6 +79,8 @@ public class Location : CloneableBindable<Location, ILocation<HorizontalLocation
 	{
 		throw new NotImplementedException();
 	}
+
+	#endregion
 }
 
 /// <summary>

@@ -10,6 +10,9 @@ using Speedy.Serialization;
 
 namespace Speedy.Devices.Location;
 
+/// <summary>
+/// Represents provider of location information for a device.
+/// </summary>
 public abstract class LocationDeviceInformationProvider<T>
 	: DeviceInformationProvider<T>
 	where T : class, ILocationDeviceInformation, new()
@@ -22,6 +25,9 @@ public abstract class LocationDeviceInformationProvider<T>
 
 	#region Constructors
 
+	/// <summary>
+	/// Instantiates the provider.
+	/// </summary>
 	protected LocationDeviceInformationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_comparer = new LocationComparer<T>(dispatcher);

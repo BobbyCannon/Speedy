@@ -4,16 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Speedy.Extensions;
-using ICloneable = Speedy.Serialization.ICloneable;
+using ICloneable = Speedy.ICloneable;
 
 #endregion
 
 namespace Speedy
 {
-	/// <summary>
-	/// Options for Partial Update
-	/// </summary>
-	public class PartialUpdateOptions : Bindable, ICloneable
+    /// <summary>
+    /// Options for Partial Update
+    /// </summary>
+    public class PartialUpdateOptions : Bindable, ICloneable
 	{
 		#region Constructors
 

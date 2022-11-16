@@ -1,7 +1,9 @@
-﻿using System;
+﻿#region References
+
+using System;
 using Speedy.Extensions;
-using Speedy.Serialization;
-using ICloneable = Speedy.Serialization.ICloneable;
+
+#endregion
 
 namespace Speedy.Devices.Location;
 
@@ -52,7 +54,7 @@ public abstract class LocationDeviceInformation
 	}
 
 	/// <inheritdoc />
-	public bool HasValue
+	public virtual bool HasValue
 	{
 		get => this.HasLocation();
 		set => this.UpdateHasLocation(value);
@@ -80,32 +82,14 @@ public abstract class LocationDeviceInformation
 	}
 
 	#endregion
-
-	object ICloneable.DeepClone(int? maxDepth)
-	{
-		return DeepClone(maxDepth);
-	}
-
-	public ILocationDeviceInformation ShallowClone()
-	{
-		throw new NotImplementedException();
-	}
-
-	public ILocationDeviceInformation DeepClone(int? maxDepth = null)
-	{
-		throw new NotImplementedException();
-	}
-
-	object ICloneable.ShallowClone()
-	{
-		return ShallowClone();
-	}
 }
 
+/// <summary>
+/// Represents location information for a device.
+/// </summary>
 public interface ILocationDeviceInformation
 	: IDeviceInformation,
-		IUpdatable<ILocationDeviceInformation>,
-		ICloneable<ILocationDeviceInformation>
+		IUpdatable<ILocationDeviceInformation>
 {
 	#region Properties
 

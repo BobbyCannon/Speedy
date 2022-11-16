@@ -1765,6 +1765,21 @@
             Represents a provider of device information.
             </summary>
         </member>
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.CurrentValueType">
+            <summary>
+            Get the type of the current value.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.HasPermission">
+            <summary>
+            Determines if the provider has permission.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.IsListening">
+            <summary>
+            Determines if the provider is listening.
+            </summary>
+        </member>
         <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(System.Object)">
             <summary>
             Try to apply an update to the provided value.
@@ -2115,6 +2130,9 @@
         <member name="P:Speedy.Devices.Location.Location.VerticalLocation">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Devices.Location.Location.ShouldUpdate(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.HorizontalLocation,Speedy.Devices.Location.VerticalLocation})">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.ILocation,System.String[])">
             <inheritdoc />
         </member>
@@ -2219,6 +2237,11 @@
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.StatusTime">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Devices.Location.ILocationDeviceInformation">
+            <summary>
+            Represents location information for a device.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.Flags">
             <summary>
             Flags for the location of the provider.
@@ -2242,6 +2265,16 @@
         <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.Speed">
             <summary>
             The speed of the device in meters per second.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationDeviceInformationProvider`1">
+            <summary>
+            Represents provider of location information for a device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationProvider`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates the provider.
             </summary>
         </member>
         <member name="M:Speedy.Devices.Location.LocationDeviceInformationProvider`1.GetCurrentLocation(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
@@ -2560,6 +2593,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.VerticalLocation.AltitudeReference">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.VerticalLocation.HasValue">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.DeepClone(System.Nullable{System.Int32})">
@@ -4156,17 +4192,6 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The radius of the locations. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAltitude(Speedy.Devices.Location.IMinimalVerticalLocation)">
-            <summary>
-            Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude" /> is available.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <returns> True if the value is available. </returns>
-            <remarks>
-            Update <see cref="!:ProcessOnPropertyChange(IVerticalLocation,string)" /> if this changes.
-            Also not this is dependent on <see cref="P:Speedy.Extensions.LocationExtensions.SupportedAltitudeReferenceTypes" />.
-            </remarks>
-        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasAccuracy(Speedy.Devices.IDeviceInformation)">
             <summary>
             Check a information to determine if <see cref="P:Speedy.Devices.IDeviceInformation.Accuracy" /> is available.
@@ -4194,6 +4219,13 @@
             </summary>
             <param name="information"> The information to validate. </param>
             <returns> True if the speed is available otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HasSupportedAltitude(Speedy.Devices.Location.IMinimalVerticalLocation)">
+            <summary>
+            Check a location to determine if <see cref="P:Speedy.Devices.Location.IMinimalVerticalLocation.Altitude" /> is available.
+            </summary>
+            <param name="location"> The location to validate. </param>
+            <returns> True if the value is available. </returns>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.IsGreaterThan(Speedy.Devices.Location.IMinimalVerticalLocation,Speedy.Devices.Location.IMinimalVerticalLocation)">
             <summary>
@@ -4289,13 +4321,6 @@
             <param name="update"> The new location. </param>
             <param name="exclusions"> An optional set of exclusions. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasLocation(Speedy.Devices.Location.ILocationDeviceInformation,System.Boolean)">
-            <summary>
-            Update the location's HasLocation flag.
-            </summary>
-            <param name="location"> The location to validate. </param>
-            <param name="value"> True to set HasLocation flag otherwise clear the flag. </param>
-        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasHeading(Speedy.Devices.Location.ILocationDeviceInformation,System.Boolean)">
             <summary>
             Update the location's HasHeading location flag.
@@ -4303,12 +4328,12 @@
             <param name="location"> The location to validate. </param>
             <param name="value"> True to set HasHeading flag otherwise clear the flag. </param>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.UpdateLocation(Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IHorizontalLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasLocation(Speedy.Devices.Location.ILocationDeviceInformation,System.Boolean)">
             <summary>
-            Update the horizontal location (lat, long).
+            Update the location's HasLocation flag.
             </summary>
-            <param name="location"> The location to update. </param>
-            <param name="update"> The update with new values. </param>
+            <param name="location"> The location to validate. </param>
+            <param name="value"> True to set HasLocation flag otherwise clear the flag. </param>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.UpdateHasSpeed(Speedy.Devices.Location.ILocationDeviceInformation,System.Boolean)">
             <summary>
@@ -4316,6 +4341,13 @@
             </summary>
             <param name="location"> The location to validate. </param>
             <param name="value"> True to set HasSpeedy flag otherwise clear the flag. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateLocation(Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IHorizontalLocation)">
+            <summary>
+            Update the horizontal location (lat, long).
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update with new values. </param>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -7119,8 +7151,26 @@
             <param name="totalCount"> The total amount of items for the request. </param>
             <param name="results"> The items in this set of results. </param>
         </member>
+        <member name="P:Speedy.PagedResults`1.Filter">
+            <summary>
+            An optional filter value.
+            </summary>
+        </member>
         <member name="P:Speedy.PagedResults`1.HasMore">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.PagedResults`1.Order">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.PagedResults`1.Page">
+            <summary>
+            The page to start the request on.
+            </summary>
+        </member>
+        <member name="P:Speedy.PagedResults`1.PerPage">
+            <summary>
+            The number of items per page.
+            </summary>
         </member>
         <member name="P:Speedy.PagedResults`1.Results">
             <summary>
@@ -7132,6 +7182,21 @@
         </member>
         <member name="P:Speedy.PagedResults`1.TotalPages">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.PagedResults`1.PageDefault">
+            <summary>
+            Default value for Page.
+            </summary>
+        </member>
+        <member name="P:Speedy.PagedResults`1.PerPageDefault">
+            <summary>
+            Default value for PerPage.
+            </summary>
+        </member>
+        <member name="P:Speedy.PagedResults`1.PerPageMaxDefault">
+            <summary>
+            Default value for PerPage maximum value.
+            </summary>
         </member>
         <member name="M:Speedy.PagedResults`1.CalculatePaginationValues">
             <inheritdoc />

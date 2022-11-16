@@ -2,7 +2,6 @@
 
 using System.Linq;
 using Speedy.Extensions;
-using Speedy.Serialization;
 
 #endregion
 

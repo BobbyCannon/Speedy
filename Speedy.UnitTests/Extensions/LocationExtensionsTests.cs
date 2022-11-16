@@ -17,103 +17,116 @@ public class LocationExtensionsTests : SpeedyUnitTest
 	[TestMethod]
 	public void GetEllipsoidValue()
 	{
-		Assert.Fail("aoeu");
-	//	var scenarios = new List<(IMinimalVerticalLocation location, IMinimalVerticalLocation relativeTo, double expected)>
-	//	{
-	//		// 10 Terrain above 100 Ellipsoid should be 110
-	//		(new Location { Altitude = 10, AltitudeReference = AltitudeReferenceType.Terrain },
-	//			new Location { Altitude = 100, AltitudeReference = AltitudeReferenceType.Ellipsoid },
-	//			110),
-	//		// 10 Ellipsoid should just be 10
-	//		(new Location { Altitude = 10, AltitudeReference = AltitudeReferenceType.Ellipsoid },
-	//			new Location { Altitude = 100, AltitudeReference = AltitudeReferenceType.Ellipsoid },
-	//			10),
-	//		// Terrain above another Terrain should just be the original Terrain
-	//		(new Location { Altitude = 12, AltitudeReference = AltitudeReferenceType.Ellipsoid },
-	//			new Location { Altitude = 24, AltitudeReference = AltitudeReferenceType.Terrain },
-	//			12)
-	//	};
+		var scenarios = new List<(IMinimalVerticalLocation location, IMinimalVerticalLocation relativeTo, double expected)>
+		{
+			// 10 Terrain above 100 Ellipsoid should be 110
+			(new VerticalLocation { Altitude = 10, AltitudeReference = AltitudeReferenceType.Terrain },
+				new VerticalLocation { Altitude = 100, AltitudeReference = AltitudeReferenceType.Ellipsoid },
+				110),
+			// 10 Ellipsoid should just be 10
+			(new VerticalLocation { Altitude = 10, AltitudeReference = AltitudeReferenceType.Ellipsoid },
+				new VerticalLocation { Altitude = 100, AltitudeReference = AltitudeReferenceType.Ellipsoid },
+				10),
+			// Terrain above another Terrain should just be the original Terrain
+			(new VerticalLocation { Altitude = 12, AltitudeReference = AltitudeReferenceType.Ellipsoid },
+				new VerticalLocation { Altitude = 24, AltitudeReference = AltitudeReferenceType.Terrain },
+				12)
+		};
 
-	//	foreach (var x in scenarios)
-	//	{
-	//		var actual = x.location.GetEllipsoidAltitude(x.relativeTo);
-	//		Assert.AreEqual(x.expected, actual);
-	//	}
-	//}
+		foreach (var x in scenarios)
+		{
+			var actual = x.location.GetEllipsoidAltitude(x.relativeTo);
+			Assert.AreEqual(x.expected, actual);
+		}
+	}
 
-	//[TestMethod]
-	//public void SupportedAccuracyReferenceTypesShouldAffectExtensionMethods()
-	//{
-	//	var location = new Location();
+	[TestMethod]
+	public void SupportedAccuracyReferenceTypesShouldAffectExtensionMethods()
+	{
+		var locations = new ILocationDeviceInformation[]
+		{
+			new HorizontalLocation(), new VerticalLocation()
+		};
 
-	//	void validate(bool expected)
-	//	{
-	//		AreEqual(expected, location.HasSupportedHorizontalAccuracy());
-	//		AreEqual(expected, location.HasHorizontalAccuracy);
-	//		AreEqual(expected, location.HasSupportedVerticalAccuracy());
-	//		AreEqual(expected, location.HasVerticalAccuracy);
-	//	}
+		foreach (var location in locations)
+		{
+			void validate(bool expected)
+			{
+				AreEqual(expected, location.HasAccuracy());
+				AreEqual(expected, location.HasAccuracy);
+			}
 
-	//	validate(false);
+			validate(false);
 
-	//	var expectedValues = new[]
-	//	{
-	//		AccuracyReferenceType.Meters
-	//	};
+			var expectedValues = new[]
+			{
+				AccuracyReferenceType.Meters
+			};
 
-	//	foreach (var value in expectedValues)
-	//	{
-	//		location.HorizontalAccuracyReference = value;
-	//		location.VerticalAccuracyReference = value;
+			foreach (var value in expectedValues)
+			{
+				location.AccuracyReference = value;
 
-	//		validate(true);
+				validate(true);
 
-	//		LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal.Remove(value);
-	//		LocationExtensions.SupportedAccuracyReferenceTypesForVertical.Remove(value);
+				switch (location)
+				{
+					case IHorizontalLocation:
+					{
+						LocationExtensions.SupportedAccuracyReferenceTypesForHorizontal.Remove(value);
+						break;
+					}
+					case IVerticalLocation:
+					{
+						LocationExtensions.SupportedAccuracyReferenceTypesForVertical.Remove(value);
+						break;
+					}
+				}
 
-	//		validate(false);
-	//	}
+				validate(false);
+			}
+		}
 
-	//	// All values should no longer be supported
-	//	var allValues = EnumExtensions.GetEnumValues<AltitudeReferenceType>();
+		//// All values should no longer be supported
+		//var allValues = EnumExtensions.GetEnumValues<AltitudeReferenceType>();
 
-	//	foreach (var value in allValues)
-	//	{
-	//		location.AltitudeReference = value;
-	//		validate(false);
-	//	}
-	//}
+		//foreach (var value in allValues)
+		//{
+		//	location.AltitudeReference = value;
+		//	validate(false);
+		//}
+	}
 
-	//[TestMethod]
-	//public void SupportedAltitudeReferenceTypesShouldAffectExtensionMethods()
-	//{
-	//	var location = new Location();
-	//	AreEqual(false, location.HasSupportedAltitude());
+	[TestMethod]
+	public void SupportedAltitudeReferenceTypesShouldAffectExtensionMethods()
+	{
+		var location = new VerticalLocation();
+		AreEqual(false, location.HasSupportedAltitude());
 
-	//	var expectedValues = new[]
-	//	{
-	//		AltitudeReferenceType.Ellipsoid,
-	//		AltitudeReferenceType.Geoid,
-	//		AltitudeReferenceType.Terrain
-	//	};
+		var expectedValues = new[]
+		{
+			AltitudeReferenceType.Ellipsoid,
+			AltitudeReferenceType.Geoid,
+			AltitudeReferenceType.Terrain
+		};
 
-	//	foreach (var value in expectedValues)
-	//	{
-	//		location.AltitudeReference = value;
-	//		AreEqual(true, location.HasAltitude);
+		foreach (var value in expectedValues)
+		{
+			location.AltitudeReference = value;
+			AreEqual(true, location.HasValue);
 
-	//		LocationExtensions.SupportedAltitudeReferenceTypes.Remove(value);
-	//		AreEqual(false, location.HasAltitude);
-	//	}
+			LocationExtensions.SupportedAltitudeReferenceTypes.Remove(value);
+			AreEqual(false, location.HasValue);
+		}
 
-	//	// All values should no longer be supported
-	//	var allValues = EnumExtensions.GetEnumValues<AltitudeReferenceType>();
+		// All values should no longer be supported
+		var allValues = EnumExtensions.GetEnumValues<AltitudeReferenceType>();
 
-	//	foreach (var value in allValues)
-	//	{
-	//		location.AltitudeReference = value;
-	//		AreEqual(false, location.HasAltitude);
-	//	}
+		foreach (var value in allValues)
+		{
+			location.AltitudeReference = value;
+			AreEqual(false, location.HasValue);
+		}
 	}
 
 	[TestMethod]
