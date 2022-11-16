@@ -19,7 +19,7 @@ public class MainViewModel : ViewModel
 	public MainViewModel(IDispatcher dispatcher) : base(dispatcher)
 	{
 		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<Location>>();
-		LocationManager = new LocationManager(dispatcher);
+		LocationManager = new LocationManager<LocationProviderSettingsView>(dispatcher);
 		//LocationManager.LocationChanged += LocationManagerOnLocationChanged;
 		Locations = new BaseObservableCollection<Location>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
@@ -43,7 +43,7 @@ public class MainViewModel : ViewModel
 
 	public ConcurrentDictionary<string, BaseObservableCollection<Location>> LocationHistory { get; }
 
-	public LocationManager LocationManager { get; }
+	public LocationManager<LocationProviderSettingsView> LocationManager { get; }
 
 	public BaseObservableCollection<Location> Locations { get; }
 

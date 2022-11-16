@@ -2,7 +2,6 @@
 
 using System.Linq;
 using Speedy.Extensions;
-using ICloneable = Speedy.ICloneable;
 
 #endregion
 

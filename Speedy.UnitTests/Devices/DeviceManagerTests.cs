@@ -16,7 +16,6 @@ public class DeviceManagerTests
 	public void name()
 	{
 		var manager = new TestDeviceInformationManager();
-		
 	}
 
 	#endregion
@@ -34,6 +33,13 @@ public class DeviceManagerTests
 		public TestDeviceInformationManager() : base(new DefaultDispatcher())
 		{
 		}
+
+		#endregion
+
+		#region Properties
+
+		/// <inheritdoc />
+		public override string ProviderName => "Test Device Information Manager";
 
 		#endregion
 	}

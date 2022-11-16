@@ -26,6 +26,7 @@ public class XamarinBarometerLocationProvider<T>
 	/// <param name="dispatcher"> </param>
 	public XamarinBarometerLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
+		CurrentValue.SourceName = ProviderName;
 	}
 
 	#endregion
@@ -37,6 +38,9 @@ public class XamarinBarometerLocationProvider<T>
 	/// </summary>
 	public double Pressure { get; set; }
 
+	/// <inheritdoc />
+	public sealed override string ProviderName => "Xamarin Barometer";
+
 	#endregion
 
 	#region Methods
@@ -44,22 +48,24 @@ public class XamarinBarometerLocationProvider<T>
 	/// <inheritdoc />
 	public override Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
-		return Task.FromResult(((ICloneable<T>) CurrentValue).ShallowClone());
+		return Task.FromResult((T) CurrentValue.ShallowClone());
 	}
 
 	/// <inheritdoc />
-	public override Task StartListeningAsync()
+	public override Task StartMonitoringAsync()
 	{
 		Barometer.Start(SensorSpeed.Default);
 		Barometer.ReadingChanged += BarometerOnReadingChanged;
+		IsMonitoring = true;
 		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
-	public override Task StopListeningAsync()
+	public override Task StopMonitoringAsync()
 	{
 		Barometer.Stop();
 		Barometer.ReadingChanged -= BarometerOnReadingChanged;
+		IsMonitoring = false;
 		return Task.CompletedTask;
 	}
 
@@ -69,7 +75,8 @@ public class XamarinBarometerLocationProvider<T>
 		var altitudeAboveSeaLevel = Math.Round(44307.69 * (1.0 - Math.Pow(Pressure / 1013.25, 0.190284)) * 10.0) / 10.0;
 		CurrentValue.Altitude = altitudeAboveSeaLevel;
 		CurrentValue.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-		OnChanged(((ICloneable<T>) CurrentValue).ShallowClone());
+		CurrentValue.StatusTime = TimeService.UtcNow;
+		OnUpdated(CurrentValue);
 	}
 
 	#endregion

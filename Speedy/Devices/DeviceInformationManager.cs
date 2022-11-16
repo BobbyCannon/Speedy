@@ -22,7 +22,6 @@ public abstract class DeviceInformationManager<T>
 	#region Fields
 
 	private readonly ConcurrentDictionary<Type, IDeviceInformationProvider> _providers;
-	private readonly T _bestValue;
 
 	#endregion
 
@@ -36,7 +35,7 @@ public abstract class DeviceInformationManager<T>
 		_providers = new ConcurrentDictionary<Type, IDeviceInformationProvider>();
 
 		CurrentValue = new T();
-		_bestValue = new T();
+		BestValue = new T();
 	}
 
 	#endregion
@@ -44,14 +43,14 @@ public abstract class DeviceInformationManager<T>
 	#region Properties
 
 	/// <summary>
+	/// The best value based on each provider.
+	/// </summary>
+	public T BestValue { get; }
+
+	/// <summary>
 	/// The current final state.
 	/// </summary>
 	public T CurrentValue { get; }
-
-	/// <summary>
-	/// The best value based on each provider.
-	/// </summary>
-	public T BestValue => _bestValue;
 
 	/// <inheritdoc />
 	public Type CurrentValueType => typeof(T);
@@ -60,7 +59,10 @@ public abstract class DeviceInformationManager<T>
 	public bool HasPermission { get; private set; }
 
 	/// <inheritdoc />
-	public bool IsListening { get; private set; }
+	public bool IsMonitoring { get; private set; }
+
+	/// <inheritdoc />
+	public abstract string ProviderName { get; }
 
 	/// <summary>
 	/// The providers for each type.
@@ -80,113 +82,89 @@ public abstract class DeviceInformationManager<T>
 		_providers.AddOrUpdate(provider.CurrentValueType,
 			_ =>
 			{
-				provider.Changed += ProviderOnChanged;
-				provider.Refreshed += ProviderOnRefreshed;
+				provider.Updated += ProviderOnUpdated;
 				return provider;
 			},
 			(_, p) =>
 			{
 				if (p != null)
 				{
-					p.Changed -= ProviderOnChanged;
-					p.Refreshed -= ProviderOnRefreshed;
+					p.Updated -= ProviderOnUpdated;
 				}
 
-				provider.Changed -= ProviderOnChanged;
-				provider.Refreshed += ProviderOnRefreshed;
+				provider.Updated -= ProviderOnUpdated;
 				return provider;
 			});
 	}
 
-	private void ProviderOnChanged(object sender, object e)
-	{
-		// Refresh the BestValue member.
-		Refresh(e);
-
-		// Change the current value.
-		CurrentValue.UpdateWith(e);
-		OnChanged(CurrentValue);
-	}
-
 	/// <inheritdoc />
-	public bool Refresh(object update)
+	public bool Refresh(IUpdatable update)
 	{
-		object bestAsObject = _bestValue;
+		IUpdatable bestAsObject = BestValue;
 		return Refresh(ref bestAsObject, update);
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(ref object value, object update)
+	public bool Refresh(ref IUpdatable value, IUpdatable update)
 	{
-		return (value is T tValue)
-			&& (update is T tUpdate)
-			&& tValue.ShouldUpdate(tUpdate)
-			&& tValue.UpdateWith(tUpdate);
+		return value.ShouldUpdate(update)
+			&& value.UpdateWith(update);
 	}
 
 	/// <inheritdoc />
-	public async Task StartListeningAsync()
+	public async Task StartMonitoringAsync()
 	{
-		if (IsListening)
+		if (IsMonitoring)
 		{
 			return;
 		}
 
 		foreach (var i in _providers)
 		{
-			await i.Value.StartListeningAsync();
+			await i.Value.StartMonitoringAsync();
 		}
 
-		IsListening = true;
+		IsMonitoring = true;
 	}
 
 	/// <inheritdoc />
-	public async Task StopListeningAsync()
+	public async Task StopMonitoringAsync()
 	{
 		foreach (var i in _providers)
 		{
-			await i.Value.StopListeningAsync();
+			await i.Value.StopMonitoringAsync();
 		}
 
-		IsListening = false;
+		IsMonitoring = false;
 	}
 
 	/// <summary>
-	/// Triggers the <see cref="OnChanged" /> event when the device information changes.
+	/// Triggers the <see cref="OnUpdated" /> event when the device information changes.
 	/// </summary>
 	/// <param name="e"> The new value. </param>
-	protected virtual void OnChanged(T e)
+	protected virtual void OnUpdated(T e)
 	{
 		switch (e)
 		{
 			case ICloneable<T> cloneableT:
 			{
-				Changed?.Invoke(this, cloneableT.ShallowClone());
+				Updated?.Invoke(this, cloneableT.ShallowClone());
 				return;
 			}
 			case ICloneable cloneable:
 			{
-				Changed?.Invoke(this, cloneable.ShallowClone());
+				Updated?.Invoke(this, (IUpdatable) cloneable.ShallowClone());
 				return;
 			}
 			default:
 			{
-				Changed?.Invoke(this, e);
+				Updated?.Invoke(this, e.DeepClone());
 				break;
 			}
 		}
 	}
 
-	/// <summary>
-	/// Triggers the <see cref="Refreshed" /> event with the provided value;
-	/// </summary>
-	/// <param name="e"> The value that was updated. </param>
-	protected virtual void OnRefreshed(T e)
-	{
-		Refreshed?.Invoke(this, e);
-	}
-
-	private void ProviderOnRefreshed(object sender, object update)
+	private void ProviderOnUpdated(object sender, IUpdatable update)
 	{
 		var provider = (IDeviceInformationProvider) sender;
 		if (provider == null)
@@ -196,7 +174,7 @@ public abstract class DeviceInformationManager<T>
 		}
 
 		// Just a cast to get to object
-		if (CurrentValue is not object objectValue)
+		if (CurrentValue is not IUpdatable objectValue)
 		{
 			return;
 		}
@@ -208,24 +186,15 @@ public abstract class DeviceInformationManager<T>
 			return;
 		}
 
-		// If the value is clone, clone it
-		if (objectValue is ICloneable cValue)
-		{
-			// Notify of the value
-			OnRefreshed((T) cValue.ShallowClone());
-			return;
-		}
-
 		// Notify of the current value with deep clone
-		OnRefreshed(CurrentValue.DeepClone());
+		OnUpdated(CurrentValue);
 	}
 
 	#endregion
 
 	#region Events
 
-	public event EventHandler<object> Changed;
-	public event EventHandler<object> Refreshed;
+	public event EventHandler<IUpdatable> Updated;
 
 	#endregion
 }

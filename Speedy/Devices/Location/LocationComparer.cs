@@ -20,7 +20,7 @@ public class LocationComparer<T> : Comparer<T>
 	public LocationComparer() : this(null)
 	{
 	}
-	
+
 	/// <summary>
 	/// Instantiate a state comparer for the <see cref="Location" /> type.
 	/// </summary>

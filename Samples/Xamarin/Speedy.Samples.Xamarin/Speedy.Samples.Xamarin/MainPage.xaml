@@ -7,6 +7,7 @@
 		xmlns:logging="clr-namespace:Speedy.Logging;assembly=Speedy"
 		xmlns:location="clr-namespace:Speedy.Devices.Location;assembly=Speedy"
 		xmlns:forms="clr-namespace:LiveChartsCore.SkiaSharpView.Xamarin.Forms;assembly=LiveChartsCore.SkiaSharpView.XamarinForms"
+		xmlns:devices="clr-namespace:Speedy.Devices;assembly=Speedy"
 		x:DataType="xamarin:MainViewModel">
 
 	<ContentPage.Resources>
@@ -40,6 +41,29 @@
 						TextColor="White" FontSize="32" />
 			</Frame>
 
+			<Label Text="Providers" Margin="0,10,0,0" Style="{StaticResource Title}" />
+
+			<FlexLayout BindableLayout.ItemsSource="{x:Binding LocationManager.Providers.Values, Mode=OneWay}"
+					Direction="Column" HorizontalOptions="Fill" VerticalOptions="Start">
+				<BindableLayout.ItemTemplate>
+					<DataTemplate x:DataType="devices:IDeviceInformationProvider">
+						<ContentView>
+							<StackLayout Margin="0,0,0,20">
+								<Label Text="{Binding ProviderName}" />
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Is Monitoring:" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding IsMonitoring, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Has Permission:" Style="{StaticResource Property}" />
+									<Label Text="{x:Binding HasPermission, Mode=OneWay}" />
+								</StackLayout>
+							</StackLayout>
+						</ContentView>
+					</DataTemplate>
+				</BindableLayout.ItemTemplate>
+			</FlexLayout>
+
 			<Label Text="Settings" Margin="0,10,0,0" Style="{StaticResource Title}" />
 			
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
@@ -49,7 +73,7 @@
 			<Slider Maximum="{x:Binding LocationManager.Settings.MinimumTimeUpperLimitInSeconds, Mode=OneWay}"
 					Minimum="{x:Binding LocationManager.Settings.MinimumTimeLowerLimitInSeconds, Mode=OneWay}"
 					Value="{x:Binding LocationManager.Settings.MinimumTimeInSeconds, Mode=TwoWay}"
-					IsEnabled="{x:Binding LocationManager.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+					IsEnabled="{x:Binding LocationManager.IsMonitoring, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
 			
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Minimum Distance In Meters" />
@@ -58,7 +82,7 @@
 			<Slider Maximum="{x:Binding LocationManager.Settings.MinimumDistanceUpperLimitView, Mode=OneWay}"
 					Minimum="{x:Binding LocationManager.Settings.MinimumDistanceLowerLimitView, Mode=OneWay}"
 					Value="{x:Binding LocationManager.Settings.MinimumDistance, Mode=TwoWay}"
-					IsEnabled="{x:Binding LocationManager.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+					IsEnabled="{x:Binding LocationManager.IsMonitoring, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
 
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Desired Accuracy" />
@@ -67,7 +91,7 @@
 			<Slider Maximum="{x:Binding LocationManager.Settings.DesiredAccuracyUpperLimitView, Mode=OneWay}"
 					Minimum="{x:Binding LocationManager.Settings.DesiredAccuracyLowerLimitView, Mode=OneWay}"
 					Value="{x:Binding LocationManager.Settings.DesiredAccuracy, Mode=TwoWay}"
-					IsEnabled="{x:Binding LocationManager.IsListening, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
+					IsEnabled="{x:Binding LocationManager.IsMonitoring, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}" />
 
 			<!--
 			<StackLayout IsVisible="{x:Binding LocationProvider.HasProviderSources, Mode=OneWay}">
@@ -105,107 +129,107 @@
 			</StackLayout>
 			-->
 			
-			<Button IsVisible="{x:Binding LocationManager.IsListening, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
+			<Button IsVisible="{x:Binding LocationManager.IsMonitoring, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
 					Text="Start" Command="{Binding LocationManager.StartListeningCommand, Mode=OneTime}" />
-			<Button IsVisible="{x:Binding LocationManager.IsListening, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+			<Button IsVisible="{x:Binding LocationManager.IsMonitoring, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
 					Text="Stop" Command="{Binding LocationManager.StopListeningCommand, Mode=OneTime}" />
 			
-			<Label Text="{x:Binding LocationManager.LastReadLocation.ProviderName, Mode=OneWay}" Margin="0,20,0,0" Style="{StaticResource Title}" />
+			<Label Text="{x:Binding LocationManager.CurrentValue.ProviderName, Mode=OneWay}" Margin="0,20,0,0" Style="{StaticResource Title}" />
 
 			<StackLayout Orientation="Horizontal" Margin="0,10,0,0" HorizontalOptions="Center">
 				<Label Text="Horizontal Source" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HorizontalSourceName, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.SourceName, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Status Time" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HorizontalStatusTime, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.StatusTime, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Vertical Source" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.VerticalSourceName, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.SourceName, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Status Time" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.VerticalStatusTime, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.StatusTime, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal"  HorizontalOptions="Center">
 				<Label Text="Is Listening" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.IsListening, Mode=OneWay}" />
-			</StackLayout>
-			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-				<Label Text="Status" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.Status, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.IsMonitoring, Mode=OneWay}" />
 			</StackLayout>
 
 			<Label Text="Location" Margin="0,10,0,0" Style="{StaticResource Title}" />
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Latitude" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.Latitude, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.Latitude, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Longitude" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.Longitude, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.Longitude, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Has Latitude/Longitude" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.HasValue, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HorizontalAccuracy, Mode=OneWay}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HorizontalAccuracyReference, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.Accuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.AccuracyReference, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HasHorizontalAccuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.HasAccuracy, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" Margin="0,20,0,0" HorizontalOptions="Center">
 				<Label Text="Horizontal Heading" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HorizontalHeading, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.Heading, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Heading" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HasHorizontalHeading, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.HasHeading, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Horizontal Speed" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HorizontalSpeed, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.Speed, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Speed" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HasHorizontalSpeed, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.HasSpeed, Mode=OneWay}" />
 			</StackLayout>
 
 			<Label Text="Altitude" Margin="0,20,0,0" Style="{StaticResource Title}" />
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Altitude" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.Altitude, Mode=OneWay}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.AltitudeReference, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.Altitude, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.AltitudeReference, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Altitude" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HasAltitude, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.HasValue, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.VerticalAccuracy, Mode=OneWay}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.VerticalAccuracyReference, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.Accuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.AccuracyReference, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Accuracy" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HasVerticalAccuracy, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.HasAccuracy, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" Margin="0,20,0,0" HorizontalOptions="Center">
 				<Label Text="Vertical Heading" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.VerticalHeading, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.Heading, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Heading" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HasVerticalHeading, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.HasHeading, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Vertical Speed" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.VerticalSpeed, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.Speed, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Has Speed" Style="{StaticResource Property}" />
-				<Label Text="{x:Binding LocationManager.LastReadLocation.HasVerticalSpeed, Mode=OneWay}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.HasSpeed, Mode=OneWay}" />
 			</StackLayout>
 		
 			<!--
@@ -229,27 +253,54 @@
 					Margin="0,10,0,0"
 					Padding="0,00,0,10"
 					VerticalOptions="StartAndExpand">
-				<BindableLayout.ItemTemplate>
-					<DataTemplate x:DataType="location:Location">
+				<FlexLayout.Resources>
+					<Style x:Key="Property2" TargetType="Label" BasedOn="{StaticResource Property}">
+						<Setter Property="TextColor" Value="AliceBlue" />
+					</Style>
+					<Style x:Key="Title2" TargetType="Label" BasedOn="{StaticResource Title}">
+						<Setter Property="TextColor" Value="AliceBlue" />
+					</Style>
+					<Style TargetType="Label">
+						<Setter Property="TextColor" Value="AliceBlue" />
+					</Style>
+					<ControlTemplate x:Key="DeviceInformationTemplate" x:DataType="location:ILocationDeviceInformation">
+						<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
+							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+								<Label Text="Status Time" Style="{StaticResource Property2}" />
+								<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
+							</StackLayout>
+							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+								<Label Text="Accuracy" Style="{StaticResource Property2}" />
+								<Label Text="{x:Binding Accuracy, Mode=OneWay}" />
+								<Label Text="{x:Binding AccuracyReference, Mode=OneWay}" />
+							</StackLayout>
+							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+								<Label Text="Has Accuracy" Style="{StaticResource Property2}" />
+								<Label Text="{x:Binding HasAccuracy, Mode=OneWay}" />
+							</StackLayout>
+							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+								<Label Text="Heading" Style="{StaticResource Property2}" />
+								<Label Text="{x:Binding Heading, Mode=OneWay}" />
+							</StackLayout>
+							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+								<Label Text="Has Heading" Style="{StaticResource Property2}" />
+								<Label Text="{x:Binding HasHeading, Mode=OneWay}" />
+							</StackLayout>
+							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+								<Label Text="Speed" Style="{StaticResource Property2}" />
+								<Label Text="{x:Binding Speed, Mode=OneWay}" />
+							</StackLayout>
+							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+								<Label Text="Has Speed" Style="{StaticResource Property2}" />
+								<Label Text="{x:Binding HasSpeed, Mode=OneWay}" />
+							</StackLayout>
+						</StackLayout>
+					</ControlTemplate>
+					<DataTemplate x:Key="HorizontalTemplate" x:DataType="location:IHorizontalLocation">
 						<ContentView>
-							<ContentView.Resources>
-								<Style x:Key="Property2" TargetType="Label" BasedOn="{StaticResource Property}">
-									<Setter Property="TextColor" Value="AliceBlue" />
-								</Style>
-								<Style x:Key="Title2" TargetType="Label" BasedOn="{StaticResource Title}">
-									<Setter Property="TextColor" Value="AliceBlue" />
-								</Style>
-								<Style TargetType="Label">
-									<Setter Property="TextColor" Value="AliceBlue" />
-								</Style>
-							</ContentView.Resources>
 							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
-								<Label Text="{x:Binding HorizontalSourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
+								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
 
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Status Time" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HorizontalStatusTime, Mode=OneWay}" />
-								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Latitude" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Latitude, Mode=OneWay}" />
@@ -259,52 +310,47 @@
 									<Label Text="{x:Binding Longitude, Mode=OneWay}" />
 								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HorizontalAccuracy, Mode=OneWay}" />
-									<Label Text="{x:Binding HorizontalAccuracyReference, Mode=OneWay}" />
+									<Label Text="Has Latitude/Longitude" Style="{StaticResource Property2}" />
+									<Label Text="{x:Binding HasValue, Mode=OneWay}" />
 								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HasHorizontalAccuracy, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Altitude" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding Altitude, Mode=OneWay}" />
-									<Label Text="{x:Binding AltitudeReference, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Altitude" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HasAltitude, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding VerticalAccuracy, Mode=OneWay}" />
-									<Label Text="{x:Binding VerticalAccuracyReference, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Accuracy" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HasVerticalAccuracy, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Heading" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HorizontalHeading, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Heading" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HasHorizontalHeading, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Speed" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HorizontalSpeed, Mode=OneWay}" />
-								</StackLayout>
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Speed" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding HasHorizontalSpeed, Mode=OneWay}" />
-								</StackLayout>
+								<ContentView ControlTemplate="{StaticResource DeviceInformationTemplate}" />
 							</StackLayout>
 						</ContentView>
 					</DataTemplate>
-				</BindableLayout.ItemTemplate>
+					<DataTemplate x:Key="VerticalTemplate" x:DataType="location:IVerticalLocation">
+						<ContentView>
+							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
+								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
+
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Altitude" Style="{StaticResource Property2}" />
+									<Label Text="{x:Binding Altitude, Mode=OneWay}" />
+								</StackLayout>
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Has Altitude" Style="{StaticResource Property2}" />
+									<Label Text="{x:Binding HasValue, Mode=OneWay}" />
+								</StackLayout>
+								<ContentView ControlTemplate="{StaticResource DeviceInformationTemplate}" />
+							</StackLayout>
+						</ContentView>
+					</DataTemplate>
+					<DataTemplate x:Key="GenericTemplate" x:DataType="location:ILocationDeviceInformation">
+						<ContentView>
+							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
+								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
+
+								<ContentView ControlTemplate="{StaticResource DeviceInformationTemplate}" />
+							</StackLayout>
+						</ContentView>
+					</DataTemplate>
+				</FlexLayout.Resources>
+				<BindableLayout.ItemTemplateSelector>
+					<xamarin:LocationTemplateSelector 
+							HorizontalTemplate="{StaticResource HorizontalTemplate}"
+							VerticalTemplate="{StaticResource VerticalTemplate}"
+							GenericTemplate="{StaticResource GenericTemplate}">
+					</xamarin:LocationTemplateSelector>
+				</BindableLayout.ItemTemplateSelector>
 			</FlexLayout>
 
 			<Button BackgroundColor="Accent"

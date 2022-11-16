@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Java.Lang;
@@ -13,12 +14,9 @@ using Speedy.Application.Internal;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
-using Speedy.Serialization;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-using LocationManager = Android.Locations.LocationManager;
-
 #if GOOGLEPLAY
 using Android.Gms.Common;
 using Android.Gms.Location;
@@ -56,7 +54,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	private readonly object _positionSync;
 	private IDictionary<string, LocationProviderSource> _providerSources;
 	private GeolocationSingleListener<TLocation, THorizontal, TVertical> _singleListener;
-	
+
 	#endregion
 
 	#region Constructors
@@ -78,6 +76,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 	/// <inheritdoc />
 	public bool IsLocationEnabled => ProviderSources.Any(x => x.Enabled && Manager.IsProviderEnabled(x.Provider));
+
+	/// <inheritdoc />
+	public override string ProviderName => "Xamarin Android";
 
 	/// <summary>
 	/// Gets all providers from the Location Manager.
@@ -146,7 +147,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		var tcs = new TaskCompletionSource<TLocation>();
 		var providerSources = ProviderSources.ToArray();
 
-		if (!IsListening)
+		if (!IsMonitoring)
 		{
 			void singleListenerFinishCallback()
 			{
@@ -229,9 +230,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	}
 
 	/// <inheritdoc />
-	public override Task StartListeningAsync()
+	public override Task StartMonitoringAsync()
 	{
-		if (IsListening)
+		if (IsMonitoring)
 		{
 			return Task.CompletedTask;
 		}
@@ -245,11 +246,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 		LocationProviderSettings.Cleanup();
 
-		var hasPermission = LocationProviderSettings.RequireLocationAlwaysPermission
+		HasPermission = LocationProviderSettings.RequireLocationAlwaysPermission
 			? CheckAlwaysPermissions()
 			: CheckWhenInUsePermission();
 
-		if (!hasPermission)
+		if (!HasPermission)
 		{
 			ListenerPositionError(this, LocationProviderError.Unauthorized);
 			return Task.CompletedTask;
@@ -304,13 +305,14 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			source.Listening = true;
 		}
 
-		Status = "Is Listening";
-		OnPropertyChanged(nameof(IsListening));
+		Status = "Is Monitoring";
+		IsMonitoring = true;
+
 		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
-	public override Task StopListeningAsync()
+	public override Task StopMonitoringAsync()
 	{
 		if (_listener == null)
 		{
@@ -348,7 +350,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		_listener = null;
 
 		Status = string.Empty;
-		OnPropertyChanged(nameof(IsListening));
+		IsMonitoring = false;
 
 		return Task.CompletedTask;
 	}
@@ -443,20 +445,20 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	private void ListenerPositionChanged(object sender, TLocation e)
 	{
 		// Ignore anything that might come in after stop listening
-		if (!IsListening || e is null)
+		if (!IsMonitoring || e is null)
 		{
 			return;
 		}
 
 		lock (_positionSync)
 		{
-			Refresh(e);
+			UpdateCurrentValue(e);
 		}
 	}
 
 	private async void ListenerPositionError(object sender, LocationProviderError e)
 	{
-		await StopListeningAsync();
+		await StopMonitoringAsync();
 		OnLocationProviderError(e);
 	}
 

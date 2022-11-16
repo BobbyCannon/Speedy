@@ -65,6 +65,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <inheritdoc />
 	public bool IsLocationEnabled => CLLocationManager.LocationServicesEnabled;
 
+	/// <inheritdoc />
+	public override string ProviderName => "Xamarin iOS";
+
 	#endregion
 
 	#region Methods
@@ -92,7 +95,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 		cancelToken ??= CancellationToken.None;
 
-		if (!IsListening)
+		if (!IsMonitoring)
 		{
 			var m = GetManager();
 			m.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy;
@@ -111,9 +114,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <summary>
 	/// Start listening for changes
 	/// </summary>
-	public override async Task StartListeningAsync()
+	public override async Task StartMonitoringAsync()
 	{
-		if (IsListening)
+		if (IsMonitoring)
 		{
 			return;
 		}
@@ -135,34 +138,33 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			throw new LocationProviderException(LocationProviderError.Unauthorized);
 		}
 
-		IsListening = true;
-
 		_manager.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy;
 		_manager.DistanceFilter = LocationProviderSettings.MinimumDistance;
 		_manager.StartUpdatingLocation();
+
+		IsMonitoring = true;
 	}
 
 	/// <summary>
 	/// Stop listening
 	/// </summary>
-	public override Task StopListeningAsync()
+	public override Task StopMonitoringAsync()
 	{
-		if (!IsListening)
+		if (!IsMonitoring)
 		{
 			return Task.CompletedTask;
 		}
 
-		IsListening = false;
-
 		_manager.StopUpdatingLocation();
 
+		IsMonitoring = false;
 		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
 	protected override async void OnLocationProviderError(LocationProviderError e)
 	{
-		await StopListeningAsync();
+		await StopMonitoringAsync();
 		base.OnLocationProviderError(e);
 	}
 
@@ -243,10 +245,12 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			CurrentValue.HorizontalLocation.Longitude = location.Coordinate.Longitude;
 			CurrentValue.HorizontalLocation.Accuracy = location.HorizontalAccuracy;
 			CurrentValue.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			CurrentValue.HorizontalLocation.HasValue = true;
 		}
 		else
 		{
 			CurrentValue.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			CurrentValue.HorizontalLocation.HasValue = false;
 		}
 
 		if (location.VerticalAccuracy > -1)
@@ -255,10 +259,12 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			CurrentValue.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
 			CurrentValue.VerticalLocation.Accuracy = location.VerticalAccuracy;
 			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			CurrentValue.VerticalLocation.HasValue = true;
 		}
 		else
 		{
 			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			CurrentValue.VerticalLocation.HasValue = false;
 		}
 
 		if (location.Speed > -1)
@@ -298,7 +304,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			CurrentValue.VerticalLocation.StatusTime = statusTime;
 		}
 
-		OnChanged(CurrentValue);
+		OnUpdated(CurrentValue);
 
 		location.Dispose();
 	}

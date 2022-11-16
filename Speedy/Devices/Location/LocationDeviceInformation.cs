@@ -53,7 +53,7 @@ public abstract class LocationDeviceInformation
 		set => this.UpdateHasSpeed(value);
 	}
 
-	/// <inheritdoc />
+	/// <inheritdoc cref="ILocationDeviceInformation.HasValue" />
 	public virtual bool HasValue
 	{
 		get => this.HasLocation();
@@ -107,6 +107,9 @@ public interface ILocationDeviceInformation
 	/// Specifies if the Speed value is valid.
 	/// </summary>
 	bool HasSpeed { get; set; }
+
+	/// <inheritdoc cref="IDeviceInformation.HasValue" />
+	new bool HasValue { get; set; }
 
 	/// <summary>
 	/// The heading of a device.

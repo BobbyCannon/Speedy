@@ -2,7 +2,6 @@
 
 using System;
 using System.Threading.Tasks;
-using ICloneable = Speedy.ICloneable;
 
 #endregion
 
@@ -13,7 +12,7 @@ namespace Speedy.Devices;
 /// </summary>
 public abstract class DeviceInformationProvider<T>
 	: Comparer<T>, IDeviceInformationProvider<T>
-	where T : IUpdatable<T>, new()
+	where T : IUpdatable<T>, IUpdatable, new()
 {
 	#region Constructors
 
@@ -39,7 +38,10 @@ public abstract class DeviceInformationProvider<T>
 	public bool HasPermission { get; protected set; }
 
 	/// <inheritdoc />
-	public bool IsListening { get; protected set; }
+	public bool IsMonitoring { get; protected set; }
+
+	/// <inheritdoc />
+	public abstract string ProviderName { get; }
 
 	#endregion
 
@@ -48,8 +50,15 @@ public abstract class DeviceInformationProvider<T>
 	/// <inheritdoc />
 	public bool Refresh(T update)
 	{
-		return CurrentValue.ShouldUpdate(update)
+		var response = CurrentValue.ShouldUpdate(update)
 			&& CurrentValue.UpdateWith(update);
+
+		if (response)
+		{
+			OnUpdated(CurrentValue);
+		}
+
+		return response;
 	}
 
 	/// <inheritdoc />
@@ -60,14 +69,14 @@ public abstract class DeviceInformationProvider<T>
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(object update)
+	public bool Refresh(IUpdatable update)
 	{
 		return update is T tUpdate
 			&& Refresh(tUpdate);
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(ref object value, object update)
+	public bool Refresh(ref IUpdatable value, IUpdatable update)
 	{
 		return value is T tValue
 			&& update is T tUpdate
@@ -75,44 +84,45 @@ public abstract class DeviceInformationProvider<T>
 	}
 
 	/// <inheritdoc />
-	public abstract Task StartListeningAsync();
+	public abstract Task StartMonitoringAsync();
 
 	/// <inheritdoc />
-	public abstract Task StopListeningAsync();
+	public abstract Task StopMonitoringAsync();
 
 	/// <summary>
-	/// Triggers the <see cref="OnChanged" /> event when the device information changes.
+	/// Triggers the <see cref="OnUpdated" /> event when the device information changes.
 	/// </summary>
 	/// <param name="e"> The new value. </param>
-	protected virtual void OnChanged(T e)
+	protected virtual void OnUpdated(T e)
 	{
 		switch (e)
 		{
 			case ICloneable<T> cloneableT:
 			{
-				Changed?.Invoke(this, cloneableT.ShallowClone());
+				Updated?.Invoke(this, cloneableT.ShallowClone());
 				return;
 			}
 			case ICloneable cloneable:
 			{
-				Changed?.Invoke(this, cloneable.ShallowClone());
+				Updated?.Invoke(this, (IUpdatable) cloneable.ShallowClone());
 				return;
 			}
 			default:
 			{
-				Changed?.Invoke(this, e);
+				Updated?.Invoke(this, e);
 				break;
 			}
 		}
 	}
 
 	/// <summary>
-	/// Triggers the <see cref="Refreshed" /> event with the provided value;
+	/// Update the providers CurrentValue then triggers OnUpdated.
 	/// </summary>
-	/// <param name="e"> The value that was updated. </param>
-	protected virtual void OnRefreshed(T e)
+	/// <param name="update"> The update. </param>
+	protected void UpdateCurrentValue(T update)
 	{
-		Refreshed?.Invoke(this, e);
+		CurrentValue.UpdateWith(update);
+		OnUpdated(CurrentValue);
 	}
 
 	#endregion
@@ -120,10 +130,7 @@ public abstract class DeviceInformationProvider<T>
 	#region Events
 
 	/// <inheritdoc />
-	public event EventHandler<object> Changed;
-
-	/// <inheritdoc />
-	public event EventHandler<object> Refreshed;
+	public event EventHandler<IUpdatable> Updated;
 
 	#endregion
 }
@@ -184,7 +191,12 @@ public interface IDeviceInformationProvider : IUpdatable
 	/// <summary>
 	/// Determines if the provider is listening.
 	/// </summary>
-	bool IsListening { get; }
+	bool IsMonitoring { get; }
+
+	/// <summary>
+	/// Gets the name of the provider.
+	/// </summary>
+	string ProviderName { get; }
 
 	#endregion
 
@@ -195,7 +207,7 @@ public interface IDeviceInformationProvider : IUpdatable
 	/// </summary>
 	/// <param name="update"> The update to be applied. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
-	bool Refresh(object update);
+	bool Refresh(IUpdatable update);
 
 	/// <summary>
 	/// Try to apply an update to the provided value.
@@ -203,31 +215,26 @@ public interface IDeviceInformationProvider : IUpdatable
 	/// <param name="value"> The value to be updated. </param>
 	/// <param name="update"> The update to be applied. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
-	bool Refresh(ref object value, object update);
+	bool Refresh(ref IUpdatable value, IUpdatable update);
 
 	/// <summary>
 	/// Start monitoring for device information changes.
 	/// </summary>
-	Task StartListeningAsync();
+	Task StartMonitoringAsync();
 
 	/// <summary>
 	/// Stop monitoring for device information changes.
 	/// </summary>
-	Task StopListeningAsync();
+	Task StopMonitoringAsync();
 
 	#endregion
 
 	#region Events
 
 	/// <summary>
-	/// An event to notify when the device information has changed.
+	/// An event to notify when the device information was updated.
 	/// </summary>
-	event EventHandler<object> Changed;
-
-	/// <summary>
-	/// An event to notify when the device information current value was refreshed.
-	/// </summary>
-	event EventHandler<object> Refreshed;
+	event EventHandler<IUpdatable> Updated;
 
 	#endregion
 }

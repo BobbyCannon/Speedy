@@ -8,6 +8,7 @@ using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Services.Maps;
 using Speedy.Devices.Location;
+using Speedy.Extensions;
 
 #endregion
 
@@ -80,6 +81,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 	}
 
+	/// <inheritdoc />
+	public override string ProviderName => "Xamarin Windows";
+
 	#endregion
 
 	#region Methods
@@ -120,7 +124,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 				}
 				case AsyncStatus.Completed:
 				{
-					tcs.SetResult(UpdateLastReadPosition(op.GetResults()));
+					tcs.SetResult(UpdateCurrentValue(op.GetResults()));
 					break;
 				}
 				case AsyncStatus.Error:
@@ -141,9 +145,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	}
 
 	/// <inheritdoc />
-	public override Task StartListeningAsync()
+	public override Task StartMonitoringAsync()
 	{
-		if (IsListening)
+		if (IsMonitoring)
 		{
 			return Task.CompletedTask;
 		}
@@ -160,13 +164,13 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			locator.PositionChanged += OnLocatorPositionChanged;
 			locator.StatusChanged += OnLocatorStatusChanged;
 
-			IsListening = true;
+			IsMonitoring = true;
 
 			return Task.CompletedTask;
 		}
 		catch
 		{
-			IsListening = false;
+			IsMonitoring = false;
 
 			throw;
 		}
@@ -175,9 +179,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <summary>
 	/// Stop listening
 	/// </summary>
-	public override Task StopListeningAsync()
+	public override Task StopMonitoringAsync()
 	{
-		if (!IsListening)
+		if (!IsMonitoring)
 		{
 			return Task.CompletedTask;
 		}
@@ -185,7 +189,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		_locator.PositionChanged -= OnLocatorPositionChanged;
 		_locator.StatusChanged -= OnLocatorStatusChanged;
 
-		IsListening = false;
+		IsMonitoring = false;
 
 		return Task.CompletedTask;
 	}
@@ -212,8 +216,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 	private void OnLocatorPositionChanged(Geolocator sender, PositionChangedEventArgs args)
 	{
-		UpdateLastReadPosition(args.Position);
-		OnChanged(CurrentValue);
+		UpdateCurrentValue(args.Position);
 	}
 
 	private async void OnLocatorStatusChanged(Geolocator sender, StatusChangedEventArgs args)
@@ -242,9 +245,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			}
 		}
 
-		if (IsListening)
+		if (IsMonitoring)
 		{
-			await StopListeningAsync();
+			await StopMonitoringAsync();
 			OnLocationProviderError(error);
 		}
 
@@ -265,10 +268,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 	}
 
-	private TLocation UpdateLastReadPosition(Geoposition position)
+	private TLocation UpdateCurrentValue(Geoposition position)
 	{
 		CurrentValue.HorizontalLocation.Latitude = position.Coordinate.Point.Position.Latitude;
 		CurrentValue.HorizontalLocation.Longitude = position.Coordinate.Point.Position.Longitude;
+		CurrentValue.HorizontalLocation.HasValue = true;
 
 		CurrentValue.HorizontalLocation.Accuracy = position.Coordinate.Accuracy;
 		CurrentValue.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
@@ -311,6 +315,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 		CurrentValue.VerticalLocation.Altitude = position.Coordinate.Point.Position.Altitude;
 		CurrentValue.VerticalLocation.AltitudeReference = position.Coordinate.Point.AltitudeReferenceSystem.ToAltitudeReferenceType();
+		CurrentValue.VerticalLocation.HasValue = CurrentValue.VerticalLocation.AltitudeReference != AltitudeReferenceType.Unspecified;
+
+		OnUpdated(CurrentValue);
 
 		return CurrentValue;
 	}

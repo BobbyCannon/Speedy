@@ -28,13 +28,12 @@ public class MainViewModel : ViewModel
 	public MainViewModel(IDispatcher dispatcher) : base(dispatcher)
 	{
 		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<ILocationDeviceInformation>>();
-		LocationManager = new LocationManager(dispatcher);
-		LocationManager.Changed += LocationManagerOnChanged;
-		LocationManager.Refreshed += LocationManagerOnRefreshed;
+		LocationManager = new LocationManager<LocationProviderSettingsView>(dispatcher);
+		LocationManager.Updated += LocationManagerOnChanged;
 		Locations = new BaseObservableCollection<ILocationDeviceInformation>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
 
-		var provider = new XamarinLocationProvider<Location, HorizontalLocation, VerticalLocation, LocationProviderSettingsView>(dispatcher);
+		var provider = new XamarinLocationProvider<Location, IHorizontalLocation, IVerticalLocation, LocationProviderSettingsView>(dispatcher);
 		var provider2 = new XamarinBarometerLocationProvider<VerticalLocation>(dispatcher);
 
 		LocationManager.Add(provider);
@@ -55,7 +54,7 @@ public class MainViewModel : ViewModel
 
 	//public LineChart AltitudeChart { get; }
 
-	public LocationManager LocationManager { get; }
+	public LocationManager<LocationProviderSettingsView> LocationManager { get; }
 
 	public BaseObservableCollection<ILocationDeviceInformation> Locations { get; }
 
@@ -118,12 +117,31 @@ public class MainViewModel : ViewModel
 
 	private void LocationManagerOnChanged(object sender, object e)
 	{
-		ProcessLocation(e as ILocationDeviceInformation);
-	}
-
-	private void LocationManagerOnRefreshed(object sender, object e)
-	{
-		// todo: nothing?
+		switch (e)
+		{
+			case Location location:
+			{
+				ProcessLocation(location.HorizontalLocation);
+				ProcessLocation(location.VerticalLocation);
+				break;
+			}
+			case ILocation<IHorizontalLocation, IVerticalLocation> location:
+			{
+				ProcessLocation(location.HorizontalLocation);
+				ProcessLocation(location.VerticalLocation);
+				break;
+			}
+			case IHorizontalLocation location:
+			{
+				ProcessLocation(location);
+				break;
+			}
+			case IVerticalLocation location:
+			{
+				ProcessLocation(location);
+				break;
+			}
+		}
 	}
 
 	private void LocationProviderOnLogEventWritten(object sender, LogEventArgs e)
@@ -133,8 +151,21 @@ public class MainViewModel : ViewModel
 
 	private void ProcessLocation(ILocationDeviceInformation location)
 	{
-		if (location == null)
+		if (!Dispatcher.IsDispatcherThread)
 		{
+			Dispatcher.Run(() => ProcessLocation(location));
+			return;
+		}
+
+		if (location is not { HasValue: true })
+		{
+			// Location is null or does not have a value so bounce
+			return;
+		}
+
+		if (string.IsNullOrWhiteSpace(location.SourceName))
+		{
+			// Invalid source name!!!
 			return;
 		}
 

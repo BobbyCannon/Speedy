@@ -1,16 +1,10 @@
-﻿#region References
-
-using System;
-
-#endregion
-
-namespace Speedy.Devices.Location;
+﻿namespace Speedy.Devices.Location;
 
 /// <summary>
 /// Represents a full location from a LocationProvider. Contains horizontal and vertical location.
 /// </summary>
-public class Location : CloneableBindable<Location, ILocation<HorizontalLocation, VerticalLocation>>
-	, ILocation<HorizontalLocation, VerticalLocation>
+public class Location : CloneableBindable<Location, ILocation<IHorizontalLocation, IVerticalLocation>>,
+	ILocation<IHorizontalLocation, IVerticalLocation>
 {
 	#region Constructors
 
@@ -27,6 +21,7 @@ public class Location : CloneableBindable<Location, ILocation<HorizontalLocation
 	public Location(IDispatcher dispatcher) : base(dispatcher)
 	{
 		HorizontalLocation = new HorizontalLocation();
+		VerticalLocation = new VerticalLocation();
 	}
 
 	#endregion
@@ -34,60 +29,73 @@ public class Location : CloneableBindable<Location, ILocation<HorizontalLocation
 	#region Properties
 
 	/// <inheritdoc />
-	public HorizontalLocation HorizontalLocation { get; set; }
+	public IHorizontalLocation HorizontalLocation { get; set; }
 
 	/// <inheritdoc />
 	public string ProviderName { get; set; }
 
 	/// <inheritdoc />
-	public VerticalLocation VerticalLocation { get; set; }
+	public IVerticalLocation VerticalLocation { get; set; }
 
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public bool ShouldUpdate(ILocation<HorizontalLocation, VerticalLocation> update)
+	public bool ShouldUpdate(ILocation<IHorizontalLocation, IVerticalLocation> update)
 	{
-		throw new NotImplementedException();
+		return HorizontalLocation.ShouldUpdate(update)
+			|| VerticalLocation.ShouldUpdate(update);
 	}
 
 	/// <inheritdoc />
-	public bool UpdateWith(ILocation update, params string[] exclusions)
+	public override bool ShouldUpdate(object update)
+	{
+		return update switch
+		{
+			Location location => ShouldUpdate(location),
+			ILocation<IHorizontalLocation, IVerticalLocation> location => ShouldUpdate(location),
+			HorizontalLocation location => HorizontalLocation.ShouldUpdate(location),
+			IHorizontalLocation location => HorizontalLocation.ShouldUpdate(location),
+			VerticalLocation location => VerticalLocation.ShouldUpdate(location),
+			IVerticalLocation location => VerticalLocation.ShouldUpdate(location),
+			_ => base.ShouldUpdate(update)
+		};
+	}
+
+	/// <inheritdoc />
+	public bool UpdateWith(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
 	{
 		var result = false;
 
-		if (HorizontalLocation.ShouldUpdate(update))
-		{
-			result |= HorizontalLocation.UpdateWith(update, exclusions);
-		}
-
-		if (VerticalLocation.ShouldUpdate(update))
-		{
-			result |= VerticalLocation.UpdateWith(update, exclusions);
-		}
+		result |= HorizontalLocation.UpdateWith(update.HorizontalLocation, exclusions);
+		result |= VerticalLocation.UpdateWith(update.VerticalLocation, exclusions);
 
 		return result;
 	}
 
+	/// <inheritdoc />
 	public override bool UpdateWith(Location update, params string[] exclusions)
 	{
-		throw new NotImplementedException();
+		return UpdateWith(update, exclusions);
 	}
 
-	public bool UpdateWith(ILocation<HorizontalLocation, VerticalLocation> update, params string[] exclusions)
+	/// <inheritdoc />
+	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		throw new NotImplementedException();
+		return update switch
+		{
+			Location location => UpdateWith(location, exclusions),
+			ILocation<IHorizontalLocation, IVerticalLocation> location => UpdateWith(location, exclusions),
+			HorizontalLocation location => HorizontalLocation.UpdateWith(location, exclusions),
+			IHorizontalLocation location => HorizontalLocation.UpdateWith(location, exclusions),
+			VerticalLocation location => VerticalLocation.UpdateWith(location, exclusions),
+			IVerticalLocation location => VerticalLocation.UpdateWith(location, exclusions),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
 
 	#endregion
-}
-
-/// <summary>
-/// Represents a provider location.
-/// </summary>
-public interface ILocation : ILocation<IHorizontalLocation, IVerticalLocation>, IUpdatable<ILocation>
-{
 }
 
 /// <summary>

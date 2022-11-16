@@ -155,7 +155,7 @@ public abstract class Bindable : IBindable, IUpdatable
 	}
 
 	/// <inheritdoc />
-	public bool ShouldUpdate(object update)
+	public virtual bool ShouldUpdate(object update)
 	{
 		return true;
 	}

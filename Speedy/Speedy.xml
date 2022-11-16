@@ -106,10 +106,10 @@
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
         </member>
-        <member name="M:Speedy.CloneableBindable`2.Speedy#Serialization#ICloneable{T2}#DeepClone(System.Nullable{System.Int32})">
+        <member name="M:Speedy.CloneableBindable`2.Speedy#ICloneable{T2}#DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.CloneableBindable`2.Speedy#Serialization#ICloneable{T2}#ShallowClone">
+        <member name="M:Speedy.CloneableBindable`2.Speedy#ICloneable{T2}#ShallowClone">
             <inheritdoc />
         </member>
         <member name="T:Speedy.CloneableBindable`1">
@@ -129,10 +129,10 @@
         <member name="M:Speedy.CloneableBindable`1.ShallowClone">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.CloneableBindable`1.Speedy#Serialization#ICloneable#DeepClone(System.Nullable{System.Int32})">
+        <member name="M:Speedy.CloneableBindable`1.Speedy#ICloneable#DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.CloneableBindable`1.Speedy#Serialization#ICloneable#ShallowClone">
+        <member name="M:Speedy.CloneableBindable`1.Speedy#ICloneable#ShallowClone">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Collections.BaseObservableCollection`1">
@@ -1650,10 +1650,27 @@
             Create an instance of the device information manager.
             </summary>
         </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.BestValue">
+            <summary>
+            The best value based on each provider.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.DeviceInformationManager`1.CurrentValue">
             <summary>
             The current final state.
             </summary>
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.CurrentValueType">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.HasPermission">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.IsMonitoring">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.ProviderName">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.DeviceInformationManager`1.Providers">
             <summary>
@@ -1666,16 +1683,23 @@
             </summary>
             <param name="provider"> The provider of device information for the type. </param>
         </member>
-        <member name="M:Speedy.Devices.DeviceInformationManager`1.OnRefreshed(`0)">
-            <summary>
-            Triggers the <see cref="E:Speedy.Devices.DeviceInformationManager`1.Refreshed" /> event with the provided value;
-            </summary>
-            <param name="e"> The value that was updated. </param>
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.Refresh(Speedy.IUpdatable)">
+            <inheritdoc />
         </member>
-        <member name="E:Speedy.Devices.DeviceInformationManager`1.Refreshed">
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.Refresh(Speedy.IUpdatable@,Speedy.IUpdatable)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.StartMonitoringAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.StopMonitoringAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.DeviceInformationManager`1.OnUpdated(`0)">
             <summary>
-            An event to notify when the current value is refreshed.
+            Triggers the <see cref="M:Speedy.Devices.DeviceInformationManager`1.OnUpdated(`0)" /> event when the device information changes.
             </summary>
+            <param name="e"> The new value. </param>
         </member>
         <member name="T:Speedy.Devices.DeviceInformationProvider`1">
             <summary>
@@ -1696,7 +1720,10 @@
         <member name="P:Speedy.Devices.DeviceInformationProvider`1.HasPermission">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.DeviceInformationProvider`1.IsListening">
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.IsMonitoring">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.ProviderName">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(`0)">
@@ -1705,34 +1732,31 @@
         <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(`0@,`0)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(System.Object)">
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(Speedy.IUpdatable)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(System.Object@,System.Object)">
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(Speedy.IUpdatable@,Speedy.IUpdatable)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.DeviceInformationProvider`1.StartListeningAsync">
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.StartMonitoringAsync">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.DeviceInformationProvider`1.StopListeningAsync">
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.StopMonitoringAsync">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.DeviceInformationProvider`1.OnChanged(`0)">
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.OnUpdated(`0)">
             <summary>
-            Triggers the <see cref="M:Speedy.Devices.DeviceInformationProvider`1.OnChanged(`0)" /> event when the device information changes.
+            Triggers the <see cref="M:Speedy.Devices.DeviceInformationProvider`1.OnUpdated(`0)" /> event when the device information changes.
             </summary>
             <param name="e"> The new value. </param>
         </member>
-        <member name="M:Speedy.Devices.DeviceInformationProvider`1.OnRefreshed(`0)">
+        <member name="M:Speedy.Devices.DeviceInformationProvider`1.UpdateCurrentValue(`0)">
             <summary>
-            Triggers the <see cref="E:Speedy.Devices.DeviceInformationProvider`1.Refreshed" /> event with the provided value;
+            Update the providers CurrentValue then triggers OnUpdated.
             </summary>
-            <param name="e"> The value that was updated. </param>
+            <param name="update"> The update. </param>
         </member>
-        <member name="E:Speedy.Devices.DeviceInformationProvider`1.Changed">
-            <inheritdoc />
-        </member>
-        <member name="E:Speedy.Devices.DeviceInformationProvider`1.Refreshed">
+        <member name="E:Speedy.Devices.DeviceInformationProvider`1.Updated">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.IDeviceInformationProvider`1">
@@ -1775,19 +1799,24 @@
             Determines if the provider has permission.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IDeviceInformationProvider.IsListening">
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.IsMonitoring">
             <summary>
             Determines if the provider is listening.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(System.Object)">
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.ProviderName">
+            <summary>
+            Gets the name of the provider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(Speedy.IUpdatable)">
             <summary>
             Try to apply an update to the provided value.
             </summary>
             <param name="update"> The update to be applied. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(System.Object@,System.Object)">
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(Speedy.IUpdatable@,Speedy.IUpdatable)">
             <summary>
             Try to apply an update to the provided value.
             </summary>
@@ -1795,24 +1824,19 @@
             <param name="update"> The update to be applied. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Devices.IDeviceInformationProvider.StartListeningAsync">
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.StartMonitoringAsync">
             <summary>
             Start monitoring for device information changes.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.IDeviceInformationProvider.StopListeningAsync">
+        <member name="M:Speedy.Devices.IDeviceInformationProvider.StopMonitoringAsync">
             <summary>
             Stop monitoring for device information changes.
             </summary>
         </member>
-        <member name="E:Speedy.Devices.IDeviceInformationProvider.Changed">
+        <member name="E:Speedy.Devices.IDeviceInformationProvider.Updated">
             <summary>
-            An event to notify when the device information has changed.
-            </summary>
-        </member>
-        <member name="E:Speedy.Devices.IDeviceInformationProvider.Refreshed">
-            <summary>
-            An event to notify when the device information current value was refreshed.
+            An event to notify when the device information was updated.
             </summary>
         </member>
         <member name="T:Speedy.Devices.DevicePlatform">
@@ -2130,16 +2154,20 @@
         <member name="P:Speedy.Devices.Location.Location.VerticalLocation">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.Location.ShouldUpdate(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.HorizontalLocation,Speedy.Devices.Location.VerticalLocation})">
+        <member name="M:Speedy.Devices.Location.Location.ShouldUpdate(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.ILocation,System.String[])">
+        <member name="M:Speedy.Devices.Location.Location.ShouldUpdate(System.Object)">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Devices.Location.ILocation">
-            <summary>
-            Represents a provider location.
-            </summary>
+        <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation},System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.Location.UpdateWith(Speedy.Devices.Location.Location,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.Location.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.ILocation`2">
             <summary>
@@ -2223,7 +2251,7 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.HasValue">
-            <inheritdoc />
+            <inheritdoc cref="P:Speedy.Devices.Location.ILocationDeviceInformation.HasValue" />
         </member>
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.Heading">
             <inheritdoc />
@@ -2256,6 +2284,9 @@
             <summary>
             Specifies if the Speed value is valid.
             </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.HasValue">
+            <inheritdoc cref="P:Speedy.Devices.IDeviceInformation.HasValue" />
         </member>
         <member name="P:Speedy.Devices.Location.ILocationDeviceInformation.Heading">
             <summary>
@@ -2329,13 +2360,31 @@
             All flags
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.LocationManager">
+        <member name="T:Speedy.Devices.Location.LocationManager`1">
             <summary>
             The manager for location.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationManager.#ctor(Speedy.IDispatcher)">
+        <member name="M:Speedy.Devices.Location.LocationManager`1.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationManager`1.ProviderName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationManager`1.Settings">
+            <summary>
+            The settings for the location manager.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationManager`1.StartListeningCommand">
+            <summary>
+            Invokes the start listening method.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationManager`1.StopListeningCommand">
+            <summary>
+            Invokes the stop listening method.
+            </summary>
         </member>
         <member name="T:Speedy.Devices.Location.LocationProvider`4">
             <summary>
@@ -5352,6 +5401,42 @@
             Updates the entity for this entity.
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
+        </member>
+        <member name="T:Speedy.ICloneable`1">
+            <summary>
+            Represents a cloneable item.
+            </summary>
+        </member>
+        <member name="M:Speedy.ICloneable`1.DeepClone(System.Nullable{System.Int32})">
+            <summary>
+            Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
+            </summary>
+            <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="M:Speedy.ICloneable`1.ShallowClone">
+            <summary>
+            Shallow clone the item. No child items are cloned.
+            </summary>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="T:Speedy.ICloneable">
+            <summary>
+            Represents a cloneable item.
+            </summary>
+        </member>
+        <member name="M:Speedy.ICloneable.DeepClone(System.Nullable{System.Int32})">
+            <summary>
+            Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
+            </summary>
+            <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
+            <returns> The cloned objects. </returns>
+        </member>
+        <member name="M:Speedy.ICloneable.ShallowClone">
+            <summary>
+            Shallow clone the item. No child items are cloned.
+            </summary>
+            <returns> The cloned objects. </returns>
         </member>
         <member name="T:Speedy.Comparer`1">
             <summary>
@@ -10405,42 +10490,6 @@
         </member>
         <member name="M:Speedy.Serialization.Converters.VersionStringConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Version,Newtonsoft.Json.JsonSerializer)">
             <inheritdoc />
-        </member>
-        <member name="T:Speedy.Serialization.ICloneable`1">
-            <summary>
-            Represents a cloneable item.
-            </summary>
-        </member>
-        <member name="M:Speedy.Serialization.ICloneable`1.DeepClone(System.Nullable{System.Int32})">
-            <summary>
-            Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
-            </summary>
-            <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
-            <returns> The cloned objects. </returns>
-        </member>
-        <member name="M:Speedy.Serialization.ICloneable`1.ShallowClone">
-            <summary>
-            Shallow clone the item. No child items are cloned.
-            </summary>
-            <returns> The cloned objects. </returns>
-        </member>
-        <member name="T:Speedy.Serialization.ICloneable">
-            <summary>
-            Represents a cloneable item.
-            </summary>
-        </member>
-        <member name="M:Speedy.Serialization.ICloneable.DeepClone(System.Nullable{System.Int32})">
-            <summary>
-            Deep clone the item with child relationships. Default level is -1 which means clone full hierarchy of children.
-            </summary>
-            <param name="maxDepth"> The max depth to clone. Defaults to null. </param>
-            <returns> The cloned objects. </returns>
-        </member>
-        <member name="M:Speedy.Serialization.ICloneable.ShallowClone">
-            <summary>
-            Shallow clone the item. No child items are cloned.
-            </summary>
-            <returns> The cloned objects. </returns>
         </member>
         <member name="T:Speedy.Serialization.JsonContractResolver">
             <summary>

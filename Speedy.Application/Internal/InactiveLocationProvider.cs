@@ -26,6 +26,13 @@ public class InactiveLocationProvider<T, THorizontalLocation, TVerticalLocation,
 
 	#endregion
 
+	#region Properties
+
+	/// <inheritdoc />
+	public override string ProviderName => "Inactive Provider";
+
+	#endregion
+
 	#region Methods
 
 	/// <inheritdoc />
@@ -35,13 +42,13 @@ public class InactiveLocationProvider<T, THorizontalLocation, TVerticalLocation,
 	}
 
 	/// <inheritdoc />
-	public override Task StartListeningAsync()
+	public override Task StartMonitoringAsync()
 	{
 		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
-	public override Task StopListeningAsync()
+	public override Task StopMonitoringAsync()
 	{
 		return Task.CompletedTask;
 	}
