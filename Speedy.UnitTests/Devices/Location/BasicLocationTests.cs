@@ -47,6 +47,30 @@ namespace Speedy.UnitTests.Devices.Location
 			}
 		}
 
+		[TestMethod]
+		public void FromLocation()
+		{
+			var location = new Speedy.Devices.Location.Location
+			{
+				HorizontalLocation =
+				{
+					Latitude = 1.234,
+					Longitude = 4.321
+				},
+				VerticalLocation =
+				{
+					AltitudeReference = AltitudeReferenceType.Ellipsoid,
+					Altitude = 123.45
+				}
+			};
+
+			BasicLocation actual = location;
+			Assert.AreEqual(1.234, actual.Latitude);
+			Assert.AreEqual(4.321, actual.Longitude);
+			Assert.AreEqual(AltitudeReferenceType.Ellipsoid, actual.AltitudeReference);
+			Assert.AreEqual(123.45, actual.Altitude);
+		}
+
 		#endregion
 	}
 }

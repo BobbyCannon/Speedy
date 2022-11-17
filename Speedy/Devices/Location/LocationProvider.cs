@@ -13,7 +13,7 @@ namespace Speedy.Devices.Location;
 /// Represents a location provider.
 /// </summary>
 public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
-	: DeviceInformationProvider<T>
+	: DeviceInformationProvider<T>, ILocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
 	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
 	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
 	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
@@ -113,6 +113,38 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 	/// Provider has written a log event.
 	/// </summary>
 	public event EventHandler<LogEventArgs> LogEventWritten;
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a location provider.
+/// </summary>
+public interface ILocationProvider<T, THorizontalLocation, TVerticalLocation, out T2>
+	: IDeviceInformationProvider<T>
+	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
+	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
+	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
+	where T2 : ILocationProviderSettings, new()
+{
+	#region Properties
+
+	/// <summary>
+	/// The settings for the location provider.
+	/// </summary>
+	public T2 LocationProviderSettings { get; }
+
+	#endregion
+
+	#region Methods
+
+	/// <summary>
+	/// Gets position async with specified parameters
+	/// </summary>
+	/// <param name="timeout"> Timeout to wait, Default Infinite </param>
+	/// <param name="cancelToken"> Cancellation token </param>
+	/// <returns> ProviderLocation </returns>
+	Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null);
 
 	#endregion
 }

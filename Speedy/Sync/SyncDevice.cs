@@ -3,6 +3,7 @@
 using System;
 using Speedy.Devices;
 using Speedy.Devices.Location;
+using Speedy.Extensions;
 
 #endregion
 
@@ -59,6 +60,18 @@ public class SyncDevice<T> : SyncModel<T>, ISyncDevice
 	/// <param name="syncOptions"> The options to be loaded. </param>
 	public void Load(SyncOptions syncOptions)
 	{
+	}
+
+	/// <inheritdoc />
+	public bool ShouldUpdate(ILocation<IHorizontalLocation, IVerticalLocation> update)
+	{
+		return true;
+	}
+
+	/// <inheritdoc />
+	public bool UpdateWith(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
+	{
+		return LocationExtensions.UpdateWith(this, update, exclusions);
 	}
 
 	#endregion

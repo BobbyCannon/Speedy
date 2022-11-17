@@ -1,7 +1,6 @@
 ﻿#region References
 
 using System;
-using System.Linq;
 using Speedy.Extensions;
 
 #endregion
@@ -13,6 +12,7 @@ namespace Speedy.Devices.Location;
 /// </summary>
 public class BasicLocation
 	: Bindable<BasicLocation>,
+		IUpdatable<ILocation<IHorizontalLocation, IVerticalLocation>>,
 		IBasicLocation, IComparable, IComparable<BasicLocation>,
 		IEquatable<BasicLocation>
 {
@@ -39,7 +39,7 @@ public class BasicLocation
 		: this(location.Latitude, location.Longitude, location.Altitude, location.AltitudeReference, dispatcher)
 	{
 	}
-
+	
 	/// <summary>
 	/// Initialize an instance of the BasicLocation.
 	/// </summary>
@@ -121,6 +121,32 @@ public class BasicLocation
 		return Equals(obj as BasicLocation);
 	}
 
+	/// <summary>
+	/// Get a IBasicLocation from a Location.
+	/// </summary>
+	/// <param name="location"> The location. </param>
+	/// <returns> The equivalent value as a basic location. </returns>
+	public static implicit operator BasicLocation(Location location)
+	{
+		var response = new BasicLocation(location.GetDispatcher());
+		var horizontalLocation = location.HorizontalLocation;
+		var verticalLocation = location.VerticalLocation;
+
+		if (horizontalLocation != null)
+		{
+			response.Latitude = horizontalLocation.Latitude;
+			response.Longitude = horizontalLocation.Longitude;
+		}
+
+		if (verticalLocation != null)
+		{
+			response.AltitudeReference = verticalLocation.AltitudeReference;
+			response.Altitude = verticalLocation.Altitude;
+		}
+
+		return response;
+	}
+
 	/// <inheritdoc />
 	public override int GetHashCode()
 	{
@@ -132,6 +158,13 @@ public class BasicLocation
 			hashCode = (hashCode * 397) ^ Longitude.GetHashCode();
 			return hashCode;
 		}
+	}
+
+	/// <inheritdoc />
+	public bool ShouldUpdate(ILocation<IHorizontalLocation, IVerticalLocation> update)
+	{
+		return ShouldUpdate(update.HorizontalLocation)
+			|| ShouldUpdate(update.VerticalLocation);
 	}
 
 	/// <inheritdoc />
@@ -153,30 +186,7 @@ public class BasicLocation
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
 	public bool UpdateWith(IBasicLocation update, params string[] exclusions)
 	{
-		// If the update is null then there is nothing to do.
-		if (update == null)
-		{
-			return false;
-		}
-
-		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
-
-		if (exclusions.Length <= 0)
-		{
-			Altitude = update.Altitude;
-			AltitudeReference = update.AltitudeReference;
-			Latitude = update.Latitude;
-			Longitude = update.Longitude;
-		}
-		else
-		{
-			this.IfThen(_ => !exclusions.Contains(nameof(Altitude)), x => x.Altitude = update.Altitude);
-			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
-			this.IfThen(_ => !exclusions.Contains(nameof(Latitude)), x => x.Latitude = update.Latitude);
-			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
-		}
-
-		return true;
+		return LocationExtensions.UpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />
@@ -188,6 +198,12 @@ public class BasicLocation
 			IBasicLocation options => UpdateWith(options, exclusions),
 			_ => base.UpdateWith(update, exclusions)
 		};
+	}
+
+	/// <inheritdoc />
+	public bool UpdateWith(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
+	{
+		return LocationExtensions.UpdateWith(this, update, exclusions);
 	}
 
 	#endregion

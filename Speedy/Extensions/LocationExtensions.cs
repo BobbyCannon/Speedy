@@ -70,7 +70,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The latitude to calculate for. </param>
 	/// <returns> Returns degrees per latitude and per longitude. </returns>
-	public static IBasicLocation CalculateDegreesPerMeter(this IBasicLocation location)
+	public static IBasicLocation CalculateDegreesPerMeter(this IMinimalHorizontalLocation location)
 	{
 		var values = location.CalculateMetersPerDegrees();
 		return new BasicLocation(1 / values.Latitude, 1 / values.Longitude);
@@ -101,7 +101,7 @@ public static class LocationExtensions
 	/// <param name="start"> The starting location. </param>
 	/// <param name="end"> The ending location. </param>
 	/// <returns> The heading. </returns>
-	public static double CalculateHeading(this IBasicLocation start, IBasicLocation end)
+	public static double CalculateHeading(this IMinimalHorizontalLocation start, IMinimalHorizontalLocation end)
 	{
 		return CalculateHeading(start.Latitude, start.Longitude, end.Latitude, end.Longitude);
 	}
@@ -124,7 +124,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to calculate for. </param>
 	/// <returns> Returns meters for both latitude and longitude. </returns>
-	public static IBasicLocation CalculateMetersPerDegrees(this IBasicLocation location)
+	public static IBasicLocation CalculateMetersPerDegrees(this IMinimalHorizontalLocation location)
 	{
 		var rLat = location.Latitude * (PI / 180.0);
 		var metersPerDegreeLatitude = 111131.77741377673104 / Pow(1 + (0.0033584313098335197297 * Cos(2 * rLat)), 3d / 2);
@@ -194,7 +194,7 @@ public static class LocationExtensions
 	/// <param name="locationStart"> The starting location. </param>
 	/// <param name="locationEnd"> The ending location. </param>
 	/// <returns> The distance in meters. </returns>
-	public static double DistanceBetween(this IBasicLocation locationStart, IBasicLocation locationEnd)
+	public static double DistanceBetween(this IMinimalHorizontalLocation locationStart, IMinimalHorizontalLocation locationEnd)
 	{
 		return DistanceBetween(locationStart.Latitude, locationStart.Longitude, locationEnd.Latitude, locationEnd.Longitude);
 	}
@@ -204,7 +204,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="locations"> The locations to get the center for. </param>
 	/// <returns> The center of the locations. </returns>
-	public static IBasicLocation GetCenter(this IEnumerable<IBasicLocation> locations)
+	public static IBasicLocation GetCenter(this IEnumerable<IMinimalHorizontalLocation> locations)
 	{
 		var totalX = 0.0;
 		var totalY = 0.0;
@@ -245,7 +245,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="locations"> The locations to get the center for. </param>
 	/// <returns> The radius of the locations. </returns>
-	public static double GetRadius(this IEnumerable<IBasicLocation> locations)
+	public static double GetRadius(this IEnumerable<IMinimalHorizontalLocation> locations)
 	{
 		var locationList = locations.ToList();
 		var center = locationList.GetCenter();
@@ -367,7 +367,18 @@ public static class LocationExtensions
 	/// <param name="locations"> The locations to get the center for. </param>
 	/// <param name="location"> The location to check for. </param>
 	/// <returns> True if the location is inside the set. </returns>
-	public static bool IsLocationInside(this IList<IBasicLocation> locations, IBasicLocation location)
+	public static bool IsLocationInside(this IList<IBasicLocation> locations, IMinimalHorizontalLocation location)
+	{
+		return IsLocationInside(locations.Cast<IMinimalHorizontalLocation>().ToList(), location.Latitude, location.Longitude);
+	}
+
+	/// <summary>
+	/// Determine if the location is inside a set of locations.
+	/// </summary>
+	/// <param name="locations"> The locations to get the center for. </param>
+	/// <param name="location"> The location to check for. </param>
+	/// <returns> True if the location is inside the set. </returns>
+	public static bool IsLocationInside(this IList<IMinimalHorizontalLocation> locations, IMinimalHorizontalLocation location)
 	{
 		return IsLocationInside(locations, location.Latitude, location.Longitude);
 	}
@@ -379,7 +390,7 @@ public static class LocationExtensions
 	/// <param name="latitude"> The latitude to check for. </param>
 	/// <param name="longitude"> The longitude to check for. </param>
 	/// <returns> True if the location is inside the set. </returns>
-	public static bool IsLocationInside(this IList<IBasicLocation> locations, double latitude, double longitude)
+	public static bool IsLocationInside(this IList<IMinimalHorizontalLocation> locations, double latitude, double longitude)
 	{
 		if (locations == null)
 		{
@@ -411,7 +422,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate </param>
 	/// <returns> </returns>
-	public static bool IsValidLocation(this IBasicLocation location)
+	public static bool IsValidLocation(this IMinimalHorizontalLocation location)
 	{
 		return location is { Latitude: >= -90 and <= 90, Longitude: >= -180 and <= 180 }
 			&& !double.IsInfinity(location.Latitude)
@@ -543,6 +554,90 @@ public static class LocationExtensions
 		location.Longitude = update.Longitude;
 		location.Accuracy = update.Accuracy;
 		location.AccuracyReference = update.AccuracyReference;
+	}
+
+	/// <summary>
+	/// Update the BasicLocation with an update.
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional set of properties to exclude. </param>
+	public static bool UpdateWith(this IBasicLocation location, IBasicLocation update, params string[] exclusions)
+	{
+		return UpdateWith(location, (IMinimalHorizontalLocation) update, exclusions)
+			|| UpdateWith(location, (IMinimalVerticalLocation) update, exclusions);
+	}
+
+	/// <summary>
+	/// Update the BasicLocation with an update.
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional set of properties to exclude. </param>
+	public static bool UpdateWith(this IBasicLocation location, ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
+	{
+		return UpdateWith(location, update.HorizontalLocation, exclusions)
+			|| UpdateWith(location, update.VerticalLocation, exclusions);
+	}
+
+	/// <summary>
+	/// Update the BasicLocation with an update.
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional set of properties to exclude. </param>
+	public static bool UpdateWith(this IBasicLocation location, IMinimalHorizontalLocation update, params string[] exclusions)
+	{
+		// If the update is null then there is nothing to do.
+		if (update == null)
+		{
+			return false;
+		}
+
+		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+		if (exclusions.Length <= 0)
+		{
+			location.Latitude = update.Latitude;
+			location.Longitude = update.Longitude;
+		}
+		else
+		{
+			location.IfThen(_ => !exclusions.Contains(nameof(IBasicLocation.Latitude)), x => x.Latitude = update.Latitude);
+			location.IfThen(_ => !exclusions.Contains(nameof(IBasicLocation.Longitude)), x => x.Longitude = update.Longitude);
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Update the BasicLocation with an update.
+	/// </summary>
+	/// <param name="location"> The location to update. </param>
+	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional set of properties to exclude. </param>
+	public static bool UpdateWith(this IBasicLocation location, IMinimalVerticalLocation update, params string[] exclusions)
+	{
+		// If the update is null then there is nothing to do.
+		if (update == null)
+		{
+			return false;
+		}
+
+		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+		if (exclusions.Length <= 0)
+		{
+			location.Altitude = update.Altitude;
+			location.AltitudeReference = update.AltitudeReference;
+		}
+		else
+		{
+			location.IfThen(_ => !exclusions.Contains(nameof(IBasicLocation.Altitude)), x => x.Altitude = update.Altitude);
+			location.IfThen(_ => !exclusions.Contains(nameof(IBasicLocation.AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
+		}
+
+		return true;
 	}
 
 	private static bool InternalGreaterThan(this IMinimalVerticalLocation left, IMinimalVerticalLocation right, bool inclusive)

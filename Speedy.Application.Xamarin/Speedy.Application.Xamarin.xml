@@ -102,17 +102,6 @@
             Xamarin platform specific implementations.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Xamarin.XamarinPlatform.MainActivity">
-            <summary>
-            The main activity for Android platform.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Xamarin.XamarinPlatform.Initialize(Android.App.Activity)">
-            <summary>
-            Initialize the xamarin platform for Android.
-            </summary>
-            <param name="activity"> The activity. </param>
-        </member>
         <member name="T:Speedy.Application.Xamarin.XamarinBarometerLocationProvider`1">
             <summary>
             Location provider for the Xamarin Barometer.
@@ -203,12 +192,12 @@
         </member>
         <member name="T:Speedy.Application.Xamarin.LocationProviderImplementation`4">
             <summary>
-            Implementation for Feature
+            Implementation for LocationProvider
             </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.#ctor(Speedy.IDispatcher)">
             <summary>
-            Default constructor
+            Constructor for implementation
             </summary>
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.IsLocationAvailable">
@@ -220,16 +209,6 @@
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.ProviderName">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.ProviderSources">
-            <summary>
-            Gets all providers from the Location Manager.
-            </summary>
-        </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.Manager">
-            <summary>
-            The android location manager.
-            </summary>
-        </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <summary>
             Gets position async with specified parameters
@@ -237,20 +216,28 @@
             <param name="timeout"> Timeout to wait, Default Infinite </param>
             <param name="cancelToken"> Cancellation token </param>
             <returns> ProviderLocation </returns>
-            <remarks>
-            bug: we must work on thread safety of this method.
-            Touching "Manager", which is global, can be very dangerous.
-            </remarks>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.StartMonitoringAsync">
-            <inheritdoc />
+            <summary>
+            Start listening for changes
+            </summary>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.StopMonitoringAsync">
+            <summary>
+            Stop listening
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.OnLocationProviderError(Speedy.Devices.Location.LocationProviderError)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Xamarin.PlatformExtensions">
             <summary>
-            Extensions for the Android platform.
+            iOS Platform extensions
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.PlatformExtensions.ToDateTime(Foundation.NSDate)">
+            <summary>
+            Converts NSDate to DateTime.
             </summary>
         </member>
     </members>

@@ -2058,7 +2058,17 @@
         <member name="M:Speedy.Devices.Location.BasicLocation.Equals(System.Object)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Devices.Location.BasicLocation.op_Implicit(Speedy.Devices.Location.Location)~Speedy.Devices.Location.BasicLocation">
+            <summary>
+            Get a IBasicLocation from a Location.
+            </summary>
+            <param name="location"> The location. </param>
+            <returns> The equivalent value as a basic location. </returns>
+        </member>
         <member name="M:Speedy.Devices.Location.BasicLocation.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.BasicLocation.ShouldUpdate(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.BasicLocation.ToString">
@@ -2075,6 +2085,9 @@
             <param name="exclusions"> An optional set of properties to exclude. </param>
         </member>
         <member name="M:Speedy.Devices.Location.BasicLocation.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.BasicLocation.UpdateWith(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation},System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.IBasicLocation">
@@ -2505,6 +2518,24 @@
             <summary>
             Provider has written a log event.
             </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.ILocationProvider`4">
+            <summary>
+            Represents a location provider.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.ILocationProvider`4.LocationProviderSettings">
+            <summary>
+            The settings for the location provider.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.ILocationProvider`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets position async with specified parameters
+            </summary>
+            <param name="timeout"> Timeout to wait, Default Infinite </param>
+            <param name="cancelToken"> Cancellation token </param>
+            <returns> ProviderLocation </returns>
         </member>
         <member name="T:Speedy.Devices.Location.LocationProviderError">
             <summary>
@@ -4203,7 +4234,7 @@
             <param name="latitude"> The latitude to calculate for. </param>
             <returns> Returns degrees per latitude and per longitude. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.CalculateDegreesPerMeter(Speedy.Devices.Location.IBasicLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.CalculateDegreesPerMeter(Speedy.Devices.Location.IMinimalHorizontalLocation)">
             <summary>
             Calculate the degrees per meter.
             </summary>
@@ -4220,7 +4251,7 @@
             <param name="longitudeEnd"> Longitude end. </param>
             <returns> The heading. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.CalculateHeading(Speedy.Devices.Location.IBasicLocation,Speedy.Devices.Location.IBasicLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.CalculateHeading(Speedy.Devices.Location.IMinimalHorizontalLocation,Speedy.Devices.Location.IMinimalHorizontalLocation)">
             <summary>
             Calculate the heading from one location to another.
             </summary>
@@ -4235,7 +4266,7 @@
             <param name="latitude"> The location to calculate for. </param>
             <returns> Returns meters for both latitude and longitude. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.CalculateMetersPerDegrees(Speedy.Devices.Location.IBasicLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.CalculateMetersPerDegrees(Speedy.Devices.Location.IMinimalHorizontalLocation)">
             <summary>
             Calculate the meters per degree.
             </summary>
@@ -4264,7 +4295,7 @@
             <param name="altitudeEnd"> Altitude end. </param>
             <returns> The distance in meters. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(Speedy.Devices.Location.IBasicLocation,Speedy.Devices.Location.IBasicLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(Speedy.Devices.Location.IMinimalHorizontalLocation,Speedy.Devices.Location.IMinimalHorizontalLocation)">
             <summary>
             Calculates the distance between two locations in meters.
             </summary>
@@ -4272,7 +4303,7 @@
             <param name="locationEnd"> The ending location. </param>
             <returns> The distance in meters. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.GetCenter(System.Collections.Generic.IEnumerable{Speedy.Devices.Location.IBasicLocation})">
+        <member name="M:Speedy.Extensions.LocationExtensions.GetCenter(System.Collections.Generic.IEnumerable{Speedy.Devices.Location.IMinimalHorizontalLocation})">
             <summary>
             Gets the center of a set of locations.
             </summary>
@@ -4287,7 +4318,7 @@
             <param name="relativeTo"> A relative location to base non-ellipsoid vertical locations to. </param>
             <returns> The final ellipsoid altitude or best guess. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.GetRadius(System.Collections.Generic.IEnumerable{Speedy.Devices.Location.IBasicLocation})">
+        <member name="M:Speedy.Extensions.LocationExtensions.GetRadius(System.Collections.Generic.IEnumerable{Speedy.Devices.Location.IMinimalHorizontalLocation})">
             <summary>
             Gets the radius of a set of locations.
             </summary>
@@ -4361,7 +4392,7 @@
             <param name="right"> The right location. </param>
             <returns> True if the location is less than or equal to the provided location. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsLocationInside(System.Collections.Generic.IList{Speedy.Devices.Location.IBasicLocation},Speedy.Devices.Location.IBasicLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.IsLocationInside(System.Collections.Generic.IList{Speedy.Devices.Location.IBasicLocation},Speedy.Devices.Location.IMinimalHorizontalLocation)">
             <summary>
             Determine if the location is inside a set of locations.
             </summary>
@@ -4369,7 +4400,15 @@
             <param name="location"> The location to check for. </param>
             <returns> True if the location is inside the set. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsLocationInside(System.Collections.Generic.IList{Speedy.Devices.Location.IBasicLocation},System.Double,System.Double)">
+        <member name="M:Speedy.Extensions.LocationExtensions.IsLocationInside(System.Collections.Generic.IList{Speedy.Devices.Location.IMinimalHorizontalLocation},Speedy.Devices.Location.IMinimalHorizontalLocation)">
+            <summary>
+            Determine if the location is inside a set of locations.
+            </summary>
+            <param name="locations"> The locations to get the center for. </param>
+            <param name="location"> The location to check for. </param>
+            <returns> True if the location is inside the set. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.IsLocationInside(System.Collections.Generic.IList{Speedy.Devices.Location.IMinimalHorizontalLocation},System.Double,System.Double)">
             <summary>
             Determine if the location is inside a set of locations.
             </summary>
@@ -4378,7 +4417,7 @@
             <param name="longitude"> The longitude to check for. </param>
             <returns> True if the location is inside the set. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.IsValidLocation(Speedy.Devices.Location.IBasicLocation)">
+        <member name="M:Speedy.Extensions.LocationExtensions.IsValidLocation(Speedy.Devices.Location.IMinimalHorizontalLocation)">
             <summary>
             Return true if the location is valid.
             Note: we consider invalid a location with both Latitude 0 and Longitude 0.
@@ -4450,6 +4489,38 @@
             </summary>
             <param name="location"> The location to update. </param>
             <param name="update"> The update with new values. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateWith(Speedy.Devices.Location.IBasicLocation,Speedy.Devices.Location.IBasicLocation,System.String[])">
+            <summary>
+            Update the BasicLocation with an update.
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateWith(Speedy.Devices.Location.IBasicLocation,Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation},System.String[])">
+            <summary>
+            Update the BasicLocation with an update.
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateWith(Speedy.Devices.Location.IBasicLocation,Speedy.Devices.Location.IMinimalHorizontalLocation,System.String[])">
+            <summary>
+            Update the BasicLocation with an update.
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.UpdateWith(Speedy.Devices.Location.IBasicLocation,Speedy.Devices.Location.IMinimalVerticalLocation,System.String[])">
+            <summary>
+            Update the BasicLocation with an update.
+            </summary>
+            <param name="location"> The location to update. </param>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -13381,6 +13452,12 @@
             Load the sync options.
             </summary>
             <param name="syncOptions"> The options to be loaded. </param>
+        </member>
+        <member name="M:Speedy.Sync.SyncDevice`1.ShouldUpdate(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncDevice`1.UpdateWith(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation},System.String[])">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Sync.ISyncDevice">
             <summary>
