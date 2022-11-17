@@ -52,7 +52,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			_manager.UpdatedLocation += OnUpdatedLocation;
 		}
 
-		CurrentValue.ProviderName = "Xamarin iOS";
+		CurrentValue.HorizontalLocation.ProviderName = ProviderName;
+		CurrentValue.VerticalLocation.ProviderName = ProviderName;
 	}
 
 	#endregion
@@ -66,7 +67,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	public bool IsLocationEnabled => CLLocationManager.LocationServicesEnabled;
 
 	/// <inheritdoc />
-	public override string ProviderName => "Xamarin iOS";
+	public sealed override string ProviderName => "Xamarin iOS";
 
 	#endregion
 

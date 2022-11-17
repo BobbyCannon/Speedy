@@ -17,6 +17,7 @@ using Speedy.Logging;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
+
 #if GOOGLEPLAY
 using Android.Gms.Common;
 using Android.Gms.Location;
@@ -97,6 +98,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 						Enabled = defaultEnabled.Contains(x)
 					})
 					.ToDictionary(x => x.Provider, x => x);
+
 				#if GOOGLEPLAY
 				var t = new LocationProviderSource { Enabled = true, Provider = FusedGooglePlusKey };
 				_providerSources.Add(t.Provider, t);
@@ -163,6 +165,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			}
 
 			_singleListener = new GeolocationSingleListener<TLocation, THorizontal, TVertical>(Dispatcher,
+				ProviderName,
 				Manager,
 				LocationProviderSettings.DesiredAccuracy,
 				timeoutMilliseconds,
@@ -274,7 +277,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 		#endif
 
-		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(Dispatcher, Manager, sources);
+		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(Dispatcher, ProviderName, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
 		_listener.PositionChanged += ListenerPositionChanged;
 		_listener.PositionError += ListenerPositionError;

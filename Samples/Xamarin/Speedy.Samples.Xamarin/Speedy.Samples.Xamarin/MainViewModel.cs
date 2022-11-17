@@ -169,7 +169,11 @@ public class MainViewModel : ViewModel
 			return;
 		}
 
-		var currentLocation = Locations.FirstOrDefault(x => x.SourceName == location.SourceName);
+		var currentLocation = Locations.FirstOrDefault(x =>
+			x.ProviderName == location.ProviderName
+			&& x.SourceName == location.SourceName
+		);
+
 		if (currentLocation == null)
 		{
 			Locations.Add(location);
@@ -180,7 +184,10 @@ public class MainViewModel : ViewModel
 			currentLocation.UpdateWith(location);
 		}
 
-		var history = LocationHistory.GetOrAdd(location.SourceName, _ => new BaseObservableCollection<ILocationDeviceInformation>());
+		var history = LocationHistory.GetOrAdd(location.ProviderName + location.SourceName,
+			_ => new BaseObservableCollection<ILocationDeviceInformation>()
+		);
+
 		history.Add(currentLocation);
 	}
 

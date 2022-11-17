@@ -173,20 +173,11 @@ public abstract class DeviceInformationManager<T>
 			return;
 		}
 
-		// Just a cast to get to object
-		if (CurrentValue is not IUpdatable objectValue)
-		{
-			return;
-		}
+		// Refreshes the BestValue member.
+		Refresh(update);
 
-		// Try to refresh the Manager's CurrentValue
-		if (!provider.Refresh(ref objectValue, update))
-		{
-			// Current Value was not refresh so do not notify
-			return;
-		}
-
-		// Notify of the current value with deep clone
+		// Notify of the current value change.
+		CurrentValue.UpdateWith(update);
 		OnUpdated(CurrentValue);
 	}
 
@@ -194,6 +185,7 @@ public abstract class DeviceInformationManager<T>
 
 	#region Events
 
+	/// <inheritdoc />
 	public event EventHandler<IUpdatable> Updated;
 
 	#endregion

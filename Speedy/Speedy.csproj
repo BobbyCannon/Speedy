@@ -26,7 +26,8 @@
 		<DocumentationFile>Speedy.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC3</Version>
+		<Version>11.0.0-RC4</Version>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

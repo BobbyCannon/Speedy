@@ -32,9 +32,6 @@ public class Location : CloneableBindable<Location, ILocation<IHorizontalLocatio
 	public IHorizontalLocation HorizontalLocation { get; set; }
 
 	/// <inheritdoc />
-	public string ProviderName { get; set; }
-
-	/// <inheritdoc />
 	public IVerticalLocation VerticalLocation { get; set; }
 
 	#endregion
@@ -112,11 +109,6 @@ public interface ILocation<THorizontalLocation, TVerticalLocation>
 	/// The horizontal location.
 	/// </summary>
 	THorizontalLocation HorizontalLocation { get; set; }
-
-	/// <summary>
-	/// The name of the provider that is the source of this location.
-	/// </summary>
-	string ProviderName { get; set; }
 
 	/// <summary>
 	/// The vertical location.

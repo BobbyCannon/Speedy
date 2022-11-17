@@ -8,7 +8,6 @@ using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Services.Maps;
 using Speedy.Devices.Location;
-using Speedy.Extensions;
 
 #endregion
 
@@ -40,7 +39,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	{
 		_locator = new Geolocator();
 
-		CurrentValue.ProviderName = "Xamarin Windows";
+		CurrentValue.HorizontalLocation.ProviderName = "Xamarin Windows";
+		CurrentValue.VerticalLocation.ProviderName = "Xamarin Windows";
 	}
 
 	#endregion

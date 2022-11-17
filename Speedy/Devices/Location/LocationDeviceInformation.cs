@@ -64,6 +64,9 @@ public abstract class LocationDeviceInformation
 	public double Heading { get; set; }
 
 	/// <inheritdoc />
+	public string ProviderName { get; set; }
+
+	/// <inheritdoc />
 	public string SourceName { get; set; }
 
 	/// <inheritdoc />

@@ -39,7 +39,7 @@
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC3</Version>
+		<Version>11.0.0-RC4</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />
@@ -72,8 +72,8 @@
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <MauiXaml Update="Themes\Generic.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="Themes\Generic.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 </Project>

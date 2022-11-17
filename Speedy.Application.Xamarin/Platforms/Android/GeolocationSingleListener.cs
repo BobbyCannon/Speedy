@@ -32,6 +32,7 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 	private readonly TaskCompletionSource<T> _completionSource;
 	private readonly float _desiredAccuracy;
 	private readonly IDispatcher _dispatcher;
+	private readonly string _providerName;
 	private readonly Action _finishedCallback;
 	private readonly object _locationSync;
 	private readonly Timer _timer;
@@ -40,11 +41,12 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 
 	#region Constructors
 
-	public GeolocationSingleListener(IDispatcher dispatcher, LocationManager manager, float desiredAccuracy, int timeout, IEnumerable<LocationProviderSource> activeSources, Action finishedCallback)
+	public GeolocationSingleListener(IDispatcher dispatcher, string providerName, LocationManager manager, float desiredAccuracy, int timeout, IEnumerable<LocationProviderSource> activeSources, Action finishedCallback)
 	{
 		_activeSources = new HashSet<LocationProviderSource>(activeSources);
 		_completionSource = new TaskCompletionSource<T>();
 		_dispatcher = dispatcher;
+		_providerName = providerName;
 		_desiredAccuracy = desiredAccuracy;
 		_finishedCallback = finishedCallback;
 		_locationSync = new object();
@@ -149,7 +151,7 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 	private void Finish(Location location)
 	{
 		_finishedCallback?.Invoke();
-		_completionSource.TrySetResult(location.ToPosition<T, THorizontal, TVertical>());
+		_completionSource.TrySetResult(location.ToPosition<T, THorizontal, TVertical>(_providerName));
 	}
 
 	private void TimesUp(object state)

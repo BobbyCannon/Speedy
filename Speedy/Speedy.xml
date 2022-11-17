@@ -1701,6 +1701,9 @@
             </summary>
             <param name="e"> The new value. </param>
         </member>
+        <member name="E:Speedy.Devices.DeviceInformationManager`1.Updated">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Devices.DeviceInformationProvider`1">
             <summary>
             Represents a provider of device information.
@@ -1938,6 +1941,11 @@
             Ex. VerticalLocation will have Altitude, where HorizontalLocation will have Latitude, Longitude.
             </remarks>
         </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.ProviderName">
+            <summary>
+            The name of the provider that is the source of this information.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.IDeviceInformation.SourceName">
             <summary>
             The name of the source of the information. Ex. Hardware, Software, Simulated, Wifi, GPS, etc
@@ -2074,6 +2082,56 @@
             Represents a minimal location (lat, long, alt, alt ref).
             </summary>
         </member>
+        <member name="T:Speedy.Devices.Location.Converter">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.Converter.ConvertHeight(System.Double,System.Double,System.Double,Speedy.Devices.Location.ConvertFlag)">
+            <summary>
+            Convert a location from one type to another. Ex. Geoid > Ellipsoid
+            </summary>
+            <param name="latitude"> The latitude. </param>
+            <param name="longitude"> The longitude. </param>
+            <param name="height"> The height. </param>
+            <param name="flag"> The type of conversion. </param>
+            <returns> The converted height. </returns>
+        </member>
+        <member name="M:Speedy.Devices.Location.Converter.GetHeight(System.Double,System.Double)">
+            <summary>
+            Get the geoid height
+            </summary>
+            <param name="lat"> latitude in degree </param>
+            <param name="lng"> longitude in degree </param>
+            <returns> geoid height </returns>
+        </member>
+        <member name="T:Speedy.Devices.Location.ConvertFlag">
+            <summary>
+            Flags indicating conversions between heights above the geoid and heights above the ellipsoid.
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.ConvertFlag.EllipsoidToGeoid">
+            <summary>
+            The multiplier for converting from heights above the geoid to heights above the ellipsoid.
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.ConvertFlag.None">
+            <summary>
+            No conversion.
+            </summary>
+        </member>
+        <member name="F:Speedy.Devices.Location.ConvertFlag.GeoidToEllipsoid">
+            <summary>
+            The multiplier for converting from heights above the ellipsoid to heights above the geoid.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.GeoidEgm96Grid.ReadGrid(System.Int32[])">
+            <summary>
+            Read the specified grid value.
+            </summary>
+            <param name="position"> The grid position. </param>
+            <returns> The grid for the position. </returns>
+        </member>
         <member name="T:Speedy.Devices.Location.HorizontalLocation">
             <summary>
             Represents a horizontal location.
@@ -2148,9 +2206,6 @@
         <member name="P:Speedy.Devices.Location.Location.HorizontalLocation">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.Location.ProviderName">
-            <inheritdoc />
-        </member>
         <member name="P:Speedy.Devices.Location.Location.VerticalLocation">
             <inheritdoc />
         </member>
@@ -2177,11 +2232,6 @@
         <member name="P:Speedy.Devices.Location.ILocation`2.HorizontalLocation">
             <summary>
             The horizontal location.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.Location.ILocation`2.ProviderName">
-            <summary>
-            The name of the provider that is the source of this location.
             </summary>
         </member>
         <member name="P:Speedy.Devices.Location.ILocation`2.VerticalLocation">
@@ -2254,6 +2304,9 @@
             <inheritdoc cref="P:Speedy.Devices.Location.ILocationDeviceInformation.HasValue" />
         </member>
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.Heading">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.ProviderName">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.SourceName">

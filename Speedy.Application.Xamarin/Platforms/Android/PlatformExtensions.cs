@@ -102,7 +102,7 @@ public static class PlatformExtensions
 		return provider1.Equals(provider2);
 	}
 
-	internal static T ToPosition<T, THorizontal, TVertical>(this Location location)
+	internal static T ToPosition<T, THorizontal, TVertical>(this Location location, string providerName)
 		where T : class, ILocation<THorizontal, TVertical>, new()
 		where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
 		where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
@@ -117,14 +117,15 @@ public static class PlatformExtensions
 				HasHeading = location.HasBearing,
 				HasSpeed = location.HasSpeed,
 				HasValue = true,
+				ProviderName = providerName,
 				SourceName = sourceName,
 				StatusTime = sourceTime,
 				Longitude = location.Longitude,
 				Latitude = location.Latitude
 			},
-			ProviderName = "Xamarin Android",
 			VerticalLocation =
 			{
+				ProviderName = providerName,
 				SourceName = sourceName,
 				StatusTime = sourceTime
 			}

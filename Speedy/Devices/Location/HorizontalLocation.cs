@@ -84,6 +84,7 @@ public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
 			Heading = update.Heading;
 			Latitude = update.Latitude;
 			Longitude = update.Longitude;
+			ProviderName = update.ProviderName;
 			SourceName = update.SourceName;
 			Speed = update.Speed;
 			StatusTime = update.StatusTime;
@@ -99,6 +100,7 @@ public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
 			this.IfThen(_ => !exclusions.Contains(nameof(Heading)), x => x.Heading = update.Heading);
 			this.IfThen(_ => !exclusions.Contains(nameof(Latitude)), x => x.Latitude = update.Latitude);
 			this.IfThen(_ => !exclusions.Contains(nameof(Longitude)), x => x.Longitude = update.Longitude);
+			this.IfThen(_ => !exclusions.Contains(nameof(ProviderName)), x => x.ProviderName = update.ProviderName);
 			this.IfThen(_ => !exclusions.Contains(nameof(SourceName)), x => x.SourceName = update.SourceName);
 			this.IfThen(_ => !exclusions.Contains(nameof(Speed)), x => x.Speed = update.Speed);
 			this.IfThen(_ => !exclusions.Contains(nameof(StatusTime)), x => x.StatusTime = update.StatusTime);

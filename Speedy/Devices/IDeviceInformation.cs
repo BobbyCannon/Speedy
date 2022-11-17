@@ -2,7 +2,6 @@
 
 using System;
 using Speedy.Devices.Location;
-using Speedy.Storage;
 
 #endregion
 
@@ -40,9 +39,14 @@ public interface IDeviceInformation : IBindable
 	bool HasValue { get; }
 
 	/// <summary>
+	/// The name of the provider that is the source of this information.
+	/// </summary>
+	string ProviderName { get; set; }
+
+	/// <summary>
 	/// The name of the source of the information. Ex. Hardware, Software, Simulated, Wifi, GPS, etc
 	/// </summary>
-	string SourceName { get; set;}
+	string SourceName { get; set; }
 
 	/// <summary>
 	/// The original time of the information was captured.

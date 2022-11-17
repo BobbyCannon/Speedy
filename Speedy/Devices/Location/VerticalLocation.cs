@@ -100,6 +100,7 @@ public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 			HasSpeed = update.HasSpeed;
 			HasValue = update.HasValue;
 			Heading = update.Heading;
+			ProviderName = update.ProviderName;
 			SourceName = update.SourceName;
 			Speed = update.Speed;
 			StatusTime = update.StatusTime;
@@ -115,6 +116,7 @@ public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 			this.IfThen(_ => !exclusions.Contains(nameof(HasSpeed)), x => x.HasSpeed = update.HasSpeed);
 			this.IfThen(_ => !exclusions.Contains(nameof(HasValue)), x => x.HasValue = update.HasValue);
 			this.IfThen(_ => !exclusions.Contains(nameof(Heading)), x => x.Heading = update.Heading);
+			this.IfThen(_ => !exclusions.Contains(nameof(ProviderName)), x => x.ProviderName = update.ProviderName);
 			this.IfThen(_ => !exclusions.Contains(nameof(SourceName)), x => x.SourceName = update.SourceName);
 			this.IfThen(_ => !exclusions.Contains(nameof(Speed)), x => x.Speed = update.Speed);
 			this.IfThen(_ => !exclusions.Contains(nameof(StatusTime)), x => x.StatusTime = update.StatusTime);

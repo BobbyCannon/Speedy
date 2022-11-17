@@ -26,7 +26,8 @@ public class XamarinBarometerLocationProvider<T>
 	/// <param name="dispatcher"> </param>
 	public XamarinBarometerLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		CurrentValue.SourceName = ProviderName;
+		CurrentValue.ProviderName = ProviderName;
+		CurrentValue.SourceName = "Barometer";
 	}
 
 	#endregion
@@ -39,7 +40,7 @@ public class XamarinBarometerLocationProvider<T>
 	public double Pressure { get; set; }
 
 	/// <inheritdoc />
-	public sealed override string ProviderName => "Xamarin Barometer";
+	public sealed override string ProviderName => "Xamarin";
 
 	#endregion
 
@@ -74,7 +75,7 @@ public class XamarinBarometerLocationProvider<T>
 		Pressure = e.Reading.PressureInHectopascals;
 		var altitudeAboveSeaLevel = Math.Round(44307.69 * (1.0 - Math.Pow(Pressure / 1013.25, 0.190284)) * 10.0) / 10.0;
 		CurrentValue.Altitude = altitudeAboveSeaLevel;
-		CurrentValue.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+		CurrentValue.AltitudeReference = AltitudeReferenceType.Geoid;
 		CurrentValue.StatusTime = TimeService.UtcNow;
 		OnUpdated(CurrentValue);
 	}

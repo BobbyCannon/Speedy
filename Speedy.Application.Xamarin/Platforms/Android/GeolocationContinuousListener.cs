@@ -30,17 +30,19 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 
 	private readonly HashSet<LocationProviderSource> _activeSources;
 	private readonly IDispatcher _dispatcher;
+	private readonly string _providerName;
 	private Location _lastLocation;
 	
 	#endregion
 
 	#region Constructors
 
-	public GeolocationContinuousListener(IDispatcher dispatcher, LocationManager manager, IEnumerable<LocationProviderSource> providerSources)
+	public GeolocationContinuousListener(IDispatcher dispatcher, string providerName, LocationManager manager, IEnumerable<LocationProviderSource> providerSources)
 	{
 		_activeSources = new HashSet<LocationProviderSource>();
 		_dispatcher = dispatcher;
-		
+		_providerName = providerName;
+
 		foreach (var source in providerSources)
 		{
 			if (manager.IsProviderEnabled(source.Provider))
@@ -66,7 +68,7 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 		var previous = Interlocked.Exchange(ref _lastLocation, location);
 		previous?.Dispose();
 
-		PositionChanged?.Invoke(this, location.ToPosition<T, THorizontal, TVertical>());
+		PositionChanged?.Invoke(this, location.ToPosition<T, THorizontal, TVertical>(_providerName));
 	}
 
 	public void OnProviderDisabled(string provider)
