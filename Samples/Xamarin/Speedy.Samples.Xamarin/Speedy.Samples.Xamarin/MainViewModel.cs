@@ -13,6 +13,7 @@ using Speedy.Application.Xamarin;
 using Speedy.Collections;
 using Speedy.Commands;
 using Speedy.Devices.Location;
+using Speedy.Extensions;
 using Speedy.Logging;
 using Xamarin.Essentials;
 using Location = Speedy.Devices.Location.Location;
@@ -169,11 +170,7 @@ public class MainViewModel : ViewModel
 			return;
 		}
 
-		var currentLocation = Locations.FirstOrDefault(x =>
-			x.ProviderName == location.ProviderName
-			&& x.SourceName == location.SourceName
-		);
-
+		var currentLocation = Locations.FirstOrDefault(x => x.CalculateKey() == location.CalculateKey());
 		if (currentLocation == null)
 		{
 			Locations.Add(location);
@@ -181,10 +178,17 @@ public class MainViewModel : ViewModel
 		}
 		else
 		{
+			if (currentLocation.StatusTime == location.StatusTime)
+			{
+				// this is not an update
+				return;
+			}
+
 			currentLocation.UpdateWith(location);
 		}
 
-		var history = LocationHistory.GetOrAdd(location.ProviderName + location.SourceName,
+		var key = location.CalculateKey();
+		var history = LocationHistory.GetOrAdd(key,
 			_ => new BaseObservableCollection<ILocationDeviceInformation>()
 		);
 

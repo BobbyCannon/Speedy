@@ -18,7 +18,7 @@ public class LocationStateComparerTests : SpeedyUnitTest
 	{
 		var location1 = new VerticalLocation();
 		var location2 = new VerticalLocation();
-		var comparer = new LocationComparer<VerticalLocation>();
+		var comparer = new LocationDeviceInformationComparer<VerticalLocation>();
 		AreEqual(location1, location2);
 
 		location2.Altitude = 123.45;

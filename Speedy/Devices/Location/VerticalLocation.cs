@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Linq;
 using Speedy.Extensions;
 
@@ -12,6 +13,15 @@ namespace Speedy.Devices.Location;
 /// </summary>
 public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 {
+	#region Constants
+
+	/// <summary>
+	/// The information ID for vertical location.
+	/// </summary>
+	public const string VerticalLocationInformationId = "2AB3B4A0-A387-409A-BBA3-B74F75972463";
+
+	#endregion
+
 	#region Constructors
 
 	/// <inheritdoc />
@@ -48,7 +58,7 @@ public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 	public AltitudeReferenceType AltitudeReference { get; set; }
 
 	/// <inheritdoc />
-	public override bool HasValue => this.HasSupportedAltitude();
+	public override Guid InformationId => Guid.Parse(VerticalLocationInformationId);
 
 	#endregion
 
@@ -96,9 +106,10 @@ public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 			Altitude = update.Altitude;
 			AltitudeReference = update.AltitudeReference;
 			Flags = update.Flags;
-			HasHeading = update.HasHeading;
-			HasSpeed = update.HasSpeed;
-			HasValue = update.HasValue;
+			// These values set by flags
+			//HasHeading = update.HasHeading;
+			//HasSpeed = update.HasSpeed;
+			//HasValue = update.HasValue;
 			Heading = update.Heading;
 			ProviderName = update.ProviderName;
 			SourceName = update.SourceName;
@@ -112,9 +123,10 @@ public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 			this.IfThen(_ => !exclusions.Contains(nameof(Altitude)), x => x.Altitude = update.Altitude);
 			this.IfThen(_ => !exclusions.Contains(nameof(AltitudeReference)), x => x.AltitudeReference = update.AltitudeReference);
 			this.IfThen(_ => !exclusions.Contains(nameof(Flags)), x => x.Flags = update.Flags);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasHeading)), x => x.HasHeading = update.HasHeading);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasSpeed)), x => x.HasSpeed = update.HasSpeed);
-			this.IfThen(_ => !exclusions.Contains(nameof(HasValue)), x => x.HasValue = update.HasValue);
+			// These are handled by flags
+			//this.IfThen(_ => !exclusions.Contains(nameof(HasHeading)), x => x.HasHeading = update.HasHeading);
+			//this.IfThen(_ => !exclusions.Contains(nameof(HasSpeed)), x => x.HasSpeed = update.HasSpeed);
+			//this.IfThen(_ => !exclusions.Contains(nameof(HasValue)), x => x.HasValue = update.HasValue);
 			this.IfThen(_ => !exclusions.Contains(nameof(Heading)), x => x.Heading = update.Heading);
 			this.IfThen(_ => !exclusions.Contains(nameof(ProviderName)), x => x.ProviderName = update.ProviderName);
 			this.IfThen(_ => !exclusions.Contains(nameof(SourceName)), x => x.SourceName = update.SourceName);

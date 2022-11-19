@@ -105,7 +105,7 @@ public class CodeGeneratorTests
 	[TestMethod]
 	public void GenerateUpdateWith()
 	{
-		var type = typeof(IDeviceInformation);
+		var type = typeof(ILocationDeviceInformation);
 		var builder = new StringBuilder();
 		var properties = type
 			//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
@@ -119,10 +119,10 @@ public class CodeGeneratorTests
 /// </summary>
 /// <param name=""update""> The update to be applied. </param>
 /// <param name=""exclusions""> An optional set of properties to exclude. </param>
-public bool UpdateWith({type.Name} update, params string[] exclusions)
+public override bool UpdateWith({type.Name} update, params string[] exclusions)
 {{");
 		builder.AppendLine("\t// If the update is null then there is nothing to do.");
-		builder.AppendLine("\tif (update == null)\r\n\t{\r\n\t\treturn;\r\n\t}\r\n");
+		builder.AppendLine("\tif (update == null)\r\n\t{\r\n\t\treturn false;\r\n\t}\r\n");
 		builder.AppendLine("\t// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******");
 		builder.AppendLine();
 		builder.AppendLine("\tif (exclusions.Length <= 0)");
@@ -145,7 +145,15 @@ public bool UpdateWith({type.Name} update, params string[] exclusions)
 		builder.AppendLine("\t}\r\n");
 		builder.AppendLine("\treturn true;");
 		builder.AppendLine("}\r\n");
-		builder.AppendLine($"/// <inheritdoc />\r\npublic override void UpdateWith(object update, params string[] exclusions)\r\n{{\r\n\tswitch (update)\r\n\t{{\r\n\t\tcase {type.Name} options:\r\n\t\t{{\r\n\t\t\tUpdateWith(options, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t\tdefault:\r\n\t\t{{\r\n\t\t\tbase.UpdateWith(update, exclusions);\r\n\t\t\treturn;\r\n\t\t}}\r\n\t}}\r\n}}");
+		builder.AppendLine($@"/// <inheritdoc />
+public override bool UpdateWith(object update, params string[] exclusions)
+{{
+	return update switch
+	{{
+		{type.Name} value => UpdateWith(value, exclusions),
+		_ => base.UpdateWith(update, exclusions)
+	}};
+}}");
 
 		builder.ToString().CopyToClipboard();
 		Console.Write(builder.ToString());

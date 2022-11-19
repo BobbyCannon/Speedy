@@ -1941,6 +1941,11 @@
             Ex. VerticalLocation will have Altitude, where HorizontalLocation will have Latitude, Longitude.
             </remarks>
         </member>
+        <member name="P:Speedy.Devices.IDeviceInformation.InformationId">
+            <summary>
+            Represents a global unique ID to identify an information type.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.IDeviceInformation.ProviderName">
             <summary>
             The name of the provider that is the source of this information.
@@ -2150,10 +2155,18 @@
             Represents a horizontal location.
             </summary>
         </member>
+        <member name="F:Speedy.Devices.Location.HorizontalLocation.HorizontalLocationInformationId">
+            <summary>
+            The information ID for horizontal location.
+            </summary>
+        </member>
         <member name="M:Speedy.Devices.Location.HorizontalLocation.#ctor">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.HorizontalLocation.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.Location.HorizontalLocation.InformationId">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.HorizontalLocation.Latitude">
@@ -2252,37 +2265,52 @@
             The vertical location.
             </summary>
         </member>
-        <member name="T:Speedy.Devices.Location.LocationComparer`1">
+        <member name="T:Speedy.Devices.Location.LocationComparer`3">
             <summary>
-            The state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
+            The state comparer for the <see cref="T:Speedy.Devices.Location.ILocationDeviceInformation" /> type.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer`1.#ctor">
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.#ctor">
             <summary>
-            Instantiate a state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
+            Instantiate a state comparer.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer`1.#ctor(Speedy.IDispatcher)">
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.#ctor(Speedy.IDispatcher)">
             <summary>
-            Instantiate a state comparer for the <see cref="T:Speedy.Devices.Location.Location" /> type.
+            Instantiate a state comparer.
             </summary>
             <param name="dispatcher"> An optional dispatcher. </param>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationComparer`1.AlwaysTrustSameSource">
+        <member name="P:Speedy.Devices.Location.LocationComparer`3.AlwaysTrustSameSource">
             <summary>
             If true all updates from the existing source will always be accepted regardless of
             the quality of the data.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.Location.LocationComparer`1.SourceTimeout">
+        <member name="P:Speedy.Devices.Location.LocationComparer`3.SourceTimeout">
             <summary>
             The timeout before the current data will expire and allow data that is lower quality.
             </summary>
         </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer`1.ShouldUpdate(`0,`0)">
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.ShouldUpdate(`0,`0)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Devices.Location.LocationComparer`1.UpdateWith(`0@,`0,System.String[])">
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.ShouldUpdate(`0,`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.ShouldUpdate(`0,`2)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.UpdateWith(`0@,`0,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.UpdateWith(`0@,`1,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.UpdateWith(`0@,`2,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationComparer`3.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.LocationDeviceInformation">
@@ -2319,6 +2347,11 @@
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.Heading">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformation.InformationId">
+            <summary>
+            Represents a global unique ID to identify an information type.
+            </summary>
+        </member>
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.ProviderName">
             <inheritdoc />
         </member>
@@ -2329,6 +2362,19 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.StatusTime">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformation.UpdateWith(Speedy.Devices.Location.ILocationDeviceInformation,System.String[])">
+            <summary>
+            Update the ILocationDeviceInformation with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformation.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformation.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.ILocationDeviceInformation">
@@ -2363,6 +2409,39 @@
             <summary>
             The speed of the device in meters per second.
             </summary>
+        </member>
+        <member name="T:Speedy.Devices.Location.LocationDeviceInformationComparer`1">
+            <summary>
+            The state comparer for the <see cref="T:Speedy.Devices.Location.ILocationDeviceInformation" /> type.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationComparer`1.#ctor">
+            <summary>
+            Instantiate a state comparer.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationComparer`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiate a state comparer.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformationComparer`1.AlwaysTrustSameSource">
+            <summary>
+            If true all updates from the existing source will always be accepted regardless of
+            the quality of the data.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.Location.LocationDeviceInformationComparer`1.SourceTimeout">
+            <summary>
+            The timeout before the current data will expire and allow data that is lower quality.
+            </summary>
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationComparer`1.ShouldUpdate(`0,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.LocationDeviceInformationComparer`1.UpdateWith(`0@,`0,System.String[])">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.LocationDeviceInformationProvider`1">
             <summary>
@@ -2710,6 +2789,11 @@
             Represents a vertical location.
             </summary>
         </member>
+        <member name="F:Speedy.Devices.Location.VerticalLocation.VerticalLocationInformationId">
+            <summary>
+            The information ID for vertical location.
+            </summary>
+        </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.#ctor">
             <inheritdoc />
         </member>
@@ -2728,7 +2812,7 @@
         <member name="P:Speedy.Devices.Location.VerticalLocation.AltitudeReference">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.Location.VerticalLocation.HasValue">
+        <member name="P:Speedy.Devices.Location.VerticalLocation.InformationId">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.DeepClone(System.Nullable{System.Int32})">
@@ -4325,6 +4409,13 @@
             <param name="locations"> The locations to get the center for. </param>
             <returns> The radius of the locations. </returns>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.HandleFlagsChanged(Speedy.Devices.Location.ILocationDeviceInformation,System.String)">
+            <summary>
+            Handles triggering dependent properties for <see cref="P:Speedy.Devices.Location.ILocationDeviceInformation.Flags" />.
+            </summary>
+            <param name="information"> The location information for a device. </param>
+            <param name="propertyName"> The name of the property that changed. </param>
+        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasAccuracy(Speedy.Devices.IDeviceInformation)">
             <summary>
             Check a information to determine if <see cref="P:Speedy.Devices.IDeviceInformation.Accuracy" /> is available.
@@ -5586,12 +5677,47 @@
         <member name="M:Speedy.Comparer`1.UpdateWith(System.Object@,System.Object,System.String[])">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Comparer`2">
+            <summary>
+            Represents a comparer for a type.
+            </summary>
+            <typeparam name="T"> The type to be compared. </typeparam>
+            <typeparam name="T2"> The type of the update. </typeparam>
+        </member>
+        <member name="M:Speedy.Comparer`2.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of a comparer.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="M:Speedy.Comparer`2.ShouldUpdate(`0,`1)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Comparer`2.ShouldUpdate(System.Object,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Comparer`2.UpdateWith(`0@,`1,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Comparer`2.UpdateWith(System.Object@,System.Object,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.IComparer`1">
             <summary>
             Represents an interface to compare two instances of a type.
             </summary>
         </member>
-        <member name="M:Speedy.IComparer`1.ShouldUpdate(`0,`0)">
+        <member name="T:Speedy.IComparer`2">
+            <summary>
+            Represents an interface to compare two instances of a type.
+            </summary>
+        </member>
+        <member name="T:Speedy.IComparer`3">
+            <summary>
+            Represents an interface to compare two instances of a type.
+            </summary>
+        </member>
+        <member name="M:Speedy.IComparer`3.ShouldUpdate(`0,`1)">
             <summary>
             Determine if the update should be applied.
             </summary>
@@ -5599,7 +5725,24 @@
             <param name="update"> The update to be tested. </param>
             <returns> True if the update should be applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.IComparer`1.UpdateWith(`0@,`0,System.String[])">
+        <member name="M:Speedy.IComparer`3.UpdateWith(`0@,`1,System.String[])">
+            <summary>
+            Apply the update to the provided value.
+            </summary>
+            <param name="value"> The value to be updated. </param>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IComparer`3.ShouldUpdate(`0,`2)">
+            <summary>
+            Determine if the update should be applied.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <param name="update"> The update to be tested. </param>
+            <returns> True if the update should be applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IComparer`3.UpdateWith(`0@,`2,System.String[])">
             <summary>
             Apply the update to the provided value.
             </summary>

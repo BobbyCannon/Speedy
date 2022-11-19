@@ -153,7 +153,7 @@ public abstract class DeviceInformationManager<T>
 			}
 			case ICloneable cloneable:
 			{
-				Updated?.Invoke(this, (IUpdatable) cloneable.ShallowClone());
+				Updated?.Invoke(this, (T) cloneable.ShallowClone());
 				return;
 			}
 			default:
@@ -178,6 +178,7 @@ public abstract class DeviceInformationManager<T>
 
 		// Notify of the current value change.
 		CurrentValue.UpdateWith(update);
+		
 		OnUpdated(CurrentValue);
 	}
 

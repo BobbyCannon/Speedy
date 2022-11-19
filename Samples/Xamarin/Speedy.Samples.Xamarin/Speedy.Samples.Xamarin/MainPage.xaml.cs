@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Text;
-using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Samples.Xamarin.Services;
 using Xamarin.Forms;
@@ -38,18 +37,25 @@ public partial class MainPage
 
 	private void ViewModelOnExportHistoryRequest(object sender, EventArgs e)
 	{
-		var properties = typeof(Location)
-			.GetCachedProperties()
-			.OrderBy(x => x.Name)
-			.ToList();
-
 		var now = TimeService.Now;
 
 		foreach (var history in ViewModel.LocationHistory)
 		{
+			var first = history.Value.FirstOrDefault();
+			if (first == null)
+			{
+				continue;
+			}
+
+			var properties = first
+				.GetType()
+				.GetCachedProperties()
+				.OrderBy(x => x.Name)
+				.ToList();
+
 			var builder = new StringBuilder();
 			builder.AppendLine(string.Join(",", properties.Select(x => x.Name)));
-			
+
 			foreach (var x in history.Value)
 			{
 				var values = properties.Select(p => p.GetValue(x).ToString()).ToList();
@@ -63,6 +69,4 @@ public partial class MainPage
 	}
 
 	#endregion
-
-	
 }

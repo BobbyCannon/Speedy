@@ -54,6 +54,11 @@ public static class LocationExtensions
 
 	#region Methods
 
+	public static string CalculateKey(this IDeviceInformation information)
+	{
+		return $"{information.ProviderName}-{information.SourceName}-{information.InformationId}";
+	}
+
 	/// <summary>
 	/// Calculate the degrees per meter.
 	/// </summary>
@@ -260,6 +265,23 @@ public static class LocationExtensions
 		var longitudeMeters = longitudeDegrees * metersPerDegrees.Longitude;
 		var value = Max(latitudeMeters, longitudeMeters);
 		return value;
+	}
+
+	/// <summary>
+	/// Handles triggering dependent properties for <see cref="ILocationDeviceInformation.Flags" />.
+	/// </summary>
+	/// <param name="information"> The location information for a device. </param>
+	/// <param name="propertyName"> The name of the property that changed. </param>
+	public static void HandleFlagsChanged(this ILocationDeviceInformation information, string propertyName)
+	{
+		if (propertyName != nameof(ILocationDeviceInformation.Flags))
+		{
+			return;
+		}
+
+		information.OnPropertyChanged(nameof(ILocationDeviceInformation.HasHeading));
+		information.OnPropertyChanged(nameof(ILocationDeviceInformation.HasSpeed));
+		information.OnPropertyChanged(nameof(ILocationDeviceInformation.HasValue));
 	}
 
 	/// <summary>

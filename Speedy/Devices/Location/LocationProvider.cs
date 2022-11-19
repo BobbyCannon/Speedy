@@ -27,8 +27,8 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 	/// <param name="dispatcher"> An optional dispatcher. </param>
 	protected LocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		ComparerForHorizontal = new LocationComparer<THorizontalLocation>(dispatcher);
-		ComparerForVertical = new LocationComparer<TVerticalLocation>(dispatcher);
+		ComparerForHorizontal = new LocationDeviceInformationComparer<THorizontalLocation>(dispatcher);
+		ComparerForVertical = new LocationDeviceInformationComparer<TVerticalLocation>(dispatcher);
 
 		LocationProviderSettings = new T2();
 	}
@@ -50,12 +50,12 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 	/// <summary>
 	/// Comparer for the horizontal location.
 	/// </summary>
-	protected LocationComparer<THorizontalLocation> ComparerForHorizontal { get; }
+	protected LocationDeviceInformationComparer<THorizontalLocation> ComparerForHorizontal { get; }
 
 	/// <summary>
 	/// Comparer for the vertical location.
 	/// </summary>
-	protected LocationComparer<TVerticalLocation> ComparerForVertical { get; }
+	protected LocationDeviceInformationComparer<TVerticalLocation> ComparerForVertical { get; }
 
 	#endregion
 

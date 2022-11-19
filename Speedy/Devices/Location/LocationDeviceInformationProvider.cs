@@ -18,7 +18,7 @@ public abstract class LocationDeviceInformationProvider<T>
 {
 	#region Fields
 
-	private readonly LocationComparer<T> _comparer;
+	private readonly LocationDeviceInformationComparer<T> _comparer;
 
 	#endregion
 
@@ -29,7 +29,7 @@ public abstract class LocationDeviceInformationProvider<T>
 	/// </summary>
 	protected LocationDeviceInformationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_comparer = new LocationComparer<T>(dispatcher);
+		_comparer = new LocationDeviceInformationComparer<T>(dispatcher);
 	}
 
 	#endregion

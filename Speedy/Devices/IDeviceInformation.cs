@@ -39,6 +39,11 @@ public interface IDeviceInformation : IBindable
 	bool HasValue { get; }
 
 	/// <summary>
+	/// Represents a global unique ID to identify an information type.
+	/// </summary>
+	Guid InformationId { get; }
+
+	/// <summary>
 	/// The name of the provider that is the source of this information.
 	/// </summary>
 	string ProviderName { get; set; }

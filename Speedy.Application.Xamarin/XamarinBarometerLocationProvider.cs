@@ -40,7 +40,7 @@ public class XamarinBarometerLocationProvider<T>
 	public double Pressure { get; set; }
 
 	/// <inheritdoc />
-	public sealed override string ProviderName => "Xamarin";
+	public sealed override string ProviderName => "Xamarin Barometer";
 
 	#endregion
 
@@ -58,6 +58,7 @@ public class XamarinBarometerLocationProvider<T>
 		Barometer.Start(SensorSpeed.Default);
 		Barometer.ReadingChanged += BarometerOnReadingChanged;
 		IsMonitoring = true;
+		HasPermission = true;
 		return Task.CompletedTask;
 	}
 
@@ -76,6 +77,7 @@ public class XamarinBarometerLocationProvider<T>
 		var altitudeAboveSeaLevel = Math.Round(44307.69 * (1.0 - Math.Pow(Pressure / 1013.25, 0.190284)) * 10.0) / 10.0;
 		CurrentValue.Altitude = altitudeAboveSeaLevel;
 		CurrentValue.AltitudeReference = AltitudeReferenceType.Geoid;
+		CurrentValue.HasValue = true;
 		CurrentValue.StatusTime = TimeService.UtcNow;
 		OnUpdated(CurrentValue);
 	}

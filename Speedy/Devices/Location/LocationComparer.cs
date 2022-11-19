@@ -7,28 +7,50 @@ using System;
 namespace Speedy.Devices.Location;
 
 /// <summary>
-/// The state comparer for the <see cref="Location" /> type.
+/// The state comparer for the <see cref="ILocationDeviceInformation" /> type.
 /// </summary>
-public class LocationComparer<T> : Comparer<T>
-	where T : ILocationDeviceInformation, IUpdatable<T>
+public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
+	: Comparer<T>, IComparer<T, THorizontalLocation, TVerticalLocation>
+	where T : class, ILocation<THorizontalLocation, TVerticalLocation>
+	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
+	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
 {
+	#region Fields
+
+	private readonly LocationDeviceInformationComparer<THorizontalLocation> _horizontalComparer;
+	private readonly LocationDeviceInformationComparer<TVerticalLocation> _verticalComparer;
+
+	#endregion
+
 	#region Constructors
 
 	/// <summary>
-	/// Instantiate a state comparer for the <see cref="Location" /> type.
+	/// Instantiate a state comparer.
 	/// </summary>
 	public LocationComparer() : this(null)
 	{
 	}
 
 	/// <summary>
-	/// Instantiate a state comparer for the <see cref="Location" /> type.
+	/// Instantiate a state comparer.
 	/// </summary>
 	/// <param name="dispatcher"> An optional dispatcher. </param>
 	public LocationComparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 		AlwaysTrustSameSource = true;
 		SourceTimeout = TimeSpan.FromSeconds(10);
+
+		_horizontalComparer = new LocationDeviceInformationComparer<THorizontalLocation>(dispatcher)
+		{
+			AlwaysTrustSameSource = AlwaysTrustSameSource,
+			SourceTimeout = SourceTimeout
+		};
+
+		_verticalComparer = new LocationDeviceInformationComparer<TVerticalLocation>(dispatcher)
+		{
+			AlwaysTrustSameSource = AlwaysTrustSameSource,
+			SourceTimeout = SourceTimeout
+		};
 	}
 
 	#endregion
@@ -51,52 +73,80 @@ public class LocationComparer<T> : Comparer<T>
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool ShouldUpdate(T current, T update)
+	public override bool ShouldUpdate(T value, T update)
 	{
-		if (update.StatusTime < current.StatusTime)
-		{
-			// This is an old update so reject it
-			return false;
-		}
+		return ShouldUpdate(value, update.HorizontalLocation)
+			|| ShouldUpdate(value, update.VerticalLocation);
+	}
 
-		if (update.HasAccuracy
-			&& update.HasValue
-			&& current.HasAccuracy
-			&& current.HasValue
-			&& (update.Accuracy <= current.Accuracy))
-		{
-			// Both have altitude and accuracy and the update is better
-			return true;
-		}
+	/// <inheritdoc />
+	public bool ShouldUpdate(T value, THorizontalLocation update)
+	{
+		return _horizontalComparer.ShouldUpdate(value, update);
+	}
 
-		// todo: should we have an accuracy limit? or does "better" accurate update handle
-
-		if (update.HasAccuracy && !current.HasAccuracy)
-		{
-			// The update has accuracy but the current state does not, so take the update
-			return true;
-		}
-
-		// You may have an update from the same source but it's not as accurate
-		if (AlwaysTrustSameSource && (current.SourceName == update.SourceName))
-		{
-			return true;
-		}
-
-		// Has the current state expired?
-		var elapsed = update.StatusTime - current.StatusTime;
-		if (elapsed >= SourceTimeout)
-		{
-			return true;
-		}
-
-		return false;
+	/// <inheritdoc />
+	public bool ShouldUpdate(T value, TVerticalLocation update)
+	{
+		return _verticalComparer.ShouldUpdate(value, update);
 	}
 
 	/// <inheritdoc />
 	public override bool UpdateWith(ref T value, T update, params string[] exclusions)
 	{
-		return value.UpdateWith(update, exclusions);
+		var valueHorizontalLocation = value?.HorizontalLocation;
+		var valueVerticalLocation = value?.VerticalLocation;
+
+		return _horizontalComparer.UpdateWith(ref valueHorizontalLocation, update.HorizontalLocation, exclusions)
+			|| _verticalComparer.UpdateWith(ref valueVerticalLocation, update.VerticalLocation, exclusions);
+	}
+
+	/// <inheritdoc />
+	public bool UpdateWith(ref T value, THorizontalLocation update, params string[] exclusions)
+	{
+		var valueHorizontalLocation = value?.HorizontalLocation;
+		return _horizontalComparer.UpdateWith(ref valueHorizontalLocation, update, exclusions);
+	}
+
+	/// <inheritdoc />
+	public bool UpdateWith(ref T value, TVerticalLocation update, params string[] exclusions)
+	{
+		var valueVerticalLocation = value?.VerticalLocation;
+		return _verticalComparer.UpdateWith(ref valueVerticalLocation, update, exclusions);
+	}
+
+	/// <inheritdoc />
+	protected override void OnPropertyChangedInDispatcher(string propertyName)
+	{
+		switch (propertyName)
+		{
+			case nameof(AlwaysTrustSameSource):
+			{
+				if (_horizontalComparer != null)
+				{
+					_horizontalComparer.AlwaysTrustSameSource = AlwaysTrustSameSource;
+				}
+				if (_verticalComparer != null)
+				{
+					_verticalComparer.AlwaysTrustSameSource = AlwaysTrustSameSource;
+				}
+				break;
+			}
+			case nameof(SourceTimeout):
+			{
+				if (_horizontalComparer != null)
+				{
+					_horizontalComparer.SourceTimeout = SourceTimeout;
+				}
+				if (_verticalComparer != null)
+				{
+					_verticalComparer.SourceTimeout = SourceTimeout;
+				}
+				break;
+			}
+		}
+
+		base.OnPropertyChangedInDispatcher(propertyName);
 	}
 
 	#endregion
