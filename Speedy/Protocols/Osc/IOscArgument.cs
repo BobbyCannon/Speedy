@@ -1,23 +1,22 @@
 #pragma warning disable 1591
 
-namespace Speedy.Protocols.Osc
+namespace Speedy.Protocols.Osc;
+
+public interface IOscArgument
 {
-	public interface IOscArgument
-	{
-		#region Methods
+	#region Methods
 
-		char GetOscBinaryType();
+	char GetOscBinaryType();
 
-		string GetOscStringType();
+	string GetOscStringType();
 
-		byte[] GetOscValueBytes();
+	byte[] GetOscValueBytes();
 
-		string GetOscValueString();
+	string GetOscValueString();
 
-		void ParseOscValue(byte[] value, ref int index);
+	void ParseOscValue(byte[] value, ref int index);
 
-		void ParseOscValue(string value);
+	void ParseOscValue(string value);
 
-		#endregion
-	}
+	#endregion
 }

@@ -28,9 +28,9 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 {
 	#region Fields
 
-	private readonly HashSet<LocationProviderSource> _activeSources;
 	private readonly IDispatcher _dispatcher;
 	private readonly string _providerName;
+	private readonly IEnumerable<LocationProviderSource> _providerSources;
 	private Location _lastLocation;
 	
 	#endregion
@@ -39,17 +39,9 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 
 	public GeolocationContinuousListener(IDispatcher dispatcher, string providerName, LocationManager manager, IEnumerable<LocationProviderSource> providerSources)
 	{
-		_activeSources = new HashSet<LocationProviderSource>();
 		_dispatcher = dispatcher;
 		_providerName = providerName;
-
-		foreach (var source in providerSources)
-		{
-			if (manager.IsProviderEnabled(source.Provider))
-			{
-				_activeSources.Add(source);
-			}
-		}
+		_providerSources = providerSources;
 	}
 
 	#endregion
@@ -61,6 +53,17 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 		if (location.Provider == null)
 		{
 			return;
+		}
+
+		lock (_providerSources)
+		{
+			// Check to see if the source is available and enabled
+			var foundSource = _providerSources?.FirstOrDefault(x => x.Provider == location.Provider);
+			if (foundSource is not { Enabled: true })
+			{
+				// Source is not found or is not enabled.
+				return;
+			}
 		}
 
 		LogEventWritten?.Invoke(this, new LogEventArgs(location.GetTimestamp().UtcDateTime, EventLevel.Verbose, $"Location updated, source: {location.Provider}"));
@@ -78,18 +81,15 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 			return;
 		}
 
-		lock (_activeSources)
+		lock (_providerSources)
 		{
-			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			var foundSource = _providerSources.FirstOrDefault(x => x.Provider == provider);
 			if (foundSource == null)
 			{
 				return;
 			}
 
-			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
-			{
-				OnPositionError(LocationProviderError.LocationUnavailable);
-			}
+			foundSource.Enabled = false;
 		}
 	}
 
@@ -100,16 +100,15 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 			return;
 		}
 
-		lock (_activeSources)
+		lock (_providerSources)
 		{
-			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
-			if (foundSource != null)
+			var foundSource = _providerSources.FirstOrDefault(x => x.Provider == provider);
+			if (foundSource == null)
 			{
-				foundSource.Enabled = true;
 				return;
 			}
 
-			_activeSources.Add(new LocationProviderSource(_dispatcher) { Enabled = true, Provider = provider });
+			foundSource.Enabled = true;
 		}
 	}
 

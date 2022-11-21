@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 #endregion
@@ -22,6 +23,7 @@ public abstract class DeviceInformationProvider<T>
 	protected DeviceInformationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		CurrentValue = new T();
+		IsEnabled = true;
 	}
 
 	#endregion
@@ -35,7 +37,7 @@ public abstract class DeviceInformationProvider<T>
 	public Type CurrentValueType => typeof(T);
 
 	/// <inheritdoc />
-	public bool HasPermission { get; protected set; }
+	public bool IsEnabled { get; set; }
 
 	/// <inheritdoc />
 	public bool IsMonitoring { get; protected set; }
@@ -174,7 +176,7 @@ public interface IDeviceInformationProvider<T>
 /// <summary>
 /// Represents a provider of device information.
 /// </summary>
-public interface IDeviceInformationProvider : IUpdatable
+public interface IDeviceInformationProvider : IUpdatable, INotifyPropertyChanged
 {
 	#region Properties
 
@@ -184,9 +186,9 @@ public interface IDeviceInformationProvider : IUpdatable
 	Type CurrentValueType { get; }
 
 	/// <summary>
-	/// Determines if the provider has permission.
+	/// Determines if the provider is enabled.
 	/// </summary>
-	bool HasPermission { get; }
+	bool IsEnabled { get; set; }
 
 	/// <summary>
 	/// Determines if the provider is listening.

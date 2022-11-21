@@ -58,6 +58,12 @@ public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
 	}
 
 	/// <inheritdoc />
+	public bool Refresh(IHorizontalLocation update, params string[] exclusions)
+	{
+		return this.Refresh<IHorizontalLocation>(update, exclusions);
+	}
+
+	/// <inheritdoc />
 	public IHorizontalLocation ShallowClone()
 	{
 		var response = new HorizontalLocation();
@@ -133,6 +139,12 @@ public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
 			IHorizontalLocation options => UpdateWith(options, exclusions),
 			_ => base.UpdateWith(update, exclusions)
 		};
+	}
+
+	/// <inheritdoc />
+	public override bool UpdateWith(ILocationDeviceInformation update, params string[] exclusions)
+	{
+		return UpdateWith((object) update, exclusions);
 	}
 
 	object ICloneable.DeepClone(int? maxDepth)

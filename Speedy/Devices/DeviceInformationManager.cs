@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Speedy.Serialization;
 
@@ -56,7 +57,7 @@ public abstract class DeviceInformationManager<T>
 	public Type CurrentValueType => typeof(T);
 
 	/// <inheritdoc />
-	public bool HasPermission { get; private set; }
+	public bool IsEnabled { get; set; }
 
 	/// <inheritdoc />
 	public bool IsMonitoring { get; private set; }
@@ -67,7 +68,7 @@ public abstract class DeviceInformationManager<T>
 	/// <summary>
 	/// The providers for each type.
 	/// </summary>
-	public IReadOnlyDictionary<Type, IDeviceInformationProvider> Providers => new ReadOnlyDictionary<Type, IDeviceInformationProvider>(_providers);
+	public ReadOnlyDictionary<Type, IDeviceInformationProvider> Providers => new ReadOnlyDictionary<Type, IDeviceInformationProvider>(_providers);
 
 	#endregion
 
@@ -82,17 +83,20 @@ public abstract class DeviceInformationManager<T>
 		_providers.AddOrUpdate(provider.CurrentValueType,
 			_ =>
 			{
+				provider.PropertyChanged += ProviderOnPropertyChanged;
 				provider.Updated += ProviderOnUpdated;
 				return provider;
 			},
-			(_, p) =>
+			(_, existing) =>
 			{
-				if (p != null)
+				if (existing != null)
 				{
-					p.Updated -= ProviderOnUpdated;
+					existing.PropertyChanged -= ProviderOnPropertyChanged;
+					existing.Updated -= ProviderOnUpdated;
 				}
 
-				provider.Updated -= ProviderOnUpdated;
+				provider.PropertyChanged += ProviderOnPropertyChanged;
+				provider.Updated += ProviderOnUpdated;
 				return provider;
 			});
 	}
@@ -119,7 +123,7 @@ public abstract class DeviceInformationManager<T>
 			return;
 		}
 
-		foreach (var i in _providers)
+		foreach (var i in _providers.Where(x => x.Value.IsEnabled))
 		{
 			await i.Value.StartMonitoringAsync();
 		}
@@ -130,7 +134,7 @@ public abstract class DeviceInformationManager<T>
 	/// <inheritdoc />
 	public async Task StopMonitoringAsync()
 	{
-		foreach (var i in _providers)
+		foreach (var i in _providers.Where(x => x.Value.IsMonitoring))
 		{
 			await i.Value.StopMonitoringAsync();
 		}
@@ -164,8 +168,36 @@ public abstract class DeviceInformationManager<T>
 		}
 	}
 
+	private void ProviderOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+	{
+		if (sender is not IDeviceInformationProvider provider)
+		{
+			return;
+		}
+
+		switch (e.PropertyName)
+		{
+			case nameof(IDeviceInformationProvider.IsEnabled):
+			{
+				// todo: should this be handled by the provider?
+				// ex. what happens if IsMonitoring is false but it is "starting to monitor"?
+				if (provider.IsMonitoring && !provider.IsEnabled)
+				{
+					provider.StopMonitoringAsync();
+				}
+				else if (!provider.IsMonitoring && provider.IsEnabled)
+				{
+					provider.StartMonitoringAsync();
+				}
+				break;
+			}
+		}
+	}
+
 	private void ProviderOnUpdated(object sender, IUpdatable update)
 	{
+		ProviderUpdated?.Invoke(sender, update);
+
 		var provider = (IDeviceInformationProvider) sender;
 		if (provider == null)
 		{
@@ -178,13 +210,18 @@ public abstract class DeviceInformationManager<T>
 
 		// Notify of the current value change.
 		CurrentValue.UpdateWith(update);
-		
+
 		OnUpdated(CurrentValue);
 	}
 
 	#endregion
 
 	#region Events
+
+	/// <summary>
+	/// Notification of specific provider updates.
+	/// </summary>
+	public event EventHandler<IUpdatable> ProviderUpdated;
 
 	/// <inheritdoc />
 	public event EventHandler<IUpdatable> Updated;

@@ -58,7 +58,6 @@ public class XamarinBarometerLocationProvider<T>
 		Barometer.Start(SensorSpeed.Default);
 		Barometer.ReadingChanged += BarometerOnReadingChanged;
 		IsMonitoring = true;
-		HasPermission = true;
 		return Task.CompletedTask;
 	}
 

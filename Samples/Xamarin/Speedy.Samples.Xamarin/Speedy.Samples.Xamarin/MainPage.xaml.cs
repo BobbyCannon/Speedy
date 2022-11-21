@@ -3,8 +3,12 @@
 using System;
 using System.Linq;
 using System.Text;
+using Speedy.Collections;
+using Speedy.Devices.Location;
 using Speedy.Extensions;
+using Speedy.Protocols.Csv;
 using Speedy.Samples.Xamarin.Services;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 #endregion
@@ -21,6 +25,8 @@ public partial class MainPage
 
 		ViewModel = mainViewModel;
 		BindingContext = ViewModel;
+
+		DeviceDisplay.KeepScreenOn = true;
 
 		ViewModel.ExportHistoryRequest += ViewModelOnExportHistoryRequest;
 	}
@@ -41,30 +47,15 @@ public partial class MainPage
 
 		foreach (var history in ViewModel.LocationHistory)
 		{
-			var first = history.Value.FirstOrDefault();
-			if (first == null)
+			var data = CsvWriter.Write(history.Value.ToArray());
+			if (data == null)
 			{
 				continue;
 			}
 
-			var properties = first
-				.GetType()
-				.GetCachedProperties()
-				.OrderBy(x => x.Name)
-				.ToList();
-
-			var builder = new StringBuilder();
-			builder.AppendLine(string.Join(",", properties.Select(x => x.Name)));
-
-			foreach (var x in history.Value)
-			{
-				var values = properties.Select(p => p.GetValue(x).ToString()).ToList();
-				builder.AppendLine(string.Join(",", values));
-			}
-			
 			DependencyService
 				.Get<IFileService>()
-				.WriteFile($"{now:yy-MM-dd-hh-mm-ss}-location-export-{history.Key}.csv", builder.ToString());
+				.WriteFile($"{now:yy-MM-dd-hh-mm-ss}-location-export-{history.Key}.csv", data);
 		}
 	}
 

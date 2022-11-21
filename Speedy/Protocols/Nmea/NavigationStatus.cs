@@ -6,62 +6,61 @@ using System.Collections.Generic;
 
 #pragma warning disable 1591
 
-namespace Speedy.Protocols.Nmea
+namespace Speedy.Protocols.Nmea;
+
+public class NavigationStatus
 {
-	public class NavigationStatus
+	#region Fields
+
+	private readonly Dictionary<char, string> _navigationalStatuses;
+
+	#endregion
+
+	#region Constructors
+
+	public NavigationStatus(string status)
 	{
-		#region Fields
-
-		private readonly Dictionary<char, string> _navigationalStatuses;
-
-		#endregion
-
-		#region Constructors
-
-		public NavigationStatus(string status)
+		_navigationalStatuses = new Dictionary<char, string>
 		{
-			_navigationalStatuses = new Dictionary<char, string>
-			{
-				{ 'C', "Caution" },
-				{ 'S', "Safe" },
-				{ 'U', "Unsafe" },
-				{ 'V', "Void" }
-			};
+			{ 'C', "Caution" },
+			{ 'S', "Safe" },
+			{ 'U', "Unsafe" },
+			{ 'V', "Void" }
+		};
 
-			if (!string.IsNullOrEmpty(status) && _navigationalStatuses.ContainsKey(status[0]))
-			{
-				Status = status[0];
-				StatusName = _navigationalStatuses[Status];
-			}
-			else
-			{
-				Status = ' ';
-				StatusName = string.Empty;
-			}
-		}
-
-		#endregion
-
-		#region Properties
-
-		public char Status { get; }
-
-		public string StatusName { get; }
-
-		#endregion
-
-		#region Methods
-
-		public bool IsSet()
+		if (!string.IsNullOrEmpty(status) && _navigationalStatuses.ContainsKey(status[0]))
 		{
-			return _navigationalStatuses.ContainsKey(Status);
+			Status = status[0];
+			StatusName = _navigationalStatuses[Status];
 		}
-
-		public override string ToString()
+		else
 		{
-			return Status.ToString();
+			Status = ' ';
+			StatusName = string.Empty;
 		}
-
-		#endregion
 	}
+
+	#endregion
+
+	#region Properties
+
+	public char Status { get; }
+
+	public string StatusName { get; }
+
+	#endregion
+
+	#region Methods
+
+	public bool IsSet()
+	{
+		return _navigationalStatuses.ContainsKey(Status);
+	}
+
+	public override string ToString()
+	{
+		return Status.ToString();
+	}
+
+	#endregion
 }

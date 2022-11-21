@@ -84,6 +84,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <inheritdoc />
 	public override string ProviderName => "Xamarin Windows";
 
+	protected bool HasPermission { get; private set; }
+
 	#endregion
 
 	#region Methods

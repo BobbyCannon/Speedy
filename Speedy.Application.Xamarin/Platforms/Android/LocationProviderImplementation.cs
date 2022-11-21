@@ -17,7 +17,6 @@ using Speedy.Logging;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-
 #if GOOGLEPLAY
 using Android.Gms.Common;
 using Android.Gms.Location;
@@ -80,6 +79,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 	/// <inheritdoc />
 	public override string ProviderName => "Xamarin Android";
+
+	protected bool HasPermission { get; private set; }
 
 	/// <summary>
 	/// Gets all providers from the Location Manager.
@@ -296,6 +297,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			if (!source.Enabled)
 			{
 				source.Listening = false;
+				source.Enabled = false;
 				continue;
 			}
 

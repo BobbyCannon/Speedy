@@ -33,6 +33,12 @@ public abstract class Bindable<T> : Bindable, IUpdatable<T>
 	#region Methods
 
 	/// <inheritdoc />
+	public bool Refresh(T update, params string[] exclusions)
+	{
+		return this.Refresh<T>(update, exclusions);
+	}
+
+	/// <inheritdoc />
 	public bool ShouldUpdate(T update)
 	{
 		return true;

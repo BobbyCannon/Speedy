@@ -71,6 +71,12 @@ public class VerticalLocation : LocationDeviceInformation, IVerticalLocation
 	}
 
 	/// <inheritdoc />
+	public bool Refresh(IVerticalLocation update, params string[] exclusions)
+	{
+		return this.Refresh<IVerticalLocation>(update, exclusions);
+	}
+
+	/// <inheritdoc />
 	public IVerticalLocation ShallowClone()
 	{
 		var response = new VerticalLocation();

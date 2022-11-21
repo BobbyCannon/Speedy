@@ -62,7 +62,7 @@ public abstract class CloneableBindable<T> : Bindable<T>, ICloneable<T>
 	#region Methods
 
 	/// <inheritdoc />
-	public T DeepClone(int? maxDepth = null)
+	public virtual T DeepClone(int? maxDepth = null)
 	{
 		var response = new T();
 
@@ -94,7 +94,7 @@ public abstract class CloneableBindable<T> : Bindable<T>, ICloneable<T>
 	}
 
 	/// <inheritdoc />
-	public T ShallowClone()
+	public virtual T ShallowClone()
 	{
 		return DeepClone();
 	}

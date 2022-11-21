@@ -50,13 +50,15 @@
 						<ContentView>
 							<StackLayout Margin="0,0,0,20">
 								<Label Text="{Binding ProviderName}" />
+
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Is Monitoring:" Style="{StaticResource Property}" />
 									<Label Text="{x:Binding IsMonitoring, Mode=OneWay}" />
 								</StackLayout>
+
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Has Permission:" Style="{StaticResource Property}" />
-									<Label Text="{x:Binding HasPermission, Mode=OneWay}" />
+									<CheckBox IsChecked="{x:Binding IsEnabled, Mode=TwoWay}" />
+									<Label Text="Enabled" Margin="0,6,0,0" />
 								</StackLayout>
 							</StackLayout>
 						</ContentView>
@@ -142,6 +144,10 @@
 				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.SourceName, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="StatusTime" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.StatusTime, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Latitude" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationManager.CurrentValue.HorizontalLocation.Latitude, Mode=OneWay}" />
 			</StackLayout>
@@ -179,6 +185,10 @@
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Source" Style="{StaticResource Property}" />
 				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.SourceName, Mode=OneWay}" />
+			</StackLayout>
+			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+				<Label Text="Status Time" Style="{StaticResource Property}" />
+				<Label Text="{x:Binding LocationManager.CurrentValue.VerticalLocation.StatusTime, Mode=OneWay}" />
 			</StackLayout>
 			<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 				<Label Text="Altitude" Style="{StaticResource Property}" />
@@ -257,6 +267,10 @@
 							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
 								<Label Text="{x:Binding ProviderName, Mode=OneWay}" Style="{StaticResource Title2}" />
 								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Status Time" Style="{StaticResource Property2}" />
+									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
+								</StackLayout>
 
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Latitude" Style="{StaticResource Property2}" />
@@ -270,11 +284,7 @@
 									<Label Text="Has Latitude/Longitude" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding HasValue, Mode=OneWay}" />
 								</StackLayout>
-								
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Status Time" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
-								</StackLayout>
+
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Accuracy" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Accuracy, Mode=OneWay}" />
@@ -302,6 +312,10 @@
 							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
 								<Label Text="{x:Binding ProviderName, Mode=OneWay}" Style="{StaticResource Title2}" />
 								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
+								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+									<Label Text="Status Time" Style="{StaticResource Property2}" />
+									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
+								</StackLayout>
 
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Altitude" Style="{StaticResource Property2}" />
@@ -313,10 +327,6 @@
 									<Label Text="{x:Binding HasValue, Mode=OneWay}" />
 								</StackLayout>
 
-								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
-									<Label Text="Status Time" Style="{StaticResource Property2}" />
-									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
-								</StackLayout>
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Accuracy" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Accuracy, Mode=OneWay}" />
@@ -344,11 +354,11 @@
 							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
 								<Label Text="{x:Binding ProviderName, Mode=OneWay}" Style="{StaticResource Title2}" />
 								<Label Text="{x:Binding SourceName, Mode=OneWay}" Style="{StaticResource Title2}" />
-
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Status Time" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding StatusTime, Mode=OneWay}" />
 								</StackLayout>
+
 								<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 									<Label Text="Accuracy" Style="{StaticResource Property2}" />
 									<Label Text="{x:Binding Accuracy, Mode=OneWay}" />
@@ -391,6 +401,11 @@
 					TextColor="AliceBlue"
 					Text="Export History"
 					Command="{Binding ExportHistoryCommand, Mode=OneTime}" />
+			
+			<Button BackgroundColor="Gray"
+					TextColor="AliceBlue"
+					Text="Clear Log"
+					Command="{Binding ClearLogCommand, Mode=OneTime}" />
 
 			<FlexLayout BindableLayout.ItemsSource="{x:Binding Logs, Mode=OneWay}" Direction="Column">
 				<BindableLayout.ItemTemplate>
@@ -417,7 +432,7 @@
 					>
 			</forms:CartesianChart>
 
+			<Button BackgroundColor="Gray" Text="Reset" Command="{Binding ResetCommand, Mode=OneTime}" />
 		</StackLayout>
 	</ScrollView>
-
 </ContentPage>

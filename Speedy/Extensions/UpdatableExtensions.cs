@@ -14,6 +14,20 @@ public static class UpdatableExtensions
 	#region Methods
 
 	/// <summary>
+	/// Refresh an updatable object.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="updatable"></param>
+	/// <param name="update"></param>
+	/// <param name="exclusions"></param>
+	/// <returns></returns>
+	public static bool Refresh<T>(this IUpdatable<T> updatable, T update, params string[] exclusions)
+	{
+		return updatable.ShouldUpdate(update)
+			&& updatable.UpdateWith(update, exclusions);
+	}
+
+	/// <summary>
 	/// Allows updating of one type to another based on member Name and Type.
 	/// </summary>
 	/// <typeparam name="T"> The type to be updated. </typeparam>

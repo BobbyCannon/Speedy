@@ -39,6 +39,13 @@ public class Location : CloneableBindable<Location, ILocation<IHorizontalLocatio
 	#region Methods
 
 	/// <inheritdoc />
+	public bool Refresh(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
+	{
+		return HorizontalLocation.Refresh(update.HorizontalLocation, exclusions)
+			|| VerticalLocation.Refresh(update.VerticalLocation, exclusions);
+	}
+
+	/// <inheritdoc />
 	public bool ShouldUpdate(ILocation<IHorizontalLocation, IVerticalLocation> update)
 	{
 		return HorizontalLocation.ShouldUpdate(update)

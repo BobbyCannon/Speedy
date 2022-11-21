@@ -39,7 +39,7 @@ public class BasicLocation
 		: this(location.Latitude, location.Longitude, location.Altitude, location.AltitudeReference, dispatcher)
 	{
 	}
-	
+
 	/// <summary>
 	/// Initialize an instance of the BasicLocation.
 	/// </summary>
@@ -121,6 +121,19 @@ public class BasicLocation
 		return Equals(obj as BasicLocation);
 	}
 
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		unchecked
+		{
+			var hashCode = Altitude.GetHashCode();
+			hashCode = (hashCode * 397) ^ AltitudeReference.GetHashCode();
+			hashCode = (hashCode * 397) ^ Latitude.GetHashCode();
+			hashCode = (hashCode * 397) ^ Longitude.GetHashCode();
+			return hashCode;
+		}
+	}
+
 	/// <summary>
 	/// Get a IBasicLocation from a Location.
 	/// </summary>
@@ -148,16 +161,9 @@ public class BasicLocation
 	}
 
 	/// <inheritdoc />
-	public override int GetHashCode()
+	public bool Refresh(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
 	{
-		unchecked
-		{
-			var hashCode = Altitude.GetHashCode();
-			hashCode = (hashCode * 397) ^ AltitudeReference.GetHashCode();
-			hashCode = (hashCode * 397) ^ Latitude.GetHashCode();
-			hashCode = (hashCode * 397) ^ Longitude.GetHashCode();
-			return hashCode;
-		}
+		return this.Refresh<ILocation<IHorizontalLocation, IVerticalLocation>>(update, exclusions);
 	}
 
 	/// <inheritdoc />

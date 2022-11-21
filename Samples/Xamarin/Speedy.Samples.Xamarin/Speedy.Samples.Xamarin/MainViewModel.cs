@@ -15,8 +15,6 @@ using Speedy.Commands;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
-using Xamarin.Essentials;
-using Location = Speedy.Devices.Location.Location;
 
 #endregion
 
@@ -30,7 +28,7 @@ public class MainViewModel : ViewModel
 	{
 		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<ILocationDeviceInformation>>();
 		LocationManager = new LocationManager<LocationProviderSettingsView>(dispatcher);
-		LocationManager.Updated += LocationManagerOnChanged;
+		LocationManager.ProviderUpdated += LocationManagerOnProviderUpdated;
 		Locations = new BaseObservableCollection<ILocationDeviceInformation>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
 
@@ -40,14 +38,17 @@ public class MainViewModel : ViewModel
 		LocationManager.Add(provider);
 		LocationManager.Add(provider2);
 
-		DeviceDisplay.KeepScreenOn = true;
-
+		// Commands
+		ClearLogCommand = new RelayCommand(x => OnClearLogRequest());
 		ExportHistoryCommand = new RelayCommand(x => OnExportHistoryRequest());
+		ResetCommand = new RelayCommand(x => OnResetRequest());
 	}
 
 	#endregion
 
 	#region Properties
+
+	public RelayCommand ClearLogCommand { get; }
 
 	public RelayCommand ExportHistoryCommand { get; }
 
@@ -60,6 +61,8 @@ public class MainViewModel : ViewModel
 	public BaseObservableCollection<ILocationDeviceInformation> Locations { get; }
 
 	public BaseObservableCollection<LogEventArgs> Logs { get; }
+
+	public RelayCommand ResetCommand { get; }
 
 	public ISeries[] Series { get; set; }
 		=
@@ -111,12 +114,63 @@ public class MainViewModel : ViewModel
 
 	#region Methods
 
+	public void ProcessLocation(ILocationDeviceInformation location)
+	{
+		if (!Dispatcher.IsDispatcherThread)
+		{
+			Dispatcher.Run(() => ProcessLocation(location));
+			return;
+		}
+
+		if (location is not { HasValue: true })
+		{
+			// Location is null or does not have a value so bounce
+			WriteLogEntry($"Ignore {location?.GetType().Name ?? "Unknown"} because HasValue is false.");
+			return;
+		}
+
+		var key = location.CalculateKey();
+		if (string.IsNullOrWhiteSpace(key))
+		{
+			// Invalid source name!!!
+			WriteLogEntry($"Ignore {key} because it's invalid...");
+			return;
+		}
+
+		WriteLogEntry($"Processing {key} {location.StatusTime}...");
+		
+		var currentLocation = Locations.FirstOrDefault(x => x.CalculateKey() == key);
+		if (currentLocation == null)
+		{
+			Locations.Add(location);
+			currentLocation = location;
+		}
+		else
+		{
+			if ((currentLocation.CalculateKey() == key)
+				&& (currentLocation.StatusTime == location.StatusTime))
+			{
+				// this is not an update
+				WriteLogEntry($"Ignore {location.GetType().Name} @ {location.StatusTime} because status time is the same.");
+				return;
+			}
+
+			currentLocation.UpdateWith(location);
+		}
+
+		var history = LocationHistory.GetOrAdd(key,
+			_ => new BaseObservableCollection<ILocationDeviceInformation>()
+		);
+
+		history.Add(currentLocation.ShallowClone());
+	}
+
 	protected virtual void OnExportHistoryRequest()
 	{
 		ExportHistoryRequest?.Invoke(this, EventArgs.Empty);
 	}
 
-	private void LocationManagerOnChanged(object sender, object e)
+	private void LocationManagerOnProviderUpdated(object sender, object e)
 	{
 		switch (e)
 		{
@@ -147,52 +201,33 @@ public class MainViewModel : ViewModel
 
 	private void LocationProviderOnLogEventWritten(object sender, LogEventArgs e)
 	{
-		Dispatcher.Run(() => Logs.Insert(0, e));
+		WriteLogEntry(e);
 	}
 
-	private void ProcessLocation(ILocationDeviceInformation location)
+	private void OnClearLogRequest()
 	{
-		if (!Dispatcher.IsDispatcherThread)
+		Dispatcher.Run(() => Logs.Clear());
+	}
+
+	private void OnResetRequest()
+	{
+		Dispatcher.Run(() =>
 		{
-			Dispatcher.Run(() => ProcessLocation(location));
-			return;
-		}
+			LocationManager.StopListeningCommand.Execute(null);
+			LocationHistory.Clear();
+			Locations.Clear();
+			Logs.Clear();
+		});
+	}
 
-		if (location is not { HasValue: true })
-		{
-			// Location is null or does not have a value so bounce
-			return;
-		}
+	private void WriteLogEntry(string message)
+	{
+		WriteLogEntry(new LogEventArgs(message));
+	}
 
-		if (string.IsNullOrWhiteSpace(location.SourceName))
-		{
-			// Invalid source name!!!
-			return;
-		}
-
-		var currentLocation = Locations.FirstOrDefault(x => x.CalculateKey() == location.CalculateKey());
-		if (currentLocation == null)
-		{
-			Locations.Add(location);
-			currentLocation = location;
-		}
-		else
-		{
-			if (currentLocation.StatusTime == location.StatusTime)
-			{
-				// this is not an update
-				return;
-			}
-
-			currentLocation.UpdateWith(location);
-		}
-
-		var key = location.CalculateKey();
-		var history = LocationHistory.GetOrAdd(key,
-			_ => new BaseObservableCollection<ILocationDeviceInformation>()
-		);
-
-		history.Add(currentLocation);
+	private void WriteLogEntry(LogEventArgs args)
+	{
+		Dispatcher.Run(() => Logs.Insert(0, args));
 	}
 
 	#endregion

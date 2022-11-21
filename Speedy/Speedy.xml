@@ -15,6 +15,9 @@
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
         </member>
+        <member name="M:Speedy.Bindable`1.Refresh(`0,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Bindable`1.ShouldUpdate(`0)">
             <inheritdoc />
         </member>
@@ -1663,7 +1666,7 @@
         <member name="P:Speedy.Devices.DeviceInformationManager`1.CurrentValueType">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.DeviceInformationManager`1.HasPermission">
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.IsEnabled">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.DeviceInformationManager`1.IsMonitoring">
@@ -1701,6 +1704,11 @@
             </summary>
             <param name="e"> The new value. </param>
         </member>
+        <member name="E:Speedy.Devices.DeviceInformationManager`1.ProviderUpdated">
+            <summary>
+            Notification of specific provider updates.
+            </summary>
+        </member>
         <member name="E:Speedy.Devices.DeviceInformationManager`1.Updated">
             <inheritdoc />
         </member>
@@ -1720,7 +1728,7 @@
         <member name="P:Speedy.Devices.DeviceInformationProvider`1.CurrentValueType">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Devices.DeviceInformationProvider`1.HasPermission">
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.IsEnabled">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.DeviceInformationProvider`1.IsMonitoring">
@@ -1797,9 +1805,9 @@
             Get the type of the current value.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IDeviceInformationProvider.HasPermission">
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.IsEnabled">
             <summary>
-            Determines if the provider has permission.
+            Determines if the provider is enabled.
             </summary>
         </member>
         <member name="P:Speedy.Devices.IDeviceInformationProvider.IsMonitoring">
@@ -2063,6 +2071,9 @@
         <member name="M:Speedy.Devices.Location.BasicLocation.Equals(System.Object)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Devices.Location.BasicLocation.GetHashCode">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Devices.Location.BasicLocation.op_Implicit(Speedy.Devices.Location.Location)~Speedy.Devices.Location.BasicLocation">
             <summary>
             Get a IBasicLocation from a Location.
@@ -2070,7 +2081,7 @@
             <param name="location"> The location. </param>
             <returns> The equivalent value as a basic location. </returns>
         </member>
-        <member name="M:Speedy.Devices.Location.BasicLocation.GetHashCode">
+        <member name="M:Speedy.Devices.Location.BasicLocation.Refresh(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation},System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.BasicLocation.ShouldUpdate(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation})">
@@ -2178,6 +2189,9 @@
         <member name="M:Speedy.Devices.Location.HorizontalLocation.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Devices.Location.HorizontalLocation.Refresh(Speedy.Devices.Location.IHorizontalLocation,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Devices.Location.HorizontalLocation.ShallowClone">
             <inheritdoc />
         </member>
@@ -2192,6 +2206,9 @@
             <param name="exclusions"> An optional set of properties to exclude. </param>
         </member>
         <member name="M:Speedy.Devices.Location.HorizontalLocation.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.HorizontalLocation.UpdateWith(Speedy.Devices.Location.ILocationDeviceInformation,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Devices.Location.IHorizontalLocation">
@@ -2233,6 +2250,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.Location.Location.VerticalLocation">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.Location.Refresh(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation},System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.Location.ShouldUpdate(Speedy.Devices.Location.ILocation{Speedy.Devices.Location.IHorizontalLocation,Speedy.Devices.Location.IVerticalLocation})">
@@ -2363,13 +2383,6 @@
         </member>
         <member name="P:Speedy.Devices.Location.LocationDeviceInformation.StatusTime">
             <inheritdoc />
-        </member>
-        <member name="M:Speedy.Devices.Location.LocationDeviceInformation.UpdateWith(Speedy.Devices.Location.ILocationDeviceInformation,System.String[])">
-            <summary>
-            Update the ILocationDeviceInformation with an update.
-            </summary>
-            <param name="update"> The update to be applied. </param>
-            <param name="exclusions"> An optional set of properties to exclude. </param>
         </member>
         <member name="M:Speedy.Devices.Location.LocationDeviceInformation.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
@@ -2816,6 +2829,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.DeepClone(System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Devices.Location.VerticalLocation.Refresh(Speedy.Devices.Location.IVerticalLocation,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.Location.VerticalLocation.ShallowClone">
@@ -4679,6 +4695,21 @@
             </summary>
             <param name="value"> The value to remove all event handlers. </param>
         </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.ShallowClone``1(``0)">
+            <summary>
+            Global shallow clone. If the object is ICloneable then the interface implementation will be used.
+            </summary>
+            <typeparam name="T"> The type of the object </typeparam>
+            <param name="value"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.ShallowClone(System.Object)">
+            <summary>
+            Global shallow clone. If the object is ICloneable then the interface implementation will be used.
+            </summary>
+            <param name="value"> </param>
+            <returns> </returns>
+        </member>
         <member name="T:Speedy.Extensions.QueryableExtensions">
             <summary>
             Extensions for queryable
@@ -5486,6 +5517,16 @@
             <summary>
             Extensions for the IUpdatable interface
             </summary>
+        </member>
+        <member name="M:Speedy.Extensions.UpdatableExtensions.Refresh``1(Speedy.IUpdatable{``0},``0,System.String[])">
+            <summary>
+            Refresh an updatable object.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="updatable"></param>
+            <param name="update"></param>
+            <param name="exclusions"></param>
+            <returns></returns>
         </member>
         <member name="M:Speedy.Extensions.UpdatableExtensions.UpdateWithUsingReflection``2(``0,``1,System.String[])">
             <summary>
@@ -6431,6 +6472,14 @@
             Represents an updatable item
             </summary>
             <typeparam name="T"> The type that is update is for. </typeparam>
+        </member>
+        <member name="M:Speedy.IUpdatable`1.Refresh(`0,System.String[])">
+            <summary>
+            Determine if the update should be applied then applies it if so else do nothing.
+            </summary>
+            <param name="update"> The update to be tested. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
         </member>
         <member name="M:Speedy.IUpdatable`1.ShouldUpdate(`0)">
             <summary>
@@ -7560,6 +7609,9 @@
             <typeparam name="T2"> The type to convert into. </typeparam>
             <param name="convert"> The function to convert from the current type into the requested type. </param>
             <returns> The new paged results for the provided type. </returns>
+        </member>
+        <member name="M:Speedy.PagedResults`1.Refresh(Speedy.PagedResults{`0},System.String[])">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.PagedResults`1.ShouldUpdate(Speedy.PagedResults{`0})">
             <inheritdoc />
@@ -8935,6 +8987,115 @@
             If true start/end spaces are excluded from field values (except values in quotes). True by default.
             </summary>
         </member>
+        <member name="T:Speedy.Protocols.Csv.CsvWriter`1">
+            <summary>
+            Converts a list of items to CSV format.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter`1.#ctor(System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the CSV writer.
+            </summary>
+            <param name="columnSeparator">
+            The string used to separate columns in the output.
+            By default this is a comma so that the generated output is a CSV file.
+            </param>
+            <param name="includeHeaderRow">
+            Whether to include the header row with the columns names in the export
+            </param>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter`1.Add(`0[])">
+            <summary>
+            Add a list of items as rows.
+            </summary>
+        </member>
+        <member name="T:Speedy.Protocols.Csv.CsvWriter">
+            <summary>
+            Converts a list of items to CSV format.
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Csv.CsvWriter._columnSeparator">
+            <summary>
+            The string used to separate columns in the output.
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.Csv.CsvWriter._includeHeaderRow">
+            <summary>
+            Whether to include the header row with column names.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter.#ctor(System.Type,System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the CSV writer.
+            </summary>
+            <param name="type"> The type this writer is for </param>
+            <param name="columnSeparator">
+            The string used to separate columns in the output.
+            By default this is a comma so that the generated output is a CSV file.
+            </param>
+            <param name="includeHeaderRow">
+            Whether to include the header row with the columns names in the export
+            </param>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvWriter.Properties">
+            <summary>
+            The list of fields (headers).
+            </summary>
+        </member>
+        <member name="P:Speedy.Protocols.Csv.CsvWriter.Rows">
+            <summary>
+            The list of rows.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter.EscapeValue(System.Object,System.String)">
+            <summary>
+            Converts a value to how it should output in a csv file
+            If it has a comma, it needs surrounding with double quotes
+            Eg Sydney, Australia -> "Sydney, Australia"
+            Also if it contains any double quotes ("), then they need to be replaced with quad quotes[sic] ("")
+            Eg "Dangerous Dan" McGrew -> """Dangerous Dan"" McGrew"
+            </summary>
+            <param name="value"> The value to escape. </param>
+            <param name="columnSeparator">
+            The string used to separate columns in the output.
+            By default this is a comma so that the generated output is a CSV document.
+            </param>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter.ExportToBytes">
+            <summary>
+            Exports as raw bytes.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter.ExportToFile(System.String)">
+            <summary>
+            Exports to a file
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter.Write``1(System.Collections.Generic.IEnumerable{``0},System.String,System.Boolean)">
+            <summary>
+            Writes a list of items to CSV format.
+            </summary>
+            <typeparam name="T"> The type this writer is for. </typeparam>
+            <param name="items"> The items to be exported. </param>
+            <param name="columnSeparator">
+            The string used to separate columns in the output.
+            By default this is a comma so that the generated output is a CSV file.
+            </param>
+            <param name="includeHeaderRow">
+            Whether to include the header row with the columns names in the export
+            </param>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter.Write">
+            <summary>
+            Output all rows as a CSV string.
+            </summary>
+        </member>
+        <member name="M:Speedy.Protocols.Csv.CsvWriter.ExportToLines">
+            <summary>
+            Outputs all rows as a CSV, returning one "line" at a time
+            Where "line" is a IEnumerable of string values
+            </summary>
+        </member>
         <member name="M:Speedy.Protocols.Extensions.ParseArgument(System.String)">
             <summary>
             Parse a single argument
@@ -9214,14 +9375,6 @@
             <param name="length"> The length of the data. </param>
             <returns> The words for the buffer data. </returns>
         </member>
-        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.GetUInt(System.UInt16,System.UInt16)">
-            <summary>
-            Converts two ushort values into a uint value.
-            </summary>
-            <param name="uh"> The high ushort value of the uint. </param>
-            <param name="ul"> The high ushort value of the uint. </param>
-            <returns> The uint value of the two ushort values. </returns>
-        </member>
         <member name="M:Speedy.Protocols.Modbus.ModbusHelper.GetInt(System.UInt16,System.UInt16)">
             <summary>
             Converts two ushort values into a int value.
@@ -9229,6 +9382,14 @@
             <param name="uh"> The high ushort value of the int. </param>
             <param name="ul"> The high ushort value of the int. </param>
             <returns> The int value of the two ushort values. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.GetUInt(System.UInt16,System.UInt16)">
+            <summary>
+            Converts two ushort values into a uint value.
+            </summary>
+            <param name="uh"> The high ushort value of the uint. </param>
+            <param name="ul"> The high ushort value of the uint. </param>
+            <returns> The uint value of the two ushort values. </returns>
         </member>
         <member name="M:Speedy.Protocols.Modbus.ModbusHelper.High(System.UInt16)">
             <summary>
@@ -14013,10 +14174,13 @@
             </summary>
             <returns> The converted sync entity in a sync object format. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncIssue.ToString">
+        <member name="M:Speedy.Sync.SyncIssue.Refresh(Speedy.Sync.SyncIssue,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncIssue.ShouldUpdate(Speedy.Sync.SyncIssue)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncIssue.ToString">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncIssue.UpdateWith(Speedy.Sync.SyncIssue,System.String[])">

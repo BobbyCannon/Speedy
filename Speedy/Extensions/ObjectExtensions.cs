@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using Speedy.Serialization;
 
 #endregion
 
@@ -109,6 +110,34 @@ public static class ObjectExtensions
 				}
 			}
 		}
+	}
+
+	/// <summary>
+	/// Global shallow clone. If the object is ICloneable then the interface implementation will be used.
+	/// </summary>
+	/// <typeparam name="T"> The type of the object </typeparam>
+	/// <param name="value"> </param>
+	/// <returns> </returns>
+	public static T ShallowClone<T>(this T value)
+	{
+		return value switch
+		{
+			ICloneable<T> cloneable => cloneable.ShallowClone(),
+			ICloneable cloneable => (T) cloneable.ShallowClone(),
+			_ => value.DeepClone(0)
+		};
+	}
+	
+	/// <summary>
+	/// Global shallow clone. If the object is ICloneable then the interface implementation will be used.
+	/// </summary>
+	/// <param name="value"> </param>
+	/// <returns> </returns>
+	public static object ShallowClone(this object value)
+	{
+		return value is ICloneable cloneable
+			? cloneable.ShallowClone()
+			: value.DeepClone(0);
 	}
 
 	#endregion
