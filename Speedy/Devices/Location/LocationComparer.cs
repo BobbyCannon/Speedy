@@ -82,13 +82,13 @@ public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 	/// <inheritdoc />
 	public bool ShouldUpdate(T value, THorizontalLocation update)
 	{
-		return _horizontalComparer.ShouldUpdate(value, update);
+		return _horizontalComparer.ShouldUpdate(value.HorizontalLocation, update);
 	}
 
 	/// <inheritdoc />
 	public bool ShouldUpdate(T value, TVerticalLocation update)
 	{
-		return _verticalComparer.ShouldUpdate(value, update);
+		return _verticalComparer.ShouldUpdate(value.VerticalLocation, update);
 	}
 
 	/// <inheritdoc />
@@ -98,7 +98,7 @@ public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 		var valueVerticalLocation = value?.VerticalLocation;
 
 		return _horizontalComparer.UpdateWith(ref valueHorizontalLocation, update.HorizontalLocation, exclusions)
-			|| _verticalComparer.UpdateWith(ref valueVerticalLocation, update.VerticalLocation, exclusions);
+			| _verticalComparer.UpdateWith(ref valueVerticalLocation, update.VerticalLocation, exclusions);
 	}
 
 	/// <inheritdoc />

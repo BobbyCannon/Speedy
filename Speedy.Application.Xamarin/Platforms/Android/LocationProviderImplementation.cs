@@ -85,10 +85,13 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		{
 			if (_sourceProviders == null)
 			{
-				var defaultEnabled = new[] { LocationManager.GpsProvider, LocationManager.FusedProvider };
+				var defaultEnabled = new[] { LocationManager.GpsProvider };
 				_sourceProviders = Manager
 					.GetProviders(false)
-					.Where(x => x != LocationManager.PassiveProvider)
+					.Where(x =>
+						x != LocationManager.PassiveProvider
+						&& x != LocationManager.FusedProvider
+					)
 					.Select(x => new SourceInformationProvider
 					{
 						ProviderName = x,
@@ -98,7 +101,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 				if (_sourceProviders.All(x => x.Key != LocationManager.FusedProvider))
 				{
-					var fusedSource = new SourceInformationProvider { IsEnabled = true, ProviderName = LocationManager.FusedProvider };
+					var fusedSource = new SourceInformationProvider
+					{
+						IsEnabled = true,
+						ProviderName = LocationManager.FusedProvider
+					};
 					_sourceProviders.Add(fusedSource.ProviderName, fusedSource);
 					_usingGooglePlayFused = true;
 				}
