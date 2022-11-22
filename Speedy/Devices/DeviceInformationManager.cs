@@ -1,11 +1,13 @@
 ﻿#region References
 
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Speedy.Collections;
+using Speedy.Extensions;
 using Speedy.Serialization;
 
 #endregion
@@ -22,7 +24,7 @@ public abstract class DeviceInformationManager<T>
 {
 	#region Fields
 
-	private readonly ConcurrentDictionary<Type, IDeviceInformationProvider> _providers;
+	private readonly SortedObservableCollection<IDeviceInformationProvider> _providers;
 
 	#endregion
 
@@ -33,7 +35,10 @@ public abstract class DeviceInformationManager<T>
 	/// </summary>
 	protected DeviceInformationManager(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_providers = new ConcurrentDictionary<Type, IDeviceInformationProvider>();
+		_providers = new SortedObservableCollection<IDeviceInformationProvider>(dispatcher, new OrderBy<IDeviceInformationProvider>(x => x.ProviderName));
+
+		// Defaults to empty sources.
+		SourceProviders = Array.Empty<IInformationProvider>();
 
 		CurrentValue = new T();
 		BestValue = new T();
@@ -57,6 +62,9 @@ public abstract class DeviceInformationManager<T>
 	public Type CurrentValueType => typeof(T);
 
 	/// <inheritdoc />
+	public bool HasSourceProviders => SourceProviders.Any();
+
+	/// <inheritdoc />
 	public bool IsEnabled { get; set; }
 
 	/// <inheritdoc />
@@ -68,7 +76,10 @@ public abstract class DeviceInformationManager<T>
 	/// <summary>
 	/// The providers for each type.
 	/// </summary>
-	public ReadOnlyDictionary<Type, IDeviceInformationProvider> Providers => new ReadOnlyDictionary<Type, IDeviceInformationProvider>(_providers);
+	public ReadOnlyObservableCollection<IDeviceInformationProvider> Providers => new(_providers);
+
+	/// <inheritdoc />
+	public virtual IEnumerable<IInformationProvider> SourceProviders { get; }
 
 	#endregion
 
@@ -80,16 +91,17 @@ public abstract class DeviceInformationManager<T>
 	/// <param name="provider"> The provider of device information for the type. </param>
 	public void Add(IDeviceInformationProvider provider)
 	{
-		_providers.AddOrUpdate(provider.CurrentValueType,
-			_ =>
+		_providers.AddOrReplace(
+			x => x.ProviderName == provider.ProviderName,
+			() =>
 			{
 				provider.PropertyChanged += ProviderOnPropertyChanged;
 				provider.Updated += ProviderOnUpdated;
 				return provider;
 			},
-			(_, existing) =>
+			(existing) =>
 			{
-				if (existing != null)
+				if (existing != default)
 				{
 					existing.PropertyChanged -= ProviderOnPropertyChanged;
 					existing.Updated -= ProviderOnUpdated;
@@ -123,9 +135,9 @@ public abstract class DeviceInformationManager<T>
 			return;
 		}
 
-		foreach (var i in _providers.Where(x => x.Value.IsEnabled))
+		foreach (var i in _providers.Where(x => x.IsEnabled))
 		{
-			await i.Value.StartMonitoringAsync();
+			await i.StartMonitoringAsync();
 		}
 
 		IsMonitoring = true;
@@ -134,9 +146,9 @@ public abstract class DeviceInformationManager<T>
 	/// <inheritdoc />
 	public async Task StopMonitoringAsync()
 	{
-		foreach (var i in _providers.Where(x => x.Value.IsMonitoring))
+		foreach (var i in _providers.Where(x => x.IsMonitoring))
 		{
-			await i.Value.StopMonitoringAsync();
+			await i.StopMonitoringAsync();
 		}
 
 		IsMonitoring = false;

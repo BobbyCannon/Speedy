@@ -9,6 +9,7 @@ using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Speedy.Application.Internal;
+using Speedy.Devices;
 using Speedy.Devices.Location;
 using Location = Android.Locations.Location;
 using LocationManager = Android.Locations.LocationManager;
@@ -27,7 +28,7 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 {
 	#region Fields
 
-	private readonly HashSet<LocationProviderSource> _activeSources;
+	private readonly HashSet<IInformationProvider> _activeSources;
 	private Location _bestLocation;
 	private readonly TaskCompletionSource<T> _completionSource;
 	private readonly float _desiredAccuracy;
@@ -41,9 +42,9 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 
 	#region Constructors
 
-	public GeolocationSingleListener(IDispatcher dispatcher, string providerName, LocationManager manager, float desiredAccuracy, int timeout, IEnumerable<LocationProviderSource> activeSources, Action finishedCallback)
+	public GeolocationSingleListener(IDispatcher dispatcher, string providerName, LocationManager manager, float desiredAccuracy, int timeout, IEnumerable<IInformationProvider> activeSources, Action finishedCallback)
 	{
-		_activeSources = new HashSet<LocationProviderSource>(activeSources);
+		_activeSources = new HashSet<IInformationProvider>(activeSources);
 		_completionSource = new TaskCompletionSource<T>();
 		_dispatcher = dispatcher;
 		_providerName = providerName;
@@ -53,7 +54,7 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 
 		foreach (var source in _activeSources)
 		{
-			var location = manager.GetLastKnownLocation(source.Provider);
+			var location = manager.GetLastKnownLocation(source.ProviderName);
 
 			if ((location != null) && location.IsBetterLocation(_bestLocation))
 			{
@@ -103,7 +104,7 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 	{
 		lock (_activeSources)
 		{
-			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			var foundSource = _activeSources.FirstOrDefault(x => x.ProviderName == provider);
 			if (foundSource == null)
 			{
 				return;
@@ -120,14 +121,14 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 	{
 		lock (_activeSources)
 		{
-			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			var foundSource = _activeSources.FirstOrDefault(x => x.ProviderName == provider);
 			if (foundSource != null)
 			{
-				foundSource.Enabled = true;
+				foundSource.IsEnabled = true;
 				return;
 			}
 
-			_activeSources.Add(new LocationProviderSource(_dispatcher) { Enabled = true, Provider = provider });
+			_activeSources.Add(new SourceInformationProvider(_dispatcher) { IsEnabled = true, ProviderName = provider });
 		}
 	}
 

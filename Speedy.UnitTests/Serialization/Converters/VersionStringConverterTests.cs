@@ -48,7 +48,13 @@ public class VersionStringConverterTests
 		Assert.AreEqual(version, actualVersion);
 
 		settings = new SerializerSettings();
+
+		#if (NET48)
+		expected = "{\"$id\":\"1\",\"Build\":3,\"Major\":1,\"MajorRevision\":0,\"Minor\":2,\"MinorRevision\":4,\"Revision\":4}";
+		#else
 		expected = "\"1.2.3.4\"";
+		#endif
+
 		actual = version.ToJson(settings);
 		//actual.Escape().CopyToClipboard().Dump();
 		Assert.AreEqual(expected, actual);

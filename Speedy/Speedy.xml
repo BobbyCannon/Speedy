@@ -1666,6 +1666,9 @@
         <member name="P:Speedy.Devices.DeviceInformationManager`1.CurrentValueType">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.HasSourceProviders">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Devices.DeviceInformationManager`1.IsEnabled">
             <inheritdoc />
         </member>
@@ -1679,6 +1682,9 @@
             <summary>
             The providers for each type.
             </summary>
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationManager`1.SourceProviders">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.DeviceInformationManager`1.Add(Speedy.Devices.IDeviceInformationProvider)">
             <summary>
@@ -1728,6 +1734,9 @@
         <member name="P:Speedy.Devices.DeviceInformationProvider`1.CurrentValueType">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.HasSourceProviders">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Devices.DeviceInformationProvider`1.IsEnabled">
             <inheritdoc />
         </member>
@@ -1735,6 +1744,9 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Devices.DeviceInformationProvider`1.ProviderName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Devices.DeviceInformationProvider`1.SourceProviders">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Devices.DeviceInformationProvider`1.Refresh(`0)">
@@ -1805,19 +1817,14 @@
             Get the type of the current value.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IDeviceInformationProvider.IsEnabled">
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.HasSourceProviders">
             <summary>
-            Determines if the provider is enabled.
+            Returns true if there are source providers available.
             </summary>
         </member>
-        <member name="P:Speedy.Devices.IDeviceInformationProvider.IsMonitoring">
+        <member name="P:Speedy.Devices.IDeviceInformationProvider.SourceProviders">
             <summary>
-            Determines if the provider is listening.
-            </summary>
-        </member>
-        <member name="P:Speedy.Devices.IDeviceInformationProvider.ProviderName">
-            <summary>
-            Gets the name of the provider.
+            An optional set of source providers.
             </summary>
         </member>
         <member name="M:Speedy.Devices.IDeviceInformationProvider.Refresh(Speedy.IUpdatable)">
@@ -1848,6 +1855,26 @@
         <member name="E:Speedy.Devices.IDeviceInformationProvider.Updated">
             <summary>
             An event to notify when the device information was updated.
+            </summary>
+        </member>
+        <member name="T:Speedy.Devices.IInformationProvider">
+            <summary>
+            Represents a provider of device information.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IInformationProvider.IsEnabled">
+            <summary>
+            Determines if the provider is enabled.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IInformationProvider.IsMonitoring">
+            <summary>
+            Determines if the provider is listening.
+            </summary>
+        </member>
+        <member name="P:Speedy.Devices.IInformationProvider.ProviderName">
+            <summary>
+            Gets the name of the provider.
             </summary>
         </member>
         <member name="T:Speedy.Devices.DevicePlatform">
@@ -3469,6 +3496,17 @@
             <summary>
             Extensions for collections.
             </summary>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddOrReplace``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean},System.Func{``0},System.Func{``0,``0})">
+            <summary>
+            Add the item or replace the item with a new 
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="collection"></param>
+            <param name="lookup"></param>
+            <param name="create"></param>
+            <param name="replace"></param>
+            <returns></returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate(System.Net.Http.Headers.HttpHeaders,System.String,System.String)">
             <summary>
@@ -5707,13 +5745,13 @@
             <param name="dispatcher"> An optional dispatcher. </param>
         </member>
         <member name="M:Speedy.Comparer`1.ShouldUpdate(`0,`0)">
-            <inheritdoc />
+            <inheritdoc cref="M:Speedy.IComparer`3.ShouldUpdate(`0,`1)" />
         </member>
         <member name="M:Speedy.Comparer`1.ShouldUpdate(System.Object,System.Object)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Comparer`1.UpdateWith(`0@,`0,System.String[])">
-            <inheritdoc />
+            <inheritdoc cref="M:Speedy.IComparer`3.UpdateWith(`0@,`2,System.String[])" />
         </member>
         <member name="M:Speedy.Comparer`1.UpdateWith(System.Object@,System.Object,System.String[])">
             <inheritdoc />
@@ -5732,13 +5770,13 @@
             <param name="dispatcher"> An optional dispatcher. </param>
         </member>
         <member name="M:Speedy.Comparer`2.ShouldUpdate(`0,`1)">
-            <inheritdoc />
+            <inheritdoc cref="M:Speedy.IComparer.ShouldUpdate(System.Object,System.Object)" />
         </member>
         <member name="M:Speedy.Comparer`2.ShouldUpdate(System.Object,System.Object)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Comparer`2.UpdateWith(`0@,`1,System.String[])">
-            <inheritdoc />
+            <inheritdoc cref="M:Speedy.IComparer.UpdateWith(System.Object@,System.Object,System.String[])" />
         </member>
         <member name="M:Speedy.Comparer`2.UpdateWith(System.Object@,System.Object,System.String[])">
             <inheritdoc />

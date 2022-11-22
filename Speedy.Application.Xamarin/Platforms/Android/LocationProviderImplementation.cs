@@ -11,6 +11,7 @@ using Android.OS;
 using Android.Runtime;
 using Java.Lang;
 using Speedy.Application.Internal;
+using Speedy.Devices;
 using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
@@ -52,8 +53,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	private GeolocationContinuousListener<TLocation, THorizontal, TVertical> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
-	private IDictionary<string, LocationProviderSource> _providerSources;
 	private GeolocationSingleListener<TLocation, THorizontal, TVertical> _singleListener;
+	private IDictionary<string, SourceInformationProvider> _sourceProviders;
 
 	#endregion
 
@@ -72,40 +73,45 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	#region Properties
 
 	/// <inheritdoc />
-	public bool IsLocationAvailable => ProviderSources.Any();
+	public bool IsLocationAvailable => SourceProviders.Any();
 
 	/// <inheritdoc />
-	public bool IsLocationEnabled => ProviderSources.Any(x => x.Enabled && Manager.IsProviderEnabled(x.Provider));
+	public bool IsLocationEnabled => SourceProviders.Any(x => x.IsEnabled && Manager.IsProviderEnabled(x.ProviderName));
 
 	/// <inheritdoc />
 	public override string ProviderName => "Xamarin Android";
 
+	/// <summary>
+	/// True if the location provider has permission to be accessed.
+	/// </summary>
 	protected bool HasPermission { get; private set; }
 
-	/// <summary>
-	/// Gets all providers from the Location Manager.
-	/// </summary>
-	internal IEnumerable<LocationProviderSource> ProviderSources
+	/// <inheritdoc />
+	public override IEnumerable<IInformationProvider> SourceProviders
 	{
 		get
-		{
-			if (_providerSources == null)
+		{ 
+			if (_sourceProviders == null)
 			{
 				var defaultEnabled = new[] { LocationManager.GpsProvider, "fused" };
-				_providerSources = Manager.GetProviders(false)
-					.Select(x => new LocationProviderSource
+				_sourceProviders = Manager
+					.GetProviders(false)
+					.Select(x => new SourceInformationProvider
 					{
-						Provider = x,
-						Enabled = defaultEnabled.Contains(x)
+						ProviderName = x,
+						IsEnabled = defaultEnabled.Contains(x)
 					})
-					.ToDictionary(x => x.Provider, x => x);
+					.ToDictionary(x => x.ProviderName, x => x);
 
 				#if GOOGLEPLAY
 				var t = new LocationProviderSource { Enabled = true, Provider = FusedGooglePlusKey };
 				_providerSources.Add(t.Provider, t);
 				#endif
+
+				OnPropertyChanged(nameof(HasSourceProviders));
 			}
-			return _providerSources.Values;
+
+			return _sourceProviders.Values;
 		}
 	}
 
@@ -148,7 +154,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 
 		var tcs = new TaskCompletionSource<TLocation>();
-		var providerSources = ProviderSources.ToArray();
+		var providerSources = SourceProviders.ToArray();
 
 		if (!IsMonitoring)
 		{
@@ -170,9 +176,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 				Manager,
 				LocationProviderSettings.DesiredAccuracy,
 				timeoutMilliseconds,
-				ProviderSources
-					.Where(x => x.Enabled)
-					.Where(x => Manager.IsProviderEnabled(x.Provider))
+				SourceProviders
+					.Where(x => x.IsEnabled)
+					.Where(x => Manager.IsProviderEnabled(x.ProviderName))
 					.ToList(),
 				singleListenerFinishCallback);
 
@@ -196,12 +202,12 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 				for (var i = 0; i < providerSources.Length; ++i)
 				{
-					if (Manager.IsProviderEnabled(providerSources[i].Provider))
+					if (Manager.IsProviderEnabled(providerSources[i].ProviderName))
 					{
 						enabled++;
 					}
 
-					Manager.RequestLocationUpdates(providerSources[i].Provider, 0, 0, _singleListener, looper);
+					Manager.RequestLocationUpdates(providerSources[i].ProviderName, 0, 0, _singleListener, looper);
 				}
 
 				if (enabled == 0)
@@ -260,7 +266,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			return Task.CompletedTask;
 		}
 
-		var sources = ProviderSources.ToArray();
+		var sources = SourceProviders.Cast<SourceInformationProvider>().ToArray();
 		var looper = Looper.MyLooper() ?? Looper.MainLooper;
 
 		#if GOOGLEPLAY
@@ -294,20 +300,19 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			}
 			#endif
 
-			if (!source.Enabled)
+			if (!source.IsEnabled)
 			{
-				source.Listening = false;
-				source.Enabled = false;
+				source.IsEnabled = false;
 				continue;
 			}
 
-			Manager.RequestLocationUpdates(source.Provider,
+			Manager.RequestLocationUpdates(source.ProviderName,
 				(long) LocationProviderSettings.MinimumTime.TotalMilliseconds,
 				LocationProviderSettings.MinimumDistance,
 				_listener,
 				looper);
 
-			source.Listening = true;
+			source.IsMonitoring = true;
 		}
 
 		Status = "Is Monitoring";
@@ -351,7 +356,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			Debug.WriteLine($"Unable to remove updates: {ex}");
 		}
 
-		_providerSources.ForEach(x => x.Value.Listening = false);
+		SourceProviders.Cast<SourceInformationProvider>().ForEach(x => x.IsMonitoring = false);
 		_listener = null;
 
 		Status = string.Empty;

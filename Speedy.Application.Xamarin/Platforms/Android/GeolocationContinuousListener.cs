@@ -8,7 +8,7 @@ using System.Threading;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
-using Speedy.Application.Internal;
+using Speedy.Devices;
 using Speedy.Devices.Location;
 using Speedy.Logging;
 using Location = Android.Locations.Location;
@@ -30,14 +30,14 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 
 	private readonly IDispatcher _dispatcher;
 	private readonly string _providerName;
-	private readonly IEnumerable<LocationProviderSource> _providerSources;
+	private readonly IEnumerable<IInformationProvider> _providerSources;
 	private Location _lastLocation;
 	
 	#endregion
 
 	#region Constructors
 
-	public GeolocationContinuousListener(IDispatcher dispatcher, string providerName, LocationManager manager, IEnumerable<LocationProviderSource> providerSources)
+	public GeolocationContinuousListener(IDispatcher dispatcher, string providerName, LocationManager manager, IEnumerable<IInformationProvider> providerSources)
 	{
 		_dispatcher = dispatcher;
 		_providerName = providerName;
@@ -58,8 +58,8 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 		lock (_providerSources)
 		{
 			// Check to see if the source is available and enabled
-			var foundSource = _providerSources?.FirstOrDefault(x => x.Provider == location.Provider);
-			if (foundSource is not { Enabled: true })
+			var foundSource = _providerSources?.FirstOrDefault(x => x.ProviderName == location.Provider);
+			if (foundSource is not { IsEnabled: true })
 			{
 				// Source is not found or is not enabled.
 				return;
@@ -83,13 +83,13 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 
 		lock (_providerSources)
 		{
-			var foundSource = _providerSources.FirstOrDefault(x => x.Provider == provider);
+			var foundSource = _providerSources.FirstOrDefault(x => x.ProviderName == provider);
 			if (foundSource == null)
 			{
 				return;
 			}
 
-			foundSource.Enabled = false;
+			foundSource.IsEnabled = false;
 		}
 	}
 
@@ -102,13 +102,13 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 
 		lock (_providerSources)
 		{
-			var foundSource = _providerSources.FirstOrDefault(x => x.Provider == provider);
+			var foundSource = _providerSources.FirstOrDefault(x => x.ProviderName == provider);
 			if (foundSource == null)
 			{
 				return;
 			}
 
-			foundSource.Enabled = true;
+			foundSource.IsEnabled = true;
 		}
 	}
 

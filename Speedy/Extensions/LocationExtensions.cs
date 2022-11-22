@@ -587,7 +587,7 @@ public static class LocationExtensions
 	public static bool UpdateWith(this IBasicLocation location, IBasicLocation update, params string[] exclusions)
 	{
 		return UpdateWith(location, (IMinimalHorizontalLocation) update, exclusions)
-			|| UpdateWith(location, (IMinimalVerticalLocation) update, exclusions);
+			| UpdateWith(location, (IMinimalVerticalLocation) update, exclusions);
 	}
 
 	/// <summary>
@@ -599,7 +599,7 @@ public static class LocationExtensions
 	public static bool UpdateWith(this IBasicLocation location, ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
 	{
 		return UpdateWith(location, update.HorizontalLocation, exclusions)
-			|| UpdateWith(location, update.VerticalLocation, exclusions);
+			| UpdateWith(location, update.VerticalLocation, exclusions);
 	}
 
 	/// <summary>

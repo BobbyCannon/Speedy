@@ -717,6 +717,14 @@ public static class ReflectionExtensions
 			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
 			return Activator.CreateInstance(constructedListType);
 		}
+		
+		var isList = propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(IList<>));
+		if (isList)
+		{
+			var collectionType = typeof(List<>);
+			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
 
 		if (propertyType.IsArray)
 		{

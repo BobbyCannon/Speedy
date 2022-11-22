@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Application;
 using Speedy.Configuration.CommandLine;
@@ -35,19 +36,21 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 		var exclusions = new[]
 		{
 			// Will get back to these later
-			typeof(CommandLineParser),
+			typeof(CommandLineParser)
 		};
 		var typeExclusions = new Dictionary<Type, string[]>
 		{
 			//{ typeof(Location), new[] { nameof(Location.HorizontalFlags), nameof(Location.VerticalFlags) } },
 			{ typeof(Bindable), new[] { nameof(Bindable.HasChanges) } },
 			{ typeof(SerializerSettings), new[] { nameof(SerializerSettings.JsonSettings) } },
-			{ typeof(CommandLineArgument), new[]
 			{
-				nameof(CommandLineArgument.DefaultValue),
-				nameof(CommandLineArgument.HasDefaultValue),
-				nameof(CommandLineArgument.WasFound)
-			} }
+				typeof(CommandLineArgument), new[]
+				{
+					nameof(CommandLineArgument.DefaultValue),
+					nameof(CommandLineArgument.HasDefaultValue),
+					nameof(CommandLineArgument.WasFound)
+				}
+			}
 		};
 		var types = assemblies
 			.SelectMany(s => s.GetTypes())
@@ -79,7 +82,7 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 				.SelectMany(x => x.Value)
 				.ToArray();
 
-			ValidateUpdatableModel(GetModelWithNonDefaultValues(type, typeExclusion), typeExclusion);
+			ValidateUpdatableModel(GetModelWithNonDefaultValues(type, NonSupportedType, typeExclusion), typeExclusion);
 		}
 	}
 
@@ -138,6 +141,21 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 		Assert.AreEqual(destination.Name, source.Name);
 		Assert.AreEqual(destination.Pets, source.Pets);
 		Assert.AreEqual(destination.SyncId, source.SyncId);
+	}
+
+	private object NonSupportedType(PropertyInfo arg)
+	{
+		if (arg.PropertyType == typeof(IHorizontalLocation))
+		{
+			return new HorizontalLocation();
+		}
+
+		if (arg.PropertyType == typeof(IVerticalLocation))
+		{
+			return new VerticalLocation();
+		}
+
+		return null;
 	}
 
 	#endregion

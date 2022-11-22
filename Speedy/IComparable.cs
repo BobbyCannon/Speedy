@@ -20,7 +20,7 @@ public abstract class Comparer<T> : Bindable, IComparer<T, T>
 
 	#region Methods
 
-	/// <inheritdoc />
+	/// <inheritdoc cref="IComparer{T,T2,T3}.ShouldUpdate(T,T2)" />
 	public abstract bool ShouldUpdate(T value, T update);
 
 	/// <inheritdoc />
@@ -31,7 +31,7 @@ public abstract class Comparer<T> : Bindable, IComparer<T, T>
 			&& ShouldUpdate(tValue, tUpdate);
 	}
 
-	/// <inheritdoc />
+	/// <inheritdoc cref="IComparer{T,T2,T3}.UpdateWith(ref T,T3,string[])" />
 	public abstract bool UpdateWith(ref T value, T update, params string[] exclusions);
 
 	/// <inheritdoc />
@@ -66,7 +66,7 @@ public abstract class Comparer<T, T2> : Bindable, IComparer<T, T2>
 
 	#region Methods
 
-	/// <inheritdoc />
+	/// <inheritdoc cref="IComparer.ShouldUpdate" />
 	public abstract bool ShouldUpdate(T value, T2 update);
 
 	/// <inheritdoc />
@@ -77,7 +77,7 @@ public abstract class Comparer<T, T2> : Bindable, IComparer<T, T2>
 			&& ShouldUpdate(tValue, tUpdate);
 	}
 
-	/// <inheritdoc />
+	/// <inheritdoc cref="IComparer.UpdateWith" />
 	public abstract bool UpdateWith(ref T value, T2 update, params string[] exclusions);
 
 	/// <inheritdoc />

@@ -113,10 +113,10 @@ public class LocationExtensionsTests : SpeedyUnitTest
 		foreach (var value in expectedValues)
 		{
 			location.AltitudeReference = value;
-			AreEqual(true, location.HasValue);
+			AreEqual(true, location.HasSupportedAltitude());
 
 			LocationExtensions.SupportedAltitudeReferenceTypes.Remove(value);
-			AreEqual(false, location.HasValue);
+			AreEqual(false, location.HasSupportedAltitude());
 		}
 
 		// All values should no longer be supported

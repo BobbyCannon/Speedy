@@ -4374,6 +4374,15 @@
             <param name="exclusions"> An optional set of exclusions. </param>
             <returns> The instance of the type with non default values. </returns>
         </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.GetModelWithNonDefaultValues(System.Type,System.Func{System.Reflection.PropertyInfo,System.Object},System.String[])">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <param name="type"> The type to create. </param>
+            <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
+            <param name="exclusions"> An optional set of exclusions. </param>
+            <returns> The instance of the type with non default values. </returns>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.GetModelWithNonDefaultValues``1">
             <summary>
             Create a new instance of the type then update the object with non default values.

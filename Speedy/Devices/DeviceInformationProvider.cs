@@ -1,7 +1,9 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 #endregion
@@ -22,6 +24,8 @@ public abstract class DeviceInformationProvider<T>
 	/// </summary>
 	protected DeviceInformationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
+		SourceProviders = Array.Empty<IInformationProvider>();
+
 		CurrentValue = new T();
 		IsEnabled = true;
 	}
@@ -37,6 +41,9 @@ public abstract class DeviceInformationProvider<T>
 	public Type CurrentValueType => typeof(T);
 
 	/// <inheritdoc />
+	public bool HasSourceProviders => SourceProviders.Any();
+
+	/// <inheritdoc />
 	public bool IsEnabled { get; set; }
 
 	/// <inheritdoc />
@@ -44,6 +51,9 @@ public abstract class DeviceInformationProvider<T>
 
 	/// <inheritdoc />
 	public abstract string ProviderName { get; }
+
+	/// <inheritdoc />
+	public virtual IEnumerable<IInformationProvider> SourceProviders { get; }
 
 	#endregion
 
@@ -176,7 +186,7 @@ public interface IDeviceInformationProvider<T>
 /// <summary>
 /// Represents a provider of device information.
 /// </summary>
-public interface IDeviceInformationProvider : IUpdatable, INotifyPropertyChanged
+public interface IDeviceInformationProvider : IInformationProvider
 {
 	#region Properties
 
@@ -186,19 +196,14 @@ public interface IDeviceInformationProvider : IUpdatable, INotifyPropertyChanged
 	Type CurrentValueType { get; }
 
 	/// <summary>
-	/// Determines if the provider is enabled.
+	/// Returns true if there are source providers available.
 	/// </summary>
-	bool IsEnabled { get; set; }
+	bool HasSourceProviders { get; }
 
 	/// <summary>
-	/// Determines if the provider is listening.
+	/// An optional set of source providers.
 	/// </summary>
-	bool IsMonitoring { get; }
-
-	/// <summary>
-	/// Gets the name of the provider.
-	/// </summary>
-	string ProviderName { get; }
+	IEnumerable<IInformationProvider> SourceProviders { get; }
 
 	#endregion
 
@@ -237,6 +242,31 @@ public interface IDeviceInformationProvider : IUpdatable, INotifyPropertyChanged
 	/// An event to notify when the device information was updated.
 	/// </summary>
 	event EventHandler<IUpdatable> Updated;
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a provider of device information.
+/// </summary>
+public interface IInformationProvider : IUpdatable, INotifyPropertyChanged
+{
+	#region Properties
+
+	/// <summary>
+	/// Determines if the provider is enabled.
+	/// </summary>
+	bool IsEnabled { get; set; }
+
+	/// <summary>
+	/// Determines if the provider is listening.
+	/// </summary>
+	bool IsMonitoring { get; }
+
+	/// <summary>
+	/// Gets the name of the provider.
+	/// </summary>
+	string ProviderName { get; }
 
 	#endregion
 }

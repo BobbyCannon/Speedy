@@ -137,7 +137,7 @@ public class MainViewModel : ViewModel
 			return;
 		}
 
-		WriteLogEntry($"Processing {key} {location.StatusTime}...");
+		//WriteLogEntry($"Processing {key} {location.StatusTime}...");
 		
 		var currentLocation = Locations.FirstOrDefault(x => x.CalculateKey() == key);
 		if (currentLocation == null)
@@ -214,6 +214,8 @@ public class MainViewModel : ViewModel
 		Dispatcher.Run(() =>
 		{
 			LocationManager.StopListeningCommand.Execute(null);
+			LocationManager.CurrentValue.HorizontalLocation.UpdateWith(new HorizontalLocation());
+			LocationManager.CurrentValue.VerticalLocation.UpdateWith(new VerticalLocation());
 			LocationHistory.Clear();
 			Locations.Clear();
 			Logs.Clear();

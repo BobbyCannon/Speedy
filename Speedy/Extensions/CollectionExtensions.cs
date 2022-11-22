@@ -61,6 +61,37 @@ public static class CollectionExtensions
 	#region Methods
 
 	/// <summary>
+	/// Add the item or replace the item with a new 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="collection"></param>
+	/// <param name="lookup"></param>
+	/// <param name="create"></param>
+	/// <param name="replace"></param>
+	/// <returns></returns>
+	public static T AddOrReplace<T>(this ICollection<T> collection, Func<T, bool> lookup, Func<T> create, Func<T, T> replace)
+	{
+		var foundItem = collection.FirstOrDefault(lookup);
+		
+		// See if the item was found
+		if (Equals(foundItem, default(T)))
+		{
+			// Item was not found so just add
+			var result = create();
+			collection.Add(result);
+			return result;
+		}
+		else
+		{
+			// Item existed so replace it
+			var result = replace(foundItem);
+			collection.Remove(foundItem);
+			collection.Add(result);
+			return result;
+		}
+	}
+
+	/// <summary>
 	/// Add or update the value in the HTTP headers collection.
 	/// </summary>
 	/// <param name="headers"> The headers to be updated. </param>
