@@ -2676,6 +2676,11 @@
             The app is not, or no longer, authorized to receive location data.
             </summary>
         </member>
+        <member name="F:Speedy.Devices.Location.LocationProviderError.MissingDependency">
+            <summary>
+            The app is messing a required dependency.
+            </summary>
+        </member>
         <member name="T:Speedy.Devices.Location.LocationProviderException">
             <summary>
             Location exception

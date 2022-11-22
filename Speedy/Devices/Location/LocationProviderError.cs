@@ -18,5 +18,10 @@ public enum LocationProviderError
 	/// <summary>
 	/// The app is not, or no longer, authorized to receive location data.
 	/// </summary>
-	Unauthorized = 2
+	Unauthorized = 2,
+	
+	/// <summary>
+	/// The app is messing a required dependency.
+	/// </summary>
+	MissingDependency = 3
 }

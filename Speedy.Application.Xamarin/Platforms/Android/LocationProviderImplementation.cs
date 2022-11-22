@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Gms.Common;
+using Android.Gms.Location;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
@@ -18,13 +20,9 @@ using Speedy.Logging;
 using Xamarin.Essentials;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-#if GOOGLEPLAY
-using Android.Gms.Common;
-using Android.Gms.Location;
+using Location = Android.Locations.Location;
 using LocationRequest = Android.Gms.Location.LocationRequest;
 using XamarinForms = Xamarin.Forms;
-using Location = Android.Locations.Location;
-#endif
 
 #endregion
 
@@ -44,17 +42,16 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 {
 	#region Fields
 
-	#if GOOGLEPLAY
-	private const string FusedGooglePlusKey = "fused g+";
-	private FusedLocationProviderClient _fusedListener;
 	private FusedLocationProviderCallback _fusedCallback;
-	#endif
+
+	private FusedLocationProviderClient _fusedListener;
 
 	private GeolocationContinuousListener<TLocation, THorizontal, TVertical> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
 	private GeolocationSingleListener<TLocation, THorizontal, TVertical> _singleListener;
 	private IDictionary<string, SourceInformationProvider> _sourceProviders;
+	private bool _usingGooglePlayFused;
 
 	#endregion
 
@@ -81,21 +78,17 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <inheritdoc />
 	public override string ProviderName => "Xamarin Android";
 
-	/// <summary>
-	/// True if the location provider has permission to be accessed.
-	/// </summary>
-	protected bool HasPermission { get; private set; }
-
 	/// <inheritdoc />
 	public override IEnumerable<IInformationProvider> SourceProviders
 	{
 		get
-		{ 
+		{
 			if (_sourceProviders == null)
 			{
-				var defaultEnabled = new[] { LocationManager.GpsProvider, "fused" };
+				var defaultEnabled = new[] { LocationManager.GpsProvider, LocationManager.FusedProvider };
 				_sourceProviders = Manager
 					.GetProviders(false)
+					.Where(x => x != LocationManager.PassiveProvider)
 					.Select(x => new SourceInformationProvider
 					{
 						ProviderName = x,
@@ -103,10 +96,12 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 					})
 					.ToDictionary(x => x.ProviderName, x => x);
 
-				#if GOOGLEPLAY
-				var t = new LocationProviderSource { Enabled = true, Provider = FusedGooglePlusKey };
-				_providerSources.Add(t.Provider, t);
-				#endif
+				if (_sourceProviders.All(x => x.Key != LocationManager.FusedProvider))
+				{
+					var fusedSource = new SourceInformationProvider { IsEnabled = true, ProviderName = LocationManager.FusedProvider };
+					_sourceProviders.Add(fusedSource.ProviderName, fusedSource);
+					_usingGooglePlayFused = true;
+				}
 
 				OnPropertyChanged(nameof(HasSourceProviders));
 			}
@@ -114,6 +109,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			return _sourceProviders.Values;
 		}
 	}
+
+	/// <summary>
+	/// True if the location provider has permission to be accessed.
+	/// </summary>
+	protected bool HasPermission { get; private set; }
 
 	/// <summary>
 	/// The android location manager.
@@ -247,12 +247,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			return Task.CompletedTask;
 		}
 
-		#if GOOGLEPLAY
 		if (!IsGooglePlayServicesInstalled())
 		{
-			return;
+			ListenerPositionError(this, LocationProviderError.MissingDependency);
+			return Task.CompletedTask;
 		}
-		#endif
 
 		LocationProviderSettings.Cleanup();
 
@@ -269,8 +268,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		var sources = SourceProviders.Cast<SourceInformationProvider>().ToArray();
 		var looper = Looper.MyLooper() ?? Looper.MainLooper;
 
-		#if GOOGLEPLAY
-		if ((XamarinPlatform.MainActivity != null) && _providerSources[FusedGooglePlusKey].Enabled)
+		if ((XamarinPlatform.MainActivity != null)
+			&& _usingGooglePlayFused
+			&& _sourceProviders[LocationManager.FusedProvider].IsEnabled)
 		{
 			_fusedListener = LocationServices.GetFusedLocationProviderClient(XamarinPlatform.MainActivity);
 			var locationRequest = LocationRequest.Create();
@@ -280,9 +280,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			locationRequest.SetSmallestDisplacement(LocationProviderSettings.MinimumDistance);
 			_fusedCallback = new FusedLocationProviderCallback(FusedLocationProviderLocationChanged);
 			_fusedListener.RequestLocationUpdates(locationRequest, _fusedCallback, looper);
-			_providerSources[FusedGooglePlusKey].Listening = true;
+			_sourceProviders[LocationManager.FusedProvider].IsMonitoring = true;
 		}
-		#endif
 
 		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(Dispatcher, ProviderName, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
@@ -293,12 +292,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		{
 			var source = sources[i];
 
-			#if GOOGLEPLAY
-			if (source.Provider == FusedGooglePlusKey)
+			if ((source.ProviderName == LocationManager.FusedProvider) && _usingGooglePlayFused)
 			{
+				// This provider is handled above, differently
 				continue;
 			}
-			#endif
 
 			if (!source.IsEnabled)
 			{
@@ -333,10 +331,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		_listener.PositionChanged -= ListenerPositionChanged;
 		_listener.PositionError -= ListenerPositionError;
 
-		#if GOOGLEPLAY
 		if (_fusedListener != null)
 		{
-			_providerSources[FusedGooglePlusKey].Listening = false;
+			_sourceProviders[LocationManager.FusedProvider].IsMonitoring = false;
 			_fusedListener.RemoveLocationUpdates(_fusedCallback);
 
 			_fusedListener.Dispose();
@@ -345,7 +342,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			_fusedListener = null;
 			_fusedCallback = null;
 		}
-		#endif
 
 		try
 		{
@@ -417,15 +413,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		return false;
 	}
 
-	#if GOOGLEPLAY
 	private void FusedLocationProviderLocationChanged(Location obj)
 	{
-		var t = obj.ToPosition<T>();
-		t.HorizontalSourceName = FusedGooglePlusKey;
-		t.VerticalSourceName = FusedGooglePlusKey;
-		OnPositionChanged(t);
+		var location = obj.ToPosition<TLocation, THorizontal, TVertical>(ProviderName);
+		UpdateCurrentValue(location);
 	}
-
 
 	private bool IsGooglePlayServicesInstalled()
 	{
@@ -446,7 +438,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		return false;
 	}
 
-	#endif
 	private void ListenerOnLogEventWritten(object sender, LogEventArgs e)
 	{
 		OnLogEventWritten(e);
@@ -476,7 +467,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 	#region Classes
 
-	#if GOOGLEPLAY
 	private class FusedLocationProviderCallback : LocationCallback
 	{
 		#region Fields
@@ -514,7 +504,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 		#endregion
 	}
-	#endif
 
 	#endregion
 }
