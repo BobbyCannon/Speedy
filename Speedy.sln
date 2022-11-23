@@ -100,7 +100,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples.Maui", "Samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Website.Core", "Samples\Website\Speedy.Website.Core\Speedy.Website.Core.csproj", "{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples.Xamarin.UnitTests", "Samples\Xamarin\Speedy.Samples.Xamarin\Speedy.Samples.Xamarin.UnitTests\Speedy.Samples.Xamarin.UnitTests.csproj", "{04C51FE2-5814-482D-8144-FE4161A86F7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples.Xamarin.UnitTests", "Samples\Xamarin\Speedy.Samples.Xamarin\Speedy.Samples.Xamarin.UnitTests\Speedy.Samples.Xamarin.UnitTests.csproj", "{04C51FE2-5814-482D-8144-FE4161A86F7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1041,8 +1041,6 @@ Global
 		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Debug|x86.Build.0 = Debug|Any CPU
 		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Debug|x86.Deploy.0 = Debug|Any CPU
 		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Release|ARM.ActiveCfg = Release|Any CPU
 		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Release|ARM.Build.0 = Release|Any CPU
 		{3BDB1014-EEDB-4D61-A6BF-1A358D1E8DBE}.Release|ARM.Deploy.0 = Release|Any CPU
@@ -1076,7 +1074,6 @@ Global
 		{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}.Debug|x86.Build.0 = Debug|Any CPU
 		{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}.Release|ARM.ActiveCfg = Release|Any CPU
 		{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}.Release|ARM.Build.0 = Release|Any CPU
 		{BB45C45A-F28D-4DA6-9BF6-1CF18495F5B2}.Release|ARM64.ActiveCfg = Release|Any CPU
@@ -1104,7 +1101,6 @@ Global
 		{04C51FE2-5814-482D-8144-FE4161A86F7B}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{04C51FE2-5814-482D-8144-FE4161A86F7B}.Debug|x86.Build.0 = Debug|Any CPU
 		{04C51FE2-5814-482D-8144-FE4161A86F7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04C51FE2-5814-482D-8144-FE4161A86F7B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{04C51FE2-5814-482D-8144-FE4161A86F7B}.Release|ARM.ActiveCfg = Release|Any CPU
 		{04C51FE2-5814-482D-8144-FE4161A86F7B}.Release|ARM.Build.0 = Release|Any CPU
 		{04C51FE2-5814-482D-8144-FE4161A86F7B}.Release|ARM64.ActiveCfg = Release|Any CPU

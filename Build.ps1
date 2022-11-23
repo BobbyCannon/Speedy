@@ -74,7 +74,7 @@ try
 
 	if ($LASTEXITCODE -ne 0)
 	{
-		Write-Host "Build has failed! " $watch.Elapsed -ForegroundColor Red
+		Write-Host "Build has failed! " $LASTEXITCODE $watch.Elapsed -ForegroundColor Red
 		exit $LASTEXITCODE
 	}
 

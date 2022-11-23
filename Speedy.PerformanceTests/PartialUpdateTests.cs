@@ -23,8 +23,14 @@ namespace Speedy.PerformanceTests
 			addressJson.Dump();
 			var (update, timer) = Timer.Create(() => PartialUpdate.FromJson<AddressEntity>(addressJson));
 			timer.Elapsed.Dump();
+			
+			#if NET48
+			Assert.IsTrue(timer.Elapsed.TotalMilliseconds < 75.0, $"Total Milliseconds: {timer.Elapsed.TotalMilliseconds}");
+			Assert.IsNotNull(update);
+			#else
 			Assert.IsTrue(timer.Elapsed.TotalMilliseconds < 50.0, $"Total Milliseconds: {timer.Elapsed.TotalMilliseconds}");
 			Assert.IsNotNull(update);
+			#endif
 		}
 
 		#endregion
