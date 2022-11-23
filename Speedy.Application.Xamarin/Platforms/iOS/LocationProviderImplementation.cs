@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CoreLocation;
 using Foundation;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using UIKit;
 using Xamarin.Essentials;
 
@@ -61,14 +61,17 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	#region Properties
 
 	/// <inheritdoc />
-	public bool IsLocationAvailable => true;
+	public override bool IsLocationAvailable => true;
 
 	/// <inheritdoc />
-	public bool IsLocationEnabled => CLLocationManager.LocationServicesEnabled;
+	public override bool IsLocationEnabled => CLLocationManager.LocationServicesEnabled;
 
 	/// <inheritdoc />
 	public sealed override string ProviderName => "Xamarin iOS";
 
+	/// <summary>
+	/// True if the location provider has permission to be accessed.
+	/// </summary>
 	protected bool HasPermission { get; private set; }
 
 	#endregion

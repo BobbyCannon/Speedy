@@ -1,6 +1,4 @@
-﻿@using System.Runtime.InteropServices
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -21,7 +19,7 @@
 				@RenderBody()
 			</div>
 			<footer class="text-center">
-			<p>&copy; @(TimeService.Now.Year) - Speedy (@(RuntimeInformation.FrameworkDescription))</p>
+			<p>&copy; @(TimeService.Now.Year) - Speedy (@(System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription))</p>
 			</footer>
 		</div>
 

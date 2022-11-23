@@ -5,7 +5,7 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents a minimal location (lat, long, alt, alt ref).

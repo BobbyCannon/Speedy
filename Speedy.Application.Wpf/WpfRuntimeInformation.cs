@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using Speedy.Application.Wpf.Extensions;
 using Speedy.Application.Wpf.Internal;
-using Speedy.Devices;
+using Speedy.Data;
 
 #endregion
 

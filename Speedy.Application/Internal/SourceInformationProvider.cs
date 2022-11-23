@@ -1,6 +1,10 @@
 ﻿#region References
 
-using Speedy.Devices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Speedy.Data;
 
 #endregion
 
@@ -25,11 +29,15 @@ internal class SourceInformationProvider : Bindable, IInformationProvider
 	/// </summary>
 	public SourceInformationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
+		SubProviders = Array.Empty<IInformationProvider>();
 	}
 
 	#endregion
 
 	#region Properties
+
+	/// <inheritdoc />
+	public bool HasSubProviders => SubProviders.Any();
 
 	/// <inheritdoc />
 	public bool IsEnabled { get; set; }
@@ -39,6 +47,31 @@ internal class SourceInformationProvider : Bindable, IInformationProvider
 
 	/// <inheritdoc />
 	public string ProviderName { get; set; }
+
+	/// <inheritdoc />
+	public IEnumerable<IInformationProvider> SubProviders { get; }
+
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	public Task StartMonitoringAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	/// <inheritdoc />
+	public Task StopMonitoringAsync()
+	{
+		return Task.CompletedTask;
+	}
+
+	#endregion
+
+	#region Events
+
+	public event EventHandler<IUpdatable> Updated;
 
 	#endregion
 }

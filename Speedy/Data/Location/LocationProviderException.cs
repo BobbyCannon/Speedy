@@ -5,7 +5,7 @@ using Speedy.Exceptions;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Location exception

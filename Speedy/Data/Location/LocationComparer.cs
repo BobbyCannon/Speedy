@@ -4,10 +4,10 @@ using System;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
-/// The state comparer for the <see cref="ILocationDeviceInformation" /> type.
+/// The state comparer for the <see cref="ILocationInformation" /> type.
 /// </summary>
 public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 	: Comparer<T>, IComparer<T, THorizontalLocation, TVerticalLocation>
@@ -17,8 +17,8 @@ public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 {
 	#region Fields
 
-	private readonly LocationDeviceInformationComparer<THorizontalLocation> _horizontalComparer;
-	private readonly LocationDeviceInformationComparer<TVerticalLocation> _verticalComparer;
+	private readonly LocationInformationComparer<THorizontalLocation> _horizontalComparer;
+	private readonly LocationInformationComparer<TVerticalLocation> _verticalComparer;
 
 	#endregion
 
@@ -40,13 +40,13 @@ public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 		AlwaysTrustSameSource = true;
 		SourceTimeout = TimeSpan.FromSeconds(10);
 
-		_horizontalComparer = new LocationDeviceInformationComparer<THorizontalLocation>(dispatcher)
+		_horizontalComparer = new LocationInformationComparer<THorizontalLocation>(dispatcher)
 		{
 			AlwaysTrustSameSource = AlwaysTrustSameSource,
 			SourceTimeout = SourceTimeout
 		};
 
-		_verticalComparer = new LocationDeviceInformationComparer<TVerticalLocation>(dispatcher)
+		_verticalComparer = new LocationInformationComparer<TVerticalLocation>(dispatcher)
 		{
 			AlwaysTrustSameSource = AlwaysTrustSameSource,
 			SourceTimeout = SourceTimeout

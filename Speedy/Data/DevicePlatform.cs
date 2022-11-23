@@ -1,4 +1,4 @@
-﻿namespace Speedy.Devices;
+﻿namespace Speedy.Data;
 
 /// <summary>
 /// Represents the platform of device

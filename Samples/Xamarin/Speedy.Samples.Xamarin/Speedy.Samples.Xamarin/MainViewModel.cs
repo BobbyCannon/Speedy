@@ -12,7 +12,7 @@ using Speedy.Application;
 using Speedy.Application.Xamarin;
 using Speedy.Collections;
 using Speedy.Commands;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
 
@@ -26,10 +26,10 @@ public class MainViewModel : ViewModel
 
 	public MainViewModel(IDispatcher dispatcher) : base(dispatcher)
 	{
-		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<ILocationDeviceInformation>>();
+		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<ILocationInformation>>();
 		LocationManager = new LocationManager<LocationProviderSettingsView>(dispatcher);
 		LocationManager.ProviderUpdated += LocationManagerOnProviderUpdated;
-		Locations = new BaseObservableCollection<ILocationDeviceInformation>(dispatcher);
+		Locations = new BaseObservableCollection<ILocationInformation>(dispatcher);
 		Logs = new LimitedObservableCollection<LogEventArgs>(25);
 
 		var provider = new XamarinLocationProvider<Location, IHorizontalLocation, IVerticalLocation, LocationProviderSettingsView>(dispatcher);
@@ -52,13 +52,13 @@ public class MainViewModel : ViewModel
 
 	public RelayCommand ExportHistoryCommand { get; }
 
-	public ConcurrentDictionary<string, BaseObservableCollection<ILocationDeviceInformation>> LocationHistory { get; }
+	public ConcurrentDictionary<string, BaseObservableCollection<ILocationInformation>> LocationHistory { get; }
 
 	//public LineChart AltitudeChart { get; }
 
 	public LocationManager<LocationProviderSettingsView> LocationManager { get; }
 
-	public BaseObservableCollection<ILocationDeviceInformation> Locations { get; }
+	public BaseObservableCollection<ILocationInformation> Locations { get; }
 
 	public BaseObservableCollection<LogEventArgs> Logs { get; }
 
@@ -114,7 +114,7 @@ public class MainViewModel : ViewModel
 
 	#region Methods
 
-	public void ProcessLocation(ILocationDeviceInformation location)
+	public void ProcessLocation(ILocationInformation location)
 	{
 		if (!Dispatcher.IsDispatcherThread)
 		{
@@ -159,7 +159,7 @@ public class MainViewModel : ViewModel
 		}
 
 		var history = LocationHistory.GetOrAdd(key,
-			_ => new BaseObservableCollection<ILocationDeviceInformation>()
+			_ => new BaseObservableCollection<ILocationInformation>()
 		);
 
 		history.Add(currentLocation.ShallowClone());

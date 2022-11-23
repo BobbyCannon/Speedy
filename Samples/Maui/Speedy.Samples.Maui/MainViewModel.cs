@@ -4,9 +4,9 @@ using System.Collections.Concurrent;
 using Speedy.Application;
 using Speedy.Collections;
 using Speedy.Commands;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Speedy.Logging;
-using Location = Speedy.Devices.Location.Location;
+using Location = Speedy.Data.Location.Location;
 
 #endregion
 

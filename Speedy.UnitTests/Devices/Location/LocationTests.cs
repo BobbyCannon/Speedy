@@ -16,7 +16,7 @@ public class LocationTests : SpeedyUnitTest
 	[TestMethod]
 	public void CloneShouldWork()
 	{
-		var expected = new Speedy.Devices.Location.Location();
+		var expected = new Speedy.Data.Location.Location();
 		expected.HorizontalLocation.UpdateWithNonDefaultValues();
 		expected.VerticalLocation.UpdateWithNonDefaultValues();
 		expected.ToJson(true).Dump();
@@ -28,12 +28,12 @@ public class LocationTests : SpeedyUnitTest
 	[TestMethod]
 	public void UpdateWithShouldWork()
 	{
-		var expected = new Speedy.Devices.Location.Location();
+		var expected = new Speedy.Data.Location.Location();
 		expected.HorizontalLocation.UpdateWithNonDefaultValues();
 		expected.VerticalLocation.UpdateWithNonDefaultValues();
 		expected.ToJson(true).Dump();
 
-		var actual = new Speedy.Devices.Location.Location();
+		var actual = new Speedy.Data.Location.Location();
 		actual.UpdateWith(expected);
 		AreEqual(expected, actual);
 	}

@@ -2,8 +2,7 @@
 
 using CoreLocation;
 using Foundation;
-using Speedy.Devices.Location;
-using Speedy.Serialization;
+using Speedy.Data.Location;
 using UIKit;
 
 #endregion
@@ -15,9 +14,12 @@ namespace Speedy.Application.Maui;
 /// Implementation for LocationProvider
 /// </summary>
 [Preserve(AllMembers = true)]
-public class LocationProviderImplementation<T, T2> : LocationDeviceInformationProvider<T, T2>
-	where T : class, ILocation, ICloneable<T>, new()
-	where T2 : LocationProviderSettings, new()
+public class LocationProviderImplementation<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	where TLocation : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+	where TLocationProviderSettings : ILocationProviderSettings, IBindable, new()
 {
 	#region Fields
 
@@ -45,7 +47,8 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 			_manager.UpdatedLocation += OnUpdatedLocation;
 		}
 
-		LastReadLocation.ProviderName = "Xamarin iOS";
+		CurrentValue.HorizontalLocation.ProviderName = ProviderName;
+		CurrentValue.VerticalLocation.ProviderName = ProviderName;
 	}
 
 	#endregion
@@ -58,6 +61,14 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 	/// <inheritdoc />
 	public override bool IsLocationEnabled => CLLocationManager.LocationServicesEnabled;
 
+	/// <inheritdoc />
+	public sealed override string ProviderName => "Xamarin iOS";
+
+	/// <summary>
+	/// True if the location provider has permission to be accessed.
+	/// </summary>
+	protected bool HasPermission { get; private set; }
+
 	#endregion
 
 	#region Methods
@@ -68,12 +79,12 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 	/// <param name="timeout"> Timeout to wait, Default Infinite </param>
 	/// <param name="cancelToken"> Cancellation token </param>
 	/// <returns> ProviderLocation </returns>
-	public override async Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
+	public override async Task<TLocation> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		var hasPermission = await CheckWhenInUsePermission();
 		if (!hasPermission)
 		{
-			throw new LocationProviderException(Devices.Location.LocationProviderError.Unauthorized);
+			throw new LocationProviderException(LocationProviderError.Unauthorized);
 		}
 
 		var timeoutMilliseconds = timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : Timeout.Infinite;
@@ -85,28 +96,28 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 		cancelToken ??= CancellationToken.None;
 
-		if (!IsListening)
+		if (!IsMonitoring)
 		{
 			var m = GetManager();
 			m.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy;
 
-			var singleListener = new LocationProviderSingleUpdateDelegate<T>(m, m.DesiredAccuracy, true, timeoutMilliseconds, cancelToken.Value);
+			var singleListener = new LocationProviderSingleUpdateDelegate<TLocation, THorizontal, TVertical>(m, m.DesiredAccuracy, timeoutMilliseconds, cancelToken.Value);
 			m.Delegate = singleListener;
 			m.StartUpdatingLocation();
 			return await singleListener.Task;
 		}
 
-		var tcs = new TaskCompletionSource<T>();
-		tcs.SetResult(LastReadLocation);
+		var tcs = new TaskCompletionSource<TLocation>();
+		tcs.SetResult(CurrentValue);
 		return await tcs.Task;
 	}
 
 	/// <summary>
 	/// Start listening for changes
 	/// </summary>
-	public override async Task StartListeningAsync()
+	public override async Task StartMonitoringAsync()
 	{
-		if (IsListening)
+		if (IsMonitoring)
 		{
 			return;
 		}
@@ -125,37 +136,36 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 		if (!HasPermission)
 		{
-			throw new LocationProviderException(Devices.Location.LocationProviderError.Unauthorized);
+			throw new LocationProviderException(LocationProviderError.Unauthorized);
 		}
-
-		IsListening = true;
 
 		_manager.DesiredAccuracy = LocationProviderSettings.DesiredAccuracy;
 		_manager.DistanceFilter = LocationProviderSettings.MinimumDistance;
 		_manager.StartUpdatingLocation();
+
+		IsMonitoring = true;
 	}
 
 	/// <summary>
 	/// Stop listening
 	/// </summary>
-	public override Task StopListeningAsync()
+	public override Task StopMonitoringAsync()
 	{
-		if (!IsListening)
+		if (!IsMonitoring)
 		{
 			return Task.CompletedTask;
 		}
 
-		IsListening = false;
-
 		_manager.StopUpdatingLocation();
 
+		IsMonitoring = false;
 		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
 	protected override async void OnLocationProviderError(LocationProviderError e)
 	{
-		await StopListeningAsync();
+		await StopMonitoringAsync();
 		base.OnLocationProviderError(e);
 	}
 
@@ -203,7 +213,7 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 		if ((e.Status == CLAuthorizationStatus.Denied)
 			|| (e.Status == CLAuthorizationStatus.Restricted))
 		{
-			OnLocationProviderError(Devices.Location.LocationProviderError.Unauthorized);
+			OnLocationProviderError(LocationProviderError.Unauthorized);
 		}
 	}
 
@@ -211,7 +221,7 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 	{
 		if ((CLError) (int) e.Error.Code == CLError.Network)
 		{
-			OnLocationProviderError(Devices.Location.LocationProviderError.LocationUnavailable);
+			OnLocationProviderError(LocationProviderError.LocationUnavailable);
 		}
 	}
 
@@ -232,66 +242,70 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 	{
 		if (location.HorizontalAccuracy > -1)
 		{
-			LastReadLocation.HorizontalLocation.Latitude = location.Coordinate.Latitude;
-			LastReadLocation.HorizontalLocation.Longitude = location.Coordinate.Longitude;
-			LastReadLocation.HorizontalLocation.Accuracy = location.HorizontalAccuracy;
-			LastReadLocation.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			CurrentValue.HorizontalLocation.Latitude = location.Coordinate.Latitude;
+			CurrentValue.HorizontalLocation.Longitude = location.Coordinate.Longitude;
+			CurrentValue.HorizontalLocation.Accuracy = location.HorizontalAccuracy;
+			CurrentValue.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			CurrentValue.HorizontalLocation.HasValue = true;
 		}
 		else
 		{
-			LastReadLocation.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			CurrentValue.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			CurrentValue.HorizontalLocation.HasValue = false;
 		}
 
 		if (location.VerticalAccuracy > -1)
 		{
-			LastReadLocation.VerticalLocation.Altitude = location.EllipsoidalAltitude;
-			LastReadLocation.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-			LastReadLocation.VerticalLocation.Accuracy = location.VerticalAccuracy;
-			LastReadLocation.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			CurrentValue.VerticalLocation.Altitude = location.EllipsoidalAltitude;
+			CurrentValue.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+			CurrentValue.VerticalLocation.Accuracy = location.VerticalAccuracy;
+			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			CurrentValue.VerticalLocation.HasValue = true;
 		}
 		else
 		{
-			LastReadLocation.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			CurrentValue.VerticalLocation.HasValue = false;
 		}
 
 		if (location.Speed > -1)
 		{
-			LastReadLocation.HorizontalLocation.HasSpeed = true;
-			LastReadLocation.HorizontalLocation.Speed = location.Speed;
+			CurrentValue.HorizontalLocation.HasSpeed = true;
+			CurrentValue.HorizontalLocation.Speed = location.Speed;
 		}
 		else
 		{
-			LastReadLocation.HorizontalLocation.HasSpeed = false;
+			CurrentValue.HorizontalLocation.HasSpeed = false;
 		}
 
 		if (location.Course > -1)
 		{
-			LastReadLocation.HorizontalLocation.HasHeading = true;
-			LastReadLocation.HorizontalLocation.Heading = location.Course;
+			CurrentValue.HorizontalLocation.HasHeading = true;
+			CurrentValue.HorizontalLocation.Heading = location.Course;
 		}
 		else
 		{
-			LastReadLocation.HorizontalLocation.HasHeading = false;
+			CurrentValue.HorizontalLocation.HasHeading = false;
 		}
 
 		var sourceName = GetSourceName(location.SourceInformation);
-		LastReadLocation.HorizontalLocation.SourceName = sourceName;
-		LastReadLocation.VerticalLocation.SourceName = sourceName;
+		CurrentValue.HorizontalLocation.SourceName = sourceName;
+		CurrentValue.VerticalLocation.SourceName = sourceName;
 
 		try
 		{
 			var statusTime = location.Timestamp.ToDateTime().ToUniversalTime();
-			LastReadLocation.HorizontalLocation.StatusTime = statusTime;
-			LastReadLocation.VerticalLocation.StatusTime = statusTime;
+			CurrentValue.HorizontalLocation.StatusTime = statusTime;
+			CurrentValue.VerticalLocation.StatusTime = statusTime;
 		}
 		catch (Exception)
 		{
 			var statusTime = TimeService.UtcNow;
-			LastReadLocation.HorizontalLocation.StatusTime = statusTime;
-			LastReadLocation.VerticalLocation.StatusTime = statusTime;
+			CurrentValue.HorizontalLocation.StatusTime = statusTime;
+			CurrentValue.VerticalLocation.StatusTime = statusTime;
 		}
 
-		OnLocationChanged(LastReadLocation);
+		OnUpdated(CurrentValue);
 
 		location.Dispose();
 	}

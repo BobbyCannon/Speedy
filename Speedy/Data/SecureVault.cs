@@ -5,7 +5,7 @@ using Speedy.Net;
 
 #endregion
 
-namespace Speedy.Devices;
+namespace Speedy.Data;
 
 /// <summary>
 /// The vault to store credential securely.

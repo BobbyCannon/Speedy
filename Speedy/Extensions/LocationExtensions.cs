@@ -3,8 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Speedy.Devices;
-using Speedy.Devices.Location;
+using Speedy.Data;
+using Speedy.Data.Location;
 using static System.Math;
 
 #endregion
@@ -53,11 +53,6 @@ public static class LocationExtensions
 	#endregion
 
 	#region Methods
-
-	public static string CalculateKey(this IDeviceInformation information)
-	{
-		return $"{information.ProviderName}-{information.SourceName}-{information.InformationId}";
-	}
 
 	/// <summary>
 	/// Calculate the degrees per meter.
@@ -109,6 +104,16 @@ public static class LocationExtensions
 	public static double CalculateHeading(this IMinimalHorizontalLocation start, IMinimalHorizontalLocation end)
 	{
 		return CalculateHeading(start.Latitude, start.Longitude, end.Latitude, end.Longitude);
+	}
+
+	/// <summary>
+	/// Calculate a key that consist of {ProviderName}-{SourceName}-{InformationId}.
+	/// </summary>
+	/// <param name="information"> The information to create the key for. </param>
+	/// <returns> The key for the information. </returns>
+	public static string CalculateKey(this IAccurateInformation information)
+	{
+		return $"{information.ProviderName}-{information.SourceName}-{information.InformationId}";
 	}
 
 	/// <summary>
@@ -268,28 +273,28 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
-	/// Handles triggering dependent properties for <see cref="ILocationDeviceInformation.Flags" />.
+	/// Handles triggering dependent properties for <see cref="ILocationInformation.Flags" />.
 	/// </summary>
 	/// <param name="information"> The location information for a device. </param>
 	/// <param name="propertyName"> The name of the property that changed. </param>
-	public static void HandleFlagsChanged(this ILocationDeviceInformation information, string propertyName)
+	public static void HandleFlagsChanged(this ILocationInformation information, string propertyName)
 	{
-		if (propertyName != nameof(ILocationDeviceInformation.Flags))
+		if (propertyName != nameof(ILocationInformation.Flags))
 		{
 			return;
 		}
 
-		information.OnPropertyChanged(nameof(ILocationDeviceInformation.HasHeading));
-		information.OnPropertyChanged(nameof(ILocationDeviceInformation.HasSpeed));
-		information.OnPropertyChanged(nameof(ILocationDeviceInformation.HasValue));
+		information.OnPropertyChanged(nameof(ILocationInformation.HasHeading));
+		information.OnPropertyChanged(nameof(ILocationInformation.HasSpeed));
+		information.OnPropertyChanged(nameof(ILocationInformation.HasValue));
 	}
 
 	/// <summary>
-	/// Check a information to determine if <see cref="IDeviceInformation.Accuracy" /> is available.
+	/// Check a information to determine if <see cref="IAccurateInformation.Accuracy" /> is available.
 	/// </summary>
 	/// <param name="information"> The information to validate. </param>
 	/// <returns> True if the value is available. </returns>
-	public static bool HasAccuracy(this IDeviceInformation information)
+	public static bool HasAccuracy(this IAccurateInformation information)
 	{
 		return information switch
 		{
@@ -304,7 +309,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="information"> The information to validate. </param>
 	/// <returns> True if the heading is available otherwise false. </returns>
-	public static bool HasHeading(this ILocationDeviceInformation information)
+	public static bool HasHeading(this ILocationInformation information)
 	{
 		return information.Flags.HasFlag(LocationFlags.HasHeading);
 	}
@@ -314,7 +319,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="information"> The information to validate. </param>
 	/// <returns> True if the value is available. </returns>
-	public static bool HasLocation(this ILocationDeviceInformation information)
+	public static bool HasLocation(this ILocationInformation information)
 	{
 		return information.Flags.HasFlag(LocationFlags.HasLocation);
 	}
@@ -324,7 +329,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="information"> The information to validate. </param>
 	/// <returns> True if the speed is available otherwise false. </returns>
-	public static bool HasSpeed(this ILocationDeviceInformation information)
+	public static bool HasSpeed(this ILocationInformation information)
 	{
 		return information.Flags.HasFlag(LocationFlags.HasSpeed);
 	}
@@ -534,7 +539,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <param name="value"> True to set HasHeading flag otherwise clear the flag. </param>
-	public static void UpdateHasHeading(this ILocationDeviceInformation location, bool value)
+	public static void UpdateHasHeading(this ILocationInformation location, bool value)
 	{
 		location.Flags = value
 			? location.Flags.SetFlag(LocationFlags.HasHeading)
@@ -546,7 +551,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <param name="value"> True to set HasLocation flag otherwise clear the flag. </param>
-	public static void UpdateHasLocation(this ILocationDeviceInformation location, bool value)
+	public static void UpdateHasLocation(this ILocationInformation location, bool value)
 	{
 		location.Flags = value
 			? location.Flags.SetFlag(LocationFlags.HasLocation)
@@ -558,7 +563,7 @@ public static class LocationExtensions
 	/// </summary>
 	/// <param name="location"> The location to validate. </param>
 	/// <param name="value"> True to set HasSpeedy flag otherwise clear the flag. </param>
-	public static void UpdateHasSpeed(this ILocationDeviceInformation location, bool value)
+	public static void UpdateHasSpeed(this ILocationInformation location, bool value)
 	{
 		location.Flags = value
 			? location.Flags.SetFlag(LocationFlags.HasSpeed)

@@ -1,24 +1,21 @@
 #region References
 
 using Android.Content;
+using Android.Gms.Common;
+using Android.Gms.Location;
+using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Java.Lang;
 using Speedy.Application.Internal;
-using Speedy.Devices.Location;
+using Speedy.Data;
+using Speedy.Data.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
-using Speedy.Serialization;
 using Debug = System.Diagnostics.Debug;
 using Exception = System.Exception;
-using LocationManager = Android.Locations.LocationManager;
-#if GOOGLEPLAY
-using Android.Gms.Common;
-using Android.Gms.Location;
-using LocationRequest = Android.Gms.Location.LocationRequest;
-using XamarinForms = Xamarin.Forms;
 using Location = Android.Locations.Location;
-#endif
+using LocationRequest = Android.Gms.Location.LocationRequest;
 
 #endregion
 
@@ -29,24 +26,25 @@ namespace Speedy.Application.Maui;
 /// Implementation for Feature
 /// </summary>
 [Preserve(AllMembers = true)]
-public class LocationProviderImplementation<T, T2> : LocationDeviceInformationProvider<T, T2>
-	where T : class, ILocation, ICloneable<T>, new()
-	where T2 : LocationProviderSettings, new()
+public class LocationProviderImplementation<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+	where TLocation : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+	where TLocationProviderSettings : ILocationProviderSettings, IBindable, new()
 {
 	#region Fields
 
-	#if GOOGLEPLAY
-	private const string FusedGooglePlusKey = "fused g+";
-	private FusedLocationProviderClient _fusedListener;
 	private FusedLocationProviderCallback _fusedCallback;
-	#endif
 
-	private GeolocationContinuousListener<T> _listener;
+	private FusedLocationProviderClient _fusedListener;
+
+	private GeolocationContinuousListener<TLocation, THorizontal, TVertical> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
-	private IDictionary<string, LocationProviderSource> _providerSources;
-	private GeolocationSingleListener<T> _singleListener;
-	private readonly LocationComparer _comparer;
+	private GeolocationSingleListener<TLocation, THorizontal, TVertical> _singleListener;
+	private IDictionary<string, SourceInformationProvider> _sourceProviders;
+	private bool _usingGooglePlayFused;
 
 	#endregion
 
@@ -57,7 +55,6 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 	/// </summary>
 	protected LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_comparer = new LocationComparer();
 		_positionSync = new object();
 	}
 
@@ -66,39 +63,57 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 	#region Properties
 
 	/// <inheritdoc />
-	public override bool IsListening => _listener != null;
+	public override bool IsLocationAvailable => SubProviders.Any();
 
 	/// <inheritdoc />
-	public override bool IsLocationAvailable => ProviderSources.Any();
+	public override bool IsLocationEnabled => SubProviders.Any(x => x.IsEnabled && Manager.IsProviderEnabled(x.ProviderName));
 
 	/// <inheritdoc />
-	public override bool IsLocationEnabled => ProviderSources.Any(x => x.Enabled && Manager.IsProviderEnabled(x.Provider));
+	public override string ProviderName => "Xamarin Android";
 
-	/// <summary>
-	/// Gets all providers from the Location Manager.
-	/// </summary>
-	internal IEnumerable<LocationProviderSource> ProviderSources
+	/// <inheritdoc />
+	public override IEnumerable<IInformationProvider> SubProviders
 	{
 		get
 		{
-			if (_providerSources == null)
+			if (_sourceProviders == null)
 			{
-				var defaultEnabled = new[] { LocationManager.GpsProvider, "fused" };
-				_providerSources = Manager.GetProviders(false)
-					.Select(x => new LocationProviderSource
+				var defaultEnabled = new[] { LocationManager.GpsProvider };
+				_sourceProviders = Manager
+					.GetProviders(false)
+					.Where(x =>
+						x != LocationManager.PassiveProvider
+						&& x != LocationManager.FusedProvider
+					)
+					.Select(x => new SourceInformationProvider
 					{
-						Provider = x,
-						Enabled = defaultEnabled.Contains(x)
+						ProviderName = x,
+						IsEnabled = defaultEnabled.Contains(x)
 					})
-					.ToDictionary(x => x.Provider, x => x);
-				#if GOOGLEPLAY
-				var t = new LocationProviderSource { Enabled = true, Provider = FusedGooglePlusKey };
-				_providerSources.Add(t.Provider, t);
-				#endif
+					.ToDictionary(x => x.ProviderName, x => x);
+
+				if (_sourceProviders.All(x => x.Key != LocationManager.FusedProvider))
+				{
+					var fusedSource = new SourceInformationProvider
+					{
+						IsEnabled = true,
+						ProviderName = LocationManager.FusedProvider
+					};
+					_sourceProviders.Add(fusedSource.ProviderName, fusedSource);
+					_usingGooglePlayFused = true;
+				}
+
+				OnPropertyChanged(nameof(HasSubProviders));
 			}
-			return _providerSources.Values;
+
+			return _sourceProviders.Values;
 		}
 	}
+
+	/// <summary>
+	/// True if the location provider has permission to be accessed.
+	/// </summary>
+	protected bool HasPermission { get; private set; }
 
 	/// <summary>
 	/// The android location manager.
@@ -119,7 +134,7 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 	/// bug: we must work on thread safety of this method.
 	/// Touching "Manager", which is global, can be very dangerous.
 	/// </remarks>
-	public override async Task<T> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
+	public override async Task<TLocation> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
 		var timeoutMilliseconds = timeout.HasValue
 			? (int) timeout.Value.TotalMilliseconds
@@ -132,16 +147,16 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 		cancelToken ??= CancellationToken.None;
 
-		var hasPermission = await CheckWhenInUsePermission();
+		var hasPermission = CheckWhenInUsePermission();
 		if (!hasPermission)
 		{
 			throw new LocationProviderException(LocationProviderError.Unauthorized);
 		}
 
-		var tcs = new TaskCompletionSource<T>();
-		var providerSources = ProviderSources.ToArray();
+		var tcs = new TaskCompletionSource<TLocation>();
+		var providerSources = SubProviders.ToArray();
 
-		if (!IsListening)
+		if (!IsMonitoring)
 		{
 			void singleListenerFinishCallback()
 			{
@@ -156,13 +171,14 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 				}
 			}
 
-			_singleListener = new GeolocationSingleListener<T>(Dispatcher,
+			_singleListener = new GeolocationSingleListener<TLocation, THorizontal, TVertical>(Dispatcher,
+				ProviderName,
 				Manager,
 				LocationProviderSettings.DesiredAccuracy,
 				timeoutMilliseconds,
-				ProviderSources
-					.Where(x => x.Enabled)
-					.Where(x => Manager.IsProviderEnabled(x.Provider))
+				SubProviders
+					.Where(x => x.IsEnabled)
+					.Where(x => Manager.IsProviderEnabled(x.ProviderName))
 					.ToList(),
 				singleListenerFinishCallback);
 
@@ -186,12 +202,12 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 				for (var i = 0; i < providerSources.Length; ++i)
 				{
-					if (Manager.IsProviderEnabled(providerSources[i].Provider))
+					if (Manager.IsProviderEnabled(providerSources[i].ProviderName))
 					{
 						enabled++;
 					}
 
-					Manager.RequestLocationUpdates(providerSources[i].Provider, 0, 0, _singleListener, looper);
+					Manager.RequestLocationUpdates(providerSources[i].ProviderName, 0, 0, _singleListener, looper);
 				}
 
 				if (enabled == 0)
@@ -217,51 +233,46 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 		// If we're already listening, just use the current listener
 		lock (_positionSync)
 		{
-			tcs.SetResult(LastReadLocation);
+			tcs.SetResult(CurrentValue);
 		}
 
 		return await tcs.Task;
 	}
 
 	/// <inheritdoc />
-	public override async Task StartListeningAsync()
+	public override Task StartMonitoringAsync()
 	{
-		if (IsListening)
+		if (IsMonitoring)
 		{
-			return;
+			return Task.CompletedTask;
 		}
 
-		#if GOOGLEPLAY
 		if (!IsGooglePlayServicesInstalled())
 		{
-			return;
+			ListenerPositionError(this, LocationProviderError.MissingDependency);
+			return Task.CompletedTask;
 		}
-		#endif
 
 		LocationProviderSettings.Cleanup();
 
-		if (LocationProviderSettings.RequireLocationAlwaysPermission)
-		{
-			HasPermission = await CheckAlwaysPermissions();
-		}
-		else
-		{
-			HasPermission = await CheckWhenInUsePermission();
-		}
+		HasPermission = LocationProviderSettings.RequireLocationAlwaysPermission
+			? CheckAlwaysPermissions()
+			: CheckWhenInUsePermission();
 
 		if (!HasPermission)
 		{
 			ListenerPositionError(this, LocationProviderError.Unauthorized);
-			return;
+			return Task.CompletedTask;
 		}
 
-		var sources = ProviderSources.ToArray();
+		var sources = SubProviders.Cast<SourceInformationProvider>().ToArray();
 		var looper = Looper.MyLooper() ?? Looper.MainLooper;
 
-		#if GOOGLEPLAY
-		if ((XamarinPlatform.MainActivity != null) && _providerSources[FusedGooglePlusKey].Enabled)
+		if ((MauiPlatform.MainActivity != null)
+			&& _usingGooglePlayFused
+			&& _sourceProviders[LocationManager.FusedProvider].IsEnabled)
 		{
-			_fusedListener = LocationServices.GetFusedLocationProviderClient(XamarinPlatform.MainActivity);
+			_fusedListener = LocationServices.GetFusedLocationProviderClient(MauiPlatform.MainActivity);
 			var locationRequest = LocationRequest.Create();
 			locationRequest.SetPriority(Priority.PriorityHighAccuracy);
 			locationRequest.SetInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
@@ -269,11 +280,10 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 			locationRequest.SetSmallestDisplacement(LocationProviderSettings.MinimumDistance);
 			_fusedCallback = new FusedLocationProviderCallback(FusedLocationProviderLocationChanged);
 			_fusedListener.RequestLocationUpdates(locationRequest, _fusedCallback, looper);
-			_providerSources[FusedGooglePlusKey].Listening = true;
+			_sourceProviders[LocationManager.FusedProvider].IsMonitoring = true;
 		}
-		#endif
 
-		_listener = new GeolocationContinuousListener<T>(Dispatcher, Manager, sources);
+		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(Dispatcher, ProviderName, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
 		_listener.PositionChanged += ListenerPositionChanged;
 		_listener.PositionError += ListenerPositionError;
@@ -282,34 +292,35 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 		{
 			var source = sources[i];
 
-			#if GOOGLEPLAY
-			if (source.Provider == FusedGooglePlusKey)
+			if ((source.ProviderName == LocationManager.FusedProvider) && _usingGooglePlayFused)
 			{
-				continue;
-			}
-			#endif
-
-			if (!source.Enabled)
-			{
-				source.Listening = false;
+				// This provider is handled above, differently
 				continue;
 			}
 
-			Manager.RequestLocationUpdates(source.Provider,
+			if (!source.IsEnabled)
+			{
+				source.IsEnabled = false;
+				continue;
+			}
+
+			Manager.RequestLocationUpdates(source.ProviderName,
 				(long) LocationProviderSettings.MinimumTime.TotalMilliseconds,
 				LocationProviderSettings.MinimumDistance,
 				_listener,
 				looper);
 
-			source.Listening = true;
+			source.IsMonitoring = true;
 		}
 
-		Status = "Is Listening";
-		OnPropertyChanged(nameof(IsListening));
+		Status = "Is Monitoring";
+		IsMonitoring = true;
+
+		return Task.CompletedTask;
 	}
 
 	/// <inheritdoc />
-	public override Task StopListeningAsync()
+	public override Task StopMonitoringAsync()
 	{
 		if (_listener == null)
 		{
@@ -320,10 +331,9 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 		_listener.PositionChanged -= ListenerPositionChanged;
 		_listener.PositionError -= ListenerPositionError;
 
-		#if GOOGLEPLAY
 		if (_fusedListener != null)
 		{
-			_providerSources[FusedGooglePlusKey].Listening = false;
+			_sourceProviders[LocationManager.FusedProvider].IsMonitoring = false;
 			_fusedListener.RemoveLocationUpdates(_fusedCallback);
 
 			_fusedListener.Dispose();
@@ -332,7 +342,6 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 			_fusedListener = null;
 			_fusedCallback = null;
 		}
-		#endif
 
 		try
 		{
@@ -343,18 +352,22 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 			Debug.WriteLine($"Unable to remove updates: {ex}");
 		}
 
-		_providerSources.ForEach(x => x.Value.Listening = false);
+		SubProviders.Cast<SourceInformationProvider>().ForEach(x => x.IsMonitoring = false);
+
 		_listener = null;
 
 		Status = string.Empty;
-		OnPropertyChanged(nameof(IsListening));
+		IsMonitoring = false;
 
 		return Task.CompletedTask;
 	}
 
-	private async Task<bool> CheckAlwaysPermissions()
+	private bool CheckAlwaysPermissions()
 	{
-		var permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
+		var permissionStatus = Permissions
+			.CheckStatusAsync<Permissions.LocationWhenInUse>()
+			.AwaitResults(TimeSpan.FromSeconds(1));
+
 		if (permissionStatus == PermissionStatus.Granted)
 		{
 			return true;
@@ -362,7 +375,9 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 		Status = "Currently does not have Location permissions, requesting permissions";
 
-		permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
+		permissionStatus = Permissions
+			.RequestAsync<Permissions.LocationAlways>()
+			.AwaitResults(new TimeSpan(0, 0, 1));
 
 		if (permissionStatus == PermissionStatus.Granted)
 		{
@@ -373,9 +388,12 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 		return false;
 	}
 
-	private async Task<bool> CheckWhenInUsePermission()
+	private bool CheckWhenInUsePermission()
 	{
-		var permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+		var permissionStatus = Permissions
+			.CheckStatusAsync<Permissions.LocationWhenInUse>()
+			.AwaitResults(TimeSpan.FromSeconds(1));
+
 		if (permissionStatus == PermissionStatus.Granted)
 		{
 			return true;
@@ -383,7 +401,9 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 		Status = "Currently does not have Location permissions, requesting permissions";
 
-		permissionStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+		permissionStatus = Permissions
+			.RequestAsync<Permissions.LocationWhenInUse>()
+			.AwaitResults(TimeSpan.FromSeconds(1));
 
 		if (permissionStatus == PermissionStatus.Granted)
 		{
@@ -394,19 +414,15 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 		return false;
 	}
 
-	#if GOOGLEPLAY
 	private void FusedLocationProviderLocationChanged(Location obj)
 	{
-		var t = obj.ToPosition<T>();
-		t.HorizontalSourceName = FusedGooglePlusKey;
-		t.VerticalSourceName = FusedGooglePlusKey;
-		OnPositionChanged(t);
+		var location = obj.ToPosition<TLocation, THorizontal, TVertical>(ProviderName);
+		UpdateCurrentValue(location);
 	}
-
 
 	private bool IsGooglePlayServicesInstalled()
 	{
-		var queryResult = GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(XamarinPlatform.MainActivity);
+		var queryResult = GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(MauiPlatform.MainActivity);
 		if (queryResult == ConnectionResult.Success)
 		{
 			Status = "Google Play Services is installed on this device.";
@@ -423,36 +439,28 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 		return false;
 	}
 
-	#endif
 	private void ListenerOnLogEventWritten(object sender, LogEventArgs e)
 	{
 		OnLogEventWritten(e);
 	}
 
-	private void ListenerPositionChanged(object sender, T e)
+	private void ListenerPositionChanged(object sender, TLocation e)
 	{
 		// Ignore anything that might come in after stop listening
-		if (!IsListening || e is null)
+		if (!IsMonitoring || e is null)
 		{
 			return;
 		}
 
 		lock (_positionSync)
 		{
-			if (!_comparer.Refresh(e))
-			{
-				// Comparer did not update so bounce
-				return;
-			}
-
-			LastReadLocation.UpdateWith(_comparer.CurrentValue);
-			OnLocationChanged(((ICloneable<T>) LastReadLocation).ShallowClone());
+			UpdateCurrentValue(e);
 		}
 	}
 
 	private async void ListenerPositionError(object sender, LocationProviderError e)
 	{
-		await StopListeningAsync();
+		await StopMonitoringAsync();
 		OnLocationProviderError(e);
 	}
 
@@ -460,7 +468,6 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 	#region Classes
 
-	#if GOOGLEPLAY
 	private class FusedLocationProviderCallback : LocationCallback
 	{
 		#region Fields
@@ -498,7 +505,6 @@ public class LocationProviderImplementation<T, T2> : LocationDeviceInformationPr
 
 		#endregion
 	}
-	#endif
 
 	#endregion
 }

@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents the flag state for a provider location.

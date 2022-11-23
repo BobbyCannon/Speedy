@@ -1,6 +1,6 @@
 ﻿#region References
 
-using DeviceType = Speedy.Devices.DeviceType;
+using DeviceType = Speedy.Data.DeviceType;
 
 #endregion
 

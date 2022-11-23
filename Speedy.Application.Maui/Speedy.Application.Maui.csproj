@@ -14,6 +14,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.19041.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<UseMaui>true</UseMaui>
+		<UsingMauiEssentials>true</UsingMauiEssentials>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy.Application.Maui</AssemblyTitle>
 		<AssemblyName>Speedy.Application.Maui</AssemblyName>
@@ -53,6 +54,7 @@
 		<None Include="Speedy.snk" />
 	</ItemGroup>
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+		<PackageReference Include="Xamarin.GooglePlayServices.Location" Version="120.0.0" />
 		<Compile Include="**/Platforms/Android/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup Condition="$(TargetFramework.Contains('-ios'))">

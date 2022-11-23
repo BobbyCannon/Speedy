@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Services.Maps;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 
 #endregion
 
@@ -48,7 +48,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	#region Properties
 
 	/// <inheritdoc />
-	public bool IsLocationAvailable
+	public override bool IsLocationAvailable
 	{
 		get
 		{
@@ -65,7 +65,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	}
 
 	/// <inheritdoc />
-	public bool IsLocationEnabled
+	public override bool IsLocationEnabled
 	{
 		get
 		{
@@ -84,6 +84,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <inheritdoc />
 	public override string ProviderName => "Xamarin Windows";
 
+	/// <summary>
+	/// True if the location provider has permission to be accessed.
+	/// </summary>
 	protected bool HasPermission { get; private set; }
 
 	#endregion

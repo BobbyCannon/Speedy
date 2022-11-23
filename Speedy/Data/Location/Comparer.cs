@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// 
@@ -107,7 +107,7 @@ public static class Converter
 		var position = GetBoundary(ref lat, ref lng);
 
 		// read the grid value
-		var h = GeoidEgm96Grid.ReadGrid(position);
+		var h = GeoidGrid.ReadGrid(position);
 
 		// bilinear interpolation
 		return BilinearInterpolation(h, lng, lat);

@@ -1,7 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Devices;
+using Speedy.Data;
 
 #endregion
 
@@ -15,22 +15,22 @@ public class DeviceManagerTests
 	[TestMethod]
 	public void name()
 	{
-		var manager = new TestDeviceInformationManager();
+		var manager = new TestInformationManager();
 	}
 
 	#endregion
 
 	#region Classes
 
-	public class TestDeviceInformation : Speedy.Devices.Location.Location
+	public class TestDeviceInformation : Speedy.Data.Location.Location
 	{
 	}
 
-	public class TestDeviceInformationManager : DeviceInformationManager<TestDeviceInformation>
+	public class TestInformationManager : InformationManager<TestDeviceInformation>
 	{
 		#region Constructors
 
-		public TestDeviceInformationManager() : base(new DefaultDispatcher())
+		public TestInformationManager() : base(new DefaultDispatcher())
 		{
 		}
 

@@ -5,7 +5,7 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Settings for a location provider.

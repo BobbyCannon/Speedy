@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System.Collections.Generic;
-using Speedy.Devices;
+using Speedy.Data;
 using XamarinEssentials = Xamarin.Essentials;
 
 #endregion

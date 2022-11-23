@@ -1,4 +1,4 @@
-﻿namespace Speedy.Devices.Location;
+﻿namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents the reference point for the altitude.

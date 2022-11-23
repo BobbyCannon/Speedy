@@ -1,7 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 
 #endregion
 
@@ -50,7 +50,7 @@ namespace Speedy.UnitTests.Devices.Location
 		[TestMethod]
 		public void FromLocation()
 		{
-			var location = new Speedy.Devices.Location.Location
+			var location = new Speedy.Data.Location.Location
 			{
 				HorizontalLocation =
 				{

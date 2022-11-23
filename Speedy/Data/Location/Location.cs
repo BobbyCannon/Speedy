@@ -1,4 +1,4 @@
-﻿namespace Speedy.Devices.Location;
+﻿namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents a full location from a LocationProvider. Contains horizontal and vertical location.
@@ -38,7 +38,7 @@ public class Location : CloneableBindable<Location, ILocation<IHorizontalLocatio
 
 	#region Methods
 
-	/// <inheritdoc />
+	
 	public bool Refresh(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
 	{
 		return HorizontalLocation.Refresh(update.HorizontalLocation, exclusions)

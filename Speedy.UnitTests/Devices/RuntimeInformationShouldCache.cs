@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Moq.Protected;
-using Speedy.Devices;
+using Speedy.Data;
 using Speedy.Extensions;
 
 #endregion

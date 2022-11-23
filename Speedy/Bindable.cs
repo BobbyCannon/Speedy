@@ -33,13 +33,13 @@ public abstract class Bindable<T> : Bindable, IUpdatable<T>
 	#region Methods
 
 	/// <inheritdoc />
-	public bool Refresh(T update, params string[] exclusions)
+	public virtual bool Refresh(T update, params string[] exclusions)
 	{
 		return this.Refresh<T>(update, exclusions);
 	}
 
 	/// <inheritdoc />
-	public bool ShouldUpdate(T update)
+	public virtual bool ShouldUpdate(T update)
 	{
 		return true;
 	}
@@ -158,6 +158,12 @@ public abstract class Bindable : IBindable, IUpdatable
 	public virtual void ResetChangeTracking(bool hasChanges = false)
 	{
 		HasChanges = hasChanges;
+	}
+
+	/// <inheritdoc />
+	public virtual bool Refresh(object update, params string[] exclusions)
+	{
+		return UpdatableExtensions.Refresh(this, update, exclusions);
 	}
 
 	/// <inheritdoc />

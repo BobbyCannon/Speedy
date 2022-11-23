@@ -11,7 +11,7 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.Devices;
+namespace Speedy.Data;
 
 /// <summary>
 /// Gets information about the current runtime.

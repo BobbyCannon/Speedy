@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Speedy.Devices;
+using Speedy.Data;
 using Speedy.Serialization;
 
 #endregion

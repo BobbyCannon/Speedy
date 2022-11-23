@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Speedy.Extensions;
 
 #endregion

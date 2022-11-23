@@ -2,7 +2,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 
 #endregion
 
@@ -18,7 +18,7 @@ public class LocationStateComparerTests : SpeedyUnitTest
 	{
 		var location1 = new VerticalLocation();
 		var location2 = new VerticalLocation();
-		var comparer = new LocationDeviceInformationComparer<VerticalLocation>();
+		var comparer = new LocationInformationComparer<VerticalLocation>();
 		AreEqual(location1, location2);
 
 		location2.Altitude = 123.45;

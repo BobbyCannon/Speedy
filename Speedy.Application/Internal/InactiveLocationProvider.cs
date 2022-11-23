@@ -3,7 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 
 #endregion
 

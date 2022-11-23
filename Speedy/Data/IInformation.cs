@@ -1,33 +1,13 @@
-﻿#region References
+﻿using System;
 
-using System;
-using Speedy.Devices.Location;
-
-#endregion
-
-namespace Speedy.Devices;
+namespace Speedy.Data;
 
 /// <summary>
-/// Represents information for a device.
+/// Represents information returned by an <see cref="IInformationProvider" />.
 /// </summary>
-public interface IDeviceInformation : IBindable
+public interface IInformation : IBindable
 {
 	#region Properties
-
-	/// <summary>
-	/// The accuracy of the information.
-	/// </summary>
-	double Accuracy { get; set; }
-
-	/// <summary>
-	/// The reference system for accuracy.
-	/// </summary>
-	AccuracyReferenceType AccuracyReference { get; set; }
-
-	/// <summary>
-	/// Specifies if the Accuracy value is valid.
-	/// </summary>
-	bool HasAccuracy { get; }
 
 	/// <summary>
 	/// Determines if the device information has a value.

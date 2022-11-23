@@ -3,7 +3,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Collections;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Speedy.Protocols.Csv;
 
 #endregion

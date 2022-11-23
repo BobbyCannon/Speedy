@@ -4,8 +4,8 @@ using System.Diagnostics.Tracing;
 using Android.Locations;
 using Android.OS;
 using Android.Runtime;
-using Speedy.Application.Internal;
-using Speedy.Devices.Location;
+using Speedy.Data;
+using Speedy.Data.Location;
 using Speedy.Logging;
 using Location = Android.Locations.Location;
 using LocationManager = Android.Locations.LocationManager;
@@ -17,31 +17,27 @@ using Object = Java.Lang.Object;
 namespace Speedy.Application.Maui;
 
 [Preserve(AllMembers = true)]
-internal class GeolocationContinuousListener<T> : Object, ILocationListener
-	where T : class, ILocation, new()
+internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object, ILocationListener
+	where T : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
 {
 	#region Fields
 
-	private readonly HashSet<LocationProviderSource> _activeSources;
 	private readonly IDispatcher _dispatcher;
 	private Location _lastLocation;
-	
+	private readonly string _providerName;
+	private readonly IEnumerable<IInformationProvider> _providerSources;
+
 	#endregion
 
 	#region Constructors
 
-	public GeolocationContinuousListener(IDispatcher dispatcher, LocationManager manager, IEnumerable<LocationProviderSource> providerSources)
+	public GeolocationContinuousListener(IDispatcher dispatcher, string providerName, LocationManager manager, IEnumerable<IInformationProvider> providerSources)
 	{
-		_activeSources = new HashSet<LocationProviderSource>();
 		_dispatcher = dispatcher;
-		
-		foreach (var source in providerSources)
-		{
-			if (manager.IsProviderEnabled(source.Provider))
-			{
-				_activeSources.Add(source);
-			}
-		}
+		_providerName = providerName;
+		_providerSources = providerSources;
 	}
 
 	#endregion
@@ -55,12 +51,23 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			return;
 		}
 
+		lock (_providerSources)
+		{
+			// Check to see if the source is available and enabled
+			var foundSource = _providerSources?.FirstOrDefault(x => x.ProviderName == location.Provider);
+			if (foundSource is not { IsEnabled: true })
+			{
+				// Source is not found or is not enabled.
+				return;
+			}
+		}
+
 		LogEventWritten?.Invoke(this, new LogEventArgs(location.GetTimestamp().UtcDateTime, EventLevel.Verbose, $"Location updated, source: {location.Provider}"));
 
 		var previous = Interlocked.Exchange(ref _lastLocation, location);
 		previous?.Dispose();
 
-		PositionChanged?.Invoke(this, location.ToPosition<T>());
+		PositionChanged?.Invoke(this, location.ToPosition<T, THorizontal, TVertical>(_providerName));
 	}
 
 	public void OnProviderDisabled(string provider)
@@ -70,18 +77,15 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			return;
 		}
 
-		lock (_activeSources)
+		lock (_providerSources)
 		{
-			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
+			var foundSource = _providerSources.FirstOrDefault(x => x.ProviderName == provider);
 			if (foundSource == null)
 			{
 				return;
 			}
 
-			if (_activeSources.Remove(foundSource) && (_activeSources.Count == 0))
-			{
-				OnPositionError(LocationProviderError.LocationUnavailable);
-			}
+			foundSource.IsEnabled = false;
 		}
 	}
 
@@ -92,16 +96,15 @@ internal class GeolocationContinuousListener<T> : Object, ILocationListener
 			return;
 		}
 
-		lock (_activeSources)
+		lock (_providerSources)
 		{
-			var foundSource = _activeSources.FirstOrDefault(x => x.Provider == provider);
-			if (foundSource != null)
+			var foundSource = _providerSources.FirstOrDefault(x => x.ProviderName == provider);
+			if (foundSource == null)
 			{
-				foundSource.Enabled = true;
 				return;
 			}
 
-			_activeSources.Add(new LocationProviderSource(_dispatcher) { Enabled = true, Provider = provider });
+			foundSource.IsEnabled = true;
 		}
 	}
 

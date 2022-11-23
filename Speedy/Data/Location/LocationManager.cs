@@ -5,12 +5,12 @@ using Speedy.Commands;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// The manager for location.
 /// </summary>
-public class LocationManager<T> : DeviceInformationManager<Location>
+public class LocationManager<T> : InformationManager<Location>
 	where T : ILocationProviderSettings, IBindable, new()
 {
 	#region Constructors

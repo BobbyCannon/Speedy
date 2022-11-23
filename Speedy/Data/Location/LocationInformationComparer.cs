@@ -4,20 +4,20 @@ using System;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
-/// The state comparer for the <see cref="ILocationDeviceInformation" /> type.
+/// The state comparer for the <see cref="ILocationInformation" /> type.
 /// </summary>
-public class LocationDeviceInformationComparer<T> : Comparer<T>
-	where T : ILocationDeviceInformation, IUpdatable<T>
+public class LocationInformationComparer<T> : Comparer<T>
+	where T : ILocationInformation, IUpdatable<T>
 {
 	#region Constructors
 
 	/// <summary>
 	/// Instantiate a state comparer.
 	/// </summary>
-	public LocationDeviceInformationComparer() : this(null)
+	public LocationInformationComparer() : this(null)
 	{
 	}
 
@@ -25,7 +25,7 @@ public class LocationDeviceInformationComparer<T> : Comparer<T>
 	/// Instantiate a state comparer.
 	/// </summary>
 	/// <param name="dispatcher"> An optional dispatcher. </param>
-	public LocationDeviceInformationComparer(IDispatcher dispatcher) : base(dispatcher)
+	public LocationInformationComparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 		AlwaysTrustSameSource = true;
 		SourceTimeout = TimeSpan.FromSeconds(10);

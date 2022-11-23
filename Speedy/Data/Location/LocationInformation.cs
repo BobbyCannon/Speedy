@@ -1,26 +1,25 @@
 ﻿#region References
 
 using System;
-using System.Linq;
 using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents location information for a device.
 /// </summary>
-public abstract class LocationDeviceInformation
-	: Bindable<ILocationDeviceInformation>,
-		ILocationDeviceInformation
+public abstract class LocationInformation
+	: Bindable<ILocationInformation>,
+		ILocationInformation
 {
 	#region Constructors
 
 	/// <summary>
 	/// Instantiates location information for a device.
 	/// </summary>
-	protected LocationDeviceInformation(IDispatcher dispatcher) : base(dispatcher)
+	protected LocationInformation(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}
 
@@ -54,7 +53,7 @@ public abstract class LocationDeviceInformation
 		set => this.UpdateHasSpeed(value);
 	}
 
-	/// <inheritdoc cref="ILocationDeviceInformation.HasValue" />
+	/// <inheritdoc cref="ILocationInformation.HasValue" />
 	public virtual bool HasValue
 	{
 		get => this.HasLocation();
@@ -90,8 +89,8 @@ public abstract class LocationDeviceInformation
 	{
 		return update switch
 		{
-			LocationDeviceInformation value => UpdateWith(value, exclusions),
-			ILocationDeviceInformation value => UpdateWith(value, exclusions),
+			LocationInformation value => UpdateWith(value, exclusions),
+			ILocationInformation value => UpdateWith(value, exclusions),
 			_ => base.UpdateWith(update, exclusions)
 		};
 	}
@@ -109,9 +108,9 @@ public abstract class LocationDeviceInformation
 /// <summary>
 /// Represents location information for a device.
 /// </summary>
-public interface ILocationDeviceInformation
-	: IDeviceInformation,
-		IUpdatable<ILocationDeviceInformation>
+public interface ILocationInformation
+	: IAccurateInformation,
+		IUpdatable<ILocationInformation>
 {
 	#region Properties
 

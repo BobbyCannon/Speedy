@@ -7,13 +7,13 @@ using Speedy.Logging;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents a location provider.
 /// </summary>
 public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
-	: DeviceInformationProvider<T>, ILocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
+	: InformationProvider<T>, ILocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
 	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
 	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
 	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
@@ -27,15 +27,27 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 	/// <param name="dispatcher"> An optional dispatcher. </param>
 	protected LocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		ComparerForHorizontal = new LocationDeviceInformationComparer<THorizontalLocation>(dispatcher);
-		ComparerForVertical = new LocationDeviceInformationComparer<TVerticalLocation>(dispatcher);
+		ComparerForHorizontal = new LocationInformationComparer<THorizontalLocation>(dispatcher);
+		ComparerForVertical = new LocationInformationComparer<TVerticalLocation>(dispatcher);
 
 		LocationProviderSettings = new T2();
+		IsLocationAvailable = true;
+		IsLocationEnabled = true;
 	}
 
 	#endregion
 
 	#region Properties
+
+	/// <summary>
+	/// Determines if location is available.
+	/// </summary>
+	public virtual bool IsLocationAvailable { get; }
+
+	/// <summary>
+	/// Determines if location is enabled.
+	/// </summary>
+	public virtual bool IsLocationEnabled { get; }
 
 	/// <summary>
 	/// The settings for the location provider.
@@ -50,12 +62,12 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 	/// <summary>
 	/// Comparer for the horizontal location.
 	/// </summary>
-	protected LocationDeviceInformationComparer<THorizontalLocation> ComparerForHorizontal { get; }
+	protected LocationInformationComparer<THorizontalLocation> ComparerForHorizontal { get; }
 
 	/// <summary>
 	/// Comparer for the vertical location.
 	/// </summary>
-	protected LocationDeviceInformationComparer<TVerticalLocation> ComparerForVertical { get; }
+	protected LocationInformationComparer<TVerticalLocation> ComparerForVertical { get; }
 
 	#endregion
 
@@ -121,7 +133,7 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 /// Represents a location provider.
 /// </summary>
 public interface ILocationProvider<T, THorizontalLocation, TVerticalLocation, out T2>
-	: IDeviceInformationProvider<T>
+	: IInformationProvider<T>
 	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
 	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
 	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>

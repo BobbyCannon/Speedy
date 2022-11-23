@@ -2,7 +2,7 @@
 
 using System.Runtime.CompilerServices;
 using Windows.Foundation;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using AltitudeReferenceSystem = Windows.Devices.Geolocation.AltitudeReferenceSystem;
 
 #endregion

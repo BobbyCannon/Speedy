@@ -1,4 +1,4 @@
-﻿namespace Speedy.Devices.Location;
+﻿namespace Speedy.Data.Location;
 
 /// <summary>
 /// Accuracy Reference

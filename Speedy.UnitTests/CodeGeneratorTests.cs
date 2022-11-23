@@ -5,8 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Devices;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Speedy.Extensions;
 using Speedy.Sync;
 
@@ -105,7 +104,7 @@ public class CodeGeneratorTests
 	[TestMethod]
 	public void GenerateUpdateWith()
 	{
-		var type = typeof(ILocationDeviceInformation);
+		var type = typeof(ILocationInformation);
 		var builder = new StringBuilder();
 		var properties = type
 			//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)

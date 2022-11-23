@@ -2,7 +2,7 @@
 
 using System;
 using System.Linq;
-using Speedy.Devices;
+using Speedy.Data;
 using Speedy.Extensions;
 using Speedy.Sync;
 

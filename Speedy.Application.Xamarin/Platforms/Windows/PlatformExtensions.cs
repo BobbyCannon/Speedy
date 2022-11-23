@@ -4,7 +4,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 
 #endregion
 

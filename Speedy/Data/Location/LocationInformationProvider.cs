@@ -7,18 +7,18 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents provider of location information for a device.
 /// </summary>
-public abstract class LocationDeviceInformationProvider<T>
-	: DeviceInformationProvider<T>
-	where T : class, ILocationDeviceInformation, new()
+public abstract class LocationInformationProvider<T>
+	: InformationProvider<T>
+	where T : class, ILocationInformation, new()
 {
 	#region Fields
 
-	private readonly LocationDeviceInformationComparer<T> _comparer;
+	private readonly LocationInformationComparer<T> _comparer;
 
 	#endregion
 
@@ -27,9 +27,9 @@ public abstract class LocationDeviceInformationProvider<T>
 	/// <summary>
 	/// Instantiates the provider.
 	/// </summary>
-	protected LocationDeviceInformationProvider(IDispatcher dispatcher) : base(dispatcher)
+	protected LocationInformationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_comparer = new LocationDeviceInformationComparer<T>(dispatcher);
+		_comparer = new LocationInformationComparer<T>(dispatcher);
 	}
 
 	#endregion

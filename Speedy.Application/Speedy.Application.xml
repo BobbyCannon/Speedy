@@ -322,6 +322,9 @@
             Instantiate an instance of a location provider source.
             </summary>
         </member>
+        <member name="P:Speedy.Application.Internal.SourceInformationProvider.HasSubProviders">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Application.Internal.SourceInformationProvider.IsEnabled">
             <inheritdoc />
         </member>
@@ -329,6 +332,15 @@
             <inheritdoc />
         </member>
         <member name="P:Speedy.Application.Internal.SourceInformationProvider.ProviderName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Internal.SourceInformationProvider.SubProviders">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Internal.SourceInformationProvider.StartMonitoringAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Internal.SourceInformationProvider.StopMonitoringAsync">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Sync.SettingsManager">

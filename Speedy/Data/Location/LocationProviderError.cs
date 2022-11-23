@@ -1,4 +1,4 @@
-﻿namespace Speedy.Devices.Location;
+﻿namespace Speedy.Data.Location;
 
 /// <summary>
 /// Error for location provider.
@@ -19,7 +19,7 @@ public enum LocationProviderError
 	/// The app is not, or no longer, authorized to receive location data.
 	/// </summary>
 	Unauthorized = 2,
-	
+
 	/// <summary>
 	/// The app is messing a required dependency.
 	/// </summary>

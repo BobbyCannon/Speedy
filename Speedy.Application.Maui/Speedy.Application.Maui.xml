@@ -67,7 +67,7 @@
             Device Idiom Extension
             </summary>
         </member>
-        <member name="M:Speedy.Application.Maui.Extensions.DeviceIdiomExtension.ToDeviceIdiom(Speedy.Devices.DeviceType)">
+        <member name="M:Speedy.Application.Maui.Extensions.DeviceIdiomExtension.ToDeviceIdiom(Speedy.Data.DeviceType)">
             <summary>
             Convert DeviceType to a DeviceIdiom.
             </summary>
@@ -93,7 +93,7 @@
             <param name="platform"> The Xamarin Device Platform. </param>
             <returns> The Speedy Device Platform. </returns>
         </member>
-        <member name="M:Speedy.Application.Maui.Extensions.DevicePlatformExtension.ToDevicePlatform(Speedy.Devices.DevicePlatform)">
+        <member name="M:Speedy.Application.Maui.Extensions.DevicePlatformExtension.ToDevicePlatform(Speedy.Data.DevicePlatform)">
             <summary>
             Converts a Speedy Device Platform to a Xamarin Device Platform.
             </summary>
@@ -121,10 +121,29 @@
         <member name="M:Speedy.Application.Maui.MauiDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Application.Maui.MauiLocationProvider`2">
+        <member name="T:Speedy.Application.Maui.MauiLocationProvider`4">
             <summary>
             Implementation for LocationProvider.
             </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiLocationProvider`4.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Maui.MauiPlatform">
+            <summary>
+            Maui platform specific implementations.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Maui.MauiPlatform.MainActivity">
+            <summary>
+            The main activity for Android platform.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiPlatform.Initialize(Android.App.Activity)">
+            <summary>
+            Initialize the xamarin platform for Android.
+            </summary>
+            <param name="activity"> The activity. </param>
         </member>
         <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.GetApplicationName">
             <inheritdoc />
@@ -162,36 +181,39 @@
         <member name="M:Speedy.Application.Maui.NotificationService.Notify(System.String)">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Application.Maui.LocationProviderImplementation`2">
+        <member name="T:Speedy.Application.Maui.LocationProviderImplementation`4">
             <summary>
             Implementation for Feature
             </summary>
         </member>
-        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.#ctor(Speedy.IDispatcher)">
+        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.#ctor(Speedy.IDispatcher)">
             <summary>
             Default constructor
             </summary>
         </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.IsListening">
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.IsLocationAvailable">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.IsLocationAvailable">
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.IsLocationEnabled">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.IsLocationEnabled">
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.ProviderName">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.ProviderSources">
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.SubProviders">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.HasPermission">
             <summary>
-            Gets all providers from the Location Manager.
+            True if the location provider has permission to be accessed.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`2.Manager">
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.Manager">
             <summary>
             The android location manager.
             </summary>
         </member>
-        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
             <summary>
             Gets position async with specified parameters
             </summary>
@@ -203,10 +225,10 @@
             Touching "Manager", which is global, can be very dangerous.
             </remarks>
         </member>
-        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.StartListeningAsync">
+        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.StartMonitoringAsync">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`2.StopListeningAsync">
+        <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.StopMonitoringAsync">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Maui.PlatformExtensions">

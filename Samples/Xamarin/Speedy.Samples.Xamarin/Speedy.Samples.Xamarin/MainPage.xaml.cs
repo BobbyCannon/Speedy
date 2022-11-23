@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Text;
 using Speedy.Collections;
-using Speedy.Devices.Location;
 using Speedy.Extensions;
 using Speedy.Protocols.Csv;
 using Speedy.Samples.Xamarin.Services;

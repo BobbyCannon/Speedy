@@ -1,8 +1,8 @@
 ﻿#region References
 
 using System;
-using Speedy.Devices;
-using Speedy.Devices.Location;
+using Speedy.Data;
+using Speedy.Data.Location;
 using Speedy.Extensions;
 
 #endregion

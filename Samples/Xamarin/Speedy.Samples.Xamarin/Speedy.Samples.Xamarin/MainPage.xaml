@@ -5,9 +5,9 @@
 		x:Class="Speedy.Samples.Xamarin.MainPage"
 		xmlns:xamarin="clr-namespace:Speedy.Samples.Xamarin;assembly=Speedy.Samples.Xamarin" 
 		xmlns:logging="clr-namespace:Speedy.Logging;assembly=Speedy"
-		xmlns:location="clr-namespace:Speedy.Devices.Location;assembly=Speedy"
 		xmlns:forms="clr-namespace:LiveChartsCore.SkiaSharpView.Xamarin.Forms;assembly=LiveChartsCore.SkiaSharpView.XamarinForms"
-		xmlns:devices="clr-namespace:Speedy.Devices;assembly=Speedy"
+		xmlns:data="clr-namespace:Speedy.Data;assembly=Speedy"
+		xmlns:location="clr-namespace:Speedy.Data.Location;assembly=Speedy"
 		x:DataType="xamarin:MainViewModel">
 
 	<ContentPage.Resources>
@@ -78,7 +78,7 @@
 			<FlexLayout BindableLayout.ItemsSource="{x:Binding LocationManager.Providers, Mode=OneWay}"
 					Direction="Column" HorizontalOptions="Fill" VerticalOptions="Start">
 				<BindableLayout.ItemTemplate>
-					<DataTemplate x:DataType="devices:IDeviceInformationProvider">
+					<DataTemplate x:DataType="data:IInformationProvider">
 						<ContentView>
 							<StackLayout Margin="0,0,0,20">
 								<Label Text="{Binding ProviderName}" Style="{StaticResource Title}" TextColor="Accent" />
@@ -94,7 +94,7 @@
 									<Label Text="Enabled" Margin="0,6,0,0" />
 								</StackLayout>
 
-								<StackLayout IsVisible="{x:Binding HasSourceProviders, Mode=OneWay}"
+								<StackLayout IsVisible="{x:Binding HasSubProviders, Mode=OneWay}"
 										IsEnabled="{x:Binding IsMonitoring, Mode=OneWay, Converter={StaticResource InvertedBooleanConverter}}">
 									<Label Text="Source Providers" Margin="0,10,0,0" Style="{StaticResource SubTitle}" TextColor="DarkGray" />
 
@@ -108,10 +108,10 @@
 										<Label Grid.Column="1" Text="Provider" />
 										<Label Grid.Column="2" Text="Listening" />
 									</Grid>
-									<FlexLayout BindableLayout.ItemsSource="{x:Binding SourceProviders, Mode=OneWay}"
+									<FlexLayout BindableLayout.ItemsSource="{x:Binding SubProviders, Mode=OneWay}"
 											Direction="Column" HorizontalOptions="Fill" VerticalOptions="Start">
 										<BindableLayout.ItemTemplate>
-											<DataTemplate x:DataType="devices:IInformationProvider">
+											<DataTemplate x:DataType="data:IInformationProvider">
 												<ContentView>
 													<Grid>
 														<Grid.ColumnDefinitions>
@@ -269,7 +269,7 @@
 					<Style TargetType="Label">
 						<Setter Property="TextColor" Value="AliceBlue" />
 					</Style>
-					<ControlTemplate x:Key="DeviceInformationTemplate" x:DataType="location:ILocationDeviceInformation">
+					<ControlTemplate x:Key="DeviceInformationTemplate" x:DataType="location:ILocationInformation">
 						<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
 							<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
 								<Label Text="Status Time" Style="{StaticResource Property2}" />
@@ -383,7 +383,7 @@
 							</StackLayout>
 						</ContentView>
 					</DataTemplate>
-					<DataTemplate x:Key="GenericTemplate" x:DataType="location:ILocationDeviceInformation">
+					<DataTemplate x:Key="GenericTemplate" x:DataType="location:ILocationInformation">
 						<ContentView>
 							<StackLayout Margin="0,10,0,10" HorizontalOptions="Fill">
 								<Label Text="{x:Binding ProviderName, Mode=OneWay}" Style="{StaticResource Title2}" />

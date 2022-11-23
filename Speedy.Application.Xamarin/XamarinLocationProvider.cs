@@ -1,6 +1,6 @@
 ﻿#region References
 
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 #if !(NETCOREAPP || WINDOWS_UWP || MONOANDROID || XAMARIN_IOS)
 using Speedy.Application.Internal;
 #endif

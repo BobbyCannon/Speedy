@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Speedy.Extensions;
 
 #endregion
@@ -43,7 +43,7 @@ public class LocationExtensionsTests : SpeedyUnitTest
 	[TestMethod]
 	public void SupportedAccuracyReferenceTypesShouldAffectExtensionMethods()
 	{
-		var locations = new ILocationDeviceInformation[]
+		var locations = new ILocationInformation[]
 		{
 			new HorizontalLocation(), new VerticalLocation()
 		};

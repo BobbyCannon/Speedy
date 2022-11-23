@@ -7,7 +7,7 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Application;
 using Speedy.Configuration.CommandLine;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
 using Speedy.Serialization;

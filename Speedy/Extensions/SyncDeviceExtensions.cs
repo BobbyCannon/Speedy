@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Primitives;
 using Speedy.Converters;
-using Speedy.Devices;
+using Speedy.Data;
 using Speedy.Sync;
 
 #endregion

@@ -6,12 +6,12 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.Devices.Location;
+namespace Speedy.Data.Location;
 
 /// <summary>
 /// Represents a horizontal location.
 /// </summary>
-public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
+public class HorizontalLocation : LocationInformation, IHorizontalLocation
 {
 	#region Constants
 
@@ -142,7 +142,7 @@ public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
 	}
 
 	/// <inheritdoc />
-	public override bool UpdateWith(ILocationDeviceInformation update, params string[] exclusions)
+	public override bool UpdateWith(ILocationInformation update, params string[] exclusions)
 	{
 		return UpdateWith((object) update, exclusions);
 	}
@@ -164,7 +164,7 @@ public class HorizontalLocation : LocationDeviceInformation, IHorizontalLocation
 /// Represents a horizontal location (lat, long).
 /// </summary>
 public interface IHorizontalLocation
-	: ILocationDeviceInformation,
+	: ILocationInformation,
 		IUpdatable<IHorizontalLocation>,
 		ICloneable<IHorizontalLocation>,
 		IMinimalHorizontalLocation

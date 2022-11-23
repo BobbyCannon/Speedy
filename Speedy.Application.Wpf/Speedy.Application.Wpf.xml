@@ -377,7 +377,7 @@
             A secure vault for Windows.
             </summary>
         </member>
-        <member name="M:Speedy.Application.Wpf.WindowsSecureVault.#ctor(Speedy.Devices.RuntimeInformation,Speedy.IDispatcher)">
+        <member name="M:Speedy.Application.Wpf.WindowsSecureVault.#ctor(Speedy.Data.RuntimeInformation,Speedy.IDispatcher)">
             <summary>
             Create an instance of the Windows secure value.
             </summary>

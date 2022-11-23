@@ -2,8 +2,7 @@
 
 using CoreLocation;
 using Foundation;
-using Speedy.Devices.Location;
-using Location = Speedy.Devices.Location.Location;
+using Speedy.Data.Location;
 
 #endregion
 
@@ -11,14 +10,15 @@ using Location = Speedy.Devices.Location.Location;
 namespace Speedy.Application.Maui;
 
 [Preserve(AllMembers = true)]
-internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelegate
-	where T : class, ILocation, new()
+internal class LocationProviderSingleUpdateDelegate<T, THorizontal, TVertical> : CLLocationManagerDelegate
+	where T : class, ILocation<THorizontal, TVertical>, new()
+	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
 {
 	#region Fields
 
 	private readonly double _desiredAccuracy;
 	private bool _haveLocation;
-	private readonly bool _includeHeading;
 	private readonly CLLocationManager _manager;
 	private readonly T _position;
 	private readonly TaskCompletionSource<T> _tcs;
@@ -27,13 +27,12 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 
 	#region Constructors
 
-	public LocationProviderSingleUpdateDelegate(CLLocationManager manager, double desiredAccuracy, bool includeHeading, int timeout, CancellationToken cancelToken)
+	public LocationProviderSingleUpdateDelegate(CLLocationManager manager, double desiredAccuracy, int timeout, CancellationToken cancelToken)
 	{
 		_manager = manager;
 		_position = new T();
 		_tcs = new TaskCompletionSource<T>(manager);
 		_desiredAccuracy = desiredAccuracy;
-		_includeHeading = includeHeading;
 
 		if (timeout != Timeout.Infinite)
 		{
@@ -127,7 +126,7 @@ internal class LocationProviderSingleUpdateDelegate<T> : CLLocationManagerDelega
 
 		_position.HorizontalLocation.Accuracy = newLocation.HorizontalAccuracy;
 		_position.HorizontalLocation.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
-		
+
 		_position.HorizontalLocation.Latitude = newLocation.Coordinate.Latitude;
 		_position.HorizontalLocation.Longitude = newLocation.Coordinate.Longitude;
 

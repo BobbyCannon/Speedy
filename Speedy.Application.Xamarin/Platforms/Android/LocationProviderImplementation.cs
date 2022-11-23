@@ -13,8 +13,8 @@ using Android.OS;
 using Android.Runtime;
 using Java.Lang;
 using Speedy.Application.Internal;
-using Speedy.Devices;
-using Speedy.Devices.Location;
+using Speedy.Data;
+using Speedy.Data.Location;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Xamarin.Essentials;
@@ -70,16 +70,16 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	#region Properties
 
 	/// <inheritdoc />
-	public bool IsLocationAvailable => SourceProviders.Any();
+	public override bool IsLocationAvailable => SubProviders.Any();
 
 	/// <inheritdoc />
-	public bool IsLocationEnabled => SourceProviders.Any(x => x.IsEnabled && Manager.IsProviderEnabled(x.ProviderName));
+	public override bool IsLocationEnabled => SubProviders.Any(x => x.IsEnabled && Manager.IsProviderEnabled(x.ProviderName));
 
 	/// <inheritdoc />
 	public override string ProviderName => "Xamarin Android";
 
 	/// <inheritdoc />
-	public override IEnumerable<IInformationProvider> SourceProviders
+	public override IEnumerable<IInformationProvider> SubProviders
 	{
 		get
 		{
@@ -110,7 +110,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 					_usingGooglePlayFused = true;
 				}
 
-				OnPropertyChanged(nameof(HasSourceProviders));
+				OnPropertyChanged(nameof(HasSubProviders));
 			}
 
 			return _sourceProviders.Values;
@@ -161,7 +161,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 
 		var tcs = new TaskCompletionSource<TLocation>();
-		var providerSources = SourceProviders.ToArray();
+		var providerSources = SubProviders.ToArray();
 
 		if (!IsMonitoring)
 		{
@@ -183,7 +183,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 				Manager,
 				LocationProviderSettings.DesiredAccuracy,
 				timeoutMilliseconds,
-				SourceProviders
+				SubProviders
 					.Where(x => x.IsEnabled)
 					.Where(x => Manager.IsProviderEnabled(x.ProviderName))
 					.ToList(),
@@ -272,7 +272,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			return Task.CompletedTask;
 		}
 
-		var sources = SourceProviders.Cast<SourceInformationProvider>().ToArray();
+		var sources = SubProviders.Cast<SourceInformationProvider>().ToArray();
 		var looper = Looper.MyLooper() ?? Looper.MainLooper;
 
 		if ((XamarinPlatform.MainActivity != null)
@@ -359,7 +359,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			Debug.WriteLine($"Unable to remove updates: {ex}");
 		}
 
-		SourceProviders.Cast<SourceInformationProvider>().ForEach(x => x.IsMonitoring = false);
+		SubProviders.Cast<SourceInformationProvider>().ForEach(x => x.IsMonitoring = false);
 		_listener = null;
 
 		Status = string.Empty;

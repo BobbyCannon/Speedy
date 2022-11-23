@@ -1,6 +1,6 @@
 #region References
 
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Location = Android.Locations.Location;
 
 #endregion
@@ -32,7 +32,7 @@ public static class PlatformExtensions
 
 	#region Methods
 
-	internal static DateTimeOffset GetTimestamp(this Android.Locations.Location location)
+	internal static DateTimeOffset GetTimestamp(this Location location)
 	{
 		try
 		{
@@ -44,7 +44,7 @@ public static class PlatformExtensions
 		}
 	}
 
-	internal static bool IsBetterLocation(this Android.Locations.Location location, Android.Locations.Location bestLocation)
+	internal static bool IsBetterLocation(this Location location, Location bestLocation)
 	{
 		if (bestLocation == null)
 		{
@@ -101,23 +101,30 @@ public static class PlatformExtensions
 		return provider1.Equals(provider2);
 	}
 
-	internal static T ToPosition<T>(this Android.Locations.Location location) where T : class, ILocation, new()
+	internal static T ToPosition<T, THorizontal, TVertical>(this Location location, string providerName)
+		where T : class, ILocation<THorizontal, TVertical>, new()
+		where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
+		where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
 	{
 		var sourceName = location.Provider ?? "unknown";
 		var sourceTime = location.GetTimestamp().UtcDateTime;
 
 		var response = new T
 		{
-			HorizontalLocation = { 
+			HorizontalLocation =
+			{
 				HasHeading = location.HasBearing,
 				HasSpeed = location.HasSpeed,
+				HasValue = true,
+				ProviderName = providerName,
 				SourceName = sourceName,
 				StatusTime = sourceTime,
 				Longitude = location.Longitude,
-				Latitude = location.Latitude,
+				Latitude = location.Latitude
 			},
-			ProviderName = "Maui Android",
-			VerticalLocation = {
+			VerticalLocation =
+			{
+				ProviderName = providerName,
 				SourceName = sourceName,
 				StatusTime = sourceTime
 			}
@@ -133,6 +140,12 @@ public static class PlatformExtensions
 		{
 			response.VerticalLocation.Altitude = location.Altitude;
 			response.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+			response.VerticalLocation.HasValue = true;
+		}
+		else
+		{
+			response.VerticalLocation.AltitudeReference = AltitudeReferenceType.Unspecified;
+			response.VerticalLocation.HasValue = false;
 		}
 
 		if (location.HasVerticalAccuracy)

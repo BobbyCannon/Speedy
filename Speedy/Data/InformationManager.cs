@@ -12,33 +12,33 @@ using Speedy.Serialization;
 
 #endregion
 
-namespace Speedy.Devices;
+namespace Speedy.Data;
 
 /// <summary>
 /// Manages a group of information providers and comparers to track a single state of information.
 /// </summary>
 /// <typeparam name="T"> The type of the value to track. </typeparam>
-public abstract class DeviceInformationManager<T>
-	: Bindable, IDeviceInformationProvider
+public abstract class InformationManager<T>
+	: Bindable, IInformationProvider
 	where T : IUpdatable<T>, new()
 {
 	#region Fields
 
-	private readonly SortedObservableCollection<IDeviceInformationProvider> _providers;
+	private readonly SortedObservableCollection<IInformationProvider> _providers;
 
 	#endregion
 
 	#region Constructors
 
 	/// <summary>
-	/// Create an instance of the device information manager.
+	/// Create an instance of the information manager.
 	/// </summary>
-	protected DeviceInformationManager(IDispatcher dispatcher) : base(dispatcher)
+	protected InformationManager(IDispatcher dispatcher) : base(dispatcher)
 	{
-		_providers = new SortedObservableCollection<IDeviceInformationProvider>(dispatcher, new OrderBy<IDeviceInformationProvider>(x => x.ProviderName));
+		_providers = new SortedObservableCollection<IInformationProvider>(dispatcher, new OrderBy<IInformationProvider>(x => x.ProviderName));
 
 		// Defaults to empty sources.
-		SourceProviders = Array.Empty<IInformationProvider>();
+		SubProviders = Array.Empty<IInformationProvider>();
 
 		CurrentValue = new T();
 		BestValue = new T();
@@ -58,11 +58,8 @@ public abstract class DeviceInformationManager<T>
 	/// </summary>
 	public T CurrentValue { get; }
 
-	/// <inheritdoc />
-	public Type CurrentValueType => typeof(T);
-
-	/// <inheritdoc />
-	public bool HasSourceProviders => SourceProviders.Any();
+		/// <inheritdoc />
+	public bool HasSubProviders => SubProviders.Any();
 
 	/// <inheritdoc />
 	public bool IsEnabled { get; set; }
@@ -76,10 +73,10 @@ public abstract class DeviceInformationManager<T>
 	/// <summary>
 	/// The providers for each type.
 	/// </summary>
-	public ReadOnlyObservableCollection<IDeviceInformationProvider> Providers => new(_providers);
+	public ReadOnlyObservableCollection<IInformationProvider> Providers => new ReadOnlyObservableCollection<IInformationProvider>(_providers);
 
 	/// <inheritdoc />
-	public virtual IEnumerable<IInformationProvider> SourceProviders { get; }
+	public virtual IEnumerable<IInformationProvider> SubProviders { get; }
 
 	#endregion
 
@@ -89,7 +86,7 @@ public abstract class DeviceInformationManager<T>
 	/// Add a provider of device information to the manager.
 	/// </summary>
 	/// <param name="provider"> The provider of device information for the type. </param>
-	public void Add(IDeviceInformationProvider provider)
+	public void Add(IInformationProvider provider)
 	{
 		_providers.AddOrReplace(
 			x => x.ProviderName == provider.ProviderName,
@@ -99,7 +96,7 @@ public abstract class DeviceInformationManager<T>
 				provider.Updated += ProviderOnUpdated;
 				return provider;
 			},
-			(existing) =>
+			existing =>
 			{
 				if (existing != default)
 				{
@@ -111,20 +108,6 @@ public abstract class DeviceInformationManager<T>
 				provider.Updated += ProviderOnUpdated;
 				return provider;
 			});
-	}
-
-	/// <inheritdoc />
-	public bool Refresh(IUpdatable update)
-	{
-		IUpdatable bestAsObject = BestValue;
-		return Refresh(ref bestAsObject, update);
-	}
-
-	/// <inheritdoc />
-	public bool Refresh(ref IUpdatable value, IUpdatable update)
-	{
-		return value.ShouldUpdate(update)
-			&& value.UpdateWith(update);
 	}
 
 	/// <inheritdoc />
@@ -182,14 +165,14 @@ public abstract class DeviceInformationManager<T>
 
 	private void ProviderOnPropertyChanged(object sender, PropertyChangedEventArgs e)
 	{
-		if (sender is not IDeviceInformationProvider provider)
+		if (sender is not IInformationProvider provider)
 		{
 			return;
 		}
 
 		switch (e.PropertyName)
 		{
-			case nameof(IDeviceInformationProvider.IsEnabled):
+			case nameof(IInformationProvider.IsEnabled):
 			{
 				// todo: should this be handled by the provider?
 				// ex. what happens if IsMonitoring is false but it is "starting to monitor"?
@@ -210,7 +193,7 @@ public abstract class DeviceInformationManager<T>
 	{
 		ProviderUpdated?.Invoke(sender, update);
 
-		var provider = (IDeviceInformationProvider) sender;
+		var provider = (IInformationProvider) sender;
 		if (provider == null)
 		{
 			// Invalid provider?
@@ -218,7 +201,7 @@ public abstract class DeviceInformationManager<T>
 		}
 
 		// Refreshes the BestValue member.
-		Refresh(update);
+		BestValue.Refresh(update);
 
 		// Notify of the current value change.
 		CurrentValue.UpdateWith(update);

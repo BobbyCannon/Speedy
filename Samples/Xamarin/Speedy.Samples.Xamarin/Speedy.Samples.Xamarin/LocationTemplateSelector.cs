@@ -1,6 +1,6 @@
 ﻿#region References
 
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Xamarin.Forms;
 
 #endregion

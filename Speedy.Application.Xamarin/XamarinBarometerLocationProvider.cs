@@ -3,7 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Speedy.Devices.Location;
+using Speedy.Data.Location;
 using Xamarin.Essentials;
 
 #endregion
@@ -15,7 +15,7 @@ namespace Speedy.Application.Xamarin;
 /// </summary>
 /// <typeparam name="T"> The vertical location type. </typeparam>
 public class XamarinBarometerLocationProvider<T>
-	: LocationDeviceInformationProvider<T>
+	: LocationInformationProvider<T>
 	where T : class, IVerticalLocation, new()
 {
 	#region Constructors
