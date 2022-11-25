@@ -1,6 +1,7 @@
 #region References
 
 using System;
+using Android.OS;
 using Speedy.Data.Location;
 using Location = Android.Locations.Location;
 
@@ -149,10 +150,23 @@ public static class PlatformExtensions
 			response.VerticalLocation.HasValue = false;
 		}
 
+		if ((Build.VERSION.SdkInt >= BuildVersionCodes.O))
+		{
+			#pragma warning disable CA1416 // Validate platform compatibility
 		if (location.HasVerticalAccuracy)
 		{
 			response.VerticalLocation.Accuracy = location.VerticalAccuracyMeters;
 			response.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			}
+			else
+			{
+				response.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+			}
+			#pragma warning restore CA1416 // Validate platform compatibility
+		}
+		else
+		{
+			response.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
 		if (response.HorizontalLocation.HasHeading)

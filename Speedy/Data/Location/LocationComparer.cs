@@ -94,11 +94,20 @@ public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 	/// <inheritdoc />
 	public override bool UpdateWith(ref T value, T update, params string[] exclusions)
 	{
+		var response = false;
 		var valueHorizontalLocation = value?.HorizontalLocation;
-		var valueVerticalLocation = value?.VerticalLocation;
+		if (_horizontalComparer.ShouldUpdate(valueHorizontalLocation, update.HorizontalLocation))
+		{
+			response |= _horizontalComparer.UpdateWith(ref valueHorizontalLocation, update.HorizontalLocation, exclusions);
+		}
 
-		return _horizontalComparer.UpdateWith(ref valueHorizontalLocation, update.HorizontalLocation, exclusions)
-			| _verticalComparer.UpdateWith(ref valueVerticalLocation, update.VerticalLocation, exclusions);
+		var valueVerticalLocation = value?.VerticalLocation;
+		if (_verticalComparer.ShouldUpdate(valueVerticalLocation, update.VerticalLocation))
+		{
+			response |= _verticalComparer.UpdateWith(ref valueVerticalLocation, update.VerticalLocation, exclusions);
+		}
+
+		return response;
 	}
 
 	/// <inheritdoc />

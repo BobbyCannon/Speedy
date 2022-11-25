@@ -77,6 +77,12 @@ public class LocationInformationComparer<T> : Comparer<T>
 			return true;
 		}
 
+		if (update.HasValue && !current.HasValue)
+		{
+			// The update has value but the current state does not, so take the update
+			return true;
+		}
+
 		// You may have an update from the same source but it's not as accurate
 		if (AlwaysTrustSameSource && (current.SourceName == update.SourceName))
 		{
