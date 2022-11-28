@@ -102,7 +102,7 @@ public class WindowsCredential
 		return new WindowsCredential((WindowsCredentialManager.CredentialType) t.Type,
 			StringExtensions.FromBase64(t.Name.Value),
 			StringExtensions.FromBase64(t.UserName.Value),
-			StringExtensions.FromBase64(t.Password.Value).ToSecureString());
+			StringExtensions.ToSecureString(StringExtensions.FromBase64(t.Password.Value)));
 	}
 
 	/// <summary>

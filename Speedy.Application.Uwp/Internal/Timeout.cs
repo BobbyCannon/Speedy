@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 #endregion
 
-// ReSharper disable once CheckNamespace
-namespace Speedy.Application.Xamarin;
+namespace Speedy.Application.Uwp.Internal;
 
 internal class Timeout
 {

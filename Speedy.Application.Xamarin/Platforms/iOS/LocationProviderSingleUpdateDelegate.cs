@@ -129,7 +129,7 @@ internal class LocationProviderSingleUpdateDelegate<T, THorizontal, TVertical> :
 
 		_position.HorizontalLocation.Accuracy = newLocation.HorizontalAccuracy;
 		_position.HorizontalLocation.AccuracyReference = newLocation.HorizontalAccuracy > 0 ? AccuracyReferenceType.Meters : AccuracyReferenceType.Unspecified;
-		
+
 		_position.HorizontalLocation.Latitude = newLocation.Coordinate.Latitude;
 		_position.HorizontalLocation.Longitude = newLocation.Coordinate.Longitude;
 

@@ -29,10 +29,10 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 	#region Fields
 
 	private readonly IDispatcher _dispatcher;
+	private Location _lastLocation;
 	private readonly string _providerName;
 	private readonly IEnumerable<IInformationProvider> _providerSources;
-	private Location _lastLocation;
-	
+
 	#endregion
 
 	#region Constructors

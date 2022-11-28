@@ -28,7 +28,7 @@
 			"destination": "wwwroot/lib/vue-resource"
 		},
 		{
-			"library": "underscore.js@1.13.4",
+			"library": "underscore.js@1.13.6",
 			"destination": "wwwroot/lib/underscore"
 		}
 	]

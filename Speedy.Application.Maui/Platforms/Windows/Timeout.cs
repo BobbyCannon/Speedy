@@ -6,7 +6,7 @@ internal class Timeout
 {
 	#region Constants
 
-	public const int Infite = -1;
+	public const int Infinite = -1;
 
 	#endregion
 
@@ -18,13 +18,13 @@ internal class Timeout
 
 	#region Constructors
 
-	public Timeout(int timeout, Action timesup)
+	public Timeout(int timeout, Action timesUp)
 	{
 		_cancellationToken = new CancellationTokenSource();
 
 		switch (timeout)
 		{
-			case Infite:
+			case Infinite:
 			{
 				// nothing to do
 				return;
@@ -35,9 +35,9 @@ internal class Timeout
 			}
 		}
 
-		if (timesup == null)
+		if (timesUp == null)
 		{
-			throw new ArgumentNullException(nameof(timesup));
+			throw new ArgumentNullException(nameof(timesUp));
 		}
 
 		Task.Delay(TimeSpan.FromMilliseconds(timeout), _cancellationToken.Token)
@@ -45,7 +45,7 @@ internal class Timeout
 			{
 				if (!t.IsCanceled)
 				{
-					timesup();
+					timesUp();
 				}
 			});
 	}

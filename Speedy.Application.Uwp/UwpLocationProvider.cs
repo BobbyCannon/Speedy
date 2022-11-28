@@ -1,21 +1,24 @@
-#region References
+﻿#region References
 
+using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Services.Maps;
+using Speedy.Application.Uwp.Extensions;
 using Speedy.Data.Location;
-using PositionChangedEventArgs = Windows.Devices.Geolocation.PositionChangedEventArgs;
+using Timeout = Speedy.Application.Uwp.Internal.Timeout;
 
 #endregion
 
-// ReSharper disable once CheckNamespace
-namespace Speedy.Application.Maui;
+namespace Speedy.Application.Uwp;
 
 /// <summary>
 /// Implementation for LocationProvider
 /// </summary>
-public class LocationProviderImplementation<TLocation, THorizontal, TVertical, TLocationProviderSettings>
+public class UwpLocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	where TLocation : class, ILocation<THorizontal, TVertical>, new()
 	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
@@ -33,7 +36,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <summary>
 	/// Constructor for Implementation
 	/// </summary>
-	public LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
+	public UwpLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_locator = new Geolocator();
 
@@ -80,12 +83,12 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	}
 
 	/// <inheritdoc />
-	public sealed override string ProviderName => "Xamarin Windows";
+	public sealed override string ProviderName => "UWP Windows";
 
 	/// <summary>
 	/// True if the location provider has permission to be accessed.
 	/// </summary>
-	protected bool HasPermission { get; private set; }
+	public bool HasPermission => Geolocator.RequestAccessAsync().AwaitResults() == GeolocationAccessStatus.Allowed;
 
 	#endregion
 

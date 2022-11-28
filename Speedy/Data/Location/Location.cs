@@ -20,8 +20,8 @@ public class Location : CloneableBindable<Location, ILocation<IHorizontalLocatio
 	/// </summary>
 	public Location(IDispatcher dispatcher) : base(dispatcher)
 	{
-		HorizontalLocation = new HorizontalLocation();
-		VerticalLocation = new VerticalLocation();
+		HorizontalLocation = new HorizontalLocation(dispatcher);
+		VerticalLocation = new VerticalLocation(dispatcher);
 	}
 
 	#endregion
@@ -38,7 +38,7 @@ public class Location : CloneableBindable<Location, ILocation<IHorizontalLocatio
 
 	#region Methods
 
-	
+	/// <inheritdoc />
 	public bool Refresh(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
 	{
 		return HorizontalLocation.Refresh(update.HorizontalLocation, exclusions)

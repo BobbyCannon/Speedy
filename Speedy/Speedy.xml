@@ -2208,6 +2208,9 @@
         <member name="P:Speedy.Data.Location.Location.VerticalLocation">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Data.Location.Location.Refresh(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation},System.String[])">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Data.Location.Location.ShouldUpdate(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation})">
             <inheritdoc />
         </member>
@@ -2394,7 +2397,7 @@
             </summary>
         </member>
         <member name="P:Speedy.Data.Location.ILocationInformation.HasValue">
-            <inheritdoc cref="!:IDeviceInformation.HasValue" />
+            <inheritdoc cref="P:Speedy.Data.IInformation.HasValue" />
         </member>
         <member name="P:Speedy.Data.Location.ILocationInformation.Heading">
             <summary>
@@ -5543,6 +5546,7 @@
             <typeparam name="T"> The type of the update. </typeparam>
             <param name="value"> The value to be updated. </param>
             <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional list of members to exclude during updating. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
         <member name="M:Speedy.Extensions.UpdatableExtensions.Refresh(Speedy.IUpdatable,System.Object,System.String[])">
@@ -5551,6 +5555,7 @@
             </summary>
             <param name="value"> The value to be updated. </param>
             <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional list of members to exclude during updating. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
         <member name="M:Speedy.Extensions.UpdatableExtensions.UpdateWithUsingReflection``2(``0,``1,System.String[])">

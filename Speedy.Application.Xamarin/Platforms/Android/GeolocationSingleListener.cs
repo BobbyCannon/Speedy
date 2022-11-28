@@ -33,9 +33,9 @@ internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, IL
 	private readonly TaskCompletionSource<T> _completionSource;
 	private readonly float _desiredAccuracy;
 	private readonly IDispatcher _dispatcher;
-	private readonly string _providerName;
 	private readonly Action _finishedCallback;
 	private readonly object _locationSync;
+	private readonly string _providerName;
 	private readonly Timer _timer;
 
 	#endregion

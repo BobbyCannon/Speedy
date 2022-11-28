@@ -153,10 +153,10 @@ public static class PlatformExtensions
 		if ((Build.VERSION.SdkInt >= BuildVersionCodes.O))
 		{
 			#pragma warning disable CA1416 // Validate platform compatibility
-		if (location.HasVerticalAccuracy)
-		{
-			response.VerticalLocation.Accuracy = location.VerticalAccuracyMeters;
-			response.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
+			if (location.HasVerticalAccuracy)
+			{
+				response.VerticalLocation.Accuracy = location.VerticalAccuracyMeters;
+				response.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 			}
 			else
 			{

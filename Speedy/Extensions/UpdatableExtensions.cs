@@ -19,6 +19,7 @@ public static class UpdatableExtensions
 	/// <typeparam name="T"> The type of the update. </typeparam>
 	/// <param name="value"> The value to be updated. </param>
 	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional list of members to exclude during updating. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
 	public static bool Refresh<T>(this IUpdatable<T> value, T update, params string[] exclusions)
 	{
@@ -31,6 +32,7 @@ public static class UpdatableExtensions
 	/// </summary>
 	/// <param name="value"> The value to be updated. </param>
 	/// <param name="update"> The update to be applied. </param>
+	/// <param name="exclusions"> An optional list of members to exclude during updating. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
 	public static bool Refresh(this IUpdatable value, object update, params string[] exclusions)
 	{

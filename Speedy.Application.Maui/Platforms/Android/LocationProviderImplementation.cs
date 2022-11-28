@@ -82,8 +82,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 				_sourceProviders = Manager
 					.GetProviders(false)
 					.Where(x =>
-						x != LocationManager.PassiveProvider
-						&& x != LocationManager.FusedProvider
+						(x != LocationManager.PassiveProvider)
+						&& (x != LocationManager.FusedProvider)
 					)
 					.Select(x => new SourceInformationProvider
 					{

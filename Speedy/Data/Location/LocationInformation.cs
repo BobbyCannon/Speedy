@@ -129,7 +129,7 @@ public interface ILocationInformation
 	/// </summary>
 	bool HasSpeed { get; set; }
 
-	/// <inheritdoc cref="IDeviceInformation.HasValue" />
+	/// <inheritdoc cref="IInformation.HasValue" />
 	new bool HasValue { get; set; }
 
 	/// <summary>

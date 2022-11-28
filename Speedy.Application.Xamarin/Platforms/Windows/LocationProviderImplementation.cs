@@ -101,9 +101,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <returns> ProviderLocation </returns>
 	public override Task<TLocation> GetCurrentLocationAsync(TimeSpan? timeout = null, CancellationToken? cancelToken = null)
 	{
-		var timeoutMilliseconds = timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : Timeout.Infite;
+		var timeoutMilliseconds = timeout.HasValue ? (int) timeout.Value.TotalMilliseconds : Timeout.Infinite;
 
-		if ((timeoutMilliseconds < 0) && (timeoutMilliseconds != Timeout.Infite))
+		if ((timeoutMilliseconds < 0) && (timeoutMilliseconds != Timeout.Infinite))
 		{
 			throw new ArgumentOutOfRangeException(nameof(timeout));
 		}
