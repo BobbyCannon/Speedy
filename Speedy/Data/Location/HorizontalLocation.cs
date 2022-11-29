@@ -58,12 +58,6 @@ public class HorizontalLocation : LocationInformation, IHorizontalLocation
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(IHorizontalLocation update, params string[] exclusions)
-	{
-		return this.Refresh<IHorizontalLocation>(update, exclusions);
-	}
-
-	/// <inheritdoc />
 	public IHorizontalLocation ShallowClone()
 	{
 		var response = new HorizontalLocation();
@@ -75,6 +69,12 @@ public class HorizontalLocation : LocationInformation, IHorizontalLocation
 	public bool ShouldUpdate(IHorizontalLocation update)
 	{
 		return base.ShouldUpdate(update);
+	}
+
+	/// <inheritdoc />
+	public bool TryUpdateWith(IHorizontalLocation update, params string[] exclusions)
+	{
+		return this.TryUpdateWith<IHorizontalLocation>(update, exclusions);
 	}
 
 	/// <summary>

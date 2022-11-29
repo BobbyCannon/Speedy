@@ -1217,7 +1217,7 @@ public class PartialUpdate : Bindable
 
 				if ((directWritableProperty != null)
 					&& (readValueType != null)
-					&& (directWritableProperty.PropertyType.IsAssignableFrom(readValueType)))
+					&& directWritableProperty.PropertyType.IsAssignableFrom(readValueType))
 				{
 					directWritableProperty.SetValue(partialUpdate, readValue);
 				}

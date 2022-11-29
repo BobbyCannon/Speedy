@@ -134,17 +134,6 @@
             Maui platform specific implementations.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Maui.MauiPlatform.MainActivity">
-            <summary>
-            The main activity for Android platform.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Maui.MauiPlatform.Initialize(Android.App.Activity)">
-            <summary>
-            Initialize the xamarin platform for Android.
-            </summary>
-            <param name="activity"> The activity. </param>
-        </member>
         <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.GetApplicationName">
             <inheritdoc />
         </member>
@@ -167,6 +156,16 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.GetDeviceType">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiSecureVault.ClearCredential">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiSecureVault.ReadCredentialAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiSecureVault.WriteCredentialAsync">
+         e="M:Speedy.Application.Maui.MauiRuntimeInformation.GetDeviceType">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Maui.MauiSecureVault.ClearCredential">

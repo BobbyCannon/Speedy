@@ -7,75 +7,74 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.Converters.Parsers
+namespace Speedy.Converters.Parsers;
+
+internal class ReflectionStringConverterParser : IStringConverterParser
 {
-	internal class ReflectionStringConverterParser : IStringConverterParser
+	#region Fields
+
+	private static readonly ConcurrentDictionary<Type, MethodInfo> _methods;
+
+	#endregion
+
+	#region Constructors
+
+	static ReflectionStringConverterParser()
 	{
-		#region Fields
+		_methods = new ConcurrentDictionary<Type, MethodInfo>();
+	}
 
-		private static readonly ConcurrentDictionary<Type, MethodInfo> _methods;
+	#endregion
 
-		#endregion
+	#region Methods
 
-		#region Constructors
+	/// <inheritdoc />
+	public bool SupportsType(Type targetType)
+	{
+		var method = GetTryParseMethod(targetType);
 
-		static ReflectionStringConverterParser()
-		{
-			_methods = new ConcurrentDictionary<Type, MethodInfo>();
-		}
+		return method != null;
+	}
 
-		#endregion
-
-		#region Methods
-
-		/// <inheritdoc />
-		public bool SupportsType(Type targetType)
+	/// <inheritdoc />
+	public bool TryParse(Type targetType, string value, out object result)
+	{
+		try
 		{
 			var method = GetTryParseMethod(targetType);
+			result = targetType.GetDefaultValue();
 
-			return method != null;
-		}
-
-		/// <inheritdoc />
-		public bool TryParse(Type targetType, string value, out object result)
-		{
-			try
+			if (method == null)
 			{
-				var method = GetTryParseMethod(targetType);
-				result = targetType.GetDefaultValue();
-
-				if (method == null)
-				{
-					return false;
-				}
-
-				var parameters = new object[] { value, null };
-				var success = (bool) method.Invoke(null, parameters);
-
-				if (!success)
-				{
-					return false;
-				}
-
-				result = parameters[1];
-				return true;
-			}
-			catch (Exception)
-			{
-				result = targetType.GetDefaultValue();
 				return false;
 			}
-		}
 
-		private static MethodInfo GetTryParseMethod(Type targetType)
+			var parameters = new object[] { value, null };
+			var success = (bool) method.Invoke(null, parameters);
+
+			if (!success)
+			{
+				return false;
+			}
+
+			result = parameters[1];
+			return true;
+		}
+		catch (Exception)
 		{
-			var method = _methods.GetOrAdd(targetType,
-				x => x.GetTypeInfo().GetCachedMethod("TryParse", typeof(string), targetType.MakeByRefType())
-			);
-
-			return method;
+			result = targetType.GetDefaultValue();
+			return false;
 		}
-
-		#endregion
 	}
+
+	private static MethodInfo GetTryParseMethod(Type targetType)
+	{
+		var method = _methods.GetOrAdd(targetType,
+			x => x.GetTypeInfo().GetCachedMethod("TryParse", typeof(string), targetType.MakeByRefType())
+		);
+
+		return method;
+	}
+
+	#endregion
 }

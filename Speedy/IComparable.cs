@@ -103,7 +103,6 @@ public interface IComparer<T> : IComparer<T, T, T>
 /// </summary>
 public interface IComparer<T, in T2> : IComparer<T, T2, T2>
 {
-
 }
 
 /// <summary>
@@ -122,6 +121,14 @@ public interface IComparer<T, in T2, in T3> : IComparer
 	bool ShouldUpdate(T value, T2 update);
 
 	/// <summary>
+	/// Determine if the update should be applied.
+	/// </summary>
+	/// <param name="value"> The value to compare with. </param>
+	/// <param name="update"> The update to be tested. </param>
+	/// <returns> True if the update should be applied otherwise false. </returns>
+	bool ShouldUpdate(T value, T3 update);
+
+	/// <summary>
 	/// Apply the update to the provided value.
 	/// </summary>
 	/// <param name="value"> The value to be updated. </param>
@@ -129,14 +136,6 @@ public interface IComparer<T, in T2, in T3> : IComparer
 	/// <param name="exclusions"> An optional list of members to exclude. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
 	bool UpdateWith(ref T value, T2 update, params string[] exclusions);
-	
-	/// <summary>
-	/// Determine if the update should be applied.
-	/// </summary>
-	/// <param name="value"> The value to compare with. </param>
-	/// <param name="update"> The update to be tested. </param>
-	/// <returns> True if the update should be applied otherwise false. </returns>
-	bool ShouldUpdate(T value, T3 update);
 
 	/// <summary>
 	/// Apply the update to the provided value.

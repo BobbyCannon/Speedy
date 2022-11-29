@@ -333,6 +333,32 @@ namespace Speedy.UnitTests
 			Console.WriteLine(builder.ToString());
 			return builder.ToString();
 		}
+		
+		public static string Dump(this char[] items, string prefix = null)
+		{
+			var builder = new StringBuilder();
+			foreach (var item in items)
+			{
+				if (prefix != null)
+				{
+					builder.Append(prefix);
+				}
+
+				builder.Append(item);
+			}
+			Console.WriteLine(builder.ToString());
+			return builder.ToString();
+		}
+
+		public static void Dump(this IEnumerable<int> item)
+		{
+			foreach (var i in item)
+			{
+				Console.Write($"{i:X4},");
+			}
+
+			Console.WriteLine("");
+		}
 
 		public static void Dump(this byte[] item)
 		{
@@ -353,6 +379,13 @@ namespace Speedy.UnitTests
 		{
 			Console.Write(prefix);
 			Console.WriteLine(item);
+		}
+
+		public static string DumpJson(this object item)
+		{
+			var json = item.ToRawJson();
+			Console.WriteLine(json);
+			return json;
 		}
 
 		public static void ExpectedException<T>(Action work, params string[] messages) where T : Exception
@@ -934,6 +967,8 @@ namespace Speedy.UnitTests
 			return true;
 		}
 
+		#endregion
+
 		#if !NET48
 		public static ControllerContext GetControllerContext(AccountEntity account)
 		{
@@ -951,7 +986,5 @@ namespace Speedy.UnitTests
 			return service.Object;
 		}
 		#endif
-
-		#endregion
 	}
 }

@@ -56,9 +56,9 @@ public class SyncIssue : Bindable, IUpdatable<SyncIssue>
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(SyncIssue update, params string[] exclusions)
+	public bool TryUpdateWith(SyncIssue update, params string[] exclusions)
 	{
-		return this.Refresh<SyncIssue>(update, exclusions);
+		return this.TryUpdateWith<SyncIssue>(update, exclusions);
 	}
 
 	/// <inheritdoc />

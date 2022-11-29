@@ -4,19 +4,18 @@ using System;
 
 #endregion
 
-namespace Speedy
+namespace Speedy;
+
+/// <summary>
+/// Represents a created entity.
+/// </summary>
+/// <typeparam name="T"> The type of the entity key. </typeparam>
+public abstract class CreatedEntity<T> : Entity<T>, ICreatedEntity
 {
-	/// <summary>
-	/// Represents a created entity.
-	/// </summary>
-	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class CreatedEntity<T> : Entity<T>, ICreatedEntity
-	{
-		#region Properties
+	#region Properties
 
-		/// <inheritdoc />
-		public DateTime CreatedOn { get; set; }
+	/// <inheritdoc />
+	public DateTime CreatedOn { get; set; }
 
-		#endregion
-	}
+	#endregion
 }

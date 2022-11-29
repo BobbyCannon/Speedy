@@ -4,72 +4,71 @@ using System.Collections.ObjectModel;
 
 #endregion
 
-namespace Speedy.Collections
+namespace Speedy.Collections;
+
+/// <summary>
+/// Limited collection to a maximum number of items.
+/// </summary>
+/// <typeparam name="T"> The type this collection is for. </typeparam>
+public class LimitedCollection<T> : Collection<T>
 {
+	#region Fields
+
+	private readonly object _insertLock;
+
+	#endregion
+
+	#region Constructors
+
 	/// <summary>
-	/// Limited collection to a maximum number of items.
+	/// Instantiates an instance of the collection.
 	/// </summary>
-	/// <typeparam name="T"> The type this collection is for. </typeparam>
-	public class LimitedCollection<T> : Collection<T>
+	public LimitedCollection() : this(int.MaxValue)
 	{
-		#region Fields
+	}
 
-		private readonly object _insertLock;
+	/// <summary>
+	/// Instantiates an instance of the collection.
+	/// </summary>
+	/// <param name="limit"> The maximum number of items for this collection. </param>
+	public LimitedCollection(int limit)
+	{
+		_insertLock = new object();
 
-		#endregion
+		Limit = limit;
+	}
 
-		#region Constructors
+	#endregion
 
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		public LimitedCollection() : this(int.MaxValue)
+	#region Properties
+
+	/// <summary>
+	/// The maximum limit for this collection.
+	/// </summary>
+	public int Limit { get; set; }
+
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	protected override void InsertItem(int index, T item)
+	{
+		lock (_insertLock)
 		{
-		}
-
-		/// <summary>
-		/// Instantiates an instance of the collection.
-		/// </summary>
-		/// <param name="limit"> The maximum number of items for this collection. </param>
-		public LimitedCollection(int limit)
-		{
-			_insertLock = new object();
-
-			Limit = limit;
-		}
-
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// The maximum limit for this collection.
-		/// </summary>
-		public int Limit { get; set; }
-
-		#endregion
-
-		#region Methods
-
-		/// <inheritdoc />
-		protected override void InsertItem(int index, T item)
-		{
-			lock (_insertLock)
+			if (index > Count)
 			{
-				if (index > Count)
-				{
-					index = Count;
-				}
+				index = Count;
+			}
 
-				base.InsertItem(index, item);
+			base.InsertItem(index, item);
 
-				while (Count > Limit)
-				{
-					RemoveAt(0);
-				}
+			while (Count > Limit)
+			{
+				RemoveAt(0);
 			}
 		}
-
-		#endregion
 	}
+
+	#endregion
 }

@@ -59,12 +59,6 @@ public abstract class Entity<T> : Entity, IUpdatable<T>
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(T update, params string[] exclusions)
-	{
-		return UpdatableExtensions.Refresh(this, update, exclusions);
-	}
-
-	/// <inheritdoc />
 	public bool ShouldUpdate(T update)
 	{
 		return true;
@@ -82,6 +76,12 @@ public abstract class Entity<T> : Entity, IUpdatable<T>
 		{
 			return false;
 		}
+	}
+
+	/// <inheritdoc />
+	public bool TryUpdateWith(T update, params string[] exclusions)
+	{
+		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />
@@ -235,12 +235,6 @@ public abstract class Entity : IEntity, IUnwrappable
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 
-	/// <inheritdoc />
-	public virtual bool Refresh(object update, params string[] exclusions)
-	{
-		return UpdatableExtensions.Refresh(this, update, exclusions);
-	}
-
 	/// <summary>
 	/// Reset the change tracking flag.
 	/// </summary>
@@ -272,6 +266,12 @@ public abstract class Entity : IEntity, IUnwrappable
 
 	/// <inheritdoc />
 	public abstract bool TrySetId(string id);
+
+	/// <inheritdoc />
+	public virtual bool TryUpdateWith(object update, params string[] exclusions)
+	{
+		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+	}
 
 	/// <summary>
 	/// Unwrap the entity from the proxy. Will ignore virtual properties.

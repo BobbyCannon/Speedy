@@ -71,12 +71,6 @@ public class VerticalLocation : LocationInformation, IVerticalLocation
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(IVerticalLocation update, params string[] exclusions)
-	{
-		return this.Refresh<IVerticalLocation>(update, exclusions);
-	}
-
-	/// <inheritdoc />
 	public IVerticalLocation ShallowClone()
 	{
 		var response = new VerticalLocation();
@@ -88,6 +82,12 @@ public class VerticalLocation : LocationInformation, IVerticalLocation
 	public bool ShouldUpdate(IVerticalLocation update)
 	{
 		return base.ShouldUpdate(update);
+	}
+
+	/// <inheritdoc />
+	public bool TryUpdateWith(IVerticalLocation update, params string[] exclusions)
+	{
+		return this.TryUpdateWith<IVerticalLocation>(update, exclusions);
 	}
 
 	/// <summary>

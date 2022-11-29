@@ -1,18 +1,17 @@
-﻿namespace Speedy
+﻿namespace Speedy;
+
+/// <summary>
+/// Represents an unwrappable entity
+/// </summary>
+public interface IUnwrappable
 {
+	#region Methods
+
 	/// <summary>
-	/// Represents an unwrappable entity
+	/// Unwraps an object from the object proxy.
 	/// </summary>
-	public interface IUnwrappable
-	{
-		#region Methods
+	/// <returns> The unwrapped entity. </returns>
+	object Unwrap();
 
-		/// <summary>
-		/// Unwraps an object from the object proxy.
-		/// </summary>
-		/// <returns> The unwrapped entity. </returns>
-		object Unwrap();
-
-		#endregion
-	}
+	#endregion
 }

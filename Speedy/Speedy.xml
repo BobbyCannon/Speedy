@@ -15,10 +15,10 @@
             </summary>
             <param name="dispatcher"> The dispatcher to update with. </param>
         </member>
-        <member name="M:Speedy.Bindable`1.Refresh(`0,System.String[])">
+        <member name="M:Speedy.Bindable`1.ShouldUpdate(`0)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable`1.ShouldUpdate(`0)">
+        <member name="M:Speedy.Bindable`1.TryUpdateWith(`0,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable`1.UpdateWith(`0,System.String[])">
@@ -71,10 +71,10 @@
             </summary>
             <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
         </member>
-        <member name="M:Speedy.Bindable.Refresh(System.Object,System.String[])">
+        <member name="M:Speedy.Bindable.ShouldUpdate(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable.ShouldUpdate(System.Object)">
+        <member name="M:Speedy.Bindable.TryUpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
@@ -1302,14 +1302,14 @@
             </summary>
             <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
-        <member name="M:Speedy.Database.OnDisposed">
-            <summary>
-            An invocator for the event when the database has been disposed.
-            </summary>
-        </member>
         <member name="M:Speedy.Database.OnChangesSaved(Speedy.Storage.CollectionChangeTracker)">
             <summary>
             Called when for when changes are saved. <see cref="E:Speedy.Database.ChangesSaved" />
+            </summary>
+        </member>
+        <member name="M:Speedy.Database.OnDisposed">
+            <summary>
+            An invocator for the event when the database has been disposed.
             </summary>
         </member>
         <member name="M:Speedy.Database.BuildRelationship``4(``0,System.Collections.IEnumerable,System.String)">
@@ -1325,13 +1325,13 @@
             <param name="key"> The key of the relationship </param>
             <returns> The repository for the relationship. </returns>
         </member>
-        <member name="E:Speedy.Database.Disposed">
-            <inheritdoc />
-        </member>
         <member name="E:Speedy.Database.ChangesSaved">
             <summary>
             An event for when changes are saved. <see cref="M:Speedy.Database.SaveChanges" />
             </summary>
+        </member>
+        <member name="E:Speedy.Database.Disposed">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.DatabaseKeyCache">
             <summary>
@@ -2032,13 +2032,13 @@
             <param name="location"> The location. </param>
             <returns> The equivalent value as a basic location. </returns>
         </member>
-        <member name="M:Speedy.Data.Location.BasicLocation.Refresh(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation},System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Data.Location.BasicLocation.ShouldUpdate(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.BasicLocation.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.Location.BasicLocation.TryUpdateWith(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation},System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.BasicLocation.UpdateWith(Speedy.Data.Location.BasicLocation,System.String[])">
@@ -2064,7 +2064,6 @@
         </member>
         <member name="T:Speedy.Data.Location.Converter">
             <summary>
-            
             </summary>
         </member>
         <member name="M:Speedy.Data.Location.Converter.ConvertHeight(System.Double,System.Double,System.Double,Speedy.Data.Location.ConvertFlag)">
@@ -2145,13 +2144,13 @@
         <member name="M:Speedy.Data.Location.HorizontalLocation.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Data.Location.HorizontalLocation.Refresh(Speedy.Data.Location.IHorizontalLocation,System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Data.Location.HorizontalLocation.ShallowClone">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.HorizontalLocation.ShouldUpdate(Speedy.Data.Location.IHorizontalLocation)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.Location.HorizontalLocation.TryUpdateWith(Speedy.Data.Location.IHorizontalLocation,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.HorizontalLocation.UpdateWith(Speedy.Data.Location.IHorizontalLocation,System.String[])">
@@ -2208,13 +2207,13 @@
         <member name="P:Speedy.Data.Location.Location.VerticalLocation">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Data.Location.Location.Refresh(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation},System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Data.Location.Location.ShouldUpdate(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation})">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.Location.ShouldUpdate(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.Location.Location.TryUpdateWith(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation},System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.Location.UpdateWith(Speedy.Data.Location.ILocation{Speedy.Data.Location.IHorizontalLocation,Speedy.Data.Location.IVerticalLocation},System.String[])">
@@ -2802,13 +2801,13 @@
         <member name="M:Speedy.Data.Location.VerticalLocation.DeepClone(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Data.Location.VerticalLocation.Refresh(Speedy.Data.Location.IVerticalLocation,System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Data.Location.VerticalLocation.ShallowClone">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.VerticalLocation.ShouldUpdate(Speedy.Data.Location.IVerticalLocation)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.Location.VerticalLocation.TryUpdateWith(Speedy.Data.Location.IVerticalLocation,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.VerticalLocation.UpdateWith(Speedy.Data.Location.IVerticalLocation,System.String[])">
@@ -3038,13 +3037,13 @@
             <param name="currentKey"> The current version of the key. </param>
             <returns> The new key to be used in. </returns>
         </member>
-        <member name="M:Speedy.Entity`1.Refresh(`0,System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity`1.ShouldUpdate(`0)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity`1.TrySetId(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Entity`1.TryUpdateWith(`0,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity`1.UpdateWith(`0,System.String[])">
@@ -3119,9 +3118,6 @@
             </summary>
             <param name="propertyName"> The name of the property that changed. </param>
         </member>
-        <member name="M:Speedy.Entity.Refresh(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity.ResetChangeTracking">
             <summary>
             Reset the change tracking flag.
@@ -3134,6 +3130,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.TrySetId(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Entity.TryUpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.Unwrap">
@@ -4321,6 +4320,11 @@
             Extensions for location related code.
             </summary>
         </member>
+        <member name="F:Speedy.Extensions.LocationExtensions.EarthRadius">
+            <summary>
+            Radius of the earth.
+            </summary>
+        </member>
         <member name="P:Speedy.Extensions.LocationExtensions.SupportedAccuracyReferenceTypes">
             <summary>
             Globally supported Accuracy Reference types. Changing this affects extension methods like HasAccuracy.
@@ -4394,6 +4398,15 @@
             <param name="location"> The location to calculate for. </param>
             <returns> Returns meters for both latitude and longitude. </returns>
         </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.CreateCircle(Speedy.Data.Location.IMinimalHorizontalLocation,System.Double,System.Byte)">
+            <summary>
+            Calculate the corners of a circle
+            </summary>
+            <param name="center"> The center of the circle. </param>
+            <param name="radius"> The radius of the circle. </param>
+            <param name="circlePoints"> The amount of points for the circle. </param>
+            <returns> The points for the circle. </returns>
+        </member>
         <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(System.Double,System.Double,System.Double,System.Double)">
             <summary>
             Calculates the distance between two locations in meters.
@@ -4402,6 +4415,14 @@
             <param name="longitudeStart"> Longitude start. </param>
             <param name="latitudeEnd"> Latitude end. </param>
             <param name="longitudeEnd"> Longitude end. </param>
+            <returns> The distance in meters. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(Speedy.Data.Location.Location,Speedy.Data.Location.Location)">
+            <summary>
+            Calculates the distance between two locations in meters.
+            </summary>
+            <param name="start"> Start. </param>
+            <param name="end"> End. </param>
             <returns> The distance in meters. </returns>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
@@ -5539,7 +5560,7 @@
             Extensions for the IUpdatable interface
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.Refresh``1(Speedy.IUpdatable{``0},``0,System.String[])">
+        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith``1(Speedy.IUpdatable{``0},``0,System.String[])">
             <summary>
             Try to apply an update to the provided value.
             </summary>
@@ -5549,7 +5570,7 @@
             <param name="exclusions"> An optional list of members to exclude during updating. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.Refresh(Speedy.IUpdatable,System.Object,System.String[])">
+        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith(Speedy.IUpdatable,System.Object,System.String[])">
             <summary>
             Try to apply an update to the provided value.
             </summary>
@@ -5796,6 +5817,14 @@
             <param name="update"> The update to be tested. </param>
             <returns> True if the update should be applied otherwise false. </returns>
         </member>
+        <member name="M:Speedy.IComparer`3.ShouldUpdate(`0,`2)">
+            <summary>
+            Determine if the update should be applied.
+            </summary>
+            <param name="value"> The value to compare with. </param>
+            <param name="update"> The update to be tested. </param>
+            <returns> True if the update should be applied otherwise false. </returns>
+        </member>
         <member name="M:Speedy.IComparer`3.UpdateWith(`0@,`1,System.String[])">
             <summary>
             Apply the update to the provided value.
@@ -5804,14 +5833,6 @@
             <param name="update"> The update to be applied. </param>
             <param name="exclusions"> An optional list of members to exclude. </param>
             <returns> True if the update was applied otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.IComparer`3.ShouldUpdate(`0,`2)">
-            <summary>
-            Determine if the update should be applied.
-            </summary>
-            <param name="value"> The value to compare with. </param>
-            <param name="update"> The update to be tested. </param>
-            <returns> True if the update should be applied otherwise false. </returns>
         </member>
         <member name="M:Speedy.IComparer`3.UpdateWith(`0@,`2,System.String[])">
             <summary>
@@ -5912,14 +5933,14 @@
             </returns>
             <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
         </member>
-        <member name="E:Speedy.IDatabase.Disposed">
-            <summary>
-            An event for when the database has been disposed.
-            </summary>
-        </member>
         <member name="E:Speedy.IDatabase.ChangesSaved">
             <summary>
             An event for when changes are saved. <see cref="M:Speedy.IDatabase.SaveChanges" />
+            </summary>
+        </member>
+        <member name="E:Speedy.IDatabase.Disposed">
+            <summary>
+            An event for when the database has been disposed.
             </summary>
         </member>
         <member name="T:Speedy.IDatabaseProvider`1">
@@ -6237,14 +6258,14 @@
             https://www.w3.org/TR/xmlschema-2/#duration
             </remarks>
         </member>
-        <member name="P:Speedy.IsoDateTime.IsExpired">
-            <summary>
-            True if the date time has expired.
-            </summary>
-        </member>
         <member name="P:Speedy.IsoDateTime.ExpiresOn">
             <summary>
             When this date time expires on.
+            </summary>
+        </member>
+        <member name="P:Speedy.IsoDateTime.IsExpired">
+            <summary>
+            True if the date time has expired.
             </summary>
         </member>
         <member name="M:Speedy.IsoDateTime.CompareTo(Speedy.IsoDateTime)">
@@ -6282,6 +6303,12 @@
             </summary>
             <param name="isoDateTime"> The ISO date time to convert. </param>
         </member>
+        <member name="M:Speedy.IsoDateTime.op_Implicit(System.DateTime)~Speedy.IsoDateTime">
+            <summary>
+            Implicit operator from DateTime to IsoDateTime with Zero duration.
+            </summary>
+            <param name="value"> The DateTime value to cast. </param>
+        </member>
         <member name="M:Speedy.IsoDateTime.op_Inequality(Speedy.IsoDateTime,Speedy.IsoDateTime)">
             <summary>
             Determines whether two specified instances of <see cref="T:Speedy.IsoDateTime"> </see> are not equal.
@@ -6307,9 +6334,6 @@
             <param name="duration"> The duration string. </param>
             <returns> The timespan that represents the duration. </returns>
         </member>
-        <member name="M:Speedy.IsoDateTime.ToString">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.IsoDateTime.ToDuration(System.DateTime,System.TimeSpan)">
             <summary>
             Calculate the ISO-8601 duration.
@@ -6318,11 +6342,8 @@
             <param name="duration"> The timespan for the duration. </param>
             <returns> </returns>
         </member>
-        <member name="M:Speedy.IsoDateTime.op_Implicit(System.DateTime)~Speedy.IsoDateTime">
-            <summary>
-            Implicit operator from DateTime to IsoDateTime with Zero duration.
-            </summary>
-            <param name="value"> The DateTime value to cast. </param>
+        <member name="M:Speedy.IsoDateTime.ToString">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.ISyncableDatabase">
             <summary>
@@ -6503,20 +6524,20 @@
             </summary>
             <typeparam name="T"> The type that is update is for. </typeparam>
         </member>
-        <member name="M:Speedy.IUpdatable`1.Refresh(`0,System.String[])">
-            <summary>
-            Determine if the update should be applied then applies it if so else do nothing.
-            </summary>
-            <param name="update"> The update to be tested. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-            <returns> True if the update was applied otherwise false. </returns>
-        </member>
         <member name="M:Speedy.IUpdatable`1.ShouldUpdate(`0)">
             <summary>
             Determine if the update should be applied.
             </summary>
             <param name="update"> The update to be tested. </param>
             <returns> True if the update should be applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IUpdatable`1.TryUpdateWith(`0,System.String[])">
+            <summary>
+            Determine if the update should be applied then applies it if so else do nothing.
+            </summary>
+            <param name="update"> The update to be tested. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
         </member>
         <member name="M:Speedy.IUpdatable`1.UpdateWith(`0,System.String[])">
             <summary>
@@ -6531,20 +6552,20 @@
             Represents an updatable item
             </summary>
         </member>
-        <member name="M:Speedy.IUpdatable.Refresh(System.Object,System.String[])">
-            <summary>
-            Determine if the update should be applied then applies it if so else do nothing.
-            </summary>
-            <param name="update"> The update to be tested. </param>
-            <param name="exclusions"> An optional list of members to exclude. </param>
-            <returns> True if the update was applied otherwise false. </returns>
-        </member>
         <member name="M:Speedy.IUpdatable.ShouldUpdate(System.Object)">
             <summary>
             Determine if the update should be applied.
             </summary>
             <param name="update"> The update to be tested. </param>
             <returns> True if the update should be applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IUpdatable.TryUpdateWith(System.Object,System.String[])">
+            <summary>
+            Determine if the update should be applied then applies it if so else do nothing.
+            </summary>
+            <param name="update"> The update to be tested. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
         </member>
         <member name="M:Speedy.IUpdatable.UpdateWith(System.Object,System.String[])">
             <summary>
@@ -7648,10 +7669,10 @@
             <param name="convert"> The function to convert from the current type into the requested type. </param>
             <returns> The new paged results for the provided type. </returns>
         </member>
-        <member name="M:Speedy.PagedResults`1.Refresh(Speedy.PagedResults{`0},System.String[])">
+        <member name="M:Speedy.PagedResults`1.ShouldUpdate(Speedy.PagedResults{`0})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.PagedResults`1.ShouldUpdate(Speedy.PagedResults{`0})">
+        <member name="M:Speedy.PagedResults`1.TryUpdateWith(Speedy.PagedResults{`0},System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.PagedResults`1.UpdateWith(Speedy.PagedResults{`0},System.String[])">
@@ -10908,6 +10929,203 @@
             The equivalent value as DateTime type.
             </returns>
         </member>
+        <member name="T:Speedy.RandomGenerator">
+            <summary>
+            Random generator can generate many different types of random data.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.AllCharacters">
+            <summary>
+            All characters including Alphabet, Numbers, Symbols, NonPrintable
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.Alphabet">
+            <summary>
+            The full alphabet with lower and upper cased versions.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.AlphabetAndNumbers">
+            <summary>
+            The full alphabet with lower / upper cased versions and numbers.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.FullTable">
+            <summary>
+            Full table of all 255 ascii characters.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.NonPrintable">
+            <summary>
+            A subset of non printable characters. Not an exhaustive list.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.Numbers">
+            <summary>
+            All numbers 0-9.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.Symbols">
+            <summary>
+            A subset of symbols. Not an exhaustive list.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.AlphabetAndNumbersCharacters">
+            <summary>
+            The full array of characters for <see cref="F:Speedy.RandomGenerator.AlphabetAndNumbers" />
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.LoremIpsumWords">
+            <summary>
+            A list of lorem ipsum words.
+            </summary>
+        </member>
+        <member name="M:Speedy.RandomGenerator.GetBytes(System.Int32)">
+            <summary>
+            Returns a byte array with random data values.
+            </summary>
+            <param name="numberOfBytes"> The number of bytes to generate. </param>
+            <returns> The generated random byte array data. </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.GetItem``1(System.Collections.Generic.IList{``0})">
+            <summary>
+            Gets a random item from a list.
+            </summary>
+            <typeparam name="T"> The type of the item in the collection. </typeparam>
+            <param name="items"> The list of items. </param>
+            <returns> A random item or the default value if the list is empty. </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.GetPassword(System.Int32,System.Boolean)">
+            <summary>
+            Get a random password.
+            </summary>
+            <param name="length"> The length to get. Defaults to 16. </param>
+            <param name="excludeSymbols"> Optional exclude symbols. Defaults to true. </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.GetPhoneNumber(System.Boolean)">
+            <summary>
+            Gets a randomly generated phone.
+            </summary>
+            <param name="formatted"> If true then format the number as "(123) 456-7890". </param>
+            <returns> The phone number. </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.LoremIpsum(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            Create a random string containing the "lorem ipsum" words. This is very useful during testing.
+            </summary>
+            <param name="minWords"> The minimum number of words per sentence. </param>
+            <param name="maxWords"> The maximum number of words per sentence. </param>
+            <param name="minSentences"> The minimum number of sentences per paragraph. </param>
+            <param name="maxSentences"> The maximum number of sentences per paragraph. </param>
+            <param name="numParagraphs"> The number of paragraphs to generate. </param>
+            <param name="prefix"> An optional paragraph prefix. </param>
+            <param name="suffix"> An optional paragraph suffix. </param>
+            <returns> The generated lorem ipsum data. </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextBool">
+            <summary>
+            Returns a random bool value.
+            </summary>
+            <returns> The random bool value. </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextDateTime">
+            <summary>
+            Returns a random datetime that is within a specified range.
+            </summary>
+            <returns>
+            A datetime greater than or equal to minValue and less than maxValue; that is, the range of return
+            values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
+            </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextDateTime(System.DateTime,System.DateTime)">
+            <summary>
+            Returns a random datetime that is within a specified range.
+            </summary>
+            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <returns>
+            A datetime greater than or equal to minValue and less than maxValue; that is, the range of return
+            values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
+            </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextDecimal(System.Decimal,System.Decimal,System.Byte)">
+            <summary>
+            Returns a random decimal number that is within a specified range.
+            </summary>
+            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <param name="scale"> The scale about to include in the next double. Defaults to 0. </param>
+            <returns>
+            A decimal number greater than or equal to minValue and less than maxValue; that is, the range of return
+            values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
+            </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextDouble(System.Double,System.Double,System.Byte)">
+            <summary>
+            Returns a random double floating point that is within a specified range.
+            </summary>
+            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <param name="scale"> The scale of the double. How precise? 1 = 0.1, 2 = 0.01 </param>
+            <returns>
+            A double floating point number greater than or equal to minValue and less than maxValue; that is, the
+            range of return values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
+            </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextInteger(System.Int32,System.Int32)">
+            <summary>
+            Returns a random integer that is within a specified range.
+            </summary>
+            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximum"> The exclusive upper bound of the random number returned. </param>
+            <returns>
+            A 32-bit signed integer greater than or equal to minimum and less than maximum; that is, the range
+            of return values includes minimum but not maximum. If minimum equals maximum, minimum is returned.
+            </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextLong(System.Int64,System.Int64)">
+            <summary>
+            Returns a random integer that is within a specified range.
+            </summary>
+            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximum"> The exclusive upper bound of the random number returned. </param>
+            <returns>
+            A 64-bit signed integer greater than or equal to minimum and less than maximum; that is, the range
+            of return values includes minimum but not maximum. If minimum equals maximum, minimum is returned.
+            </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.NextString(System.Int32,System.String)">
+            <summary>
+            Generate a random string value.
+            </summary>
+            <param name="length"> The length of the string to create. </param>
+            <param name="allowedChars"> The allowed characters. Defaults to <see cref="F:Speedy.RandomGenerator.AlphabetAndNumbers" />. </param>
+            <returns> </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException"> </exception>
+        </member>
+        <member name="M:Speedy.RandomGenerator.Populate(System.Char[]@)">
+            <summary>
+            Populate an array of char.
+            </summary>
+            <param name="data"> The array to populate. </param>
+        </member>
+        <member name="M:Speedy.RandomGenerator.SetPassword(System.Security.SecureString,System.Int32,System.Boolean)">
+            <summary>
+            Set a random password to the provided builder.
+            </summary>
+            <param name="builder"> The builder to be updated. </param>
+            <param name="length"> The length to get. Defaults to 16. </param>
+            <param name="excludeSymbols"> Optional exclude symbols. Defaults to true. </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.Shuffle``1(System.Collections.Generic.IList{``0})">
+            <summary>
+            Shuffle a list of items into a random order.
+            </summary>
+            <typeparam name="T"> The type of the items in the list. </typeparam>
+            <param name="list"> The list of items. </param>
+            <returns> The shuffled list. </returns>
+        </member>
         <member name="T:Speedy.Serialization.Converters.IsoDateTimeConverter">
             <summary>
             Converter used to deserialize JSON string to IsoDateTime.
@@ -11305,20 +11523,6 @@
             </summary>
             <returns> </returns>
         </member>
-        <member name="M:Speedy.ShortGuid.ParseGuid(System.String)">
-            <summary>
-            Creates a new short Guid from the provided full Guid.
-            </summary>
-            <param name="guid"> The guid to be parsed. </param>
-            <returns> The short guid version of the full guid. </returns>
-        </member>
-        <member name="M:Speedy.ShortGuid.ParseShortGuid(System.String)">
-            <summary>
-            Creates a new short Guid from the provided short Guid string.
-            </summary>
-            <param name="sguid"> The short guid string to be parsed. </param>
-            <returns> The short guid version of the short guid string. </returns>
-        </member>
         <member name="M:Speedy.ShortGuid.op_Equality(Speedy.ShortGuid,Speedy.ShortGuid)">
             <summary>
             Determines if both ShortGuids have the same underlying.
@@ -11364,6 +11568,20 @@
             <param name="x"> The guid to be tested. </param>
             <param name="y"> The guid to be tested against. </param>
             <returns> Returns true if the values do not match or otherwise false if they do match. </returns>
+        </member>
+        <member name="M:Speedy.ShortGuid.ParseGuid(System.String)">
+            <summary>
+            Creates a new short Guid from the provided full Guid.
+            </summary>
+            <param name="guid"> The guid to be parsed. </param>
+            <returns> The short guid version of the full guid. </returns>
+        </member>
+        <member name="M:Speedy.ShortGuid.ParseShortGuid(System.String)">
+            <summary>
+            Creates a new short Guid from the provided short Guid string.
+            </summary>
+            <param name="sguid"> The short guid string to be parsed. </param>
+            <returns> The short guid version of the short guid string. </returns>
         </member>
         <member name="M:Speedy.ShortGuid.ToString">
             <summary>
@@ -14212,7 +14430,7 @@
             </summary>
             <returns> The converted sync entity in a sync object format. </returns>
         </member>
-        <member name="M:Speedy.Sync.SyncIssue.Refresh(Speedy.Sync.SyncIssue,System.String[])">
+        <member name="M:Speedy.Sync.SyncIssue.TryUpdateWith(Speedy.Sync.SyncIssue,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncIssue.ShouldUpdate(Speedy.Sync.SyncIssue)">

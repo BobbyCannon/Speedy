@@ -161,12 +161,6 @@ public class BasicLocation
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
-	{
-		return this.Refresh<ILocation<IHorizontalLocation, IVerticalLocation>>(update, exclusions);
-	}
-
-	/// <inheritdoc />
 	public bool ShouldUpdate(ILocation<IHorizontalLocation, IVerticalLocation> update)
 	{
 		return ShouldUpdate(update.HorizontalLocation)
@@ -177,6 +171,12 @@ public class BasicLocation
 	public override string ToString()
 	{
 		return $"{Latitude:F7}, {Longitude:F7}, {Altitude:F3} / {AltitudeReference.GetDisplayName()}";
+	}
+
+	/// <inheritdoc />
+	public bool TryUpdateWith(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
+	{
+		return this.TryUpdateWith<ILocation<IHorizontalLocation, IVerticalLocation>>(update, exclusions);
 	}
 
 	/// <inheritdoc />

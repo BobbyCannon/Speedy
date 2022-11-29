@@ -5,71 +5,70 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace Speedy
+namespace Speedy;
+
+/// <summary>
+/// Represents a default dispatcher
+/// </summary>
+public class DefaultDispatcher : IDispatcher
 {
-	/// <summary>
-	/// Represents a default dispatcher
-	/// </summary>
-	public class DefaultDispatcher : IDispatcher
+	#region Properties
+
+	/// <inheritdoc />
+	public bool IsDispatcherThread { get; private set; }
+
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	public void Run(Action action)
 	{
-		#region Properties
-
-		/// <inheritdoc />
-		public bool IsDispatcherThread { get; private set; }
-
-		#endregion
-
-		#region Methods
-
-		/// <inheritdoc />
-		public void Run(Action action)
+		if (IsDispatcherThread == false)
 		{
-			if (IsDispatcherThread == false)
-			{
-				// Go ahead and mark thread access as true
-				IsDispatcherThread = true;
-			}
-
-			action();
+			// Go ahead and mark thread access as true
+			IsDispatcherThread = true;
 		}
 
-		/// <inheritdoc />
-		public T Run<T>(Func<T> action)
-		{
-			if (IsDispatcherThread == false)
-			{
-				// Go ahead and mark thread access as true
-				IsDispatcherThread = true;
-			}
-
-			return action();
-		}
-
-		/// <inheritdoc />
-		public Task RunAsync(Action action)
-		{
-			if (IsDispatcherThread == false)
-			{
-				// Go ahead and mark thread access as true
-				IsDispatcherThread = true;
-			}
-
-			action();
-			return Task.CompletedTask;
-		}
-
-		/// <inheritdoc />
-		public Task<T> RunAsync<T>(Func<T> action)
-		{
-			if (IsDispatcherThread == false)
-			{
-				// Go ahead and mark thread access as true
-				IsDispatcherThread = true;
-			}
-
-			return Task.FromResult(action());
-		}
-
-		#endregion
+		action();
 	}
+
+	/// <inheritdoc />
+	public T Run<T>(Func<T> action)
+	{
+		if (IsDispatcherThread == false)
+		{
+			// Go ahead and mark thread access as true
+			IsDispatcherThread = true;
+		}
+
+		return action();
+	}
+
+	/// <inheritdoc />
+	public Task RunAsync(Action action)
+	{
+		if (IsDispatcherThread == false)
+		{
+			// Go ahead and mark thread access as true
+			IsDispatcherThread = true;
+		}
+
+		action();
+		return Task.CompletedTask;
+	}
+
+	/// <inheritdoc />
+	public Task<T> RunAsync<T>(Func<T> action)
+	{
+		if (IsDispatcherThread == false)
+		{
+			// Go ahead and mark thread access as true
+			IsDispatcherThread = true;
+		}
+
+		return Task.FromResult(action());
+	}
+
+	#endregion
 }

@@ -168,15 +168,15 @@ public class PagedResults<T> : PartialUpdate<PagedResults<T>>, IPagedResults, IU
 	}
 
 	/// <inheritdoc />
-	public bool Refresh(PagedResults<T> update, params string[] exclusions)
-	{
-		return this.Refresh<PagedResults<T>>(update, exclusions);
-	}
-
-	/// <inheritdoc />
 	public virtual bool ShouldUpdate(PagedResults<T> update)
 	{
 		return true;
+	}
+
+	/// <inheritdoc />
+	public bool TryUpdateWith(PagedResults<T> update, params string[] exclusions)
+	{
+		return this.TryUpdateWith<PagedResults<T>>(update, exclusions);
 	}
 
 	/// <summary>

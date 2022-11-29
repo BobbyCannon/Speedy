@@ -16,6 +16,15 @@ namespace Speedy.Extensions;
 /// </summary>
 public static class LocationExtensions
 {
+	#region Constants
+
+	/// <summary>
+	/// Radius of the earth.
+	/// </summary>
+	public const double EarthRadius = 6378137.0;
+
+	#endregion
+
 	#region Constructors
 
 	static LocationExtensions()
@@ -143,6 +152,37 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
+	/// Calculate the corners of a circle
+	/// </summary>
+	/// <param name="center"> The center of the circle. </param>
+	/// <param name="radius"> The radius of the circle. </param>
+	/// <param name="circlePoints"> The amount of points for the circle. </param>
+	/// <returns> The points for the circle. </returns>
+	public static IEnumerable<IBasicLocation> CreateCircle(this IMinimalHorizontalLocation center, double radius, byte circlePoints = 18)
+	{
+		var locations = new List<BasicLocation>();
+		var geoLatitude = (center.Latitude * PI) / 180.0;
+		var geoLongitude = (center.Longitude * PI) / 180.0;
+		var x = radius / EarthRadius;
+		var increment = 360 / circlePoints;
+
+		for (var i = 0; i <= 360; i += increment)
+		{
+			var altitudeRadians = (i * PI) / 180.0;
+			var latitudeRadians = Asin((Sin(geoLatitude) * Cos(x)) + (Cos(geoLatitude) * Sin(x) * Cos(altitudeRadians)));
+			var longitudeRadians = geoLongitude + Atan2(Sin(altitudeRadians) * Sin(x) * Cos(geoLatitude), Cos(x) - (Sin(geoLatitude) * Sin(latitudeRadians)));
+			var location = new BasicLocation
+			{
+				Latitude = (180.0 * latitudeRadians) / PI,
+				Longitude = (180.0 * longitudeRadians) / PI
+			};
+			locations.Add(location);
+		}
+
+		return locations;
+	}
+
+	/// <summary>
 	/// Calculates the distance between two locations in meters.
 	/// </summary>
 	/// <param name="latitudeStart"> Latitude start. </param>
@@ -152,8 +192,6 @@ public static class LocationExtensions
 	/// <returns> The distance in meters. </returns>
 	public static double DistanceBetween(double latitudeStart, double longitudeStart, double latitudeEnd, double longitudeEnd)
 	{
-		const double earthRadius = 6378137.0;
-
 		var dLon = ToRadians(longitudeEnd - longitudeStart);
 		var theta1 = ToRadians(latitudeStart);
 		var theta2 = ToRadians(latitudeEnd);
@@ -161,8 +199,37 @@ public static class LocationExtensions
 		var s2 = Sin(dLon / 2.0);
 		var a = (s1 * s1) + (Cos(theta1) * Cos(theta2) * s2 * s2);
 
-		var distanceInMeters = earthRadius * 2 * Atan2(Sqrt(a), Sqrt(1.0 - a));
+		var distanceInMeters = EarthRadius * 2 * Atan2(Sqrt(a), Sqrt(1.0 - a));
 		return distanceInMeters;
+	}
+
+	/// <summary>
+	/// Calculates the distance between two locations in meters.
+	/// </summary>
+	/// <param name="start"> Start. </param>
+	/// <param name="end"> End. </param>
+	/// <returns> The distance in meters. </returns>
+	public static double DistanceBetween(this Location start, Location end)
+	{
+		if (!start.VerticalLocation.HasValue
+			|| !end.VerticalLocation.HasValue)
+		{
+			return DistanceBetween(
+				start.HorizontalLocation.Latitude,
+				start.HorizontalLocation.Longitude,
+				end.HorizontalLocation.Latitude,
+				end.HorizontalLocation.Longitude
+			);
+		}
+
+		return DistanceBetween(
+			start.HorizontalLocation.Latitude,
+			start.HorizontalLocation.Longitude,
+			start.VerticalLocation.Altitude,
+			end.HorizontalLocation.Latitude,
+			end.HorizontalLocation.Longitude,
+			end.VerticalLocation.Altitude
+		);
 	}
 
 	/// <summary>

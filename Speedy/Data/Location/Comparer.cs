@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 namespace Speedy.Data.Location;
 
 /// <summary>
-/// 
 /// </summary>
 public static class Converter
 {

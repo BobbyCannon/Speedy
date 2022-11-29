@@ -21,7 +21,7 @@ public static class UpdatableExtensions
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional list of members to exclude during updating. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
-	public static bool Refresh<T>(this IUpdatable<T> value, T update, params string[] exclusions)
+	public static bool TryUpdateWith<T>(this IUpdatable<T> value, T update, params string[] exclusions)
 	{
 		return value.ShouldUpdate(update)
 			&& value.UpdateWith(update, exclusions);
@@ -34,7 +34,7 @@ public static class UpdatableExtensions
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional list of members to exclude during updating. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
-	public static bool Refresh(this IUpdatable value, object update, params string[] exclusions)
+	public static bool TryUpdateWith(this IUpdatable value, object update, params string[] exclusions)
 	{
 		return value.ShouldUpdate(update)
 			&& value.UpdateWith(update, exclusions);

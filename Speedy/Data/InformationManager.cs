@@ -58,7 +58,7 @@ public abstract class InformationManager<T>
 	/// </summary>
 	public T CurrentValue { get; }
 
-		/// <inheritdoc />
+	/// <inheritdoc />
 	public bool HasSubProviders => SubProviders.Any();
 
 	/// <inheritdoc />
@@ -201,7 +201,7 @@ public abstract class InformationManager<T>
 		}
 
 		// Refreshes the BestValue member.
-		BestValue.Refresh(update);
+		BestValue.TryUpdateWith(update);
 
 		// Notify of the current value change.
 		CurrentValue.UpdateWith(update);

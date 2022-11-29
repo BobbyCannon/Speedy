@@ -9,19 +9,19 @@ public interface IUpdatable<in T> : IUpdatable
 	#region Methods
 
 	/// <summary>
-	/// Determine if the update should be applied then applies it if so else do nothing.
-	/// </summary>
-	/// <param name="update"> The update to be tested. </param>
-	/// <param name="exclusions"> An optional list of members to exclude. </param>
-	/// <returns> True if the update was applied otherwise false. </returns>
-	bool Refresh(T update, params string[] exclusions);
-
-	/// <summary>
 	/// Determine if the update should be applied.
 	/// </summary>
 	/// <param name="update"> The update to be tested. </param>
 	/// <returns> True if the update should be applied otherwise false. </returns>
 	bool ShouldUpdate(T update);
+
+	/// <summary>
+	/// Determine if the update should be applied then applies it if so else do nothing.
+	/// </summary>
+	/// <param name="update"> The update to be tested. </param>
+	/// <param name="exclusions"> An optional list of members to exclude. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	bool TryUpdateWith(T update, params string[] exclusions);
 
 	/// <summary>
 	/// Allows updating of one type to another based on member Name and Type.
@@ -42,19 +42,19 @@ public interface IUpdatable
 	#region Methods
 
 	/// <summary>
-	/// Determine if the update should be applied then applies it if so else do nothing.
-	/// </summary>
-	/// <param name="update"> The update to be tested. </param>
-	/// <param name="exclusions"> An optional list of members to exclude. </param>
-	/// <returns> True if the update was applied otherwise false. </returns>
-	bool Refresh(object update, params string[] exclusions);
-
-	/// <summary>
 	/// Determine if the update should be applied.
 	/// </summary>
 	/// <param name="update"> The update to be tested. </param>
 	/// <returns> True if the update should be applied otherwise false. </returns>
 	bool ShouldUpdate(object update);
+
+	/// <summary>
+	/// Determine if the update should be applied then applies it if so else do nothing.
+	/// </summary>
+	/// <param name="update"> The update to be tested. </param>
+	/// <param name="exclusions"> An optional list of members to exclude. </param>
+	/// <returns> True if the update was applied otherwise false. </returns>
+	bool TryUpdateWith(object update, params string[] exclusions);
 
 	/// <summary>
 	/// Allows updating of one type to another based on member Name and Type.

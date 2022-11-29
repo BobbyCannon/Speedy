@@ -4,19 +4,18 @@ using System;
 
 #endregion
 
-namespace Speedy
+namespace Speedy;
+
+/// <summary>
+/// Represents a modifiable entity.
+/// </summary>
+/// <typeparam name="T"> The type of the entity key. </typeparam>
+public abstract class ModifiableEntity<T> : CreatedEntity<T>, IModifiableEntity
 {
-	/// <summary>
-	/// Represents a modifiable entity.
-	/// </summary>
-	/// <typeparam name="T"> The type of the entity key. </typeparam>
-	public abstract class ModifiableEntity<T> : CreatedEntity<T>, IModifiableEntity
-	{
-		#region Properties
+	#region Properties
 
-		/// <inheritdoc />
-		public DateTime ModifiedOn { get; set; }
+	/// <inheritdoc />
+	public DateTime ModifiedOn { get; set; }
 
-		#endregion
-	}
+	#endregion
 }
