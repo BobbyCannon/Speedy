@@ -4,10 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using System.Text;
-#if !NETSTANDARD2_0
 using System.Security.Cryptography;
-#endif
+using System.Text;
 
 #endregion
 
@@ -60,6 +58,11 @@ public static class RandomGenerator
 	#region Fields
 
 	/// <summary>
+	/// The full array of characters for <see cref="Alphabet" />
+	/// </summary>
+	public static readonly char[] AlphabetCharacters = Alphabet.ToArray();
+
+	/// <summary>
 	/// The full array of characters for <see cref="AlphabetAndNumbers" />
 	/// </summary>
 	public static readonly char[] AlphabetAndNumbersCharacters = AlphabetAndNumbers.ToArray();
@@ -78,6 +81,7 @@ public static class RandomGenerator
 
 	#if (NETSTANDARD2_0)
 	private static readonly Random _oldRandom;
+	private static readonly RandomNumberGenerator _rng;
 	#endif
 
 	private static readonly object _syncLockForRandom;
@@ -90,6 +94,7 @@ public static class RandomGenerator
 	{
 		#if (NETSTANDARD2_0)
 		_oldRandom = new Random();
+		_rng = RandomNumberGenerator.Create();
 		#endif
 
 		_syncLockForRandom = new object();
@@ -388,7 +393,7 @@ public static class RandomGenerator
 		{
 			#if (NETSTANDARD2_0)
 			var data = new byte[8];
-			_oldRandom.NextBytes(data);
+			_rng.GetBytes(data);
 			#else
 			var data = new byte[8];
 			var span = new Span<byte>(data);
@@ -552,7 +557,7 @@ public static class RandomGenerator
 	{
 		#if (NETSTANDARD2_0)
 		var data = new byte[sizeof(ulong)];
-		_oldRandom.NextBytes(data);
+		_rng.GetBytes(data);
 		#else
 		var data = new byte[sizeof(ulong)];
 		var bytes = new Span<byte>(data);

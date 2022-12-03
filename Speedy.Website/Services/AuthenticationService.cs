@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Speedy.Data;
+using Speedy.Net;
 using Speedy.Website.Core.Services;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
@@ -93,7 +94,7 @@ namespace Speedy.Website.Services
 			return ticket;
 		}
 
-		public bool LogIn(Credentials credentials)
+		public bool LogIn(WebCredential credentials)
 		{
 			if (string.IsNullOrWhiteSpace(credentials.Password))
 			{

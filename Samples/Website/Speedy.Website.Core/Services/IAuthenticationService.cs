@@ -2,6 +2,7 @@
 
 using System.Security.Claims;
 using Speedy.Data;
+using Speedy.Net;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -21,7 +22,7 @@ namespace Speedy.Website.Core.Services
 
 		#region Methods
 
-		bool LogIn(Credentials credentials);
+		bool LogIn(WebCredential credentials);
 		void LogIn(AccountEntity account);
 		void LogOut();
 

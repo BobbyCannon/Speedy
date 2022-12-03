@@ -26,7 +26,7 @@
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC6</Version>
+		<Version>11.0.0-RC7</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

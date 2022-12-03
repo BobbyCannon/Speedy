@@ -218,6 +218,440 @@
             PropertyChanged event (per <see cref="T:System.ComponentModel.INotifyPropertyChanged" />).
             </summary>
         </member>
+        <member name="T:Speedy.Collections.LittleEndianBuffer">
+            <summary>
+            A little endian specific buffer.
+            </summary>
+            <remarks>
+            <see cref="T:Speedy.Collections.EndianBuffer" />
+            </remarks>
+        </member>
+        <member name="M:Speedy.Collections.LittleEndianBuffer.#ctor(System.Int32)">
+            <summary>
+            Instantiates a little endian buffer.
+            </summary>
+            <param name="size"> The size of the buffer. </param>
+        </member>
+        <member name="M:Speedy.Collections.LittleEndianBuffer.Load(System.Byte[])">
+            <summary>
+            Load a buffer that contains data in a little endian order.
+            </summary>
+            <param name="buffer"> The buffer to load. </param>
+            <returns> The little endian buffer. </returns>
+        </member>
+        <member name="T:Speedy.Collections.BigEndianBuffer">
+            <summary>
+            A big endian specific buffer.
+            </summary>
+            <remarks>
+            <see cref="T:Speedy.Collections.EndianBuffer" />
+            </remarks>
+        </member>
+        <member name="M:Speedy.Collections.BigEndianBuffer.#ctor(System.Int32)">
+            <summary>
+            Instantiates a big endian buffer.
+            </summary>
+            <param name="size"> The size of the buffer. </param>
+        </member>
+        <member name="M:Speedy.Collections.BigEndianBuffer.Load(System.Byte[])">
+            <summary>
+            Load a buffer that contains data in a big endian order.
+            </summary>
+            <param name="buffer"> The buffer to load. </param>
+            <returns> The big endian buffer. </returns>
+        </member>
+        <member name="T:Speedy.Collections.EndianBuffer">
+            <summary>
+            A endian specific buffer.
+            </summary>
+            <remarks>
+            Little-endian byte ordering places the least significant byte first. This method is used in Intel microprocessors, for example.
+            Big-endian byte ordering places the most significant byte first. This method is used in IBM mainframes and Motorola microprocessors, for example.
+            Network byte order is defined to always be big-endian.
+            </remarks>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.#ctor(System.Int32,System.Boolean)">
+            <summary>
+            Instantiates a buffer order specifically for a specific endianness (byte-order). All writes and
+            reads will conform to the selected endianness.
+            </summary>
+            <param name="size"> The size of the buffer. </param>
+            <param name="isLittleEndian"> True to be little endian otherwise big endian. </param>
+        </member>
+        <member name="P:Speedy.Collections.EndianBuffer.IsLittleEndian">
+            <summary>
+            If true this buffer is in LittleEndian order else BigEndian order.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.EndianBuffer.Length">
+            <summary>
+            The length of the endian buffer.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.EndianBuffer.ReadIndex">
+            <summary>
+            The index of the read.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.EndianBuffer.WriteIndex">
+            <summary>
+            The index of the write.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadArray(System.Int32,System.Int32)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to start reading from. </param>
+            <param name="length"> The amount of data to read. </param>
+            <returns> The array of byte data. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadByte(System.Int32)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to start reading from. </param>
+            <returns> The array of byte data. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadInt16">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadInt16(System.Int32)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to read from. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadInt32">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadInt32(System.Int32)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to read from. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadUInt16">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ReadUInt16(System.Int32)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to read from. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.ToArray">
+            <summary>
+            Converts the buffer to an array.
+            </summary>
+            <returns> The buffer as a byte array. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadInt16(System.Int16@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadInt16(System.Int32,System.Int16@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to read from. </param>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadInt32(System.Int32@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadInt32(System.Int32,System.Int32@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to read from. </param>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadInt64(System.Int64@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadUInt16(System.UInt16@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadUInt16(System.Int32,System.UInt16@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadUInt32(System.UInt32@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryReadUInt64(System.UInt64@)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="value"> The value that was read if successful. </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteArray(System.Byte[])">
+            <summary>
+            Write an array af values into the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteArray(System.Int32,System.Byte[])">
+            <summary>
+            Write an array af values into the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteInt16(System.Int16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteInt16(System.Int32,System.Int16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteInt32(System.Int32)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteInt32(System.Int32,System.Int32)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteInt64(System.Int64)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteInt64(System.Int32,System.Int64)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteUInt16(System.UInt16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteUInt16(System.Int32,System.UInt16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteUInt32(System.UInt32)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWriteUInt64(System.UInt64)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteArray(System.Byte[])">
+            <summary>
+            Write an array af values into the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteArray(System.Int32,System.Byte[])">
+            <summary>
+            Write an array af values into the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteByte(System.Int32,System.Byte)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write the value to. </param>
+            <param name="value"> The value to be written. </param>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteInt16(System.Int16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteInt16(System.Int32,System.Int16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteInt32(System.Int32)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteInt32(System.Int32,System.Int32)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteInt64(System.Int64)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteInt64(System.Int32,System.Int64)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteUInt16(System.UInt16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteUInt16(System.Int32,System.UInt16)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteUInt32(System.UInt32)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.WriteUInt64(System.UInt64)">
+            <summary>
+            Write the value to the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.LoadBuffer(System.Byte[])">
+            <summary>
+            Load full array into the buffer.
+            </summary>
+            <param name="buffer"> The buffer to load. </param>
+            <exception cref="T:System.ArgumentException"> The buffer length is invalid. </exception>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWrite(System.Byte[],System.Boolean)">
+            <summary>
+            Write an array af values into the buffer.
+            </summary>
+            <param name="value"> The value to write. </param>
+            <param name="valueIsLittleEndian"> The value being written is little endian. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryWrite(System.Int32,System.Byte[],System.Boolean)">
+            <summary>
+            Write an array af values into the buffer.
+            </summary>
+            <param name="index"> The index to write to. </param>
+            <param name="value"> The value to write. </param>
+            <param name="valueIsLittleEndian"> The value being written is little endian. </param>
+            <returns> True if the write was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryRead(System.Byte[],System.Int32,System.Boolean)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="value"> The value that was read if successful. </param>
+            <param name="length"> The amount of data to read. </param>
+            <param name="wantsLittleEndian"> True to read the value as little endian otherwise big endian </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.EndianBuffer.TryRead(System.Int32,System.Byte[],System.Int32,System.Boolean)">
+            <summary>
+            Read the value from the buffer.
+            </summary>
+            <param name="index"> The index to start reading from. </param>
+            <param name="value"> The value that was read if successful. </param>
+            <param name="length"> The amount of data to read. </param>
+            <param name="wantsLittleEndian"> True to read the value as little endian otherwise big endian </param>
+            <returns> True if the read was successful otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Collections.FilteredCollection`1">
             <summary>
             This collection representing a list of entities for a relationship.
@@ -7351,6 +7785,11 @@
             Represents the password for the credential.
             </summary>
         </member>
+        <member name="P:Speedy.Net.WebCredential.RememberMe">
+            <summary>
+            Gets or sets a flag indicating to remember the user.
+            </summary>
+        </member>
         <member name="P:Speedy.Net.WebCredential.SecurePassword">
             <summary>
             Represents the secure password for the credential.
@@ -7361,9 +7800,14 @@
             Represents the username for the credential.
             </summary>
         </member>
+        <member name="M:Speedy.Net.WebCredential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
+            <summary>
+            Gets the credential from an authentication header value.
+            </summary>
+        </member>
         <member name="M:Speedy.Net.WebCredential.GetAuthenticationHeaderValue">
             <summary>
-            Gets the credential as an auth header value.
+            Gets the credential as an authentication header value.
             </summary>
         </member>
         <member name="M:Speedy.Net.WebCredential.HasCredentials">
@@ -7372,19 +7816,19 @@
             </summary>
             <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
         </member>
-        <member name="M:Speedy.Net.WebCredential.OnPropertyChangedInDispatcher(System.String)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Net.WebCredential.Reset">
             <summary>
             Reset the web credential.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebCredential.UpdateWith(Speedy.Net.WebCredential)">
-            <summary>
-            Update with the provided credential.
-            </summary>
-            <param name="credential"> The credential to update with. </param>
+        <member name="M:Speedy.Net.WebCredential.ShouldUpdate(Speedy.Net.WebCredential)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.WebCredential.TryUpdateWith(Speedy.Net.WebCredential,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.WebCredential.UpdateWith(Speedy.Net.WebCredential,System.String[])">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Net.WebCredential.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
@@ -10967,6 +11411,11 @@
         <member name="F:Speedy.RandomGenerator.Symbols">
             <summary>
             A subset of symbols. Not an exhaustive list.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.AlphabetCharacters">
+            <summary>
+            The full array of characters for <see cref="F:Speedy.RandomGenerator.Alphabet" />
             </summary>
         </member>
         <member name="F:Speedy.RandomGenerator.AlphabetAndNumbersCharacters">

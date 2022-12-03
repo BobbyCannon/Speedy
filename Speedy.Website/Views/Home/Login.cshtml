@@ -1,4 +1,4 @@
-﻿@model Credentials
+﻿@model Speedy.Net.WebCredential
 
 @{
 	ViewBag.Title = "LogIn";
@@ -11,7 +11,7 @@
 			<table>
 				<tr>
 					<td colspan="2">
-						@Html.TextBoxFor(m => m.EmailAddress, new Dictionary<string, object> { { "class", "text-center" }, { "placeholder", "email address" } })
+						@Html.TextBoxFor(m => m.UserName, new Dictionary<string, object> { { "class", "text-center" }, { "placeholder", "email address" } })
 					</td>
 				</tr>
 				<tr>

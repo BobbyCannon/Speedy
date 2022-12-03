@@ -6,6 +6,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using Speedy.Data;
+using Speedy.Net;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 
@@ -25,7 +26,7 @@ namespace Speedy.Website.Core.Services
 
 		#region Methods
 
-		public AccountEntity AuthenticateAccount(Credentials model)
+		public AccountEntity AuthenticateAccount(WebCredential model)
 		{
 			if (string.IsNullOrWhiteSpace(model.Password))
 			{
@@ -42,7 +43,7 @@ namespace Speedy.Website.Core.Services
 					PasswordHash = x.PasswordHash,
 					Roles = x.Roles
 				})
-				.FirstOrDefault(x => x.EmailAddress == model.EmailAddress);
+				.FirstOrDefault(x => x.EmailAddress == model.UserName);
 
 			if (user == null)
 			{

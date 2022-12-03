@@ -354,20 +354,24 @@ namespace Speedy.UnitTests
 		{
 			foreach (var i in item)
 			{
-				Console.Write($"{i:X4},");
+				Console.Write($"0x{i:X4},");
 			}
 
 			Console.WriteLine("");
 		}
 
-		public static void Dump(this byte[] item)
+		public static string Dump(this byte[] item)
 		{
+			var builder = new StringBuilder();
+
 			foreach (var i in item)
 			{
-				Console.Write($"{i:X2},");
+				builder.Append($"0x{i:X2}, ");
 			}
 
-			Console.WriteLine("");
+			var response = builder.ToString();
+			Console.WriteLine(response);
+			return response;
 		}
 
 		public static void Dump<T>(this T item, Func<T, object> action)
@@ -982,7 +986,7 @@ namespace Speedy.UnitTests
 		public static IAuthenticationService GetAuthenticationService()
 		{
 			var service = new Mock<IAuthenticationService>();
-			service.Setup(x => x.LogIn(It.IsAny<Credentials>())).Returns<Credentials>(x => true);
+			service.Setup(x => x.LogIn(It.IsAny<WebCredential>())).Returns<WebCredential>(x => true);
 			return service.Object;
 		}
 		#endif

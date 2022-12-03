@@ -165,16 +165,6 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Maui.MauiSecureVault.WriteCredentialAsync">
-         e="M:Speedy.Application.Maui.MauiRuntimeInformation.GetDeviceType">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Maui.MauiSecureVault.ClearCredential">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Maui.MauiSecureVault.ReadCredentialAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Maui.MauiSecureVault.WriteCredentialAsync">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Maui.NotificationService.Notify(System.String)">
@@ -182,12 +172,12 @@
         </member>
         <member name="T:Speedy.Application.Maui.LocationProviderImplementation`4">
             <summary>
-            Implementation for Feature
+            Implementation for LocationProvider
             </summary>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.#ctor(Speedy.IDispatcher)">
             <summary>
-            Default constructor
+            Constructor for Implementation
             </summary>
         </member>
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.IsLocationAvailable">
@@ -199,17 +189,9 @@
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.ProviderName">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.SubProviders">
-            <inheritdoc />
-        </member>
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.HasPermission">
             <summary>
             True if the location provider has permission to be accessed.
-            </summary>
-        </member>
-        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.Manager">
-            <summary>
-            The android location manager.
             </summary>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
@@ -219,20 +201,33 @@
             <param name="timeout"> Timeout to wait, Default Infinite </param>
             <param name="cancelToken"> Cancellation token </param>
             <returns> ProviderLocation </returns>
-            <remarks>
-            bug: we must work on thread safety of this method.
-            Touching "Manager", which is global, can be very dangerous.
-            </remarks>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.StartMonitoringAsync">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.StopMonitoringAsync">
-            <inheritdoc />
+            <summary>
+            Stop listening
+            </summary>
         </member>
         <member name="T:Speedy.Application.Maui.PlatformExtensions">
             <summary>
-            Extensions for the Android platform.
+            Extension for the Windows platform.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.PlatformExtensions.AsTask``1(Windows.Foundation.IAsyncOperation{``0},System.Boolean)">
+            <summary>
+            Converts an IAsyncOperation to a ConfigurableTaskAwaitable.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.PlatformExtensions.ToAltitudeReferenceSystem(Speedy.Data.Location.AltitudeReferenceType)">
+            <summary>
+            Convert altitude reference type to system.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.PlatformExtensions.ToAltitudeReferenceType(Windows.Devices.Geolocation.AltitudeReferenceSystem)">
+            <summary>
+            Convert altitude reference system to type.
             </summary>
         </member>
     </members>

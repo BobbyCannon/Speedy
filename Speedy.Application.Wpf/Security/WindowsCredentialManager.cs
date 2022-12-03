@@ -29,7 +29,7 @@ public static class WindowsCredentialManager
 	}
 
 	/// <summary>
-	/// Enumerate all Windows Credentials.
+	/// Enumerate all Windows WebCredential.
 	/// </summary>
 	/// <param name="filter"> An optional filter. </param>
 	/// <returns> The Windows credentials. </returns>

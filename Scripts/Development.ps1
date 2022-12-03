@@ -16,10 +16,10 @@ Get-Process vbcs* | Stop-Process
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Debug" -BuildNumber 0 -VersionSuffix 'RC6'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Debug" -BuildNumber 0 -VersionSuffix 'RC7'
 
 & 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC6'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC7'
 & 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'pre'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'

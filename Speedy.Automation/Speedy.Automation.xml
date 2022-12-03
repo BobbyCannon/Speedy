@@ -4283,6 +4283,11 @@
             Represents a Speedy test.
             </summary>
         </member>
+        <member name="P:Speedy.Automation.Tests.SpeedyTest.CurrentTime">
+            <summary>
+            Represents the current time returned by TimeService.UtcNow;
+            </summary>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0,``0,System.Action{System.Boolean},System.String[])">
             <summary>
             Validates that the expected and actual are equal.
@@ -4326,6 +4331,49 @@
             <param name="value"> The object to copy to the clipboard. Calls ToString on the value. </param>
             <returns> The value input to allow for method chaining. </returns>
         </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ExpectedException``1(System.Action,System.String[])">
+            <summary>
+            Test for an expected exception.
+            </summary>
+            <typeparam name="T"> The type of the exception. </typeparam>
+            <param name="work"> The test. </param>
+            <param name="messages"> A set of messages where at least one message should be found. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IncrementTime(System.Int32,System.Int32,System.Int32,System.Int64)">
+            <summary>
+            Increment the current time. This only works if current time is set. Negative values will subtract time.
+            </summary>
+            <param name="seconds"> The seconds to increment by. </param>
+            <param name="milliseconds"> The milliseconds to increment by. </param>
+            <param name="microseconds"> The microseconds to increment by. Only supported in .NET 7 or greater. </param>
+            <param name="ticks"> The ticks to increment by. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsFalse(System.Func{System.Boolean})">
+            <summary>
+            Tests whether the specified condition is false and throws an exception if the condition is true.
+            </summary>
+            <param name="condition"> The condition the test expects to be false. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsFalse(System.Func{System.Boolean},System.String)">
+            <summary>
+            Tests whether the specified condition is false and throws an exception if the condition is true.
+            </summary>
+            <param name="condition"> The condition the test expects to be false. </param>
+            <param name="message"> The message is shown in test results. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsFalse(System.Boolean)">
+            <summary>
+            Tests whether the specified condition is false and throws an exception if the condition is true.
+            </summary>
+            <param name="condition"> The condition the test expects to be false. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsFalse(System.Boolean,System.String)">
+            <summary>
+            Tests whether the specified condition is false and throws an exception if the condition is true.
+            </summary>
+            <param name="condition"> The condition the test expects to be false. </param>
+            <param name="message"> The message is shown in test results. </param>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.IsTrue(System.Func{System.Boolean})">
             <summary>
             Tests whether the specified condition is true and throws an exception if the condition is false.
@@ -4352,11 +4400,39 @@
             <param name="condition"> The condition the test expects to be true. </param>
             <param name="message"> The message is shown in test results. </param>
         </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ResetCurrentTime">
+            <summary>
+            Reset the <see cref="P:Speedy.Automation.Tests.SpeedyTest.CurrentTime" /> back to using DateTime.
+            </summary>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.SetClipboardProvider(System.Action{System.String})">
             <summary>
             Sets the clipboard provider.
             </summary>
             <param name="provider"> The provider to be set. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.Wait(System.Func{System.Boolean},System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
+            time.
+            </summary>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+            <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.Wait(System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="cancellationPending"> A check for cancellation. </param>
+            <param name="value"> The value of time to wait for. </param>
+            <param name="delay"> The delay between checks. </param>
+            <param name="minimum"> The minimal time to wait. </param>
+            <param name="maximum"> The maximum time to wait. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.GetDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
             <summary>
@@ -4397,6 +4473,23 @@
             <param name="propertyInfo"> The info for the property. </param>
             <param name="nonSupportedType"> An optional non supported type. </param>
             <returns> The non default value. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.Sleep(System.Int32,System.Int32,System.Int32,System.Int64,System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Sleep for a given amount of time with an optional cancellation token.
+            </summary>
+            <param name="seconds"> The seconds to increment by. </param>
+            <param name="milliseconds"> The milliseconds to increment by. </param>
+            <param name="microseconds"> The microseconds to increment by. Only supported in .NET 7 or greater. </param>
+            <param name="ticks"> The ticks to increment by. </param>
+            <param name="token"> An optional cancellation token. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.Sleep(System.TimeSpan,System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Sleep for a given amount of time with an optional cancellation token.
+            </summary>
+            <param name="delay"> The delay to sleep. </param>
+            <param name="token"> An optional cancellation token. </param>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.ValidateAllValuesAreNotDefault``1(``0,System.String[])">
             <summary>

@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Security;
 using System.Text;
@@ -13,7 +14,7 @@ namespace Speedy.Net;
 /// <summary>
 /// Represents a credential for a web client.
 /// </summary>
-public class WebCredential : Bindable
+public class WebCredential : Bindable, IUpdatable<WebCredential>
 {
 	#region Constructors
 
@@ -58,6 +59,11 @@ public class WebCredential : Bindable
 	}
 
 	/// <summary>
+	/// Gets or sets a flag indicating to remember the user.
+	/// </summary>
+	public bool RememberMe { get; set; }
+
+	/// <summary>
 	/// Represents the secure password for the credential.
 	/// </summary>
 	public SecureString SecurePassword { get; set; }
@@ -72,11 +78,25 @@ public class WebCredential : Bindable
 	#region Methods
 
 	/// <summary>
-	/// Gets the credential as an auth header value.
+	/// Gets the credential from an authentication header value.
+	/// </summary>
+	public static WebCredential FromAuthenticationHeaderValue(AuthenticationHeaderValue value)
+	{
+		var credentialBytes = Convert.FromBase64String(value.Parameter);
+		var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
+		var username = credentials[0];
+		var password = credentials[1];
+		return new WebCredential(username, password);
+	}
+
+	/// <summary>
+	/// Gets the credential as an authentication header value.
 	/// </summary>
 	public AuthenticationHeaderValue GetAuthenticationHeaderValue()
 	{
-		return new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{UserName}:{Password}")));
+		return new AuthenticationHeaderValue("Basic",
+			Convert.ToBase64String(Encoding.UTF8.GetBytes($"{UserName}:{Password}"))
+		);
 	}
 
 	/// <summary>
@@ -85,23 +105,8 @@ public class WebCredential : Bindable
 	/// <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
 	public bool HasCredentials()
 	{
-		return !string.IsNullOrWhiteSpace(UserName) && !string.IsNullOrWhiteSpace(Password);
-	}
-
-	/// <inheritdoc />
-	protected override void OnPropertyChangedInDispatcher(string propertyName)
-	{
-		switch (propertyName)
-		{
-			case nameof(UserName):
-			case nameof(Password):
-			{
-				OnPropertyChanged(nameof(AuthenticationHeaderValue));
-				break;
-			}
-		}
-
-		base.OnPropertyChangedInDispatcher(propertyName);
+		return !string.IsNullOrWhiteSpace(UserName)
+			&& !string.IsNullOrWhiteSpace(Password);
 	}
 
 	/// <summary>
@@ -111,28 +116,56 @@ public class WebCredential : Bindable
 	{
 		UserName = string.Empty;
 		Password = string.Empty;
+		RememberMe = false;
 	}
 
-	/// <summary>
-	/// Update with the provided credential.
-	/// </summary>
-	/// <param name="credential"> The credential to update with. </param>
-	public bool UpdateWith(WebCredential credential)
+	/// <inheritdoc />
+	public bool ShouldUpdate(WebCredential update)
 	{
-		UserName = credential.UserName;
-		Password = credential.Password;
+		return true;
+	}
+
+	/// <inheritdoc />
+	public bool TryUpdateWith(WebCredential update, params string[] exclusions)
+	{
+		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+	}
+
+	/// <inheritdoc />
+	public bool UpdateWith(WebCredential update, params string[] exclusions)
+	{
+		// If the update is null then there is nothing to do.
+		if (update == null)
+		{
+			return false;
+		}
+
+		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
+
+		if (exclusions.Length <= 0)
+		{
+			Password = update.Password;
+			RememberMe = update.RememberMe;
+			UserName = update.UserName;
+		}
+		else
+		{
+			this.IfThen(_ => !exclusions.Contains(nameof(Password)), x => x.Password = update.Password);
+			this.IfThen(_ => !exclusions.Contains(nameof(RememberMe)), x => x.RememberMe = update.RememberMe);
+			this.IfThen(_ => !exclusions.Contains(nameof(UserName)), x => x.UserName = update.UserName);
+		}
+
 		return true;
 	}
 
 	/// <inheritdoc />
 	public override bool UpdateWith(object update, params string[] exclusions)
 	{
-		if (update is WebCredential webCredential)
+		return update switch
 		{
-			return UpdateWith(webCredential);
-		}
-
-		return base.UpdateWith(update, exclusions);
+			WebCredential webCredential => UpdateWith(webCredential),
+			_ => base.UpdateWith(update, exclusions)
+		};
 	}
 
 	#endregion

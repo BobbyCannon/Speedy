@@ -50,6 +50,20 @@ public abstract class SpeedyTest
 	#region Fields
 
 	private static Action<string> _clipboardProvider;
+	private static DateTime? _currentTime;
+
+	#endregion
+
+	#region Properties
+
+	/// <summary>
+	/// Represents the current time returned by TimeService.UtcNow;
+	/// </summary>
+	public static DateTime CurrentTime
+	{
+		get => _currentTime ?? DateTime.UtcNow;
+		set => _currentTime = value;
+	}
 
 	#endregion
 
@@ -169,6 +183,111 @@ public abstract class SpeedyTest
 	}
 
 	/// <summary>
+	/// Test for an expected exception.
+	/// </summary>
+	/// <typeparam name="T"> The type of the exception. </typeparam>
+	/// <param name="work"> The test. </param>
+	/// <param name="messages"> A set of messages where at least one message should be found. </param>
+	public static void ExpectedException<T>(Action work, params string[] messages) where T : Exception
+	{
+		try
+		{
+			work();
+		}
+		catch (T ex)
+		{
+			var detailedException = ex.ToDetailedString();
+			var allErrors = "\"" + string.Join("\", \"", messages) + "\"";
+
+			if (!messages.Any(x => detailedException.Contains(x)))
+			{
+				Assert.Fail("Actual <" + detailedException + "> does not contain expected <" + allErrors + ">.");
+			}
+			return;
+		}
+
+		Assert.Fail("The expected exception was not thrown.");
+	}
+
+	/// <summary>
+	/// Increment the current time. This only works if current time is set. Negative values will subtract time.
+	/// </summary>
+	/// <param name="seconds"> The seconds to increment by. </param>
+	/// <param name="milliseconds"> The milliseconds to increment by. </param>
+	/// <param name="microseconds"> The microseconds to increment by. Only supported in .NET 7 or greater. </param>
+	/// <param name="ticks"> The ticks to increment by. </param>
+	public static void IncrementTime(int seconds = 0, int milliseconds = 0, int microseconds = 0, long ticks = 0)
+	{
+		var currentTime = _currentTime;
+		if (currentTime == null)
+		{
+			return;
+		}
+
+		if (seconds != 0)
+		{
+			currentTime += TimeSpan.FromSeconds(seconds);
+		}
+
+		if (milliseconds != 0)
+		{
+			currentTime += TimeSpan.FromMilliseconds(milliseconds);
+		}
+
+		#if NET7_0_OR_GREATER
+		if (microseconds != 0)
+		{
+			currentTime += TimeSpan.FromMicroseconds(microseconds);
+		}
+		#endif
+
+		if (ticks != 0)
+		{
+			currentTime += TimeSpan.FromTicks(ticks);
+		}
+
+		_currentTime = currentTime;
+	}
+
+	/// <summary>
+	/// Tests whether the specified condition is false and throws an exception if the condition is true.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be false. </param>
+	public virtual void IsFalse(Func<bool> condition)
+	{
+		IsFalse(condition());
+	}
+
+	/// <summary>
+	/// Tests whether the specified condition is false and throws an exception if the condition is true.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be false. </param>
+	/// <param name="message"> The message is shown in test results. </param>
+	public virtual void IsFalse(Func<bool> condition, string message)
+	{
+		IsFalse(condition(), message);
+	}
+
+	/// <summary>
+	/// Tests whether the specified condition is false and throws an exception if the condition is true.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be false. </param>
+	public virtual void IsFalse(bool condition)
+	{
+		Assert.IsFalse(condition);
+	}
+
+	/// <summary>
+	/// Tests whether the specified condition is false and throws an exception if the condition is true.
+	/// </summary>
+	/// <param name="condition"> The condition the test expects to be false. </param>
+	/// <param name="message"> The message is shown in test results. </param>
+	public virtual void IsFalse(bool condition, string message)
+	{
+		Assert.IsFalse(condition, message);
+	}
+
+	/// <summary>
 	/// Tests whether the specified condition is true and throws an exception if the condition is false.
 	/// </summary>
 	/// <param name="condition"> The condition the test expects to be true. </param>
@@ -207,12 +326,51 @@ public abstract class SpeedyTest
 	}
 
 	/// <summary>
+	/// Reset the <see cref="CurrentTime" /> back to using DateTime.
+	/// </summary>
+	public static void ResetCurrentTime()
+	{
+		TimeService.Reset();
+		_currentTime = null;
+		TimeService.AddUtcNowProvider(() => CurrentTime);
+	}
+
+	/// <summary>
 	/// Sets the clipboard provider.
 	/// </summary>
 	/// <param name="provider"> The provider to be set. </param>
 	public static void SetClipboardProvider(Action<string> provider)
 	{
 		_clipboardProvider = provider;
+	}
+
+	/// <summary>
+	/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
+	/// time.
+	/// </summary>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+	/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+	public static bool Wait(Func<bool> action, int timeout, int delay, bool useTimeService = false)
+	{
+		return UtilityExtensions.Wait(action, timeout, delay, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="cancellationPending"> A check for cancellation. </param>
+	/// <param name="value"> The value of time to wait for. </param>
+	/// <param name="delay"> The delay between checks. </param>
+	/// <param name="minimum"> The minimal time to wait. </param>
+	/// <param name="maximum"> The maximum time to wait. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool Wait(Func<bool> cancellationPending, TimeSpan value, TimeSpan delay, TimeSpan minimum, TimeSpan maximum, bool useTimeService = false)
+	{
+		return UtilityExtensions.Wait(cancellationPending, value, delay, minimum, maximum, useTimeService);
 	}
 
 	/// <summary>
@@ -238,7 +396,7 @@ public abstract class SpeedyTest
 		response.UpdateWithNonDefaultValues(exclusions);
 		return response;
 	}
-	
+
 	/// <summary>
 	/// Create a new instance of the type then update the object with non default values.
 	/// </summary>
@@ -274,6 +432,43 @@ public abstract class SpeedyTest
 	protected object GetNonDefaultValue(PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
 	{
 		return propertyInfo.GetNonDefaultValue(nonSupportedType);
+	}
+
+	/// <summary>
+	/// Sleep for a given amount of time with an optional cancellation token.
+	/// </summary>
+	/// <param name="seconds"> The seconds to increment by. </param>
+	/// <param name="milliseconds"> The milliseconds to increment by. </param>
+	/// <param name="microseconds"> The microseconds to increment by. Only supported in .NET 7 or greater. </param>
+	/// <param name="ticks"> The ticks to increment by. </param>
+	/// <param name="token"> An optional cancellation token. </param>
+	protected void Sleep(int seconds = 0, int milliseconds = 0, int microseconds = 0, long ticks = 0, CancellationToken? token = null)
+	{
+		var delay = TimeSpan.FromSeconds(seconds)
+			+ TimeSpan.FromMilliseconds(milliseconds)
+			+ TimeSpan.FromTicks(ticks);
+
+		#if NET7_0_OR_GREATER
+		delay += TimeSpan.FromMicroseconds(microseconds);
+		#endif
+
+		Sleep(delay, token);
+	}
+
+	/// <summary>
+	/// Sleep for a given amount of time with an optional cancellation token.
+	/// </summary>
+	/// <param name="delay"> The delay to sleep. </param>
+	/// <param name="token"> An optional cancellation token. </param>
+	protected void Sleep(TimeSpan delay, CancellationToken? token)
+	{
+		var timeout = TimeService.UtcNow + delay;
+
+		while ((TimeService.UtcNow < timeout)
+				&& token is not { IsCancellationRequested: true })
+		{
+			Thread.Sleep(0);
+		}
 	}
 
 	/// <summary>

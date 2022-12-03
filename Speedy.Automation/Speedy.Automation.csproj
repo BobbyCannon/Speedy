@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net7.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy.Automation</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
@@ -23,7 +23,7 @@
 		<DocumentationFile>Speedy.Automation.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC6</Version>
+		<Version>11.0.0-RC7</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Speedy.Automation.js" />
@@ -35,11 +35,17 @@
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.78.0" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.Management" Version="6.0.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

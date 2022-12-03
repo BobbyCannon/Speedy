@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Speedy.Data;
+using Speedy.Net;
 using Speedy.Website.Core.Services;
 
 #endregion
@@ -61,7 +62,7 @@ namespace Speedy.Website.Services
 				var username = credentials[0];
 				var password = credentials[1];
 
-				var user = _accountService.AuthenticateAccount(new Credentials { EmailAddress = username, Password = password, RememberMe = false });
+				var user = _accountService.AuthenticateAccount(new WebCredential { UserName = username, Password = password, RememberMe = false });
 				if (user == null)
 				{
 					return Task.FromResult(AuthenticateResult.NoResult());
