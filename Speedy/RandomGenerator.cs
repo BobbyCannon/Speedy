@@ -129,7 +129,7 @@ public static class RandomGenerator
 	/// <returns> A random item or the default value if the list is empty. </returns>
 	public static T GetItem<T>(IList<T> items)
 	{
-		return items.Count <= 0 ? default : items[NextInteger(0, items.Count - 1)];
+		return items.Count <= 0 ? default : items[NextInteger(0, items.Count)];
 	}
 
 	/// <summary>

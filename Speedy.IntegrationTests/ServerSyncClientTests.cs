@@ -102,7 +102,7 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new Credential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
@@ -155,7 +155,7 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new Credential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
@@ -207,7 +207,7 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new Credential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
@@ -261,7 +261,7 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new Credential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
@@ -310,7 +310,7 @@ namespace Speedy.IntegrationTests
 			profiler.Initialize();
 			profiler.Start();
 
-			var credential = new WebCredential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
+			var credential = new Credential(TestHelper.AdministratorEmailAddress, TestHelper.AdministratorPassword);
 			var server = new ServerSyncClient(new AccountEntity(), new SyncableDatabaseProvider<IContosoDatabase>(entityProvider.GetSyncableDatabase, ContosoDatabase.GetDefaultOptions(), keyCache));
 			var syncClientProvider = new SyncClientProvider(n => server);
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);

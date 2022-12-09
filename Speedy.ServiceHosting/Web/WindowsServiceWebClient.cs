@@ -23,7 +23,7 @@ namespace Speedy.ServiceHosting.Web
 		/// </summary>
 		/// <param name="uri"> The URI of the web server. </param>
 		/// <param name="credentials"> The network credentials for authentication. </param>
-		public WindowsServiceWebClient(string uri, WebCredential credentials = null)
+		public WindowsServiceWebClient(string uri, Credential credentials = null)
 			: this(uri, 0, credentials)
 		{
 		}
@@ -34,7 +34,7 @@ namespace Speedy.ServiceHosting.Web
 		/// <param name="uri"> The URI of the web server. </param>
 		/// <param name="timeout"> The timeout in milliseconds. </param>
 		/// <param name="credentials"> The network credentials for authentication. </param>
-		public WindowsServiceWebClient(string uri, int timeout, WebCredential credentials = null)
+		public WindowsServiceWebClient(string uri, int timeout, Credential credentials = null)
 			: base(uri, timeout, credentials)
 		{
 		}
@@ -87,7 +87,7 @@ namespace Speedy.ServiceHosting.Web
 		/// authentication. If you service does not require authentication then just leave this method not implemented.
 		/// </summary>
 		/// <param name="credentials"> The credentials to use for authentication. </param>
-		public void Login(WebCredential credentials)
+		public void Login(Credential credentials)
 		{
 			using var response = Post("Login", credentials);
 			CheckResponse(response);

@@ -175,6 +175,7 @@ public abstract class SpeedyTest
 				// Ignore the clipboard set issue...
 			}
 		});
+
 		thread.SetApartmentState(ApartmentState.STA);
 		thread.Start();
 		thread.Join();

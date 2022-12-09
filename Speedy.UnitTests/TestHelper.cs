@@ -34,7 +34,6 @@ using Timer = Speedy.Profiling.Timer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Speedy.Data;
 using Speedy.Website.Services;
 #endif
 
@@ -851,7 +850,7 @@ namespace Speedy.UnitTests
 				const string serverUri = "https://speedy.local";
 				const int timeout = 60000;
 
-				var credential = new WebCredential("admin@speedy.local", "Password");
+				var credential = new Credential("admin@speedy.local", "Password");
 				var webClient = new WebClient(serverUri, timeout, credential);
 
 				yield return Process(Timer.StartNew(),

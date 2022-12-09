@@ -219,6 +219,18 @@ public static class ReflectionExtensions
 	/// <summary>
 	/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
 	/// </summary>
+	/// <param name="item"> The item to get the field for. </param>
+	/// <param name="name"> The type field name to locate. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The field information for the type. </returns>
+	public static FieldInfo GetCachedField(this object item, string name, BindingFlags? flags = null)
+	{
+		return GetCachedField(item.GetType(), name, flags);
+	}
+	
+	/// <summary>
+	/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
 	/// <param name="type"> The type to get the fields for. </param>
 	/// <param name="name"> The type field name to locate. </param>
 	/// <param name="flags"> The flags used to query with. </param>

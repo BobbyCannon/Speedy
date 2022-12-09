@@ -254,16 +254,6 @@
             The type of the credential.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.Password">
-            <summary>
-            The password.
-            </summary>
-        </member>
-        <member name="P:Speedy.Application.Wpf.Security.WindowsCredential.UserName">
-            <summary>
-            The UserName.
-            </summary>
-        </member>
         <member name="M:Speedy.Application.Wpf.Security.WindowsCredential.AsWebCredential">
             <summary>
             Return the secure credential as a web credential. Web credentials are not secure.

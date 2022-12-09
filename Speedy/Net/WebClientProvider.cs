@@ -28,7 +28,7 @@ namespace Speedy.Net
 		#region Methods
 
 		/// <inheritdoc />
-		public IWebClient CreateClient(string baseUri, Func<WebCredential> getCredential = null)
+		public IWebClient CreateClient(string baseUri, Func<Credential> getCredential = null)
 		{
 			return _clients.GetOrAdd(baseUri, x => new WebClient(x, credential: getCredential?.Invoke()));
 		}
@@ -49,7 +49,7 @@ namespace Speedy.Net
 		/// <param name="baseUri"> The URI the client is for. </param>
 		/// <param name="credential"> An optional method to get credential for authorization. </param>
 		/// <returns> The web client. </returns>
-		IWebClient CreateClient(string baseUri, Func<WebCredential> credential = null);
+		IWebClient CreateClient(string baseUri, Func<Credential> credential = null);
 
 		#endregion
 	}

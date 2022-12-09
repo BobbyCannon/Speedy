@@ -5367,6 +5367,15 @@
             <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
             <returns> The list of field info of the events for the type. </returns>
         </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedField(System.Object,System.String,System.Nullable{System.Reflection.BindingFlags})">
+            <summary>
+            Gets a field by name for the provided type. The results are cached so the next query is much faster.
+            </summary>
+            <param name="item"> The item to get the field for. </param>
+            <param name="name"> The type field name to locate. </param>
+            <param name="flags"> The flags used to query with. </param>
+            <returns> The field information for the type. </returns>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedField(System.Type,System.String,System.Nullable{System.Reflection.BindingFlags})">
             <summary>
             Gets a field by name for the provided type. The results are cached so the next query is much faster.
@@ -5765,11 +5774,12 @@
             <param name="prefix"> An optional prefix to put before each byte of the data. </param>
             <returns> The byte array in a hex string format. </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.ToSecureString(System.String)">
+        <member name="M:Speedy.Extensions.StringExtensions.ToSecureString(System.String,System.Boolean)">
             <summary>
             Convert a string into a secure string.
             </summary>
             <param name="input"> The string. </param>
+            <param name="makeReadOnly"> Option to make the SecureString read only. </param>
             <returns> The secure string. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.ToUnsecureString(System.Security.SecureString)">
@@ -7199,6 +7209,83 @@
         <member name="P:Speedy.ModifiableEntity`1.ModifiedOn">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Net.Credential">
+            <summary>
+            Represents a credential for a client.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.Credential.#ctor">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.Credential.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="M:Speedy.Net.Credential.#ctor(System.String,System.String,Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+            <param name="username"> The username of the credential. </param>
+            <param name="password"> The password of the credential. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="P:Speedy.Net.Credential.Password">
+            <summary>
+            Represents the password for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.Credential.SecurePassword">
+            <summary>
+            Represents the secure password for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.Credential.UserName">
+            <summary>
+            Represents the user name for the credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.Credential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
+            <summary>
+            Gets the credential from an authentication header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.Credential.GetAuthenticationHeaderValue">
+            <summary>
+            Gets the credential as an authentication header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.Credential.HasCredentials">
+            <summary>
+            Determines if the credentials have been provided.
+            </summary>
+            <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
+        </member>
+        <member name="M:Speedy.Net.Credential.Load(System.Net.Http.Headers.AuthenticationHeaderValue)">
+            <summary>
+            Load the credential from an authentication header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.Credential.Reset">
+            <summary>
+            Reset the credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.Credential.ShouldUpdate(Speedy.Net.Credential)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.Credential.TryUpdateWith(Speedy.Net.Credential,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.Credential.UpdateWith(Speedy.Net.Credential,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.Credential.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Net.FileDownloader">
             <summary>
             Used to download files from web servers.
@@ -7544,12 +7631,66 @@
             The total count of items for the request.
             </summary>
         </member>
+        <member name="T:Speedy.Net.TokenCredential">
+            <summary>
+            Represents a bearer credential for a client.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.#ctor">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.#ctor(System.String,Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+            <param name="password"> The token of the credential. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
+            <summary>
+            Gets the credential from an authentication header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.GetAuthenticationHeaderValue">
+            <summary>
+            Gets the credential as an authentication header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.HasCredentials">
+            <summary>
+            Determines if the credentials have been provided. Token credential only requires a password (aka token).
+            </summary>
+            <returns> Returns true if the Password is not null or whitespace. </returns>
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.Load(System.Net.Http.Headers.AuthenticationHeaderValue)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.ShouldUpdate(Speedy.Net.TokenCredential)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.TryUpdateWith(Speedy.Net.TokenCredential,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.UpdateWith(Speedy.Net.TokenCredential,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.TokenCredential.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Net.WebClient">
             <summary>
             This class is used for making GET and POST calls to an HTTP endpoint.
             </summary>
         </member>
-        <member name="M:Speedy.Net.WebClient.#ctor(System.String,System.Int32,Speedy.Net.WebCredential,System.Net.IWebProxy,Speedy.IDispatcher)">
+        <member name="M:Speedy.Net.WebClient.#ctor(System.String,System.Int32,Speedy.Net.Credential,System.Net.IWebProxy,Speedy.IDispatcher)">
             <summary>
             Initializes a new HTTP helper to point at a specific URI, and with the specified session identifier.
             </summary>
@@ -7559,7 +7700,7 @@
             <param name="proxy"> The optional proxy to use. </param>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
-        <member name="M:Speedy.Net.WebClient.#ctor(System.Uri,System.TimeSpan,Speedy.Net.WebCredential,System.Net.IWebProxy,Speedy.IDispatcher)">
+        <member name="M:Speedy.Net.WebClient.#ctor(System.Uri,System.TimeSpan,Speedy.Net.Credential,System.Net.IWebProxy,Speedy.IDispatcher)">
             <summary>
             Initializes a new HTTP helper to point at a specific URI, and with the specified session identifier.
             </summary>
@@ -7740,7 +7881,7 @@
         <member name="T:Speedy.Net.WebClientProvider">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Net.WebClientProvider.CreateClient(System.String,System.Func{Speedy.Net.WebCredential})">
+        <member name="M:Speedy.Net.WebClientProvider.CreateClient(System.String,System.Func{Speedy.Net.Credential})">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Net.IWebClientProvider">
@@ -7748,7 +7889,7 @@
             A provider for IWebClients.
             </summary>
         </member>
-        <member name="M:Speedy.Net.IWebClientProvider.CreateClient(System.String,System.Func{Speedy.Net.WebCredential})">
+        <member name="M:Speedy.Net.IWebClientProvider.CreateClient(System.String,System.Func{Speedy.Net.Credential})">
             <summary>
             Get or create a client for a base URi.
             </summary>
@@ -7780,41 +7921,18 @@
             <param name="password"> The password of the credential. </param>
             <param name="dispatcher"> An optional dispatcher. </param>
         </member>
-        <member name="P:Speedy.Net.WebCredential.Password">
+        <member name="M:Speedy.Net.WebCredential.#ctor(System.String,System.Security.SecureString,Speedy.IDispatcher)">
             <summary>
-            Represents the password for the credential.
+            Creates an instance of the web credential.
             </summary>
+            <param name="username"> The username of the credential. </param>
+            <param name="password"> The password of the credential. </param>
+            <param name="dispatcher"> An optional dispatcher. </param>
         </member>
         <member name="P:Speedy.Net.WebCredential.RememberMe">
             <summary>
             Gets or sets a flag indicating to remember the user.
             </summary>
-        </member>
-        <member name="P:Speedy.Net.WebCredential.SecurePassword">
-            <summary>
-            Represents the secure password for the credential.
-            </summary>
-        </member>
-        <member name="P:Speedy.Net.WebCredential.UserName">
-            <summary>
-            Represents the username for the credential.
-            </summary>
-        </member>
-        <member name="M:Speedy.Net.WebCredential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
-            <summary>
-            Gets the credential from an authentication header value.
-            </summary>
-        </member>
-        <member name="M:Speedy.Net.WebCredential.GetAuthenticationHeaderValue">
-            <summary>
-            Gets the credential as an authentication header value.
-            </summary>
-        </member>
-        <member name="M:Speedy.Net.WebCredential.HasCredentials">
-            <summary>
-            Determines if the credentials have been provided.
-            </summary>
-            <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
         </member>
         <member name="M:Speedy.Net.WebCredential.Reset">
             <summary>

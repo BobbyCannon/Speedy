@@ -23,7 +23,7 @@ namespace Speedy.Net
 	{
 		#region Fields
 
-		private WebCredential _credential;
+		private Credential _credential;
 		private readonly HttpClientHandler _handler;
 		private readonly HttpClient _httpClient;
 
@@ -39,7 +39,7 @@ namespace Speedy.Net
 		/// <param name="credential"> The optional credential to authenticate with. </param>
 		/// <param name="proxy"> The optional proxy to use. </param>
 		/// <param name="dispatcher"> The optional dispatcher to use. </param>
-		public WebClient(string baseUri, int timeout = 1000, WebCredential credential = null, IWebProxy proxy = null, IDispatcher dispatcher = null)
+		public WebClient(string baseUri, int timeout = 1000, Credential credential = null, IWebProxy proxy = null, IDispatcher dispatcher = null)
 			: this(new Uri(baseUri), TimeSpan.FromMilliseconds(timeout), credential, proxy, dispatcher)
 		{
 		}
@@ -52,7 +52,7 @@ namespace Speedy.Net
 		/// <param name="credential"> The optional credential to authenticate with. </param>
 		/// <param name="proxy"> The optional proxy to use. </param>
 		/// <param name="dispatcher"> The optional dispatcher to use. </param>
-		public WebClient(Uri baseUri, TimeSpan timeout, WebCredential credential = null, IWebProxy proxy = null, IDispatcher dispatcher = null) : base(dispatcher)
+		public WebClient(Uri baseUri, TimeSpan timeout, Credential credential = null, IWebProxy proxy = null, IDispatcher dispatcher = null) : base(dispatcher)
 		{
 			_handler = new HttpClientHandler();
 			_handler.ServerCertificateCustomValidationCallback += OnServerCertificateCustomValidationCallback;
@@ -80,7 +80,7 @@ namespace Speedy.Net
 		/// <summary>
 		/// The credentials for the connection.
 		/// </summary>
-		public WebCredential Credential
+		public Credential Credential
 		{
 			get => _credential;
 			set

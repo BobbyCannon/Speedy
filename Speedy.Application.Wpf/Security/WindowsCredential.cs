@@ -12,7 +12,7 @@ namespace Speedy.Application.Wpf.Security;
 /// <summary>
 /// Represents a credential for windows.
 /// </summary>
-public class WindowsCredential
+public class WindowsCredential : Credential
 {
 	#region Constructors
 
@@ -42,7 +42,7 @@ public class WindowsCredential
 		CredentialType = credentialType;
 		Comment = comment;
 		UserName = userName;
-		Password = password;
+		SecurePassword = password;
 	}
 
 	#endregion
@@ -69,16 +69,6 @@ public class WindowsCredential
 	/// </summary>
 	public WindowsCredentialManager.CredentialType CredentialType { get; }
 
-	/// <summary>
-	/// The password.
-	/// </summary>
-	public SecureString Password { get; }
-
-	/// <summary>
-	/// The UserName.
-	/// </summary>
-	public string UserName { get; }
-
 	#endregion
 
 	#region Methods
@@ -89,7 +79,7 @@ public class WindowsCredential
 	/// <returns> </returns>
 	public WebCredential AsWebCredential()
 	{
-		return new WebCredential(UserName, Password.ToUnsecureString());
+		return new WebCredential(UserName, SecurePassword);
 	}
 
 	/// <summary>
@@ -111,7 +101,7 @@ public class WindowsCredential
 	/// <returns> The json value of the credential. </returns>
 	public string ToInsecureJson()
 	{
-		return $"{{ \"Name\": \"{ApplicationName.ToBase64()}\", \"Type\": {(int) CredentialType}, \"UserName\": \"{UserName.ToBase64()}\" , \"Password\": \"{Password.ToUnsecureString().ToBase64()}\" }}";
+		return $"{{ \"Name\": \"{ApplicationName.ToBase64()}\", \"Type\": {(int) CredentialType}, \"UserName\": \"{UserName.ToBase64()}\" , \"Password\": \"{Password.ToBase64()}\" }}";
 	}
 
 	/// <inheritdoc />

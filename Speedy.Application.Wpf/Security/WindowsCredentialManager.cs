@@ -108,7 +108,7 @@ public static class WindowsCredentialManager
 			throw new ArgumentOutOfRangeException(nameof(credential), "The password has exceeded 256 bytes.");
 		}
 
-		var blob = Marshal.SecureStringToBSTR(credential.Password);
+		var blob = Marshal.SecureStringToBSTR(credential.SecurePassword);
 		var nativeCredential = new NativeCredential
 		{
 			AttributeCount = 0,

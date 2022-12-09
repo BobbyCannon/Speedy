@@ -14,7 +14,7 @@ namespace Speedy.Data;
 /// </summary>
 public abstract class InformationProvider<T>
 	: Comparer<T>, IInformationProvider<T>
-	where T : IUpdatable<T>, IUpdatable, new()
+	where T : IBindable, IUpdatable<T>, IUpdatable, new()
 {
 	#region Constructors
 
@@ -25,6 +25,7 @@ public abstract class InformationProvider<T>
 	{
 		SubProviders = Array.Empty<IInformationProvider>();
 		CurrentValue = new T();
+		CurrentValue.UpdateDispatcher(dispatcher);
 		IsEnabled = true;
 	}
 

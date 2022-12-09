@@ -26,7 +26,7 @@ namespace Speedy.Website.Core.Services
 
 		#region Methods
 
-		public AccountEntity AuthenticateAccount(WebCredential model)
+		public AccountEntity AuthenticateAccount(Credential model)
 		{
 			if (string.IsNullOrWhiteSpace(model.Password))
 			{

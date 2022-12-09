@@ -85,7 +85,7 @@ namespace Speedy.ServiceHosting.Web
 		}
 
 		/// <inheritdoc />
-		public void Login(WebCredential credentials)
+		public void Login(Credential credentials)
 		{
 			throw new NotImplementedException();
 		}

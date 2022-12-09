@@ -34,7 +34,7 @@ namespace Speedy.ServiceHosting.Web
 		/// authentication. If you service does not require authentication then just leave this method not implemented.
 		/// </summary>
 		/// <param name="credentials"> The credentials to use for authentication. </param>
-		void Login(WebCredential credentials);
+		void Login(Credential credentials);
 
 		#endregion
 	}

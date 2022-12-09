@@ -25,7 +25,7 @@ namespace Speedy.Data
 
 		#region Fields
 
-		private readonly Func<WebCredential> _credentialProvider;
+		private readonly Func<Credential> _credentialProvider;
 		private readonly ISyncableDatabaseProvider _databaseProvider;
 		private static readonly SyncClientOutgoingConverter _outgoingConverter;
 		private readonly SyncClientProvider _serverProvider;
@@ -42,7 +42,7 @@ namespace Speedy.Data
 		/// <param name="serverProvider"> The server provider to get a sync client. </param>
 		/// <param name="profiler"> The profiler to use when syncing. </param>
 		/// <param name="dispatcher"> An optional dispatcher to update with. </param>
-		public ClientSyncManager(Func<WebCredential> credentialProvider, ISyncableDatabaseProvider databaseProvider,
+		public ClientSyncManager(Func<Credential> credentialProvider, ISyncableDatabaseProvider databaseProvider,
 			SyncClientProvider serverProvider, ProfileService profiler, IDispatcher dispatcher)
 			: base(dispatcher)
 		{

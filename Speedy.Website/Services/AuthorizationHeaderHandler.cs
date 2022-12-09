@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Speedy.Data;
 using Speedy.Net;
 using Speedy.Website.Core.Services;
 
@@ -57,12 +56,17 @@ namespace Speedy.Website.Services
 					return Task.FromResult(AuthenticateResult.NoResult());
 				}
 
+				if (authHeader.Scheme != AuthenticationScheme)
+				{
+					return Task.FromResult(AuthenticateResult.NoResult());
+				}
+
 				var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
 				var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
 				var username = credentials[0];
 				var password = credentials[1];
 
-				var user = _accountService.AuthenticateAccount(new WebCredential { UserName = username, Password = password, RememberMe = false });
+				var user = _accountService.AuthenticateAccount(new Credential { UserName = username, Password = password });
 				if (user == null)
 				{
 					return Task.FromResult(AuthenticateResult.NoResult());

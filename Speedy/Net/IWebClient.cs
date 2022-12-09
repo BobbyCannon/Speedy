@@ -25,7 +25,7 @@ namespace Speedy.Net
 		/// <summary>
 		/// The credentials for the connection.
 		/// </summary>
-		WebCredential Credential { get; set; }
+		Credential Credential { get; set; }
 
 		/// <summary>
 		/// Headers for this client.

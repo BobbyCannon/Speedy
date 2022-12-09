@@ -291,8 +291,9 @@ public static class StringExtensions
 	/// Convert a string into a secure string.
 	/// </summary>
 	/// <param name="input"> The string. </param>
+	/// <param name="makeReadOnly"> Option to make the SecureString read only. </param>
 	/// <returns> The secure string. </returns>
-	public static SecureString ToSecureString(this string input)
+	public static SecureString ToSecureString(this string input, bool makeReadOnly = false)
 	{
 		var secure = new SecureString();
 		foreach (var c in input)
@@ -300,7 +301,10 @@ public static class StringExtensions
 			secure.AppendChar(c);
 		}
 
-		secure.MakeReadOnly();
+		if (makeReadOnly)
+		{
+			secure.MakeReadOnly();
+		}
 		return secure;
 	}
 

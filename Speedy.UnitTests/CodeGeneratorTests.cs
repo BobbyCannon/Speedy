@@ -105,7 +105,7 @@ public class CodeGeneratorTests
 	[TestMethod]
 	public void GenerateUpdateWith()
 	{
-		var type = typeof(WebCredential);
+		var type = typeof(Credential);
 		var builder = new StringBuilder();
 		var properties = type
 			//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)

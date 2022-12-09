@@ -134,6 +134,17 @@
             Maui platform specific implementations.
             </summary>
         </member>
+        <member name="P:Speedy.Application.Maui.MauiPlatform.MainActivity">
+            <summary>
+            The main activity for Android platform.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiPlatform.Initialize(Android.App.Activity)">
+            <summary>
+            Initialize the xamarin platform for Android.
+            </summary>
+            <param name="activity"> The activity. </param>
+        </member>
         <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.GetApplicationName">
             <inheritdoc />
         </member>
@@ -172,12 +183,12 @@
         </member>
         <member name="T:Speedy.Application.Maui.LocationProviderImplementation`4">
             <summary>
-            Implementation for LocationProvider
+            Implementation for Feature
             </summary>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.#ctor(Speedy.IDispatcher)">
             <summary>
-            Constructor for Implementation
+            Default constructor
             </summary>
         </member>
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.IsLocationAvailable">
@@ -189,9 +200,17 @@
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.ProviderName">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.SubProviders">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.HasPermission">
             <summary>
             True if the location provider has permission to be accessed.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Maui.LocationProviderImplementation`4.Manager">
+            <summary>
+            The android location manager.
             </summary>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
@@ -201,33 +220,20 @@
             <param name="timeout"> Timeout to wait, Default Infinite </param>
             <param name="cancelToken"> Cancellation token </param>
             <returns> ProviderLocation </returns>
+            <remarks>
+            bug: we must work on thread safety of this method.
+            Touching "Manager", which is global, can be very dangerous.
+            </remarks>
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.StartMonitoringAsync">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.StopMonitoringAsync">
-            <summary>
-            Stop listening
-            </summary>
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Maui.PlatformExtensions">
             <summary>
-            Extension for the Windows platform.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Maui.PlatformExtensions.AsTask``1(Windows.Foundation.IAsyncOperation{``0},System.Boolean)">
-            <summary>
-            Converts an IAsyncOperation to a ConfigurableTaskAwaitable.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Maui.PlatformExtensions.ToAltitudeReferenceSystem(Speedy.Data.Location.AltitudeReferenceType)">
-            <summary>
-            Convert altitude reference type to system.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Maui.PlatformExtensions.ToAltitudeReferenceType(Windows.Devices.Geolocation.AltitudeReferenceSystem)">
-            <summary>
-            Convert altitude reference system to type.
+            Extensions for the Android platform.
             </summary>
         </member>
     </members>

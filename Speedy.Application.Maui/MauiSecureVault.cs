@@ -46,7 +46,7 @@ public class MauiSecureVault : SecureVault
 	public override async Task<bool> ReadCredentialAsync()
 	{
 		var value = await SecureStorage.Default.GetAsync(KeyName);
-		var credential = value?.FromJson<WebCredential>();
+		var credential = value?.FromJson<Credential>();
 
 		if (credential == null)
 		{

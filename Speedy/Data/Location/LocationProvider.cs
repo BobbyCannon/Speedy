@@ -31,6 +31,7 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 		ComparerForVertical = new LocationInformationComparer<TVerticalLocation>(dispatcher);
 
 		LocationProviderSettings = new T2();
+		LocationProviderSettings.UpdateDispatcher(dispatcher);
 		IsLocationAvailable = true;
 		IsLocationEnabled = true;
 	}

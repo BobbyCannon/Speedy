@@ -27,7 +27,7 @@ public abstract class SecureVault : Bindable
 	/// <param name="dispatcher"> An optional dispatcher. </param>
 	public SecureVault(IDispatcher dispatcher) : base(dispatcher)
 	{
-		Credential = new WebCredential(dispatcher);
+		Credential = new Credential(dispatcher);
 	}
 
 	#endregion
@@ -37,7 +37,7 @@ public abstract class SecureVault : Bindable
 	/// <summary>
 	/// The credential for the vault.
 	/// </summary>
-	public WebCredential Credential { get; }
+	public Credential Credential { get; }
 
 	#endregion
 
