@@ -59,7 +59,7 @@ namespace Speedy.UnitTests.Net
 
 			AreEqual("Bearer", httpClient.DefaultRequestHeaders.Authorization.Scheme);
 			AreEqual("dGhpcyBpcyBteSBzcGVjaWFsIHRva2Vu", httpClient.DefaultRequestHeaders.Authorization.Parameter);
-			AreEqual("this is my special token", httpClient.DefaultRequestHeaders.Authorization.Parameter.FromBase64());
+			AreEqual("this is my special token", httpClient.DefaultRequestHeaders.Authorization.Parameter.FromBase64String());
 		}
 
 		

@@ -4,12 +4,12 @@
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Include="..\Speedy.Website.Data.Sqlite\ContosoSqliteDatabase.cs" Link="ContosoSqliteDatabase.cs" />
+		<Compile Include="..\Speedy.Website.Data.Sqlite\ContosoSqliteDatabase.cs" Link="ContosoSqliteDatabase.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.31" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.31" />
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.32" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>

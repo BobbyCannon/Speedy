@@ -82,7 +82,7 @@ public class TokenCredential : Credential, IUpdatable<TokenCredential>
 	/// <inheritdoc />
 	public override void Load(AuthenticationHeaderValue value)
 	{
-		Password = value?.Parameter.FromBase64();
+		Password = value?.Parameter.FromBase64String();
 	}
 
 	/// <inheritdoc />

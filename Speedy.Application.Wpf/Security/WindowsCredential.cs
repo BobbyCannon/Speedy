@@ -90,9 +90,9 @@ public class WindowsCredential : Credential
 	public static WindowsCredential FromInsecureJson(dynamic t)
 	{
 		return new WindowsCredential((WindowsCredentialManager.CredentialType) t.Type,
-			StringExtensions.FromBase64(t.Name.Value),
-			StringExtensions.FromBase64(t.UserName.Value),
-			StringExtensions.ToSecureString(StringExtensions.FromBase64(t.Password.Value)));
+			StringExtensions.FromBase64String(t.Name.Value),
+			StringExtensions.FromBase64String(t.UserName.Value),
+			StringExtensions.ToSecureString(StringExtensions.FromBase64String(t.Password.Value)));
 	}
 
 	/// <summary>
@@ -101,7 +101,7 @@ public class WindowsCredential : Credential
 	/// <returns> The json value of the credential. </returns>
 	public string ToInsecureJson()
 	{
-		return $"{{ \"Name\": \"{ApplicationName.ToBase64()}\", \"Type\": {(int) CredentialType}, \"UserName\": \"{UserName.ToBase64()}\" , \"Password\": \"{Password.ToBase64()}\" }}";
+		return $"{{ \"Name\": \"{ApplicationName.ToBase64String()}\", \"Type\": {(int) CredentialType}, \"UserName\": \"{UserName.ToBase64String()}\" , \"Password\": \"{Password.ToBase64String()}\" }}";
 	}
 
 	/// <inheritdoc />

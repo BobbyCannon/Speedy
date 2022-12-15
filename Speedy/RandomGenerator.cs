@@ -127,9 +127,39 @@ public static class RandomGenerator
 	/// <typeparam name="T"> The type of the item in the collection. </typeparam>
 	/// <param name="items"> The list of items. </param>
 	/// <returns> A random item or the default value if the list is empty. </returns>
+	public static T GetItem<T>(IEnumerable<T> items)
+	{
+		return GetItem(items.ToList());
+	}
+	
+	/// <summary>
+	/// Gets a random item from a list.
+	/// </summary>
+	/// <typeparam name="T"> The type of the item in the collection. </typeparam>
+	/// <param name="items"> The list of items. </param>
+	/// <returns> A random item or the default value if the list is empty. </returns>
 	public static T GetItem<T>(IList<T> items)
 	{
 		return items.Count <= 0 ? default : items[NextInteger(0, items.Count)];
+	}
+
+	/// <summary>
+	/// Gets a random set of items from a list.
+	/// </summary>
+	/// <typeparam name="T"> The type of the item in the collection. </typeparam>
+	/// <param name="count"> The number of items to select. </param>
+	/// <param name="items"> The list of items. </param>
+	/// <returns> A random item or the default value if the list is empty. </returns>
+	public static T[] GetItems<T>(int count, IList<T> items)
+	{
+		var response = new T[count];
+		for (var i = 0; i < count; i++)
+		{
+			var item = GetItem(items);
+			response[i] = item;
+			items.Remove(item);
+		}
+		return response;
 	}
 
 	/// <summary>
@@ -458,6 +488,26 @@ public static class RandomGenerator
 		for (var i = 0; i < data.Length; i++)
 		{
 			data[i] = GetItem(AlphabetAndNumbersCharacters);
+		}
+	}
+
+	/// <summary>
+	/// Populate an array of char.
+	/// </summary>
+	/// <param name="data"> The array to populate. </param>
+	/// <param name="source"> The source of items to choose from. </param>
+	public static void PopulateUnique<T>(ref T[] data, T[] source)
+	{
+		var sourceList = source.Distinct().ToList();
+		if (sourceList.Count < data.Length)
+		{
+			throw new ArgumentOutOfRangeException(nameof(source), "The source doesn't contain enough unique items.");
+		}
+
+		for (var i = 0; i < data.Length; i++)
+		{
+			data[i] = GetItem(sourceList);
+			sourceList.Remove(data[i]);
 		}
 	}
 

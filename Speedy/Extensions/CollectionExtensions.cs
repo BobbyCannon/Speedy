@@ -481,7 +481,7 @@ public static class CollectionExtensions
 	/// </summary>
 	/// <param name="data"> The data to process. </param>
 	/// <returns> The base 64 string of the data. </returns>
-	public static string ToBase64(this byte[] data)
+	public static string ToBase64String(this byte[] data)
 	{
 		return Convert.ToBase64String(data);
 	}

@@ -4087,7 +4087,7 @@
             <param name="length"> The amount of data to pull. </param>
             <returns> The sub array of data. </returns>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.ToBase64(System.Byte[])">
+        <member name="M:Speedy.Extensions.CollectionExtensions.ToBase64String(System.Byte[])">
             <summary>
             Gets the base 64 version of the byte array.
             </summary>
@@ -5351,6 +5351,14 @@
             <param name="info"> The property information to get the generic arguments for. </param>
             <returns> The list of generic arguments for the property information of the value. </returns>
         </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedAttributes``1(System.Enum)">
+            <summary>
+            Get attributes for an enum.
+            </summary>
+            <typeparam name="T"> The type value of the attribute. </typeparam>
+            <param name="value"> The value to get attributes for. </param>
+            <returns> The attributes if found. </returns>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedEventFields(System.Object,System.Nullable{System.Reflection.BindingFlags})">
             <summary>
             Gets a list of event information for the provided type. The results are cached so the next query is much faster.
@@ -5689,14 +5697,14 @@
             <param name="bytes"> bytes </param>
             <returns> a string </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.FromBase64(System.String)">
+        <member name="M:Speedy.Extensions.StringExtensions.FromBase64String(System.String)">
             <summary>
             Convert string from a base 64 string.
             </summary>
             <param name="data"> The data to be converted. </param>
             <returns> The unencoded string. </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.FromBase64ToByteArray(System.String)">
+        <member name="M:Speedy.Extensions.StringExtensions.FromBase64StringToByteArray(System.String)">
             <summary>
             Convert string from a base 64 string.
             </summary>
@@ -5740,7 +5748,7 @@
             <param name="value"> The value to reverse. </param>
             <returns> The string in a reversed order. </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.ToBase64(System.String)">
+        <member name="M:Speedy.Extensions.StringExtensions.ToBase64String(System.String)">
             <summary>
             Convert string to a base 64 string.
             </summary>
@@ -11553,11 +11561,28 @@
             <param name="numberOfBytes"> The number of bytes to generate. </param>
             <returns> The generated random byte array data. </returns>
         </member>
+        <member name="M:Speedy.RandomGenerator.GetItem``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Gets a random item from a list.
+            </summary>
+            <typeparam name="T"> The type of the item in the collection. </typeparam>
+            <param name="items"> The list of items. </param>
+            <returns> A random item or the default value if the list is empty. </returns>
+        </member>
         <member name="M:Speedy.RandomGenerator.GetItem``1(System.Collections.Generic.IList{``0})">
             <summary>
             Gets a random item from a list.
             </summary>
             <typeparam name="T"> The type of the item in the collection. </typeparam>
+            <param name="items"> The list of items. </param>
+            <returns> A random item or the default value if the list is empty. </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.GetItems``1(System.Int32,System.Collections.Generic.IList{``0})">
+            <summary>
+            Gets a random set of items from a list.
+            </summary>
+            <typeparam name="T"> The type of the item in the collection. </typeparam>
+            <param name="count"> The number of items to select. </param>
             <param name="items"> The list of items. </param>
             <returns> A random item or the default value if the list is empty. </returns>
         </member>
@@ -11675,6 +11700,13 @@
             Populate an array of char.
             </summary>
             <param name="data"> The array to populate. </param>
+        </member>
+        <member name="M:Speedy.RandomGenerator.PopulateUnique``1(``0[]@,``0[])">
+            <summary>
+            Populate an array of char.
+            </summary>
+            <param name="data"> The array to populate. </param>
+            <param name="source"> The source of items to choose from. </param>
         </member>
         <member name="M:Speedy.RandomGenerator.SetPassword(System.Security.SecureString,System.Int32,System.Boolean)">
             <summary>

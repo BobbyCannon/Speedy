@@ -41,9 +41,9 @@ public static class ReflectionExtensions
 	private static readonly ConcurrentDictionary<string, ParameterInfo[]> _methodParameters;
 	private static readonly ConcurrentDictionary<string, Type[]> _methodsGenericArgumentInfos;
 	private static readonly ConcurrentDictionary<string, MethodInfo[]> _propertyGetAccessors;
-
 	private static readonly RandomNumberGenerator _random;
 	private static readonly ConcurrentDictionary<Type, string> _typeAssemblyNames;
+	private static readonly ConcurrentDictionary<string, Attribute[]> _typeAttributes;
 	private static readonly ConcurrentDictionary<string, List<FieldInfo>> _typeEventFieldInfos;
 	private static readonly ConcurrentDictionary<string, FieldInfo[]> _typeFieldInfos;
 	private static readonly ConcurrentDictionary<string, MethodInfo> _typeMethodInfos;
@@ -66,6 +66,7 @@ public static class ReflectionExtensions
 		_methodsGenericArgumentInfos = new ConcurrentDictionary<string, Type[]>();
 		_propertyGetAccessors = new ConcurrentDictionary<string, MethodInfo[]>();
 		_typeAssemblyNames = new ConcurrentDictionary<Type, string>();
+		_typeAttributes = new ConcurrentDictionary<string, Attribute[]>();
 		_typeEventFieldInfos = new ConcurrentDictionary<string, List<FieldInfo>>();
 		_typeFieldInfos = new ConcurrentDictionary<string, FieldInfo[]>();
 		_typeMethodInfos = new ConcurrentDictionary<string, MethodInfo>();
@@ -185,6 +186,33 @@ public static class ReflectionExtensions
 	}
 
 	/// <summary>
+	/// Get attributes for an enum.
+	/// </summary>
+	/// <typeparam name="T"> The type value of the attribute. </typeparam>
+	/// <param name="value"> The value to get attributes for. </param>
+	/// <returns> The attributes if found. </returns>
+	public static T[] GetCachedAttributes<T>(this Enum value) where T : Attribute
+	{
+		var attributeType = typeof(T);
+		var typeKey = GetCacheKey(value?.GetType() ?? throw new InvalidOperationException(), DefaultFlags);
+		var key = typeKey + value + attributeType.FullName;
+
+		return _typeAttributes.GetOrAdd(key, x =>
+			{
+				var type = value.GetType();
+				var memberInfo = type.GetMember(value.ToString());
+				var attributes = memberInfo[0]
+					.GetCustomAttributes(attributeType, false)
+					.Cast<Attribute>()
+					.ToArray();
+
+				return attributes;
+			})
+			.Cast<T>()
+			.ToArray();
+	}
+
+	/// <summary>
 	/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
 	/// </summary>
 	/// <param name="value"> The value to get the events for. </param>
@@ -227,7 +255,7 @@ public static class ReflectionExtensions
 	{
 		return GetCachedField(item.GetType(), name, flags);
 	}
-	
+
 	/// <summary>
 	/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
 	/// </summary>
@@ -729,7 +757,7 @@ public static class ReflectionExtensions
 			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
 			return Activator.CreateInstance(constructedListType);
 		}
-		
+
 		var isList = propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(IList<>));
 		if (isList)
 		{

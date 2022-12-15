@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
@@ -18,7 +18,8 @@
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
-		<RepositoryType></RepositoryType>
+		<RepositoryType>
+		</RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore SQL Sqlite</PackageTags>
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>
@@ -39,25 +40,18 @@
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.5" />
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.31" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.31" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.31" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.31" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="6.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.10" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="3.1.32" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.32" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.32" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'">
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

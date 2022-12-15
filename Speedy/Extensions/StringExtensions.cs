@@ -126,7 +126,7 @@ public static class StringExtensions
 	/// </summary>
 	/// <param name="data"> The data to be converted. </param>
 	/// <returns> The unencoded string. </returns>
-	public static string FromBase64(this string data)
+	public static string FromBase64String(this string data)
 	{
 		var bytes = Convert.FromBase64String(data);
 		return Encoding.UTF8.GetString(bytes);
@@ -137,7 +137,7 @@ public static class StringExtensions
 	/// </summary>
 	/// <param name="data"> The data to be converted. </param>
 	/// <returns> The unencoded byte array. </returns>
-	public static byte[] FromBase64ToByteArray(this string data)
+	public static byte[] FromBase64StringToByteArray(this string data)
 	{
 		var key = ";base64,";
 		var index = data.IndexOf(key);
@@ -240,9 +240,9 @@ public static class StringExtensions
 	/// </summary>
 	/// <param name="data"> The data to be converted. </param>
 	/// <returns> The base 64 encoded string. </returns>
-	public static string ToBase64(this string data)
+	public static string ToBase64String(this string data)
 	{
-		return data == null ? string.Empty : Encoding.UTF8.GetBytes(data).ToBase64();
+		return data == null ? string.Empty : Encoding.UTF8.GetBytes(data).ToBase64String();
 	}
 
 	/// <summary>

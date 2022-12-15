@@ -31,7 +31,7 @@ public class CredentialTests : SpeedyUnitTest
 		AreEqual("Basic", headerValue.Scheme);
 		AreEqual("dXNlcm5hbWU6cGFzc3dvcmQ=", headerValue.Parameter);
 
-		var token = headerValue.Parameter.FromBase64();
+		var token = headerValue.Parameter.FromBase64String();
 		AreEqual("username:password", token);
 
 		var actualCredential = Credential.FromAuthenticationHeaderValue(headerValue);
