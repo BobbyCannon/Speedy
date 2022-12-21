@@ -22,8 +22,8 @@ public class LocationManager<T> : InformationManager<Location>
 		Settings.UpdateDispatcher(dispatcher);
 
 		// Commands
-		StartListeningCommand = new RelayCommand(_ => StartMonitoringAsync());
-		StopListeningCommand = new RelayCommand(_ => StopMonitoringAsync());
+		StartListeningCommand = new RelayCommand(x => _ = StartMonitoringAsync());
+		StopListeningCommand = new RelayCommand(x => _ = StopMonitoringAsync());
 	}
 
 	#endregion
