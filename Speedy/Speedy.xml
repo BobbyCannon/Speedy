@@ -16182,6 +16182,11 @@
             The id of the provider. Use this id to remove it from the stack.
             </returns>
         </member>
+        <member name="M:Speedy.TimeService.LockService">
+            <summary>
+            Log the service to not allow the time service to be mocked / changed.
+            </summary>
+        </member>
         <member name="M:Speedy.TimeService.RemoveNowProvider(System.UInt32)">
             <summary>
             Remove the DateTime.Now provider from the stack by the provided id.

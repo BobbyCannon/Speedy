@@ -19,6 +19,7 @@ public static class TimeService
 	private static Func<DateTime> _currentUtcNowProvider;
 	private static uint _nowIndex, _utcNowIndex;
 	private static readonly ConcurrentDictionary<uint, Func<DateTime>> _nowProviders;
+	private static bool _serviceLocked;
 	private static readonly ConcurrentDictionary<uint, Func<DateTime>> _utcNowProviders;
 
 	#endregion
@@ -59,6 +60,11 @@ public static class TimeService
 	/// </returns>
 	public static uint? AddNowProvider(Func<DateTime> provider)
 	{
+		if (_serviceLocked)
+		{
+			throw new InvalidOperationException("The time service has been locked.");
+		}
+
 		return TryAddNowProvider(provider, out var id) ? id : null;
 	}
 
@@ -70,7 +76,20 @@ public static class TimeService
 	/// </returns>
 	public static uint? AddUtcNowProvider(Func<DateTime> provider)
 	{
+		if (_serviceLocked)
+		{
+			throw new InvalidOperationException("The time service has been locked.");
+		}
+
 		return TryAddUtcNowProvider(provider, out var id) ? id : null;
+	}
+
+	/// <summary>
+	/// Log the service to not allow the time service to be mocked / changed.
+	/// </summary>
+	public static void LockService()
+	{
+		_serviceLocked = true;
 	}
 
 	/// <summary>
@@ -78,6 +97,11 @@ public static class TimeService
 	/// </summary>
 	public static void RemoveNowProvider(uint id)
 	{
+		if (_serviceLocked)
+		{
+			throw new InvalidOperationException("The time service has been locked.");
+		}
+
 		if (!_nowProviders.TryRemove(id, out var provider))
 		{
 			return;
@@ -94,6 +118,11 @@ public static class TimeService
 	/// </summary>
 	public static void RemoveUtcNowProvider(uint id)
 	{
+		if (_serviceLocked)
+		{
+			throw new InvalidOperationException("The time service has been locked.");
+		}
+
 		if (!_utcNowProviders.TryRemove(id, out var provider))
 		{
 			return;
@@ -123,6 +152,11 @@ public static class TimeService
 	/// <param name="id"> The id of the added provider. Returns null if provider not added. </param>
 	public static bool TryAddNowProvider(Func<DateTime> provider, out uint? id)
 	{
+		if (_serviceLocked)
+		{
+			throw new InvalidOperationException("The time service has been locked.");
+		}
+
 		var key = _nowIndex++;
 		var result = _nowProviders.TryAdd(key, provider);
 
@@ -146,6 +180,11 @@ public static class TimeService
 	/// <param name="id"> The id of the added provider. Returns null if provider not added. </param>
 	public static bool TryAddUtcNowProvider(Func<DateTime> provider, out uint? id)
 	{
+		if (_serviceLocked)
+		{
+			throw new InvalidOperationException("The time service has been locked.");
+		}
+
 		var key = _utcNowIndex++;
 		var result = _utcNowProviders.TryAdd(key, provider);
 
@@ -164,11 +203,21 @@ public static class TimeService
 
 	private static DateTime GetNow()
 	{
+		if (_serviceLocked)
+		{
+			return DateTime.Now;
+		}
+
 		return _currentNowProvider?.Invoke() ?? DateTime.Now;
 	}
 
 	private static DateTime GetUtcNow()
 	{
+		if (_serviceLocked)
+		{
+			return DateTime.UtcNow;
+		}
+
 		return _currentUtcNowProvider?.Invoke() ?? DateTime.UtcNow;
 	}
 
