@@ -15,6 +15,7 @@ $productName = "Speedy"
 
 # $scriptPath = "C:\Workspaces\EpicCoders\$productName"
 # $scriptPath = "C:\Workspaces\GitHub\$productName"
+# $VersionSuffix = "RC7"
 
 if ($scriptPath.Length -le 0)
 {
@@ -69,6 +70,7 @@ try
 
 	& nuget.exe restore "$scriptPath\$productName.sln"
 
+ 	# /v:m You can specify the following verbosity levels: q[uiet], m[inimal], n[ormal] (default), d[etailed], and diag[nostic].
 	$msbuild = "C:\Program Files\Microsoft Visual Studio\2022\Professional\Msbuild\Current\Bin\MSBuild.exe"
 	& $msbuild "$scriptPath\$productName.sln" /p:Configuration="$Configuration" /t:Rebuild /v:m /m
 

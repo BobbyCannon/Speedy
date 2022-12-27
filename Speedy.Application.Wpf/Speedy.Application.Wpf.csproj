@@ -9,7 +9,7 @@
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.EntityFramework</Product>
 		<Description>Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications.</Description>
-		<Copyright>© Copyright 2014-2022</Copyright>
+		<Copyright>© Copyright 2014-2023</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -20,8 +20,7 @@
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
-		<RepositoryType>
-		</RepositoryType>
+		<RepositoryType></RepositoryType>
 		<PackageTags>Speedy Application WPF</PackageTags>
 		<PackageId>Speedy.Application.Wpf</PackageId>
 		<Authors>Bobby Cannon</Authors>

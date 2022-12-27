@@ -110,10 +110,12 @@ public class TokenCredential : Credential, IUpdatable<TokenCredential>
 
 		if (exclusions.Length <= 0)
 		{
+			UserName = update.UserName;
 			SecurePassword = update.SecurePassword;
 		}
 		else
 		{
+			this.IfThen(_ => !exclusions.Contains(nameof(UserName)), x => x.UserName = update.UserName);
 			this.IfThen(_ => !exclusions.Contains(nameof(SecurePassword)), x => x.SecurePassword = update.SecurePassword);
 		}
 

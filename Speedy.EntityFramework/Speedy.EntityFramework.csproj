@@ -7,7 +7,7 @@
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.EntityFramework</Product>
 		<Description>Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.</Description>
-		<Copyright>© Copyright 2014-2022</Copyright>
+		<Copyright>© Copyright 2014-2023</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -18,8 +18,7 @@
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
-		<RepositoryType>
-		</RepositoryType>
+		<RepositoryType></RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore SQL Sqlite</PackageTags>
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>

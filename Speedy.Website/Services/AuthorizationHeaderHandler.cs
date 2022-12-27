@@ -19,7 +19,7 @@ namespace Speedy.Website.Services
 	{
 		#region Constants
 
-		public const string AuthenticationScheme = "BasicAuthentication";
+		public const string AuthenticationScheme = "Basic";
 
 		#endregion
 

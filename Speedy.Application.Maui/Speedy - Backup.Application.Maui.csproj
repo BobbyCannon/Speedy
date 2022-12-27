@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-maccatalyst;net7.0-ios15.4</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
 		<SingleProject>true</SingleProject>
@@ -40,8 +40,7 @@
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC7</Version>
-		<PublishReadyToRun>false</PublishReadyToRun>
+		<Version>11.0.0.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />
@@ -68,11 +67,11 @@
 		<Compile Include="**/Platforms/Windows/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Speedy\Speedy.csproj" />
-		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<MauiXaml Update="Themes\Generic.xaml">

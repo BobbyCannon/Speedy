@@ -11,7 +11,7 @@ Get-Process vbcs* | Stop-Process
 
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net7.0'
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net6.0'
-& 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net5.0'
+& 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'netcoreapp3.1'
 
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
@@ -8,7 +8,7 @@
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.EntityFramework</Product>
 		<Description>Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications.</Description>
-		<Copyright>© Copyright 2014-2022</Copyright>
+		<Copyright>© Copyright 2014-2023</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
