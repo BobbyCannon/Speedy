@@ -57,7 +57,7 @@ namespace Speedy.IntegrationTests
 			}
 		}
 
-		private static IDatabaseProvider<ContosoDatabase> GetDatabase(DatabaseOptions options = null)
+		private static IDatabaseProvider<IContosoDatabase> GetDatabase(DatabaseOptions options = null)
 		{
 			return TestHelper.GetSqlProvider(options);
 		}

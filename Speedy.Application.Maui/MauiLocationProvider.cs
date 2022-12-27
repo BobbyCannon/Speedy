@@ -1,7 +1,6 @@
 ﻿#region References
 
 using Speedy.Data.Location;
-
 #if !(WINDOWS || ANDROID || IOS)
 using Speedy.Application.Internal;
 #endif

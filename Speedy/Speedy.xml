@@ -2008,6 +2008,9 @@
         <member name="M:Speedy.DatabaseProvider`1.GetDatabase(Speedy.DatabaseOptions)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.DatabaseProvider`1.StartSession">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.DatabaseProvider`1.GetDatabaseFromProvider(Speedy.DatabaseOptions)">
             <summary>
             Gets an instance of the database from the provider.
@@ -2033,6 +2036,71 @@
         </member>
         <member name="M:Speedy.DatabaseProvider`1.Speedy#IDatabaseProvider#GetDatabase(Speedy.DatabaseOptions)">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.DatabaseSession`1">
+            <summary>
+            The session for storing content into a database.
+            </summary>
+            <typeparam name="T"> The database type. </typeparam>
+        </member>
+        <member name="M:Speedy.DatabaseSession`1.#ctor(Speedy.IDatabaseProvider{`0})">
+            <summary>
+            Instantiates an session for a database.
+            </summary>
+            <param name="databaseProvider"> The database provider. </param>
+        </member>
+        <member name="M:Speedy.DatabaseSession`1.Add``2(``0)">
+            <summary>
+            Add the entity to the database session.
+            </summary>
+            <typeparam name="TEntity"> The type of the entity. </typeparam>
+            <typeparam name="TPrimaryKey"> The type of the primary key. </typeparam>
+            <param name="entity"> The entity to add. </param>
+            <returns> The added entity. </returns>
+        </member>
+        <member name="M:Speedy.DatabaseSession`1.Add``2(System.Action{``0})">
+            <summary>
+            Add the entity to the database session.
+            </summary>
+            <typeparam name="TEntity"> The type of the entity. </typeparam>
+            <typeparam name="TPrimaryKey"> The type of the primary key. </typeparam>
+            <param name="update"> The action to update the entity. </param>
+            <returns> The added entity. </returns>
+        </member>
+        <member name="M:Speedy.DatabaseSession`1.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Speedy.DatabaseSession`1.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="T:Speedy.IDatabaseSession`1">
+            <summary>
+            The session for storing content into a database.
+            </summary>
+            <typeparam name="T"> The database type. </typeparam>
+        </member>
+        <member name="M:Speedy.IDatabaseSession`1.Add``2(``0)">
+            <summary>
+            Add the entity to the database session.
+            </summary>
+            <typeparam name="TEntity"> The type of the entity. </typeparam>
+            <typeparam name="TPrimaryKey"> The type of the primary key. </typeparam>
+            <param name="entity"> The entity to add. </param>
+            <returns> The added entity. </returns>
+        </member>
+        <member name="M:Speedy.IDatabaseSession`1.Add``2(System.Action{``0})">
+            <summary>
+            Add the entity to the database session.
+            </summary>
+            <typeparam name="TEntity"> The type of the entity. </typeparam>
+            <typeparam name="TPrimaryKey"> The type of the primary key. </typeparam>
+            <param name="update"> The action to update the entity. </param>
+            <returns> The added entity. </returns>
         </member>
         <member name="T:Speedy.DatabaseType">
             <summary>
@@ -6425,6 +6493,12 @@
             <param name="options"> The database options to use for the new database instance. </param>
             <returns> The database instance. </returns>
         </member>
+        <member name="M:Speedy.IDatabaseProvider`1.StartSession">
+            <summary>
+            Starts a database session.
+            </summary>
+            <returns> The session for a database. </returns>
+        </member>
         <member name="T:Speedy.IDatabaseProvider">
             <summary>
             Represents a database provider for syncable databases.
@@ -8952,76 +9026,51 @@
         <member name="M:Speedy.Profiling.AverageTimer.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Profiling.DebounceService`1">
-            <summary>
-            A service for debouncing an action.
-            </summary>
-            <typeparam name="T"> The type to pass to the action. </typeparam>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Boolean)">
-            <summary>
-            Create an instance of the service for debouncing an action.
-            </summary>
-            <param name="timeSpan"> The amount of time before the action will trigger. </param>
-            <param name="enabled"> A flag to enable the service. Defaults to true. </param>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.Trigger(`0,System.Boolean)">
-            <summary>
-            Trigger the service. Will be trigger after the timespan or immediately if force is true.
-            </summary>
-            <param name="value"> The value to trigger with. </param>
-            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
-        </member>
         <member name="T:Speedy.Profiling.DebounceService">
             <summary>
-            A service for debouncing an action.
+            The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken})">
             <summary>
             Create an instance of the service for debouncing an action.
             </summary>
-            <param name="timeSpan"> The amount of time before the action will trigger. </param>
-            <param name="enabled"> A flag to enable the service. Defaults to true. </param>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceService.Data">
-            <summary>
-            The data to be store for the latest trigger.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceService.Enabled">
-            <summary>
-            A flag to enable the service. Defaults to true.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceService.Dispose">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
+            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="action"> The action to debounce. </param>
         </member>
         <member name="M:Speedy.Profiling.DebounceService.Trigger(System.Boolean)">
             <summary>
-            Trigger the service. Will be trigger after the timespan or immediately if force is true.
+            Trigger the service. Will be trigger after the timespan.
             </summary>
             <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService.Trigger(System.Object,System.Boolean)">
+        <member name="T:Speedy.Profiling.DebounceService`1">
             <summary>
-            Trigger the service. Will be trigger after the timespan or immediately if force is true.
+            The service to throttle work that supports cancellation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0})">
+            <summary>
+            Create an instance of the service for debouncing an action.
+            </summary>
+            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="action"> The action to debounce. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService`1.Trigger(`0,System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan.
             </summary>
             <param name="value"> The value to trigger with. </param>
             <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService.Dispose(System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceService`1.Dispose(System.Boolean)">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
             <param name="disposing"> True if disposing and false if otherwise. </param>
-        </member>
-        <member name="E:Speedy.Profiling.DebounceService.Action">
-            <summary>
-            The action to be triggered.
-            </summary>
         </member>
         <member name="T:Speedy.Profiling.ITrackerPathRepository">
             <summary>
@@ -14182,6 +14231,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.GetSyncableDatabase(Speedy.DatabaseOptions,Speedy.DatabaseKeyCache)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.StartSession">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncableDatabaseProvider`1.Speedy#IDatabaseProvider{T}#GetDatabase">

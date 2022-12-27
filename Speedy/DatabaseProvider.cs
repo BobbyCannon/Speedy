@@ -60,6 +60,12 @@ public class DatabaseProvider<T> : IDatabaseProvider<T> where T : IDatabase
 		return GetDatabaseFromProvider(options);
 	}
 
+	/// <inheritdoc />
+	public IDatabaseSession<T> StartSession()
+	{
+		return new DatabaseSession<T>(this);
+	}
+
 	/// <summary>
 	/// Gets an instance of the database from the provider.
 	/// </summary>

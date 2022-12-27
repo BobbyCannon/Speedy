@@ -16,7 +16,6 @@ public static class MauiPlatform
 	#region Properties
 
 	#if ANDROID
-
 	/// <summary>
 	/// The main activity for Android platform.
 	/// </summary>
@@ -29,7 +28,6 @@ public static class MauiPlatform
 	#region Methods
 
 	#if ANDROID
-
 	/// <summary>
 	/// Initialize the xamarin platform for Android.
 	/// </summary>

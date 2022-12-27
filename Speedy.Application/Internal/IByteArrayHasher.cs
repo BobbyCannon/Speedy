@@ -1,19 +1,18 @@
-﻿namespace Speedy.Application.Internal
+﻿namespace Speedy.Application.Internal;
+
+/// <summary>
+/// Provides functionality to hash a byte array.
+/// </summary>
+internal interface IByteArrayHasher
 {
+	#region Methods
+
 	/// <summary>
-	/// Provides functionality to hash a byte array.
+	/// Returns a hash of the specified byte array.
 	/// </summary>
-	internal interface IByteArrayHasher
-	{
-		#region Methods
+	/// <param name="bytes"> The byte array to hash. </param>
+	/// <returns> A hash of the specified byte array. </returns>
+	byte[] Hash(byte[] bytes);
 
-		/// <summary>
-		/// Returns a hash of the specified byte array.
-		/// </summary>
-		/// <param name="bytes"> The byte array to hash. </param>
-		/// <returns> A hash of the specified byte array. </returns>
-		byte[] Hash(byte[] bytes);
-
-		#endregion
-	}
+	#endregion
 }

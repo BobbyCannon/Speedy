@@ -490,7 +490,7 @@ namespace Speedy.UnitTests
 			return list[index];
 		}
 
-		public static IDatabaseProvider<ContosoDatabase> GetSqliteProvider(DatabaseOptions options = null, bool initialized = true, DatabaseKeyCache keyCache = null)
+		public static IDatabaseProvider<IContosoDatabase> GetSqliteProvider(DatabaseOptions options = null, bool initialized = true, DatabaseKeyCache keyCache = null)
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqliteDatabase.UseSqlite(DefaultSqliteConnection, options, null);
@@ -502,10 +502,10 @@ namespace Speedy.UnitTests
 				InitializeDatabase(database, keyCache);
 			}
 
-			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x, keyCache), options);
+			return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqliteDatabase(database.DbContextOptions, x, keyCache), options);
 		}
 
-		public static IDatabaseProvider<ContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialize = true, DatabaseKeyCache keyCache = null)
+		public static IDatabaseProvider<IContosoDatabase> GetSqlProvider(DatabaseOptions options = null, bool initialize = true, DatabaseKeyCache keyCache = null)
 		{
 			// Do not use the cache during migration and clearing of the database
 			using var database = ContosoSqlDatabase.UseSql(DefaultSqlConnection, options, null);
@@ -517,7 +517,7 @@ namespace Speedy.UnitTests
 				InitializeDatabase(database, keyCache);
 			}
 
-			return new DatabaseProvider<ContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x, keyCache), options);
+			return new DatabaseProvider<IContosoDatabase>(x => new ContosoSqlDatabase(database.DbContextOptions, x, keyCache), options);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoClientDatabase> GetSyncableClientMemoryProvider(DatabaseOptions options = null, DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -562,7 +562,7 @@ namespace Speedy.UnitTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncableDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<IContosoDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqliteProvider2(DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -575,7 +575,7 @@ namespace Speedy.UnitTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncableDatabaseProvider<ContosoSqliteDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<IContosoDatabase>((x, y) => new ContosoSqliteDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqlProvider(DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -589,7 +589,7 @@ namespace Speedy.UnitTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncableDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<IContosoDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncableDatabaseProvider<IContosoDatabase> GetSyncableSqlProvider2(DatabaseKeyCache keyCache = null, bool initialize = true)
@@ -603,7 +603,7 @@ namespace Speedy.UnitTests
 			{
 				InitializeDatabase(database, keyCache);
 			}
-			return new SyncableDatabaseProvider<ContosoSqlDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
+			return new SyncableDatabaseProvider<IContosoDatabase>((x, y) => new ContosoSqlDatabase(database.DbContextOptions, x, y), database.Options, keyCache);
 		}
 
 		public static ISyncClient GetSyncClient(string name, DatabaseType type, bool initializeDatabase, bool useKeyCache, bool useSecondaryConnection,

@@ -10,7 +10,7 @@ using Speedy.Data.Location;
 namespace Speedy.Application.Internal;
 
 /// <inheritdoc />
-public class InactiveLocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
+public abstract class InactiveLocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
 	: LocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
 	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
 	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>

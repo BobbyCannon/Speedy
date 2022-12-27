@@ -1,4 +1,6 @@
-﻿namespace Speedy.Application.Maui;
+﻿using Speedy.Extensions;
+
+namespace Speedy.Application.Maui;
 
 /// <inheritdoc />
 public class MauiDispatcher : Dispatcher
@@ -37,9 +39,7 @@ public class MauiDispatcher : Dispatcher
 	/// <inheritdoc />
 	protected override T ExecuteOnDispatcher<T>(Func<T> action)
 	{
-		T result = default;
-		_dispatcher.Dispatch(() => result = action());
-		return result;
+		return _dispatcher.DispatchAsync(action).AwaitResults();
 	}
 
 	/// <inheritdoc />

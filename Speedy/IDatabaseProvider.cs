@@ -38,6 +38,12 @@ public interface IDatabaseProvider<out T> : IDatabaseProvider where T : IDatabas
 	/// <returns> The database instance. </returns>
 	new T GetDatabase(DatabaseOptions options);
 
+	/// <summary>
+	/// Starts a database session.
+	/// </summary>
+	/// <returns> The session for a database. </returns>
+	IDatabaseSession<T> StartSession();
+
 	#endregion
 }
 

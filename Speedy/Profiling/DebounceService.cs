@@ -1,202 +1,208 @@
 ﻿#region References
 
 using System;
-using System.Diagnostics;
+using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 
 #endregion
 
-namespace Speedy.Profiling
+namespace Speedy.Profiling;
+
+/// <summary>
+/// The service to throttle work that supports cancellation.
+/// </summary>
+public class DebounceService : DebounceService<object>
 {
+	#region Constructors
+
 	/// <summary>
-	/// A service for debouncing an action.
+	/// Create an instance of the service for debouncing an action.
 	/// </summary>
-	/// <typeparam name="T"> The type to pass to the action. </typeparam>
-	public class DebounceService<T> : DebounceService
+	/// <param name="delay"> The amount of time before the action will trigger. </param>
+	/// <param name="action"> The action to debounce. </param>
+	public DebounceService(TimeSpan delay, Action<CancellationToken> action)
+		: base(delay, (x, d) => action(x))
 	{
-		#region Constructors
+	}
 
-		/// <summary>
-		/// Create an instance of the service for debouncing an action.
-		/// </summary>
-		/// <param name="timeSpan"> The amount of time before the action will trigger. </param>
-		/// <param name="enabled"> A flag to enable the service. Defaults to true. </param>
-		public DebounceService(TimeSpan timeSpan, bool enabled = true) : base(timeSpan, enabled)
-		{
-		}
+	#endregion
 
-		#endregion
+	#region Methods
 
-		#region Methods
+	/// <summary>
+	/// Trigger the service. Will be trigger after the timespan.
+	/// </summary>
+	/// <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+	public void Trigger(bool force = false)
+	{
+		Trigger(null, force);
+	}
 
-		/// <summary>
-		/// Trigger the service. Will be trigger after the timespan or immediately if force is true.
-		/// </summary>
-		/// <param name="value"> The value to trigger with. </param>
-		/// <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
-		public void Trigger(T value, bool force = false)
-		{
-			base.Trigger(value, force);
-		}
+	#endregion
+}
 
-		#endregion
+/// <summary>
+/// The service to throttle work that supports cancellation.
+/// </summary>
+public class DebounceService<T> : IDisposable
+{
+	#region Fields
+
+	private readonly Action<CancellationToken, T> _action;
+	private T _data;
+	private readonly TimeSpan _delay;
+	private bool _force;
+	private DateTime _requestedFor;
+	private BackgroundWorker _worker;
+
+	#endregion
+
+	#region Constructors
+
+	/// <summary>
+	/// Create an instance of the service for debouncing an action.
+	/// </summary>
+	/// <param name="delay"> The amount of time before the action will trigger. </param>
+	/// <param name="action"> The action to debounce. </param>
+	public DebounceService(TimeSpan delay, Action<CancellationToken, T> action)
+	{
+		_delay = delay;
+		_action = action;
+		_worker = new BackgroundWorker();
+		_worker.RunWorkerCompleted += WorkerOnRunWorkerCompleted;
+		_worker.DoWork += WorkerOnDoWork;
+		_worker.WorkerReportsProgress = true;
+		_worker.WorkerSupportsCancellation = true;
+		_worker.RunWorkerAsync();
+	}
+
+	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
 	}
 
 	/// <summary>
-	/// A service for debouncing an action.
+	/// Trigger the service. Will be trigger after the timespan.
 	/// </summary>
-	public class DebounceService : IDisposable
+	/// <param name="value"> The value to trigger with. </param>
+	/// <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+	public void Trigger(T value, bool force = false)
 	{
-		#region Fields
+		// Optionally turn on force
+		_force |= force;
+		_data = value;
 
-		private System.Timers.Timer _timer;
-		private readonly Stopwatch _watch;
+		// Queue up the next run
+		_requestedFor = _force
+			? TimeService.UtcNow
+			: TimeService.UtcNow + _delay;
 
-		#endregion
-
-		#region Constructors
-
-		/// <summary>
-		/// Create an instance of the service for debouncing an action.
-		/// </summary>
-		/// <param name="timeSpan"> The amount of time before the action will trigger. </param>
-		/// <param name="enabled"> A flag to enable the service. Defaults to true. </param>
-		public DebounceService(TimeSpan timeSpan, bool enabled = true)
+		// Start the worker if it's not running
+		if (_worker?.IsBusy != true)
 		{
-			_watch = new Stopwatch();
-			_timer = new System.Timers.Timer { Interval = timeSpan.TotalMilliseconds, Enabled = false };
-			_timer.Elapsed += TimerTick;
+			_worker?.RunWorkerAsync();
+		}
+	}
 
-			Enabled = enabled;
+	/// <summary>
+	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+	/// </summary>
+	/// <param name="disposing"> True if disposing and false if otherwise. </param>
+	protected virtual void Dispose(bool disposing)
+	{
+		var worker = _worker;
+
+		if (!disposing || (worker == null))
+		{
+			return;
 		}
 
-		#endregion
-
-		#region Properties
-
-		/// <summary>
-		/// The data to be store for the latest trigger.
-		/// </summary>
-		public object Data { get; protected set; }
-
-		/// <summary>
-		/// A flag to enable the service. Defaults to true.
-		/// </summary>
-		public bool Enabled { get; set; }
-
-		#endregion
-
-		#region Methods
-
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		public void Dispose()
+		if (worker.IsBusy)
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
+			worker.CancelAsync();
 		}
 
-		/// <summary>
-		/// Trigger the service. Will be trigger after the timespan or immediately if force is true.
-		/// </summary>
-		/// <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
-		public void Trigger(bool force = false)
+		worker.RunWorkerCompleted -= WorkerOnRunWorkerCompleted;
+		worker.DoWork -= WorkerOnDoWork;
+
+		_worker = null;
+	}
+
+	private void WorkerOnDoWork(object sender, DoWorkEventArgs e)
+	{
+		var worker = (BackgroundWorker) sender;
+		var lastStart = DateTime.MinValue;
+		var cancellationTokenSource = new CancellationTokenSource();
+
+		Task currentRun = null;
+
+		while (!worker.CancellationPending)
 		{
-			Trigger(default, force);
-		}
-
-		/// <summary>
-		/// Trigger the service. Will be trigger after the timespan or immediately if force is true.
-		/// </summary>
-		/// <param name="value"> The value to trigger with. </param>
-		/// <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
-		public void Trigger(object value, bool force = false)
-		{
-			var timer = _timer;
-			if (timer == null)
+			if (((_requestedFor <= lastStart) || (_requestedFor > TimeService.UtcNow)) && !_force)
 			{
-				return;
+				if (currentRun is { Status: TaskStatus.RanToCompletion or TaskStatus.Canceled or TaskStatus.Faulted })
+				{
+					currentRun = null;
+
+					// We don't have an outstanding request so bounce
+					if (_requestedFor <= lastStart)
+					{
+						// Exit the worker
+						return;
+					}
+				}
+
+				// Nothing to do...
+				Thread.Sleep(10);
+				continue;
 			}
 
-			timer.Stop();
-
-			if (!_watch.IsRunning)
+			// A new request is ready to be processed
+			if (currentRun != null)
 			{
-				_watch.Start();
-			}
+				if (!cancellationTokenSource.IsCancellationRequested)
+				{
+					// Cancel the current run
+					cancellationTokenSource.Cancel();
+				}
 
-			Data = value;
+				if (currentRun is { Status: TaskStatus.RanToCompletion or TaskStatus.Canceled or TaskStatus.Faulted })
+				{
+					currentRun = null;
 
-			if (_watch.Elapsed.TotalMilliseconds >= timer.Interval)
-			{
-				// Enough time has passed since our first trigger so we need to go ahead and force a trigger
-				force = true;
-			}
-
-			// if the debounce service is not enabled
-			if (!Enabled)
-			{
-				// then just restart the timer
-				force = false;
-			}
-
-			if (force)
-			{
-				TimerTick(this, value);
+					// We don't have an outstanding request so bounce
+					if (_requestedFor <= lastStart)
+					{
+						// Exit the worker
+						return;
+					}
+				}
 			}
 			else
 			{
-				timer.Start();
+				_force = false;
+				var data = _data;
+				lastStart = _requestedFor;
+				cancellationTokenSource = new CancellationTokenSource();
+				currentRun = Task.Run(() => _action(cancellationTokenSource.Token, data), cancellationTokenSource.Token);
 			}
 		}
-
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		/// <param name="disposing"> True if disposing and false if otherwise. </param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing)
-			{
-				return;
-			}
-
-			_watch.Stop();
-
-			var timer = _timer;
-			_timer = null;
-
-			if (timer != null)
-			{
-				timer.Elapsed -= TimerTick;
-				timer.Dispose();
-			}
-		}
-
-		private void TimerTick(object sender, object e)
-		{
-			_timer?.Stop();
-			_watch?.Reset();
-
-			if (!Enabled)
-			{
-				// Just restart the trigger, it's not ready
-				Trigger(Data);
-				return;
-			}
-
-			Action?.Invoke(this, EventArgs.Empty);
-		}
-
-		#endregion
-
-		#region Events
-
-		/// <summary>
-		/// The action to be triggered.
-		/// </summary>
-		public event EventHandler Action;
-
-		#endregion
 	}
+
+	private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+	{
+		if (_requestedFor >= TimeService.UtcNow)
+		{
+			_worker?.RunWorkerAsync();
+		}
+	}
+
+	#endregion
 }
