@@ -15,7 +15,7 @@
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netcoreapp3.1'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sqlite.Old\Speedy.Website.Data.Sqlite.Old.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />

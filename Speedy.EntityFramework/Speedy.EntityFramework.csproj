@@ -18,7 +18,8 @@
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
-		<RepositoryType></RepositoryType>
+		<RepositoryType>
+		</RepositoryType>
 		<PackageTags>Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore SQL Sqlite</PackageTags>
 		<PackageId>Speedy.EntityFramework</PackageId>
 		<Authors>Bobby Cannon</Authors>

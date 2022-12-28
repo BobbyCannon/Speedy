@@ -108,17 +108,51 @@ public static class CollectionExtensions
 	}
 
 	/// <summary>
-	/// Add multiple items to a collection
+	/// Add multiple items to a list
 	/// </summary>
 	/// <param name="set"> The set to add items to. </param>
 	/// <param name="items"> The items to add. </param>
-	/// <typeparam name="T"> The type of the items in the collection. </typeparam>
-	public static void AddRange<T>(this ICollection<T> set, IEnumerable<T> items)
+	/// <typeparam name="T"> The type of the items in the list. </typeparam>
+	public static IList<T> AddRange<T>(this IList<T> set, IEnumerable<T> items)
 	{
 		foreach (var item in items)
 		{
 			set.Add(item);
 		}
+
+		return set;
+	}
+
+	/// <summary>
+	/// Add multiple items to a list
+	/// </summary>
+	/// <param name="set"> The set to add items to. </param>
+	/// <param name="items"> The items to add. </param>
+	/// <typeparam name="T"> The type of the items in the list. </typeparam>
+	public static IList<T> AddRange<T>(this IList<T> set, params T[] items)
+	{
+		foreach (var item in items)
+		{
+			set.Add(item);
+		}
+
+		return set;
+	}
+	
+	/// <summary>
+	/// Add multiple items to a collection
+	/// </summary>
+	/// <param name="set"> The set to add items to. </param>
+	/// <param name="items"> The items to add. </param>
+	/// <typeparam name="T"> The type of the items in the collection. </typeparam>
+	public static ICollection<T> AddRange<T>(this ICollection<T> set, IEnumerable<T> items)
+	{
+		foreach (var item in items)
+		{
+			set.Add(item);
+		}
+
+		return set;
 	}
 
 	/// <summary>
@@ -127,12 +161,14 @@ public static class CollectionExtensions
 	/// <param name="set"> The set to add items to. </param>
 	/// <param name="items"> The items to add. </param>
 	/// <typeparam name="T"> The type of the items in the collection. </typeparam>
-	public static void AddRange<T>(this ICollection<T> set, params T[] items)
+	public static ICollection<T> AddRange<T>(this ICollection<T> set, params T[] items)
 	{
 		foreach (var item in items)
 		{
 			set.Add(item);
 		}
+
+		return set;
 	}
 
 	/// <summary>

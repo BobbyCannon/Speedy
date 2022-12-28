@@ -10,7 +10,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-		<PackageReference Include="System.IO.Ports" Version="6.0.0" />
+		<PackageReference Include="System.IO.Ports" Version="7.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />

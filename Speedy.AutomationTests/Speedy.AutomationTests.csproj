@@ -8,8 +8,8 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.78.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.0.1" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="TextCopy" Version="6.2.1" />

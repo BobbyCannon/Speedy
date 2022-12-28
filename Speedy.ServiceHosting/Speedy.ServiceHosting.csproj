@@ -18,7 +18,8 @@
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
-		<RepositoryType></RepositoryType>
+		<RepositoryType>
+		</RepositoryType>
 		<PackageTags>ServiceHosting, WindowsServices, Windows, Services, Service, Hosting</PackageTags>
 		<PackageId>Speedy.ServiceHosting</PackageId>
 		<Authors>Bobby Cannon</Authors>
@@ -36,7 +37,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

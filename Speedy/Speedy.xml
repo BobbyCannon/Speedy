@@ -3993,6 +3993,22 @@
             <param name="key"> The key of the value. </param>
             <param name="value"> The value of the entry. </param>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``1(System.Collections.Generic.IList{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Add multiple items to a list
+            </summary>
+            <param name="set"> The set to add items to. </param>
+            <param name="items"> The items to add. </param>
+            <typeparam name="T"> The type of the items in the list. </typeparam>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``1(System.Collections.Generic.IList{``0},``0[])">
+            <summary>
+            Add multiple items to a list
+            </summary>
+            <param name="set"> The set to add items to. </param>
+            <param name="items"> The items to add. </param>
+            <typeparam name="T"> The type of the items in the list. </typeparam>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``1(System.Collections.Generic.ICollection{``0},System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Add multiple items to a collection

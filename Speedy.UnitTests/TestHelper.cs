@@ -837,13 +837,13 @@ namespace Speedy.UnitTests
 				new ValueTuple<DatabaseType, DatabaseType>(DatabaseType.Sqlite, DatabaseType.Sqlite)
 			};
 
-			//foreach (var (server, client) in scenarios)
-			//{
-			//	yield return Process2(GetSyncClients(server, false, client, false, initializeDatabase, incomingConverter, outgoingConverter));
-			//	yield return Process2(GetSyncClients(server, true, client, false, initializeDatabase, incomingConverter, outgoingConverter));
-			//	yield return Process2(GetSyncClients(server, false, client, true, initializeDatabase, incomingConverter, outgoingConverter));
-			//	yield return Process2(GetSyncClients(server, true, client, true, initializeDatabase, incomingConverter, outgoingConverter));
-			//}
+			foreach (var (server, client) in scenarios)
+			{
+				yield return Process2(GetSyncClients(server, false, client, false, initializeDatabase, incomingConverter, outgoingConverter));
+				yield return Process2(GetSyncClients(server, true, client, false, initializeDatabase, incomingConverter, outgoingConverter));
+				yield return Process2(GetSyncClients(server, false, client, true, initializeDatabase, incomingConverter, outgoingConverter));
+				yield return Process2(GetSyncClients(server, true, client, true, initializeDatabase, incomingConverter, outgoingConverter));
+			}
 
 			if (includeWeb)
 			{
