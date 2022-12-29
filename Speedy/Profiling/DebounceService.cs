@@ -74,7 +74,6 @@ public class DebounceService<T> : IDisposable
 		_worker.DoWork += WorkerOnDoWork;
 		_worker.WorkerReportsProgress = true;
 		_worker.WorkerSupportsCancellation = true;
-		_worker.RunWorkerAsync();
 	}
 
 	#endregion

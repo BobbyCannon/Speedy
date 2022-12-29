@@ -72,6 +72,24 @@ public static class DateTimeExtensions
 	}
 
 	/// <summary>
+	/// Converts the date time to its UTC <see cref="T:System.DateTime"> </see> equivalent. Assumes
+	/// "Unknown" is already UTC
+	/// </summary>
+	/// <param name="value"> The date time value. </param>
+	/// <param name="unspecifiedIsUtc"> Assumes "Unspecified" kind is already UTC value. </param>
+	/// <returns> The date time value. </returns>
+	public static DateTime ToUtcDateTime(this DateTime value, bool unspecifiedIsUtc = true)
+	{
+		return value.Kind switch
+		{
+			DateTimeKind.Unspecified when unspecifiedIsUtc => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+			DateTimeKind.Unspecified => value.ToUniversalTime(),
+			DateTimeKind.Local => value.ToUniversalTime(),
+			_ => value
+		};
+	}
+
+	/// <summary>
 	/// Converts the date time into a ISO8601 format.
 	/// </summary>
 	/// <param name="dateTime"> </param>

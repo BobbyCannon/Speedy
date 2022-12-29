@@ -1,5 +1,6 @@
 #region References
 
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using Android.Locations;
 using Android.OS;

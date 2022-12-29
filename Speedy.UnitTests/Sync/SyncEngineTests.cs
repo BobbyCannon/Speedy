@@ -41,6 +41,8 @@ namespace Speedy.UnitTests.Sync
 		[TestMethod]
 		public void PullDownShouldSuccessButShouldNotPushClientContent()
 		{
+			TimeService.Reset();
+
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
 			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
 
@@ -89,6 +91,8 @@ namespace Speedy.UnitTests.Sync
 		[TestMethod]
 		public void PushUpShouldSuccessButShouldNotPullServerContent()
 		{
+			TimeService.Reset();
+
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
 			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
 

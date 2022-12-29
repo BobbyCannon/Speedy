@@ -51,6 +51,17 @@ public abstract class SpeedyTest
 
 	private static Action<string> _clipboardProvider;
 	private static DateTime? _currentTime;
+	private static uint? _lastUtcNowProviderId;
+
+	#endregion
+
+	#region Constructors
+
+	static SpeedyTest()
+	{
+		// Default start date
+		StartDateTime = new DateTime(2022, 12, 29, 08, 00, 00, DateTimeKind.Utc);
+	}
 
 	#endregion
 
@@ -62,8 +73,17 @@ public abstract class SpeedyTest
 	public static DateTime CurrentTime
 	{
 		get => _currentTime ?? DateTime.UtcNow;
-		set => _currentTime = value;
+		set => ResetCurrentTime(value);
 	}
+
+	/// <summary>
+	/// Represents the current time returned by TimeService.UtcNow;
+	/// </summary>
+	public static DateTime StartDateTime { get; set; }
+
+	private static Func<DateTime> GetCurrentTime => () => CurrentTime.ToLocalTime();
+
+	private static Func<DateTime> GetCurrentTimeUtc => () => CurrentTime;
 
 	#endregion
 
@@ -213,16 +233,34 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Increment the current time. This only works if current time is set. Negative values will subtract time.
 	/// </summary>
+	/// <param name="days"> The days to increment by. </param>
+	/// <param name="hours"> The hours to increment by. </param>
+	/// <param name="minutes"> The minutes to increment by. </param>
 	/// <param name="seconds"> The seconds to increment by. </param>
 	/// <param name="milliseconds"> The milliseconds to increment by. </param>
 	/// <param name="microseconds"> The microseconds to increment by. Only supported in .NET 7 or greater. </param>
 	/// <param name="ticks"> The ticks to increment by. </param>
-	public static void IncrementTime(int seconds = 0, int milliseconds = 0, int microseconds = 0, long ticks = 0)
+	public static void IncrementTime(int days = 0, int hours = 0, int minutes = 0, int seconds = 0, int milliseconds = 0, int microseconds = 0, long ticks = 0)
 	{
 		var currentTime = _currentTime;
 		if (currentTime == null)
 		{
 			return;
+		}
+
+		if (days != 0)
+		{
+			currentTime += TimeSpan.FromDays(days);
+		}
+
+		if (hours != 0)
+		{
+			currentTime += TimeSpan.FromHours(hours);
+		}
+
+		if (minutes != 0)
+		{
+			currentTime += TimeSpan.FromMinutes(minutes);
 		}
 
 		if (seconds != 0)
@@ -247,7 +285,31 @@ public abstract class SpeedyTest
 			currentTime += TimeSpan.FromTicks(ticks);
 		}
 
-		_currentTime = currentTime;
+		ResetCurrentTime(currentTime);
+	}
+
+	/// <summary>
+	/// Increment the current time. This only works if current time is set. Negative values will subtract time.
+	/// </summary>
+	/// <param name="value"> The value to increment by. </param>
+	public static void IncrementTime(TimeSpan value)
+	{
+		var currentTime = _currentTime;
+		if (currentTime == null)
+		{
+			return;
+		}
+
+		ResetCurrentTime(currentTime + value);
+	}
+
+	/// <summary>
+	/// Initialize the defaults
+	/// </summary>
+	public static void Initialize()
+	{
+		// Reset the current time back to the start time.
+		ResetCurrentTime(StartDateTime);
 	}
 
 	/// <summary>
@@ -329,11 +391,20 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Reset the <see cref="CurrentTime" /> back to using DateTime.
 	/// </summary>
-	public static void ResetCurrentTime()
+	/// <param name="currentTime"> An optional current time to reset to otherwise back to DateTime.UtcNow and Now. </param>
+	public static void ResetCurrentTime(DateTime? currentTime = null)
 	{
+		_currentTime = currentTime?.ToUtcDateTime();
+
+		if ((_lastUtcNowProviderId != null) && (_lastUtcNowProviderId == TimeService.CurrentUtcNowProviderId))
+		{
+			// Service has already been set.
+			return;
+		}
+
 		TimeService.Reset();
-		_currentTime = null;
-		TimeService.AddUtcNowProvider(() => CurrentTime);
+		_lastUtcNowProviderId = TimeService.AddUtcNowProvider(GetCurrentTimeUtc);
+		TimeService.AddNowProvider(GetCurrentTime);
 	}
 
 	/// <summary>
@@ -343,6 +414,15 @@ public abstract class SpeedyTest
 	public static void SetClipboardProvider(Action<string> provider)
 	{
 		_clipboardProvider = provider;
+	}
+
+	/// <summary>
+	/// Set the CurrentTime value.
+	/// </summary>
+	/// <param name="value"> The new time to set. </param>
+	public static void SetTime(DateTime value)
+	{
+		ResetCurrentTime(value);
 	}
 
 	/// <summary>

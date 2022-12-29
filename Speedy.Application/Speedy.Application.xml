@@ -273,6 +273,12 @@
         <member name="M:Speedy.Application.Internal.InactiveLocationProvider`4.StopMonitoringAsync">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Application.Internal.InactiveMediaPlayer">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Internal.InactiveMediaPlayer.IsPlaying">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.Internal.MacAddressDeviceIdComponent">
             <summary>
             An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that uses the MAC Address of the PC.
@@ -341,6 +347,12 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Internal.SourceInformationProvider.StopMonitoringAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.MediaPlayer">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.MediaPlayer.IsPlaying">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Sync.SettingsManager">

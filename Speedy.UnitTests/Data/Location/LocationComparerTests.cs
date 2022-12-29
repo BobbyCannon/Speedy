@@ -13,7 +13,7 @@ public class LocationComparerTests : SpeedyUnitTest
 	[TestMethod]
 	public void OnlyHorizontalShouldUpdate()
 	{
-		TestHelper.SetTime(new DateTime(2022, 11, 25, 01, 58, 12, DateTimeKind.Utc));
+		SetTime(new DateTime(2022, 11, 25, 01, 58, 12, DateTimeKind.Utc));
 
 		var comparer = new LocationComparer<SpeedyLocation, IHorizontalLocation, IVerticalLocation>();
 		var location = new SpeedyLocation();
@@ -51,7 +51,7 @@ public class LocationComparerTests : SpeedyUnitTest
 	[TestMethod]
 	public void OnlyVerticalShouldUpdate()
 	{
-		TestHelper.SetTime(new DateTime(2022, 11, 25, 01, 58, 12, DateTimeKind.Utc));
+		SetTime(new DateTime(2022, 11, 25, 01, 58, 12, DateTimeKind.Utc));
 
 		var comparer = new LocationComparer<SpeedyLocation, IHorizontalLocation, IVerticalLocation>();
 		var location = new SpeedyLocation();

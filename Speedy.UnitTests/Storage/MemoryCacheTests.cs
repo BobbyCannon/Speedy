@@ -11,21 +11,21 @@ using Speedy.Storage;
 namespace Speedy.UnitTests.Storage
 {
 	[TestClass]
-	public class MemoryCacheTests
+	public class MemoryCacheTests : SpeedyUnitTest
 	{
 		#region Methods
 
 		[TestMethod]
 		public void CacheShouldExpire()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(1));
 			cache.Set("foo", "bar");
 			Assert.IsTrue(cache.TryGet("foo", out var item));
 			Assert.AreEqual("bar", (string) item.Value);
 
 			// Bump to expiration date
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1));
+			IncrementTime(TimeSpan.FromSeconds(1));
 			Assert.IsFalse(cache.TryGet("foo", out item));
 			Assert.IsNull(item);
 		}
@@ -33,7 +33,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void ClearShouldWork()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10));
 			cache.Set("foo", "bar");
 			cache.Set("hello", "world");
@@ -49,7 +49,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void Constructor()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache();
 			Assert.IsTrue(cache.IsEmpty);
 			Assert.IsTrue(cache.IsSynchronized);
@@ -66,7 +66,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void CopyTo()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var array = new MemoryCacheItem[2];
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10));
 			cache.Set("foo", "bar");
@@ -82,7 +82,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void EnumeratorShouldWork()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10));
 			Assert.IsTrue(cache.SlidingExpiration);
 
@@ -96,7 +96,7 @@ namespace Speedy.UnitTests.Storage
 			Assert.AreEqual(new DateTime(2022, 09, 17, 09, 36, 10), actual[0].ExpirationDate);
 			Assert.AreEqual(new DateTime(2022, 09, 17, 09, 36, 10), actual[1].ExpirationDate);
 
-			TestHelper.IncrementTime(seconds: 2);
+			IncrementTime(seconds: 2);
 
 			var count = 0;
 			foreach (MemoryCacheItem item in (IEnumerable) cache)
@@ -110,7 +110,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void RemoveShouldWork()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10));
 			cache.Set("foo", "bar");
 			cache.Set("hello", "world");
@@ -128,7 +128,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void SetMultipleCallsShouldUpdateNotAdd()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10));
 			cache.Set("foo", "bar");
 
@@ -136,7 +136,7 @@ namespace Speedy.UnitTests.Storage
 			Assert.IsTrue(cache.TryGet("foo", out var item));
 			Assert.AreEqual("bar", (string) item.Value);
 
-			TestHelper.IncrementTime(seconds: 1);
+			IncrementTime(seconds: 1);
 			cache.Set("foo", "bar2");
 
 			Assert.AreEqual(1, cache.Count);
@@ -147,7 +147,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void SlidingExpirationDisabledShouldNotAffectItems()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10))
 			{
 				SlidingExpiration = false
@@ -162,14 +162,14 @@ namespace Speedy.UnitTests.Storage
 			Assert.AreEqual(1, cache.Count);
 
 			// Accessing the value should not bump expiration
-			TestHelper.IncrementTime(seconds: 5);
+			IncrementTime(seconds: 5);
 			cache.TryGet("foo", out item);
 			Assert.AreEqual(new DateTime(2022, 09, 17, 09, 36, 10), item.ExpirationDate);
 			Assert.IsFalse(item.HasExpired);
 			Assert.AreEqual(1, cache.Count);
 
 			// Bump to expiration date
-			TestHelper.IncrementTime(seconds: 5);
+			IncrementTime(seconds: 5);
 			Assert.IsFalse(cache.TryGet("foo", out item));
 			Assert.IsNull(item);
 			Assert.AreEqual(0, cache.Count);
@@ -178,7 +178,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void SlidingExpirationShouldWork()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10));
 			Assert.IsTrue(cache.SlidingExpiration);
 
@@ -188,13 +188,13 @@ namespace Speedy.UnitTests.Storage
 			Assert.AreEqual(new DateTime(2022, 09, 17, 09, 36, 10), item.ExpirationDate);
 
 			// Accessing the value should bump expiration
-			TestHelper.IncrementTime(seconds: 5);
+			IncrementTime(seconds: 5);
 			cache.TryGet("foo", out item);
 			Assert.AreEqual(new DateTime(2022, 09, 17, 09, 36, 15), item.ExpirationDate);
 			Assert.IsFalse(item.HasExpired);
 
 			// Bump to expiration date
-			TestHelper.IncrementTime(seconds: 10);
+			IncrementTime(seconds: 10);
 			Assert.IsFalse(cache.TryGet("foo", out item));
 			Assert.IsNull(item);
 		}
@@ -202,7 +202,7 @@ namespace Speedy.UnitTests.Storage
 		[TestMethod]
 		public void TryGetInvalidKey()
 		{
-			TestHelper.SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
+			SetTime(new DateTime(2022, 09, 17, 09, 36, 00));
 			var cache = new MemoryCache(TimeSpan.FromSeconds(10));
 			cache.Set("foo", "bar");
 			cache.Set("hello", "world");

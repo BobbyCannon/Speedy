@@ -17,7 +17,6 @@ using Speedy.UnitTests.Factories;
 using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 using Speedy.Website.Data.Sync;
-
 #if !NET48
 using Speedy.Website.WebApi;
 #endif
@@ -84,7 +83,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void SettingsShouldDelete()
 		{
-			TestHelper.SetTime(new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc));
 
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
@@ -109,7 +108,7 @@ namespace Speedy.IntegrationTests
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
 			// currentTime = {2/25/2021 08:42:33 AM}
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); 
+			IncrementTime(TimeSpan.FromSeconds(1));
 			syncManager.Sync();
 
 			using (var database = clientProvider.GetDatabase())
@@ -122,7 +121,7 @@ namespace Speedy.IntegrationTests
 			}
 
 			// currentTime = {2/25/2021 08:42:34 AM}
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); 
+			IncrementTime(TimeSpan.FromSeconds(1));
 			syncManager.Sync();
 
 			using (var database = entityProvider.GetDatabase())
@@ -136,7 +135,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void SettingsShouldNotDelete()
 		{
-			TestHelper.SetTime(new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 02, 25, 08, 42, 32, DateTimeKind.Utc));
 
 			var dispatcher = TestHelper.GetDispatcher();
 			var clientProvider = TestHelper.GetClientProvider();
@@ -161,7 +160,7 @@ namespace Speedy.IntegrationTests
 			var syncManager = new ClientSyncManager(() => credential, clientProvider, syncClientProvider, profiler, dispatcher);
 			using var logger = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); // currentTime = {2/25/2021 08:42:33 AM}
+			IncrementTime(TimeSpan.FromSeconds(1)); // currentTime = {2/25/2021 08:42:33 AM}
 			syncManager.Sync();
 
 			using (var database = clientProvider.GetDatabase())
@@ -173,7 +172,7 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1)); // currentTime = {2/25/2021 08:42:34 AM}
+			IncrementTime(TimeSpan.FromSeconds(1)); // currentTime = {2/25/2021 08:42:34 AM}
 			var result = syncManager.Sync();
 
 			Assert.AreEqual(1, result.SyncIssues.Count);
@@ -342,6 +341,13 @@ namespace Speedy.IntegrationTests
 					Compare(clientLogEvents[i], serverLogEvents[i]);
 				}
 			}
+		}
+
+		[TestInitialize]
+		public override void TestInitialize()
+		{
+			base.TestInitialize();
+			TimeService.Reset();
 		}
 
 		private void Compare(ClientAccount client, AccountEntity entity)

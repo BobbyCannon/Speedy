@@ -119,7 +119,7 @@ namespace Speedy.UnitTests.Extensions
 			var maximum = TimeSpan.FromMinutes(10);
 			var count = 0;
 			
-			TestHelper.SetTime(new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc));
 
 			var watch = Stopwatch.StartNew();
 			var actual = UtilityExtensions.Wait(() =>
@@ -170,14 +170,14 @@ namespace Speedy.UnitTests.Extensions
 			var maximum = TimeSpan.FromSeconds(60);
 			var count = 0;
 			
-			TestHelper.SetTime(new DateTime(2021, 06, 23, 09, 37, 00, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 06, 23, 09, 37, 00, DateTimeKind.Utc));
 			
 			var watch = Stopwatch.StartNew();
 			var actual = UtilityExtensions.Wait(() =>
 			{
 				if (count > 0)
 				{
-					TestHelper.IncrementTime(TimeSpan.FromSeconds(1));
+					IncrementTime(TimeSpan.FromSeconds(1));
 				}
 				count++;
 				return false;
@@ -187,7 +187,7 @@ namespace Speedy.UnitTests.Extensions
 			watch.Elapsed.Dump();
 
 			Assert.AreEqual(31, count);
-			Assert.AreEqual(new DateTime(2021, 06, 23, 09, 37, 30, DateTimeKind.Utc), TestHelper.CurrentTime);
+			Assert.AreEqual(new DateTime(2021, 06, 23, 09, 37, 30, DateTimeKind.Utc), CurrentTime);
 			Assert.AreEqual(true, actual);
 		}
 
@@ -210,7 +210,7 @@ namespace Speedy.UnitTests.Extensions
 		{
 			var count = 0;
 			var watch = Stopwatch.StartNew();
-			var result = UtilityExtensions.Wait(() => ++count > 100, 500, 100, true);
+			var result = UtilityExtensions.Wait(() => ++count > 100, 500, 100, false);
 			watch.Stop();
 			Assert.IsFalse(result);
 			Assert.AreEqual(7, count);
@@ -227,11 +227,11 @@ namespace Speedy.UnitTests.Extensions
 			var maximum = TimeSpan.FromMinutes(10);
 			var count = 0;
 
-			TestHelper.SetTime(new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc));
 			
 			var actual = UtilityExtensions.Wait(() =>
 			{
-				TestHelper.IncrementTime(TimeSpan.FromSeconds(60));
+				IncrementTime(TimeSpan.FromSeconds(60));
 				count++;
 				return false;
 			}, timeout, delay, minimum, maximum, true);
@@ -249,11 +249,11 @@ namespace Speedy.UnitTests.Extensions
 			var maximum = TimeSpan.FromMinutes(10);
 			var count = 0;
 			
-			TestHelper.SetTime(new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 06, 23, 09, 37, 45, DateTimeKind.Utc));
 
 			var actual = UtilityExtensions.Wait(() =>
 			{
-				TestHelper.IncrementTime(TimeSpan.FromSeconds(10));
+				IncrementTime(TimeSpan.FromSeconds(10));
 				count++;
 				return false;
 			}, timeout, delay, minimum, maximum, true);

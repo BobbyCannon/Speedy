@@ -17,16 +17,29 @@ namespace Speedy.UnitTests
 		#region Methods
 
 		[TestMethod]
+		public void ShouldAcceptNonUtcDateTime()
+		{
+			var iso = new IsoDateTime { DateTime = new DateTime(2022, 08, 23, 0, 0, 0, DateTimeKind.Unspecified) };
+			AreEqual(new DateTime(2022, 08, 23, 0, 0, 0, DateTimeKind.Utc), iso.DateTime);
+
+			iso = new IsoDateTime { DateTime = new DateTime(2022, 08, 23, 10, 37, 54, DateTimeKind.Local) };
+			AreEqual(new DateTime(2022, 08, 23, 14, 37, 54, DateTimeKind.Utc), iso.DateTime);
+			
+			iso = new IsoDateTime { DateTime = new DateTime(2022, 08, 23, 10, 37, 54, DateTimeKind.Utc) };
+			AreEqual(new DateTime(2022, 08, 23, 10, 37, 54, DateTimeKind.Utc), iso.DateTime);
+		}
+
+		[TestMethod]
 		public void IsExpired()
 		{
-			TestHelper.SetTime("2022-08-23T01:23:45.789Z".ToUtcDateTime());
+			SetTime("2022-08-23T01:23:45.789Z".ToUtcDateTime());
 			
 			var iso = NewIsoDateTime("2022-08-23T00:00:00.000Z", "01:23:45.789");
-			iso.ExpiresOn.ToString("O").Dump();
+			iso.ExpiresAfter.ToString("O").Dump();
 			Assert.IsFalse(iso.IsExpired);
 
-			TestHelper.SetTime("2022-08-23T01:23:45.790Z".ToUtcDateTime());
-			iso.ExpiresOn.ToString("O").Dump();
+			SetTime("2022-08-23T01:23:45.790Z".ToUtcDateTime());
+			iso.ExpiresAfter.ToString("O").Dump();
 			Assert.IsTrue(iso.IsExpired);
 		}
 

@@ -460,11 +460,11 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void ClientTimeFasterThanServerTimeSyncStartShouldStillSync()
 		{
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { IsServerClient = true } };
+			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false)) { Options = { IsServerClient = true } };
 
 			// Server add address, on server time
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 59));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 59));
 			var address = GetAddress("123 Elm Street");
 			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
 
@@ -474,16 +474,16 @@ namespace Speedy.IntegrationTests
 			// Do first part of syncing client 1 (client1 <- server)
 			// The should not have any updates as the server has not changed
 			// Set the time as server time
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 01, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 01, 00));
 			var clientStart = TimeService.UtcNow;
 			var serverSession = server.BeginSync(sessionId, clientOptions);
 
 			// Begin sync on client time
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 50));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 50));
 			var clientSession = client.BeginSync(sessionId, clientOptions);
 
 			// Reset time back to server time
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 01, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 01, 01));
 			var clientRequest = new SyncRequest { Since = clientOptions.LastSyncedOnServer, Until = clientStart, Skip = 0 };
 			var clientResults = server.GetChanges(sessionId, clientRequest);
 			Assert.AreEqual(1, clientResults.TotalCount);
@@ -491,7 +491,7 @@ namespace Speedy.IntegrationTests
 			clientRequest.Collection = clientResults.Collection;
 
 			// Reset time back to client time, check for client writes to server, should be none
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 52));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 52));
 			clientRequest = new SyncRequest { Since = clientOptions.LastSyncedOnClient, Until = clientStart, Skip = 0 };
 			clientResults = client.GetChanges(sessionId, clientRequest);
 			Assert.AreEqual(0, clientResults.TotalCount);
@@ -499,27 +499,27 @@ namespace Speedy.IntegrationTests
 			clientRequest.Collection = clientResults.Collection;
 
 			// Reset time back to client time, let's add a new address on the client mid sync but behind server time
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 53));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 53));
 			var clientAddress = GetAddress("123 Main Street");
 			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(clientAddress);
 
 			using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 			{
 				var addresses = clientDatabase.Addresses.ToList();
-				Assert.AreEqual(2, addresses.Count);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[1].CreatedOn);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[1].ModifiedOn);
-				Assert.AreEqual("123 Main Street", addresses[1].Line1);
+				Assert.AreEqual(1, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[0].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[0].ModifiedOn);
+				Assert.AreEqual("123 Main Street", addresses[0].Line1);
 			}
 
 			// Reset time back to client time, and end the sync
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 54));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 54));
 			client.EndSync(clientSession.Id);
 			server.EndSync(serverSession.Id);
 
 			// Now do a full normal sync and ensure the client address gets synced, we will set the time to server time
 			// Full Sync : Go ahead and sync the data to all locations
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 01, 05));
+			SetTime(new DateTime(2019, 07, 10, 12, 01, 05));
 			clientOptions.LastSyncedOnServer = serverSession.StartedOn;
 			clientOptions.LastSyncedOnClient = clientSession.StartedOn;
 
@@ -530,10 +530,10 @@ namespace Speedy.IntegrationTests
 			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 			{
 				var addresses = serverDatabase.Addresses.ToList();
-				Assert.AreEqual(2, addresses.Count);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].CreatedOn);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].ModifiedOn);
-				Assert.AreEqual("123 Elm Street", addresses[1].Line1);
+				Assert.AreEqual(1, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[0].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[0].ModifiedOn);
+				Assert.AreEqual("123 Elm Street", addresses[0].Line1);
 			}
 
 			SyncEngine.Run(client, server, clientOptions).Dispose();
@@ -542,16 +542,16 @@ namespace Speedy.IntegrationTests
 			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 			{
 				var addresses = serverDatabase.Addresses.ToList();
-				Assert.AreEqual(3, addresses.Count);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].CreatedOn);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[1].ModifiedOn);
-				Assert.AreEqual("123 Elm Street", addresses[1].Line1);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[2].CreatedOn);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 05), addresses[2].ModifiedOn);
-				Assert.AreEqual("123 Main Street", addresses[2].Line1);
+				Assert.AreEqual(2, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[0].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 59), addresses[0].ModifiedOn);
+				Assert.AreEqual("123 Elm Street", addresses[0].Line1);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[1].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 05), addresses[1].ModifiedOn);
+				Assert.AreEqual("123 Main Street", addresses[1].Line1);
 			}
 
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 01, 06));
+			SetTime(new DateTime(2019, 07, 10, 12, 01, 06));
 			clientOptions.LastSyncedOnServer = serverSession.StartedOn;
 			clientOptions.LastSyncedOnClient = clientSession.StartedOn;
 
@@ -560,10 +560,10 @@ namespace Speedy.IntegrationTests
 			using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 			{
 				var addresses = clientDatabase.Addresses.ToList();
-				Assert.AreEqual(2, addresses.Count);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[1].CreatedOn);
-				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 05), addresses[1].ModifiedOn);
-				Assert.AreEqual("123 Main Street", addresses[1].Line1);
+				Assert.AreEqual(1, addresses.Count);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 00, 53), addresses[0].CreatedOn);
+				Assert.AreEqual(new DateTime(2019, 07, 10, 12, 01, 05), addresses[0].ModifiedOn);
+				Assert.AreEqual("123 Main Street", addresses[0].Line1);
 			}
 		}
 
@@ -659,16 +659,10 @@ namespace Speedy.IntegrationTests
 				.ToArray();
 		}
 
-		[TestCleanup]
-		public void Initialize()
-		{
-			TimeService.Reset();
-		}
-
 		[TestMethod]
 		public void LookupFilterExpressionShouldOverrideSyncId()
 		{
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
 
 			var keyCache1 = new DatabaseKeyCache();
 			var keyCache2 = new DatabaseKeyCache();
@@ -688,7 +682,7 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 01));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 01));
 
 			using (var database = server.GetDatabase<IContosoDatabase>())
 			{
@@ -697,7 +691,7 @@ namespace Speedy.IntegrationTests
 				database.SaveChanges();
 			}
 
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 02));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 02));
 
 			var options = GetSyncOptions();
 			using var engine = new SyncEngine(Guid.NewGuid(), client, server, options);
@@ -751,7 +745,7 @@ namespace Speedy.IntegrationTests
 			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider());
 			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider()) { Options = { IsServerClient = true } };
 
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
 			var address = GetAddress("123 Elm Street");
 			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address);
 
@@ -760,12 +754,12 @@ namespace Speedy.IntegrationTests
 
 			// Do first part of syncing client 1 (client1 <- server)
 			// The should not have any updates as the server has not changed
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 00));
 			var clientStart = TimeService.UtcNow;
 			client.BeginSync(client1Id, client1Options);
 			server.BeginSync(client1Id, client1Options);
 
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 01));
 			using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 			{
 				address = serverDatabase.Addresses.First(x => x.Id == address.Id);
@@ -945,7 +939,7 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void ServerShouldNotPushNonModifiedEntities()
 		{
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
 
 			var server = new TestSyncClient("Server (Test)");
 			var client = new SyncClient("Client (MEM)", TestHelper.GetSyncableMemoryProvider());
@@ -953,7 +947,7 @@ namespace Speedy.IntegrationTests
 			var address = GetAddress("123 Elm Street");
 			server.Changes.Add(new ServiceResult<SyncObject>(address.ToSyncObject()));
 
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 01));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 01));
 
 			using var engine = new SyncEngine(Guid.NewGuid(), client, server, GetSyncOptions());
 			engine.Run();
@@ -1073,7 +1067,7 @@ namespace Speedy.IntegrationTests
 			var server1 = new SyncClient("Server", serverMemoryProvider) { Options = { IsServerClient = true } };
 			var server2 = new SyncClient("Server2", serverMemoryProvider) { Options = { IsServerClient = true } };
 
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 00));
 			var address1 = GetAddress("123 Elm Street", null, Guid.Parse("00000000-0000-0000-0000-000000000001"));
 			server1.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address1);
 
@@ -1096,13 +1090,13 @@ namespace Speedy.IntegrationTests
 
 			// Sync Set 1: Go ahead and sync the data to all locations
 			"\r\nSync Set 1".Dump();
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 01));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 01));
 			SyncEngine.Run(client1, server1, client1Options).Dispose();
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 02));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 02));
 			SyncEngine.Run(client2, server2, client2Options).Dispose();
 
 			// Prepare a new address for client 2
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 03));
+			SetTime(new DateTime(2019, 07, 10, 11, 59, 03));
 			var address2 = GetAddress("123 Main Street", null, Guid.Parse("00000000-0000-0000-0000-000000000002"));
 
 			// Make sure all data is there
@@ -1123,7 +1117,7 @@ namespace Speedy.IntegrationTests
 				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
 
 				// Add another address to client 2
-				TestHelper.SetTime(new DateTime(2019, 07, 10, 11, 59, 04));
+				SetTime(new DateTime(2019, 07, 10, 11, 59, 04));
 				client2Database.Addresses.Add(address2);
 				client2Database.SaveChanges();
 			}
@@ -1135,7 +1129,7 @@ namespace Speedy.IntegrationTests
 
 			// Do first part of syncing client 1 (client1 <- server1)
 			// The should not have any updates as the server has not changed
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 00));
 			"\r\nClient1 Begin".Dump();
 			var client1Start = TimeService.UtcNow;
 			var serverSession1 = server1.BeginSync(client1Id, client1Options);
@@ -1145,7 +1139,7 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(0, client1Results.TotalCount);
 			Assert.AreEqual(0, client1Results.Collection.Count);
 			client1Request.Collection = client1Results.Collection;
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 00, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 00, 01));
 			var client1Issues = client1.ApplyChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Issues.TotalCount);
 			Assert.AreEqual(0, client1Issues.Collection.Count);
@@ -1170,7 +1164,7 @@ namespace Speedy.IntegrationTests
 
 			// Do first part of syncing client 2 (client2 <- server 2)
 			// This should not have any updates as the server has not changed
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 01, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 01, 00));
 			"\r\nClient2 Begin".Dump();
 			var serverStart = TimeService.UtcNow;
 			var client2Start = serverStart;
@@ -1181,7 +1175,7 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(0, client2Results.TotalCount);
 			Assert.AreEqual(0, client2Results.Collection.Count);
 			client2Request.Collection = client2Results.Collection;
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 01, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 01, 01));
 			var client2Issues = client2.ApplyChanges(client2Id, client2Request);
 			Assert.AreEqual(0, client2Issues.TotalCount);
 			Assert.AreEqual(0, client2Issues.Collection.Count);
@@ -1205,7 +1199,7 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Do second part of client 2 (client2 -> server2)
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 02, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 02, 00));
 			"\r\nClient2 Get Changes -> Server2 Apply".Dump();
 			client2Request = new SyncRequest { Since = client2Options.LastSyncedOnClient, Until = client2Start, Skip = 0 };
 			client2Results = client2.GetChanges(client2Id, client2Request);
@@ -1213,7 +1207,7 @@ namespace Speedy.IntegrationTests
 			Assert.AreEqual(1, client2Results.Collection.Count);
 			Assert.AreEqual(address2.SyncId, client2Results.Collection[0].SyncId);
 			client2Request.Collection = client2Results.Collection;
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 02, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 02, 01));
 			client2Issues = server2.ApplyChanges(client2Id, client2Request);
 			Assert.AreEqual(0, client2Issues.TotalCount);
 			Assert.AreEqual(0, client2Issues.Collection.Count);
@@ -1243,14 +1237,14 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Do second part of client 1 (client1 -> server1)
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 03, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 03, 00));
 			"\r\nClient1 Get Changes -> Server1 Apply".Dump();
 			client1Request = new SyncRequest { Since = client1Options.LastSyncedOnClient, Until = client1Start, Skip = 0 };
 			client1Results = client1.GetChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Results.TotalCount);
 			Assert.AreEqual(0, client1Results.Collection.Count);
 			client1Request.Collection = client1Results.Collection;
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 03, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 03, 01));
 			client1Issues = server1.ApplyChanges(client1Id, client1Request);
 			Assert.AreEqual(0, client1Issues.TotalCount);
 			Assert.AreEqual(0, client1Issues.Collection.Count);
@@ -1280,14 +1274,14 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Sync Set 2: Go ahead and sync the data to all locations
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 04, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 04, 00));
 			"\r\nSync Set 2".Dump();
 			client1Options.LastSyncedOnServer = serverStart;
 			client1Options.LastSyncedOnClient = client1Start;
 			SyncEngine.Run(client1, server1, client1Options).Dispose();
 			Assert.IsFalse(client1.Statistics.IsReset);
 			Assert.IsFalse(server1.Statistics.IsReset);
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 04, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 04, 01));
 			client2Options.LastSyncedOnServer = serverStart;
 			client2Options.LastSyncedOnClient = client2Start;
 			SyncEngine.Run(client2, server2, client2Options).Dispose();
@@ -1318,14 +1312,14 @@ namespace Speedy.IntegrationTests
 			}
 
 			// Sync Set 3
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 05, 00));
+			SetTime(new DateTime(2019, 07, 10, 12, 05, 00));
 			"\r\nSync Set 3".Dump();
 			client1Options.LastSyncedOnServer = client1Options.LastSyncedOnServer;
 			client1Options.LastSyncedOnClient = client1Options.LastSyncedOnClient;
 			SyncEngine.Run(client1, server1, client1Options).Dispose();
 			Assert.IsTrue(client1.Statistics.IsReset);
 			Assert.IsTrue(server1.Statistics.IsReset);
-			TestHelper.SetTime(new DateTime(2019, 07, 10, 12, 05, 01));
+			SetTime(new DateTime(2019, 07, 10, 12, 05, 01));
 			client2Options.LastSyncedOnServer = client2Options.LastSyncedOnServer;
 			client2Options.LastSyncedOnClient = client2Options.LastSyncedOnClient;
 			SyncEngine.Run(client2, server2, client2Options).Dispose();

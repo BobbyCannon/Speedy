@@ -10,20 +10,20 @@ using Speedy.Storage.KeyValue;
 namespace Speedy.UnitTests.Profiling
 {
 	[TestClass]
-	public class TrackerPathTests
+	public class TrackerPathTests : SpeedyUnitTest
 	{
 		#region Methods
 
 		[TestMethod]
 		public void CompleteShouldWork()
 		{
-			TestHelper.SetTime(new DateTime(2020, 12, 15, 01, 02, 03, 999, DateTimeKind.Utc));
+			SetTime(new DateTime(2020, 12, 15, 01, 02, 03, 999, DateTimeKind.Utc));
 
 			var path = new TrackerPath();
 			Assert.AreEqual(false, path.IsCompleted);
 			Assert.AreEqual(0, path.ElapsedTime.Ticks);
 
-			TestHelper.IncrementTime(TimeSpan.FromMilliseconds(1));
+			IncrementTime(TimeSpan.FromMilliseconds(1));
 
 			path.Complete();
 			Assert.AreEqual(true, path.IsCompleted);

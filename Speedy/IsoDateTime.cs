@@ -24,6 +24,7 @@ public struct IsoDateTime : IComparable<IsoDateTime>, IComparable, IEquatable<Is
 	#region Fields
 
 	private static readonly Regex _durationRegex;
+	private DateTime _dateTime;
 
 	#endregion
 
@@ -41,7 +42,11 @@ public struct IsoDateTime : IComparable<IsoDateTime>, IComparable, IEquatable<Is
 	/// <summary>
 	/// The date and time.
 	/// </summary>
-	public DateTime DateTime { get; set; }
+	public DateTime DateTime
+	{
+		readonly get => _dateTime;
+		set => _dateTime = value.ToUtcDateTime();
+	}
 
 	/// <summary>
 	/// The duration of this date time.
@@ -52,14 +57,15 @@ public struct IsoDateTime : IComparable<IsoDateTime>, IComparable, IEquatable<Is
 	public TimeSpan Duration { get; set; }
 
 	/// <summary>
-	/// When this date time expires on.
+	/// When this date time expires on. This is an inclusive time. 
 	/// </summary>
-	public DateTime ExpiresOn => DateTime.ToUniversalTime().Add(Duration);
+	public DateTime ExpiresAfter => DateTime.Add(Duration);
 
 	/// <summary>
-	/// True if the date time has expired.
+	/// True if the date time has expired. Expires on is included into duration, this
+	/// means you must be greater than expired on to be considered expired.
 	/// </summary>
-	public bool IsExpired => TimeService.UtcNow > ExpiresOn;
+	public bool IsExpired => TimeService.UtcNow > ExpiresAfter;
 
 	#endregion
 

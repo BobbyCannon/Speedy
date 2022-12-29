@@ -45,6 +45,8 @@ public class TimeServiceTests : SpeedyUnitTest
 	[TestMethod]
 	public void LastProviderShouldBeUsed()
 	{
+		TimeService.Reset();
+
 		var start = TimeService.UtcNow;
 		var provider1 = () => new DateTime(2022, 08, 26, 02, 44, 00, DateTimeKind.Utc);
 		var provider2 = () => new DateTime(2022, 08, 26, 02, 44, 01, DateTimeKind.Utc);

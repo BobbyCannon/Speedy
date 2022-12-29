@@ -188,7 +188,7 @@ public class SyncManagerTests : SpeedyUnitTest
 		var startTime = new DateTime(2020, 04, 23, 01, 55, 23, DateTimeKind.Utc);
 		var offset = 0;
 
-		TestHelper.SetTime(startTime.AddSeconds(offset++));
+		SetTime(startTime.AddSeconds(offset++));
 
 		var manager = new TestSyncManager();
 		using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Informational);

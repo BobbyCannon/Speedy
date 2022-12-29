@@ -39,6 +39,16 @@ public static class TimeService
 	#region Properties
 
 	/// <summary>
+	/// Gets the ID of the Now provider.
+	/// </summary>
+	public static uint? CurrentNowProviderId => _nowProviders.Keys.LastOrDefault();
+
+	/// <summary>
+	/// Gets the ID of the UtcNow provider.
+	/// </summary>
+	public static uint? CurrentUtcNowProviderId => _utcNowProviders.Keys.LastOrDefault();
+
+	/// <summary>
 	/// Gets the date time in the format of the current time zone.
 	/// </summary>
 	public static DateTime Now => GetNow();

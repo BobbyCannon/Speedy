@@ -4288,6 +4288,11 @@
             Represents the current time returned by TimeService.UtcNow;
             </summary>
         </member>
+        <member name="P:Speedy.Automation.Tests.SpeedyTest.StartDateTime">
+            <summary>
+            Represents the current time returned by TimeService.UtcNow;
+            </summary>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0,``0,System.Action{System.Boolean},System.String[])">
             <summary>
             Validates that the expected and actual are equal.
@@ -4339,14 +4344,28 @@
             <param name="work"> The test. </param>
             <param name="messages"> A set of messages where at least one message should be found. </param>
         </member>
-        <member name="M:Speedy.Automation.Tests.SpeedyTest.IncrementTime(System.Int32,System.Int32,System.Int32,System.Int64)">
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IncrementTime(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int64)">
             <summary>
             Increment the current time. This only works if current time is set. Negative values will subtract time.
             </summary>
+            <param name="days"> The days to increment by. </param>
+            <param name="hours"> The hours to increment by. </param>
+            <param name="minutes"> The minutes to increment by. </param>
             <param name="seconds"> The seconds to increment by. </param>
             <param name="milliseconds"> The milliseconds to increment by. </param>
             <param name="microseconds"> The microseconds to increment by. Only supported in .NET 7 or greater. </param>
             <param name="ticks"> The ticks to increment by. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IncrementTime(System.TimeSpan)">
+            <summary>
+            Increment the current time. This only works if current time is set. Negative values will subtract time.
+            </summary>
+            <param name="value"> The value to increment by. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.Initialize">
+            <summary>
+            Initialize the defaults
+            </summary>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.IsFalse(System.Func{System.Boolean})">
             <summary>
@@ -4400,16 +4419,23 @@
             <param name="condition"> The condition the test expects to be true. </param>
             <param name="message"> The message is shown in test results. </param>
         </member>
-        <member name="M:Speedy.Automation.Tests.SpeedyTest.ResetCurrentTime">
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ResetCurrentTime(System.Nullable{System.DateTime})">
             <summary>
             Reset the <see cref="P:Speedy.Automation.Tests.SpeedyTest.CurrentTime" /> back to using DateTime.
             </summary>
+            <param name="currentTime"> An optional current time to reset to otherwise back to DateTime.UtcNow and Now. </param>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.SetClipboardProvider(System.Action{System.String})">
             <summary>
             Sets the clipboard provider.
             </summary>
             <param name="provider"> The provider to be set. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.SetTime(System.DateTime)">
+            <summary>
+            Set the CurrentTime value.
+            </summary>
+            <param name="value"> The new time to set. </param>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.Wait(System.Func{System.Boolean},System.Int32,System.Int32,System.Boolean)">
             <summary>

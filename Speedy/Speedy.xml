@@ -4269,6 +4269,15 @@
             <param name="value"> The string value. </param>
             <returns> The date time value. </returns>
         </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.ToUtcDateTime(System.DateTime,System.Boolean)">
+            <summary>
+            Converts the date time to its UTC <see cref="T:System.DateTime"> </see> equivalent. Assumes
+            "Unknown" is already UTC
+            </summary>
+            <param name="value"> The date time value. </param>
+            <param name="unspecifiedIsUtc"> Assumes "Unspecified" kind is already UTC value. </param>
+            <returns> The date time value. </returns>
+        </member>
         <member name="M:Speedy.Extensions.DateTimeExtensions.ToUtcString(System.DateTime)">
             <summary>
             Converts the date time into a ISO8601 format.
@@ -6800,14 +6809,15 @@
             https://www.w3.org/TR/xmlschema-2/#duration
             </remarks>
         </member>
-        <member name="P:Speedy.IsoDateTime.ExpiresOn">
+        <member name="P:Speedy.IsoDateTime.ExpiresAfter">
             <summary>
-            When this date time expires on.
+            When this date time expires on. This is an inclusive time. 
             </summary>
         </member>
         <member name="P:Speedy.IsoDateTime.IsExpired">
             <summary>
-            True if the date time has expired.
+            True if the date time has expired. Expires on is included into duration, this
+            means you must be greater than expired on to be considered expired.
             </summary>
         </member>
         <member name="M:Speedy.IsoDateTime.CompareTo(Speedy.IsoDateTime)">
@@ -16222,6 +16232,16 @@
         <member name="T:Speedy.TimeService">
             <summary>
             Represents the service to provide time. Allows control for when the system is being tested.
+            </summary>
+        </member>
+        <member name="P:Speedy.TimeService.CurrentNowProviderId">
+            <summary>
+            Gets the ID of the Now provider.
+            </summary>
+        </member>
+        <member name="P:Speedy.TimeService.CurrentUtcNowProviderId">
+            <summary>
+            Gets the ID of the UtcNow provider.
             </summary>
         </member>
         <member name="P:Speedy.TimeService.Now">

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0-windows;net7.0-windows</TargetFrameworks>
@@ -18,8 +18,7 @@
 		<PackageProjectUrl>https://github.com/BobbyCannon/Speedy</PackageProjectUrl>
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
-		<RepositoryType>
-		</RepositoryType>
+		<RepositoryType></RepositoryType>
 		<PackageTags>ServiceHosting, WindowsServices, Windows, Services, Service, Hosting</PackageTags>
 		<PackageId>Speedy.ServiceHosting</PackageId>
 		<Authors>Bobby Cannon</Authors>
@@ -27,7 +26,7 @@
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC7</Version>
+		<Version>11.0.0-RC8</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Speedy.png" />

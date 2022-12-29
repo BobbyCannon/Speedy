@@ -17,6 +17,13 @@ namespace Speedy.IntegrationTests
 	{
 		#region Methods
 
+		[TestInitialize]
+		public override void TestInitialize()
+		{
+			base.TestInitialize();
+			TimeService.Reset();
+		}
+
 		[TestMethod]
 		public void CacheOnlyCertainEntities()
 		{

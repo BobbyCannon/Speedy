@@ -631,12 +631,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void ReadItemFromCache()
 		{
-			TestHelper.SetTime(new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc));
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1.5));
+			IncrementTime(TimeSpan.FromSeconds(1.5));
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -689,12 +689,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void ReadOnlyWrittenItemsFromDisk()
 		{
-			TestHelper.SetTime(new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc));
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1.5));
+			IncrementTime(TimeSpan.FromSeconds(1.5));
 			repository.Write("Foo2", "Bar2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
@@ -901,12 +901,12 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void SaveShouldOnlyWriteItemsOverTimeoutToFile()
 		{
-			TestHelper.SetTime(new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc));
+			SetTime(new DateTime(2021, 07, 25, 08, 59, 13, DateTimeKind.Utc));
 
 			var name = Guid.NewGuid().ToString();
 			using var repository = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			repository.Write("Foo1", "Bar1");
-			TestHelper.IncrementTime(TimeSpan.FromSeconds(1.5));
+			IncrementTime(TimeSpan.FromSeconds(1.5));
 			repository.Write("Bar2", "Foo2");
 			repository.Write("Foo3", "Bar3");
 			repository.Save();
