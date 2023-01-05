@@ -25,7 +25,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiates an instances of the sync engine state.
 		/// </summary>
-		/// <param name="dispatcher"> An optional dispatcher. </param>
+		/// <param name="dispatcher"> The optional dispatcher to use. </param>
 		public SyncEngineState(IDispatcher dispatcher) : base(dispatcher)
 		{
 		}

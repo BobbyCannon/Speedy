@@ -24,7 +24,7 @@ public class LocationInformationComparer<T> : Comparer<T>
 	/// <summary>
 	/// Instantiate a state comparer.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public LocationInformationComparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 		AlwaysTrustSameSource = true;

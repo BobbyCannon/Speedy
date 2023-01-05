@@ -24,7 +24,7 @@ namespace Speedy.Sync
 		/// Instantiates an instance of the class.
 		/// </summary>
 		/// <param name="limit"> Optional limit of syncs to average. </param>
-		/// <param name="dispatcher"> An optional dispatcher. </param>
+		/// <param name="dispatcher"> The optional dispatcher to use. </param>
 		public SyncTimer(int limit, IDispatcher dispatcher) : base(limit, dispatcher)
 		{
 		}

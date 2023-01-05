@@ -34,7 +34,7 @@ public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 	/// <summary>
 	/// Instantiate a state comparer.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public LocationComparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 		AlwaysTrustSameSource = true;

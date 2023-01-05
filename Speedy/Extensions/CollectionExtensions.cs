@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -61,18 +63,18 @@ public static class CollectionExtensions
 	#region Methods
 
 	/// <summary>
-	/// Add the item or replace the item with a new 
+	/// Add the item or replace the item with a new
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="collection"></param>
-	/// <param name="lookup"></param>
-	/// <param name="create"></param>
-	/// <param name="replace"></param>
-	/// <returns></returns>
+	/// <typeparam name="T"> </typeparam>
+	/// <param name="collection"> </param>
+	/// <param name="lookup"> </param>
+	/// <param name="create"> </param>
+	/// <param name="replace"> </param>
+	/// <returns> </returns>
 	public static T AddOrReplace<T>(this ICollection<T> collection, Func<T, bool> lookup, Func<T> create, Func<T, T> replace)
 	{
 		var foundItem = collection.FirstOrDefault(lookup);
-		
+
 		// See if the item was found
 		if (Equals(foundItem, default(T)))
 		{
@@ -138,7 +140,7 @@ public static class CollectionExtensions
 
 		return set;
 	}
-	
+
 	/// <summary>
 	/// Add multiple items to a collection
 	/// </summary>
@@ -237,6 +239,32 @@ public static class CollectionExtensions
 		}
 
 		return crc;
+	}
+
+	/// <summary>
+	/// Empty the queue.
+	/// </summary>
+	/// <typeparam name="T"> The type of the data stored in the queue. </typeparam>
+	/// <param name="queue"> The queue to be emptied. </param>
+	/// <param name="timeout"> An optional timeout. </param>
+	public static void Empty<T>(this ConcurrentQueue<T> queue, TimeSpan? timeout = null)
+	{
+		var removed = 0;
+		var amountToRemove = queue.Count;
+		var watch = Stopwatch.StartNew();
+		timeout ??= TimeSpan.FromSeconds(1);
+
+		// Keep dequeuing until you hit the queue limit
+		while (queue.TryDequeue(out _) && (removed < amountToRemove))
+		{
+			removed++;
+
+			if (watch.Elapsed >= timeout)
+			{
+				// Timeout his so bounce
+				break;
+			}
+		}
 	}
 
 	/// <summary>
@@ -466,10 +494,64 @@ public static class CollectionExtensions
 	/// <typeparam name="T"> The type of the collections. </typeparam>
 	/// <param name="collection"> The left collection. </param>
 	/// <param name="updates"> The right collection. </param>
-	public static void Reconcile<T>(this IList<T> collection, IEnumerable<T> updates)
+	/// <param name="compare"> An optional compare function. Defaults to Equals. </param>
+	/// <param name="optionalExclusions"> A set of optional excluded properties </param>
+	public static void Reconcile<T>(this IList<T> collection, IEnumerable<T> updates, Func<T, T, bool> compare = null, string[] optionalExclusions = null)
 	{
-		collection.Clear();
-		collection.AddRange(updates);
+		var updateList = updates.ToList();
+		compare ??= (a, b) =>
+		{
+			if (a is IEquatable<T> ea)
+			{
+				return ea.Equals(b);
+			}
+			
+			return Equals(a, b);
+		};
+
+		// Reconcile two collections
+		var updatesToBeAdded = updateList
+			.Where(update => collection.All(item => !compare(item, update)))
+			.ToList();
+		var updateToBeApplied = updateList
+			.Select(update => new { item = collection.FirstOrDefault(item => compare(item, update)), update })
+			.Where(x => x.item != null)
+			.ToList();
+		var itemsToRemove = collection
+			.Where(item => updateList.All(update => !compare(item, update)))
+			.ToList();
+
+		foreach (var newItem in updatesToBeAdded)
+		{
+			collection.Add(newItem);
+		}
+
+		foreach (var updateToApply in updateToBeApplied)
+		{
+			switch (updateToApply.item)
+			{
+				case IUpdatable<T> updateable:
+				{
+					updateable.UpdateWith(updateToApply.update, optionalExclusions);
+					break;
+				}
+				case IUpdatable updatable:
+				{
+					updatable.UpdateWith(updateToApply.update, optionalExclusions);
+					break;
+				}
+				default:
+				{
+					updateToApply.item.UpdateWithUsingReflection(updateToApply.update, optionalExclusions);
+					break;
+				}
+			}
+		}
+
+		foreach (var deviceToRemove in itemsToRemove)
+		{
+			collection.Remove(deviceToRemove);
+		}
 	}
 
 	/// <summary>

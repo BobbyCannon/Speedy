@@ -10,6 +10,10 @@ using Speedy.Extensions;
 
 #endregion
 
+#if NET7_0_OR_GREATER
+#pragma warning disable SYSLIB0014
+#endif
+
 namespace Speedy.Net
 {
 	/// <summary>
@@ -113,7 +117,7 @@ namespace Speedy.Net
 				{
 					// Only download if something is remaining
 					var request = (HttpWebRequest) WebRequest.Create(remoteUri);
-					request.Proxy = null;
+					//request.Proxy = null;
 					request.AddRange(ExistingLength);
 
 					using var response = (HttpWebResponse) request.GetResponse();
@@ -121,6 +125,11 @@ namespace Speedy.Net
 
 					using var fileStream = fileInfo.Open(downloadResumable ? FileMode.Append : FileMode.Create, FileAccess.Write);
 					using var webStream = response.GetResponseStream();
+
+					if (webStream == null)
+					{
+						return new FileDownloaderCompletedEventArgs();
+					}
 
 					int byteSize;
 					var buffer = new byte[4096];
@@ -137,6 +146,11 @@ namespace Speedy.Net
 						if (sw.ElapsedMilliseconds >= 1000)
 						{
 							CurrentSpeed = (long) (((BytesReceived - ExistingLength) * 1000) / sw.Elapsed.TotalMilliseconds);
+						}
+
+						if (cancellationCheck?.Invoke() == true)
+						{
+							break;
 						}
 
 						progressChanged?.Invoke();

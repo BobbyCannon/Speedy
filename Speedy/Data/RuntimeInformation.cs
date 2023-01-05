@@ -38,7 +38,7 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	/// <summary>
 	/// Creates an instance of the runtime information.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected RuntimeInformation(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_cache = new ConcurrentDictionary<string, object>();

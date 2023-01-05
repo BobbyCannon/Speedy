@@ -28,7 +28,7 @@ public class Credential : Bindable, IUpdatable<Credential>
 	/// <summary>
 	/// Creates an instance of the credential.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public Credential(IDispatcher dispatcher) : this(string.Empty, string.Empty, dispatcher)
 	{
 	}
@@ -38,7 +38,7 @@ public class Credential : Bindable, IUpdatable<Credential>
 	/// </summary>
 	/// <param name="username"> The username of the credential. </param>
 	/// <param name="password"> The password of the credential. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public Credential(string username, string password, IDispatcher dispatcher = null) : base(dispatcher)
 	{
 		UserName = username ?? string.Empty;
@@ -124,6 +124,7 @@ public class Credential : Bindable, IUpdatable<Credential>
 	public virtual void Reset()
 	{
 		UserName = string.Empty;
+		Password = string.Empty;
 		SecurePassword.Clear();
 	}
 

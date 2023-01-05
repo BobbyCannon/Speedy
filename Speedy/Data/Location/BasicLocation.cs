@@ -47,7 +47,7 @@ public class BasicLocation
 	/// <param name="longitude"> The default value. </param>
 	/// <param name="altitude"> The default value. </param>
 	/// <param name="altitudeReference"> The default value. </param>
-	/// <param name="dispatcher"> The default value. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public BasicLocation(double latitude = 0, double longitude = 0, double altitude = 0, AltitudeReferenceType altitudeReference = AltitudeReferenceType.Unspecified, IDispatcher dispatcher = null) : base(dispatcher)
 	{
 		Latitude = latitude;

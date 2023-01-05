@@ -11,7 +11,7 @@ public abstract class Comparer<T> : Bindable, IComparer<T, T>
 	/// <summary>
 	/// Creates an instance of a comparer.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected Comparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}
@@ -57,7 +57,7 @@ public abstract class Comparer<T, T2> : Bindable, IComparer<T, T2>
 	/// <summary>
 	/// Creates an instance of a comparer.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected Comparer(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}

@@ -47,7 +47,7 @@ namespace Speedy.Profiling
 		/// </summary>
 		/// <param name="pathRepository"> The final repository used to store the data. </param>
 		/// <param name="cacheProvider"> The repository used to cache data until it can be stored. </param>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <param name="dispatcher"> The optional dispatcher to use. </param>
 		public Tracker(ITrackerPathRepository pathRepository, IKeyValueRepositoryProvider<TrackerPath> cacheProvider, IDispatcher dispatcher) : base(dispatcher)
 		{
 			_cacheProvider = cacheProvider;

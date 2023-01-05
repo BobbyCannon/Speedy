@@ -24,7 +24,7 @@ public abstract class SecureVault : Bindable
 	/// <summary>
 	/// Creates an instance of the vault.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public SecureVault(IDispatcher dispatcher) : base(dispatcher)
 	{
 		Credential = new Credential(dispatcher);

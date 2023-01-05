@@ -40,7 +40,7 @@
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC8</Version>
+		<Version>11.0.0-RC9</Version>
 		<PublishReadyToRun>false</PublishReadyToRun>
 	</PropertyGroup>
 	<ItemGroup>

@@ -26,7 +26,7 @@ public class PagedRequest : PartialUpdate<PagedRequest>, IPagedRequest
 	/// <summary>
 	/// Instantiates a paged request to a service.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public PagedRequest(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}
@@ -43,7 +43,7 @@ public class PagedRequest : PartialUpdate<PagedRequest>, IPagedRequest
 	/// Instantiates a paged request to a service.
 	/// </summary>
 	/// <param name="values"> A set of values to set. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public PagedRequest(Dictionary<string, object> values, IDispatcher dispatcher) : base(dispatcher)
 	{
 		values.ForEach(x => AddOrUpdate(x.Key, x.Value));

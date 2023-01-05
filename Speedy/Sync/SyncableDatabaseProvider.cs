@@ -20,7 +20,7 @@ public class SyncableDatabaseProvider<T> : SyncableDatabaseProvider, ISyncableDa
 	/// <param name="function"> The function to return the syncable database. </param>
 	/// <param name="options"> The options for this database provider. </param>
 	/// <param name="keyCache"> An optional key manager for tracking entity IDs (primary and sync). </param>
-	/// <param name="dispatcher"> An optional dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public SyncableDatabaseProvider(Func<DatabaseOptions, DatabaseKeyCache, ISyncableDatabase> function, DatabaseOptions options, DatabaseKeyCache keyCache, IDispatcher dispatcher = null)
 		: base(function, options, keyCache, dispatcher)
 	{
@@ -106,7 +106,7 @@ public class SyncableDatabaseProvider : Bindable, ISyncableDatabaseProvider
 	/// <param name="function"> The function to return the syncable database. </param>
 	/// <param name="options"> The options for this database provider. </param>
 	/// <param name="keyCache"> An optional key manager for managing entity IDs (primary and sync). </param>
-	/// <param name="dispatcher"> An optional dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public SyncableDatabaseProvider(Func<DatabaseOptions, DatabaseKeyCache, ISyncableDatabase> function, DatabaseOptions options, DatabaseKeyCache keyCache, IDispatcher dispatcher = null) : base(dispatcher)
 	{
 		_function = function;

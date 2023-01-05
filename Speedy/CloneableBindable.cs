@@ -17,7 +17,7 @@ public abstract class CloneableBindable<T, T2> : CloneableBindable<T>, ICloneabl
 	/// <summary>
 	/// Instantiates a bindable object.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected CloneableBindable(IDispatcher dispatcher = null) : base(dispatcher)
 	{
 	}
@@ -52,7 +52,7 @@ public abstract class CloneableBindable<T> : Bindable<T>, ICloneable<T>
 	/// <summary>
 	/// Instantiates a bindable object.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected CloneableBindable(IDispatcher dispatcher = null) : base(dispatcher)
 	{
 	}

@@ -24,7 +24,7 @@ public class LimitedObservableCollection<T> : BaseObservableCollection<T>
 	/// <summary>
 	/// Instantiates an instance of the collection.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="items"> An optional set of initial items. </param>
 	public LimitedObservableCollection(IDispatcher dispatcher, params T[] items) : this(int.MaxValue, dispatcher, items)
 	{
@@ -34,7 +34,7 @@ public class LimitedObservableCollection<T> : BaseObservableCollection<T>
 	/// Instantiates an instance of the collection.
 	/// </summary>
 	/// <param name="limit"> The maximum number of items for this collection. </param>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="items"> An optional set of initial items. </param>
 	public LimitedObservableCollection(int limit, IDispatcher dispatcher = null, params T[] items) : base(dispatcher, items)
 	{

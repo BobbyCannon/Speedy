@@ -26,7 +26,7 @@ public class WebCredential : Credential, IUpdatable<WebCredential>
 	/// <summary>
 	/// Creates an instance of the web credential.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public WebCredential(IDispatcher dispatcher)
 		: this(string.Empty, string.Empty, dispatcher)
 	{
@@ -37,7 +37,7 @@ public class WebCredential : Credential, IUpdatable<WebCredential>
 	/// </summary>
 	/// <param name="username"> The username of the credential. </param>
 	/// <param name="password"> The password of the credential. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public WebCredential(string username, string password, IDispatcher dispatcher = null)
 		: this(username, password.ToSecureString(), dispatcher)
 	{
@@ -48,7 +48,7 @@ public class WebCredential : Credential, IUpdatable<WebCredential>
 	/// </summary>
 	/// <param name="username"> The username of the credential. </param>
 	/// <param name="password"> The password of the credential. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public WebCredential(string username, SecureString password, IDispatcher dispatcher = null) : base(dispatcher)
 	{
 		UserName = username ?? string.Empty;

@@ -68,6 +68,14 @@ public class Location : CloneableBindable<Location, ILocation<IHorizontalLocatio
 	}
 
 	/// <inheritdoc />
+	public override void UpdateDispatcher(IDispatcher dispatcher)
+	{
+		HorizontalLocation.UpdateDispatcher(dispatcher);
+		VerticalLocation.UpdateDispatcher(dispatcher);
+		base.UpdateDispatcher(dispatcher);
+	}
+
+	/// <inheritdoc />
 	public bool UpdateWith(ILocation<IHorizontalLocation, IVerticalLocation> update, params string[] exclusions)
 	{
 		var result = false;

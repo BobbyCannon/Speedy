@@ -28,7 +28,7 @@ public class TokenCredential : Credential, IUpdatable<TokenCredential>
 	/// <summary>
 	/// Creates an instance of the credential.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public TokenCredential(IDispatcher dispatcher) : this(string.Empty, dispatcher)
 	{
 	}
@@ -37,7 +37,7 @@ public class TokenCredential : Credential, IUpdatable<TokenCredential>
 	/// Creates an instance of the credential.
 	/// </summary>
 	/// <param name="password"> The token of the credential. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public TokenCredential(string password, IDispatcher dispatcher = null) : base(dispatcher)
 	{
 		SecurePassword = password?.ToSecureString();

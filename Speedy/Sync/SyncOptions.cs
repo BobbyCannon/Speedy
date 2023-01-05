@@ -43,7 +43,7 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 	/// <summary>
 	/// Instantiates an instance of the class.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public SyncOptions(IDispatcher dispatcher) : base(dispatcher)
 	{
 		LastSyncedOnClient = DateTime.MinValue;

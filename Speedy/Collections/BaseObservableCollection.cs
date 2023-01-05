@@ -38,7 +38,7 @@ public class BaseObservableCollection<T> : ObservableCollection<T>
 	/// <summary>
 	/// Instantiates an instance of the collection.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="items"> An optional set of initial items. </param>
 	public BaseObservableCollection(IDispatcher dispatcher, IEnumerable<T> items) : this(dispatcher, items?.ToArray())
 	{
@@ -55,7 +55,7 @@ public class BaseObservableCollection<T> : ObservableCollection<T>
 	/// <summary>
 	/// Instantiates an instance of the collection.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="items"> An optional set of initial items. </param>
 	public BaseObservableCollection(IDispatcher dispatcher, params T[] items) : base(items)
 	{

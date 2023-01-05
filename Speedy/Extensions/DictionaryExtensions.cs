@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Speedy.Serialization;
-using ICloneable = Speedy.ICloneable;
 
 #endregion
 
@@ -53,7 +52,7 @@ public static class DictionaryExtensions
 
 		dictionary.AddOrUpdate(key, source[key]);
 	}
-
+	
 	/// <summary>
 	/// Add or update an entry in a dictionary.
 	/// </summary>

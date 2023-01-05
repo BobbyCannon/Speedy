@@ -32,7 +32,7 @@ public class FilteredCollection<T> : BaseObservableCollection<T>
 	/// </summary>
 	/// <param name="originalCollection"> The collection to filter. </param>
 	/// <param name="filter"> The filter expression. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public FilteredCollection(ObservableCollection<T> originalCollection, Func<T, bool> filter, IDispatcher dispatcher = null) : base(dispatcher)
 	{
 		_originalCollection = originalCollection;

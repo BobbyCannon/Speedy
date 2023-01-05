@@ -22,7 +22,7 @@ public class DebounceService : DebounceService<object>
 	/// <param name="delay"> The amount of time before the action will trigger. </param>
 	/// <param name="action"> The action to debounce. </param>
 	public DebounceService(TimeSpan delay, Action<CancellationToken> action)
-		: base(delay, (x, d) => action(x))
+		: base(delay, (x, _) => action(x))
 	{
 	}
 

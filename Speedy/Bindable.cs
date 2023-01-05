@@ -23,7 +23,7 @@ public abstract class Bindable<T> : Bindable, IUpdatable<T>
 	/// <summary>
 	/// Instantiates a bindable object.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected Bindable(IDispatcher dispatcher = null) : base(dispatcher)
 	{
 	}
@@ -67,7 +67,7 @@ public abstract class Bindable : IBindable, IUpdatable
 	/// <summary>
 	/// Instantiates a bindable object.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected Bindable(IDispatcher dispatcher = null)
 	{
 		Dispatcher = dispatcher;

@@ -246,6 +246,26 @@ public static class StringExtensions
 	}
 
 	/// <summary>
+	/// Convert the value to camel case
+	/// </summary>
+	/// <param name="value"> The value to update. </param>
+	/// <returns> The value in camel case format. </returns>
+	public static string ToCamelCase(this string value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return value;
+		}
+
+		if (value.Length <= 1)
+		{
+			return value.Substring(0, 1).ToLower();
+		}
+
+		return value.Substring(0, 1).ToLower() + value.Substring(1);
+	}
+
+	/// <summary>
 	/// Converts a string to hex string value. Ex. "A" -> "41"
 	/// </summary>
 	/// <param name="value"> The string value to convert. </param>

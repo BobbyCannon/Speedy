@@ -24,7 +24,7 @@ namespace Speedy.Sync
 		/// <summary>
 		/// Instantiate a sync model.
 		/// </summary>
-		/// <param name="dispatcher"> The dispatcher to update with. </param>
+		/// <param name="dispatcher"> The optional dispatcher to use. </param>
 		protected SyncModel(IDispatcher dispatcher = null)
 		{
 			Dispatcher = dispatcher;

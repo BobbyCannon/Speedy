@@ -39,7 +39,7 @@ public abstract class SyncManager<T> : Bindable where T : Enum
 	/// <summary>
 	/// Instantiates a sync manager for syncing two clients.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="supportedSyncTypes"> </param>
 	protected SyncManager(IDispatcher dispatcher, params T[] supportedSyncTypes) : base(dispatcher)
 	{

@@ -24,7 +24,7 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 	/// <summary>
 	/// Creates an instance of a location provider.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected LocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		ComparerForHorizontal = new LocationInformationComparer<THorizontalLocation>(dispatcher);

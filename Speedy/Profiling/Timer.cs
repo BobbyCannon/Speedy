@@ -30,7 +30,7 @@ namespace Speedy.Profiling
 		/// <summary>
 		/// Instantiates an instance of the timer.
 		/// </summary>
-		/// <param name="dispatcher"> The dispatcher for handling property changes. </param>
+		/// <param name="dispatcher"> The optional dispatcher to use. </param>
 		public Timer(IDispatcher dispatcher) : base(dispatcher)
 		{
 			// Assign the current incident that is active.

@@ -48,7 +48,7 @@ public interface IBindable : INotifyPropertyChanged
 	/// <summary>
 	/// Updates the entity for this entity.
 	/// </summary>
-	/// <param name="dispatcher"> The dispatcher to update with. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	void UpdateDispatcher(IDispatcher dispatcher);
 
 	#endregion

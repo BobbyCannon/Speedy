@@ -62,7 +62,7 @@ public class PartialUpdate<T> : PartialUpdate
 	/// <summary>
 	/// Instantiates a partial update.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public PartialUpdate(IDispatcher dispatcher) : this(null, dispatcher)
 	{
 	}
@@ -71,7 +71,7 @@ public class PartialUpdate<T> : PartialUpdate
 	/// Instantiates a partial update.
 	/// </summary>
 	/// <param name="options"> An optional set of options for the update. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public PartialUpdate(PartialUpdateOptions options, IDispatcher dispatcher) : base(options, dispatcher)
 	{
 		_validators = new ConcurrentDictionary<string, Validator<PartialUpdate<T>>>();
@@ -333,7 +333,7 @@ public class PartialUpdate : Bindable
 	/// <summary>
 	/// Instantiates a partial update.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public PartialUpdate(IDispatcher dispatcher) : this(null, dispatcher)
 	{
 	}
@@ -342,7 +342,7 @@ public class PartialUpdate : Bindable
 	/// Instantiates a partial update.
 	/// </summary>
 	/// <param name="options"> The options for the partial update. </param>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public PartialUpdate(PartialUpdateOptions options, IDispatcher dispatcher) : base(dispatcher)
 	{
 		_validators = new ConcurrentDictionary<string, Validator<PartialUpdate>>();
