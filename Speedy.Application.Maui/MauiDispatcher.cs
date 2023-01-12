@@ -1,4 +1,8 @@
-﻿using Speedy.Extensions;
+﻿#region References
+
+using Speedy.Extensions;
+
+#endregion
 
 namespace Speedy.Application.Maui;
 
@@ -14,7 +18,7 @@ public class MauiDispatcher : Dispatcher
 	#region Constructors
 
 	/// <inheritdoc />
-	public MauiDispatcher(Microsoft.Maui.Dispatching.IDispatcher dispatcher)
+	protected MauiDispatcher(Microsoft.Maui.Dispatching.IDispatcher dispatcher)
 	{
 		_dispatcher = dispatcher;
 	}
@@ -23,12 +27,20 @@ public class MauiDispatcher : Dispatcher
 
 	#region Properties
 
+	public static MauiDispatcher Instance { get; set; }
+
 	/// <inheritdoc />
 	public override bool IsDispatcherThread => !_dispatcher.IsDispatchRequired;
 
 	#endregion
 
 	#region Methods
+
+	public static MauiDispatcher Initialize(Microsoft.Maui.Dispatching.IDispatcher dispatcher)
+	{
+		Instance = new MauiDispatcher(dispatcher);
+		return Instance;
+	}
 
 	/// <inheritdoc />
 	protected override void ExecuteOnDispatcher(Action action)

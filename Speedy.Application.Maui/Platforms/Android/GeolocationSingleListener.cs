@@ -16,7 +16,7 @@ using Object = Java.Lang.Object;
 // ReSharper disable once CheckNamespace
 namespace Speedy.Application.Maui;
 
-[Preserve(AllMembers = true)]
+//[Preserve(AllMembers = true)]
 internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, ILocationListener
 	where T : class, ILocation<THorizontal, TVertical>, new()
 	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>

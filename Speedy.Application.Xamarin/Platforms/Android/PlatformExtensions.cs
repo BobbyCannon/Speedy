@@ -3,6 +3,7 @@
 using System;
 using Android.OS;
 using Speedy.Data.Location;
+using Speedy.Extensions;
 using Location = Android.Locations.Location;
 
 #endregion
@@ -137,6 +138,11 @@ public static class PlatformExtensions
 			response.HorizontalLocation.Accuracy = location.Accuracy;
 			response.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 		}
+		else
+		{
+			response.HorizontalLocation.Accuracy = 0;
+			response.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
+		}
 
 		if (location.HasAltitude)
 		{
@@ -146,11 +152,12 @@ public static class PlatformExtensions
 		}
 		else
 		{
+			response.VerticalLocation.Altitude = 0;
 			response.VerticalLocation.AltitudeReference = AltitudeReferenceType.Unspecified;
 			response.VerticalLocation.HasValue = false;
 		}
 
-		if ((Build.VERSION.SdkInt >= BuildVersionCodes.O))
+		if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
 		{
 			#pragma warning disable CA1416 // Validate platform compatibility
 			if (location.HasVerticalAccuracy)
@@ -166,18 +173,17 @@ public static class PlatformExtensions
 		}
 		else
 		{
+			response.VerticalLocation.Accuracy = 0;
 			response.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 
-		if (response.HorizontalLocation.HasHeading)
-		{
-			response.HorizontalLocation.Heading = location.Bearing;
-		}
+		response.HorizontalLocation.Heading = response.HorizontalLocation.HasHeading
+			? location.Bearing.EnsureRange(0, 360)
+			: 0;
 
-		if (response.HorizontalLocation.HasSpeed)
-		{
-			response.HorizontalLocation.Speed = location.Speed;
-		}
+		response.HorizontalLocation.Speed = response.HorizontalLocation.HasSpeed
+			? location.Speed.EnsureRange(0, float.MaxValue)
+			: 0;
 
 		//response.IsFromMockProvider = (int) Build.VERSION.SdkInt >= 18 && location.IsFromMockProvider;
 

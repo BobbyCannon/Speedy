@@ -35,33 +35,18 @@
 		<ProjectReference Include="..\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.3" />
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.4" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.1">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows' or '$(TargetFramework)' == 'net7.0-windows'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<ProjectReference Include="..\Speedy.Client.Data.Sqlite\Speedy.Client.Data.Sqlite.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
-		<ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.1">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

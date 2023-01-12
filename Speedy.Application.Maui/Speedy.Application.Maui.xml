@@ -178,9 +178,6 @@
         <member name="M:Speedy.Application.Maui.MauiSecureVault.WriteCredentialAsync">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Maui.NotificationService.Notify(System.String)">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Application.Maui.LocationProviderImplementation`4">
             <summary>
             Implementation for Feature
@@ -230,6 +227,11 @@
         </member>
         <member name="M:Speedy.Application.Maui.LocationProviderImplementation`4.StopMonitoringAsync">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Maui.MediaPlayerImplementation">
+            <summary>
+            https://github.com/jfversluis/Plugin.Maui.Audio/blob/main/src/Plugin.Maui.Audio/AudioPlayer.android.cs
+            </summary>
         </member>
         <member name="T:Speedy.Application.Maui.PlatformExtensions">
             <summary>

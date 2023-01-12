@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
@@ -26,9 +26,14 @@
 		<DocumentationFile>Speedy.EntityFramework.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC9</Version>
+		<Version>11.0.0-RC10</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 		<None Include="Speedy.snk" />
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Remove="Speedy.png" />
@@ -37,6 +42,7 @@
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
+		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
@@ -47,10 +53,10 @@
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'">
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.1" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.2" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

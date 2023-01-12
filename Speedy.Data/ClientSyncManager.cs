@@ -41,7 +41,7 @@ namespace Speedy.Data
 		/// <param name="databaseProvider"> The database provider. </param>
 		/// <param name="serverProvider"> The server provider to get a sync client. </param>
 		/// <param name="profiler"> The profiler to use when syncing. </param>
-		/// <param name="dispatcher"> An optional dispatcher to update with. </param>
+		/// <param name="dispatcher"> The optional dispatcher to use. </param>
 		public ClientSyncManager(Func<Credential> credentialProvider, ISyncableDatabaseProvider databaseProvider,
 			SyncClientProvider serverProvider, ProfileService profiler, IDispatcher dispatcher)
 			: base(dispatcher)

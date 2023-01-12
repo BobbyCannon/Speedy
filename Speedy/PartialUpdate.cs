@@ -733,6 +733,11 @@ public class PartialUpdate : Bindable
 
 		foreach (var key in collection.AllKeys)
 		{
+			if (key == null)
+			{
+				continue;
+			}
+
 			if (properties.ContainsKey(key))
 			{
 				var property = properties[key];

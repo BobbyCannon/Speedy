@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net6.0-windows;net7.0-windows</TargetFrameworks>
@@ -7,7 +7,7 @@
 		<AssemblyTitle>Speedy.Application.Wpf</AssemblyTitle>
 		<AssemblyName>Speedy.Application.Wpf</AssemblyName>
 		<Company>Bobby Cannon</Company>
-		<Product>Speedy.EntityFramework</Product>
+		<Product>Speedy.Application.Wpf</Product>
 		<Description>Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications.</Description>
 		<Copyright>© Copyright 2014-2023</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -28,9 +28,14 @@
 		<DocumentationFile>Speedy.Application.Wpf.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC9</Version>
+		<Version>11.0.0-RC10</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 		<None Include="Speedy.snk" />
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Remove="Speedy.png" />

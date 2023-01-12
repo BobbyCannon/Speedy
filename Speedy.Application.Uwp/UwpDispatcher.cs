@@ -4,13 +4,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.System;
 using Windows.UI.Core;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Speedy.Application.Uwp.Extensions;
 using Speedy.Extensions;
 
 #endregion
+
+#pragma warning disable CS0618
 
 namespace Speedy.Application.Uwp;
 

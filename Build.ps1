@@ -55,6 +55,7 @@ try
 		"$scriptPath\Speedy.Automation\Speedy.Automation.csproj",
 		"$scriptPath\Speedy.Application\Speedy.Application.csproj",
 		"$scriptPath\Speedy.Application.Maui\Speedy.Application.Maui.csproj",
+		"$scriptPath\Speedy.Application.Web\Speedy.Application.Web.csproj",
 		"$scriptPath\Speedy.Application.WPF\Speedy.Application.WPF.csproj",
 		"$scriptPath\Speedy.Application.Xamarin\Speedy.Application.Xamarin.csproj",
 		"$scriptPath\Speedy.EntityFramework\Speedy.EntityFramework.csproj",
@@ -84,6 +85,7 @@ try
 	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application\bin\$Configuration\$productName.Application.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application.Maui\bin\$Configuration\$productName.Application.Maui.$nugetVersion.nupkg" "$destination\"
+	Copy-Item "$productName.Application.Web\bin\$Configuration\$productName.Application.Web.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application.WPF\bin\$Configuration\$productName.Application.WPF.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application.Xamarin\bin\$Configuration\$productName.Application.Xamarin.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination\"
@@ -93,6 +95,7 @@ try
 	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination\$productName.Automation.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application\bin\$Configuration\$productName.Application.$nugetVersion.nupkg" "$destination\$productName.Application.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application.Maui\bin\$Configuration\$productName.Application.Maui.$nugetVersion.nupkg" "$destination\$productName.Application.Maui.$nugetVersion.nupkg.zip"
+	Copy-Item "$productName.Application.Web\bin\$Configuration\$productName.Application.Web.$nugetVersion.nupkg" "$destination\$productName.Application.Web.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application.WPF\bin\$Configuration\$productName.Application.WPF.$nugetVersion.nupkg" "$destination\$productName.Application.WPF.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application.Xamarin\bin\$Configuration\$productName.Application.Xamarin.$nugetVersion.nupkg" "$destination\$productName.Application.Xamarin.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination\$productName.EntityFramework.$nugetVersion.nupkg.zip"
@@ -102,6 +105,7 @@ try
 	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application\bin\$Configuration\$productName.Application.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application.Maui\bin\$Configuration\$productName.Application.Maui.$nugetVersion.nupkg" "$destination2\"
+	Copy-Item "$productName.Application.Web\bin\$Configuration\$productName.Application.Web.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application.WPF\bin\$Configuration\$productName.Application.WPF.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application.Xamarin\bin\$Configuration\$productName.Application.Xamarin.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.EntityFramework\bin\$Configuration\$productName.EntityFramework.$nugetVersion.nupkg" "$destination2\"

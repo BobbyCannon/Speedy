@@ -1,18 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="MSBuild.Sdk.Extras/3.0.22">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;MonoAndroid12.0;uap10.0.19041;Xamarin.iOS10</TargetFrameworks>
-		<TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
-		<RootNamespace>Speedy.Application.Xamarin</RootNamespace>
-		<Product>Speedy Application Xamarin</Product>
-		<DefineConstants>$(DefineConstants);</DefineConstants>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
-		<AssemblyTitle>Speedy.Application.Xamarin</AssemblyTitle>
-		<AssemblyName>Speedy.Application.Xamarin</AssemblyName>
+		<AssemblyTitle>Speedy.Application.Web</AssemblyTitle>
+		<AssemblyName>Speedy.Application.Web</AssemblyName>
 		<Company>Bobby Cannon</Company>
-		<Product>Speedy.Application.Xamarin</Product>
+		<Product>Speedy.Application.Web</Product>
 		<Description>Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications.</Description>
-		<Copyright>© Copyright 2014-2023</Copyright>
+		<Copyright>Â© Copyright 2014-2023</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -24,11 +20,11 @@
 		<PackageLicenseFile>License.txt</PackageLicenseFile>
 		<RepositoryUrl>https://github.com/BobbyCannon/Speedy</RepositoryUrl>
 		<RepositoryType></RepositoryType>
-		<PackageTags>Speedy Application Xamarin</PackageTags>
-		<PackageId>Speedy.Application.Xamarin</PackageId>
+		<PackageTags>Speedy Application Web</PackageTags>
+		<PackageId>Speedy.Application.Web</PackageId>
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
-		<DocumentationFile>Speedy.Application.Xamarin.xml</DocumentationFile>
+		<DocumentationFile>Speedy.Application.Web.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
 		<Version>11.0.0-RC10</Version>
@@ -45,30 +41,10 @@
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Remove="**/Platforms/**/*.cs" />
-		<None Include="**/Platforms/**/*.cs" />
-		<None Include="Speedy.snk" />
-	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework.Contains('MonoAndroid'))">
-		<PackageReference Include="Xamarin.GooglePlayServices.Location" Version="120.0.0" />
-		<Compile Include="**/Platforms/Android/**/*.cs" />
-	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework.Contains('iOS'))">
-		<Compile Include="**/Platforms/iOS/**/*.cs" />
-	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework.Contains('uap'))">
-		<Compile Include="**/Platforms/Windows/**/*.cs" />
-	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<Compile Include="**/Platforms/Windows/**/*.cs" />
-	</ItemGroup>
-	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-		<PackageReference Include="Xamarin.Essentials" Version="1.7.4" />
-		<PackageReference Include="Xamarin.Forms" Version="5.0.0.2545" />
 	</ItemGroup>
 </Project>

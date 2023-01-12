@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0-windows;net7.0-windows</TargetFrameworks>
@@ -26,13 +26,18 @@
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC9</Version>
+		<Version>11.0.0-RC10</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
-		<None Remove="Speedy.png" />
-	</ItemGroup>
-	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="Speedy.snk" />
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
+		<None Remove="Speedy.png" />
+		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
@@ -40,8 +45,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Speedy.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>

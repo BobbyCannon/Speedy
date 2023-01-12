@@ -28,7 +28,7 @@ namespace Speedy.Winforms.Example
 			Close();
 		}
 
-		private void KeyboardOnKeyPressed(object? sender, KeyboardState state)
+		private void KeyboardOnKeyPressed(object sender, KeyboardState state)
 		{
 			if (!state.IsPressed)
 			{

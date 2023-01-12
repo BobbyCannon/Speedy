@@ -43,9 +43,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	#region Fields
 
 	private FusedLocationProviderCallback _fusedCallback;
-
 	private FusedLocationProviderClient _fusedListener;
-
 	private GeolocationContinuousListener<TLocation, THorizontal, TVertical> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
@@ -89,8 +87,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 				_sourceProviders = Manager
 					.GetProviders(false)
 					.Where(x =>
-						x != LocationManager.PassiveProvider
-						&& x != LocationManager.FusedProvider
+						(x != LocationManager.PassiveProvider)
+						&& (x != LocationManager.FusedProvider)
 					)
 					.Select(x => new SourceInformationProvider
 					{
@@ -293,7 +291,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(Dispatcher, ProviderName, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
 		_listener.PositionChanged += ListenerPositionChanged;
-		_listener.PositionError += ListenerPositionError;
 
 		for (var i = 0; i < sources.Length; ++i)
 		{
@@ -336,7 +333,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 		_listener.LogEventWritten -= ListenerOnLogEventWritten;
 		_listener.PositionChanged -= ListenerPositionChanged;
-		_listener.PositionError -= ListenerPositionError;
 
 		if (_fusedListener != null)
 		{

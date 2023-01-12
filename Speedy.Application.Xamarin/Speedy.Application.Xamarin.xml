@@ -107,7 +107,7 @@
             <summary>
             Instantiates the xamarin barometer altitude provider.
             </summary>
-            <param name="dispatcher"> </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="P:Speedy.Application.Xamarin.XamarinBarometerLocationProvider`1.Pressure">
             <summary>

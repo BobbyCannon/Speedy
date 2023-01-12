@@ -94,19 +94,22 @@ public class DebounceService<T> : IDisposable
 	/// <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
 	public void Trigger(T value, bool force = false)
 	{
-		// Optionally turn on force
-		_force |= force;
-		_data = value;
-
-		// Queue up the next run
-		_requestedFor = _force
-			? TimeService.UtcNow
-			: TimeService.UtcNow + _delay;
-
-		// Start the worker if it's not running
-		if (_worker?.IsBusy != true)
+		lock (_worker)
 		{
-			_worker?.RunWorkerAsync();
+			// Optionally turn on force
+			_force |= force;
+			_data = value;
+
+			// Queue up the next run
+			_requestedFor = _force
+				? TimeService.UtcNow
+				: TimeService.UtcNow + _delay;
+
+			// Start the worker if it's not running
+			if (_worker?.IsBusy != true)
+			{
+				_worker?.RunWorkerAsync();
+			}
 		}
 	}
 
@@ -123,15 +126,18 @@ public class DebounceService<T> : IDisposable
 			return;
 		}
 
-		if (worker.IsBusy)
+		lock (_worker)
 		{
-			worker.CancelAsync();
+			if (worker.IsBusy)
+			{
+				worker.CancelAsync();
+			}
+
+			worker.RunWorkerCompleted -= WorkerOnRunWorkerCompleted;
+			worker.DoWork -= WorkerOnDoWork;
+
+			_worker = null;
 		}
-
-		worker.RunWorkerCompleted -= WorkerOnRunWorkerCompleted;
-		worker.DoWork -= WorkerOnDoWork;
-
-		_worker = null;
 	}
 
 	private void WorkerOnDoWork(object sender, DoWorkEventArgs e)
@@ -197,9 +203,18 @@ public class DebounceService<T> : IDisposable
 
 	private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 	{
-		if (_requestedFor >= TimeService.UtcNow)
+		if ((_worker == null) || (_requestedFor < TimeService.UtcNow))
 		{
-			_worker?.RunWorkerAsync();
+			return;
+		}
+
+		lock (_worker)
+		{
+			// Start the worker if it's not running
+			if (_worker?.IsBusy != true)
+			{
+				_worker?.RunWorkerAsync();
+			}
 		}
 	}
 

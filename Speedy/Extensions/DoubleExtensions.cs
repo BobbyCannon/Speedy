@@ -35,6 +35,35 @@ public static class DoubleExtensions
 	}
 
 	/// <summary>
+	/// Ensure the value false between the ranges.
+	/// </summary>
+	/// <param name="value"> The nullable double value. </param>
+	/// <param name="min"> The inclusive minimal value. </param>
+	/// <param name="max"> The inclusive maximum value. </param>
+	/// <returns> The value within the provided ranges. </returns>
+	public static double EnsureRange(this double? value, double min, double max)
+	{
+		return value is null ? min : EnsureRange(value.Value, min, max);
+	}
+
+	/// <summary>
+	/// Ensure the value false between the ranges.
+	/// </summary>
+	/// <param name="value"> The nullable double value. </param>
+	/// <param name="min"> The inclusive minimal value. </param>
+	/// <param name="max"> The inclusive maximum value. </param>
+	/// <returns> The value within the provided ranges. </returns>
+	public static double EnsureRange(this double value, double min, double max)
+	{
+		if (value is double.NaN or double.NegativeInfinity or double.PositiveInfinity || (value < min))
+		{
+			return min;
+		}
+
+		return value > max ? max : value;
+	}
+
+	/// <summary>
 	/// Increment an double by a value or double.Epsilon if not provided.
 	/// </summary>
 	/// <param name="value"> The value to be incremented. </param>

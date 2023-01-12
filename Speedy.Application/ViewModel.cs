@@ -10,7 +10,7 @@ public abstract class ViewModel : Bindable
 	/// <summary>
 	/// Instantiates a viewmodel.
 	/// </summary>
-	/// <param name="dispatcher"> An optional dispatcher. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected ViewModel(IDispatcher dispatcher) : base(dispatcher)
 	{
 	}

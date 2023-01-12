@@ -255,6 +255,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 		else
 		{
+			CurrentValue.HorizontalLocation.Latitude = 0;
+			CurrentValue.HorizontalLocation.Longitude = 0;
+			CurrentValue.HorizontalLocation.Accuracy = 0;
 			CurrentValue.HorizontalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 			CurrentValue.HorizontalLocation.HasValue = false;
 		}
@@ -269,6 +272,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 		else
 		{
+			CurrentValue.VerticalLocation.Altitude = 0;
+			CurrentValue.VerticalLocation.AltitudeReference = AltitudeReferenceType.Unspecified;
+			CurrentValue.VerticalLocation.Accuracy = 0;
 			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 			CurrentValue.VerticalLocation.HasValue = false;
 		}
@@ -281,6 +287,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		else
 		{
 			CurrentValue.HorizontalLocation.HasSpeed = false;
+			CurrentValue.HorizontalLocation.Speed = 0;
 		}
 
 		if (location.Course > -1)
@@ -291,6 +298,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		else
 		{
 			CurrentValue.HorizontalLocation.HasHeading = false;
+			CurrentValue.HorizontalLocation.Heading = 0;
 		}
 
 		var sourceName = GetSourceName(location.SourceInformation);

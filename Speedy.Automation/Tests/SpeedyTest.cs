@@ -211,6 +211,18 @@ public abstract class SpeedyTest
 	/// <param name="messages"> A set of messages where at least one message should be found. </param>
 	public static void ExpectedException<T>(Action work, params string[] messages) where T : Exception
 	{
+		ExpectedException<T>(work, null, messages);
+	}
+
+	/// <summary>
+	/// Test for an expected exception.
+	/// </summary>
+	/// <typeparam name="T"> The type of the exception. </typeparam>
+	/// <param name="work"> The test. </param>
+	/// <param name="extraValidation"> An optional set of extra validation. </param>
+	/// <param name="messages"> A set of messages where at least one message should be found. </param>
+	public static void ExpectedException<T>(Action work, Action<T> extraValidation, params string[] messages) where T : Exception
+	{
 		try
 		{
 			work();
@@ -224,6 +236,8 @@ public abstract class SpeedyTest
 			{
 				Assert.Fail("Actual <" + detailedException + "> does not contain expected <" + allErrors + ">.");
 			}
+
+			extraValidation?.Invoke(ex);
 			return;
 		}
 
@@ -348,6 +362,44 @@ public abstract class SpeedyTest
 	public virtual void IsFalse(bool condition, string message)
 	{
 		Assert.IsFalse(condition, message);
+	}
+
+	/// <summary>
+	/// Tests whether the specified object is non-null and throws an exception if it is null.
+	/// </summary>
+	/// <param name="value"> The object the test expects not to be null. </param>
+	public virtual void IsNotNull(object value)
+	{
+		Assert.IsNotNull(value);
+	}
+
+	/// <summary>
+	/// Tests whether the specified object is non-null and throws an exception if it is null.
+	/// </summary>
+	/// <param name="value"> The object the test expects not to be null. </param>
+	/// <param name="message"> The message is shown in test results. </param>
+	public virtual void IsNotNull(object value, string message)
+	{
+		Assert.IsNotNull(value, message);
+	}
+
+	/// <summary>
+	/// Tests whether the specified object is null and throws an exception if it is not null.
+	/// </summary>
+	/// <param name="value"> The object the test expects to be null. </param>
+	public virtual void IsNull(object value)
+	{
+		Assert.IsNull(value);
+	}
+
+	/// <summary>
+	/// Tests whether the specified object is null and throws an exception if it is not null.
+	/// </summary>
+	/// <param name="value"> The object the test expects to be null. </param>
+	/// <param name="message"> The message is shown in test results. </param>
+	public virtual void IsNull(object value, string message)
+	{
+		Assert.IsNull(value, message);
 	}
 
 	/// <summary>

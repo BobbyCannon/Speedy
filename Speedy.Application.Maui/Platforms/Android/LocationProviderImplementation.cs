@@ -25,7 +25,6 @@ namespace Speedy.Application.Maui;
 /// <summary>
 /// Implementation for Feature
 /// </summary>
-[Preserve(AllMembers = true)]
 public class LocationProviderImplementation<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	where TLocation : class, ILocation<THorizontal, TVertical>, new()

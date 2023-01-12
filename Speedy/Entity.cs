@@ -320,7 +320,7 @@ public abstract class Entity : IEntity, IUnwrappable
 				}
 			}
 
-			// todo: maybe?, support setting EntityId would then query the entity sync id and set it?
+			// todo: maybe?, support the setting Entity.Id would then query the entity sync id and set it?
 		}
 	}
 

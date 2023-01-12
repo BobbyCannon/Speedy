@@ -1,13 +1,12 @@
 #region References
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
-using Windows.Services.Maps;
 using Speedy.Data.Location;
+using Speedy.Extensions;
 
 #endregion
 
@@ -35,7 +34,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	/// <summary>
 	/// Constructor for Implementation
 	/// </summary>
-	public LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
+	protected LocationProviderImplementation(IDispatcher dispatcher) : base(dispatcher)
 	{
 		_locator = new Geolocator();
 
@@ -259,20 +258,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		_locator = null;
 	}
 
-	private void SetMapKey(string mapKey)
-	{
-		if (string.IsNullOrWhiteSpace(mapKey) && string.IsNullOrWhiteSpace(MapService.ServiceToken))
-		{
-			Debug.WriteLine("Map API key is required on UWP to reverse geolocate.");
-			throw new ArgumentNullException(nameof(mapKey));
-		}
-
-		if (!string.IsNullOrWhiteSpace(mapKey))
-		{
-			MapService.ServiceToken = mapKey;
-		}
-	}
-
 	private TLocation UpdateCurrentValue(Geoposition position)
 	{
 		CurrentValue.HorizontalLocation.Latitude = position.Coordinate.Point.Position.Latitude;
@@ -291,21 +276,23 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		if (position.Coordinate.Heading != null)
 		{
 			CurrentValue.HorizontalLocation.HasHeading = true;
-			CurrentValue.HorizontalLocation.Heading = position.Coordinate.Heading.Value;
+			CurrentValue.HorizontalLocation.Heading = position.Coordinate.Heading.EnsureRange(0, 360);
 		}
 		else
 		{
 			CurrentValue.HorizontalLocation.HasHeading = false;
+			CurrentValue.HorizontalLocation.Heading = 0;
 		}
 
 		if (position.Coordinate.Speed != null)
 		{
 			CurrentValue.HorizontalLocation.HasSpeed = true;
-			CurrentValue.HorizontalLocation.Speed = position.Coordinate.Speed.Value;
+			CurrentValue.HorizontalLocation.Speed = position.Coordinate.Speed.EnsureRange(0, double.MaxValue);
 		}
 		else
 		{
 			CurrentValue.HorizontalLocation.HasSpeed = false;
+			CurrentValue.HorizontalLocation.Speed = 0;
 		}
 
 		if (position.Coordinate.AltitudeAccuracy.HasValue)
@@ -315,6 +302,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		}
 		else
 		{
+			CurrentValue.VerticalLocation.Accuracy = 0;
 			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Unspecified;
 		}
 

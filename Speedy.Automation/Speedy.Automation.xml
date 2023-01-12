@@ -4344,6 +4344,15 @@
             <param name="work"> The test. </param>
             <param name="messages"> A set of messages where at least one message should be found. </param>
         </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ExpectedException``1(System.Action,System.Action{``0},System.String[])">
+            <summary>
+            Test for an expected exception.
+            </summary>
+            <typeparam name="T"> The type of the exception. </typeparam>
+            <param name="work"> The test. </param>
+            <param name="extraValidation"> An optional set of extra validation. </param>
+            <param name="messages"> A set of messages where at least one message should be found. </param>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.IncrementTime(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int64)">
             <summary>
             Increment the current time. This only works if current time is set. Negative values will subtract time.
@@ -4391,6 +4400,32 @@
             Tests whether the specified condition is false and throws an exception if the condition is true.
             </summary>
             <param name="condition"> The condition the test expects to be false. </param>
+            <param name="message"> The message is shown in test results. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsNotNull(System.Object)">
+            <summary>
+            Tests whether the specified object is non-null and throws an exception if it is null.
+            </summary>
+            <param name="value"> The object the test expects not to be null. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsNotNull(System.Object,System.String)">
+            <summary>
+            Tests whether the specified object is non-null and throws an exception if it is null.
+            </summary>
+            <param name="value"> The object the test expects not to be null. </param>
+            <param name="message"> The message is shown in test results. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsNull(System.Object)">
+            <summary>
+            Tests whether the specified object is null and throws an exception if it is not null.
+            </summary>
+            <param name="value"> The object the test expects to be null. </param>
+        </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.IsNull(System.Object,System.String)">
+            <summary>
+            Tests whether the specified object is null and throws an exception if it is not null.
+            </summary>
+            <param name="value"> The object the test expects to be null. </param>
             <param name="message"> The message is shown in test results. </param>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.IsTrue(System.Func{System.Boolean})">
@@ -4724,12 +4759,13 @@
             <param name="items"> The items to dump. </param>
             <returns> The items that was dumped. </returns>
         </member>
-        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``1(``0)">
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``1(``0,System.String)">
             <summary>
             Dump the item to the Console.WriteLine().
             </summary>
             <typeparam name="T"> The type of the item. </typeparam>
             <param name="item"> The item to dump. </param>
+            <param name="prefix"> An optional prefix. </param>
             <returns> The item that was dumped. </returns>
         </member>
         <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``2(System.Collections.Generic.IDictionary{``0,System.Collections.Generic.ICollection{``1}})">
@@ -4740,6 +4776,12 @@
             <typeparam name="T2"> The type of the item in the collection. </typeparam>
             <param name="dictionary"> The dictionary to dump. </param>
             <returns> The dictionary that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.DumpJson(System.Object)">
+            <summary>
+            Dump the item to the Console.WriteLine().
+            </summary>
+            <param name="item"> The item to dump. </param>
         </member>
         <member name="T:Speedy.Automation.Utility">
             <summary>

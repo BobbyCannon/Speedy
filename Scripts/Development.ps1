@@ -6,18 +6,25 @@ Import-Module WebAdministration
 iisreset
 
 Clear-Host
-Restart-WebAppPool -Name "Speedy"
+Stop-WebAppPool -Name "Speedy"
 Get-Process vbcs* | Stop-Process
 
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net7.0'
+
+Start-WebAppPool -Name "Speedy"
+
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net6.0'
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'netcoreapp3.1'
 
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
+#
+# Need to add readme to all packages
+# https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
+#
 & 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC9'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC10'
 & 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'pre'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'

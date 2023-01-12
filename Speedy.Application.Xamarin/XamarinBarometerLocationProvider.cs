@@ -23,7 +23,7 @@ public class XamarinBarometerLocationProvider<T>
 	/// <summary>
 	/// Instantiates the xamarin barometer altitude provider.
 	/// </summary>
-	/// <param name="dispatcher"> </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public XamarinBarometerLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
 		CurrentValue.ProviderName = ProviderName;

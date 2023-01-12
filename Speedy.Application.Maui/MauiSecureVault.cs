@@ -48,7 +48,7 @@ public class MauiSecureVault : SecureVault
 		var value = await SecureStorage.Default.GetAsync(KeyName);
 		var credential = value?.FromJson<Credential>();
 
-		if (credential == null)
+		if ((credential == null) || (credential.SecurePassword.Length <= 0))
 		{
 			return false;
 		}

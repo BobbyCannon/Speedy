@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net7.0</TargetFrameworks>
@@ -26,10 +26,15 @@
 		<DocumentationFile>Speedy.xml</DocumentationFile>
 		<AssemblyVersion>11.0.0.0</AssemblyVersion>
 		<FileVersion>11.0.0.0</FileVersion>
-		<Version>11.0.0-RC9</Version>
+		<Version>11.0.0-RC10</Version>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 		<None Remove="Speedy.png" />
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Include="Speedy.snk" />

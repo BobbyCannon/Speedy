@@ -4438,6 +4438,24 @@
             <param name="decrease"> An optional value to decrement. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
         </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.EnsureRange(System.Nullable{System.Double},System.Double,System.Double)">
+            <summary>
+            Ensure the value false between the ranges.
+            </summary>
+            <param name="value"> The nullable double value. </param>
+            <param name="min"> The inclusive minimal value. </param>
+            <param name="max"> The inclusive maximum value. </param>
+            <returns> The value within the provided ranges. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DoubleExtensions.EnsureRange(System.Double,System.Double,System.Double)">
+            <summary>
+            Ensure the value false between the ranges.
+            </summary>
+            <param name="value"> The nullable double value. </param>
+            <param name="min"> The inclusive minimal value. </param>
+            <param name="max"> The inclusive maximum value. </param>
+            <returns> The value within the provided ranges. </returns>
+        </member>
         <member name="M:Speedy.Extensions.DoubleExtensions.Increment(System.Double,System.Double)">
             <summary>
             Increment an double by a value or double.Epsilon if not provided.
@@ -4790,6 +4808,24 @@
             <param name="value"> The value to be decremented. </param>
             <param name="decrease"> An optional value to decrement. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.FloatExtensions.EnsureRange(System.Nullable{System.Single},System.Single,System.Single)">
+            <summary>
+            Ensure the value false between the ranges.
+            </summary>
+            <param name="value"> The nullable float value. </param>
+            <param name="min"> The inclusive minimal value. </param>
+            <param name="max"> The inclusive maximum value. </param>
+            <returns> The value within the provided ranges. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.FloatExtensions.EnsureRange(System.Single,System.Single,System.Single)">
+            <summary>
+            Ensure the value false between the ranges.
+            </summary>
+            <param name="value"> The nullable float value. </param>
+            <param name="min"> The inclusive minimal value. </param>
+            <param name="max"> The inclusive maximum value. </param>
+            <returns> The value within the provided ranges. </returns>
         </member>
         <member name="M:Speedy.Extensions.FloatExtensions.Increment(System.Single,System.Single)">
             <summary>

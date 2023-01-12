@@ -129,18 +129,12 @@ internal class GeolocationContinuousListener<T, THorizontal, TVertical> : Object
 		}
 	}
 
-	private void OnPositionError(LocationProviderError e)
-	{
-		PositionError?.Invoke(this, e);
-	}
-
 	#endregion
 
 	#region Events
 
 	public event EventHandler<LogEventArgs> LogEventWritten;
 	public event EventHandler<T> PositionChanged;
-	public event EventHandler<LocationProviderError> PositionError;
 
 	#endregion
 }
