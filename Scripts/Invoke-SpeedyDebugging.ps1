@@ -28,6 +28,30 @@ $scriptPath = $PSScriptRoot.Replace("\Scripts", "")
 # $VersionSuffix = "RC2"
 # $Framework = "netstandard2.0"
 
+function Format-XmlContent
+{
+	[CmdletBinding()]
+	Param (
+		[Parameter(ValueFromPipeline=$true, Mandatory=$true)]
+		[string] $xmlcontent,
+		[Parameter(ValueFromPipeline=$false, Mandatory=$false)]
+		[switch] $indented
+	)
+	
+	$xmldoc = New-Object -TypeName System.Xml.XmlDocument
+	$xmldoc.LoadXml($xmlcontent)
+	$sw = New-Object System.IO.StringWriter
+	$writer = New-Object System.Xml.XmlTextwriter($sw)
+	$writer.Formatting = [System.XML.Formatting]::None
+
+	if ($indented.IsPresent) {
+		$writer.Formatting = [System.XML.Formatting]::Indented
+	}
+
+	$xmldoc.WriteContentTo($writer)
+	$sw.ToString()
+}
+
 
 $file = ([System.IO.FileInfo] "$scriptPath\Speedy\Speedy.csproj")
 $fileXml = [xml](Get-Content $file.FullName -Raw)
@@ -102,7 +126,7 @@ $platformReferences[0][0]
 foreach ($file in $files)
 {
 	$directory = [System.IO.Path]::GetDirectoryName($file.FullName)
-	$data = Get-Content $file.FullName -Raw | Format-Xml -Minify
+	$data = Get-Content $file.FullName -Raw | Format-XmlContent
 	
 	if (!$data.ToString().Contains("Speedy"))
 	{
@@ -170,7 +194,7 @@ foreach ($file in $files)
 		}	
 	}
 	
-	$data = Format-Xml -Data $data -IndentCount 4 -IndentCharacter ' '
+	$data = Format-XmlContent -xmlcontent $data -indented
 	$file.FullName
 	
 	#Set-Content $file.FullName -Value $data -Encoding UTF8
