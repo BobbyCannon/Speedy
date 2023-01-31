@@ -46,27 +46,32 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 		DefaultRequireLocationAlwaysPermission = true;
 
 		// iOS
-		DefaultAllowsBackgroundLocationUpdates = true;
-		DefaultPausesLocationUpdatesAutomatically = false;
+		DefaultAllowBackgroundUpdates = true;
+		DefaultAllowPausingOfUpdates = false;
 	}
 
 	#endregion
 
 	#region Properties
 
-	/// <summary>
-	///  Determines whether or not background updates are allowed from the device's CLLocationManager
-	/// note: if true, the Location Background Mode must be set in the Info.plist
-	/// </summary>
-	public bool AllowsBackgroundLocationUpdates { get; set; }
+	/// <inheritdoc />
+	public bool AllowBackgroundUpdates { get; set; }
+
+	/// <inheritdoc />
+	public bool AllowPausingOfUpdates { get; set; }
 
 	/// <summary>
-	/// Default for AllowsBackgroundLocationUpdates flag.
+	/// Default for <see cref="AllowBackgroundUpdates" />.
 	/// </summary>
-	public static bool DefaultAllowsBackgroundLocationUpdates { get; set; }
+	public static bool DefaultAllowBackgroundUpdates { get; set; }
 
 	/// <summary>
-	/// Global default desired accuracy in meters
+	/// Default for <see cref="AllowPausingOfUpdates" />.
+	/// </summary>
+	public static bool DefaultAllowPausingOfUpdates { get; set; }
+
+	/// <summary>
+	/// Global default desired accuracy in meters.
 	/// </summary>
 	public static int DefaultDesiredAccuracy { get; set; }
 
@@ -81,18 +86,11 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 	public static TimeSpan DefaultMinimumTime { get; set; }
 
 	/// <summary>
-	/// Default for PausesLocationUpdatesAutomaticallyFlag
-	/// </summary>
-	public static bool DefaultPausesLocationUpdatesAutomatically { get; set; }
-
-	/// <summary>
 	/// Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
 	/// </summary>
 	public static bool DefaultRequireLocationAlwaysPermission { get; set; }
 
-	/// <summary>
-	/// Desired accuracy in meters
-	/// </summary>
+	/// <inheritdoc />
 	public int DesiredAccuracy { get; set; }
 
 	/// <summary>
@@ -105,9 +103,7 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 	/// </summary>
 	public static int DesiredAccuracyUpperLimit { get; set; }
 
-	/// <summary>
-	/// The minimum distance to travel for updates.
-	/// </summary>
+	/// <inheritdoc />
 	public int MinimumDistance { get; set; }
 
 	/// <summary>
@@ -120,9 +116,7 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 	/// </summary>
 	public static int MinimumDistanceUpperLimit { get; set; }
 
-	/// <summary>
-	/// The requested time period between updates.
-	/// </summary>
+	/// <inheritdoc />
 	public TimeSpan MinimumTime { get; set; }
 
 	/// <summary>
@@ -135,15 +129,7 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 	/// </summary>
 	public static TimeSpan MinimumTimeUpperLimit { get; set; }
 
-	/// <summary>
-	/// iOS Specific
-	/// Tells the system not to pause location updates automatically in attempts to conserve battery.
-	/// </summary>
-	public bool PausesLocationUpdatesAutomatically { get; set; }
-
-	/// <summary>
-	/// Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
-	/// </summary>
+	/// <inheritdoc />
 	public bool RequireLocationAlwaysPermission { get; set; }
 
 	#endregion
@@ -171,11 +157,11 @@ public class LocationProviderSettings : Bindable, ILocationProviderSettings
 
 	private void ResetToDefaults()
 	{
-		AllowsBackgroundLocationUpdates = DefaultAllowsBackgroundLocationUpdates;
+		AllowBackgroundUpdates = DefaultAllowBackgroundUpdates;
+		AllowPausingOfUpdates = DefaultAllowPausingOfUpdates;
 		DesiredAccuracy = DefaultDesiredAccuracy;
 		MinimumDistance = DefaultMinimumDistance;
 		MinimumTime = DefaultMinimumTime;
-		PausesLocationUpdatesAutomatically = DefaultPausesLocationUpdatesAutomatically;
 		RequireLocationAlwaysPermission = DefaultRequireLocationAlwaysPermission;
 	}
 
@@ -190,12 +176,20 @@ public interface ILocationProviderSettings : IBindable
 	#region Properties
 
 	/// <summary>
-	/// iOS Specific
-	/// Determines whether or not background updates are allowed from the device's
-	/// CLLocationManager
-	/// note: if true, the Location Background Mode must be set in the Info.plist
+	/// Determines whether or not location updates are allowed from a suspended app
 	/// </summary>
-	bool AllowsBackgroundLocationUpdates { get; set; }
+	/// <remarks>
+	/// Only supported in iOS at the moment. If true, the Location Background Mode must be set in the Info.plist.
+	/// </remarks>
+	bool AllowBackgroundUpdates { get; set; }
+
+	/// <summary>
+	/// Determines whether or not location updates are allow to pause.
+	/// </summary>
+	/// <remarks>
+	/// Only supported in iOS at the moment.
+	/// </remarks>
+	bool AllowPausingOfUpdates { get; set; }
 
 	/// <summary>
 	/// Desired accuracy in meters
@@ -211,12 +205,6 @@ public interface ILocationProviderSettings : IBindable
 	/// The requested time period between updates.
 	/// </summary>
 	TimeSpan MinimumTime { get; set; }
-
-	/// <summary>
-	/// iOS Specific
-	/// Tells the system not to pause location updates automatically in attempts to conserve battery.
-	/// </summary>
-	bool PausesLocationUpdatesAutomatically { get; set; }
 
 	/// <summary>
 	/// Gets or set flag to require always permission. If true always require otherwise "only in use" permission.

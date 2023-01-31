@@ -3161,9 +3161,25 @@
             Instantiates an instance of the settings.
             </summary>
         </member>
+        <member name="P:Speedy.Data.Location.LocationProviderSettings.AllowBackgroundUpdates">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Data.Location.LocationProviderSettings.AllowPausingOfUpdates">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Data.Location.LocationProviderSettings.DefaultAllowBackgroundUpdates">
+            <summary>
+            Default for <see cref="P:Speedy.Data.Location.LocationProviderSettings.AllowBackgroundUpdates" />.
+            </summary>
+        </member>
+        <member name="P:Speedy.Data.Location.LocationProviderSettings.DefaultAllowPausingOfUpdates">
+            <summary>
+            Default for <see cref="P:Speedy.Data.Location.LocationProviderSettings.AllowPausingOfUpdates" />.
+            </summary>
+        </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.DefaultDesiredAccuracy">
             <summary>
-            Global default desired accuracy in meters
+            Global default desired accuracy in meters.
             </summary>
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.DefaultMinimumDistance">
@@ -3182,9 +3198,7 @@
             </summary>
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.DesiredAccuracy">
-            <summary>
-            Desired accuracy in meters
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.DesiredAccuracyLowerLimit">
             <summary>
@@ -3197,9 +3211,7 @@
             </summary>
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.MinimumDistance">
-            <summary>
-            The minimum distance to travel for updates.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.MinimumDistanceLowerLimit">
             <summary>
@@ -3212,9 +3224,7 @@
             </summary>
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.MinimumTime">
-            <summary>
-            The requested time period between updates.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.MinimumTimeLowerLimit">
             <summary>
@@ -3227,9 +3237,7 @@
             </summary>
         </member>
         <member name="P:Speedy.Data.Location.LocationProviderSettings.RequireLocationAlwaysPermission">
-            <summary>
-            Gets or set flag to require always permission. If true always require otherwise "only in use" permission.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Data.Location.LocationProviderSettings.Cleanup">
             <inheritdoc />
@@ -3241,6 +3249,22 @@
             <summary>
             Represents settings for a location provider.
             </summary>
+        </member>
+        <member name="P:Speedy.Data.Location.ILocationProviderSettings.AllowBackgroundUpdates">
+            <summary>
+            Determines whether or not location updates are allowed from a suspended app
+            </summary>
+            <remarks>
+            Only supported in iOS at the moment. If true, the Location Background Mode must be set in the Info.plist.
+            </remarks>
+        </member>
+        <member name="P:Speedy.Data.Location.ILocationProviderSettings.AllowPausingOfUpdates">
+            <summary>
+            Determines whether or not location updates are allow to pause.
+            </summary>
+            <remarks>
+            Only supported in iOS at the moment.
+            </remarks>
         </member>
         <member name="P:Speedy.Data.Location.ILocationProviderSettings.DesiredAccuracy">
             <summary>

@@ -42,8 +42,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 		_manager = GetManager();
 		_manager.AuthorizationChanged += OnAuthorizationChanged;
 		_manager.Failed += OnFailed;
-		_manager.AllowsBackgroundLocationUpdates = LocationProviderSettings.AllowsBackgroundLocationUpdates;
-		_manager.PausesLocationUpdatesAutomatically = LocationProviderSettings.PausesLocationUpdatesAutomatically;
+		_manager.AllowsBackgroundLocationUpdates = LocationProviderSettings.AllowBackgroundUpdates;
+		_manager.PausesLocationUpdatesAutomatically = LocationProviderSettings.AllowPausingOfUpdates;
 
 		if (UIDevice.CurrentDevice.CheckSystemVersion(6, 0))
 		{
