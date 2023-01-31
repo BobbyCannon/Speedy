@@ -12,8 +12,11 @@ using Speedy.Extensions;
 
 namespace Speedy.ServiceHosting
 {
+	/// <summary>
+	/// Represents the installer for a windows service.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
-	internal static class WindowsServiceInstaller
+	public static class WindowsServiceInstaller
 	{
 		#region Fields
 

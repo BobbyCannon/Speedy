@@ -272,6 +272,11 @@
             Determine if this argument should be included in the windows service argument string. Defaults to true (include).
             </summary>
         </member>
+        <member name="T:Speedy.ServiceHosting.WindowsServiceInstaller">
+            <summary>
+            Represents the installer for a windows service.
+            </summary>
+        </member>
         <member name="M:Speedy.ServiceHosting.WindowsServiceInstaller.InstallService(System.String,System.String,System.String,System.String,System.ServiceProcess.ServiceStartMode,System.String,System.String)">
             <summary>
             Install an executable as a service.
