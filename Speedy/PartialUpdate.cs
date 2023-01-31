@@ -891,14 +891,22 @@ public class PartialUpdate : Bindable
 	/// <returns> True if the update was found otherwise false. </returns>
 	public bool TryGet<T>(string name, out T value)
 	{
-		if (Updates.ContainsKey(name))
+		try
 		{
-			value = ConvertUpdate<T>(Updates[name]);
-			return true;
-		}
+			if (Updates.ContainsKey(name))
+			{
+				value = ConvertUpdate<T>(Updates[name]);
+				return true;
+			}
 
-		value = default;
-		return false;
+			value = default;
+			return false;
+		}
+		catch
+		{
+			value = default;
+			return false;
+		}
 	}
 
 	/// <summary>
@@ -910,14 +918,22 @@ public class PartialUpdate : Bindable
 	/// <returns> True if the update was found otherwise false. </returns>
 	public bool TryGet(Type type, string name, out object value)
 	{
-		if (Updates.ContainsKey(name))
+		try
 		{
-			value = ConvertUpdate(Updates[name], type);
-			return true;
-		}
+			if (Updates.ContainsKey(name))
+			{
+				value = ConvertUpdate(Updates[name], type);
+				return true;
+			}
 
-		value = default;
-		return false;
+			value = default;
+			return false;
+		}
+		catch
+		{
+			value = default;
+			return false;
+		}
 	}
 
 	/// <summary>

@@ -180,10 +180,22 @@
             Gets the options for the service.
             </summary>
         </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.InstallService(`0)">
+            <summary>
+            Install the service as a windows service.
+            </summary>
+            <param name="options"> The service options. </param>
+        </member>
         <member name="M:Speedy.ServiceHosting.WindowsService`1.Start">
             <summary>
             Allows public access to the OnStart method.
             </summary>
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsService`1.UninstallService(`0)">
+            <summary>
+            Uninstall the service as a windows service.
+            </summary>
+            <param name="options"> The service options. </param>
         </member>
         <member name="M:Speedy.ServiceHosting.WindowsService`1.OnStart(System.String[])">
             <summary>
