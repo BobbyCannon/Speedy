@@ -43,6 +43,8 @@ function Format-XmlContent
 	$sw = New-Object System.IO.StringWriter
 	$writer = New-Object System.Xml.XmlTextwriter($sw)
 	$writer.Formatting = [System.XML.Formatting]::None
+	$writer.IndentChar = "`t"
+	$writer.Indentation = 1
 
 	if ($indented.IsPresent) {
 		$writer.Formatting = [System.XML.Formatting]::Indented
@@ -105,6 +107,7 @@ for ($i = 0; $i -le $projects.Length; $i++)
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.1\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid10.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid12.0\$project.dll</HintPath></Reference>"
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-windows\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-windows10.0.19041.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\net7.0-windows\$project.dll</HintPath></Reference>"
@@ -161,35 +164,54 @@ foreach ($file in $files)
 			$data = $data.Replace($packageReferences[$i], $directReferences[$i])
 			$data = $data.Replace($packageReferences2[$i], $directReferences[$i])
 			
+			if ($data.Contains("<TargetFramework>netstandard2.0</TargetFramework>")	`
+				-or $data.Contains("<TargetFrameworks>netstandard2.0</TargetFrameworks>"))
+			{
+				continue
+			}
+			
 			if ($data.Contains("<TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>")) 
 			{
 				#Write-Host "UAP detected"
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\uap10.0.19041\Speedy.Application.Xamarin.dll")
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\uap10.0.19041\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\uap10.0.19041\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\uap10.0.19041\Speedy.Application.Xamarin.dll")
 			}
 			
-			if ($data.Contains("<TargetFramework>net7.0-windows</TargetFramework>") -or $data.Contains("<TargetFramework>net7.0-windows10.0.19041.0</TargetFramework>"))
+			if ($data.Contains("<TargetFramework>net7.0-windows</TargetFramework>") `
+				-or $data.Contains("<TargetFrameworks>net7.0-windows</TargetFrameworks>") `
+				-or $data.Contains("<TargetFramework>net7.0-windows10.0.19041.0</TargetFramework>") `
+				-or $data.Contains("<TargetFrameworks>net7.0-windows10.0.19041.0</TargetFrameworks>"))
 			{
 				#Write-Host ".NET 7 windows detected"
-				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.0\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
-				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.1\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
+				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.0\Speedy.Application.Wpf.dll", `
+					"Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
+				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.1\Speedy.Application.Wpf.dll", `
+					"Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
 				
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
 			}
 			
 			if ($data.Contains("<Reference Include=`"Mono.Android`" />"))
 			{
 				#Write-Host "Xamarin Android detected"
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\monoandroid12.0\Speedy.Application.Xamarin.dll")
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\monoandroid12.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\monoandroid12.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\monoandroid12.0\Speedy.Application.Xamarin.dll")
 			}
 			
 			if ($data.Contains("\Xamarin\iOS\Xamarin.iOS.CSharp.targets"))
 			{
 				#Write-Host "Xamarin iOS detected"
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\xamarin.ios10\Speedy.Application.Xamarin.dll")
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\xamarin.ios10\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\xamarin.ios10\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", `
+					"Speedy.Application.Xamarin\bin\Debug\xamarin.ios10\Speedy.Application.Xamarin.dll")
 			}
 		}	
 	}
