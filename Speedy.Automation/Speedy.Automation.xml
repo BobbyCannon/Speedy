@@ -4288,9 +4288,19 @@
             Represents the current time returned by TimeService.UtcNow;
             </summary>
         </member>
+        <member name="P:Speedy.Automation.Tests.SpeedyTest.IsDebugging">
+            <summary>
+            Returns true if the debugger is attached.
+            </summary>
+        </member>
         <member name="P:Speedy.Automation.Tests.SpeedyTest.StartDateTime">
             <summary>
             Represents the current time returned by TimeService.UtcNow;
+            </summary>
+        </member>
+        <member name="P:Speedy.Automation.Tests.SpeedyTest.WaitTimeout">
+            <summary>
+            The timeout to use when waiting for a test state to be hit.
             </summary>
         </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0,``0,System.Action{System.Boolean},System.String[])">
@@ -4472,6 +4482,15 @@
             </summary>
             <param name="value"> The new time to set. </param>
         </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.Wait(System.Func{System.Boolean},System.Boolean)">
+            <summary>
+            Runs the action until the action returns true or the timeout is reached. Will delay in between actions using the
+            <see cref="P:Speedy.Automation.Tests.SpeedyTest.WaitTimeout" /> property with a delay of 10ms.
+            </summary>
+            <param name="action"> The action to call. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.Wait(System.Func{System.Boolean},System.Int32,System.Int32,System.Boolean)">
             <summary>
             Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
@@ -4566,7 +4585,7 @@
             <param name="model"> The model to test. </param>
             <param name="exclusions"> An optional set of exclusions. </param>
         </member>
-        <member name="M:Speedy.Automation.Tests.SpeedyTest.ValidateUpdatableModel(System.Object,System.String[])">
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.ValidateUpdateableModel(System.Object,System.String[])">
             <summary>
             Validate a model that is "IUpdatable"
             </summary>
@@ -4750,6 +4769,51 @@
             <summary>
             Extension for testing
             </summary>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump(System.Object)">
+            <summary>
+            Dump the item to the Console.WriteLine().
+            </summary>
+            <param name="item"> The item to dump. </param>
+            <returns> The string that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump(System.Collections.Generic.IEnumerable{System.Object},System.String)">
+            <summary>
+            Dump the objects to the Console.WriteLine().
+            </summary>
+            <param name="items"> The objects to dump. </param>
+            <param name="prefix"> On optional prefix to write before each character. </param>
+            <returns> The items that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump(System.Char[],System.String)">
+            <summary>
+            Dump the characters to the Console.WriteLine().
+            </summary>
+            <param name="items"> The characters to dump. </param>
+            <param name="prefix"> On optional prefix to write before each character. </param>
+            <returns> The items that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump(System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            Dump each item to the Console.WriteLine().
+            </summary>
+            <param name="items"> The items to dump. </param>
+            <returns> The items that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump(System.Byte[])">
+            <summary>
+            Dump each item to the Console.WriteLine().
+            </summary>
+            <param name="item"> The byte array to write. The array will be formatted as a hex string. </param>
+            <returns> The items that was dumped. </returns>
+        </member>
+        <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``1(``0,System.Func{``0,System.Object})">
+            <summary>
+            Dump the result of the action to the Console.WriteLine().
+            </summary>
+            <typeparam name="T"> The type of the item in the list. </typeparam>
+            <param name="item"> The item to pass to the action. </param>
+            <param name="action"> The action to process the item. </param>
         </member>
         <member name="M:Speedy.Automation.Tests.TestingExtensions.Dump``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
@@ -5125,13 +5189,6 @@
             <summary>
             Refreshes the element collection for the current page.
             </summary>
-        </member>
-        <member name="M:Speedy.Automation.Web.Browser.StartStaTask(System.Action)">
-            <summary>
-            Runs a task in an STA thread.
-            </summary>
-            <param name="action"> The action to run. </param>
-            <returns> The task started as STA thread running the action. </returns>
         </member>
         <member name="T:Speedy.Automation.Web.BrowserResizeType">
             <summary>

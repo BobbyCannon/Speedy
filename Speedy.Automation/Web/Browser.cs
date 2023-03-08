@@ -861,33 +861,6 @@ namespace Speedy.Automation.Web
 			Children.AddRange(parents.Values);
 		}
 
-		/// <summary>
-		/// Runs a task in an STA thread.
-		/// </summary>
-		/// <param name="action"> The action to run. </param>
-		/// <returns> The task started as STA thread running the action. </returns>
-		private static Task StartStaTask(Action action)
-		{
-			var tcs = new TaskCompletionSource<object>();
-			var thread = new Thread(() =>
-			{
-				try
-				{
-					action();
-					tcs.SetResult(null);
-				}
-				catch (Exception e)
-				{
-					tcs.TrySetException(e);
-				}
-			});
-
-			thread.SetApartmentState(ApartmentState.STA);
-			thread.Start();
-
-			return tcs.Task;
-		}
-
 		#endregion
 	}
 }

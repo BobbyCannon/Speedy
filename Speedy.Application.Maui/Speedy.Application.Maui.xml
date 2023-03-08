@@ -145,6 +145,21 @@
             </summary>
             <param name="activity"> The activity. </param>
         </member>
+        <member name="T:Speedy.Application.Maui.MauiRuntimeInformation">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.GetApplicationIsElevated">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.GetApplicationLocation">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Maui.MauiRuntimeInformation.GetApplicationName">
             <inheritdoc />
         </member>

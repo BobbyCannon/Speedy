@@ -12,7 +12,7 @@ using Speedy.UnitTests;
 namespace Speedy.PerformanceTests
 {
 	[TestClass]
-	public class TaskExtensionsTests
+	public class TaskExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -25,7 +25,7 @@ namespace Speedy.PerformanceTests
 				return true;
 			});
 			var result = task.AwaitResults(TimeSpan.FromSeconds(2));
-			Assert.IsTrue(result);
+			IsTrue(result);
 		}
 
 		[TestMethod]
@@ -37,9 +37,10 @@ namespace Speedy.PerformanceTests
 				return true;
 			});
 
-			TestHelper.ExpectedException<TimeoutException>(
-				() => task.AwaitResults(TimeSpan.FromMilliseconds(100))
-				, "The operation has timed out.");
+			ExpectedException<TimeoutException>(
+				() => task.AwaitResults(TimeSpan.FromMilliseconds(100)),
+				"The operation has timed out."
+			);
 		}
 
 		#endregion

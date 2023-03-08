@@ -448,7 +448,7 @@ public class PartialUpdate : Bindable
 
 		if (entity is ISyncEntity syncEntity)
 		{
-			var exclusions = syncEntity.GetExclusions(true, true, false);
+			var exclusions = syncEntity.GetSyncExclusions(true, true, false);
 			updateOptions.ExcludedProperties.AddRange(exclusions);
 		}
 
@@ -517,7 +517,7 @@ public class PartialUpdate : Bindable
 	/// <param name="excludePropertiesForSyncUpdate"> If true excluded properties will not be set during update. </param>
 	public void ApplyToSyncEntity(ISyncEntity entity, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 	{
-		Apply(entity, new PartialUpdateOptions(null, entity.GetExclusions(excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate)));
+		Apply(entity, new PartialUpdateOptions(null, entity.GetSyncExclusions(excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate)));
 	}
 
 	/// <summary>

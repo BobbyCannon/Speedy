@@ -1,15 +1,16 @@
 ﻿#region References
 
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
+using Speedy.Protocols;
 
 #endregion
 
 namespace Speedy.UnitTests.Protocols
 {
-	[TestClass]
+    [TestClass]
 	public class ExtensionTests
 	{
 		#region Methods
@@ -17,7 +18,7 @@ namespace Speedy.UnitTests.Protocols
 		[TestMethod]
 		public void CalculateCrc16()
 		{
-			var actual = Encoding.UTF8.GetBytes("123456789").CalculateCrc16();
+			var actual = "123456789"u8.ToArray().CalculateCrc16(CrcType.Kermit);
 			actual.ToString("X4").Dump();
 			Assert.AreEqual(0x2189, actual);
 		}
@@ -54,20 +55,23 @@ namespace Speedy.UnitTests.Protocols
 
 			foreach (var item in items)
 			{
-				item.Key.Escape().Dump();
+				(item.Key + " / " + item.Key.Unescape() + " : " + item.Value + " / " + item.Value.Escape()).Dump();
 				Assert.AreEqual(item.Value, item.Key.Unescape());
 			}
 
-			// One way unescapes
+			"\r\nSpecial Cases\r\n".Dump();
+
+			// One way un-escapes
 			items = new List<(string, string)>
 			{
-				("\\u0000", "\0"),
+				("\\u0000", "\u0000"),
+				("\\u00bc", "\u00BC"),
 				("\\'", "\'")
 			};
 
 			foreach (var item in items)
 			{
-				item.Key.Escape().Dump();
+				(item.Key + " / " + item.Key.Unescape() + " : " + item.Value + " / " + item.Value.Escape()).Dump();
 				Assert.AreEqual(item.Value, item.Key.Unescape());
 			}
 		}
@@ -87,19 +91,19 @@ namespace Speedy.UnitTests.Protocols
 				("\\'", "\'"),
 				("\\\"", "\""),
 				("\\u0001", "\u0001"),
-				("\\uffff", "\uFFFF"),
+				("\\uFFFF", "\uFFFF"),
 				("\\u1234", "\x1234"),
 				("\\u0001", "\x1"),
 				("\\u0012", "\x12"),
 				("\\u0123", "\x123"),
-				("\\u000e", "\xE"),
-				("\\u00ec", "\xEC"),
-				("\\u0daf", "\xDAF"),
-				("\\u000f", "\xF"),
-				("\\u00ef", "\xEF"),
-				("\\u0cba", "\xCBA"),
-				("\\udcba", "\xDCBA"),
-				("\\udcbaF", "\xDCBAF"),
+				("\\u000E", "\xE"),
+				("\\u00EC", "\xEC"),
+				("\\u0DAF", "\xDAF"),
+				("\\u000F", "\xF"),
+				("\\u00EF", "\xEF"),
+				("\\u0CBA", "\xCBA"),
+				("\\uDCBA", "\xDCBA"),
+				("\\uDCBAF", "\xDCBAF"),
 				("John\\'s Tavern", "John\'s Tavern")
 			};
 		}

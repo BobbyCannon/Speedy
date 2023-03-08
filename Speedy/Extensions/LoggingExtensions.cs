@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using System.Diagnostics.Tracing;
 using System.Linq;
 

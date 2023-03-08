@@ -168,6 +168,27 @@ public static class DictionaryExtensions
 	}
 
 	/// <summary>
+	/// Get a value if the key is found otherwise create a new item, add to dictionary, then return.
+	/// </summary>
+	/// <typeparam name="T"> The key type. </typeparam>
+	/// <typeparam name="T2"> The value type. </typeparam>
+	/// <param name="dictionary"> The dictionary to process. </param>
+	/// <param name="key"> The key value. </param>
+	/// <param name="create"> The function to create a new value. </param>
+	/// <returns> </returns>
+	public static T2 GetOrAdd<T, T2>(this IDictionary<T, T2> dictionary, T key, Func<T2> create)
+	{
+		if (dictionary.ContainsKey(key))
+		{
+			return dictionary[key];
+		}
+
+		var response = create();
+		dictionary.Add(key, response);
+		return response;
+	}
+
+	/// <summary>
 	/// Tries to get a value or returns the default value.
 	/// </summary>
 	/// <typeparam name="T"> The key type. </typeparam>

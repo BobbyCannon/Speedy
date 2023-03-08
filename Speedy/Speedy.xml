@@ -35,11 +35,6 @@
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
-        <member name="P:Speedy.Bindable.HasChanges">
-            <summary>
-            Determines if the object has changes.
-            </summary>
-        </member>
         <member name="P:Speedy.Bindable.Dispatcher">
             <summary>
             Represents a thread dispatcher to help with cross threaded request.
@@ -51,6 +46,12 @@
             </summary>
         </member>
         <member name="M:Speedy.Bindable.GetDispatcher">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.HasChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.HasChanges(System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.IsChangeNotificationsPaused">
@@ -65,7 +66,7 @@
         <member name="M:Speedy.Bindable.PausePropertyChangeNotifications(System.Boolean)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Bindable.ResetChangeTracking(System.Boolean)">
+        <member name="M:Speedy.Bindable.ResetHasChanges(System.Boolean)">
             <summary>
             Reset the change tracking flag.
             </summary>
@@ -841,6 +842,14 @@
             Creates a new command.
             </summary>
             <param name="execute"> The execution logic. </param>
+            <param name="canExecute"> The execution status logic. </param>
+        </member>
+        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Windows.Input.ICommand,System.String,System.Predicate{System.Object})">
+            <summary>
+            Creates a new command.
+            </summary>
+            <param name="execute"> The execution logic. </param>
+            <param name="parameter"> The parameter to pass during execute. </param>
             <param name="canExecute"> The execution status logic. </param>
         </member>
         <member name="M:Speedy.Commands.RelayCommand.CanExecute(System.Object)">
@@ -3388,6 +3397,16 @@
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
+        <member name="P:Speedy.Data.RuntimeInformation.ApplicationIsElevated">
+            <summary>
+            Flag indicating if the application is elevated.
+            </summary>
+        </member>
+        <member name="P:Speedy.Data.RuntimeInformation.ApplicationLocation">
+            <summary>
+            The location of the application.
+            </summary>
+        </member>
         <member name="P:Speedy.Data.RuntimeInformation.ApplicationName">
             <summary>
             The name of the application.
@@ -3428,6 +3447,11 @@
             The type of the device.
             </summary>
         </member>
+        <member name="P:Speedy.Data.RuntimeInformation.Instance">
+            <summary>
+            The global instance of the runtime information.
+            </summary>
+        </member>
         <member name="M:Speedy.Data.RuntimeInformation.IsWindows">
             <summary>
             Determines if the platform is Windows.
@@ -3446,6 +3470,16 @@
         </member>
         <member name="M:Speedy.Data.RuntimeInformation.ToString">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationIsElevated">
+            <summary>
+            Get flag indicating if the application is elevated.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationLocation">
+            <summary>
+            The location of the application.
+            </summary>
         </member>
         <member name="M:Speedy.Data.RuntimeInformation.GetApplicationName">
             <summary>
@@ -3486,6 +3520,14 @@
             <summary>
             The type of the device.
             </summary>
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetOrCache``1(System.String)">
+            <summary>
+            Get or cache the value.
+            </summary>
+            <typeparam name="T"> </typeparam>
+            <param name="name"> </param>
+            <returns> </returns>
         </member>
         <member name="T:Speedy.Data.SecureVault">
             <summary>
@@ -3604,7 +3646,7 @@
         </member>
         <member name="P:Speedy.Entity.ChangedProperties">
             <summary>
-            The properties that has changed since last <see cref="M:Speedy.Entity.ResetChangeTracking" /> event.
+            The properties that has changed since last <see cref="M:Speedy.Entity.ResetHasChanges(System.Boolean)" /> event.
             </summary>
         </member>
         <member name="P:Speedy.Entity.RealType">
@@ -3630,10 +3672,17 @@
         <member name="M:Speedy.Entity.EntityModified">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity.HasChanges(System.String[])">
+        <member name="M:Speedy.Entity.GetUpdatableExclusions">
             <summary>
-            Determines if the object has changes.
+            Default exclusions are all virtual members.
             </summary>
+            <returns> The list of members to be excluded. </returns>
+        </member>
+        <member name="M:Speedy.Entity.HasChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Entity.HasChanges(System.String[])">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.IdIsSet">
             <inheritdoc />
@@ -3647,10 +3696,8 @@
             </summary>
             <param name="propertyName"> The name of the property that changed. </param>
         </member>
-        <member name="M:Speedy.Entity.ResetChangeTracking">
-            <summary>
-            Reset the change tracking flag.
-            </summary>
+        <member name="M:Speedy.Entity.ResetHasChanges(System.Boolean)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.ShallowClone">
             <inheritdoc />
@@ -3698,6 +3745,13 @@
             sure to only return static values as to not cause issues.
             </summary>
             <returns> The values to exclude during change tracking. </returns>
+        </member>
+        <member name="M:Speedy.Entity.GetDefaultExclusionsForUpdatableExclusions">
+            <summary>
+            Gets the default exclusions for updatable. Warning: this is called during constructor, overrides need to be
+            sure to only return static values as to not cause issues.
+            </summary>
+            <returns> The values to exclude during processing <see cref="T:Speedy.IUpdatable" />. </returns>
         </member>
         <member name="E:Speedy.Entity.PropertyChanged">
             <inheritdoc />
@@ -4078,19 +4132,22 @@
             <typeparam name="T2"> The type of the second item. </typeparam>
             <param name="collection"> The collection to be updated. </param>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[])">
+        <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[],Speedy.Protocols.CrcType)">
             <summary>
-            Calculate a CRC using CRC-16/KERMIT.
+            Calculate a CRC using the provided type.
             </summary>
             <param name="data"> The data to calculate the CRC for. </param>
+            <param name="type"> The type of CRC to generate. </param>
             <returns> The CRC for the data. </returns>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[],System.Int32)">
+        <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[],System.Int32,System.Int32,Speedy.Protocols.CrcType)">
             <summary>
             Calculate a CRC using CRC-16/KERMIT.
             </summary>
             <param name="data"> The data to calculate the CRC for. </param>
+            <param name="offset"> The offset to start with. </param>
             <param name="length"> The length to calculate. </param>
+            <param name="type"> The type of CRC to generate. </param>
             <returns> The CRC for the data. </returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.Empty``1(System.Collections.Concurrent.ConcurrentQueue{``0},System.Nullable{System.TimeSpan})">
@@ -4198,6 +4255,22 @@
             <param name="collection"> The left collection. </param>
             <param name="updates"> The right collection. </param>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.Remove``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean},System.Action{``0})">
+            <summary>
+            Remove items from a collection based on the provided filter.
+            </summary>
+            <param name="collection"> The collection to update. </param>
+            <param name="filter"> The filter of the items to remove. </param>
+            <param name="callback"> An optional callback to be used before each remove. </param>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.Remove``1(System.Collections.ObjectModel.ObservableCollection{``0},System.Func{``0,System.Boolean},System.Action{``0})">
+            <summary>
+            Remove items from a collection based on the provided filter.
+            </summary>
+            <param name="collection"> The collection to update. </param>
+            <param name="filter"> The filter of the items to remove. </param>
+            <param name="callback"> An optional callback to be used before each remove. </param>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.SubArray``1(``0[],System.Int32,System.Int32)">
             <summary>
             Gets a sub array from an existing array.
@@ -4292,6 +4365,24 @@
             <param name="right"> The right date and time. </param>
             <returns> The smaller of the two. </returns>
         </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.MonthStart(System.DateTime)">
+            <summary>
+            Get the first of the month from the provided date.
+            </summary>
+            <param name="date"> The date to process. </param>
+            <returns>
+            The date of the first day of the month.
+            </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.NextMonth(System.DateTime)">
+            <summary>
+            Get the first of the next month from the provided date.
+            </summary>
+            <param name="date"> The date to process. </param>
+            <returns>
+            The date of the first day of the next month.
+            </returns>
+        </member>
         <member name="M:Speedy.Extensions.DateTimeExtensions.ToOscTimeTag(System.DateTime)">
             <summary>
             Convert a DateTime to an OscTimeTag.
@@ -4304,6 +4395,14 @@
             Converts the string representation of a date and time to its <see cref="T:System.DateTime"> </see> equivalent.
             </summary>
             <param name="value"> The string value. </param>
+            <returns> The date time value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.ToUtcDateTime(System.String,System.String)">
+            <summary>
+            Converts the string representation of a date and time to its <see cref="T:System.DateTime"> </see> equivalent.
+            </summary>
+            <param name="value"> The string value. </param>
+            <param name="format"> The exact format to parse. </param>
             <returns> The date time value. </returns>
         </member>
         <member name="M:Speedy.Extensions.DateTimeExtensions.ToUtcDateTime(System.DateTime,System.Boolean)">
@@ -4395,6 +4494,17 @@
             <typeparam name="T2"> The value type. </typeparam>
             <param name="dictionary"> The dictionary to clone. </param>
             <returns> The clone dictionary. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DictionaryExtensions.GetOrAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``1})">
+            <summary>
+            Get a value if the key is found otherwise create a new item, add to dictionary, then return.
+            </summary>
+            <typeparam name="T"> The key type. </typeparam>
+            <typeparam name="T2"> The value type. </typeparam>
+            <param name="dictionary"> The dictionary to process. </param>
+            <param name="key"> The key value. </param>
+            <param name="create"> The function to create a new value. </param>
+            <returns> </returns>
         </member>
         <member name="M:Speedy.Extensions.DictionaryExtensions.GetValue``2(System.Collections.Generic.IDictionary{``0,``1},``0)">
             <summary>
@@ -4793,6 +4903,13 @@
             <summary>
             File system extensions (file / directories)
             </summary>
+        </member>
+        <member name="M:Speedy.Extensions.FileExtensions.ReadAllBytes(System.IO.FileInfo)">
+            <summary>
+            Opens a binary file, reads the contents of the file into a byte array, and then closes the file.
+            </summary>
+            <param name="file"> The file information. </param>
+            <returns> A byte array containing the contents of the file. </returns>
         </member>
         <member name="M:Speedy.Extensions.FileExtensions.SafeCreate(System.IO.FileInfo)">
             <summary>
@@ -5484,6 +5601,11 @@
             Default flags for cached access.
             </summary>
         </member>
+        <member name="F:Speedy.Extensions.ReflectionExtensions.DirectMemberFlags">
+            <summary>
+            Flags for direct member only.
+            </summary>
+        </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.CachedMakeGenericMethod(System.Reflection.MethodInfo,System.Type[])">
             <summary>
             Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
@@ -5692,14 +5814,12 @@
             <param name="propertyInfo"> The property info. </param>
             <param name="nonSupportedType"> An optional non supported type. </param>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetExclusions``1(``0)">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValueNotNull(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
             <summary>
-            Get exclusions for the provided type. Currently this returns all sync exclusions.
-            todo: add an "exclusion" interface so we can exclude on any model.
+            Get a default value for a property.
             </summary>
-            <typeparam name="T"> The type of the model. </typeparam>
-            <param name="model"> The model to get exclusions for. </param>
-            <returns> The exclusions. </returns>
+            <param name="propertyInfo"> The property info. </param>
+            <param name="nonSupportedType"> An optional non supported type. </param>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetExpressionName(System.Linq.Expressions.LambdaExpression)">
             <summary>
@@ -5753,11 +5873,12 @@
             <param name="type"> The type to process. </param>
             <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetVirtualPropertyNames(System.Type)">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetVirtualPropertyNames(System.Type,System.Nullable{System.Reflection.BindingFlags})">
             <summary>
             Gets a list of virtual property names. The results are cached so the next query is much faster.
             </summary>
             <param name="type"> The value to get the property names for. </param>
+            <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
             <returns> The list of virtual property names for the type. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.IsVirtual(System.Reflection.PropertyInfo)">
@@ -5797,7 +5918,7 @@
             Update the provided object with non default values.
             </summary>
             <typeparam name="T"> The type of the value. </typeparam>
-            <param name="value"> The value to update all properties for. </param>
+            <param name="model"> The value to update all properties for. </param>
             <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
             <param name="exclusions"> An optional set of properties to exclude. </param>
             <returns> The type updated with non default values. </returns>
@@ -5810,11 +5931,41 @@
             <param name="model"> The model to be validated. </param>
             <param name="exclusions"> An optional set of exclusions. </param>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.NextInt32(System.Random)">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetExclusions``1(``0)">
             <summary>
-            Returns an Int32 with a random value across the entire range of
-            possible values.
+            Get exclusions for the provided type. Currently this returns all sync exclusions.
+            todo: add an "exclusion" interface so we can exclude on any model.
             </summary>
+            <typeparam name="T"> The type of the model. </typeparam>
+            <param name="model"> The model to get exclusions for. </param>
+            <returns> The exclusions. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.SecureStringExtensions">
+            <summary>
+            Extensions for secure strings.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.SecureStringExtensions.Append(System.Security.SecureString,System.Security.SecureString)">
+            <summary>
+            Append the provided value to the secure string.
+            </summary>
+            <param name="secureString"> </param>
+            <param name="value"> </param>
+        </member>
+        <member name="M:Speedy.Extensions.SecureStringExtensions.IsEqual(System.Security.SecureString,System.Security.SecureString)">
+            <summary>
+            Compares two secure strings to see if they contain the same value.
+            </summary>
+            <param name="ss1"> The secure string. </param>
+            <param name="ss2"> The matching secure string. </param>
+            <returns> Returns true if the string match otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.SecureStringExtensions.ToUnsecureString(System.Security.SecureString)">
+            <summary>
+            Converts a SecureString to an unsecure string.
+            </summary>
+            <param name="value"> The value to be converted. </param>
+            <returns> The unsecure string. </returns>
         </member>
         <member name="T:Speedy.Extensions.StreamExtensions">
             <summary>
@@ -5856,12 +6007,13 @@
             <param name="input"> The string input. </param>
             <returns> The literal version of the string. </returns>
         </member>
-        <member name="M:Speedy.Extensions.StringExtensions.Escape(System.Byte[])">
+        <member name="M:Speedy.Extensions.StringExtensions.Escape(System.Byte[],System.Text.Encoding)">
             <summary>
-            Turn a byte array into a readable, escaped string
+            To literal version of the string.
             </summary>
-            <param name="bytes"> bytes </param>
-            <returns> a string </returns>
+            <param name="input"> The byte[] input. </param>
+            <param name="encoding"> Optional encoding. </param>
+            <returns> The literal version of the byte array. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.FromBase64String(System.String)">
             <summary>
@@ -5921,12 +6073,26 @@
             <param name="data"> The data to be converted. </param>
             <returns> The base 64 encoded string. </returns>
         </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToByteArray(System.String)">
+            <summary>
+            Converts a code string back into a byte array. Ex. "4142\xFF" = [41],[42],[FF]
+            </summary>
+            <param name="value"> The byte array the code string represents </param>
+            <returns> The string in "code string" format.. </returns>
+        </member>
         <member name="M:Speedy.Extensions.StringExtensions.ToCamelCase(System.String)">
             <summary>
             Convert the value to camel case
             </summary>
             <param name="value"> The value to update. </param>
             <returns> The value in camel case format. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.StringExtensions.ToCodeString(System.Byte[])">
+            <summary>
+            Converts a byte array to a code print friendly version. Ex. [41],[42],[FF] = "4142\xFF"
+            </summary>
+            <param name="data"> The byte array to convert. </param>
+            <returns> The byte array in a code string format. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.ToHexString(System.String,System.String,System.String)">
             <summary>
@@ -5962,13 +6128,6 @@
             <param name="input"> The string. </param>
             <param name="makeReadOnly"> Option to make the SecureString read only. </param>
             <returns> The secure string. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.StringExtensions.ToUnsecureString(System.Security.SecureString)">
-            <summary>
-            Converts a SecureString to an unsecure string.
-            </summary>
-            <param name="value"> The value to be converted. </param>
-            <returns> The unsecure string. </returns>
         </member>
         <member name="M:Speedy.Extensions.StringExtensions.Unescape(System.String)">
             <summary>
@@ -6333,6 +6492,30 @@
             Updates the entity for this entity.
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="T:Speedy.IChangeable">
+            <summary>
+            Represents an object that can track changes
+            </summary>
+        </member>
+        <member name="M:Speedy.IChangeable.HasChanges">
+            <summary>
+            Determines if the object has changes.
+            </summary>
+            <returns> True if the object has changes otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IChangeable.HasChanges(System.String[])">
+            <summary>
+            Determines if the object has changes.
+            </summary>
+            <param name="exclusions"> An optional set of exclusions. </param>
+            <returns> True if the object has changes otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.IChangeable.ResetHasChanges(System.Boolean)">
+            <summary>
+            Reset the "has changes" state.
+            </summary>
+            <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
         </member>
         <member name="T:Speedy.ICloneable`1">
             <summary>
@@ -7214,6 +7397,16 @@
             <param name="excludeVirtuals"> An optional value to exclude virtual members. </param>
             <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
+        <member name="T:Speedy.IUpdatableExclusions">
+            <summary>
+            Represents exclusion provider for IUpdatable.
+            </summary>
+        </member>
+        <member name="M:Speedy.IUpdatableExclusions.GetUpdatableExclusions">
+            <summary>
+            Get exclusions for the updatable type.
+            </summary>
+        </member>
         <member name="T:Speedy.Logging.LogEventArgs">
             <summary>
             Represents a log event argument.
@@ -7436,6 +7629,11 @@
             Represents the user name for the credential.
             </summary>
         </member>
+        <member name="M:Speedy.Net.Credential.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
         <member name="M:Speedy.Net.Credential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
             <summary>
             Gets the credential from an authentication header value.
@@ -7473,6 +7671,12 @@
         </member>
         <member name="M:Speedy.Net.Credential.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Net.Credential.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="T:Speedy.Net.FileDownloader">
             <summary>
@@ -9738,6 +9942,21 @@
         <member name="M:Speedy.Profiling.TrackerPathValue.ToString">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Protocols.CrcType">
+            <summary>
+            The type of the CRC calculation.
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.CrcType.Kermit">
+            <summary>
+            Kermit
+            </summary>
+        </member>
+        <member name="F:Speedy.Protocols.CrcType.Xmodem">
+            <summary>
+            Xmodem
+            </summary>
+        </member>
         <member name="T:Speedy.Protocols.Csv.CsvParser">
             <summary>
             Parser for CSV file format.
@@ -10216,12 +10435,28 @@
             <param name="length"> The length of the data. </param>
             <returns> The words for the buffer data. </returns>
         </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.DecodeWord(System.Byte[],System.Int32)">
+            <summary>
+            Converts the byte array to a ushort array.
+            </summary>
+            <param name="buffer"> The buffer containing the data. </param>
+            <param name="offset"> The offset where the data starts. </param>
+            <returns> The ushort value of the two byte values. </returns>
+        </member>
+        <member name="M:Speedy.Protocols.Modbus.ModbusHelper.DecodeWord(System.Byte,System.Byte)">
+            <summary>
+            Converts the byte array to a ushort array.
+            </summary>
+            <param name="bh"> The high byte value of the ushort. </param>
+            <param name="bl"> The low byte value of the ushort. </param>
+            <returns> The ushort value of the two byte values. </returns>
+        </member>
         <member name="M:Speedy.Protocols.Modbus.ModbusHelper.GetInt(System.UInt16,System.UInt16)">
             <summary>
             Converts two ushort values into a int value.
             </summary>
             <param name="uh"> The high ushort value of the int. </param>
-            <param name="ul"> The high ushort value of the int. </param>
+            <param name="ul"> The low ushort value of the int. </param>
             <returns> The int value of the two ushort values. </returns>
         </member>
         <member name="M:Speedy.Protocols.Modbus.ModbusHelper.GetUInt(System.UInt16,System.UInt16)">
@@ -11731,6 +11966,11 @@
             The full alphabet with lower / upper cased versions and numbers.
             </summary>
         </member>
+        <member name="F:Speedy.RandomGenerator.AlphabetNumbersAndSymbols">
+            <summary>
+            The full alphabet with lower / upper cased versions, numbers, and symbols
+            </summary>
+        </member>
         <member name="F:Speedy.RandomGenerator.FullTable">
             <summary>
             Full table of all 255 ascii characters.
@@ -11799,6 +12039,14 @@
             <returns> A random item or the default value if the list is empty. </returns>
         </member>
         <member name="M:Speedy.RandomGenerator.GetPassword(System.Int32,System.Boolean)">
+            <summary>
+            Get a random password.
+            </summary>
+            <param name="length"> The length to get. Defaults to 16. </param>
+            <param name="excludeSymbols"> Optional exclude symbols. Defaults to true. </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.RandomGenerator.GetPasswordAsUnsecureString(System.Int32,System.Boolean)">
             <summary>
             Get a random password.
             </summary>
@@ -11924,7 +12172,7 @@
             <summary>
             Set a random password to the provided builder.
             </summary>
-            <param name="builder"> The builder to be updated. </param>
+            <param name="secureString"> The builder to be updated. </param>
             <param name="length"> The length to get. Defaults to 16. </param>
             <param name="excludeSymbols"> Optional exclude symbols. Defaults to true. </param>
             <returns> </returns>
@@ -14259,7 +14507,7 @@
             </summary>
             <returns> The sync key value for the sync entity. </returns>
         </member>
-        <member name="M:Speedy.Sync.ISyncEntity.GetExclusions(System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Speedy.Sync.ISyncEntity.GetSyncExclusions(System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Get exclusions for the provided type.
             </summary>
@@ -14302,7 +14550,7 @@
             </summary>
             <returns> The sync object for this entity. </returns>
         </member>
-        <member name="M:Speedy.Sync.ISyncEntity.UpdateWith(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Speedy.Sync.ISyncEntity.UpdateSyncEntity(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Updates the entity with the provided entity. Virtual properties will be ignored.
             </summary>
@@ -15113,7 +15361,7 @@
         <member name="M:Speedy.Sync.SyncEntity`1.GetEntitySyncId">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.SyncEntity`1.GetExclusions(System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Speedy.Sync.SyncEntity`1.GetSyncExclusions(System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Get exclusions for the provided type.
             </summary>
@@ -15137,7 +15385,7 @@
         <member name="M:Speedy.Sync.SyncEntity`1.ToSyncObject">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.SyncEntity`1.UpdateWith(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:Speedy.Sync.SyncEntity`1.UpdateSyncEntity(Speedy.Sync.ISyncEntity,System.Boolean,System.Boolean,System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncEntity`1.GetDefaultExclusionsForIncomingSync">
@@ -15178,6 +15426,11 @@
             All hash sets for types, this is for optimization
             </summary>
         </member>
+        <member name="P:Speedy.Sync.SyncEntity.ExclusionCacheForUpdatableExclusions">
+            <summary>
+            All hash sets for types, this is for optimization
+            </summary>
+        </member>
         <member name="P:Speedy.Sync.SyncEntity.ExclusionCacheForIncomingSync">
             <summary>
             All hash sets for types, this is for optimization
@@ -15193,19 +15446,19 @@
             All hash sets for types, this is for optimization
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncEntity.ExcludedPropertiesForUpdateWith">
+        <member name="P:Speedy.Sync.SyncEntity.ExcludedPropertiesForSyncEntity">
             <summary>
             All hash sets for types, this is for optimization
             </summary>
         </member>
-        <member name="P:Speedy.Sync.SyncEntity.PropertyDictionaryForSyncObject">
+        <member name="P:Speedy.Sync.SyncEntity.PropertyDictionaryForType">
             <summary>
             Property dictionary for a sync object, this is for optimization
             </summary>
         </member>
         <member name="M:Speedy.Sync.SyncEntity.GetExclusions(System.Type,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
-            Get exclusions for the provided type.
+            Get sync exclusions for the provided type.
             </summary>
             <param name="type"> The type to get exclusions for. </param>
             <param name="excludePropertiesForIncomingSync"> If true excluded properties will not be set during incoming sync. </param>

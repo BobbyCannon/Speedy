@@ -13,7 +13,7 @@ namespace Speedy.Website.Data.Entities
 
 		public LogEventEntity()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

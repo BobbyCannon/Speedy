@@ -80,16 +80,38 @@ public static class ModbusHelper
 		var results = new ushort[length];
 		for (var i = 0; i < length; i++)
 		{
-			results[i] = (ushort) ((buffer[offset + (2 * i)] << 8) | buffer[offset + (2 * i) + 1]);
+			results[i] = DecodeWord(buffer[offset + (2 * i)], buffer[offset + (2 * i) + 1]);
 		}
 		return results;
+	}
+
+	/// <summary>
+	/// Converts the byte array to a ushort array.
+	/// </summary>
+	/// <param name="buffer"> The buffer containing the data. </param>
+	/// <param name="offset"> The offset where the data starts. </param>
+	/// <returns> The ushort value of the two byte values. </returns>
+	public static ushort DecodeWord(byte[] buffer, int offset)
+	{
+		return DecodeWord(buffer[offset], buffer[offset + 1]);
+	}
+	
+	/// <summary>
+	/// Converts the byte array to a ushort array.
+	/// </summary>
+	/// <param name="bh"> The high byte value of the ushort. </param>
+	/// <param name="bl"> The low byte value of the ushort. </param>
+	/// <returns> The ushort value of the two byte values. </returns>
+	public static ushort DecodeWord(byte bh, byte bl)
+	{
+		return (ushort) ((bh << 8) + bl);
 	}
 
 	/// <summary>
 	/// Converts two ushort values into a int value.
 	/// </summary>
 	/// <param name="uh"> The high ushort value of the int. </param>
-	/// <param name="ul"> The high ushort value of the int. </param>
+	/// <param name="ul"> The low ushort value of the int. </param>
 	/// <returns> The int value of the two ushort values. </returns>
 	public static int GetInt(ushort uh, ushort ul)
 	{

@@ -402,5 +402,44 @@
             Initialize the service options.
             </summary>
         </member>
+        <member name="T:Speedy.ServiceHosting.WindowsServiceRuntimeInformation">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetApplicationIsElevated">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetApplicationLocation">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetApplicationName">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetApplicationVersion">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetDeviceId">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetDeviceManufacturer">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetDeviceModel">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetDeviceName">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetDevicePlatform">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.ServiceHosting.WindowsServiceRuntimeInformation.GetDeviceType">
+            <inheritdoc />
+        </member>
     </members>
 </doc>

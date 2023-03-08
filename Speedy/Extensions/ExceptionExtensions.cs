@@ -61,6 +61,7 @@ public static class ExceptionExtensions
 	/// <param name="includeStackTrace"> Optionally include the stack trace. Defaults to true. </param>
 	private static void AddExceptionToBuilder(StringBuilder builder, Exception ex, bool includeStackTrace = true)
 	{
+		builder.Append(builder.Length > 0 ? Environment.NewLine + ex.GetType().FullName : ex.GetType().FullName);
 		builder.Append(builder.Length > 0 ? Environment.NewLine + ex.Message : ex.Message);
 
 		if (includeStackTrace)

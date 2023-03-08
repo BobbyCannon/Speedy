@@ -64,7 +64,10 @@ namespace Speedy.EntityFramework
 				foreach (var property in entityProperties)
 				{
 					#if NET6_0_OR_GREATER
-					// todo: how to detect shadow properties in NET6.0 and greater
+					if (property.IsShadowProperty())
+					{
+						continue;
+					}
 					#else
 					// Ignore shadow properties
 					if (property.GetShadowIndex() >= 0)

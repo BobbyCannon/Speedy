@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.IO;
 using System.Reflection;
 using Speedy.Data;
 
@@ -30,16 +31,22 @@ public class WebRuntimeInformation : RuntimeInformation
 
 	#endregion
 
-	#region Properties
-
-	/// <summary>
-	/// The global instance of the web runtime information.
-	/// </summary>
-	public static WebRuntimeInformation Instance { get; }
-
-	#endregion
-
 	#region Methods
+
+	/// <inheritdoc />
+	protected override bool GetApplicationIsElevated()
+	{
+		return false;
+	}
+
+	/// <inheritdoc />
+	protected override string GetApplicationLocation()
+	{
+		var location = Assembly.GetEntryAssembly()?.Location
+			?? Assembly.GetCallingAssembly().Location;
+
+		return Path.GetDirectoryName(location);
+	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationName()

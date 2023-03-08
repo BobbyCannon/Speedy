@@ -14,6 +14,16 @@ public static class FileExtensions
 	#region Methods
 
 	/// <summary>
+	/// Opens a binary file, reads the contents of the file into a byte array, and then closes the file.
+	/// </summary>
+	/// <param name="file"> The file information. </param>
+	/// <returns> A byte array containing the contents of the file. </returns>
+	public static byte[] ReadAllBytes(this FileInfo file)
+	{
+		return File.ReadAllBytes(file.FullName);
+	}
+
+	/// <summary>
 	/// Safely create a file.
 	/// </summary>
 	/// <param name="file"> The information of the file to create. </param>

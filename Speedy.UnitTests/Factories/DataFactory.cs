@@ -26,7 +26,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
-			result.ResetChangeTracking();
+			result.ResetHasChanges();
 
 			return result;
 		}
@@ -48,7 +48,7 @@ namespace Speedy.UnitTests.Factories
 			};
 
 			update?.Invoke(result);
-			result.ResetChangeTracking();
+			result.ResetHasChanges();
 
 			return result;
 		}

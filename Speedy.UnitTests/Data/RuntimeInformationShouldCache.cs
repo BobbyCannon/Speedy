@@ -24,6 +24,8 @@ namespace Speedy.UnitTests.Data
             var mock = new Mock<RuntimeInformation>();
             var scenarios = new Test[]
             {
+                new MockSetup<RuntimeInformation, bool>(mock, "ApplicationIsElevated", true),
+                new MockSetup<RuntimeInformation, string>(mock, "ApplicationLocation", "C:\\test"),
                 new MockSetup<RuntimeInformation, string>(mock, "ApplicationName", "Foo Bar"),
                 new MockSetup<RuntimeInformation, Version>(mock, "ApplicationVersion", new Version(1, 2, 3, 4)),
                 new MockSetup<RuntimeInformation, string>(mock, "DeviceId", "ABC-123"),
@@ -40,7 +42,6 @@ namespace Speedy.UnitTests.Data
                 .ToList();
             var missingProperties = allProperties
                 .Except(scenarios.Select(x => x.Name))
-                .Except(new[] { nameof(Bindable.HasChanges) })
                 .ToList();
 
             Assert.IsTrue(missingProperties.Count == 0, string.Join("\r\n", missingProperties));
@@ -125,7 +126,11 @@ namespace Speedy.UnitTests.Data
 
             public void Reverse()
             {
-                if (Value is string sValue)
+				if (Value is bool bValue)
+				{
+                    Value = !bValue;
+				}
+                else if (Value is string sValue)
                 {
                     Value = sValue.ReverseString();
                 }

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Speedy.Extensions;
 using Speedy.Serialization;
 
@@ -15,6 +16,99 @@ namespace Speedy.Automation.Tests;
 public static class TestingExtensions
 {
 	#region Methods
+
+	/// <summary>
+	/// Dump the item to the Console.WriteLine().
+	/// </summary>
+	/// <param name="item"> The item to dump. </param>
+	/// <returns> The string that was dumped. </returns>
+	public static string Dump(this object item)
+	{
+		Console.WriteLine(item);
+		return item.ToString();
+	}
+
+	/// <summary>
+	/// Dump the objects to the Console.WriteLine().
+	/// </summary>
+	/// <param name="items"> The objects to dump. </param>
+	/// <param name="prefix"> On optional prefix to write before each character. </param>
+	/// <returns> The items that was dumped. </returns>
+	public static string Dump(this IEnumerable<object> items, string prefix = null)
+	{
+		var builder = new StringBuilder();
+		foreach (var item in items)
+		{
+			if (prefix != null)
+			{
+				builder.Append(prefix);
+			}
+
+			builder.Append(item);
+		}
+		Console.WriteLine(builder.ToString());
+		return builder.ToString();
+	}
+
+	/// <summary>
+	/// Dump the characters to the Console.WriteLine().
+	/// </summary>
+	/// <param name="items"> The characters to dump. </param>
+	/// <param name="prefix"> On optional prefix to write before each character. </param>
+	/// <returns> The items that was dumped. </returns>
+	public static string Dump(this char[] items, string prefix = null)
+	{
+		var builder = new StringBuilder();
+		foreach (var item in items)
+		{
+			if (prefix != null)
+			{
+				builder.Append(prefix);
+			}
+
+			builder.Append(item);
+		}
+		Console.WriteLine(builder.ToString());
+		return builder.ToString();
+	}
+
+	/// <summary>
+	/// Dump each item to the Console.WriteLine().
+	/// </summary>
+	/// <param name="items"> The items to dump. </param>
+	/// <returns> The items that was dumped. </returns>
+	public static void Dump(this IEnumerable<int> items)
+	{
+		foreach (var i in items)
+		{
+			Console.Write($"0x{i:X4},");
+		}
+
+		Console.WriteLine("");
+	}
+
+	/// <summary>
+	/// Dump each item to the Console.WriteLine().
+	/// </summary>
+	/// <param name="item"> The byte array to write. The array will be formatted as a hex string. </param>
+	/// <returns> The items that was dumped. </returns>
+	public static string Dump(this byte[] item)
+	{
+		var response = item.ToHexString();
+		Console.WriteLine(response);
+		return response;
+	}
+
+	/// <summary>
+	/// Dump the result of the action to the Console.WriteLine().
+	/// </summary>
+	/// <typeparam name="T"> The type of the item in the list. </typeparam>
+	/// <param name="item"> The item to pass to the action. </param>
+	/// <param name="action"> The action to process the item. </param>
+	public static void Dump<T>(this T item, Func<T, object> action)
+	{
+		Console.WriteLine(action(item));
+	}
 
 	/// <summary>
 	/// Dump each item to the Console.WriteLine().
@@ -74,7 +168,7 @@ public static class TestingExtensions
 	/// <param name="item"> The item to dump. </param>
 	public static string DumpJson(this object item)
 	{
-		var json = item.ToRawJson(indented: true);
+		var json = item.ToRawJson(true);
 		Console.WriteLine(json);
 		return json;
 	}

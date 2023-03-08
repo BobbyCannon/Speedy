@@ -241,7 +241,7 @@ namespace Speedy.UnitTests
 
 				var properties = actual.GetCachedProperties();
 				var exclusions = actual is ISyncEntity entity
-					? entity.GetExclusions(true, true, false)
+					? entity.GetSyncExclusions(true, true, false)
 					: new HashSet<string>();
 
 				TestHelper.AreEqual(item.Key, actual, exclusions.ToArray());
@@ -280,7 +280,7 @@ namespace Speedy.UnitTests
 			update.ValidateProperty(x => x.Level)
 				.HasEnumValue();
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+			ExpectedException<ValidationException>(() => update.Validate(),
 				ValidationException.GetErrorMessage(ValidationExceptionType.EnumRange, nameof(MyClass.Level)));
 
 			json = "{ \"Level\": 0 }";
@@ -408,7 +408,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>(" ").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>("\t").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson<MyClass>("[]").Updates.Count);
-			TestHelper.ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson<MyClass>("1"), "Error reading JObject from JsonReader");
+			ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson<MyClass>("1"), "Error reading JObject from JsonReader");
 
 			var type = typeof(MyClass);
 			Assert.AreEqual(1, PartialUpdate.FromJson(type, json).Updates.Count);
@@ -417,7 +417,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(0, PartialUpdate.FromJson(type, " ").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson(type, "\t").Updates.Count);
 			Assert.AreEqual(0, PartialUpdate.FromJson(type, "[]").Updates.Count);
-			TestHelper.ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson(type, "1"), "Error reading JObject from JsonReader");
+			ExpectedException<JsonReaderException>(() => PartialUpdate.FromJson(type, "1"), "Error reading JObject from JsonReader");
 		}
 
 		[TestMethod]
@@ -503,7 +503,7 @@ namespace Speedy.UnitTests
 			Assert.AreEqual("{\"Name\":\"Fred\"}", update.ToRawJson());
 
 			update = new PartialUpdate<Account>();
-			TestHelper.ExpectedException<SpeedyException>(
+			ExpectedException<SpeedyException>(
 				() => update.Set(nameof(Account.Name), 21),
 				"The property type does not match the values type."
 			);
@@ -718,7 +718,7 @@ namespace Speedy.UnitTests
 				.HasMinMaxRange(1, 5, rangeMessage)
 				.IsNotNullOrWhitespace();
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
+			ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
 
 			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			update = json.FromJson<PartialUpdate>();
@@ -727,7 +727,7 @@ namespace Speedy.UnitTests
 				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
+			ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
 		}
 
 		[TestMethod]
@@ -769,7 +769,7 @@ namespace Speedy.UnitTests
 				.HasMinMaxRange(1, 5, rangeMessage)
 				.IsNotNullOrWhitespace();
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
+			ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
 
 			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			update = json.FromJson<PartialUpdate>();
@@ -778,7 +778,7 @@ namespace Speedy.UnitTests
 				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
+			ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
 		}
 
 		[TestMethod]
@@ -809,7 +809,7 @@ namespace Speedy.UnitTests
 				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
+			ExpectedException<ValidationException>(() => update.Validate(), rangeMessage);
 
 			json = "{ \"Age\":21, \"Id\": 42, \"Name\": null, \"ModifiedOn\": \"2021-07-15T09:08:12Z\" }";
 			update = PartialUpdate.FromJson<MyClass>(json);
@@ -818,7 +818,7 @@ namespace Speedy.UnitTests
 				.IsNotNullOrWhitespace()
 				.IsRequired(requiredMessage);
 
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
+			ExpectedException<ValidationException>(() => update.Validate(), "Name is null or whitespace.");
 		}
 
 		#endregion

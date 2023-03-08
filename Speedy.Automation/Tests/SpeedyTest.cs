@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -10,6 +11,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Extensions;
 
 #endregion
+
+#pragma warning disable CA1416
 
 namespace Speedy.Automation.Tests;
 
@@ -77,9 +80,19 @@ public abstract class SpeedyTest
 	}
 
 	/// <summary>
+	/// Returns true if the debugger is attached.
+	/// </summary>
+	public static bool IsDebugging => Debugger.IsAttached;
+
+	/// <summary>
 	/// Represents the current time returned by TimeService.UtcNow;
 	/// </summary>
 	public static DateTime StartDateTime { get; set; }
+
+	/// <summary>
+	/// The timeout to use when waiting for a test state to be hit.
+	/// </summary>
+	public static int WaitTimeout => IsDebugging ? 100000 : 1000;
 
 	private static Func<DateTime> GetCurrentTime => () => CurrentTime.ToLocalTime();
 
@@ -99,7 +112,7 @@ public abstract class SpeedyTest
 		var logic = new CompareLogic(configuration);
 		var result = logic.Compare(expected, actual);
 		process?.Invoke(result.AreEqual);
-		Assert.IsTrue(result.AreEqual, result.ToString());
+		Assert.IsTrue(result.AreEqual, result.DifferencesString);
 	}
 
 	/// <summary>
@@ -107,12 +120,17 @@ public abstract class SpeedyTest
 	/// </summary>
 	public virtual void AreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual, bool ignoreCollectionOrder = false, Action<bool> process = null, params string[] membersToIgnore)
 	{
-		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue, IgnoreCollectionOrder = ignoreCollectionOrder };
+		var configuration = new ComparisonConfig
+		{
+			IgnoreObjectTypes = true,
+			MaxDifferences = int.MaxValue,
+			IgnoreCollectionOrder = ignoreCollectionOrder
+		};
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
 		var logic = new CompareLogic(configuration);
 		var result = logic.Compare(expected, actual);
 		process?.Invoke(result.AreEqual);
-		Assert.IsTrue(result.AreEqual, result.ToString());
+		Assert.IsTrue(result.AreEqual, result.DifferencesString);
 	}
 
 	/// <summary>
@@ -125,7 +143,7 @@ public abstract class SpeedyTest
 		var logic = new CompareLogic(configuration);
 		var result = logic.Compare(expected, actual);
 		process?.Invoke(result.AreEqual);
-		Assert.IsTrue(result.AreEqual, result.ToString());
+		Assert.IsTrue(result.AreEqual, result.DifferencesString);
 	}
 
 	/// <summary>
@@ -478,6 +496,18 @@ public abstract class SpeedyTest
 	}
 
 	/// <summary>
+	/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions using the
+	/// <see cref="WaitTimeout" /> property with a delay of 10ms.
+	/// </summary>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+	public static bool Wait(Func<bool> action, bool useTimeService = false)
+	{
+		return UtilityExtensions.Wait(action, WaitTimeout, 10, useTimeService);
+	}
+
+	/// <summary>
 	/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
 	/// time.
 	/// </summary>
@@ -611,25 +641,7 @@ public abstract class SpeedyTest
 	/// <param name="exclusions"> An optional set of exclusions. </param>
 	protected void ValidateAllValuesAreNotDefault<T>(T model, params string[] exclusions)
 	{
-		var allExclusions = model.GetExclusions();
-		allExclusions.AddRange(exclusions);
-
-		var properties = model
-			.GetCachedProperties()
-			.Where(x => x.CanWrite)
-			.Where(x => !allExclusions.Contains(x.Name))
-			.ToList();
-
-		foreach (var property in properties)
-		{
-			var value = property.GetValue(model);
-			var defaultValue = property.PropertyType.GetDefaultValue();
-
-			if (Equals(value, defaultValue))
-			{
-				throw new Exception($"Property {property.Name} should have been set but was not.");
-			}
-		}
+		model.ValidateAllValuesAreNotDefault(exclusions);
 	}
 
 	/// <summary>
@@ -639,17 +651,20 @@ public abstract class SpeedyTest
 	/// <param name="exclusions"> An optional set of exclusions. </param>
 	protected void ValidateUnwrap(object model, params string[] exclusions)
 	{
-		if (model is IUnwrappable unwrappable)
+		if (model is not Entity entity)
 		{
-			var actual = unwrappable.Unwrap();
-			AreEqual(model, actual, exclusions);
+			return;
 		}
 
-		if (model is Entity entity)
-		{
-			var actual = entity.Unwrap();
-			AreEqual(model, actual, exclusions);
-		}
+		var actual = entity.Unwrap();
+		var allExclusions = new List<string>(exclusions);
+		allExclusions.AddRange(
+			entity.GetCachedProperties()
+				.Where(x => x.IsVirtual())
+				.Select(x => x.Name)
+		);
+
+		AreEqual(model, actual, () => model.GetType().FullName, allExclusions.ToArray());
 	}
 
 	/// <summary>
@@ -657,12 +672,12 @@ public abstract class SpeedyTest
 	/// </summary>
 	/// <param name="model"> The model to test. </param>
 	/// <param name="exclusions"> An optional set of exclusions. </param>
-	protected void ValidateUpdatableModel(object model, params string[] exclusions)
+	protected void ValidateUpdateableModel(object model, params string[] exclusions)
 	{
 		ValidateUnwrap(model, exclusions);
 		ValidateUpdateWith(model, false, exclusions);
 		ValidateUpdateWith(model, true, exclusions);
-		ValidateAllValuesAreNotDefault(model, exclusions);
+		model.ValidateAllValuesAreNotDefault(exclusions);
 	}
 
 	/// <summary>
@@ -675,21 +690,16 @@ public abstract class SpeedyTest
 	{
 		var updateType = update.GetType();
 		var actual = Activator.CreateInstance(updateType) as IUpdatable;
-		var allExclusions = new List<string>(exclusions);
 
 		Assert.IsNotNull(actual);
 
-		if (excludeVirtuals)
-		{
-			actual.UpdateWith(update, true, exclusions);
-			allExclusions.AddRange(updateType.GetVirtualPropertyNames());
-		}
-		else
-		{
-			actual.UpdateWith(update, exclusions);
-		}
+		var allExclusions = excludeVirtuals
+			? exclusions.AddRange(updateType.GetVirtualPropertyNames()).ToArray()
+			: exclusions;
 
-		AreEqual(update, actual, allExclusions.ToArray());
+		actual.UpdateWith(update, allExclusions);
+
+		AreEqual(update, actual, () => updateType.FullName, allExclusions);
 	}
 
 	#endregion

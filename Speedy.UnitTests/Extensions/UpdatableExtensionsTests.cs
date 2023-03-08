@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Application;
+using Speedy.Automation.Tests;
 using Speedy.Configuration.CommandLine;
 using Speedy.Data.Location;
 using Speedy.EntityFramework;
@@ -41,7 +42,6 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 		var typeExclusions = new Dictionary<Type, string[]>
 		{
 			//{ typeof(Location), new[] { nameof(Location.HorizontalFlags), nameof(Location.VerticalFlags) } },
-			{ typeof(Bindable), new[] { nameof(Bindable.HasChanges) } },
 			{ typeof(SerializerSettings), new[] { nameof(SerializerSettings.JsonSettings) } },
 			{
 				typeof(CommandLineArgument), new[]
@@ -82,7 +82,7 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 				.SelectMany(x => x.Value)
 				.ToArray();
 
-			ValidateUpdatableModel(GetModelWithNonDefaultValues(type, NonSupportedType, typeExclusion), typeExclusion);
+			ValidateUpdateableModel(GetModelWithNonDefaultValues(type, NonSupportedType, typeExclusion), typeExclusion);
 		}
 	}
 

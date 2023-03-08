@@ -747,7 +747,7 @@ namespace Speedy.Sync
 
 			if ((destination != null) && (source != null) && (destination != source))
 			{
-				destination.UpdateWith(source, false, false, true);
+				destination.UpdateSyncEntity(source, false, false, true);
 			}
 
 			return true;

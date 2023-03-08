@@ -177,6 +177,12 @@
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationIsElevated">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationLocation">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationName">
             <inheritdoc />
         </member>

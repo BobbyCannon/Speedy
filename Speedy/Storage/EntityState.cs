@@ -97,13 +97,13 @@ namespace Speedy.Storage
 		public void Reset()
 		{
 			UpdateEntity(Entity, OldEntity);
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
-		public void ResetChangeTracking()
+		public void ResetHasChanges()
 		{
-			Entity.ResetChangeTracking();
-			OldEntity.ResetChangeTracking();
+			Entity.ResetHasChanges();
+			OldEntity.ResetHasChanges();
 			State = EntityStateType.Unmodified;
 		}
 
@@ -115,7 +115,7 @@ namespace Speedy.Storage
 		public void SaveChanges()
 		{
 			UpdateEntity(OldEntity, Entity);
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		internal void RefreshState()

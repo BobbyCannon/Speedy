@@ -1,5 +1,6 @@
 #region References
 
+using System;
 using Android.OS;
 using Speedy.Data.Location;
 using Location = Android.Locations.Location;

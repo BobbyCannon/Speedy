@@ -1,5 +1,8 @@
 ﻿#region References
 
+using System;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices;
 using Speedy.Application.Maui.Extensions;
 using Speedy.Data;
 using DevicePlatform = Speedy.Data.DevicePlatform;
@@ -9,21 +12,41 @@ using DeviceType = Speedy.Data.DeviceType;
 
 namespace Speedy.Application.Maui;
 
+/// <inheritdoc />
 public class MauiRuntimeInformation : RuntimeInformation
 {
 	#region Constructors
 
+	/// <inheritdoc />
 	public MauiRuntimeInformation() : this(null)
 	{
 	}
 
+	/// <inheritdoc />
 	public MauiRuntimeInformation(IDispatcher dispatcher) : base(dispatcher)
 	{
+	}
+
+	static MauiRuntimeInformation()
+	{
+		Instance = new MauiRuntimeInformation();
 	}
 
 	#endregion
 
 	#region Methods
+
+	/// <inheritdoc />
+	protected override bool GetApplicationIsElevated()
+	{
+		return false;
+	}
+
+	/// <inheritdoc />
+	protected override string GetApplicationLocation()
+	{
+		return AppInfo.Current.PackageName;
+	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationName()

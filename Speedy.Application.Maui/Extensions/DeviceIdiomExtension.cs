@@ -1,5 +1,7 @@
 ﻿#region References
 
+using System.Collections.Generic;
+using Microsoft.Maui.Devices;
 using DeviceType = Speedy.Data.DeviceType;
 
 #endregion

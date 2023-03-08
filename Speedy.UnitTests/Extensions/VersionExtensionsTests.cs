@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 
 #endregion

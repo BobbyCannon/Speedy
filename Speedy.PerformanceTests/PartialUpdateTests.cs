@@ -1,9 +1,9 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Profiling;
 using Speedy.Serialization;
-using Speedy.UnitTests;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Data.Entities;
 

@@ -32,7 +32,7 @@ public static class DirectoryInfoExtensions
 	/// Safely create a directory.
 	/// </summary>
 	/// <param name="info"> The information on the directory to create. </param>
-	public static void SafeCreate(this DirectoryInfo info)
+	public static bool SafeCreate(this DirectoryInfo info)
 	{
 		UtilityExtensions.Retry(() =>
 		{
@@ -44,7 +44,7 @@ public static class DirectoryInfoExtensions
 			}
 		}, 1000, 10);
 
-		UtilityExtensions.Wait(() =>
+		return UtilityExtensions.Wait(() =>
 		{
 			info.Refresh();
 			return info.Exists;

@@ -16,7 +16,7 @@ namespace Speedy.Website.Data.Entities
 		public GroupEntity()
 		{
 			Members = new List<GroupMemberEntity>();
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

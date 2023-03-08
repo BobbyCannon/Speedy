@@ -355,44 +355,191 @@
         <member name="P:Speedy.Application.MediaPlayer.IsPlaying">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Application.Sync.SettingsManager">
+        <member name="T:Speedy.Application.Settings.Setting`2">
             <summary>
-            The manager for settings
+            Represents a setting.
+            </summary>
+            <typeparam name="T"> The type of the Value of the setting. </typeparam>
+            <typeparam name="T2"> The type of the Id of the setting. </typeparam>
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`2.#ctor">
+            <summary>
+            Represents a setting.
             </summary>
         </member>
-        <member name="T:Speedy.Application.Sync.SyncableSetting`1">
+        <member name="M:Speedy.Application.Settings.Setting`2.#ctor(Speedy.IDispatcher)">
             <summary>
-            Represents a syncable setting.
+            Represents a setting.
             </summary>
-            <typeparam name="T"> The type of the ID of the setting. </typeparam>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
-        <member name="P:Speedy.Application.Sync.SyncableSetting`1.CanSync">
+        <member name="P:Speedy.Application.Settings.Setting`2.Data">
+            <summary>
+            The typed data of the value property.
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Settings.Setting`2.Value">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`2.HasChanges(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`2.ResetHasChanges(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`2.UpdateWith(Speedy.Application.Settings.Setting{`0,`1},System.String[])">
+            <summary>
+            Update the Setting`2 with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`2.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Settings.Setting`1">
+            <summary>
+            Represents a setting.
+            </summary>
+            <typeparam name="T"> The type of the Value of the setting. </typeparam>
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`1.#ctor">
+            <summary>
+            Represents a setting.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Represents a setting.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Application.Settings.Setting`1.CanSync">
             <summary>
             Set to mark this setting as a syncable setting.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Sync.SyncableSetting`1.Category">
+        <member name="P:Speedy.Application.Settings.Setting`1.Category">
             <summary>
             The category for the settings.
-            todo: should this be "group" instead?
             </summary>
         </member>
-        <member name="P:Speedy.Application.Sync.SyncableSetting`1.ExpiresOn">
+        <member name="P:Speedy.Application.Settings.Setting`1.ExpiresOn">
             <summary>
             Optionally expires on value, DateTime.MinValue means there is no expiration.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Sync.SyncableSetting`1.Id">
+        <member name="P:Speedy.Application.Settings.Setting`1.Id">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Sync.SyncableSetting`1.Name">
+        <member name="P:Speedy.Application.Settings.Setting`1.Name">
             <summary>
             The name of the setting.
             </summary>
         </member>
-        <member name="P:Speedy.Application.Sync.SyncableSetting`1.Value">
+        <member name="P:Speedy.Application.Settings.Setting`1.Value">
             <summary>
             The value of the setting in JSON format.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`1.UpdateWith(Speedy.Application.Settings.Setting{`0},System.String[])">
+            <summary>
+            Update the Setting`1 with an update.
+            </summary>
+            <param name="update"> The update to be applied. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Application.Settings.Setting`1.UpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Settings.SettingsManager`2">
+            <summary>
+            Represents a manager for a category of settings.
+            </summary>
+            <typeparam name="T"> The type of the setting. </typeparam>
+            <typeparam name="T2"> The type of the setting ID. </typeparam>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.#ctor(System.String,Speedy.IDispatcher)">
+            <summary>
+            Instantiates an instance of the settings manager.
+            </summary>
+            <param name="category"> The category name. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.HasChanges(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.Load(Speedy.IRepository{`0,`1})">
+            <summary>
+            Load the settings from the repository.
+            </summary>
+            <param name="repository"> The repository contains the settings. </param>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.Load(System.Collections.Generic.ICollection{`0})">
+            <summary>
+            Load the settings from the repository.
+            </summary>
+            <param name="repository"> The repository contains the settings. </param>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.ResetHasChanges(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.Save(Speedy.IRepository{`0,`1})">
+            <summary>
+            Save the settings to the repository.
+            </summary>
+            <param name="repository"> The repository to store the settings. </param>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.CanSync(System.String)">
+            <summary>
+            Check to see if the setting should be a local only setting. Any local setting cannot be synced.
+            </summary>
+            <param name="name"> The setting name to be tested. </param>
+            <returns> True if the setting is local otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.Get``1(System.String,``0)">
+            <summary>
+            Get the value of a setting.
+            </summary>
+            <typeparam name="TData"> The type of the Data value. </typeparam>
+            <param name="name"> The name of the setting. </param>
+            <param name="defaultValue"> The default value to return if not found. </param>
+            <returns> The value read or the default value. </returns>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.InitializeSetting``1(System.String,``0,System.Action{Speedy.Application.Settings.Setting{``0,`1}})">
+            <summary>
+            Initialize a setting.
+            </summary>
+            <param name="name"> The name of the settings. </param>
+            <param name="defaultValue"> The default value for the setting. </param>
+            <param name="update"> An optional update action. </param>
+            <typeparam name="TData"> The type of the data for the setting. </typeparam>
+            <returns> The new setting. </returns>
+        </member>
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.Set``1(System.String,``0)">
+            <summary>
+            Get the value of a setting.
+            </summary>
+            <typeparam name="TData"> The type of the Data value. </typeparam>
+            <param name="name"> The name of the setting. </param>
+            <param name="value"> The value to be set. </param>
+            <returns> The value set. </returns>
+        </member>
+        <member name="T:Speedy.Application.ViewModel`1">
+            <summary>
+            Represents a viewmodel that has an ID.
+            </summary>
+            <typeparam name="T"> The type for the ID key. </typeparam>
+        </member>
+        <member name="M:Speedy.Application.ViewModel`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates a viewmodel.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Application.ViewModel`1.Id">
+            <summary>
+            Gets or sets the ID of the entity.
             </summary>
         </member>
         <member name="T:Speedy.Application.ViewModel">

@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System.Collections.Generic;
 using DevicePlatform = Speedy.Data.DevicePlatform;
 
 #endregion

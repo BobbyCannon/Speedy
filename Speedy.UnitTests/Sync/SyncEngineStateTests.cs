@@ -119,7 +119,7 @@ namespace Speedy.UnitTests.Sync
 			actual.UpdateWith(null);
 
 			Assert.AreEqual(0, actual.Count);
-			Assert.AreEqual(false, actual.HasChanges);
+			Assert.AreEqual(false, actual.HasChanges());
 			Assert.AreEqual(null, actual.Message);
 			Assert.AreEqual(SyncEngineStatus.Stopped, actual.Status);
 			Assert.AreEqual(0, actual.Total);

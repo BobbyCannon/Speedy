@@ -1,7 +1,5 @@
 ﻿#region References
 
-using System.Runtime.CompilerServices;
-using Windows.Foundation;
 using Speedy.Data.Location;
 using AltitudeReferenceSystem = Windows.Devices.Geolocation.AltitudeReferenceSystem;
 
@@ -16,14 +14,6 @@ namespace Speedy.Application.Maui;
 public static class PlatformExtensions
 {
 	#region Methods
-
-	/// <summary>
-	/// Converts an IAsyncOperation to a ConfigurableTaskAwaitable.
-	/// </summary>
-	public static ConfiguredTaskAwaitable<T> AsTask<T>(this IAsyncOperation<T> self, bool continueOnCapturedContext)
-	{
-		return self.AsTask().ConfigureAwait(continueOnCapturedContext);
-	}
 
 	/// <summary>
 	/// Convert altitude reference type to system.

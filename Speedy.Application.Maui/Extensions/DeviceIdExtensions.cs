@@ -30,7 +30,7 @@ public static class DeviceIdExtensions
 	{
 		#if ANDROID
 		var context = Android.App.Application.Context;
-		var id = Settings.Secure.GetString(context.ContentResolver, Settings.Secure.AndroidId);
+		var id = Android.Provider.Settings.Secure.GetString(context.ContentResolver, Android.Provider.Settings.Secure.AndroidId);
 		builder.AddComponent("VendorId", new DeviceIdComponent(id));
 		#elif IOS || __MACCATALYST__
 		builder.AddComponent("VendorId", new DeviceIdComponent(UIDevice.CurrentDevice.IdentifierForVendor.AsString()));

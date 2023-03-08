@@ -23,7 +23,7 @@ namespace Speedy.Website.Data.Entities
 		public TrackerPathEntity()
 		{
 			Children = new List<TrackerPathEntity>();
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

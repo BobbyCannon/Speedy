@@ -57,8 +57,10 @@ public abstract class Bindable : IBindable, IUpdatable
 {
 	#region Fields
 
+	private bool _hasChanges;
 	private bool _pausePropertyChanged;
 	private Type _realType;
+	private readonly HashSet<string> _writableProperties;
 
 	#endregion
 
@@ -71,19 +73,17 @@ public abstract class Bindable : IBindable, IUpdatable
 	protected Bindable(IDispatcher dispatcher = null)
 	{
 		Dispatcher = dispatcher;
+
+		_writableProperties = GetType()
+			.GetCachedProperties()
+			.Where(x => x.CanWrite)
+			.Select(x => x.Name)
+			.ToHashSet();
 	}
 
 	#endregion
 
 	#region Properties
-
-	/// <summary>
-	/// Determines if the object has changes.
-	/// </summary>
-	[Browsable(false)]
-	[JsonIgnore]
-	[IgnoreDataMember]
-	public virtual bool HasChanges { get; private set; }
 
 	/// <summary>
 	/// Represents a thread dispatcher to help with cross threaded request.
@@ -106,6 +106,18 @@ public abstract class Bindable : IBindable, IUpdatable
 	public IDispatcher GetDispatcher()
 	{
 		return Dispatcher;
+	}
+
+	/// <inheritdoc />
+	public bool HasChanges()
+	{
+		return HasChanges(Array.Empty<string>());
+	}
+
+	/// <inheritdoc />
+	public virtual bool HasChanges(params string[] exclusions)
+	{
+		return _hasChanges;
 	}
 
 	/// <inheritdoc />
@@ -137,9 +149,9 @@ public abstract class Bindable : IBindable, IUpdatable
 
 		OnPropertyChangedInDispatcher(propertyName);
 
-		if ((propertyName != nameof(HasChanges)) && !HasChanges)
+		if (_writableProperties?.Contains(propertyName) == true)
 		{
-			HasChanges = true;
+			_hasChanges = true;
 		}
 
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -155,9 +167,9 @@ public abstract class Bindable : IBindable, IUpdatable
 	/// Reset the change tracking flag.
 	/// </summary>
 	/// <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
-	public virtual void ResetChangeTracking(bool hasChanges = false)
+	public virtual void ResetHasChanges(bool hasChanges = false)
 	{
-		HasChanges = hasChanges;
+		_hasChanges = hasChanges;
 	}
 
 	/// <inheritdoc />

@@ -4,6 +4,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Application.Wpf;
+using Speedy.Automation.Tests;
 
 #endregion
 

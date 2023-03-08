@@ -26,9 +26,26 @@ public class XamarinRuntimeInformation : RuntimeInformation
 	{
 	}
 
+	static XamarinRuntimeInformation()
+	{
+		Instance = new XamarinRuntimeInformation();
+	}
+
 	#endregion
 
 	#region Methods
+
+	/// <inheritdoc />
+	protected override bool GetApplicationIsElevated()
+	{
+		return false;
+	}
+
+	/// <inheritdoc />
+	protected override string GetApplicationLocation()
+	{
+		return AppInfo.PackageName;
+	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationName()

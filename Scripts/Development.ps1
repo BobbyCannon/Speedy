@@ -3,7 +3,15 @@ $ErrorActionPreference = 'Stop'
 This should not be ran as a file
 
 Import-Module WebAdministration
+Import-Module WebAdministration -SkipEditionCheck
+
 iisreset
+
+nuget restore "C:\Workspaces\GitHub\Speedy\Speedy.sln"
+
+#
+# Speedy
+#
 
 Clear-Host
 Stop-WebAppPool -Name "Speedy"
@@ -13,9 +21,13 @@ Get-Process vbcs* | Stop-Process
 
 Start-WebAppPool -Name "Speedy"
 
+
+#
+# Other server frameworks
+#
+
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net6.0'
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'netcoreapp3.1'
-
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
@@ -23,9 +35,8 @@ Start-WebAppPool -Name "Speedy"
 # Need to add readme to all packages
 # https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
 #
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC10'
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'pre'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 1
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 1 -VersionSuffix 'RC'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 

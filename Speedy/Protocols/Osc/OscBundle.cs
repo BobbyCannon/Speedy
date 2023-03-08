@@ -158,7 +158,7 @@ public class OscBundle : OscPacket, IEnumerable<OscPacket>
 
 		if (IsExtended)
 		{
-			var crc = response.CalculateCrc16(total - 4);
+			var crc = response.CalculateCrc16(0, total - 4);
 			var data = BitConverter.GetBytes(crc);
 			data.CopyTo(response, responseIndex);
 		}
@@ -226,7 +226,7 @@ public class OscBundle : OscPacket, IEnumerable<OscPacket>
 		{
 			// Seems like we have a CRC
 			var readCrc = BitConverter.ToUInt16(bundle, index);
-			var calculatedCrc = bundle.CalculateCrc16(index);
+			var calculatedCrc = bundle.CalculateCrc16(0, index);
 
 			if (readCrc != calculatedCrc)
 			{

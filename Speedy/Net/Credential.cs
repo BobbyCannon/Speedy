@@ -14,7 +14,7 @@ namespace Speedy.Net;
 /// <summary>
 /// Represents a credential for a client.
 /// </summary>
-public class Credential : Bindable, IUpdatable<Credential>
+public class Credential : Bindable, IDisposable, IUpdatable<Credential>
 {
 	#region Constructors
 
@@ -71,6 +71,15 @@ public class Credential : Bindable, IUpdatable<Credential>
 	#endregion
 
 	#region Methods
+
+	/// <summary>
+	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+	/// </summary>
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
 
 	/// <summary>
 	/// Gets the credential from an authentication header value.
@@ -174,6 +183,20 @@ public class Credential : Bindable, IUpdatable<Credential>
 			Credential credential => UpdateWith(credential),
 			_ => base.UpdateWith(update, exclusions)
 		};
+	}
+
+	/// <summary>
+	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+	/// </summary>
+	/// <param name="disposing"> True if disposing and false if otherwise. </param>
+	protected virtual void Dispose(bool disposing)
+	{
+		if (!disposing)
+		{
+			return;
+		}
+
+		SecurePassword?.Dispose();
 	}
 
 	#endregion

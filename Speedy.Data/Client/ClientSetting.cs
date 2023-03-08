@@ -15,7 +15,7 @@ namespace Speedy.Data.Client
 
 		public ClientSetting()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

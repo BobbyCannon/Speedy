@@ -21,7 +21,7 @@ namespace Speedy.Data.Client
 		public ClientAddress()
 		{
 			Accounts = new List<ClientAccount>();
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

@@ -12,7 +12,7 @@ namespace Speedy.Website.Data.Entities
 
 		public GroupMemberEntity()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

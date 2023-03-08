@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Speedy.Application.Wpf\Speedy.Application.Wpf.csproj" />
+    <ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
+    <ProjectReference Include="..\Speedy.Automation\Speedy.Automation.csproj" />
+    <ProjectReference Include="..\Speedy\Speedy.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -12,7 +12,7 @@ namespace Speedy.Website.Data.Entities
 
 		public FoodRelationshipEntity()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

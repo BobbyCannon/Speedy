@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Extensions;
 using Speedy.Profiling;
 
 #endregion
@@ -15,7 +16,8 @@ namespace Speedy.UnitTests
 		[TestMethod]
 		public void AllPropertiesSet()
 		{
-			ValidateAllValuesAreNotDefault(GetModelWithNonDefaultValues());
+			var actual = GetModelWithNonDefaultValues();
+			actual.ValidateAllValuesAreNotDefault();
 		}
 
 		[TestMethod]
@@ -39,19 +41,19 @@ namespace Speedy.UnitTests
 
 			// Will trigger "HasChanges" also
 			actual.Value = "test";
-			Assert.AreEqual(2, count);
+			Assert.AreEqual(1, count);
 
 			// Should pause notifications
 			actual.PausePropertyChangeNotifications();
 			Assert.IsTrue(actual.IsChangeNotificationsPaused());
 			actual.Value = "foo";
-			Assert.AreEqual(2, count);
+			Assert.AreEqual(1, count);
 
 			// Should restore notifications
 			actual.PausePropertyChangeNotifications(false);
 			Assert.IsFalse(actual.IsChangeNotificationsPaused());
 			actual.Value = "bar";
-			Assert.AreEqual(3, count);
+			Assert.AreEqual(2, count);
 		}
 
 		#endregion

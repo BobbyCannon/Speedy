@@ -9,13 +9,13 @@ using Speedy.Extensions;
 
 namespace Speedy.Data.Client
 {
-	public class ClientLogEvent : LogEvent
+	public sealed class ClientLogEvent : LogEvent
 	{
 		#region Constructors
 
 		public ClientLogEvent()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

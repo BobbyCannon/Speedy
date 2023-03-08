@@ -12,7 +12,7 @@ namespace Speedy.Website.Data.Entities
 
 		public PetEntity()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

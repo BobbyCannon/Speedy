@@ -13,10 +13,11 @@
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
-        <member name="P:Speedy.Application.Web.WebRuntimeInformation.Instance">
-            <summary>
-            The global instance of the web runtime information.
-            </summary>
+        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationIsElevated">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationLocation">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationName">
             <inheritdoc />

@@ -14,7 +14,7 @@ namespace Speedy.Website.Data.Entities
 
 		public SettingEntity()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

@@ -4,11 +4,13 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
+using Speedy.Protocols;
 using Speedy.Storage;
 
 #endregion
@@ -117,6 +119,11 @@ public static class CollectionExtensions
 	/// <typeparam name="T"> The type of the items in the list. </typeparam>
 	public static IList<T> AddRange<T>(this IList<T> set, IEnumerable<T> items)
 	{
+		if (set.IsReadOnly)
+		{
+			set = new List<T>(set);
+		}
+
 		foreach (var item in items)
 		{
 			set.Add(item);
@@ -212,30 +219,77 @@ public static class CollectionExtensions
 	}
 
 	/// <summary>
-	/// Calculate a CRC using CRC-16/KERMIT.
+	/// Calculate a CRC using the provided type.
 	/// </summary>
 	/// <param name="data"> The data to calculate the CRC for. </param>
+	/// <param name="type"> The type of CRC to generate. </param>
 	/// <returns> The CRC for the data. </returns>
-	public static ushort CalculateCrc16(this byte[] data)
+	public static ushort CalculateCrc16(this byte[] data, CrcType type)
 	{
-		return CalculateCrc16(data, data.Length);
+		return CalculateCrc16(data, 0, data.Length, type);
 	}
 
 	/// <summary>
 	/// Calculate a CRC using CRC-16/KERMIT.
 	/// </summary>
 	/// <param name="data"> The data to calculate the CRC for. </param>
+	/// <param name="offset"> The offset to start with. </param>
 	/// <param name="length"> The length to calculate. </param>
+	/// <param name="type"> The type of CRC to generate. </param>
 	/// <returns> The CRC for the data. </returns>
-	public static ushort CalculateCrc16(this byte[] data, int length)
+	public static ushort CalculateCrc16(this byte[] data, int offset, int length, CrcType type)
 	{
-		// CRC-16/KERMIT
+		if (length > data.Length)
+		{
+			throw new ArgumentOutOfRangeException(nameof(length));
+		}
+
+		if ((offset < 0)
+			|| (offset > length)
+			|| (offset > data.Length)
+			|| ((offset + length) > data.Length))
+		{
+			throw new ArgumentOutOfRangeException(nameof(offset));
+		}
+
 		ushort crc = 0;
 		var index = 0;
 
-		while (length-- > 0)
+		switch (type)
 		{
-			crc = (ushort) ((crc >> 8) ^ _crcTable[(crc ^ data[index++]) & 0xFF]);
+			// CRC-16/KERMIT
+			case CrcType.Kermit:
+			{
+				while (length-- > offset)
+				{
+					crc = (ushort) ((crc >> 8) ^ _crcTable[(crc ^ data[index++]) & 0xFF]);
+				}
+				break;
+			}
+			// CRC-16/XMODEM
+			case CrcType.Xmodem:
+			{
+				for (var a = offset; a < length; a++)
+				{
+					crc ^= (ushort) (data[a] << 8);
+					for (var i = 0; i < 8; i++)
+					{
+						if ((crc & 0x8000) != 0)
+						{
+							crc = (ushort) ((crc << 1) ^ 0x1021);
+						}
+						else
+						{
+							crc = (ushort) (crc << 1);
+						}
+					}
+				}
+				break;
+			}
+			default:
+			{
+				throw new NotImplementedException();
+			}
 		}
 
 		return crc;
@@ -505,7 +559,7 @@ public static class CollectionExtensions
 			{
 				return ea.Equals(b);
 			}
-			
+
 			return Equals(a, b);
 		};
 
@@ -577,6 +631,40 @@ public static class CollectionExtensions
 	{
 		collection.Clear();
 		collection.AddRange(updates);
+	}
+
+	/// <summary>
+	/// Remove items from a collection based on the provided filter.
+	/// </summary>
+	/// <param name="collection"> The collection to update. </param>
+	/// <param name="filter"> The filter of the items to remove. </param>
+	/// <param name="callback"> An optional callback to be used before each remove. </param>
+	public static void Remove<T>(this ICollection<T> collection, Func<T, bool> filter, Action<T> callback = null)
+	{
+		var itemsToRemove = collection.Where(filter).ToList();
+
+		foreach (var item in itemsToRemove)
+		{
+			callback?.Invoke(item);
+			collection.Remove(item);
+		}
+	}
+	
+	/// <summary>
+	/// Remove items from a collection based on the provided filter.
+	/// </summary>
+	/// <param name="collection"> The collection to update. </param>
+	/// <param name="filter"> The filter of the items to remove. </param>
+	/// <param name="callback"> An optional callback to be used before each remove. </param>
+	public static void Remove<T>(this ObservableCollection<T> collection, Func<T, bool> filter, Action<T> callback = null)
+	{
+		var itemsToRemove = collection.Where(filter).ToList();
+
+		foreach (var item in itemsToRemove)
+		{
+			callback?.Invoke(item);
+			collection.Remove(item);
+		}
 	}
 
 	/// <summary>

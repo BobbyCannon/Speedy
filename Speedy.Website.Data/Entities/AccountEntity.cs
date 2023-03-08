@@ -24,7 +24,7 @@ namespace Speedy.Website.Data.Entities
 		{
 			Groups = new List<GroupMemberEntity>();
 			Pets = new List<PetEntity>();
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

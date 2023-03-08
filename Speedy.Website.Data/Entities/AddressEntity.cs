@@ -19,7 +19,7 @@ namespace Speedy.Website.Data.Entities
 		{
 			Accounts = new List<AccountEntity>();
 			LinkedAddresses = new List<AddressEntity>();
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

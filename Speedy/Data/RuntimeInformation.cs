@@ -53,6 +53,24 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	#region Properties
 
 	/// <summary>
+	/// Flag indicating if the application is elevated.
+	/// </summary>
+	public bool ApplicationIsElevated
+	{
+		get => GetOrCache<bool>(nameof(ApplicationIsElevated));
+		set => throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// The location of the application.
+	/// </summary>
+	public string ApplicationLocation
+	{
+		get => GetOrCache<string>(nameof(ApplicationLocation));
+		set => throw new NotImplementedException();
+	}
+
+	/// <summary>
 	/// The name of the application.
 	/// </summary>
 	public string ApplicationName
@@ -112,6 +130,11 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 		set => throw new NotImplementedException();
 	}
 
+	/// <summary>
+	/// The global instance of the runtime information.
+	/// </summary>
+	public static RuntimeInformation Instance { get; protected set; }
+
 	#endregion
 
 	#region Methods
@@ -158,6 +181,16 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	}
 
 	/// <summary>
+	/// Get flag indicating if the application is elevated.
+	/// </summary>
+	protected abstract bool GetApplicationIsElevated();
+
+	/// <summary>
+	/// The location of the application.
+	/// </summary>
+	protected abstract string GetApplicationLocation();
+
+	/// <summary>
 	/// The name of the application.
 	/// </summary>
 	protected abstract string GetApplicationName();
@@ -197,7 +230,13 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	/// </summary>
 	protected abstract DeviceType GetDeviceType();
 
-	private T GetOrCache<T>(string name)
+	/// <summary>
+	/// Get or cache the value.
+	/// </summary>
+	/// <typeparam name="T"> </typeparam>
+	/// <param name="name"> </param>
+	/// <returns> </returns>
+	protected T GetOrCache<T>(string name)
 	{
 		return (T) _cache.GetOrAdd(name, _ => _propertyMethods[name].Invoke(this, null));
 	}

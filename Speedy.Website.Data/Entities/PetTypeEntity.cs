@@ -15,7 +15,7 @@ namespace Speedy.Website.Data.Entities
 		public PetTypeEntity()
 		{
 			Types = new List<PetEntity>();
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

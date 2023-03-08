@@ -42,6 +42,17 @@ public class RelayCommand : ICommand
 		}
 	}
 
+	/// <summary>
+	/// Creates a new command.
+	/// </summary>
+	/// <param name="execute"> The execution logic. </param>
+	/// <param name="parameter"> The parameter to pass during execute. </param>
+	/// <param name="canExecute"> The execution status logic. </param>
+	public RelayCommand(ICommand execute, string parameter, Predicate<object> canExecute = null)
+		: this(_ => execute.Execute(parameter), canExecute)
+	{
+	}
+
 	#endregion
 
 	#region Methods

@@ -124,7 +124,7 @@ public static class ObjectExtensions
 		{
 			ICloneable<T> cloneable => cloneable.ShallowClone(),
 			ICloneable cloneable => (T) cloneable.ShallowClone(),
-			_ => value.DeepClone(0)
+			_ => value.DeepClone(1)
 		};
 	}
 	
@@ -137,7 +137,7 @@ public static class ObjectExtensions
 	{
 		return value is ICloneable cloneable
 			? cloneable.ShallowClone()
-			: value.DeepClone(0);
+			: value.DeepClone(1);
 	}
 
 	#endregion

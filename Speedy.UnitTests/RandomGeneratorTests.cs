@@ -3,6 +3,7 @@
 using System;
 using System.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 
 #endregion
@@ -52,9 +53,12 @@ public class RandomGeneratorTests : SpeedyUnitTest
 	[TestMethod]
 	public void GetPassword()
 	{
+		var actual = RandomGenerator.GetPassword(24, false);
+		actual.ToUnsecureString().Dump();
+
 		for (var i = 0; i < LoopCount; i++)
 		{
-			var actual = RandomGenerator.GetPassword(24);
+			actual = RandomGenerator.GetPassword(24);
 			actual.ToUnsecureString().Dump();
 			Assert.AreEqual(24, actual.Length);
 		}

@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.Website.Data.Entities;
 
@@ -39,7 +40,7 @@ namespace Speedy.UnitTests.Extensions
 			var count = 0;
 			var watch = Stopwatch.StartNew();
 
-			TestHelper.ExpectedException<Exception>(() =>
+			ExpectedException<Exception>(() =>
 				UtilityExtensions.Retry(() =>
 				{
 					if (++count < 3)
@@ -82,7 +83,7 @@ namespace Speedy.UnitTests.Extensions
 			var result = 0;
 			var watch = Stopwatch.StartNew();
 
-			TestHelper.ExpectedException<Exception>(() =>
+			ExpectedException<Exception>(() =>
 				result = UtilityExtensions.Retry(() =>
 				{
 					if (++count < 3)

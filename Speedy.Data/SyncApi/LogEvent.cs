@@ -12,7 +12,7 @@ namespace Speedy.Data.SyncApi
 
 		public LogEvent()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation.Desktop;
 using Speedy.Automation.Desktop.Elements;
+using Speedy.Automation.Tests;
 using Speedy.UnitTests;
 
 #endregion
@@ -20,8 +21,8 @@ namespace Speedy.AutomationTests.Desktop
 		public void LaunchUwpApp()
 		{
 			var filepath = TestHelper.ApplicationPathForUwp;
-			var packageName = "5495f851-725d-41f7-b34a-889a800e2315_1myjjx7jt00bj";
-			var expected = "C:\\Workspaces\\GitHub\\Speedy\\Speedy.TestUwp\\bin\\x86\\Debug\\AppX\\Speedy.TestUwp.exe";
+			var packageName = "8f95473b-0f5f-4bf6-a441-66782a212c08_1myjjx7jt00bj";
+			var expected = "C:\\Workspaces\\GitHub\\Speedy\\Samples\\Windows\\Speedy.Uwp.Example\\bin\\x64\\Debug\\AppX\\Speedy.Uwp.Example.exe";
 
 			Assert.AreEqual(expected, filepath);
 

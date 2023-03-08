@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
+using Speedy.Collections;
 using Speedy.Protocols.Osc;
 using Speedy.Sync;
 
@@ -31,6 +32,11 @@ public static class ReflectionExtensions
 	/// Default flags for cached access.
 	/// </summary>
 	public const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
+
+	/// <summary>
+	/// Flags for direct member only.
+	/// </summary>
+	public const BindingFlags DirectMemberFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
 
 	#endregion
 
@@ -493,15 +499,18 @@ public static class ReflectionExtensions
 			return null;
 		}
 
-		if (type.IsArray)
-		{
-			return Array.CreateInstance(type.GetElementType() ?? typeof(object), 0);
-		}
-
 		var isDictionary = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IDictionary<,>));
 		if (isDictionary)
 		{
 			var collectionType = typeof(Dictionary<,>);
+			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		var isEnumerable = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+		if (isEnumerable)
+		{
+			var collectionType = typeof(Collection<>);
 			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
 			return Activator.CreateInstance(constructedListType);
 		}
@@ -520,6 +529,11 @@ public static class ReflectionExtensions
 			var collectionType = typeof(List<>);
 			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
 			return Activator.CreateInstance(constructedListType);
+		}
+
+		if (type.IsArray)
+		{
+			return Array.CreateInstance(type.GetElementType() ?? typeof(object), 0);
 		}
 
 		// If the supplied Type has generic parameters, its default value cannot be determined
@@ -562,21 +576,28 @@ public static class ReflectionExtensions
 		return propertyInfo.PropertyType?.GetDefaultValue()
 			?? nonSupportedType?.Invoke(propertyInfo);
 	}
-
+	
 	/// <summary>
-	/// Get exclusions for the provided type. Currently this returns all sync exclusions.
-	/// todo: add an "exclusion" interface so we can exclude on any model.
+	/// Get a default value for a property.
 	/// </summary>
-	/// <typeparam name="T"> The type of the model. </typeparam>
-	/// <param name="model"> The model to get exclusions for. </param>
-	/// <returns> The exclusions. </returns>
-	public static HashSet<string> GetExclusions<T>(this T model)
+	/// <param name="propertyInfo"> The property info. </param>
+	/// <param name="nonSupportedType"> An optional non supported type. </param>
+	public static object GetDefaultValueNotNull(this PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
 	{
-		var excludedValues = model is ISyncEntity syncEntity
-			? syncEntity.GetExclusions(true, true, true)
-			: new HashSet<string>();
+		var response = propertyInfo.PropertyType?.GetDefaultValue()
+			?? nonSupportedType?.Invoke(propertyInfo);
 
-		return excludedValues;
+		if (response != null)
+		{
+			return response;
+		}
+
+		if (propertyInfo.PropertyType == typeof(string))
+		{
+			return string.Empty;
+		}
+
+		return Activator.CreateInstance(propertyInfo.PropertyType);
 	}
 
 	/// <summary>
@@ -695,27 +716,20 @@ public static class ReflectionExtensions
 		}
 		if ((propertyType == typeof(TimeSpan)) || (propertyType == typeof(TimeSpan?)))
 		{
-			_random.GetBytes(_buffer, 0, 4);
-			var ticks = BitConverter.ToInt32(_buffer, 0);
+			var ticks = RandomGenerator.NextLong(1, TimeSpan.FromDays(30).Ticks);
 			return TimeSpan.FromTicks(ticks == 0 ? 1 : ticks);
 		}
 		if (propertyType == typeof(double))
 		{
-			_random.GetBytes(_buffer, 0, 8);
-			return BitConverter.ToDouble(_buffer, 0);
+			return RandomGenerator.NextDouble(-100000, 100000);
 		}
 		if (propertyType == typeof(float))
 		{
-			_random.GetBytes(_buffer, 0, 8);
-			return BitConverter.ToDouble(_buffer, 0);
+			return (float) RandomGenerator.NextDouble(-100000, 100000);
 		}
 		if (propertyType == typeof(decimal))
 		{
-			var r = new Random();
-			var scale = (byte) r.Next(29);
-			var sign = r.Next(2) == 1;
-			var dValue = new decimal(r.Next(), r.Next(), r.Next(), sign, scale);
-			return dValue;
+			return RandomGenerator.NextDecimal(-100000, 100000);
 		}
 		if ((propertyType == typeof(Guid)) || (propertyType == typeof(Guid?)))
 		{
@@ -725,32 +739,65 @@ public static class ReflectionExtensions
 		{
 			return ShortGuid.NewGuid();
 		}
+		if ((propertyType == typeof(byte)) || (propertyType == typeof(byte?)))
+		{
+			return RandomGenerator.NextInteger(1, byte.MaxValue);
+		}
 		if ((propertyType == typeof(int)) || (propertyType == typeof(int?)))
 		{
-			_random.GetBytes(_buffer, 0, 4);
-			return BitConverter.ToInt32(_buffer, 0);
+			return RandomGenerator.NextInteger(1, int.MaxValue / 4);
 		}
 		if ((propertyType == typeof(long)) || (propertyType == typeof(long?)))
 		{
-			_random.GetBytes(_buffer, 0, 8);
-			return BitConverter.ToInt64(_buffer, 0);
+			return RandomGenerator.NextLong(1, long.MaxValue / 4);
+		}
+		if ((propertyType == typeof(ulong)) || (propertyType == typeof(ulong?)))
+		{
+			return (ulong) RandomGenerator.NextLong(1, long.MaxValue / 4);
 		}
 		if ((propertyType == typeof(short)) || (propertyType == typeof(short?)))
 		{
-			_random.GetBytes(_buffer, 0, 2);
-			return BitConverter.ToInt16(_buffer, 2);
+			var value = RandomGenerator.NextInteger(short.MinValue / 4, short.MaxValue / 4);
+			return (short) (value == 0 ? 1 : value);
 		}
 		if ((propertyType == typeof(ushort)) || (propertyType == typeof(ushort?)))
 		{
-			_random.GetBytes(_buffer, 0, 2);
-			return BitConverter.ToUInt16(_buffer, 2);
+			return (ushort) RandomGenerator.NextInteger(1, ushort.MaxValue / 4);
 		}
 		if (propertyType == typeof(string))
 		{
 			return Guid.NewGuid().ToString();
 		}
 
-		var isCollection = propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>));
+		var isSortableObservable = propertyType.IsGenericType 
+			&& (propertyType.GetGenericTypeDefinition() == typeof(SortedObservableCollection<>));
+		if (isSortableObservable)
+		{
+			var collectionType = typeof(SortedObservableCollection<>);
+			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		var isDictionary = propertyType.IsGenericType 
+			&& (propertyType.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+		if (isDictionary)
+		{
+			var collectionType = typeof(Dictionary<,>);
+			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		var isEnumerable = propertyType.IsGenericType 
+			&& (propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+		if (isEnumerable)
+		{
+			var collectionType = typeof(Collection<>);
+			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		var isCollection = propertyType.IsGenericType 
+			&& (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>));
 		if (isCollection)
 		{
 			var collectionType = typeof(Collection<>);
@@ -816,10 +863,13 @@ public static class ReflectionExtensions
 	/// Gets a list of virtual property names. The results are cached so the next query is much faster.
 	/// </summary>
 	/// <param name="type"> The value to get the property names for. </param>
+	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
 	/// <returns> The list of virtual property names for the type. </returns>
-	public static IEnumerable<string> GetVirtualPropertyNames(this Type type)
+	public static IEnumerable<string> GetVirtualPropertyNames(this Type type, BindingFlags? flags = null)
 	{
-		return GetCachedVirtualProperties(type).Select(x => x.Name).ToArray();
+		return GetCachedVirtualProperties(type, flags)
+			.Select(x => x.Name)
+			.ToArray();
 	}
 
 	/// <summary>
@@ -906,16 +956,16 @@ public static class ReflectionExtensions
 	/// Update the provided object with non default values.
 	/// </summary>
 	/// <typeparam name="T"> The type of the value. </typeparam>
-	/// <param name="value"> The value to update all properties for. </param>
+	/// <param name="model"> The value to update all properties for. </param>
 	/// <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
 	/// <returns> The type updated with non default values. </returns>
-	public static T UpdateWithNonDefaultValues<T>(this T value, Func<PropertyInfo, object> nonSupportedType = null, params string[] exclusions)
+	public static T UpdateWithNonDefaultValues<T>(this T model, Func<PropertyInfo, object> nonSupportedType = null, params string[] exclusions)
 	{
-		var allExclusions = GetExclusions(value);
+		var allExclusions = GetExclusions(model);
 		allExclusions.AddRange(exclusions);
 
-		var properties = value
+		var properties = model
 			.GetCachedProperties()
 			.Where(x => x.CanWrite)
 			.Where(x => !allExclusions.Contains(x.Name))
@@ -924,10 +974,10 @@ public static class ReflectionExtensions
 		foreach (var property in properties)
 		{
 			var nonDefaultValue = GetNonDefaultValue(property, nonSupportedType);
-			property.SetValue(value, nonDefaultValue);
+			property.SetValue(model, nonDefaultValue);
 		}
 
-		return value;
+		return model;
 	}
 
 	/// <summary>
@@ -938,9 +988,13 @@ public static class ReflectionExtensions
 	/// <param name="exclusions"> An optional set of exclusions. </param>
 	public static void ValidateAllValuesAreNotDefault<T>(this T model, params string[] exclusions)
 	{
+		var allExclusions = GetExclusions(model);
+		allExclusions.AddRange(exclusions);
+
 		var properties = model
 			.GetCachedProperties()
-			.Where(x => x.CanWrite && !x.IsVirtual())
+			.Where(x => x.CanWrite)
+			.Where(x => !allExclusions.Contains(x.Name))
 			.ToList();
 
 		foreach (var property in properties)
@@ -950,12 +1004,12 @@ public static class ReflectionExtensions
 				continue;
 			}
 
-			var value = property.GetValue(model);
+			var propertyValue = property.GetValue(model);
 			var defaultValue = property.PropertyType.GetDefaultValue();
 
-			if (Equals(value, defaultValue))
+			if (Equals(propertyValue, defaultValue))
 			{
-				throw new Exception($"Property {property.Name} should have been set but was not.");
+				throw new Exception($"Property {model.GetType().Name}.{property.Name} should have been set but was not.");
 			}
 		}
 	}
@@ -973,14 +1027,20 @@ public static class ReflectionExtensions
 	}
 
 	/// <summary>
-	/// Returns an Int32 with a random value across the entire range of
-	/// possible values.
+	/// Get exclusions for the provided type. Currently this returns all sync exclusions.
+	/// todo: add an "exclusion" interface so we can exclude on any model.
 	/// </summary>
-	private static int NextInt32(this Random rng)
+	/// <typeparam name="T"> The type of the model. </typeparam>
+	/// <param name="model"> The model to get exclusions for. </param>
+	/// <returns> The exclusions. </returns>
+	private static HashSet<string> GetExclusions<T>(this T model)
 	{
-		var firstBits = rng.Next(0, 1 << 4) << 28;
-		var lastBits = rng.Next(0, 1 << 28);
-		return firstBits | lastBits;
+		return model switch
+		{
+			ISyncEntity t => t.GetSyncExclusions(true, true, true),
+			IUpdatableExclusions t => t.GetUpdatableExclusions(),
+			_ => new HashSet<string>()
+		};
 	}
 
 	#endregion

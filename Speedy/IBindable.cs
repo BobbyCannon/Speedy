@@ -17,7 +17,7 @@ public interface IBindable<in T> : IBindable, IUpdatable<T>
 /// <summary>
 /// Represents a bindable object.
 /// </summary>
-public interface IBindable : INotifyPropertyChanged
+public interface IBindable : IChangeable, INotifyPropertyChanged
 {
 	#region Methods
 

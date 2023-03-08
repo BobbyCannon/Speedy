@@ -22,7 +22,7 @@ namespace Speedy.Data.Client
 		[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 		public ClientAccount()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

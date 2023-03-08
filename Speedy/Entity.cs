@@ -140,6 +140,10 @@ public abstract class Entity : IEntity, IUnwrappable
 	protected Entity()
 	{
 		ChangedProperties = new HashSet<string>();
+
+		SyncEntity.ExclusionCacheForUpdatableExclusions.GetOrAdd(RealType,
+			x => new HashSet<string>(GetDefaultExclusionsForUpdatableExclusions()));
+
 		SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(RealType,
 			x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
 	}
@@ -149,7 +153,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	#region Properties
 
 	/// <summary>
-	/// The properties that has changed since last <see cref="ResetChangeTracking" /> event.
+	/// The properties that has changed since last <see cref="ResetHasChanges" /> event.
 	/// </summary>
 	internal HashSet<string> ChangedProperties { get; }
 
@@ -195,8 +199,21 @@ public abstract class Entity : IEntity, IUnwrappable
 	}
 
 	/// <summary>
-	/// Determines if the object has changes.
+	/// Default exclusions are all virtual members.
 	/// </summary>
+	/// <returns> The list of members to be excluded. </returns>
+	public HashSet<string> GetUpdatableExclusions()
+	{
+		return SyncEntity.ExclusionCacheForUpdatableExclusions[RealType];
+	}
+
+	/// <inheritdoc />
+	public bool HasChanges()
+	{
+		return HasChanges(Array.Empty<string>());
+	}
+
+	/// <inheritdoc />
 	public virtual bool HasChanges(params string[] exclusions)
 	{
 		return ChangedProperties.Any(x => !exclusions.Contains(x));
@@ -235,11 +252,15 @@ public abstract class Entity : IEntity, IUnwrappable
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 
-	/// <summary>
-	/// Reset the change tracking flag.
-	/// </summary>
-	public virtual void ResetChangeTracking()
+	/// <inheritdoc />
+	public virtual void ResetHasChanges(bool hasChanges = false)
 	{
+		if (hasChanges)
+		{
+			// Nothing to do...
+			return;
+		}
+
 		ChangedProperties.Clear();
 	}
 
@@ -349,6 +370,16 @@ public abstract class Entity : IEntity, IUnwrappable
 		return new HashSet<string>();
 	}
 
+	/// <summary>
+	/// Gets the default exclusions for updatable. Warning: this is called during constructor, overrides need to be
+	/// sure to only return static values as to not cause issues.
+	/// </summary>
+	/// <returns> The values to exclude during processing <see cref="IUpdatable" />. </returns>
+	protected virtual HashSet<string> GetDefaultExclusionsForUpdatableExclusions()
+	{
+		return new HashSet<string>(RealType.GetVirtualPropertyNames());
+	}
+
 	#endregion
 
 	#region Events
@@ -362,7 +393,7 @@ public abstract class Entity : IEntity, IUnwrappable
 /// <summary>
 /// Represents a Speedy entity.
 /// </summary>
-public interface IEntity : INotifyPropertyChanged, IUpdatable, ICloneable
+public interface IEntity : INotifyPropertyChanged, IUpdatable, IUpdatableExclusions, IChangeable, ICloneable
 {
 	#region Methods
 

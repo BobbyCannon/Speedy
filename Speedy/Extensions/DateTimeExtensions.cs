@@ -52,6 +52,30 @@ public static class DateTimeExtensions
 	}
 
 	/// <summary>
+	/// Get the first of the month from the provided date.
+	/// </summary>
+	/// <param name="date"> The date to process. </param>
+	/// <returns>
+	/// The date of the first day of the month.
+	/// </returns>
+	public static DateTime MonthStart(this DateTime date)
+	{
+		return new DateTime(date.Year, date.Month, 1);
+	}
+
+	/// <summary>
+	/// Get the first of the next month from the provided date.
+	/// </summary>
+	/// <param name="date"> The date to process. </param>
+	/// <returns>
+	/// The date of the first day of the next month.
+	/// </returns>
+	public static DateTime NextMonth(this DateTime date)
+	{
+		return date.MonthStart().AddMonths(1);
+	}
+
+	/// <summary>
 	/// Convert a DateTime to an OscTimeTag.
 	/// </summary>
 	/// <param name="time"> The time to be converted. </param>
@@ -69,6 +93,17 @@ public static class DateTimeExtensions
 	public static DateTime ToUtcDateTime(this string value)
 	{
 		return DateTime.Parse(value, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+	}
+
+	/// <summary>
+	/// Converts the string representation of a date and time to its <see cref="T:System.DateTime"> </see> equivalent.
+	/// </summary>
+	/// <param name="value"> The string value. </param>
+	/// <param name="format"> The exact format to parse. </param>
+	/// <returns> The date time value. </returns>
+	public static DateTime ToUtcDateTime(this string value, string format)
+	{
+		return DateTime.ParseExact(value, format, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 	}
 
 	/// <summary>

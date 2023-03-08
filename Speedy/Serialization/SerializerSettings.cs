@@ -175,7 +175,7 @@ namespace Speedy.Serialization
 				}
 			}
 
-			ResetChangeTracking(true);
+			ResetHasChanges(true);
 		}
 
 		/// <summary>
@@ -186,7 +186,7 @@ namespace Speedy.Serialization
 		{
 			_globalIgnoredMembers.AddRange(propertyNames);
 
-			ResetChangeTracking(true);
+			ResetHasChanges(true);
 		}
 
 		/// <inheritdoc />
@@ -245,7 +245,7 @@ namespace Speedy.Serialization
 		public void Reset()
 		{
 			UpdateWith(Serializer.DefaultSettings);
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 		
 		/// <summary>
@@ -267,7 +267,7 @@ namespace Speedy.Serialization
 			JsonSettings = new JsonSerializerSettings();
 
 			UpdateJsonSerializerSettings();
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 		
 		/// <summary>

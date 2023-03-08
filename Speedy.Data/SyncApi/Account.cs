@@ -17,7 +17,7 @@ namespace Speedy.Data.SyncApi
 
 		public Account()
 		{
-			ResetChangeTracking();
+			ResetHasChanges();
 		}
 
 		#endregion

@@ -1,7 +1,9 @@
 ﻿#region References
 
 using System;
+using System.IO;
 using System.Reflection;
+using System.Security.Principal;
 using Speedy.Application.Wpf.Extensions;
 using Speedy.Application.Wpf.Internal;
 using Speedy.Data;
@@ -32,16 +34,25 @@ public class WpfRuntimeInformation : RuntimeInformation
 
 	#endregion
 
-	#region Properties
+	#region Methods
 
 	/// <summary>
-	/// The global instance of the WPF runtime information.
+	/// The elevated status of an application.
 	/// </summary>
-	public static WpfRuntimeInformation Instance { get; }
+	protected override bool GetApplicationIsElevated()
+	{
+		return WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) ?? false;
+	}
 
-	#endregion
+	/// <inheritdoc />
+	protected override string GetApplicationLocation()
+	{
+		// "C:\\Workspaces\\BecomeEpic\\BecomeEpic\\BecomeEpic.WindowsService\\bin\\Debug\\net7.0-windows\\BecomeEpic.WindowsService.dll"
+		var location = Assembly.GetEntryAssembly()?.Location
+			?? Assembly.GetCallingAssembly().Location;
 
-	#region Methods
+		return Path.GetDirectoryName(location);
+	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationName()

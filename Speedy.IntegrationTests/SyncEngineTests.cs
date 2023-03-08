@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.Logging;
 using Speedy.Net;
@@ -654,7 +655,7 @@ namespace Speedy.IntegrationTests
 		public string[] GetEntityExclusions(ISyncEntity entity)
 		{
 			return entity
-				.GetExclusions(true, false, true)
+				.GetSyncExclusions(true, false, true)
 				.Append("Id", nameof(ICreatedEntity.CreatedOn), nameof(IModifiableEntity.ModifiedOn))
 				.ToArray();
 		}
@@ -1112,7 +1113,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, client1Addresses.Count);
 				Assert.AreEqual(1, client2Addresses.Count);
 
-				var exclusions = client1Addresses[0].GetExclusions(true, false, true).ToArray();
+				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true).ToArray();
 				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
 				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
 
@@ -1157,7 +1158,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, client1Addresses.Count);
 				Assert.AreEqual(2, client2Addresses.Count);
 
-				var exclusions = client1Addresses[0].GetExclusions(true, false, true).ToArray();
+				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true).ToArray();
 				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
 				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
 			}
@@ -1193,7 +1194,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, client1Addresses.Count);
 				Assert.AreEqual(2, client2Addresses.Count);
 
-				var exclusions = client1Addresses[0].GetExclusions(true, false, true).ToArray();
+				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true).ToArray();
 				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
 				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
 			}
@@ -1227,7 +1228,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, client1Addresses.Count);
 				Assert.AreEqual(2, client2Addresses.Count);
 
-				var exclusions = client1Addresses[0].GetExclusions(true, false, true)
+				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true)
 					.Append(nameof(IModifiableEntity.ModifiedOn))
 					.ToArray();
 
@@ -1264,7 +1265,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, client1Addresses.Count);
 				Assert.AreEqual(2, client2Addresses.Count);
 
-				var exclusions = client1Addresses[0].GetExclusions(true, false, true)
+				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true)
 					.Append(nameof(IModifiableEntity.ModifiedOn))
 					.ToArray();
 
@@ -1301,7 +1302,7 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(2, client1Addresses.Count);
 				Assert.AreEqual(2, client2Addresses.Count);
 
-				var exclusions = client1Addresses[0].GetExclusions(true, false, true)
+				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true)
 					.Append(nameof(IModifiableEntity.ModifiedOn))
 					.ToArray();
 

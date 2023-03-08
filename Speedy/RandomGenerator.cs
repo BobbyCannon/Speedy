@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using Speedy.Extensions;
 
 #endregion
 
@@ -32,6 +33,11 @@ public static class RandomGenerator
 	/// The full alphabet with lower / upper cased versions and numbers.
 	/// </summary>
 	public const string AlphabetAndNumbers = Alphabet + Numbers;
+
+	/// <summary>
+	/// The full alphabet with lower / upper cased versions, numbers, and symbols
+	/// </summary>
+	public const string AlphabetNumbersAndSymbols = Alphabet + Numbers + Symbols;
 
 	/// <summary>
 	/// Full table of all 255 ascii characters.
@@ -131,7 +137,7 @@ public static class RandomGenerator
 	{
 		return GetItem(items.ToList());
 	}
-	
+
 	/// <summary>
 	/// Gets a random item from a list.
 	/// </summary>
@@ -173,6 +179,18 @@ public static class RandomGenerator
 		var response = new SecureString();
 		SetPassword(response, length, excludeSymbols);
 		return response;
+	}
+
+	/// <summary>
+	/// Get a random password.
+	/// </summary>
+	/// <param name="length"> The length to get. Defaults to 16. </param>
+	/// <param name="excludeSymbols"> Optional exclude symbols. Defaults to true. </param>
+	/// <returns> </returns>
+	public static string GetPasswordAsUnsecureString(int length = 16, bool excludeSymbols = true)
+	{
+		using var password = GetPassword(length, excludeSymbols);
+		return password.ToUnsecureString();
 	}
 
 	/// <summary>
@@ -514,26 +532,21 @@ public static class RandomGenerator
 	/// <summary>
 	/// Set a random password to the provided builder.
 	/// </summary>
-	/// <param name="builder"> The builder to be updated. </param>
+	/// <param name="secureString"> The builder to be updated. </param>
 	/// <param name="length"> The length to get. Defaults to 16. </param>
 	/// <param name="excludeSymbols"> Optional exclude symbols. Defaults to true. </param>
 	/// <returns> </returns>
-	public static void SetPassword(SecureString builder, int length = 16, bool excludeSymbols = true)
+	public static void SetPassword(SecureString secureString, int length = 16, bool excludeSymbols = true)
 	{
 		var nextCharacter = char.MinValue;
 		var lastCharacter = nextCharacter;
 		var buffer = new char[length];
-		var characters = AlphabetAndNumbers;
+		var characters = excludeSymbols ? AlphabetAndNumbers : AlphabetNumbersAndSymbols;
 		var uppercaseCount = 0;
 		var lowercaseCount = 0;
 		var count = 0;
 
-		if (!excludeSymbols)
-		{
-			characters += Symbols;
-		}
-
-		builder.Clear();
+		secureString.Clear();
 
 		try
 		{
@@ -574,7 +587,7 @@ public static class RandomGenerator
 				}
 
 				buffer[count++] = nextCharacter;
-				builder.AppendChar(nextCharacter);
+				secureString.AppendChar(nextCharacter);
 				lastCharacter = nextCharacter;
 			}
 		}
