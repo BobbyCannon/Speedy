@@ -174,11 +174,15 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void AddItemToClientWithLogger()
 		{
+			ResetCurrentTime();
+
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				using var listener = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 				Logger.Instance.Write(client.Name + " -> " + server.Name);
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(GetAddress("Blah"));
+
+				Thread.Sleep(1);
 
 				var options = GetSyncOptions();
 				using var engine = SyncEngine.Run(client, server, options);

@@ -262,7 +262,6 @@ namespace Speedy.UnitTests.Sync
 				{ typeof(AddressEntity), new[] { nameof(AddressEntity.Account), nameof(AddressEntity.Accounts), nameof(AddressEntity.LinkedAddress), nameof(AddressEntity.LinkedAddresses) } },
 				{ typeof(AccountEntity), new[] { nameof(AccountEntity.Address), nameof(AccountEntity.Groups), nameof(AccountEntity.Pets) } },
 				{ typeof(GroupEntity), new[] { nameof(GroupEntity.Members) } },
-				{ typeof(SyncRequest), new[] { nameof(SyncRequest.HasChanges) } }
 			};
 
 			foreach (var item in itemsToTest)

@@ -8,6 +8,8 @@ using Speedy.Samples.Xamarin.Services;
 
 namespace Speedy.Samples.Xamarin.Droid.Services;
 
+#pragma warning disable CS0618
+
 public class FileService : IFileService
 {
 	#region Methods
