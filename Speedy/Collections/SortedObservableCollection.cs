@@ -25,6 +25,13 @@ public class SortedObservableCollection<T> : LimitedObservableCollection<T>
 	/// <summary>
 	/// Instantiates an instance of the collection.
 	/// </summary>
+	public SortedObservableCollection() : this(new OrderBy<T>(x => x))
+	{
+	}
+
+	/// <summary>
+	/// Instantiates an instance of the collection.
+	/// </summary>
 	public SortedObservableCollection(OrderBy<T> orderBy, params OrderBy<T>[] thenBy) : this(null, orderBy, thenBy)
 	{
 	}

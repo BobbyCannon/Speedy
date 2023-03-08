@@ -14,7 +14,7 @@ using Speedy.Validation;
 namespace Speedy.UnitTests.Data.Updates
 {
 	[TestClass]
-	public class AccountUpdateTests
+	public class AccountUpdateTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -106,7 +106,7 @@ namespace Speedy.UnitTests.Data.Updates
 				Assert.AreEqual(0, update.Updates.Count);
 				Assert.AreEqual("", string.Join(",", update.Updates.Keys));
 
-				TestHelper.ExpectedException<ValidationException>(() => update.Validate(), "Name is required but was not provided.");
+				ExpectedException<ValidationException>(() => update.Validate(), "Name is required but was not provided.");
 			}
 		}
 
@@ -126,7 +126,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+			ExpectedException<ValidationException>(() => update.Validate(),
 				ValidationException.GetErrorMessage(ValidationExceptionType.IsNotNull, "Name")
 			);
 
@@ -134,7 +134,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+			ExpectedException<ValidationException>(() => update.Validate(),
 				ValidationException.GetErrorMessage(ValidationExceptionType.MinMaxRange, "Name")
 			);
 
@@ -142,7 +142,7 @@ namespace Speedy.UnitTests.Data.Updates
 			Assert.IsNotNull(update);
 			Assert.AreEqual(1, update.Updates.Count);
 			Assert.AreEqual("Name", string.Join(",", update.Updates.Keys));
-			TestHelper.ExpectedException<ValidationException>(() => update.Validate(),
+			ExpectedException<ValidationException>(() => update.Validate(),
 				ValidationException.GetErrorMessage(ValidationExceptionType.MinMaxRange, "Name")
 			);
 		}

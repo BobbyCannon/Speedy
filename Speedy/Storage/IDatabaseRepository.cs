@@ -10,7 +10,7 @@ namespace Speedy.Storage
 	/// <summary>
 	/// This class is an internal class.
 	/// </summary>
-	internal interface IDatabaseRepository : IDisposable
+	internal interface IDatabaseRepository : IChangeable, IDisposable
 	{
 		#region Methods
 
@@ -31,12 +31,6 @@ namespace Speedy.Storage
 		/// Discard all changes made in this repository.
 		/// </summary>
 		int DiscardChanges();
-
-		/// <summary>
-		/// Determines if the repository has changes.
-		/// </summary>
-		/// <returns> True if there are changes and false if otherwise. </returns>
-		bool HasChanges();
 
 		/// <summary>
 		/// Check too see if there are other entities that depends on this entity.

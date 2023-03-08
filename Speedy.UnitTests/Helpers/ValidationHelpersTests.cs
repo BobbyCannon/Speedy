@@ -25,19 +25,19 @@ namespace Speedy.UnitTests.Helpers
 				(x => !string.IsNullOrWhiteSpace(x.EmailAddress), "EmailAddress")
 			};
 
-			//TestHelper.ExpectedException<ArgumentException>(() =>
+			//ExpectedException<ArgumentException>(() =>
 			//	ValidationHelper.ValidateParameters<ArgumentException, Account>(account, validators),
 			//	"Id\r\nName\r\nEmailAddress\r\n");
 
 			//account.Name = "Fred";
 			
-			//TestHelper.ExpectedException<ArgumentException>(() =>
+			//ExpectedException<ArgumentException>(() =>
 			//		ValidationHelper.ValidateParameters<ArgumentException, Account>(account, validators),
 			//	"Id\r\nEmailAddress\r\n");
 
 			//account.Id = 1;
 			
-			//TestHelper.ExpectedException<ArgumentException>(() =>
+			//ExpectedException<ArgumentException>(() =>
 			//		ValidationHelper.ValidateParameters<ArgumentException, Account>(account, validators),
 			//	"EmailAddress\r\n");
 		}

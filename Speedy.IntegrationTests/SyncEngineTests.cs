@@ -580,6 +580,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting2);
 
 				using var engine = new SyncEngine(Guid.NewGuid(), client, server, GetSyncOptions());
+				IncrementTime(seconds: 1);
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -595,6 +596,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(0, serverDatabase.Settings.Count(x => x.IsDeleted));
 				}
 
+				IncrementTime(seconds: 1);
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -612,6 +614,8 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void DeleteItemOnServer()
 		{
+			ResetCurrentTime(null);
+
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				var setting1 = GetSetting("Foo", "Bar");
@@ -637,6 +641,8 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(1, serverDatabase.Settings.Count(x => x.IsDeleted));
 					Assert.AreEqual(1, serverDatabase.Settings.Count(x => !x.IsDeleted));
 				}
+
+				Thread.Sleep(10);
 
 				engine.Run();
 
@@ -855,6 +861,7 @@ namespace Speedy.IntegrationTests
 				options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 
 				using var engine = new SyncEngine(Guid.NewGuid(), client, server, options);
+				IncrementTime(seconds: 1);
 				engine.Run();
 
 				Assert.AreEqual(0, engine.SyncIssues.Count);
@@ -876,6 +883,8 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void ServerLimitRepository()
 		{
+			ResetCurrentTime();
+
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				AccountEntity account;
@@ -888,6 +897,8 @@ namespace Speedy.IntegrationTests
 					database.Accounts.Add(account);
 					database.SaveChanges();
 				}
+
+				Thread.Sleep(10);
 
 				using (var database = client.GetDatabase<IContosoDatabase>())
 				{
@@ -914,6 +925,8 @@ namespace Speedy.IntegrationTests
 					var options = GetSyncOptions();
 					options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 					options.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>(x => x.SyncId == account.SyncId));
+
+					Thread.Sleep(10);
 
 					using var engine = new SyncEngine(listener.SessionId, client, server, options);
 					engine.Run();
@@ -1061,6 +1074,8 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void ThreeWaySyncShouldWork()
 		{
+			SetTime(new DateTime(2019, 07, 10, 11, 58, 00));
+
 			using var listener = LogListener.CreateSession(Guid.Empty, EventLevel.Verbose, x => x.OutputToConsole = true);
 			var serverMemoryProvider = TestHelper.GetSyncableMemoryProvider(initialize: false);
 			var client1 = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
@@ -1373,16 +1388,18 @@ namespace Speedy.IntegrationTests
 		[TestMethod]
 		public void UpdateItemOnServerThenClient()
 		{
+			ResetCurrentTime(null);
+
 			TestHelper.TestServerAndClients((server, client) =>
 			{
 				Assert.AreNotEqual(server, client);
 
-				var address1 = GetAddress("123 Elm Street");
-				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address1);
+				var serverAddress = GetAddress("123 Elm Street");
+				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(serverAddress);
 
-				var address2 = (AddressEntity) address1.Unwrap();
-				address2.Id = 0;
-				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(address2);
+				var clientAddress = (AddressEntity) serverAddress.Unwrap();
+				clientAddress.Id = 0;
+				client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(clientAddress);
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
@@ -1393,13 +1410,17 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(2, clientDatabase.Addresses.Count());
 					Assert.AreEqual(2, serverDatabase.Addresses.Count());
 
-					serverDatabase.Addresses.First(x => x.Id == address1.Id).Line1 = "123 Server Street";
-					serverDatabase.Addresses.First(x => x.Id == address1.Id).Line2 = "Server2";
+					serverDatabase.Addresses.First(x => x.Id == serverAddress.Id).Line1 = "123 Server Street";
+					serverDatabase.Addresses.First(x => x.Id == serverAddress.Id).Line2 = "Server2";
 					serverDatabase.SaveChanges();
+					
+					Thread.Sleep(1);
 
-					clientDatabase.Addresses.First(x => x.Id == address2.Id).Line1 = "123 Client Street";
+					clientDatabase.Addresses.First(x => x.Id == clientAddress.Id).Line1 = "123 Client Street";
 					clientDatabase.SaveChanges();
 				}
+
+				Thread.Sleep(10);
 
 				using var engine = new SyncEngine(Guid.NewGuid(), client, server, GetSyncOptions());
 				engine.Run();
@@ -1410,11 +1431,11 @@ namespace Speedy.IntegrationTests
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 				{
 					Assert.AreEqual(2, clientDatabase.Addresses.Count());
-					Assert.AreEqual("123 Client Street", clientDatabase.Addresses.First(x => x.Id == address1.Id).Line1);
-					Assert.AreEqual(address1.Line2, clientDatabase.Addresses.First(x => x.Id == address1.Id).Line2);
+					Assert.AreEqual("123 Client Street", clientDatabase.Addresses.First(x => x.Id == serverAddress.Id).Line1);
+					Assert.AreEqual(serverAddress.Line2, clientDatabase.Addresses.First(x => x.Id == serverAddress.Id).Line2);
 					Assert.AreEqual(2, serverDatabase.Addresses.Count());
-					Assert.AreEqual("123 Client Street", serverDatabase.Addresses.First(x => x.Id == address2.Id).Line1);
-					Assert.AreEqual(address1.Line2, serverDatabase.Addresses.First(x => x.Id == address2.Id).Line2);
+					Assert.AreEqual("123 Client Street", serverDatabase.Addresses.First(x => x.Id == clientAddress.Id).Line1);
+					Assert.AreEqual(serverAddress.Line2, serverDatabase.Addresses.First(x => x.Id == clientAddress.Id).Line2);
 				}
 			});
 		}

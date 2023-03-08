@@ -4,6 +4,11 @@
         <name>Speedy</name>
     </assembly>
     <members>
+        <member name="T:Speedy.Attributes.IgnoreSettingAttribute">
+            <summary>
+            Attribute for ignoring settings.
+            </summary>
+        </member>
         <member name="T:Speedy.Bindable`1">
             <summary>
             Represents a bindable object.
@@ -189,11 +194,35 @@
             Represents a thread dispatcher to help with cross threaded request.
             </summary>
         </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.GetDispatcher">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.HasChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.HasChanges(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.IsChangeNotificationsPaused">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.OnPropertyChanged(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.PausePropertyChangeNotifications(System.Boolean)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.Reset(`0[])">
             <summary>
             Reset the collection to the provided values.
             </summary>
             <param name="values"> The values to be set to. </param>
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.ResetHasChanges(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.UpdateDispatcher(Speedy.IDispatcher)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.ClearItems">
             <inheritdoc />
@@ -213,11 +242,6 @@
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
             <inheritdoc />
-        </member>
-        <member name="E:Speedy.Collections.BaseObservableCollection`1.PropertyChanged">
-            <summary>
-            PropertyChanged event (per <see cref="T:System.ComponentModel.INotifyPropertyChanged" />).
-            </summary>
         </member>
         <member name="T:Speedy.Collections.LittleEndianBuffer">
             <summary>
@@ -793,6 +817,11 @@
             Represents a sorted observable collection. The collection supports notification on clear and ability to be sorted.
             </summary>
             <typeparam name="T"> The type of the item stored in the collection. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.SortedObservableCollection`1.#ctor">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
         </member>
         <member name="M:Speedy.Collections.SortedObservableCollection`1.#ctor(Speedy.Collections.OrderBy{`0},Speedy.Collections.OrderBy{`0}[])">
             <summary>
@@ -9461,6 +9490,11 @@
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
         </member>
+        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggeredAndReadyToProcess">
+            <summary>
+            The throttle is triggered and the delay has expired so it is ready to process.
+            </summary>
+        </member>
         <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggered">
             <summary>
             True if the throttle service has been triggered.
@@ -9470,6 +9504,11 @@
             <summary>
             If true trigger will queue and be processed. Be careful because queueing on a delay could
             end with a never processed queue. Defaults to false, meaning only last trigger processes.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.ThrottleService`1.TimeToNextTrigger">
+            <summary>
+            The timespan until next trigger
             </summary>
         </member>
         <member name="M:Speedy.Profiling.ThrottleService`1.Dispose">
@@ -12796,12 +12835,6 @@
             Discard all changes made in this repository.
             </summary>
         </member>
-        <member name="M:Speedy.Storage.IDatabaseRepository.HasChanges">
-            <summary>
-            Determines if the repository has changes.
-            </summary>
-            <returns> True if there are changes and false if otherwise. </returns>
-        </member>
         <member name="M:Speedy.Storage.IDatabaseRepository.HasDependentRelationship(System.Object[],System.Object)">
             <summary>
             Check too see if there are other entities that depends on this entity.
@@ -13416,14 +13449,14 @@
             The directory the repository will be located.
             </summary>
         </member>
-        <member name="P:Speedy.Storage.KeyValue.KeyValueRepository`1.Name">
-            <summary>
-            The name of the repository.
-            </summary>
-        </member>
         <member name="P:Speedy.Storage.KeyValue.KeyValueRepository`1.FileInfo">
             <summary>
             Gets the file info of the repository file.
+            </summary>
+        </member>
+        <member name="P:Speedy.Storage.KeyValue.KeyValueRepository`1.Name">
+            <summary>
+            The name of the repository.
             </summary>
         </member>
         <member name="P:Speedy.Storage.KeyValue.KeyValueRepository`1.TempFileInfo">
@@ -14146,6 +14179,12 @@
             <returns> </returns>
         </member>
         <member name="M:Speedy.Storage.Repository`2.HasChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.Repository`2.HasChanges(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.Repository`2.ResetHasChanges(System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.Repository`2.HasDependentRelationship(System.Object[],System.Object)">

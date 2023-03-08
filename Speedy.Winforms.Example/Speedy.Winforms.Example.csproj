@@ -4,9 +4,7 @@
 		<TargetFrameworks>net48;net6.0-windows;net7.0-windows</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<Platforms>x64;x86</Platforms>
-		<UseWinforms>true</UseWinforms>
 		<UseWindowsForms>true</UseWindowsForms>
-		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>

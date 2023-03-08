@@ -16,8 +16,14 @@ namespace Speedy.Collections;
 /// Represents an observable collection that supports notification on clear.
 /// </summary>
 /// <typeparam name="T"> The type of the item stored in the collection. </typeparam>
-public class BaseObservableCollection<T> : ObservableCollection<T>
+public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 {
+	#region Fields
+
+	private bool _hasChanges;
+
+	#endregion
+
 	#region Constructors
 
 	/// <summary>
@@ -78,11 +84,46 @@ public class BaseObservableCollection<T> : ObservableCollection<T>
 	/// </summary>
 	[Browsable(false)]
 	[JsonIgnore]
-	protected IDispatcher Dispatcher { get; }
+	protected IDispatcher Dispatcher { get; private set; }
 
 	#endregion
 
 	#region Methods
+
+	/// <inheritdoc />
+	public IDispatcher GetDispatcher()
+	{
+		return Dispatcher;
+	}
+
+	/// <inheritdoc />
+	public bool HasChanges()
+	{
+		return HasChanges(Array.Empty<string>());
+	}
+
+	/// <inheritdoc />
+	public bool HasChanges(params string[] exclusions)
+	{
+		return _hasChanges;
+	}
+
+	/// <inheritdoc />
+	public bool IsChangeNotificationsPaused()
+	{
+		return false;
+	}
+
+	/// <inheritdoc />
+	public virtual void OnPropertyChanged(string propertyName = null)
+	{
+		OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+	}
+
+	/// <inheritdoc />
+	public void PausePropertyChangeNotifications(bool pause = true)
+	{
+	}
 
 	/// <summary>
 	/// Reset the collection to the provided values.
@@ -109,6 +150,18 @@ public class BaseObservableCollection<T> : ObservableCollection<T>
 		{
 			Add(value);
 		}
+	}
+
+	/// <inheritdoc />
+	public void ResetHasChanges(bool hasChanges = false)
+	{
+		_hasChanges = hasChanges;
+	}
+
+	/// <inheritdoc />
+	public void UpdateDispatcher(IDispatcher dispatcher)
+	{
+		Dispatcher = dispatcher;
 	}
 
 	/// <inheritdoc />
@@ -176,6 +229,8 @@ public class BaseObservableCollection<T> : ObservableCollection<T>
 		{
 			base.OnCollectionChanged(e);
 		}
+
+		_hasChanges = true;
 	}
 
 	/// <inheritdoc />
@@ -187,19 +242,10 @@ public class BaseObservableCollection<T> : ObservableCollection<T>
 			return;
 		}
 
-		PropertyChanged?.Invoke(this, e);
+		_hasChanges = true;
 
 		base.OnPropertyChanged(e);
 	}
-
-	#endregion
-
-	#region Events
-
-	/// <summary>
-	/// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
-	/// </summary>
-	public new virtual event PropertyChangedEventHandler PropertyChanged;
 
 	#endregion
 }

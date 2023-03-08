@@ -625,7 +625,7 @@ namespace Speedy.UnitTests
 			var name = Guid.NewGuid().ToString();
 			using var context = KeyValueRepository.Create(TestHelper.Directory, name, TimeSpan.FromSeconds(1), 10);
 			var repository = context;
-			TestHelper.ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), "Could not find the entry with the key.");
+			ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), "Could not find the entry with the key.");
 		}
 
 		[TestMethod]

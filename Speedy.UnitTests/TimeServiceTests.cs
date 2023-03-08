@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Profiling;
 
 #endregion
@@ -86,7 +87,7 @@ public class TimeServiceTests : SpeedyUnitTest
 		AreEqual(expected, actual);
 		TimeService.RemoveUtcNowProvider(id1.Value);
 		actual = TimeService.UtcNow;
-		IsTrue(actual > start);
+		IsTrue(actual > start, $"{actual:O} > {start:O}");
 	}
 
 	[TestMethod]

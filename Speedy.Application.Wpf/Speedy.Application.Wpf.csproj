@@ -48,11 +48,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Management.Infrastructure" Version="2.0.0" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
-		<PackageReference Include="System.Management" Version="7.0.0" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows'">
 		<PackageReference Include="System.Management" Version="7.0.0" />
 	</ItemGroup>
 </Project>

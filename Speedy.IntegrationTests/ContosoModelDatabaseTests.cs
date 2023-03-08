@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Client.Data;
 using Speedy.Extensions;
 using Speedy.Sync;

@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation;
 using Speedy.Automation.Desktop;
+using Speedy.Automation.Tests;
 using Speedy.UnitTests;
 
 #endregion

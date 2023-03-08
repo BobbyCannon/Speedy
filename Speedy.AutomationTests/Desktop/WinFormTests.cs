@@ -10,6 +10,7 @@ using Speedy.Automation;
 using Speedy.Automation.Desktop;
 using Speedy.Automation.Desktop.Elements;
 using Speedy.Automation.Desktop.Pattern;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.UnitTests;
 

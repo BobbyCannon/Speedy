@@ -59,7 +59,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void ParseException()
 		{
-			TestHelper.ExpectedException<Exception>(() => OscMidi.Parse("0"), "Not a midi message '0'");
+			ExpectedException<Exception>(() => OscMidi.Parse("0"), "Not a midi message '0'");
 		}
 
 		#endregion

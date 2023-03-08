@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
@@ -23,7 +24,7 @@ namespace Speedy.IntegrationTests
 	/// </summary>
 	[TestClass]
 	[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-	public class DatabaseTests
+	public class DatabaseTests : SpeedyTest
 	{
 		#region Methods
 
@@ -147,7 +148,7 @@ namespace Speedy.IntegrationTests
 
 					pet = new PetEntity { Name = "Max", OwnerId = expected.Id, Type = new PetTypeEntity { Id = "Dog", Type = "Boston" } };
 
-					TestHelper.ExpectedException<InvalidOperationException>(() => database.Pets.Add(pet),
+					ExpectedException<InvalidOperationException>(() => database.Pets.Add(pet),
 						"The instance of entity type 'PetEntity' cannot be tracked because another instance with the same key value");
 				});
 		}
@@ -172,7 +173,7 @@ namespace Speedy.IntegrationTests
 
 					pet = new PetEntity { Name = "Max", Owner = expected, Type = new PetTypeEntity { Id = "Dog", Type = "Boston" } };
 
-					TestHelper.ExpectedException<InvalidOperationException>(() => database.Pets.Add(pet),
+					ExpectedException<InvalidOperationException>(() => database.Pets.Add(pet),
 						"The instance of entity type 'PetEntity' cannot be tracked because another instance with the same key value");
 				});
 		}
@@ -191,7 +192,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(0, test.Count);
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					ExpectedException<Exception>(() => database.SaveChanges(),
 						"SQLite Error 19: 'NOT NULL constraint failed: Addresses.AddressLineOne'.",
 						"Cannot insert the value NULL into column 'AddressLineOne', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
 						"AddressEntity: The Line1 field is required.");
@@ -386,7 +387,7 @@ namespace Speedy.IntegrationTests
 					using var database = provider.GetDatabase();
 					Console.WriteLine(database.GetType().Name);
 					database.Addresses.Add(new AddressEntity { Line1 = null, Line2 = string.Empty, City = "Easley", State = "SC", Postal = "29640" });
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					ExpectedException<Exception>(() => database.SaveChanges(),
 						"SQLite Error 19: 'NOT NULL constraint failed: Addresses.AddressLineOne'.",
 						"Cannot insert the value NULL into column 'AddressLineOne', table 'Speedy.dbo.Addresses'; column does not allow nulls. INSERT fails.",
 						"AddressEntity: The Line1 field is required.");
@@ -404,7 +405,7 @@ namespace Speedy.IntegrationTests
 			//		{
 			//			Console.WriteLine(database.GetType().Name);
 			//			database.People.Add(new PersonEntity { Name = "John" });
-			//			TestHelper.ExpectedException<Exception>(() => database.SaveChanges(), "The INSERT statement conflicted with the FOREIGN KEY constraint");
+			//			ExpectedException<Exception>(() => database.SaveChanges(), "The INSERT statement conflicted with the FOREIGN KEY constraint");
 			//		}
 			//	});
 		}
@@ -894,7 +895,7 @@ namespace Speedy.IntegrationTests
 					database.Food.Add(EntityFactory.GetFood(x => x.Name = "Bread"));
 					database.Food.Add(EntityFactory.GetFood(x => x.Name = "Bread"));
 
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					ExpectedException<Exception>(() => database.SaveChanges(),
 						"Cannot insert duplicate key row in object 'dbo.Foods' with unique index 'IX_Foods_Name'. The duplicate key value is (Bread)",
 						"SQLite Error 19: 'UNIQUE constraint failed: Foods.Name'",
 						"IX_Foods_Name: Cannot insert duplicate row. The duplicate key value is (Bread)."
@@ -903,7 +904,7 @@ namespace Speedy.IntegrationTests
 		}
 
 		[TestInitialize]
-		public void Initialize()
+		public void TestInitialize()
 		{
 			TestHelper.Initialize();
 		}
@@ -1448,13 +1449,13 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(1, database.Accounts.Count());
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address),
+					ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address),
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.",
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address.Id),
+					ExpectedException<InvalidOperationException>(() => database.Addresses.Remove(address.Id),
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable.",
 						"The association between entity types 'AddressEntity' and 'AccountEntity' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable."
 					);
@@ -1596,7 +1597,7 @@ namespace Speedy.IntegrationTests
 					expected2.ExternalId = "EID";
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					ExpectedException<Exception>(() => database.SaveChanges(),
 						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountAddressId, Accounts.AccountExternalId'.",
 						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_AddressId_ExternalId'. The duplicate key value is (1, EID).",
 						"IX_Accounts_AddressId_ExternalId: Cannot insert duplicate row. The duplicate key value is (1,EID).");
@@ -1620,7 +1621,7 @@ namespace Speedy.IntegrationTests
 					database.Accounts.Add(expected);
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					ExpectedException<Exception>(() => database.SaveChanges(),
 						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountName'.",
 						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Name'. The duplicate key value is (Foo).",
 						"IX_Accounts_Name: Cannot insert duplicate row. The duplicate key value is (Foo).");
@@ -1656,7 +1657,7 @@ namespace Speedy.IntegrationTests
 					expected2.Nickname = "Bar";
 
 					// ReSharper disable once AccessToDisposedClosure
-					TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					ExpectedException<Exception>(() => database.SaveChanges(),
 						"SQLite Error 19: 'UNIQUE constraint failed: Accounts.AccountNickname'.",
 						"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
 						"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");
@@ -1693,7 +1694,7 @@ namespace Speedy.IntegrationTests
 					//expected2.Nickname = "Bar";
 
 					//// ReSharper disable once AccessToDisposedClosure
-					//TestHelper.ExpectedException<Exception>(() => database.SaveChanges(),
+					//ExpectedException<Exception>(() => database.SaveChanges(),
 					//	"SQLite Error 19: 'UNIQUE constraint failed: Accounts.Nickname'.",
 					//	"Cannot insert duplicate key row in object 'dbo.Accounts' with unique index 'IX_Accounts_Nickname'. The duplicate key value is (Bar).",
 					//	"IX_Accounts_Nickname: Cannot insert duplicate row. The duplicate key value is (Bar).");

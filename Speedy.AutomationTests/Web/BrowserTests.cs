@@ -8,6 +8,7 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation;
 using Speedy.Automation.Desktop;
+using Speedy.Automation.Tests;
 using Speedy.Automation.Web;
 using Speedy.Automation.Web.Browsers;
 using Speedy.Automation.Web.Elements;

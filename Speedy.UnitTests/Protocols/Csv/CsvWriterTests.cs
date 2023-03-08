@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Collections;
 using Speedy.Data.Location;
 using Speedy.Protocols.Csv;
@@ -42,7 +43,7 @@ public class CsvWriterTests : SpeedyUnitTest
 		var actual = CsvWriter.Write(history);
 		actual.Dump();
 
-		var expected = "Accuracy,AccuracyReference,Altitude,AltitudeReference,Flags,HasAccuracy,HasChanges,HasHeading,HasSpeed,HasValue,Heading,InformationId,ProviderName,SourceName,Speed,StatusTime\r\n1.2,1,123.45,2,6,True,True,False,True,True,0,2ab3b4a0-a387-409a-bba3-b74f75972463,Provider 1,The Source,0,2022-11-21T12:16:16.0000000Z\r\n1.2,1,123.45,2,7,True,True,True,True,True,0,2ab3b4a0-a387-409a-bba3-b74f75972463,Provider 1,The Source,0,2022-11-21T12:16:17.0000000Z";
+		var expected = "Accuracy,AccuracyReference,Altitude,AltitudeReference,Flags,HasAccuracy,HasHeading,HasSpeed,HasValue,Heading,InformationId,ProviderName,SourceName,Speed,StatusTime\r\n1.2,1,123.45,2,6,True,False,True,True,0,2ab3b4a0-a387-409a-bba3-b74f75972463,Provider 1,The Source,0,2022-11-21T12:16:16.0000000Z\r\n1.2,1,123.45,2,7,True,True,True,True,0,2ab3b4a0-a387-409a-bba3-b74f75972463,Provider 1,The Source,0,2022-11-21T12:16:17.0000000Z";
 		AreEqual(expected, actual);
 	}
 

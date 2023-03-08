@@ -35,7 +35,7 @@ namespace Speedy.UnitTests
 		{
 			Cleanup();
 			var provider = new KeyValueMemoryRepositoryProvider();
-			TestHelper.ExpectedException<SpeedyException>(() => provider.ArchiveRepository("Repository1"), SpeedyException.RepositoryNotFound);
+			ExpectedException<SpeedyException>(() => provider.ArchiveRepository("Repository1"), SpeedyException.RepositoryNotFound);
 		}
 
 		[TestMethod]
@@ -201,7 +201,7 @@ namespace Speedy.UnitTests
 		{
 			Cleanup();
 			var provider = new KeyValueMemoryRepositoryProvider();
-			TestHelper.ExpectedException<SpeedyException>(() => provider.UnarchiveRepository("Repository1"), SpeedyException.RepositoryNotFound);
+			ExpectedException<SpeedyException>(() => provider.UnarchiveRepository("Repository1"), SpeedyException.RepositoryNotFound);
 		}
 
 		#endregion

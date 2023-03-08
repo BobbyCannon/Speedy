@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.UnitTests.Factories;
@@ -121,7 +122,7 @@ public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 			var actual = new PagedRequest();
 			actual.ParseQueryString(scenario.expected);
 
-			TestHelper.AreEqual(expected, actual, nameof(Bindable.HasChanges));
+			TestHelper.AreEqual(expected, actual);
 		}
 	}
 
@@ -141,7 +142,7 @@ public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 		var actual = GetModel();
 		var withValues = GetModelWithNonDefaultValues();
 		actual.UpdateWith(withValues);
-		TestHelper.AreEqual(withValues, actual, nameof(Bindable.HasChanges));
+		TestHelper.AreEqual(withValues, actual);
 	}
 
 	#endregion

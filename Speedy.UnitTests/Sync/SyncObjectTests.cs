@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.Client;
 using Speedy.Extensions;
 using Speedy.Sync;

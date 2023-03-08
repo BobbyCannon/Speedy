@@ -1,4 +1,7 @@
-﻿namespace Speedy.Winforms.Example
+﻿using System;
+using System.Windows.Forms;
+
+namespace Speedy.Winforms.Example
 {
 	public partial class ParentForm : Form
 	{

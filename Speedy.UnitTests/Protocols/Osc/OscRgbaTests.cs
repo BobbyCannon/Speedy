@@ -59,7 +59,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void ParseException()
 		{
-			TestHelper.ExpectedException<Exception>(() => OscRgba.Parse("FooBar"), "Invalid color 'FooBar'");
+			ExpectedException<Exception>(() => OscRgba.Parse("FooBar"), "Invalid color 'FooBar'");
 		}
 
 		#endregion

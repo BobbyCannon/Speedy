@@ -517,7 +517,7 @@ namespace Speedy.UnitTests
 			var name = Guid.NewGuid().ToString();
 			using var context = new KeyValueMemoryRepository(name, TimeSpan.FromSeconds(1), 10);
 			var repository = context;
-			TestHelper.ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), SpeedyException.KeyNotFound);
+			ExpectedException<KeyNotFoundException>(() => repository.Read("Blah"), SpeedyException.KeyNotFound);
 		}
 
 		[TestMethod]

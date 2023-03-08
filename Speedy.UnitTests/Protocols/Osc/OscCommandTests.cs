@@ -4,6 +4,7 @@ using System;
 using System.IO.Ports;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.Protocols.Osc;
 using Speedy.UnitTests.Protocols.Samples;

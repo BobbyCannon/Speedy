@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Profiling;
 
 #endregion
@@ -14,6 +15,32 @@ namespace Speedy.UnitTests.Profiling;
 public class ThrottleServiceTests : SpeedyUnitTest
 {
 	#region Methods
+
+	[TestMethod]
+	public void ThrottleShouldAllowTimeServiceGoBackInTime()
+	{
+		var actual = new List<int>();
+
+		void Work(CancellationToken token, int data)
+		{
+			actual.Add(data);
+		}
+
+		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), Work);
+		service.Trigger(1);
+		service.Trigger(2);
+		service.Trigger(3);
+
+		AreEqual(TimeSpan.FromSeconds(1), service.TimeToNextTrigger);
+
+		IsTrue(service.IsTriggered);
+		IncrementTime(seconds: -1);
+
+		Wait(() => service.TimeToNextTrigger.TotalSeconds == 1.0);
+
+		AreEqual(TimeSpan.FromSeconds(1), service.TimeToNextTrigger);
+		AreEqual(0, actual.Count);
+	}
 
 	[TestMethod]
 	public void ThrottleShouldClearQueueWhenPropertyChanges()
@@ -73,21 +100,40 @@ public class ThrottleServiceTests : SpeedyUnitTest
 
 		void Work(CancellationToken token, int data)
 		{
+			Console.WriteLine(data);
 			actual.Add(data);
 		}
 
 		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), Work);
 		service.QueueTriggers = true;
+		
+		// {12/29/2022 8:00:00 AM}
+		TimeService.UtcNow.Dump();
 
 		service.Trigger(1);
 		service.Trigger(2);
 		service.Trigger(3);
 
-		while (service.IsTriggered)
-		{
-			IncrementTime(seconds: 1);
-			Wait(() => !service.IsTriggered, 50, 10);
-		}
+		var actualCount = actual.Count;
+		Wait(() => service.IsTriggered);
+		// increment to {12/29/2022 8:00:01 AM}
+		IncrementTime(seconds: 1);
+		Wait(() => actual.Count > actualCount);
+		
+		actualCount = actual.Count;
+		Wait(() => service.IsTriggered);
+		// increment to {12/29/2022 8:00:02 AM}
+		IncrementTime(seconds: 1);
+		Wait(() => actual.Count > actualCount);
+		
+		actualCount = actual.Count;
+		Wait(() => service.IsTriggered);
+		// increment to {12/29/2022 8:00:03 AM}
+		IncrementTime(seconds: 1);
+		Wait(() => actual.Count >= 3);
+
+		// should still be {12/29/2022 8:00:03 AM}
+		TimeService.UtcNow.Dump();
 
 		IsFalse(service.IsTriggered);
 		AreEqual(3, actual.Count);
@@ -110,7 +156,8 @@ public class ThrottleServiceTests : SpeedyUnitTest
 		service.QueueTriggers = false;
 		service.Trigger(1, true);
 
-		Wait(() => !service.IsTriggered, 50, 10);
+		IsTrue(service.IsTriggered);
+		Wait(() => !service.IsTriggered);
 
 		AreEqual(1, actual.Count);
 	}

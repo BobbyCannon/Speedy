@@ -1,5 +1,7 @@
 ﻿#region References
 
+using System;
+using System.Windows.Forms;
 using Speedy.Automation;
 using Speedy.Automation.Desktop;
 

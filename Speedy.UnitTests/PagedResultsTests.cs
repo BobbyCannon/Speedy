@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
 using Speedy.Extensions;
 using Speedy.Serialization;
@@ -213,7 +214,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 		var actual = GetModel();
 		var withValues = GetModelWithNonDefaultValues();
 		actual.UpdateWith(withValues);
-		TestHelper.AreEqual(withValues, actual, nameof(Bindable.HasChanges));
+		TestHelper.AreEqual(withValues, actual);
 	}
 
 	[TestMethod]

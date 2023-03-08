@@ -320,7 +320,19 @@ namespace Speedy.Storage
 		/// <inheritdoc />
 		public bool HasChanges()
 		{
+			return HasChanges(Array.Empty<string>());
+		}
+
+		/// <inheritdoc />
+		public bool HasChanges(params string[] exclusions)
+		{
 			return GetChanges().Any();
+		}
+
+		/// <inheritdoc />
+		public void ResetHasChanges(bool hasChanges = false)
+		{
+			// not supported for repositories
 		}
 
 		/// <inheritdoc />

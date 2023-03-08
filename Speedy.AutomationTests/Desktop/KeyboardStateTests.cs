@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation.Desktop;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.UnitTests;
 using TextCopy;

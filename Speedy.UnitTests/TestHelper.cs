@@ -97,12 +97,15 @@ namespace Speedy.UnitTests
 			ApplicationPathForWinFormsX86 = ApplicationPathForWinFormsX64.Replace("\\x64\\", "\\x86\\");
 
 			// Need to convert
+			//        C:\Workspaces\GitHub\Speedy\Speedy.AutomationTests\bin\Debug\net7.0-windows
 			// - from C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\Debug\net7.0-windows
-			// - to   C:\Workspaces\GitHub\Speedy\Speedy.TestUwp\bin\x86\Debug\AppX\Speedy.TestUwp.exe
+			// - to   C:\Workspaces\GitHub\Speedy\Samples\Windows\Speedy.Uwp.Example\bin\x64\Debug\AppX\Speedy.Uwp.Example.exe
 			ApplicationPathForUwp = info.FullName
-					.Replace("Speedy.AutomationTests", "Speedy.TestUwp")
-					.Replace("x86\\Debug\\net7.0-windows", "x86\\Debug\\AppX")
-				+ "\\Speedy.TestUwp.exe";
+					.Replace("Speedy.AutomationTests", "Samples\\Windows\\Speedy.Uwp.Example")
+					.Replace("Debug\\net7.0-windows", "x64\\Debug\\AppX")
+				+ "\\Speedy.Uwp.Example.exe";
+
+			SpeedyTest.SetClipboardProvider(x => Clipboard.SetText(x ?? "null"));
 
 			Initialize();
 		}
@@ -306,113 +309,7 @@ namespace Speedy.UnitTests
 
 			return value;
 		}
-
-		public static string Dump(this object item)
-		{
-			Console.WriteLine(item);
-			return item.ToString();
-		}
-
-		public static string Dump(this IEnumerable<object> items, string prefix = null)
-		{
-			var builder = new StringBuilder();
-			foreach (var item in items)
-			{
-				if (prefix != null)
-				{
-					builder.Append(prefix);
-				}
-
-				builder.Append(item);
-			}
-			Console.WriteLine(builder.ToString());
-			return builder.ToString();
-		}
 		
-		public static string Dump(this char[] items, string prefix = null)
-		{
-			var builder = new StringBuilder();
-			foreach (var item in items)
-			{
-				if (prefix != null)
-				{
-					builder.Append(prefix);
-				}
-
-				builder.Append(item);
-			}
-			Console.WriteLine(builder.ToString());
-			return builder.ToString();
-		}
-
-		public static void Dump(this IEnumerable<int> item)
-		{
-			foreach (var i in item)
-			{
-				Console.Write($"0x{i:X4},");
-			}
-
-			Console.WriteLine("");
-		}
-
-		public static string Dump(this byte[] item)
-		{
-			var builder = new StringBuilder();
-
-			foreach (var i in item)
-			{
-				builder.Append($"0x{i:X2}, ");
-			}
-
-			var response = builder.ToString();
-			Console.WriteLine(response);
-			return response;
-		}
-
-		public static void Dump<T>(this T item, Func<T, object> action)
-		{
-			Console.WriteLine(action(item));
-		}
-
-		public static void Dump<T>(this T item, string prefix)
-		{
-			Console.Write(prefix);
-			Console.WriteLine(item);
-		}
-
-		public static string DumpJson(this object item)
-		{
-			var json = item.ToRawJson();
-			Console.WriteLine(json);
-			return json;
-		}
-
-		public static void ExpectedException<T>(Action work, params string[] messages) where T : Exception
-		{
-			try
-			{
-				work();
-			}
-			catch (T ex)
-			{
-				var detailedException = ex.ToDetailedString();
-				var allErrors = "\"" + string.Join("\", \"", messages) + "\"";
-
-				if (!messages.Any(x => detailedException.Contains(x)))
-				{
-					Assert.Fail("Actual <" + detailedException + "> does not contain expected <" + allErrors + ">.");
-				}
-				return;
-			}
-
-			Assert.Fail("The expected exception was not thrown.");
-		}
-
-		public static void FormatDump(this string item)
-		{
-			Console.WriteLine(item.Replace("\r\n", "\\r\\n").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\"", "\\\""));
-		}
-
 		public static ISyncableDatabaseProvider<ContosoClientMemoryDatabase> GetClientProvider()
 		{
 			var database = new ContosoClientMemoryDatabase();

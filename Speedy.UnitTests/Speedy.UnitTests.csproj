@@ -9,8 +9,8 @@
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CompareNETObjects" Version="4.78.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+		<PackageReference Include="CompareNETObjects" Version="4.79.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
 		<PackageReference Include="Moq" Version="4.18.4" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
@@ -20,10 +20,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Samples\Website\Speedy.Website.Core\Speedy.Website.Core.csproj" />
 		<ProjectReference Include="..\Speedy.Automation\Speedy.Automation.csproj" />
-		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
 		<ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj" />
-		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
+		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting.Example\Speedy.ServiceHosting.Example.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />

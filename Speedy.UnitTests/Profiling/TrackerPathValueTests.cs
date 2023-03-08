@@ -9,7 +9,7 @@ using Speedy.Profiling;
 namespace Speedy.UnitTests.Profiling
 {
 	[TestClass]
-	public class TrackerPathValueTests
+	public class TrackerPathValueTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -30,17 +30,17 @@ namespace Speedy.UnitTests.Profiling
 		public void ConstructorShouldNotAllowEmptyOrWhitespaceName()
 		{
 			// ReSharper disable once ObjectCreationAsStatement
-			TestHelper.ExpectedException<ArgumentException>(() => new TrackerPathValue("", null), "The name is required.");
+			ExpectedException<ArgumentException>(() => new TrackerPathValue("", null), "The name is required.");
 
 			// ReSharper disable once ObjectCreationAsStatement
-			TestHelper.ExpectedException<ArgumentException>(() => new TrackerPathValue(" ", null), "The name is required.");
+			ExpectedException<ArgumentException>(() => new TrackerPathValue(" ", null), "The name is required.");
 		}
 
 		[TestMethod]
 		public void ConstructorShouldNotAllowNullName()
 		{
 			// ReSharper disable once ObjectCreationAsStatement
-			TestHelper.ExpectedException<ArgumentNullException>(() => new TrackerPathValue(null, null), "The name cannot be null.");
+			ExpectedException<ArgumentNullException>(() => new TrackerPathValue(null, null), "The name cannot be null.");
 		}
 
 		#endregion

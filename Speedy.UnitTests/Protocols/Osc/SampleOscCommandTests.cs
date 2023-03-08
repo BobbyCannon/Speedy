@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.Protocols.Osc;
 using Speedy.UnitTests.Protocols.Samples;
@@ -184,7 +185,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var message = OscPacket.Parse(data) as OscMessage;
 			Assert.IsNotNull(message);
 
-			TestHelper.ExpectedException<InvalidCastException>(() => OscCommand.FromMessage<SampleOscCommand>(message),
+			ExpectedException<InvalidCastException>(() => OscCommand.FromMessage<SampleOscCommand>(message),
 				"Unable to cast object of type 'System.String' to type 'Speedy.UnitTests.Protocols.Samples.SampleCustomValue'.",
 				"Specified cast is not valid."
 			);

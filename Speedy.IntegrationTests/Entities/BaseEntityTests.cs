@@ -57,7 +57,7 @@ namespace Speedy.IntegrationTests.Entities
 			if (printOutput)
 			{
 				Clipboard.SetText(builder.ToString());
-				TestHelper.Dump(builder.ToString());
+				builder.ToString().Dump();
 
 				if (properties.Length != expected.Count)
 				{
