@@ -893,8 +893,11 @@ namespace Speedy.AutomationTests.Web
 			ForAllBrowsers(browser =>
 			{
 				browser.NavigateTo("https://www.bing.com");
+				// New bing needs delay
+				Thread.Sleep(1000);
 				browser.Descendants().ToList().Count.Dump();
-				browser.FirstOrDefault("sb_form_q").SendInput("Bobby Cannon Epic Coders");
+				browser.FirstOrDefault("sb_form_q").LeftClick();
+				Input.Keyboard.SendInput("Bobby Cannon Epic Coders");
 				browser.FirstOrDefault("sb_form_go").Click();
 				browser.WaitForComplete();
 			});

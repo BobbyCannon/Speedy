@@ -9470,12 +9470,13 @@
             The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken})">
+        <member name="M:Speedy.Profiling.ThrottleService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken},System.Boolean)">
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
         <member name="M:Speedy.Profiling.ThrottleService.Trigger(System.Boolean)">
             <summary>
@@ -9488,21 +9489,22 @@
             The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0})">
+        <member name="M:Speedy.Profiling.ThrottleService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0},System.Boolean)">
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
-        </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggeredAndReadyToProcess">
-            <summary>
-            The throttle is triggered and the delay has expired so it is ready to process.
-            </summary>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
         <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggered">
             <summary>
             True if the throttle service has been triggered.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggeredAndReadyToProcess">
+            <summary>
+            The throttle is triggered and the delay has expired so it is ready to process.
             </summary>
         </member>
         <member name="P:Speedy.Profiling.ThrottleService`1.QueueTriggers">
@@ -9516,8 +9518,18 @@
             The timespan until next trigger
             </summary>
         </member>
+        <member name="P:Speedy.Profiling.ThrottleService`1.CurrentTime">
+            <summary>
+            The current time for the throttle.
+            </summary>
+        </member>
         <member name="M:Speedy.Profiling.ThrottleService`1.Dispose">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleService`1.Reset">
+            <summary>
+            Reset the throttle service
+            </summary>
         </member>
         <member name="M:Speedy.Profiling.ThrottleService`1.Trigger(`0,System.Boolean)">
             <summary>

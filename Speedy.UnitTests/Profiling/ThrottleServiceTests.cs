@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation.Tests;
@@ -17,28 +18,55 @@ public class ThrottleServiceTests : SpeedyUnitTest
 	#region Methods
 
 	[TestMethod]
-	public void ThrottleShouldAllowTimeServiceGoBackInTime()
+	public void ThrottleShouldDefaultToUseDateTime()
+	{
+		void work(CancellationToken token, int data)
+		{
+			// nothing...
+		}
+
+		using var service = new ThrottleService<int>(TimeSpan.FromMilliseconds(100), work);
+		var watch = Stopwatch.StartNew();
+		service.Trigger(1);
+
+		var result = Wait(() => !service.IsTriggered, 500, 10);
+		watch.Stop();
+		
+		// Should never be be greater than 100 ms +- 10/15ms, if so it's locked with
+		// TimeService and the wait expired.
+		IsTrue(result, "The wait timed out... it should not have...");
+		IsFalse(watch.Elapsed.TotalMilliseconds > 250);
+		watch.Elapsed.Dump();
+
+	}
+
+	[TestMethod]
+	public void ThrottleReset()
 	{
 		var actual = new List<int>();
 
-		void Work(CancellationToken token, int data)
+		void work(CancellationToken token, int data)
 		{
 			actual.Add(data);
 		}
 
-		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), Work);
+		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), work, true);
+		service.QueueTriggers = true;
 		service.Trigger(1);
 		service.Trigger(2);
 		service.Trigger(3);
 
 		AreEqual(TimeSpan.FromSeconds(1), service.TimeToNextTrigger);
+		AreEqual(true, service.IsTriggered);
+		AreEqual(false, service.IsTriggeredAndReadyToProcess);
+		AreEqual(0, actual.Count);
 
 		IsTrue(service.IsTriggered);
-		IncrementTime(seconds: -1);
+		service.Reset();
 
-		Wait(() => service.TimeToNextTrigger.TotalSeconds == 1.0);
-
-		AreEqual(TimeSpan.FromSeconds(1), service.TimeToNextTrigger);
+		AreEqual(TimeSpan.Zero, service.TimeToNextTrigger);
+		AreEqual(false, service.IsTriggered);
+		AreEqual(false, service.IsTriggeredAndReadyToProcess);
 		AreEqual(0, actual.Count);
 	}
 
@@ -47,12 +75,12 @@ public class ThrottleServiceTests : SpeedyUnitTest
 	{
 		var actual = new List<int>();
 
-		void Work(CancellationToken token, int data)
+		void work(CancellationToken token, int data)
 		{
 			actual.Add(data);
 		}
 
-		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), Work);
+		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), work, true);
 		service.QueueTriggers = true;
 		service.Trigger(1);
 		service.Trigger(2);
@@ -74,12 +102,12 @@ public class ThrottleServiceTests : SpeedyUnitTest
 	{
 		var actual = new List<int>();
 
-		void Work(CancellationToken token, int data)
+		void work(CancellationToken token, int data)
 		{
 			actual.Add(data);
 		}
 
-		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), Work);
+		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), work, true);
 		service.Trigger(1);
 		service.Trigger(2);
 		service.Trigger(3);
@@ -98,15 +126,15 @@ public class ThrottleServiceTests : SpeedyUnitTest
 	{
 		var actual = new List<int>();
 
-		void Work(CancellationToken token, int data)
+		void work(CancellationToken token, int data)
 		{
 			Console.WriteLine(data);
 			actual.Add(data);
 		}
 
-		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), Work);
+		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), work, true);
 		service.QueueTriggers = true;
-		
+
 		// {12/29/2022 8:00:00 AM}
 		TimeService.UtcNow.Dump();
 
@@ -119,13 +147,13 @@ public class ThrottleServiceTests : SpeedyUnitTest
 		// increment to {12/29/2022 8:00:01 AM}
 		IncrementTime(seconds: 1);
 		Wait(() => actual.Count > actualCount);
-		
+
 		actualCount = actual.Count;
 		Wait(() => service.IsTriggered);
 		// increment to {12/29/2022 8:00:02 AM}
 		IncrementTime(seconds: 1);
 		Wait(() => actual.Count > actualCount);
-		
+
 		actualCount = actual.Count;
 		Wait(() => service.IsTriggered);
 		// increment to {12/29/2022 8:00:03 AM}
@@ -147,12 +175,12 @@ public class ThrottleServiceTests : SpeedyUnitTest
 	{
 		var actual = new List<int>();
 
-		void Work(CancellationToken token, int data)
+		void work(CancellationToken token, int data)
 		{
 			actual.Add(data);
 		}
 
-		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), Work);
+		using var service = new ThrottleService<int>(TimeSpan.FromSeconds(1), work, true);
 		service.QueueTriggers = false;
 		service.Trigger(1, true);
 

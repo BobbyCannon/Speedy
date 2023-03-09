@@ -26,9 +26,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Wpf.xml</DocumentationFile>
-		<AssemblyVersion>11.0.2.0</AssemblyVersion>
-		<FileVersion>11.0.2.0</FileVersion>
-		<Version>11.0.2</Version>
+		<AssemblyVersion>11.0.3.0</AssemblyVersion>
+		<FileVersion>11.0.3.0</FileVersion>
+		<Version>11.0.3</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>

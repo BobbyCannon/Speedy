@@ -22,8 +22,9 @@ public class ThrottleService : ThrottleService<object>
 	/// </summary>
 	/// <param name="delay"> The amount of time before the action will trigger. </param>
 	/// <param name="action"> The action to throttle. </param>
-	public ThrottleService(TimeSpan delay, Action<CancellationToken> action)
-		: base(delay, (x, _) => action(x))
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	public ThrottleService(TimeSpan delay, Action<CancellationToken> action, bool useTimeService = false)
+		: base(delay, (x, _) => action(x), useTimeService)
 	{
 	}
 
@@ -56,8 +57,8 @@ public class ThrottleService<T> : IDisposable
 	private DateTime _lastRequestProcessedOn;
 	private readonly ConcurrentQueue<T> _queue;
 	private DateTime _requestedFor;
+	private readonly bool _useTimeService;
 	private BackgroundWorker _worker;
-	private DateTime _workerDateTime;
 	private readonly object _workerLock;
 
 	#endregion
@@ -69,10 +70,12 @@ public class ThrottleService<T> : IDisposable
 	/// </summary>
 	/// <param name="delay"> The amount of time before the action will trigger. </param>
 	/// <param name="action"> The action to throttle. </param>
-	public ThrottleService(TimeSpan delay, Action<CancellationToken, T> action)
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	public ThrottleService(TimeSpan delay, Action<CancellationToken, T> action, bool useTimeService = false)
 	{
 		_delay = delay;
 		_action = action;
+		_useTimeService = useTimeService;
 		_lastRequestProcessedOn = DateTime.MinValue;
 		_queue = new ConcurrentQueue<T>();
 		_workerLock = true;
@@ -80,7 +83,6 @@ public class ThrottleService<T> : IDisposable
 		_worker.RunWorkerCompleted += WorkerOnRunWorkerCompleted;
 		_worker.DoWork += WorkerOnDoWork;
 		_worker.WorkerSupportsCancellation = true;
-		_workerDateTime = TimeService.UtcNow;
 
 		// Defaults for the trigger service.
 		QueueTriggers = false;
@@ -91,16 +93,16 @@ public class ThrottleService<T> : IDisposable
 	#region Properties
 
 	/// <summary>
+	/// True if the throttle service has been triggered.
+	/// </summary>
+	public bool IsTriggered => _requestedFor > _lastRequestProcessedOn;
+
+	/// <summary>
 	/// The throttle is triggered and the delay has expired so it is ready to process.
 	/// </summary>
 	public bool IsTriggeredAndReadyToProcess =>
 		(_requestedFor > _lastRequestProcessedOn)
-		&& (_requestedFor <= TimeService.UtcNow);
-
-	/// <summary>
-	/// True if the throttle service has been triggered.
-	/// </summary>
-	public bool IsTriggered => _requestedFor > _lastRequestProcessedOn;
+		&& (_requestedFor <= CurrentTime);
 
 	/// <summary>
 	/// If true trigger will queue and be processed. Be careful because queueing on a delay could
@@ -113,8 +115,16 @@ public class ThrottleService<T> : IDisposable
 	/// </summary>
 	public TimeSpan TimeToNextTrigger =>
 		IsTriggered
-			? _requestedFor - TimeService.UtcNow
+			? _requestedFor - CurrentTime
 			: TimeSpan.Zero;
+
+	/// <summary>
+	/// The current time for the throttle.
+	/// </summary>
+	protected DateTime CurrentTime =>
+		_useTimeService
+			? TimeService.UtcNow
+			: DateTime.UtcNow;
 
 	#endregion
 
@@ -125,6 +135,30 @@ public class ThrottleService<T> : IDisposable
 	{
 		Dispose(true);
 		GC.SuppressFinalize(this);
+	}
+
+	/// <summary>
+	/// Reset the throttle service
+	/// </summary>
+	public void Reset()
+	{
+		lock (_workerLock)
+		{
+			_worker?.CancelAsync();
+
+			#if (NETSTANDARD2_0)
+			while (!_queue.IsEmpty)
+			{
+				_queue.TryDequeue(out _);
+			}
+			#else
+			_queue.Clear();
+			#endif
+
+			_force = false;
+			_requestedFor = DateTime.MinValue;
+			_lastRequestProcessedOn = DateTime.MinValue;
+		}
 	}
 
 	/// <summary>
@@ -147,8 +181,8 @@ public class ThrottleService<T> : IDisposable
 		{
 			// Queue up the next run
 			_requestedFor = _force
-				? TimeService.UtcNow
-				: TimeService.UtcNow + _delay;
+				? CurrentTime
+				: CurrentTime + _delay;
 		}
 
 		StartWorker();
@@ -199,15 +233,7 @@ public class ThrottleService<T> : IDisposable
 
 		while (!worker.CancellationPending)
 		{
-			var now = TimeService.UtcNow;
-
-			if (_workerDateTime > now)
-			{
-				// TimeService has moved back in time so we should adjust
-				var difference = _workerDateTime - now;
-				_requestedFor -= difference;
-				_workerDateTime = now;
-			}
+			var now = CurrentTime;
 
 			if (!((_requestedFor > _lastRequestProcessedOn)
 					&& (_requestedFor <= now))
@@ -242,7 +268,7 @@ public class ThrottleService<T> : IDisposable
 
 	private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 	{
-		if ((_requestedFor < TimeService.UtcNow) && _queue.IsEmpty)
+		if ((_requestedFor < CurrentTime) && _queue.IsEmpty)
 		{
 			return;
 		}
