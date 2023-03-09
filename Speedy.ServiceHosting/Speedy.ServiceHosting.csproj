@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0-windows;net7.0-windows</TargetFrameworks>
@@ -26,7 +26,7 @@
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
 		<AssemblyVersion>11.0.1.0</AssemblyVersion>
 		<FileVersion>11.0.1.0</FileVersion>
-		<Version>11.0.1-RC</Version>
+		<Version>11.0.1</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
