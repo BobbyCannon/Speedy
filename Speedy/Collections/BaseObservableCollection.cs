@@ -242,10 +242,19 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 			return;
 		}
 
-		_hasChanges = true;
+		PropertyChanged?.Invoke(this, e);
 
 		base.OnPropertyChanged(e);
 	}
+
+	#endregion
+
+	#region Events
+
+	/// <summary>
+	/// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
+	/// </summary>
+	public new virtual event PropertyChangedEventHandler PropertyChanged;
 
 	#endregion
 }

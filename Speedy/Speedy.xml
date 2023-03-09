@@ -243,6 +243,11 @@
         <member name="M:Speedy.Collections.BaseObservableCollection`1.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
             <inheritdoc />
         </member>
+        <member name="E:Speedy.Collections.BaseObservableCollection`1.PropertyChanged">
+            <summary>
+            PropertyChanged event (per <see cref="T:System.ComponentModel.INotifyPropertyChanged" />).
+            </summary>
+        </member>
         <member name="T:Speedy.Collections.LittleEndianBuffer">
             <summary>
             A little endian specific buffer.

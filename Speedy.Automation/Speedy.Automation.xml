@@ -4318,6 +4318,11 @@
             Validates that the expected and actual are equal.
             </summary>
         </member>
+        <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0[],``0[],System.Func{System.String},System.Boolean,System.Action{System.Boolean},System.String[])">
+            <summary>
+            Validates that the expected and actual are equal.
+            </summary>
+        </member>
         <member name="M:Speedy.Automation.Tests.SpeedyTest.AreEqual``1(``0,``0,System.String[])">
             <summary>
             Validates that the expected and actual are equal.

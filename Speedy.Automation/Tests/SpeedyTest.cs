@@ -145,6 +145,19 @@ public abstract class SpeedyTest
 		process?.Invoke(result.AreEqual);
 		Assert.IsTrue(result.AreEqual, result.DifferencesString);
 	}
+	
+	/// <summary>
+	/// Validates that the expected and actual are equal.
+	/// </summary>
+	public virtual void AreEqual<T>(T[] expected, T[] actual, Func<string> message, bool ignoreCollectionOrder = false, Action<bool> process = null, params string[] membersToIgnore)
+	{
+		var configuration = new ComparisonConfig { IgnoreObjectTypes = true, MaxDifferences = int.MaxValue, IgnoreCollectionOrder = ignoreCollectionOrder };
+		configuration.MembersToIgnore.AddRange(membersToIgnore);
+		var logic = new CompareLogic(configuration);
+		var result = logic.Compare(expected, actual);
+		process?.Invoke(result.AreEqual);
+		Assert.IsTrue(result.AreEqual, result.DifferencesString + Environment.NewLine + message());
+	}
 
 	/// <summary>
 	/// Validates that the expected and actual are equal.

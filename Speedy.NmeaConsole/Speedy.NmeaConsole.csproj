@@ -4,9 +4,9 @@
 		<OutputType>Exe</OutputType>
 		<TargetFrameworks>net48;netcoreapp3.1;net6.0-windows;net7.0-windows</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>11.0.1.0</AssemblyVersion>
-		<FileVersion>11.0.1.0</FileVersion>
-		<Version>11.0.1.0</Version>
+		<AssemblyVersion>11.0.2.0</AssemblyVersion>
+		<FileVersion>11.0.2.0</FileVersion>
+		<Version>11.0.2.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
