@@ -13,7 +13,7 @@ using Speedy.UnitTests;
 namespace Speedy.AutomationTests.Desktop
 {
 	[TestClass]
-	public class InputKeyboardTests
+	public class InputKeyboardTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -58,7 +58,7 @@ namespace Speedy.AutomationTests.Desktop
 
 			try
 			{
-				using var application = Automation.Application.AttachOrCreate("c:\\windows\\system32\\notepad.exe");
+				using var application = Automation.Application.AttachOrCreate(NotepadPath);
 
 				//var application = Automation.Application.AttachOrCreate("C:\\Workspaces\\GitHub\\Speedy\\Speedy.Winforms.Example\\bin\\Debug\\Speedy.Winforms.Example.exe");
 				application.BringToFront();

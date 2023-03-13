@@ -111,7 +111,7 @@ namespace Speedy.Website.Data.Sync
 				}
 				case SyncType.Accounts:
 				{
-					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
+					syncOptions.AddSyncableFilter(new SyncRepositoryFilter<AccountEntity>());
 					break;
 				}
 				case SyncType.Address:

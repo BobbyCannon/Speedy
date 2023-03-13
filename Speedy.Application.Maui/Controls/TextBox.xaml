@@ -14,7 +14,9 @@
 
 	<Border Grid.Row="0" Padding="10,0" StrokeThickness="1"
 			BackgroundColor="{x:Binding Source={x:Reference MainGrid}, Path=BackgroundColor}">
-		<Entry x:Name="Input" Text="{x:Binding Source={x:Reference MainGrid}, Path=Text, Mode=TwoWay}"
+		<Entry x:Name="Input"
+				AutomationId="{x:Binding Source={x:Reference MainGrid}, Path=InputAutomationId, Mode=OneWay}"
+				Text="{x:Binding Source={x:Reference MainGrid}, Path=Text, Mode=TwoWay}"
 				Keyboard="{x:Binding Source={x:Reference MainGrid}, Path=Keyboard, Mode=OneWay}"
 				Margin="0" IsPassword="{x:Binding Source={x:Reference MainGrid}, Path=IsPassword}"
 				Background="Transparent" VerticalOptions="Center" Focused="InputOnFocused"

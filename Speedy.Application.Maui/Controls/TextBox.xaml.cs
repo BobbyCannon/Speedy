@@ -39,6 +39,8 @@ public partial class TextBox
 
 	#region Properties
 
+	public string InputAutomationId => AutomationId + "Input";
+
 	public bool IsPassword
 	{
 		get => (bool) GetValue(IsPasswordProperty);
@@ -82,6 +84,16 @@ public partial class TextBox
 		}
 		#endif
 		base.OnHandlerChanged();
+	}
+
+	protected override void OnPropertyChanged(string propertyName = null)
+	{
+		if (propertyName == nameof(AutomationId))
+		{
+			OnPropertyChanged(nameof(InputAutomationId));
+		}
+
+		base.OnPropertyChanged(propertyName);
 	}
 
 	private void InputOnFocused(object sender, FocusEventArgs e)

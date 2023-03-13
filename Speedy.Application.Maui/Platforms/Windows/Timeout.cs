@@ -1,5 +1,4 @@
 ﻿// ReSharper disable once CheckNamespace
-
 namespace Speedy.Application.Maui;
 
 internal class Timeout

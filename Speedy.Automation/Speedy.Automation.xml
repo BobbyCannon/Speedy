@@ -268,6 +268,9 @@
             Static constructor.
             </summary>
         </member>
+        <member name="P:Speedy.Automation.Desktop.DesktopElement.AutomationId">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Automation.Desktop.DesktopElement.Enabled">
             <summary>
             Gets a value that indicates whether the element is enabled.
@@ -2901,6 +2904,11 @@
             <param name="application"> The application this element exists in. </param>
             <param name="parent"> The parent of this element. </param>
         </member>
+        <member name="P:Speedy.Automation.Element.AutomationId">
+            <summary>
+            Gets the automation id of the element.
+            </summary>
+        </member>
         <member name="P:Speedy.Automation.Element.BoundingRectangle">
             <summary>
             Gets the coordinates of the rectangle that completely encloses the element.
@@ -2919,9 +2927,7 @@
         <member name="P:Speedy.Automation.Element.FullId">
             <summary>
             Gets the full id of the element which include all parent IDs prefixed to this element ID.
-            </summary>
-            <summary>
-            Gets the ID of this element in the element host. Includes full host namespace. Ex. GrandParent,Parent,Element
+            Includes full host namespace. Ex. GrandParent,Parent,Element
             </summary>
         </member>
         <member name="P:Speedy.Automation.Element.Height">
@@ -5124,12 +5130,13 @@
         <member name="M:Speedy.Automation.Web.Browser.WaitForComplete(System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Automation.Web.Browser.WaitForNavigation(System.String,System.Nullable{System.TimeSpan})">
+        <member name="M:Speedy.Automation.Web.Browser.WaitForNavigation(System.String,System.Nullable{System.TimeSpan},System.Boolean)">
             <summary>
             Wait for the browser page to redirect to a provided URI.
             </summary>
             <param name="uri"> The expected URI to land on. Defaults to empty string if not provided. </param>
             <param name="timeout"> The timeout before giving up on the redirect. Defaults to Timeout if not provided. </param>
+            <param name="refresh"> An optional flag to refresh the child elements. Defaults to true. </param>
         </member>
         <member name="M:Speedy.Automation.Web.Browser.BrowserNavigateTo(System.String)">
             <summary>
@@ -7808,6 +7815,9 @@
             <remarks>
             Specifies a shortcut key to activate/focus an element.
             </remarks>
+        </member>
+        <member name="P:Speedy.Automation.Web.WebElement.AutomationId">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Automation.Web.WebElement.Browser">
             <summary>

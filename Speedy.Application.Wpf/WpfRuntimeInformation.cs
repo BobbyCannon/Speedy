@@ -44,26 +44,28 @@ public class WpfRuntimeInformation : RuntimeInformation
 		return WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) ?? false;
 	}
 
+	private Assembly GetAssembly =>
+		Assembly.GetEntryAssembly()
+		?? Assembly.GetCallingAssembly();
+
 	/// <inheritdoc />
 	protected override string GetApplicationLocation()
 	{
 		// "C:\\Workspaces\\BecomeEpic\\BecomeEpic\\BecomeEpic.WindowsService\\bin\\Debug\\net7.0-windows\\BecomeEpic.WindowsService.dll"
-		var location = Assembly.GetEntryAssembly()?.Location
-			?? Assembly.GetCallingAssembly().Location;
-
+		var location = GetAssembly.Location;
 		return Path.GetDirectoryName(location);
 	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationName()
 	{
-		return Assembly.GetEntryAssembly()?.GetName().Name;
+		return GetAssembly?.GetName().Name;
 	}
 
 	/// <inheritdoc />
 	protected override Version GetApplicationVersion()
 	{
-		return Assembly.GetEntryAssembly()?.GetName().Version;
+		return GetAssembly?.GetName().Version;
 	}
 
 	/// <inheritdoc />

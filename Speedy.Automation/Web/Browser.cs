@@ -599,12 +599,10 @@ namespace Speedy.Automation.Web
 		/// </summary>
 		/// <param name="uri"> The expected URI to land on. Defaults to empty string if not provided. </param>
 		/// <param name="timeout"> The timeout before giving up on the redirect. Defaults to Timeout if not provided. </param>
-		public Browser WaitForNavigation(string uri = null, TimeSpan? timeout = null)
+		/// <param name="refresh"> An optional flag to refresh the child elements. Defaults to true. </param>
+		public Browser WaitForNavigation(string uri = null, TimeSpan? timeout = null, bool refresh = true)
 		{
-			if (timeout == null)
-			{
-				timeout = Application.Timeout;
-			}
+			timeout ??= Application.Timeout;
 
 			if (uri == null)
 			{
@@ -626,7 +624,11 @@ namespace Speedy.Automation.Web
 				}
 			}
 
-			Refresh();
+			if (refresh)
+			{
+				Refresh();
+			}
+
 			return this;
 		}
 

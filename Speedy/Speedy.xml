@@ -3595,6 +3595,12 @@
             </summary>
             <returns> Return true if the credential was read otherwise false. </returns>
         </member>
+        <member name="M:Speedy.Data.SecureVault.WriteCredential">
+            <summary>
+            Writes a credential to the vault.
+            </summary>
+            <returns> Return true if the credential was written otherwise false. </returns>
+        </member>
         <member name="M:Speedy.Data.SecureVault.WriteCredentialAsync">
             <summary>
             Writes a credential to the vault.
@@ -6214,6 +6220,13 @@
             <param name="dictionary"> The dictionary to update. </param>
             <param name="clientDetails"> The client details to use. </param>
         </member>
+        <member name="M:Speedy.Extensions.SyncDeviceExtensions.AddOrUpdateSyncClientDetails(System.Net.Http.Headers.HttpHeaders,Speedy.Sync.ISyncClientDetails)">
+            <summary>
+            Update the sync options with the provided sync client details.
+            </summary>
+            <param name="headers"> The headers to update. </param>
+            <param name="clientDetails"> The client details to use. </param>
+        </member>
         <member name="M:Speedy.Extensions.SyncDeviceExtensions.AddOrUpdateSyncClientDetails(Speedy.Sync.SyncOptions,Speedy.Sync.ISyncClientDetails)">
             <summary>
             Update the sync options with the provided sync client details.
@@ -8217,9 +8230,6 @@
         <member name="M:Speedy.Net.WebClient.Initialize">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Net.WebClient.OnPropertyChangedInDispatcher(System.String)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Net.WebClient.Patch``1(System.String,``0,System.Nullable{System.TimeSpan})">
             <summary>
             Patch an item on the server with the provide content.
@@ -8294,15 +8304,8 @@
             <param name="content"> The content to be converted to JSON format. </param>
             <returns> The JSON formatted content. </returns>
         </member>
-        <member name="M:Speedy.Net.WebClient.OnServerCertificateCustomValidationCallback(System.Net.Http.HttpRequestMessage,System.Security.Cryptography.X509Certificates.X509Certificate2,System.Security.Cryptography.X509Certificates.X509Chain,System.Net.Security.SslPolicyErrors)">
-            <summary>
-            Validates a server certificate. Defaults to
-            </summary>
-            <param name="message"> </param>
-            <param name="certificate2"> </param>
-            <param name="arg3"> </param>
-            <param name="arg4"> </param>
-            <returns> </returns>
+        <member name="M:Speedy.Net.WebClient.OnPropertyChangedInDispatcher(System.String)">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Net.WebClientProvider">
             <inheritdoc />

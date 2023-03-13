@@ -1,8 +1,5 @@
 ﻿#region References
 
-using System;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Devices;
 using Speedy.Application.Maui.Extensions;
 using Speedy.Data;
 using DevicePlatform = Speedy.Data.DevicePlatform;
@@ -57,6 +54,15 @@ public class MauiRuntimeInformation : RuntimeInformation
 	/// <inheritdoc />
 	protected override Version GetApplicationVersion()
 	{
+		#if (WINDOWS)
+		var entry = System.Reflection.Assembly.GetEntryAssembly();
+		var assemblyName = entry?.GetName();
+		if (assemblyName != null)
+		{
+			return assemblyName.Version;
+		}
+		#endif
+		
 		var version = AppInfo.Current.Version;
 		var build = version.Build;
 		var major = version.Major;

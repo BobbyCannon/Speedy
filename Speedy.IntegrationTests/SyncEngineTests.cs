@@ -28,6 +28,13 @@ namespace Speedy.IntegrationTests
 	{
 		#region Methods
 
+		[TestInitialize]
+		public override void TestInitialize()
+		{
+			base.TestInitialize();
+			ResetCurrentTime();
+		}
+		
 		[TestMethod]
 		public void AddItemToClient()
 		{
@@ -584,7 +591,7 @@ namespace Speedy.IntegrationTests
 				server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<SettingEntity, long>(setting2);
 
 				using var engine = new SyncEngine(Guid.NewGuid(), client, server, GetSyncOptions());
-				IncrementTime(seconds: 1);
+				Thread.Sleep(1);
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -600,7 +607,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(0, serverDatabase.Settings.Count(x => x.IsDeleted));
 				}
 
-				IncrementTime(seconds: 1);
+				Thread.Sleep(1);
 				engine.Run();
 
 				using (var clientDatabase = client.GetDatabase<IContosoDatabase>())
@@ -646,7 +653,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(1, serverDatabase.Settings.Count(x => !x.IsDeleted));
 				}
 
-				Thread.Sleep(10);
+				Thread.Sleep(1);
 
 				engine.Run();
 
@@ -865,7 +872,7 @@ namespace Speedy.IntegrationTests
 				options.AddSyncableFilter(new SyncRepositoryFilter<AddressEntity>());
 
 				using var engine = new SyncEngine(Guid.NewGuid(), client, server, options);
-				IncrementTime(seconds: 1);
+				Thread.Sleep(10);
 				engine.Run();
 
 				Assert.AreEqual(0, engine.SyncIssues.Count);
@@ -1424,7 +1431,7 @@ namespace Speedy.IntegrationTests
 					clientDatabase.SaveChanges();
 				}
 
-				Thread.Sleep(10);
+				Thread.Sleep(1);
 
 				using var engine = new SyncEngine(Guid.NewGuid(), client, server, GetSyncOptions());
 				engine.Run();

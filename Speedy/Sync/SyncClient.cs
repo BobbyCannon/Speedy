@@ -98,6 +98,7 @@ namespace Speedy.Sync
 			}
 
 			_syncSession = new SyncSession { Id = sessionId, StartedOn = TimeService.UtcNow };
+
 			SyncOptions = options;
 			Statistics.Reset();
 

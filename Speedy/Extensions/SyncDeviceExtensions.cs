@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Primitives;
 using Speedy.Converters;
 using Speedy.Data;
@@ -65,11 +66,25 @@ public static class SyncDeviceExtensions
 	/// <param name="clientDetails"> The client details to use. </param>
 	public static void AddOrUpdateSyncClientDetails(this IDictionary<string, string> dictionary, ISyncClientDetails clientDetails)
 	{
-		dictionary.AddIfMissing(ApplicationNameValueKey, clientDetails.ApplicationName);
-		dictionary.AddIfMissing(ApplicationVersionValueKey, clientDetails.ApplicationVersion.ToString());
-		dictionary.AddIfMissing(DeviceIdValueKey, clientDetails.DeviceId);
-		dictionary.AddIfMissing(DevicePlatformValueKey, ((int) clientDetails.DevicePlatform).ToString());
-		dictionary.AddIfMissing(DeviceTypeValueKey, ((int) clientDetails.DeviceType).ToString());
+		dictionary.AddOrUpdate(ApplicationNameValueKey, clientDetails.ApplicationName);
+		dictionary.AddOrUpdate(ApplicationVersionValueKey, clientDetails.ApplicationVersion.ToString());
+		dictionary.AddOrUpdate(DeviceIdValueKey, clientDetails.DeviceId);
+		dictionary.AddOrUpdate(DevicePlatformValueKey, ((int) clientDetails.DevicePlatform).ToString());
+		dictionary.AddOrUpdate(DeviceTypeValueKey, ((int) clientDetails.DeviceType).ToString());
+	}
+	
+	/// <summary>
+	/// Update the sync options with the provided sync client details.
+	/// </summary>
+	/// <param name="headers"> The headers to update. </param>
+	/// <param name="clientDetails"> The client details to use. </param>
+	public static void AddOrUpdateSyncClientDetails(this HttpHeaders headers, ISyncClientDetails clientDetails)
+	{
+		headers.AddOrUpdate(ApplicationNameValueKey, clientDetails.ApplicationName);
+		headers.AddOrUpdate(ApplicationVersionValueKey, clientDetails.ApplicationVersion.ToString());
+		headers.AddOrUpdate(DeviceIdValueKey, clientDetails.DeviceId);
+		headers.AddOrUpdate(DevicePlatformValueKey, ((int) clientDetails.DevicePlatform).ToString());
+		headers.AddOrUpdate(DeviceTypeValueKey, ((int) clientDetails.DeviceType).ToString());
 	}
 
 	/// <summary>

@@ -55,7 +55,12 @@ public class Credential : Bindable, IDisposable, IUpdatable<Credential>
 	public string Password
 	{
 		get => SecurePassword?.ToUnsecureString() ?? string.Empty;
-		set => SecurePassword = value?.ToSecureString();
+		set
+		{
+			var p = SecurePassword;
+			SecurePassword = value?.ToSecureString();
+			p?.Dispose();
+		}
 	}
 
 	/// <summary>
@@ -121,7 +126,7 @@ public class Credential : Bindable, IDisposable, IUpdatable<Credential>
 	/// </summary>
 	public virtual void Load(AuthenticationHeaderValue value)
 	{
-		var credentialBytes = Convert.FromBase64String(value.Parameter);
+		var credentialBytes = Convert.FromBase64String(value.Parameter ?? string.Empty);
 		var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
 		UserName = credentials[0];
 		Password = credentials[1];
@@ -133,8 +138,12 @@ public class Credential : Bindable, IDisposable, IUpdatable<Credential>
 	public virtual void Reset()
 	{
 		UserName = string.Empty;
-		Password = string.Empty;
 		SecurePassword.Clear();
+
+		// Not required as Password is just an unsecure version of SecurePassword
+		//Password = string.Empty;
+
+		OnPropertyChanged(nameof(Password));
 	}
 
 	/// <inheritdoc />
@@ -179,8 +188,9 @@ public class Credential : Bindable, IDisposable, IUpdatable<Credential>
 	{
 		return update switch
 		{
-			WebCredential credential => UpdateWith(credential),
-			Credential credential => UpdateWith(credential),
+			TokenCredential credential => UpdateWith(credential, exclusions),
+			WebCredential credential => UpdateWith(credential, exclusions),
+			Credential credential => UpdateWith(credential, exclusions),
 			_ => base.UpdateWith(update, exclusions)
 		};
 	}

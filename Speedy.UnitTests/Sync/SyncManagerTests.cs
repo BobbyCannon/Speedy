@@ -181,6 +181,20 @@ public class SyncManagerTests : SpeedyUnitTest
 				$"4/23/2020 1:55:33 AM - {manager.SessionId} Verbose : Cancelling running Sync All...",
 				$"4/23/2020 1:55:34 AM - {manager.SessionId} Verbose : Changing status to Cancelled.",
 				$"4/23/2020 1:55:35 AM - {manager.SessionId} Verbose : Sync All stopped. 00:00.000"
+			},
+			new[]
+			{
+				$"4/23/2020 1:55:23 AM - {manager.SessionId} Verbose : Sync All started",
+				$"4/23/2020 1:55:25 AM - {manager.SessionId} Verbose : Syncing All for 1/1/0001 12:00:00 AM, 1/1/0001 12:00:00 AM",
+				$"4/23/2020 1:55:26 AM - {manager.SessionId} Verbose : Changing status to Starting.",
+				$"4/23/2020 1:55:29 AM - {manager.SessionId} Verbose : Changing status to Pulling.",
+				$"4/23/2020 1:55:31 AM - {manager.SessionId} Verbose : Server to Client.",
+				$"4/23/2020 1:55:32 AM - {manager.SessionId} Verbose : Sync All is already running so Sync Accounts not started.",
+				$"4/23/2020 1:55:33 AM - {manager.SessionId} Verbose : Changing status to Pushing.",
+				$"4/23/2020 1:55:35 AM - {manager.SessionId} Verbose : Client to Server.",
+				$"4/23/2020 1:55:36 AM - {manager.SessionId} Verbose : Cancelling running Sync All...",
+				$"4/23/2020 1:55:37 AM - {manager.SessionId} Verbose : Changing status to Cancelled.",
+				$"4/23/2020 1:55:38 AM - {manager.SessionId} Verbose : Sync All stopped. 00:00.000"
 			}
 		};
 

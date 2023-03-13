@@ -28,13 +28,12 @@ public static class DictionaryExtensions
 	{
 		if (dictionary.ContainsKey(key))
 		{
-			dictionary[key] = value;
 			return;
 		}
 
 		dictionary.Add(key, value);
 	}
-
+	
 	/// <summary>
 	/// Add or update a dictionary entry if the key is not found in the source.
 	/// </summary>

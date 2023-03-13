@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.Threading.Tasks;
+using Speedy.Extensions;
 using Speedy.Net;
 
 #endregion
@@ -54,6 +55,15 @@ public abstract class SecureVault : Bindable
 	/// <returns> Return true if the credential was read otherwise false. </returns>
 	public abstract Task<bool> ReadCredentialAsync();
 
+	/// <summary>
+	/// Writes a credential to the vault.
+	/// </summary>
+	/// <returns> Return true if the credential was written otherwise false. </returns>
+	public bool WriteCredential()
+	{
+		return WriteCredentialAsync().AwaitResults();
+	}
+	
 	/// <summary>
 	/// Writes a credential to the vault.
 	/// </summary>

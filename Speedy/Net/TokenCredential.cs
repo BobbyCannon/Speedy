@@ -127,9 +127,9 @@ public class TokenCredential : Credential, IUpdatable<TokenCredential>
 	{
 		return update switch
 		{
-			TokenCredential credential => UpdateWith(credential),
-			WebCredential credential => UpdateWith(credential),
-			Credential credential => UpdateWith(credential),
+			TokenCredential credential => UpdateWith(credential, exclusions),
+			WebCredential credential => UpdateWith(credential, exclusions),
+			Credential credential => UpdateWith(credential, exclusions),
 			_ => base.UpdateWith(update, exclusions)
 		};
 	}

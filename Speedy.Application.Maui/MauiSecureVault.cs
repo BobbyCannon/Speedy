@@ -13,7 +13,6 @@ public class MauiSecureVault : SecureVault
 	#region Fields
 
 	private readonly RuntimeInformation _information;
-
 	private string _keyName;
 
 	#endregion
@@ -29,7 +28,7 @@ public class MauiSecureVault : SecureVault
 
 	#region Properties
 
-	private string KeyName => _keyName ??= $"{_information.ApplicationName}Credential";
+	private string KeyName => _keyName ??= $"{_information.ApplicationName.Replace(" ", "")}Credential";
 
 	#endregion
 
@@ -54,6 +53,8 @@ public class MauiSecureVault : SecureVault
 		}
 
 		Credential.UpdateWith(credential);
+		Credential.ResetHasChanges();
+
 		return true;
 	}
 
