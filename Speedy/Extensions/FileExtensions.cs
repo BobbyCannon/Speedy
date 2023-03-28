@@ -80,7 +80,10 @@ public static class FileExtensions
 	/// </summary>
 	/// <param name="fileLocation"> The information of the file to move. </param>
 	/// <param name="newLocation"> The location to move the file to. </param>
-	public static void SafeMove(this FileInfo fileLocation, FileInfo newLocation)
+	/// <param name="overwrite"> Option to overwrite the destination file if it already exists. Defaults to false. </param>
+	/// <param name="timeout"> The timeout to stop retrying. </param>
+	/// <param name="delay"> The delay between retries. </param>
+	public static void SafeMove(this FileInfo fileLocation, FileInfo newLocation, bool overwrite = false, int timeout = 1000, int delay = 10)
 	{
 		fileLocation.Refresh();
 		if (!fileLocation.Exists)
@@ -88,16 +91,29 @@ public static class FileExtensions
 			throw new FileNotFoundException("The file could not be found.", fileLocation.FullName);
 		}
 
+		// Try to ensure the directory exist
+		newLocation.Directory?.SafeCreate();
+
 		// Must clone file info because MoveTo will change full name
 		var movingFileLocation = new FileInfo(fileLocation.FullName);
-		UtilityExtensions.Retry(() => movingFileLocation.MoveTo(newLocation.FullName), 1000, 10);
+
+		#if (NET7_0_OR_GREATER)
+		UtilityExtensions.Retry(() => movingFileLocation.MoveTo(newLocation.FullName, overwrite), timeout, delay);
+		#else
+		if (overwrite && newLocation.Exists)
+		{
+			newLocation.SafeDelete();
+		}
+
+		UtilityExtensions.Retry(() => movingFileLocation.MoveTo(newLocation.FullName), timeout, delay);
+		#endif
 
 		UtilityExtensions.Wait(() =>
 		{
 			fileLocation.Refresh();
 			newLocation.Refresh();
 			return !fileLocation.Exists && newLocation.Exists;
-		}, 1000, 10);
+		}, timeout, delay);
 	}
 
 	internal static FileStream OpenAndCopyTo(this FileStream from, FileInfo to, int timeout)

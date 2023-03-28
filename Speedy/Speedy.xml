@@ -4090,6 +4090,25 @@
         <member name="M:Speedy.ExclusionKey.ToString">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Extensions.AssemblyExtensions">
+            <summary>
+            Extensions for assembly.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.AssemblyExtensions.GetAssemblyDirectory(System.Reflection.Assembly)">
+            <summary>
+            Gets the directory the assembly file exists in.
+            </summary>
+            <param name="assembly"> The assembly to be tested. </param>
+            <returns> The directory info for the assembly. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.AssemblyExtensions.IsAssemblyDebugBuild(System.Reflection.Assembly)">
+            <summary>
+            Returns true if the assembly is a debug build.
+            </summary>
+            <param name="assembly"> The assembly to check. </param>
+            <returns> True if the assembly is a debug build otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Extensions.CollectionExtensions">
             <summary>
             Extensions for collections.
@@ -4963,12 +4982,15 @@
             </summary>
             <param name="info"> The information of the file to delete. </param>
         </member>
-        <member name="M:Speedy.Extensions.FileExtensions.SafeMove(System.IO.FileInfo,System.IO.FileInfo)">
+        <member name="M:Speedy.Extensions.FileExtensions.SafeMove(System.IO.FileInfo,System.IO.FileInfo,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Safely move a file.
             </summary>
             <param name="fileLocation"> The information of the file to move. </param>
             <param name="newLocation"> The location to move the file to. </param>
+            <param name="overwrite"> Option to overwrite the destination file if it already exists. Defaults to false. </param>
+            <param name="timeout"> The timeout to stop retrying. </param>
+            <param name="delay"> The delay between retries. </param>
         </member>
         <member name="M:Speedy.Extensions.FileExtensions.OpenFile(System.IO.FileInfo)">
             <summary>
@@ -13839,17 +13861,18 @@
         </member>
         <member name="M:Speedy.Storage.MemoryCache.#ctor">
             <summary>
-            Instantiates a memory cache.
+            Instantiates a memory cache with a default 15 timeout.
             </summary>
         </member>
-        <member name="M:Speedy.Storage.MemoryCache.#ctor(System.TimeSpan)">
+        <member name="M:Speedy.Storage.MemoryCache.#ctor(System.TimeSpan,Speedy.IDispatcher)">
             <summary>
             Instantiates a memory cache.
             </summary>
             <param name="defaultTimeout"> The default timeout of new entries. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="P:Speedy.Storage.MemoryCache.Count">
-            <inheritdoc />
+            <inheritdoc cref="T:System.Collections.ICollection" />
         </member>
         <member name="P:Speedy.Storage.MemoryCache.DefaultTimeout">
             <summary>
@@ -13860,6 +13883,9 @@
             <summary>
             Indicates whether or not the memory cache is empty.
             </summary>
+        </member>
+        <member name="P:Speedy.Storage.MemoryCache.IsReadOnly">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Storage.MemoryCache.IsSynchronized">
             <inheritdoc />
@@ -13872,10 +13898,22 @@
         <member name="P:Speedy.Storage.MemoryCache.SyncRoot">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Storage.MemoryCache.Clear">
+        <member name="M:Speedy.Storage.MemoryCache.Add(Speedy.Storage.MemoryCacheItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.MemoryCache.Cleanup">
             <summary>
-            Clear the memory cache.
+            Cleanup the cache by removing expired entries.
             </summary>
+        </member>
+        <member name="M:Speedy.Storage.MemoryCache.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.MemoryCache.Contains(Speedy.Storage.MemoryCacheItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.MemoryCache.CopyTo(Speedy.Storage.MemoryCacheItem[],System.Int32)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.MemoryCache.CopyTo(System.Array,System.Int32)">
             <inheritdoc />
@@ -13890,6 +13928,13 @@
             We only bump last accessed by direct access. This allows
             Enumeration of the item to check expiration
             </remarks>
+        </member>
+        <member name="M:Speedy.Storage.MemoryCache.HasKey(System.String)">
+            <summary>
+            Determine if the cache contains the provided key.
+            </summary>
+            <param name="key"> The key to check. </param>
+            <returns> True if the key exists otherwise false. </returns>
         </member>
         <member name="M:Speedy.Storage.MemoryCache.Remove(System.String)">
             <summary>
@@ -13919,7 +13964,16 @@
             <param name="value"> The entry that was found or otherwise null. </param>
             <returns> True if the entry was found or otherwise false. </returns>
         </member>
+        <member name="M:Speedy.Storage.MemoryCache.OnCollectionChanged(System.Func{System.Collections.Specialized.NotifyCollectionChangedEventArgs})">
+            <summary>
+            Called when the collection changed.
+            </summary>
+            <param name="getArgs"> The changed event. </param>
+        </member>
         <member name="M:Speedy.Storage.MemoryCache.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Storage.MemoryCache.CollectionChanged">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Storage.MemoryCacheItem">

@@ -21,9 +21,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Automation.xml</DocumentationFile>
-		<AssemblyVersion>11.0.4.0</AssemblyVersion>
-		<FileVersion>11.0.4.0</FileVersion>
-		<Version>11.0.4</Version>
+		<AssemblyVersion>11.0.5.0</AssemblyVersion>
+		<FileVersion>11.0.5.0</FileVersion>
+		<Version>11.0.5</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
