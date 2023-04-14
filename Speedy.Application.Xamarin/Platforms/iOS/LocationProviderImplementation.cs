@@ -266,9 +266,17 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 		if (location.VerticalAccuracy > -1)
 		{
-			CurrentValue.VerticalLocation.Altitude = location.EllipsoidalAltitude;
-			CurrentValue.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
-			CurrentValue.VerticalLocation.Accuracy = location.VerticalAccuracy;
+            if (UIDevice.CurrentDevice.CheckSystemVersion(15, 0))
+            {
+                CurrentValue.VerticalLocation.Altitude = location.EllipsoidalAltitude;
+                CurrentValue.VerticalLocation.AltitudeReference = AltitudeReferenceType.Ellipsoid;
+            }
+            else
+            {
+                CurrentValue.VerticalLocation.Altitude = location.Altitude;
+                CurrentValue.VerticalLocation.AltitudeReference = AltitudeReferenceType.Geoid;
+            }
+            CurrentValue.VerticalLocation.Accuracy = location.VerticalAccuracy;
 			CurrentValue.VerticalLocation.AccuracyReference = AccuracyReferenceType.Meters;
 			CurrentValue.VerticalLocation.HasValue = true;
 		}
@@ -303,11 +311,19 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			CurrentValue.HorizontalLocation.Heading = 0;
 		}
 
-		var sourceName = GetSourceName(location.SourceInformation);
-		CurrentValue.HorizontalLocation.SourceName = sourceName;
-		CurrentValue.VerticalLocation.SourceName = sourceName;
+		if(UIDevice.CurrentDevice.CheckSystemVersion(15, 0))
+		{
+			var sourceName = GetSourceName(location.SourceInformation);
+			CurrentValue.HorizontalLocation.SourceName = sourceName;
+			CurrentValue.VerticalLocation.SourceName = sourceName;
+		}
+        else
+        {
+            CurrentValue.HorizontalLocation.SourceName = "iOS < 15";
+            CurrentValue.VerticalLocation.SourceName = "iOS < 15";
+        }
 
-		try
+        try
 		{
 			var statusTime = location.Timestamp.ToDateTime().ToUniversalTime();
 			CurrentValue.HorizontalLocation.StatusTime = statusTime;
