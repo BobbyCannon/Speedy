@@ -38,9 +38,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
-		<AssemblyVersion>11.0.5.0</AssemblyVersion>
-		<FileVersion>11.0.5.0</FileVersion>
-		<Version>11.0.5.0</Version>
+		<AssemblyVersion>11.0.6.0</AssemblyVersion>
+		<FileVersion>11.0.6.0</FileVersion>
+		<Version>11.0.6.0</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="Speedy.snk" />
