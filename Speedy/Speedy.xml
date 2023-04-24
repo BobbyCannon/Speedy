@@ -12481,6 +12481,24 @@
             <param name="convertEnumsToString"> True to convert enumerations to strings value instead. </param>
             <returns> The JSON string of the serialized object. </returns>
         </member>
+        <member name="M:Speedy.Serialization.Serializer.TryFromJson(System.String,System.Type,System.Object@)">
+            <summary>
+            Try to convert the string into an object.
+            </summary>
+            <param name="item"> The JSON data to deserialize. </param>
+            <param name="type"> The type to convert into. </param>
+            <param name="value"> The deserialized object. </param>
+            <returns> True if the object was deserialized otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Serialization.Serializer.TryFromJson``1(System.String,``0@)">
+            <summary>
+            Try to convert the string into an object.
+            </summary>
+            <typeparam name="T"> The type to convert into. </typeparam>
+            <param name="item"> The JSON data to deserialize. </param>
+            <param name="value"> The deserialized object. </param>
+            <returns> True if the object was deserialized otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Serialization.SerializerSettings">
             <summary>
             Represents serialization settings

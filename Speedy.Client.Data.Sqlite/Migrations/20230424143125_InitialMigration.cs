@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Speedy.Client.Data.Sqlite.Migrations
 {
+    /// <inheritdoc />
     public partial class InitialMigration : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
@@ -24,11 +26,11 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     AddressIsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
                     AddressModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AddressCity = table.Column<string>(type: "TEXT", unicode: false, nullable: false),
-                    AddressLineOne = table.Column<string>(type: "TEXT", unicode: false, maxLength: 128, nullable: false),
-                    AddressLineTwo = table.Column<string>(type: "TEXT", unicode: false, maxLength: 128, nullable: false),
-                    AddressPostal = table.Column<string>(type: "TEXT", unicode: false, maxLength: 25, nullable: false),
-                    AddressState = table.Column<string>(type: "TEXT", unicode: false, maxLength: 25, nullable: false)
+                    AddressCity = table.Column<string>(type: "TEXT", nullable: false),
+                    AddressLineOne = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    AddressLineTwo = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    AddressPostal = table.Column<string>(type: "TEXT", maxLength: 25, nullable: false),
+                    AddressState = table.Column<string>(type: "TEXT", maxLength: 25, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,7 +50,7 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Level = table.Column<int>(type: "INTEGER", nullable: false),
-                    Message = table.Column<string>(type: "TEXT", unicode: false, maxLength: 256, nullable: false)
+                    Message = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -67,8 +69,8 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", unicode: false, maxLength: 256, nullable: false),
-                    Value = table.Column<string>(type: "TEXT", unicode: false, nullable: false)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -84,10 +86,10 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     AccountAddressId = table.Column<long>(type: "INTEGER", nullable: false),
                     AccountAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountEmailAddress = table.Column<string>(type: "TEXT", unicode: false, maxLength: 128, nullable: false),
+                    AccountEmailAddress = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
                     AccountLastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountName = table.Column<string>(type: "TEXT", unicode: false, nullable: false),
-                    AccountRoles = table.Column<string>(type: "TEXT", unicode: false, nullable: false),
+                    AccountName = table.Column<string>(type: "TEXT", nullable: false),
+                    AccountRoles = table.Column<string>(type: "TEXT", nullable: false),
                     AccountCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AccountIsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
                     AccountModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -163,6 +165,7 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                 unique: true);
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

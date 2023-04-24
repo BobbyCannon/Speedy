@@ -28,6 +28,7 @@ namespace Speedy.Website.Data
 			TrackerPathConfigurations = GetRepository<TrackerPathConfigurationEntity, int>();
 
 			ContosoDatabase.SetRequiredOptions(Options);
+			Json.ConfigureForMemory();
 
 			this.ConfigureModelViaMapping();
 		}
@@ -38,7 +39,6 @@ namespace Speedy.Website.Data
 
 		public ISyncableRepository<AccountEntity, int> Accounts { get; }
 		public ISyncableRepository<AddressEntity, long> Addresses { get; }
-
 		public bool EnableSaveProcessing { get; set; }
 		public IRepository<FoodEntity, int> Food { get; }
 		public IRepository<FoodRelationshipEntity, int> FoodRelationships { get; }

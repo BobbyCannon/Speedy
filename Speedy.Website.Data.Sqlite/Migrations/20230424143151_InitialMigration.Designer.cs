@@ -11,13 +11,18 @@ using Speedy.Website.Data.Sqlite;
 namespace Speedy.Website.Data.Sqlite.Migrations
 {
     [DbContext(typeof(ContosoSqliteDatabase))]
-    [Migration("20220725002605_InitialMigration")]
+    [Migration("20230424143151_InitialMigration")]
     partial class InitialMigration
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.8");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true);
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.AccountEntity", b =>
                 {
@@ -39,12 +44,10 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasColumnName("AccountCreatedOn");
 
                     b.Property<string>("EmailAddress")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountEmailAddress");
 
                     b.Property<string>("ExternalId")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountExternalId");
 
@@ -63,23 +66,19 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountName");
 
                     b.Property<string>("Nickname")
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountNickname");
 
                     b.Property<string>("PasswordHash")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountPasswordHash");
 
                     b.Property<string>("Roles")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountRoles");
 
@@ -128,7 +127,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressCity");
 
@@ -143,14 +141,12 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Line1")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressLineOne");
 
                     b.Property<string>("Line2")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressLineTwo");
 
@@ -169,14 +165,12 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Postal")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressPostal");
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressState");
 
@@ -216,7 +210,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
@@ -281,7 +274,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Description");
 
@@ -292,7 +284,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
@@ -331,7 +322,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Role");
 
@@ -372,7 +362,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Message")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -390,7 +379,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                 {
                     b.Property<string>("Name")
                         .HasMaxLength(128)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
@@ -408,7 +396,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
 
                     b.Property<string>("TypeId")
                         .HasMaxLength(25)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("TypeId");
 
@@ -430,7 +417,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(25)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("PetTypeId");
 
@@ -444,7 +430,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
 
                     b.Property<string>("Type")
                         .HasMaxLength(200)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Type");
 
@@ -475,7 +460,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
@@ -485,7 +469,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("Value");
 
@@ -509,14 +492,12 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("CompletedOnName")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DataName")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
@@ -527,62 +508,50 @@ namespace Speedy.Website.Data.Sqlite.Migrations
 
                     b.Property<string>("Name01")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name02")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name03")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name04")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name05")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name06")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name07")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name08")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name09")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PathName")
                         .IsRequired()
                         .HasMaxLength(896)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PathType")
                         .IsRequired()
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("StartedOnName")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("SyncId")
@@ -640,7 +609,6 @@ namespace Speedy.Website.Data.Sqlite.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Data")
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<long>("ElapsedTicks")
@@ -663,47 +631,38 @@ namespace Speedy.Website.Data.Sqlite.Migrations
 
                     b.Property<string>("Value01")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value02")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value03")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value04")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value05")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value06")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value07")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value08")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value09")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

@@ -7,375 +7,350 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Speedy.Website.Data.Sql;
 
-#nullable disable
-
-namespace Speedy.Website.Data.Sql.Migrations
+namespace Speedy.Website.Data.Sql.Old.Migrations
 {
     [DbContext(typeof(ContosoSqlDatabase))]
-    [Migration("20220725002532_InitialMigration")]
+    [Migration("20230424143147_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+                .HasAnnotation("ProductVersion", "3.1.32")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.AccountEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("AccountId")
                         .HasColumnType("int")
-                        .HasColumnName("AccountId");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<long>("AddressId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("AccountAddressId");
+                        .HasColumnName("AccountAddressId")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("AddressSyncId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("AccountAddressSyncId");
+                        .HasColumnName("AccountAddressSyncId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("AccountCreatedOn");
+                        .HasColumnName("AccountCreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
-                        .HasColumnName("AccountEmailAddress");
+                        .HasColumnName("AccountEmailAddress")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExternalId")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)")
-                        .HasColumnName("AccountExternalId");
+                        .HasColumnName("AccountExternalId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("AccountIsDeleted");
+                        .HasColumnName("AccountIsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("LastLoginDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("AccountLastLoginDate");
+                        .HasColumnName("AccountLastLoginDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("AccountModifiedOn");
+                        .HasColumnName("AccountModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("AccountName");
+                        .HasColumnName("AccountName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("Nickname")
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("AccountNickname");
+                        .HasColumnName("AccountNickname")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("PasswordHash")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
-                        .HasColumnName("AccountPasswordHash");
+                        .HasColumnName("AccountPasswordHash")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Roles")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
-                        .HasColumnName("AccountRoles");
+                        .HasColumnName("AccountRoles")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("AccountSyncId");
+                        .HasColumnName("AccountSyncId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId")
-                        .HasDatabaseName("IX_Accounts_AddressId");
+                        .HasName("IX_Accounts_AddressId");
 
                     b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("IX_Accounts_Name");
+                        .HasName("IX_Accounts_Name");
 
                     b.HasIndex("Nickname")
                         .IsUnique()
-                        .HasDatabaseName("IX_Accounts_Nickname")
+                        .HasName("IX_Accounts_Nickname")
                         .HasFilter("[AccountNickname] IS NOT NULL");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Accounts_SyncId");
+                        .HasName("IX_Accounts_SyncId");
 
                     b.HasIndex("AddressId", "ExternalId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Accounts_AddressId_ExternalId")
+                        .HasName("IX_Accounts_AddressId_ExternalId")
                         .HasFilter("[AccountExternalId] IS NOT NULL");
 
-                    b.ToTable("Accounts", "dbo");
+                    b.ToTable("Accounts","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.AddressEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("AddressId")
                         .HasColumnType("bigint")
-                        .HasColumnName("AddressId");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int?>("AccountId")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("AccountSyncId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("AddressAccountSyncId");
+                        .HasColumnName("AddressAccountSyncId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("AddressCity");
+                        .HasColumnName("AddressCity")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("AddressCreatedOn");
+                        .HasColumnName("AddressCreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("AddressIsDeleted");
+                        .HasColumnName("AddressIsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Line1")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("AddressLineOne");
+                        .HasColumnName("AddressLineOne")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<string>("Line2")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("AddressLineTwo");
+                        .HasColumnName("AddressLineTwo")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<long?>("LinkedAddressId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("AddressLinkedAddressId");
+                        .HasColumnName("AddressLinkedAddressId")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid?>("LinkedAddressSyncId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("AddressLinkedAddressSyncId");
+                        .HasColumnName("AddressLinkedAddressSyncId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("AddressModifiedOn");
+                        .HasColumnName("AddressModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Postal")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)")
-                        .HasColumnName("AddressPostal");
+                        .HasColumnName("AddressPostal")
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
 
                     b.Property<string>("State")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)")
-                        .HasColumnName("AddressState");
+                        .HasColumnName("AddressState")
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("AddressSyncId");
+                        .HasColumnName("AddressSyncId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 
                     b.HasIndex("LinkedAddressId")
-                        .HasDatabaseName("IX_Address_LinkedAddressId");
+                        .HasName("IX_Address_LinkedAddressId");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Address_SyncId");
+                        .HasName("IX_Address_SyncId");
 
-                    b.ToTable("Addresses", "dbo");
+                    b.ToTable("Addresses","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.FoodEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("Id")
                         .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedOn");
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedOn");
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("Name");
+                        .HasColumnName("Name")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("IX_Foods_Name");
+                        .HasName("IX_Foods_Name");
 
-                    b.ToTable("Foods", "dbo");
+                    b.ToTable("Foods","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.FoodRelationshipEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("Id")
                         .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("ChildId")
-                        .HasColumnType("int")
-                        .HasColumnName("ChildId");
+                        .HasColumnName("ChildId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedOn");
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedOn");
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ParentId")
-                        .HasColumnType("int")
-                        .HasColumnName("ParentId");
+                        .HasColumnName("ParentId")
+                        .HasColumnType("int");
 
                     b.Property<double>("Quantity")
-                        .HasColumnType("float")
-                        .HasColumnName("Quantity");
+                        .HasColumnName("Quantity")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ChildId")
-                        .HasDatabaseName("IX_FoodRelationships_ChildId");
+                        .HasName("IX_FoodRelationships_ChildId");
 
                     b.HasIndex("ParentId")
-                        .HasDatabaseName("IX_FoodRelationships_ParentId");
+                        .HasName("IX_FoodRelationships_ParentId");
 
-                    b.ToTable("FoodRelationships", "dbo");
+                    b.ToTable("FoodRelationships","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.GroupEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("Id")
                         .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedOn");
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(4000)")
-                        .HasColumnName("Description");
+                        .HasColumnName("Description")
+                        .HasColumnType("nvarchar(4000)")
+                        .HasMaxLength(4000);
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedOn");
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("Name");
+                        .HasColumnName("Name")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups", "dbo");
+                    b.ToTable("Groups","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.GroupMemberEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("Id")
                         .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedOn");
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("GroupId")
-                        .HasColumnType("int")
-                        .HasColumnName("GroupId");
+                        .HasColumnName("GroupId")
+                        .HasColumnType("int");
 
                     b.Property<int>("MemberId")
-                        .HasColumnType("int")
-                        .HasColumnName("MemberId");
+                        .HasColumnName("MemberId")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("MemberSyncId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("MemberSyncId");
+                        .HasColumnName("MemberSyncId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedOn");
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(4000)")
-                        .HasColumnName("Role");
+                        .HasColumnName("Role")
+                        .HasColumnType("nvarchar(4000)")
+                        .HasMaxLength(4000);
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId")
-                        .HasDatabaseName("IX_GroupMembers_GroupId");
+                        .HasName("IX_GroupMembers_GroupId");
 
                     b.HasIndex("MemberId")
-                        .HasDatabaseName("IX_GroupMembers_MemberId");
+                        .HasName("IX_GroupMembers_MemberId");
 
                     b.HasIndex("MemberSyncId")
-                        .HasDatabaseName("IX_GroupMembers_MemberSyncId");
+                        .HasName("IX_GroupMembers_MemberSyncId");
 
-                    b.ToTable("GroupMembers", "dbo");
+                    b.ToTable("GroupMembers","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.LogEventEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
                         .HasMaxLength(250)
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("AcknowledgedOn")
                         .HasColumnType("datetime2");
@@ -393,8 +368,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Message")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
@@ -404,145 +378,135 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LogEvents", "dbo");
+                    b.ToTable("LogEvents","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.PetEntity", b =>
                 {
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)")
-                        .HasColumnName("Name");
+                        .HasColumnName("Name")
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
 
                     b.Property<int>("OwnerId")
-                        .HasColumnType("int")
-                        .HasColumnName("OwnerId");
+                        .HasColumnName("OwnerId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedOn");
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedOn");
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("TypeId")
-                        .HasMaxLength(25)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(25)")
-                        .HasColumnName("TypeId");
+                        .HasColumnName("TypeId")
+                        .HasColumnType("nvarchar(25)")
+                        .HasMaxLength(25);
 
                     b.HasKey("Name", "OwnerId");
 
                     b.HasIndex("OwnerId")
-                        .HasDatabaseName("IX_Pets_OwnerId");
+                        .HasName("IX_Pets_OwnerId");
 
                     b.HasIndex("TypeId")
-                        .HasDatabaseName("IX_Pets_TypeId");
+                        .HasName("IX_Pets_TypeId");
 
                     b.HasIndex("Name", "OwnerId")
                         .IsUnique();
 
-                    b.ToTable("Pets", "dbo");
+                    b.ToTable("Pets","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.PetTypeEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(25)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(25)")
-                        .HasColumnName("PetTypeId");
+                        .HasColumnName("PetTypeId")
+                        .HasColumnType("nvarchar(25)")
+                        .HasMaxLength(25);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedOn");
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedOn");
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Type")
-                        .HasMaxLength(200)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("Type");
+                        .HasColumnName("Type")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.HasKey("Id");
 
-                    b.ToTable("PetType", "dbo");
+                    b.ToTable("PetType","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.SettingEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("Id")
                         .HasColumnType("bigint")
-                        .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedOn");
+                        .HasColumnName("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsDeleted");
+                        .HasColumnName("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("ModifiedOn");
+                        .HasColumnName("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("Name");
+                        .HasColumnName("Name")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("SyncId");
+                        .HasColumnName("SyncId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
-                        .HasColumnName("Value");
+                        .HasColumnName("Value")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("IX_Settings_Name");
+                        .HasName("IX_Settings_Name");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Settings_SyncId");
+                        .HasName("IX_Settings_SyncId");
 
-                    b.ToTable("Settings", "dbo");
+                    b.ToTable("Settings","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathConfigurationEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CompletedOnName")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DataName")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -551,64 +515,52 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name01")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name02")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name03")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name04")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name05")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name06")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name07")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name08")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Name09")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("PathName")
                         .IsRequired()
-                        .HasMaxLength(896)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(896)");
+                        .HasColumnType("nvarchar(896)")
+                        .HasMaxLength(896);
 
                     b.Property<string>("PathType")
                         .IsRequired()
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StartedOnName")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SyncId")
                         .HasColumnType("uniqueidentifier");
@@ -644,18 +596,17 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasDatabaseName("IX_TrackerPathConfigurations_SyncId");
+                        .HasName("IX_TrackerPathConfigurations_SyncId");
 
-                    b.ToTable("TrackerPathConfigurations", "dbo");
+                    b.ToTable("TrackerPathConfigurations","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CompletedOn")
                         .HasColumnType("datetime2");
@@ -667,8 +618,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Data")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("ElapsedTicks")
                         .HasColumnType("bigint");
@@ -689,49 +639,40 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Value01")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value02")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value03")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value04")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value05")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value06")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value07")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value08")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.Property<string>("Value09")
-                        .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("nvarchar(900)")
+                        .HasMaxLength(900);
 
                     b.HasKey("Id");
 
@@ -741,9 +682,9 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasDatabaseName("IX_TrackerPaths_SyncId");
+                        .HasName("IX_TrackerPaths_SyncId");
 
-                    b.ToTable("TrackerPaths", "dbo");
+                    b.ToTable("TrackerPaths","dbo");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.AccountEntity", b =>
@@ -753,8 +694,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.AddressEntity", b =>
@@ -768,10 +707,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .WithMany("LinkedAddresses")
                         .HasForeignKey("LinkedAddressId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Account");
-
-                    b.Navigation("LinkedAddress");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.FoodRelationshipEntity", b =>
@@ -787,10 +722,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Child");
-
-                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.GroupMemberEntity", b =>
@@ -806,10 +737,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.PetEntity", b =>
@@ -824,10 +751,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .WithMany("Types")
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Owner");
-
-                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathEntity", b =>
@@ -842,51 +765,6 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Configuration");
-
-                    b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("Speedy.Website.Data.Entities.AccountEntity", b =>
-                {
-                    b.Navigation("Groups");
-
-                    b.Navigation("Pets");
-                });
-
-            modelBuilder.Entity("Speedy.Website.Data.Entities.AddressEntity", b =>
-                {
-                    b.Navigation("Accounts");
-
-                    b.Navigation("LinkedAddresses");
-                });
-
-            modelBuilder.Entity("Speedy.Website.Data.Entities.FoodEntity", b =>
-                {
-                    b.Navigation("ChildRelationships");
-
-                    b.Navigation("ParentRelationships");
-                });
-
-            modelBuilder.Entity("Speedy.Website.Data.Entities.GroupEntity", b =>
-                {
-                    b.Navigation("Members");
-                });
-
-            modelBuilder.Entity("Speedy.Website.Data.Entities.PetTypeEntity", b =>
-                {
-                    b.Navigation("Types");
-                });
-
-            modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathConfigurationEntity", b =>
-                {
-                    b.Navigation("Paths");
-                });
-
-            modelBuilder.Entity("Speedy.Website.Data.Entities.TrackerPathEntity", b =>
-                {
-                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

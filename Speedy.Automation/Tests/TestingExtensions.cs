@@ -127,6 +127,22 @@ public static class TestingExtensions
 	}
 
 	/// <summary>
+	/// Dump each item to the Console.WriteLine().
+	/// </summary>
+	/// <typeparam name="T"> The type of the item in the list. </typeparam>
+	/// <param name="items"> The items to dump. </param>
+	/// <returns> The items that was dumped. </returns>
+	public static T[] Dump<T>(this T[] items)
+	{
+		foreach (var item in items)
+		{
+			item.Dump();
+		}
+
+		return items;
+	}
+
+	/// <summary>
 	/// Dump the item to the Console.WriteLine().
 	/// </summary>
 	/// <typeparam name="T"> The type of the item. </typeparam>

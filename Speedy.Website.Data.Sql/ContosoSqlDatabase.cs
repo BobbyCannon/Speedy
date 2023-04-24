@@ -1,6 +1,7 @@
 #region References
 
 using Microsoft.EntityFrameworkCore;
+using Speedy.EntityFramework;
 
 #endregion
 
@@ -45,6 +46,12 @@ namespace Speedy.Website.Data.Sql
 			}
 
 			ConfigureGlobalOptions(options);
+		}
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			Json.ConfigureForSql(modelBuilder);
+			base.OnModelCreating(modelBuilder);
 		}
 
 		#endregion
