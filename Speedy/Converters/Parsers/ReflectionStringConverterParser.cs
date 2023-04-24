@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using Speedy.Extensions;
 
@@ -69,6 +70,11 @@ internal class ReflectionStringConverterParser : IStringConverterParser
 
 	private static MethodInfo GetTryParseMethod(Type targetType)
 	{
+		if (targetType.IsGenericType)
+		{
+			targetType = targetType.GetGenericArguments().First();
+		}
+
 		var method = _methods.GetOrAdd(targetType,
 			x => x.GetTypeInfo().GetCachedMethod("TryParse", typeof(string), targetType.MakeByRefType())
 		);

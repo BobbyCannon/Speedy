@@ -1677,6 +1677,9 @@
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
+        <member name="M:Speedy.Database.GetDatabaseType">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Database.GetMappingAssembly">
             <summary>
             Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
@@ -6770,6 +6773,12 @@
             <summary>
             Discard all changes made in this context to the underlying database.
             </summary>
+        </member>
+        <member name="M:Speedy.IDatabase.GetDatabaseType">
+            <summary>
+            Return the type of the database.
+            </summary>
+            <returns> The type of the database. </returns>
         </member>
         <member name="M:Speedy.IDatabase.GetMappingAssembly">
             <summary>

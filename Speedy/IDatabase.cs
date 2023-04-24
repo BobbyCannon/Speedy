@@ -44,6 +44,12 @@ public interface IDatabase : IDisposable
 	int DiscardChanges();
 
 	/// <summary>
+	/// Return the type of the database.
+	/// </summary>
+	/// <returns> The type of the database. </returns>
+	DatabaseType GetDatabaseType();
+
+	/// <summary>
 	/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
 	/// </summary>
 	Assembly GetMappingAssembly();

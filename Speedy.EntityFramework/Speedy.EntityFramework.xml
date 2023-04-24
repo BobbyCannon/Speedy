@@ -108,6 +108,9 @@
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.Dispose">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetDatabaseType">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkDatabase.GetMappingAssembly">
             <summary>
             Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
@@ -452,6 +455,162 @@
             Maps configuration for an entity.
             </summary>
             <param name="builder"> The builder to use for the mapping. </param>
+        </member>
+        <member name="T:Speedy.EntityFramework.Json">
+            <summary>
+            Json Database Functions for SQL / Sqlite translations.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ConfigureForMemory">
+            <summary>
+            Configure the functions for a memory database.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ConfigureForSql(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            Configure the functions for a SQL database.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ConfigureForSqlite(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            Configure the functions for a Sqlite database.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToBoolean(System.String,System.String)">
+            <summary>
+            Read a boolean member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToDateTime(System.String,System.String)">
+            <summary>
+            Read a DateTime member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToInt16(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToInt32(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToInt64(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableBoolean(System.String,System.String)">
+            <summary>
+            Read a boolean member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableDateTime(System.String,System.String)">
+            <summary>
+            Read a DateTime member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableInt16(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableInt32(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableInt64(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableUInt16(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableUInt32(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToNullableUInt64(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToUInt16(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToUInt32(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.ToUInt64(System.String,System.String)">
+            <summary>
+            Read a numeric member from a JSON source.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The read value. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.Json.Value(System.String,System.String)">
+            <summary>
+            Gets a JSON value from a JSON field.
+            </summary>
+            <param name="source"> The JSON source. </param>
+            <param name="path"> The path to the data to read. </param>
+            <returns> The JSON member read. </returns>
         </member>
         <member name="T:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2">
             <summary>

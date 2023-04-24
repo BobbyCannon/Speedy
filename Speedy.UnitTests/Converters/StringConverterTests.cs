@@ -14,6 +14,13 @@ namespace Speedy.UnitTests.Converters
 		#region Methods
 
 		[TestMethod]
+		public void NullableShouldBeSupported()
+		{
+			bool? boolValue2 = new StringConverter<bool?>("null");
+			Assert.AreEqual(null, boolValue2);
+		}
+
+		[TestMethod]
 		public void ImplicitOperator()
 		{
 			char charValue = new StringConverter<char>(" ");
@@ -34,9 +41,18 @@ namespace Speedy.UnitTests.Converters
 
 			bool boolValue = new StringConverter<bool>("true");
 			Assert.AreEqual(true, boolValue);
+			
+			bool? boolValue2 = new StringConverter<bool?>("true");
+			Assert.AreEqual(true, boolValue2);
+			
+			bool? boolValue3 = new StringConverter<bool?>(null);
+			Assert.AreEqual(null, boolValue3);
 
 			string boolString = new StringConverter<bool>("true");
 			Assert.AreEqual("true", boolString);
+			
+			string boolString2 = new StringConverter<bool?>("true");
+			Assert.AreEqual("true", boolString2);
 
 			StringConverter<bool> boolConverter = boolValue;
 			Assert.AreEqual(typeof(StringConverter<bool>), boolConverter.GetType());
@@ -49,8 +65,8 @@ namespace Speedy.UnitTests.Converters
 			Assert.AreEqual("true", boolConverter.ToString());
 
 			Version versionValue = new StringConverter<Version>("1.2.3.4");
-			Assert.AreEqual(true, boolValue);
-
+			Assert.AreEqual(new Version(1, 2, 3, 4), versionValue);
+			
 			string versionString = new StringConverter<Version>("1.2.3.4");
 			Assert.AreEqual("1.2.3.4", versionString);
 
@@ -94,6 +110,7 @@ namespace Speedy.UnitTests.Converters
 				new ValueTuple<string, Type, object>("0001-01-01T00:00:00.0000000", typeof(DateTime), DateTime.MinValue),
 				new ValueTuple<string, Type, object>("http://domain.com", typeof(Uri), new Uri("http://domain.com")),
 				new ValueTuple<string, Type, object>("ftp://domain", typeof(Uri), new Uri("ftp://domain")),
+				new ValueTuple<string, Type, object>(null, typeof(bool?), null),
 				new ValueTuple<string, Type, object>("TRUE", typeof(bool), true),
 				new ValueTuple<string, Type, object>("True", typeof(bool), true),
 				new ValueTuple<string, Type, object>("true", typeof(bool), true),

@@ -109,6 +109,12 @@ public abstract class Database : ISyncableDatabase
 		IsDisposed = true;
 	}
 
+	/// <inheritdoc />
+	public DatabaseType GetDatabaseType()
+	{
+		return DatabaseType.Memory;
+	}
+
 	/// <summary>
 	/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
 	/// </summary>

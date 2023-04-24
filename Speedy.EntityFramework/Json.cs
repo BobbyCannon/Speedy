@@ -17,6 +17,9 @@ using Speedy.Serialization;
 
 namespace Speedy.EntityFramework;
 
+/// <summary>
+/// Json Database Functions for SQL / Sqlite translations.
+/// </summary>
 public static class Json
 {
 	#region Fields
@@ -52,7 +55,7 @@ public static class Json
 			nameof(ToNullableUInt64)
 		};
 
-		_jsonGetValue = methods.First(x => x.Name == nameof(GetValue));
+		_jsonGetValue = methods.First(x => x.Name == nameof(Value));
 		_jsonMethods = methods.Where(x => inclusions.Contains(x.Name));
 	}
 
@@ -60,16 +63,32 @@ public static class Json
 
 	#region Methods
 
+	/// <summary>
+	/// Configure the functions for a memory database.
+	/// </summary>
 	public static void ConfigureForMemory()
 	{
 		_jsonStringFunction = (source, path) =>
 		{
-			var jObject = JObject.Parse(source);
-			var data = jObject.SelectToken(path);
-			return data?.ToString();
+			var jParsed = JObject.Parse(source, new JsonLoadSettings
+			{
+				LineInfoHandling = LineInfoHandling.Ignore,
+				DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Replace,
+				CommentHandling = CommentHandling.Ignore
+			});
+			var data = jParsed.SelectToken(path);
+			return data switch
+			{
+				JArray jArray => jArray.ToJson(),
+				JObject jObject => jObject.ToJson(),
+				_ => data?.ToString()
+			};
 		};
 	}
 
+	/// <summary>
+	/// Configure the functions for a SQL database.
+	/// </summary>
 	public static void ConfigureForSql(ModelBuilder builder)
 	{
 		// JSON value can be a string, number, bool, null, or array
@@ -95,6 +114,9 @@ public static class Json
 		}
 	}
 
+	/// <summary>
+	/// Configure the functions for a Sqlite database.
+	/// </summary>
 	public static void ConfigureForSqlite(ModelBuilder builder)
 	{
 		// JSON value can be a string, number, bool, null, or array
@@ -120,7 +142,189 @@ public static class Json
 		}
 	}
 
-	public static string GetValue(string source, string path)
+	/// <summary>
+	/// Read a boolean member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static bool ToBoolean(string source, string path)
+	{
+		return JsonConvert<bool>(source, path);
+	}
+
+	/// <summary>
+	/// Read a DateTime member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static DateTime ToDateTime(string source, string path)
+	{
+		return JsonConvert<DateTime>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static short ToInt16(string source, string path)
+	{
+		return JsonConvert<short?>(source, path) ?? 0;
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static int ToInt32(string source, string path)
+	{
+		return JsonConvert<int?>(source, path) ?? 0;
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static long ToInt64(string source, string path)
+	{
+		return JsonConvert<long?>(source, path) ?? 0;
+	}
+
+	/// <summary>
+	/// Read a boolean member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static bool? ToNullableBoolean(string source, string path)
+	{
+		return JsonConvert<bool?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a DateTime member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static DateTime? ToNullableDateTime(string source, string path)
+	{
+		return JsonConvert<DateTime?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static short? ToNullableInt16(string source, string path)
+	{
+		return JsonConvert<short?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static int? ToNullableInt32(string source, string path)
+	{
+		return JsonConvert<int?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static long? ToNullableInt64(string source, string path)
+	{
+		return JsonConvert<long?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static ushort? ToNullableUInt16(string source, string path)
+	{
+		return JsonConvert<ushort?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static uint? ToNullableUInt32(string source, string path)
+	{
+		return JsonConvert<uint?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static ulong? ToNullableUInt64(string source, string path)
+	{
+		return JsonConvert<ulong?>(source, path);
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static ushort ToUInt16(string source, string path)
+	{
+		return JsonConvert<ushort?>(source, path) ?? 0;
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static uint ToUInt32(string source, string path)
+	{
+		return JsonConvert<uint?>(source, path) ?? 0;
+	}
+
+	/// <summary>
+	/// Read a numeric member from a JSON source.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The read value. </returns>
+	public static ulong ToUInt64(string source, string path)
+	{
+		return JsonConvert<ulong?>(source, path) ?? 0;
+	}
+
+	/// <summary>
+	/// Gets a JSON value from a JSON field.
+	/// </summary>
+	/// <param name="source"> The JSON source. </param>
+	/// <param name="path"> The path to the data to read. </param>
+	/// <returns> The JSON member read. </returns>
+	public static string Value(string source, string path)
 	{
 		var function = _jsonStringFunction;
 		if (function != null)
@@ -130,86 +334,6 @@ public static class Json
 		}
 
 		throw new NotSupportedException();
-	}
-
-	public static bool ToBoolean(string source, string path)
-	{
-		return JsonConvert<bool>(source, path);
-	}
-
-	public static DateTime ToDateTime(string source, string path)
-	{
-		return JsonConvert<DateTime>(source, path);
-	}
-
-	public static short ToInt16(string source, string path)
-	{
-		return JsonConvert<short?>(source, path) ?? 0;
-	}
-
-	public static int ToInt32(string source, string path)
-	{
-		return JsonConvert<int?>(source, path) ?? 0;
-	}
-
-	public static long ToInt64(string source, string path)
-	{
-		return JsonConvert<long?>(source, path) ?? 0;
-	}
-
-	public static bool? ToNullableBoolean(string source, string path)
-	{
-		return JsonConvert<bool?>(source, path);
-	}
-
-	public static DateTime? ToNullableDateTime(string source, string path)
-	{
-		return JsonConvert<DateTime?>(source, path);
-	}
-
-	public static short? ToNullableInt16(string source, string path)
-	{
-		return JsonConvert<short?>(source, path);
-	}
-
-	public static int? ToNullableInt32(string source, string path)
-	{
-		return JsonConvert<int?>(source, path);
-	}
-
-	public static long? ToNullableInt64(string source, string path)
-	{
-		return JsonConvert<long?>(source, path);
-	}
-
-	public static ushort? ToNullableUInt16(string source, string path)
-	{
-		return JsonConvert<ushort?>(source, path);
-	}
-
-	public static uint? ToNullableUInt32(string source, string path)
-	{
-		return JsonConvert<uint?>(source, path);
-	}
-
-	public static ulong? ToNullableUInt64(string source, string path)
-	{
-		return JsonConvert<ulong?>(source, path);
-	}
-
-	public static ushort ToUInt16(string source, string path)
-	{
-		return JsonConvert<ushort?>(source, path) ?? 0;
-	}
-
-	public static uint ToUInt32(string source, string path)
-	{
-		return JsonConvert<uint?>(source, path) ?? 0;
-	}
-
-	public static ulong ToUInt64(string source, string path)
-	{
-		return JsonConvert<ulong?>(source, path) ?? 0;
 	}
 
 	private static void ConfigureForSql(ModelBuilder builder, MethodInfo methodInfo)
@@ -251,7 +375,7 @@ public static class Json
 			.HasName($"Speedy {methodInfo.Name} Function")
 			.HasTranslation(args =>
 			{
-				var ex = new SqlFunctionExpression("JSON_EXTRACT", args.Take(2), false, Array.Empty<bool>(), typeof(string), null);
+				var ex = new SqlFunctionExpression("JSON_EXTRACT", args.Take(2), false, Array.Empty<bool>(), typeof(string), RelationalTypeMapping.NullMapping);
 				return new SqlUnaryExpression(ExpressionType.Convert, ex, methodInfo.ReturnType, null);
 			})
 			.IsBuiltIn();
@@ -262,7 +386,7 @@ public static class Json
 			.HasName($"Speedy {methodInfo.Name} Function")
 			.HasTranslation(args =>
 			{
-				var ex = SqlFunctionExpression.Create("JSON_EXTRACT", args.Take(2), typeof(string), null);
+				var ex = SqlFunctionExpression.Create("JSON_EXTRACT", args.Take(2), typeof(string), RelationalTypeMapping.NullMapping);
 				return new SqlUnaryExpression(ExpressionType.Convert, ex, methodInfo.ReturnType, null);
 			});
 		#endif
