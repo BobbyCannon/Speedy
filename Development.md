@@ -30,3 +30,7 @@ _handler.ServerCertificateCustomValidationCallback += OnServerCertificateCustomV
 
 - https://lvcharts.com/
 -
+
+# Manually update database 
+
+Update-Database -Project Speedy.Website.Data.Sql.Old -StartupProject Speedy.Website
