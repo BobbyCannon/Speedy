@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 using Speedy.Converters;
+using Speedy.EntityFramework.Sql;
 using Speedy.Extensions;
 using Speedy.Serialization;
 
@@ -347,8 +348,19 @@ public static class Json
 			.HasName($"Speedy {methodInfo.Name} Function")
 			.HasTranslation(args =>
 			{
+				var sqlType = SqlStatement.GetSqlType(methodInfo.ReturnType).ToString();
 				var ex = new SqlFunctionExpression("JSON_VALUE", args.Take(2), false, Array.Empty<bool>(), typeof(string), RelationalTypeMapping.NullMapping);
-				return new SqlUnaryExpression(ExpressionType.Convert, ex, methodInfo.ReturnType, null);
+				return new SqlFunctionExpression("TRY_CONVERT",
+					new SqlExpression[]
+					{
+						new SqlFragmentExpression(sqlType),
+						ex
+					},
+					// This must be false even though we can and sometimes will return null...?
+					false,
+					Array.Empty<bool>(),
+					methodInfo.ReturnType,
+					null);
 			})
 			.IsBuiltIn();
 		#else
@@ -359,7 +371,15 @@ public static class Json
 			.HasTranslation(args =>
 			{
 				var ex = SqlFunctionExpression.Create("JSON_VALUE", args.Take(2), typeof(string), RelationalTypeMapping.NullMapping);
-				return new SqlUnaryExpression(ExpressionType.Convert, ex, methodInfo.ReturnType, null);
+				return SqlFunctionExpression.Create("TRY_CONVERT",
+					new SqlExpression[]
+					{
+						new SqlFragmentExpression(SqlStatement.GetSqlType(methodInfo.ReturnType).ToString()),
+						ex
+					},
+					methodInfo.ReturnType,
+					null
+				);
 			});
 		#endif
 	}

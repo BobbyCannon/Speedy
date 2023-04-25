@@ -420,11 +420,7 @@ namespace Speedy.EntityFramework.Sql
 
 		internal static SqlDbType GetSqlType(Type type)
 		{
-			if (_typeToSqlDbTypeDictionary.ContainsKey(type))
-			{
-				return _typeToSqlDbTypeDictionary[type];
-			}
-			return SqlDbType.BigInt;
+			return _typeToSqlDbTypeDictionary.TryGetValue(type, out var sqlType) ? sqlType : SqlDbType.BigInt;
 		}
 
 		internal static object GetValue(MemberExpression member)
