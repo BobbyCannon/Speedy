@@ -279,6 +279,7 @@ public class JsonFunctionTests : SpeedyTest
 				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" });
 				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": null}" });
 				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
+				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": 1.23 }" });
 				database.SaveChanges();
 
 				var until = new DateTime(2023, 01, 01);
