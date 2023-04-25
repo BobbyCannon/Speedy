@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -431,6 +432,11 @@ public static class Json
 			// do not use Null propagation because null is a valid response.
 			var data = function.Invoke(source, path);
 			var type = Type.GetType(typeName);
+			if (type == typeof(DateTime) || type == typeof(DateTime?))
+			{
+				return DateTime.TryParseExact(data, "G", null, DateTimeStyles.AssumeUniversal, out var d) ? d : type.GetDefaultValue();
+			}
+
 			return StringConverter.TryParse(type, data, out var parseResult)
 				? parseResult
 				: data.TryFromJson(type, out var jResult)

@@ -161,7 +161,7 @@ public class JsonFunctionTests : SpeedyTest
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToNullableBoolean(x.Message, "$.Started") == true)
-					.Select(x => Json.ToNullableBoolean(x.Message, "$.Started") )
+					.Select(x => Json.ToNullableBoolean(x.Message, "$.Started"))
 					.AsQueryable();
 
 				if (database is EntityFrameworkDatabase)
