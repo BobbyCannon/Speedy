@@ -35,7 +35,13 @@ public static class Json
 
 	static Json()
 	{
-		var methods = typeof(Json).GetCachedMethods(BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.Public);
+		var methods = typeof(Json)
+			.GetCachedMethods(
+				BindingFlags.DeclaredOnly
+				| BindingFlags.Static
+				| BindingFlags.Public
+			);
+
 		var inclusions = new[]
 		{
 			nameof(ToBoolean),

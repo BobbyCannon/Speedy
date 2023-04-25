@@ -8,6 +8,7 @@ using Speedy.EntityFramework;
 using Speedy.EntityFramework.Sql;
 using Speedy.Extensions;
 using Speedy.UnitTests;
+using Speedy.Website.Data;
 using Speedy.Website.Data.Entities;
 
 #endregion
@@ -20,65 +21,12 @@ public class JsonFunctionTests : SpeedyTest
 	#region Methods
 
 	[TestMethod]
-	public void JsonStringOfDifferentStructure()
-	{
-		TestHelper.GetDataContexts(initialize: false)
-			.ForEach(provider =>
-			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Carl\", \"Age\": 32 }" });
-				database.SaveChanges();
-
-				var query = database.LogEvents
-					.Select(x => Json.Value(x.Message, "$.FirstName"))
-					.AsQueryable();
-
-				if (database is EntityFrameworkDatabase)
-				{
-					query.ToSql().Dump();
-				}
-
-				var expected = new[] { "Bob", null, "Ann", "Carl" };
-				var actual = query.ToArray();
-				AreEqual(expected, actual);
-
-				query = database.LogEvents
-					.OrderBy(x => Json.Value(x.Message, "$.FirstName"))
-					.Select(x => Json.Value(x.Message, "$.FirstName"));
-
-				if (database is EntityFrameworkDatabase)
-				{
-					query.ToSql().Dump();
-				}
-
-				expected = new[] { null, "Ann", "Bob", "Carl" };
-				actual = query.ToArray();
-				AreEqual(expected, actual);
-
-				actual.DumpJson();
-			});
-	}
-
-	[TestMethod]
 	public void ToBoolean()
 	{
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": true, \"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": false, \"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": null, \"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": \"NotBoolean\", \"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToNullableBoolean(x.Message, "$.Started") == true)
@@ -90,8 +38,9 @@ public class JsonFunctionTests : SpeedyTest
 					query.ToSql().Dump();
 				}
 
-				var expected = new bool?[] { true };
+				var expected = new bool?[] { true, true };
 				var actual = query.ToArray();
+				actual.DumpJson();
 
 				AreEqual(expected, actual);
 			});
@@ -103,13 +52,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var until = new DateTime(2023, 01, 01);
 				var query = database
 					.LogEvents
@@ -122,8 +65,9 @@ public class JsonFunctionTests : SpeedyTest
 					query.ToSql().Dump();
 				}
 
-				var expected = new[] { "{\"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" };
+				var expected = new[] { "{ \"StartedOn\": \"2023-04-21T15:34:33.2187670Z\", \"Started\": true }" };
 				var actual = query.ToArray();
+				actual.DumpJson();
 
 				AreEqual(expected, actual);
 			});
@@ -135,16 +79,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Fred\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToInt16(x.Message, "$.Age") > 30)
@@ -170,16 +105,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Fred\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToInt32(x.Message, "$.Age") > 30)
@@ -205,16 +131,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Fred\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToInt64(x.Message, "$.Age") > 30)
@@ -240,19 +157,11 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": true, \"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": false, \"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": 0, \"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"Started\": null, \"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToNullableBoolean(x.Message, "$.Started") == true)
-					.Select(x => x.Message)
+					.Select(x => Json.ToNullableBoolean(x.Message, "$.Started") )
 					.AsQueryable();
 
 				if (database is EntityFrameworkDatabase)
@@ -260,8 +169,9 @@ public class JsonFunctionTests : SpeedyTest
 					query.ToSql().Dump();
 				}
 
-				var expected = new[] { "{\"Started\": true, \"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" };
+				var expected = new bool?[] { true, true };
 				var actual = query.ToArray();
+				actual.DumpJson();
 
 				AreEqual(expected, actual);
 			});
@@ -273,15 +183,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": null}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": \"2022-04-21T15:34:33.2187670Z\"}" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{\"StartedOn\": 1.23 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var until = new DateTime(2023, 01, 01);
 				var query = database
 					.LogEvents
@@ -294,7 +196,7 @@ public class JsonFunctionTests : SpeedyTest
 					query.ToSql().Dump();
 				}
 
-				var expected = new[] { "{\"StartedOn\": \"2023-04-21T15:34:33.2187670Z\"}" };
+				var expected = new[] { "{ \"StartedOn\": \"2023-04-21T15:34:33.2187670Z\", \"Started\": true }" };
 				var actual = query.ToArray();
 
 				AreEqual(expected, actual);
@@ -307,15 +209,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Select(x => Json.ToNullableInt16(x.Message, "$.Age"))
@@ -328,8 +222,8 @@ public class JsonFunctionTests : SpeedyTest
 
 				// todo: Sqlite is different, need to see if we can correct?
 				var expected = database.GetDatabaseType() == DatabaseType.Sqlite
-					? new short?[] { 0, null, 45, 32 }
-					: new short?[] { null, null, 45, 32 };
+					? new short?[] { null, 0, null, null, 29, null, 45, null, 32 }
+					: new short?[] { null, null, null, null, 29, null, 45, null, 32 };
 
 				var actual = query.ToArray();
 				actual.DumpJson();
@@ -344,15 +238,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Select(x => Json.ToNullableInt32(x.Message, "$.Age"))
@@ -365,8 +251,8 @@ public class JsonFunctionTests : SpeedyTest
 
 				// todo: Sqlite is different, need to see if we can correct?
 				var expected = database.GetDatabaseType() == DatabaseType.Sqlite
-					? new int?[] { 0, null, 45, 32 }
-					: new int?[] { null, null, 45, 32 };
+					? new int?[] { null, 0, null, null, 29, null, 45, null, 32 }
+					: new int?[] { null, null, null, null, 29, null, 45, null, 32 };
 
 				var actual = query.ToArray();
 				actual.DumpJson();
@@ -381,15 +267,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Select(x => Json.ToNullableInt64(x.Message, "$.Age"))
@@ -402,8 +280,8 @@ public class JsonFunctionTests : SpeedyTest
 
 				// todo: Sqlite is different, need to see if we can correct?
 				var expected = database.GetDatabaseType() == DatabaseType.Sqlite
-					? new long?[] { 0, null, 45, 32 }
-					: new long?[] { null, null, 45, 32 };
+					? new long?[] { null, 0, null, null, 29, null, 45, null, 32 }
+					: new long?[] { null, null, null, null, 29, null, 45, null, 32 };
 
 				var actual = query.ToArray();
 				actual.DumpJson();
@@ -418,15 +296,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Select(x => Json.ToNullableUInt16(x.Message, "$.Age"))
@@ -439,13 +309,13 @@ public class JsonFunctionTests : SpeedyTest
 
 				// todo: Sqlite is different, need to see if we can correct?
 				var expected = database.GetDatabaseType() == DatabaseType.Sqlite
-					? new ushort?[] { 0, null, 45, 32 }
-					: new ushort?[] { null, null, 45, 32 };
+					? new ushort?[] { null, 0, null, null, 29, null, 45, null, 32 }
+					: new ushort?[] { null, null, null, null, 29, null, 45, null, 32 };
 
 				var actual = query.ToArray();
 				actual.DumpJson();
 
-				//AreEqual(expected, actual);
+				AreEqual(expected, actual);
 			});
 	}
 
@@ -455,15 +325,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Select(x => Json.ToNullableUInt32(x.Message, "$.Age"))
@@ -476,8 +338,8 @@ public class JsonFunctionTests : SpeedyTest
 
 				// todo: Sqlite is different, need to see if we can correct?
 				var expected = database.GetDatabaseType() == DatabaseType.Sqlite
-					? new uint?[] { 0, null, 45, 32 }
-					: new uint?[] { null, null, 45, 32 };
+					? new uint?[] { null, 0, null, null, 29, null, 45, null, 32 }
+					: new uint?[] { null, null, null, null, 29, null, 45, null, 32 };
 
 				var actual = query.ToArray();
 				actual.DumpJson();
@@ -492,15 +354,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Select(x => Json.ToNullableUInt64(x.Message, "$.Age"))
@@ -513,8 +367,8 @@ public class JsonFunctionTests : SpeedyTest
 
 				// todo: Sqlite is different, need to see if we can correct?
 				var expected = database.GetDatabaseType() == DatabaseType.Sqlite
-					? new ulong?[] { 0, null, 45, 32 }
-					: new ulong?[] { null, null, 45, 32 };
+					? new ulong?[] { null, 0, null, null, 29, null, 45, null, 32 }
+					: new ulong?[] { null, null, null, null, 29, null, 45, null, 32 };
 
 				var actual = query.ToArray();
 				actual.DumpJson();
@@ -529,16 +383,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Fred\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToUInt16(x.Message, "$.Age") > 30)
@@ -564,16 +409,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Fred\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database
 					.LogEvents
 					.Where(x => Json.ToUInt32(x.Message, "$.Age") > 30)
@@ -599,21 +435,13 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
+				using var database = GenerateData(provider);
 
 				if (database.GetDatabaseType() == DatabaseType.Sqlite)
 				{
 					Console.WriteLine("\tNot Supported");
 					return;
 				}
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Fred\", \"Age\": [32,43] }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"LastName\": \"Franks\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"Carl Franks\", \"Age\": 32 }" });
-				database.SaveChanges();
 
 				var query = database
 					.LogEvents
@@ -640,15 +468,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\" }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Fred\" }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\" }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Carl\" }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database.LogEvents
 					.Select(x => Json.Value(x.Message, "$.FirstName"))
 					.AsQueryable();
@@ -658,8 +478,10 @@ public class JsonFunctionTests : SpeedyTest
 					query.ToSql().Dump();
 				}
 
-				var expected = new[] { "Bob", "Fred", "Ann", "Carl" };
+				var expected = new[] { null, null, null, null, "Jane", null, "Bob", null, "Hello" };
 				var actual = query.ToArray();
+				actual.DumpJson();
+
 				AreEqual(expected, actual);
 
 				query = database.LogEvents
@@ -671,11 +493,11 @@ public class JsonFunctionTests : SpeedyTest
 					query.ToSql().Dump();
 				}
 
-				expected = new[] { "Ann", "Bob", "Carl", "Fred" };
+				expected = new[] { null, null, null, null, null, null, "Bob", "Hello", "Jane" };
 				actual = query.ToArray();
-				AreEqual(expected, actual);
-
 				actual.DumpJson();
+
+				AreEqual(expected, actual);
 			});
 	}
 
@@ -685,15 +507,7 @@ public class JsonFunctionTests : SpeedyTest
 		TestHelper.GetDataContexts(initialize: false)
 			.ForEach(provider =>
 			{
-				using var database = provider.GetDatabase();
-				Console.WriteLine(database.GetType().Name);
-
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"Age\": 21 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"Street\": \"123 Main Street\", \"StreetNumber\": 123 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Ann\", \"Age\": 45 }" });
-				database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Carl\", \"Age\": 32 }" });
-				database.SaveChanges();
-
+				using var database = GenerateData(provider);
 				var query = database.LogEvents
 					.Select(x => Json.Value(x.Message, "$.FirstName"))
 					.Where(x => (x != null) && (x.Length <= 3));
@@ -703,12 +517,30 @@ public class JsonFunctionTests : SpeedyTest
 					query.ToSql().Dump();
 				}
 
-				var expected = new[] { "Bob", "Ann" };
+				var expected = new[] { "Bob" };
 				var actual = query.ToArray();
 				actual.DumpJson();
 
 				AreEqual(expected, actual);
 			});
+	}
+
+	private IContosoDatabase GenerateData(IDatabaseProvider<IContosoDatabase> provider)
+	{
+		var database = provider.GetDatabase();
+		Console.WriteLine(database.GetType().Name);
+
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"StartedOn\": \"2023-04-21T15:34:33.2187670Z\", \"Started\": true }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"Name\": \"John Doe\", \"Age\": [24, 263] }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"StartedOn\": \"2022-04-21T15:34:33.2187670Z\", \"Started\": 1 }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"StartedOn\": 1.23, \"Started\": \"Not A Number\" }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Jane\", \"LastName\": \"Doe\", \"Age\": 29 }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"StartedOn\": true, \"Started\": null }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Bob\", \"LastName\": \"Bar\", \"Age\": 45 }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"StartedOn\": false, \"Started\": [23,45] }" });
+		database.LogEvents.Add(new LogEventEntity { Message = "{ \"FirstName\": \"Hello\", \"LastName\": \"World\", \"Age\": 32 }" });
+		database.SaveChanges();
+		return database;
 	}
 
 	#endregion
