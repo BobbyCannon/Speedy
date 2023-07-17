@@ -18,6 +18,19 @@ internal class EnumConverterParser : IStringConverterParser
 	}
 
 	/// <inheritdoc />
+	public bool TryConvertToString(Type targetType, object value, out string result)
+	{
+		if (value is Enum eValue)
+		{
+			result = eValue.ToString();
+			return true;
+		}
+
+		result = default;
+		return false;
+	}
+
+	/// <inheritdoc />
 	public bool TryParse(Type targetType, string value, out object result)
 	{
 		if (!SupportsType(targetType))

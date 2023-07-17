@@ -125,6 +125,77 @@ public abstract class StringConverter
 	}
 
 	/// <summary>
+	/// Try to convert the value to a string representation.
+	/// </summary>
+	/// <param name="value"> The type value in object format. </param>
+	/// <param name="result"> The string version of the object. </param>
+	/// <returns> True if the convert succeeded otherwise false. </returns>
+	public static bool TryConvertToString<T>(T value, out string result)
+	{
+		if (TryConvertToString(typeof(T), value, out var response))
+		{
+			result = response;
+			return true;
+		}
+
+		result = default;
+		return false;
+	}
+
+	/// <summary>
+	/// Try to convert the value to a string representation.
+	/// </summary>
+	/// <param name="value"> The type value in object format. </param>
+	/// <param name="result"> The string version of the object. </param>
+	/// <returns> True if the convert succeeded otherwise false. </returns>
+	public static bool TryConvertToString(object value, out string result)
+	{
+		if (value == null)
+		{
+			result = string.Empty;
+			return false;
+		}
+
+		if (TryConvertToString(value.GetType(), value, out var response))
+		{
+			result = response;
+			return true;
+		}
+
+		result = default;
+		return false;
+	}
+
+	/// <summary>
+	/// Try to convert the value to a string representation.
+	/// </summary>
+	/// <param name="targetType"> The type of the object to parse. </param>
+	/// <param name="value"> The type value in object format. </param>
+	/// <param name="result"> The string version of the object. </param>
+	/// <returns> True if the convert succeeded otherwise false. </returns>
+	public static bool TryConvertToString(Type targetType, object value, out string result)
+	{
+		if (targetType.IsNullable() && (value == null))
+		{
+			result = null;
+			return true;
+		}
+
+		foreach (var parser in Parsers)
+		{
+			if (!parser.SupportsType(targetType))
+			{
+				continue;
+			}
+
+			return parser.TryConvertToString(targetType, value, out result);
+		}
+
+		result = targetType.GetDefaultValue().ToString();
+		return false;
+	}
+
+	/// <summary>
 	/// Try to parse the value from the provided value.
 	/// </summary>
 	/// <param name="value"> The type value in string format. </param>
@@ -163,6 +234,12 @@ public abstract class StringConverter
 	/// <returns> True if the parse succeeded otherwise false. </returns>
 	public static bool TryParse(Type targetType, string value, out object result)
 	{
+		if (targetType == typeof(object))
+		{
+			result = value;
+			return true;
+		}
+
 		if (targetType.IsNullable() && (value == null))
 		{
 			result = null;

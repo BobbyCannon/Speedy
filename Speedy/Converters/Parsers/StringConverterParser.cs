@@ -18,6 +18,13 @@ internal class StringConverterParser : IStringConverterParser
 	}
 
 	/// <inheritdoc />
+	public bool TryConvertToString(Type targetType, object value, out string result)
+	{
+		result = value.ToString();
+		return true;
+	}
+
+	/// <inheritdoc />
 	public bool TryParse(Type targetType, string value, out object result)
 	{
 		if (!SupportsType(targetType))

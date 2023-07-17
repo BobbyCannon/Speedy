@@ -17,6 +17,18 @@ internal class UriStringConverterParser : IStringConverterParser
 		return targetType == typeof(Uri);
 	}
 
+	public bool TryConvertToString(Type targetType, object value, out string result)
+	{
+		if (value is Uri uri)
+		{
+			result = uri.ToString();
+			return true;
+		}
+
+		result = default;
+		return false;
+	}
+
 	/// <inheritdoc />
 	public bool TryParse(Type targetType, string value, out object result)
 	{

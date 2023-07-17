@@ -1208,31 +1208,31 @@ public class PartialUpdate : Bindable
 		var directProperties = partialUpdate.GetType().GetCachedProperties();
 		var targetProperties = partialUpdate.GetTargetProperties();
 
-		foreach (var property in jProperties)
+		foreach (var jProperty in jProperties)
 		{
-			if (!partialUpdate.ShouldProcessProperty(property.Name))
+			if (!partialUpdate.ShouldProcessProperty(jProperty.Name))
 			{
 				continue;
 			}
 
-			var directWritableProperty = directProperties.FirstOrDefault(x => string.Equals(x.Name, property.Name, StringComparison.OrdinalIgnoreCase) && x.CanWrite);
-			var targetProperty = targetProperties.FirstOrDefault(x => string.Equals(x.Key, property.Name, StringComparison.OrdinalIgnoreCase)).Value;
-			var type = directWritableProperty?.PropertyType
+			var directWritableProperty = directProperties.FirstOrDefault(x => string.Equals(x.Name, jProperty.Name, StringComparison.OrdinalIgnoreCase) && x.CanWrite);
+			var targetProperty = targetProperties.FirstOrDefault(x => string.Equals(x.Key, jProperty.Name, StringComparison.OrdinalIgnoreCase)).Value;
+			var targetPropertyType = directWritableProperty?.PropertyType
 				?? targetProperty?.PropertyType
-				?? PartialUpdateConverter.ConvertType(property.Value.Type);
+				?? PartialUpdateConverter.ConvertType(jProperty.Value.Type);
 
-			if ((property.Type == JTokenType.Null)
-				|| (property.Value.Type == JTokenType.Null))
+			if ((jProperty.Type == JTokenType.Null)
+				|| (jProperty.Value.Type == JTokenType.Null))
 			{
 				// Only keep "null" values for nullable property types
-				if (type.IsNullable())
+				if (targetPropertyType.IsNullable())
 				{
-					partialUpdate.AddOrUpdate(property.Name, type, null);
+					partialUpdate.AddOrUpdate(jProperty.Name, targetPropertyType, null);
 				}
 				continue;
 			}
 
-			if (TryGetValue(property.Value, type, out var readValue))
+			if (ObjectConverter.TryGetValue(jProperty.Value, targetPropertyType, out var readValue))
 			{
 				var readValueType = readValue?.GetType();
 				var readValueDefaultType = readValueType?.GetDefaultValue();
@@ -1246,7 +1246,7 @@ public class PartialUpdate : Bindable
 				}
 				else
 				{
-					partialUpdate.AddOrUpdate(property.Name, type, readValue);
+					partialUpdate.AddOrUpdate(jProperty.Name, targetPropertyType, readValue);
 				}
 			}
 		}
@@ -1254,79 +1254,6 @@ public class PartialUpdate : Bindable
 		partialUpdate.RefreshUpdates();
 
 		return partialUpdate;
-	}
-
-	private static bool TryGetObject(JObject jObject, Type type, out object value)
-	{
-		var directProperties = type.GetCachedProperties();
-		var response = Activator.CreateInstance(type);
-
-		foreach (var jValue in jObject)
-		{
-			var p = directProperties.FirstOrDefault(x => string.Equals(x.Name, jValue.Key, StringComparison.OrdinalIgnoreCase));
-			if (p == null)
-			{
-				continue;
-			}
-
-			if (TryGetValue(jValue.Value, p.PropertyType, out var pValue))
-			{
-				p.SetValue(response, pValue);
-			}
-		}
-
-		value = response;
-		return true;
-	}
-
-	private static bool TryGetValue(JToken token, Type type, out object value)
-	{
-		// Property of array must be IEnumerable (ignoring some types like string)
-		if (token is JArray jArray && type.IsEnumerable())
-		{
-			var genericType = type.GenericTypeArguments.FirstOrDefault() ?? typeof(object);
-			var genericListType = typeof(List<>).MakeGenericType(genericType);
-			var genericList = (IList) Activator.CreateInstance(genericListType);
-
-			foreach (var jArrayValue in jArray)
-			{
-				if (TryGetValue(jArrayValue, genericType, out var arrayValue))
-				{
-					genericList.Add(arrayValue);
-				}
-			}
-
-			value = genericList;
-			return true;
-		}
-
-		if (token is JObject jObject)
-		{
-			return TryGetObject(jObject, type, out value);
-		}
-
-		if (token is not JValue jValue)
-		{
-			value = null;
-			return false;
-		}
-
-		if ((jValue.Type == JTokenType.Null) && (jValue.Value == null))
-		{
-			value = null;
-			return true;
-		}
-
-		try
-		{
-			value = Convert.ChangeType(jValue, type);
-			return true;
-		}
-		catch
-		{
-			value = null;
-			return false;
-		}
 	}
 
 	#endregion

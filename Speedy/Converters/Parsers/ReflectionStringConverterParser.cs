@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using Speedy.Extensions;
 
@@ -37,6 +38,13 @@ internal class ReflectionStringConverterParser : IStringConverterParser
 	}
 
 	/// <inheritdoc />
+	public bool TryConvertToString(Type targetType, object value, out string result)
+	{
+		result = value.ToString();
+		return true;
+	}
+
+	/// <inheritdoc />
 	public bool TryParse(Type targetType, string value, out object result)
 	{
 		try
@@ -69,6 +77,11 @@ internal class ReflectionStringConverterParser : IStringConverterParser
 
 	private static MethodInfo GetTryParseMethod(Type targetType)
 	{
+		if (targetType.IsGenericType)
+		{
+			targetType = targetType.GetGenericArguments().First();
+		}
+
 		var method = _methods.GetOrAdd(targetType,
 			x => x.GetTypeInfo().GetCachedMethod("TryParse", typeof(string), targetType.MakeByRefType())
 		);

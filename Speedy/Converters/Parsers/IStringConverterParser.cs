@@ -21,6 +21,15 @@ public interface IStringConverterParser
 	bool SupportsType(Type targetType);
 
 	/// <summary>
+	/// Try to convert the value to a string representation.
+	/// </summary>
+	/// <param name="targetType"> The type of the object to parse. </param>
+	/// <param name="value"> The type value in object format. </param>
+	/// <param name="result"> The string version of the object. </param>
+	/// <returns> True if the convert succeeded otherwise false. </returns>
+	bool TryConvertToString(Type targetType, object value, out string result);
+
+	/// <summary>
 	/// Tries to parse the provided value into the target type.
 	/// </summary>
 	/// <param name="targetType"> The target type to parse to. </param>
