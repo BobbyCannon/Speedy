@@ -5,11 +5,11 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Speedy.Extensions;
-
 #if !NETSTANDARD
 using Microsoft.EntityFrameworkCore.Metadata;
 #endif
@@ -24,6 +24,50 @@ namespace Speedy.EntityFramework.Sql
 	public static class SqlBuilder
 	{
 		#region Methods
+
+		/// <summary>
+		/// Escape a string for SQL string value.
+		/// </summary>
+		/// <param name="input"> The string input. </param>
+		/// <returns> The escaped version of the string. </returns>
+		public static string EscapeString(string input)
+		{
+			if (input == null)
+			{
+				return "null";
+			}
+
+			var builder = new StringBuilder(input.Length);
+
+			foreach (var c in input)
+			{
+				switch (c)
+				{
+					case '\'':
+					{
+						builder.Append("''");
+						continue;
+					}
+					//case '[':
+					//{
+					//	builder.Append("[[");
+					//	continue;
+					//}
+					//case ']':
+					//{
+					//	builder.Append("]]");
+					//	continue;
+					//}
+					default:
+					{
+						builder.Append(c);
+						continue;
+					}
+				}
+			}
+
+			return builder.ToString();
+		}
 
 		/// <summary>
 		/// Get SQL delete script from query.

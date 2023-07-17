@@ -547,6 +547,13 @@
             SQL builder to generate SQL scripts from Entity Framework queries. Supports both MSSQL and Sqlite.
             </summary>
         </member>
+        <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.EscapeString(System.String)">
+            <summary>
+            Escape a string for SQL string value.
+            </summary>
+            <param name="input"> The string input. </param>
+            <returns> The escaped version of the string. </returns>
+        </member>
         <member name="M:Speedy.EntityFramework.Sql.SqlBuilder.GetSqlDelete``1(Speedy.EntityFramework.EntityFrameworkDatabase,System.Linq.IQueryable{``0})">
             <summary>
             Get SQL delete script from query.

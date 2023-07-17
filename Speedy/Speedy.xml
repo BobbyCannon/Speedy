@@ -6385,6 +6385,49 @@
             Extensions for the Type object.
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.GetDirectInterfaces(System.Type)">
+            <summary>
+            Get direct implemented interfaces for a type.
+            </summary>
+            <param name="type"> The type to get the interfaces for. </param>
+            <returns> The direct interfaces for a type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.IsDescendantOf``1(System.Object)">
+            <summary>
+            Returns true if the object is a descendent of the provided generic type
+            </summary>
+            <typeparam name="T"> The parent type. </typeparam>
+            <param name="value"> The value to check. </param>
+            <returns> </returns>
+            <exception cref="T:System.ArgumentNullException"> The value was null and could not be processed. </exception>
+        </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.IsDescendantOf``1(System.Type)">
+            <summary>
+            Returns true if the object is a descendent of the provided generic type
+            </summary>
+            <typeparam name="T"> The parent type. </typeparam>
+            <param name="value"> The value to check. </param>
+            <returns> </returns>
+            <exception cref="T:System.ArgumentNullException"> The value was null and could not be processed. </exception>
+        </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.IsDescendantOf(System.Type,System.Type)">
+            <summary>
+            Returns true if the object is a descendent of the provided generic type
+            </summary>
+            <param name="parent"> The parent type. </param>
+            <param name="valueType"> The value type to check. </param>
+            <returns> </returns>
+            <exception cref="T:System.ArgumentNullException"> The valueType was null and could not be processed. </exception>
+        </member>
+        <member name="M:Speedy.Extensions.TypeExtensions.IsDirectDescendantOf(System.Type,System.Type)">
+            <summary>
+            Returns true if the object is a direct descendent of the provided generic type
+            </summary>
+            <param name="parent"> The parent type. </param>
+            <param name="valueType"> The value type to check. </param>
+            <returns> </returns>
+            <exception cref="T:System.ArgumentNullException"> The valueType was null and could not be processed. </exception>
+        </member>
         <member name="M:Speedy.Extensions.TypeExtensions.IsEnumerable(System.Type)">
             <summary>
             Determine if the provided type is an IEnumerable type.
@@ -6400,12 +6443,13 @@
             <param name="type"> The type to be tested. </param>
             <returns> True if the type is nullable otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Extensions.TypeExtensions.IsSubClassOfGeneric(System.Type,System.Type)">
+        <member name="M:Speedy.Extensions.TypeExtensions.IsSubClassOfGeneric(System.Type,System.Type,System.Boolean)">
             <summary>
             Determines if the child is a subclass of the parent.
             </summary>
             <param name="child"> The type to be tested. </param>
             <param name="parent"> The type of the parent. </param>
+            <param name="directDescendantOnly"> Direct base class only. </param>
             <returns> True if the child implements the parent otherwise false. </returns>
         </member>
         <member name="T:Speedy.Extensions.UpdatableExtensions">

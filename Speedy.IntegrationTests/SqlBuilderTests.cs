@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation.Tests;
 using Speedy.Data.SyncApi;
@@ -23,9 +24,46 @@ using Speedy.Website.Data.Sqlite;
 namespace Speedy.IntegrationTests
 {
 	[TestClass]
-	public class SqlBuilderTests
+	public class SqlBuilderTests : SpeedyTest
 	{
 		#region Methods
+
+		[TestMethod]
+		public void EscapeString()
+		{
+			var provider = TestHelper.GetSqlProvider();
+			using var database = (ContosoSqlDatabase) provider.GetDatabase();
+
+			var scenarios = new[]
+			{
+				"John's", "'", "\"", "email: \"test@domain.com\"", "\'"
+			};
+
+			foreach (var scenario in scenarios)
+			{
+				scenario.Dump();
+
+				database.Database.ExecuteSqlRaw("DELETE FROM [dbo].[Accounts]");
+				database.Database.ExecuteSqlRaw("DELETE FROM [dbo].[Addresses]");
+
+				var query = "INSERT INTO [dbo].[Addresses] ([AccountId], [AddressAccountSyncId], [AddressCity], [AddressCreatedOn], " +
+					"[AddressIsDeleted], [AddressLineOne], [AddressLineTwo], [AddressLinkedAddressId], [AddressLinkedAddressSyncId], " +
+					"[AddressModifiedOn], [AddressPostal], [AddressState], [AddressSyncId]) " +
+					"VALUES (/* AccountId */ null, /* AddressAccountSyncId */ null, /* AddressCity */ 'City', " +
+					"/* AddressCreatedOn */ CAST(N'2023-07-17 13:42:03.444033' AS datetime2), /* AddressIsDeleted */ 1, " +
+					$"'{SqlBuilder.EscapeString(scenario)}', /* AddressLineTwo */ 'AddressLineTwo', " +
+					"/* AddressLinkedAddressId */ null, /* AddressLinkedAddressSyncId */ null, " +
+					"/* AddressModifiedOn */ CAST(N'2023-07-17 13:42:03.444051' AS datetime2), " +
+					"/* AddressPostal */ '12345', /* AddressState */ 'AB', " +
+					"/* AddressSyncId */ NEWID());";
+
+				database.Database.ExecuteSqlRaw(query);
+
+				var address = database.Addresses.FirstOrDefault();
+				Assert.IsNotNull(address);
+				AreEqual(scenario, address.Line1);
+			}
+		}
 
 		[TestMethod]
 		public void SqlDeleteQuery()

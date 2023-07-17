@@ -51,62 +51,29 @@ public static class StringExtensions
 			return "null";
 		}
 
-		var literal = new StringBuilder(input.Length);
+		var builder = new StringBuilder(input.Length);
 
 		foreach (var c in input)
 		{
-			switch (c)
+			if (TryProcessCharacter(c, builder))
 			{
-				case '\'':
-					literal.Append(@"\'");
-					continue;
-				case '\"':
-					literal.Append("\\\"");
-					continue;
-				case '\\':
-					literal.Append(@"\\");
-					continue;
-				case '\0':
-					literal.Append(@"\0");
-					continue;
-				case '\a':
-					literal.Append(@"\a");
-					continue;
-				case '\b':
-					literal.Append(@"\b");
-					continue;
-				case '\f':
-					literal.Append(@"\f");
-					continue;
-				case '\n':
-					literal.Append(@"\n");
-					continue;
-				case '\r':
-					literal.Append(@"\r");
-					continue;
-				case '\t':
-					literal.Append(@"\t");
-					continue;
-				case '\v':
-					literal.Append(@"\v");
-					continue;
-				default:
-					// ASCII printable character
-					if ((c >= 0x20) && (c <= 0x7e))
-					{
-						literal.Append(c);
-						// As UTF16 escaped character
-					}
-					else
-					{
-						literal.Append(@"\u");
-						literal.Append(((int) c).ToString("X4"));
-					}
-					continue;
+				continue;
+			}
+
+			// ASCII printable character
+			if ((c >= 0x20) && (c <= 0x7e))
+			{
+				builder.Append(c);
+				// As UTF16 escaped character
+			}
+			else
+			{
+				builder.Append(@"\u");
+				builder.Append(((int) c).ToString("X4"));
 			}
 		}
 
-		return literal.ToString();
+		return builder.ToString();
 	}
 
 	/// <summary>
@@ -873,6 +840,48 @@ public static class StringExtensions
 		}
 
 		return len;
+	}
+
+	private static bool TryProcessCharacter(char c, StringBuilder builder)
+	{
+		switch (c)
+		{
+			case '\'':
+				builder.Append(@"\'");
+				return true;
+			case '\"':
+				builder.Append("\\\"");
+				return true;
+			case '\\':
+				builder.Append(@"\\");
+				return true;
+			case '\0':
+				builder.Append(@"\0");
+				return true;
+			case '\a':
+				builder.Append(@"\a");
+				return true;
+			case '\b':
+				builder.Append(@"\b");
+				return true;
+			case '\f':
+				builder.Append(@"\f");
+				return true;
+			case '\n':
+				builder.Append(@"\n");
+				return true;
+			case '\r':
+				builder.Append(@"\r");
+				return true;
+			case '\t':
+				builder.Append(@"\t");
+				return true;
+			case '\v':
+				builder.Append(@"\v");
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	#endregion

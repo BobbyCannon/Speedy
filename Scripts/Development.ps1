@@ -146,3 +146,10 @@ if ($cert -ne $null)
 	$store.Remove($cert)
 	$store.Close()
 }
+
+
+#
+# Query
+#
+
+Get-SqlTableInsert -Server localhost -Database Speedy -Table Addresses -ExcludedColumns @("AddressId")
