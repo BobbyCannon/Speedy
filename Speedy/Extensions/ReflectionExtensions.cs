@@ -873,18 +873,20 @@ public static class ReflectionExtensions
 	}
 
 	/// <summary>
-	/// Determine if the property is a virtual method.
+	/// Determine if the property is a virtual property.
 	/// </summary>
 	/// <param name="info"> The info to process. </param>
 	/// <returns> True if the accessor is virtual. </returns>
 	public static bool IsVirtual(this PropertyInfo info)
 	{
 		return (info.CanRead
+				&& (info.GetMethod != null)
 				&& info.GetMethod.IsVirtual
 				&& !info.GetMethod.IsAbstract
 				&& !info.GetMethod.IsFinal
 				&& info.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
 			|| (info.CanWrite
+				&& (info.SetMethod != null)
 				&& info.SetMethod.IsVirtual
 				&& !info.SetMethod.IsAbstract
 				&& !info.SetMethod.IsFinal
