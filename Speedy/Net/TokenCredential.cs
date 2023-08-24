@@ -14,7 +14,7 @@ namespace Speedy.Net;
 /// <summary>
 /// Represents a bearer credential for a client.
 /// </summary>
-public class TokenCredential : Credential, IUpdatable<TokenCredential>
+public class TokenCredential : Credential, IUpdateable<TokenCredential>
 {
 	#region Constructors
 

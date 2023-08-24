@@ -110,6 +110,39 @@
             </summary>
             <returns> The component value. </returns>
         </member>
+        <member name="T:Speedy.Application.Inactive.InactiveLocationProvider`4">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Inactive.InactiveLocationProvider`4.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Inactive.InactiveLocationProvider`4.HasPermission">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Inactive.InactiveLocationProvider`4.ProviderName">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Inactive.InactiveLocationProvider`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Inactive.InactiveLocationProvider`4.StartMonitoringAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Inactive.InactiveLocationProvider`4.StopMonitoringAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Inactive.InactiveMediaPlayer">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Inactive.InactiveMediaPlayer.IsPlaying">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Inactive.InactiveMediaPlayer.Play(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Inactive.InactiveMediaPlayer.Speak(System.String)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.INotificationService">
             <summary>
             Represents a service for notifications.
@@ -255,30 +288,6 @@
             <param name="components"> A dictionary containing the components. </param>
             <returns> The device identifier string. </returns>
         </member>
-        <member name="T:Speedy.Application.Internal.InactiveLocationProvider`4">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`4.#ctor(Speedy.IDispatcher)">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Application.Internal.InactiveLocationProvider`4.ProviderName">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`4.StartMonitoringAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Internal.InactiveLocationProvider`4.StopMonitoringAsync">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Application.Internal.InactiveMediaPlayer">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Application.Internal.InactiveMediaPlayer.IsPlaying">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Application.Internal.MacAddressDeviceIdComponent">
             <summary>
             An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that uses the MAC Address of the PC.
@@ -350,10 +359,26 @@
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.MediaPlayer">
-            <inheritdoc />
+            <summary>
+            Represents a media player.
+            </summary>
         </member>
         <member name="P:Speedy.Application.MediaPlayer.IsPlaying">
-            <inheritdoc />
+            <summary>
+            Returns true if the media player is playing.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.MediaPlayer.Play(System.String)">
+            <summary>
+            Plays a file.
+            </summary>
+            <param name="path"> The path to the file to play. </param>
+        </member>
+        <member name="M:Speedy.Application.MediaPlayer.Speak(System.String)">
+            <summary>
+            Speak out a text phrase.
+            </summary>
+            <param name="message"> The message to speak. </param>
         </member>
         <member name="T:Speedy.Application.Settings.Setting`2">
             <summary>

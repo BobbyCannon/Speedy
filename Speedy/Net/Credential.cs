@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Security;
 using System.Text;
+using Newtonsoft.Json;
+using Speedy.Attributes;
 using Speedy.Extensions;
 
 #endregion
@@ -14,7 +16,7 @@ namespace Speedy.Net;
 /// <summary>
 /// Represents a credential for a client.
 /// </summary>
-public class Credential : Bindable, IDisposable, IUpdatable<Credential>
+public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 {
 	#region Constructors
 
@@ -52,6 +54,7 @@ public class Credential : Bindable, IDisposable, IUpdatable<Credential>
 	/// <summary>
 	/// Represents the password for the credential.
 	/// </summary>
+	[ComputedProperty]
 	public string Password
 	{
 		get => SecurePassword?.ToUnsecureString() ?? string.Empty;
@@ -66,6 +69,7 @@ public class Credential : Bindable, IDisposable, IUpdatable<Credential>
 	/// <summary>
 	/// Represents the secure password for the credential.
 	/// </summary>
+	[JsonIgnore]
 	public SecureString SecurePassword { get; set; }
 
 	/// <summary>

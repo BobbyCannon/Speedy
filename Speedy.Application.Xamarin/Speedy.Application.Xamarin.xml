@@ -177,6 +177,9 @@
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationDataLocation">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetApplicationIsElevated">
             <inheritdoc />
         </member>
@@ -204,6 +207,9 @@
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDevicePlatform">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDevicePlatformVersion">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Xamarin.XamarinRuntimeInformation.GetDeviceType">
             <inheritdoc />
         </member>
@@ -217,6 +223,9 @@
             Default constructor
             </summary>
         </member>
+        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.HasPermission">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.IsLocationAvailable">
             <inheritdoc />
         </member>
@@ -228,11 +237,6 @@
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.SubProviders">
             <inheritdoc />
-        </member>
-        <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.HasPermission">
-            <summary>
-            True if the location provider has permission to be accessed.
-            </summary>
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.Manager">
             <summary>

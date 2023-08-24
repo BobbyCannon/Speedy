@@ -21,8 +21,8 @@ namespace Speedy.Application.Uwp;
 public class UwpLocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	where TLocation : class, ILocation<THorizontal, TVertical>, new()
-	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
-	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+	where THorizontal : class, IHorizontalLocation, IUpdateable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdateable<TVertical>
 	where TLocationProviderSettings : ILocationProviderSettings, IBindable, new()
 {
 	#region Fields
@@ -47,6 +47,13 @@ public class UwpLocationProvider<TLocation, THorizontal, TVertical, TLocationPro
 	#endregion
 
 	#region Properties
+
+	/// <inheritdoc />
+	public override bool HasPermission
+	{
+		get => Geolocator.RequestAccessAsync().AwaitResults() == GeolocationAccessStatus.Allowed;
+		protected set => throw new NotImplementedException();
+	}
 
 	/// <inheritdoc />
 	public override bool IsLocationAvailable
@@ -84,11 +91,6 @@ public class UwpLocationProvider<TLocation, THorizontal, TVertical, TLocationPro
 
 	/// <inheritdoc />
 	public sealed override string ProviderName => "UWP Windows";
-
-	/// <summary>
-	/// True if the location provider has permission to be accessed.
-	/// </summary>
-	public bool HasPermission => Geolocator.RequestAccessAsync().AwaitResults() == GeolocationAccessStatus.Allowed;
 
 	#endregion
 

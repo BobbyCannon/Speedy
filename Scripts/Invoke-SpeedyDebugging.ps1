@@ -185,15 +185,11 @@ foreach ($file in $files)
 				-or $data.Contains("<TargetFrameworks>net7.0-windows10.0.19041.0</TargetFrameworks>"))
 			{
 				#Write-Host ".NET 7 windows detected"
-				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.0\Speedy.Application.Wpf.dll", `
-					"Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
-				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.1\Speedy.Application.Wpf.dll", `
-					"Speedy.Application.Wpf\bin\Debug\net7.0-windows\Speedy.Application.Wpf.dll")
+				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.0\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Wpf.dll")
+				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.1\Speedy.Application.Wpf.dll", "Speedy.Application.Wpf\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Wpf.dll")
 				
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", `
-					"Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
-				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", `
-					"Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
+				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", "Speedy.Application.Xamarin\bin\Debug\net7.0-windows10.0.19041.0\Speedy.Application.Xamarin.dll")
 			}
 			
 			if ($data.Contains("<Reference Include=`"Mono.Android`" />"))

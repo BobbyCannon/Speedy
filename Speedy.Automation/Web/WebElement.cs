@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Speedy.Automation.Desktop;
 using Speedy.Automation.Web.Elements;
+using Font = Speedy.Automation.Web.Elements.Font;
+using Image = Speedy.Automation.Web.Elements.Image;
 using Keyboard = Speedy.Automation.Web.Elements.Keyboard;
 using Object = Speedy.Automation.Web.Elements.Object;
 

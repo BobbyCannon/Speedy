@@ -1,7 +1,7 @@
 ﻿#region References
 
 #if !(WINDOWS || ANDROID || IOS)
-using Speedy.Application.Internal;
+using Speedy.Application.Inactive;
 #endif
 
 #endregion

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1;net7.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
@@ -24,10 +25,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.xml</DocumentationFile>
-		<AssemblyVersion>11.0.7.0</AssemblyVersion>
-		<FileVersion>11.0.7.0</FileVersion>
-		<Version>11.0.7</Version>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<AssemblyVersion>11.0.8.0</AssemblyVersion>
+		<FileVersion>11.0.8.0</FileVersion>
+		<Version>11.0.8.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -39,12 +39,14 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Include="Speedy.snk" />
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+		<None Remove="Speedy.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="7.0.1" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />

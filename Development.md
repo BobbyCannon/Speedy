@@ -1,12 +1,15 @@
 # todo
 
+- Add IClonable to SpeedyList
 - Update type.CreateInstance to allow providing custom values or add ability to link interfaces to implementations.
 - Should we have a different "date time" other than modified on, if B synced content newer than A but A data is older but just synced it will override B which should "win"?
 - bug: FilteredRepository is returning non-saved entities on entity relationship collections
 - todo: Add columns changed / modified to the "OnModified" method.
 - add ability to "SoftRemove" so the Remove can just set IsDeleted even if "PermantDelete is set"?
 - bug: Will database.CollectionChange blow up if we add and remove at the same time? woah.
-
+- Optimization
+	- Relationships that are batched sync fails
+	- We should try to wire up relationships before saving as a batch or try to fix it from the batch?
 
 # Migrations
 

@@ -15,8 +15,8 @@ namespace Speedy.Data.Location;
 public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
 	: InformationProvider<T>, ILocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
 	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
-	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
-	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
+	where THorizontalLocation : class, IHorizontalLocation, IUpdateable<THorizontalLocation>
+	where TVerticalLocation : class, IVerticalLocation, IUpdateable<TVerticalLocation>
 	where T2 : ILocationProviderSettings, new()
 {
 	#region Constructors
@@ -39,6 +39,11 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 	#endregion
 
 	#region Properties
+
+	/// <summary>
+	/// True if the location provider has permission to be accessed.
+	/// </summary>
+	public abstract bool HasPermission { get; protected set; }
 
 	/// <summary>
 	/// Determines if location is available.
@@ -131,13 +136,20 @@ public abstract class LocationProvider<T, THorizontalLocation, TVerticalLocation
 }
 
 /// <summary>
+/// Represents a location provider using all Speedy data models.
+/// </summary>
+public interface ILocationProvider : ILocationProvider<Location, IHorizontalLocation, IVerticalLocation, LocationProviderSettings>
+{
+}
+
+/// <summary>
 /// Represents a location provider.
 /// </summary>
 public interface ILocationProvider<T, THorizontalLocation, TVerticalLocation, out T2>
 	: IInformationProvider<T>
 	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
-	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
-	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
+	where THorizontalLocation : class, IHorizontalLocation, IUpdateable<THorizontalLocation>
+	where TVerticalLocation : class, IVerticalLocation, IUpdateable<TVerticalLocation>
 	where T2 : ILocationProviderSettings, new()
 {
 	#region Properties

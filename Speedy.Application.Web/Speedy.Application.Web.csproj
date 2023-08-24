@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net48;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy.Application.Web</AssemblyTitle>
 		<AssemblyName>Speedy.Application.Web</AssemblyName>
 		<Company>Bobby Cannon</Company>
 		<Product>Speedy.Application.Web</Product>
 		<Description>Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications.</Description>
-		<Copyright>Â© Copyright 2014-2023</Copyright>
+		<Copyright>© Copyright 2014-2023</Copyright>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>false</DelaySign>
@@ -25,10 +25,12 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Web.xml</DocumentationFile>
-		<AssemblyVersion>11.0.7.0</AssemblyVersion>
-		<FileVersion>11.0.7.0</FileVersion>
-		<Version>11.0.7</Version>
+		<AssemblyVersion>11.0.8.0</AssemblyVersion>
+		<FileVersion>11.0.8.0</FileVersion>
+		<Version>11.0.8.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+		<NoWarn>CA1416</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\README.md">
@@ -39,10 +41,14 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Remove="Speedy.png" />
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+		<None Include="Speedy.Application.Web.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<Reference Include="System.Web" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />

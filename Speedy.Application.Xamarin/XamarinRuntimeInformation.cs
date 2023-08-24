@@ -36,6 +36,17 @@ public class XamarinRuntimeInformation : RuntimeInformation
 	#region Methods
 
 	/// <inheritdoc />
+	protected override string GetApplicationDataLocation()
+	{
+		#if (WINDOWS)
+		var location = GetApplicationAssembly.Location;
+		return Path.GetDirectoryName(location);
+		#endif
+
+		return FileSystem.AppDataDirectory;
+	}
+
+	/// <inheritdoc />
 	protected override bool GetApplicationIsElevated()
 	{
 		return false;
@@ -44,7 +55,7 @@ public class XamarinRuntimeInformation : RuntimeInformation
 	/// <inheritdoc />
 	protected override string GetApplicationLocation()
 	{
-		return AppInfo.PackageName;
+		return FileSystem.AppDataDirectory;
 	}
 
 	/// <inheritdoc />
@@ -56,6 +67,14 @@ public class XamarinRuntimeInformation : RuntimeInformation
 	/// <inheritdoc />
 	protected override Version GetApplicationVersion()
 	{
+		#if (WINDOWS)
+		var assemblyName = GetApplicationAssembly?.GetName();
+		if (assemblyName != null)
+		{
+			return assemblyName.Version;
+		}
+		#endif
+
 		var version = AppInfo.Version;
 		var build = version.Build;
 		var major = version.Major;
@@ -119,6 +138,12 @@ public class XamarinRuntimeInformation : RuntimeInformation
 	protected override DevicePlatform GetDevicePlatform()
 	{
 		return DeviceInfo.Platform.ToDevicePlatform();
+	}
+
+	/// <inheritdoc />
+	protected override Version GetDevicePlatformVersion()
+	{
+		return DeviceInfo.Version;
 	}
 
 	/// <inheritdoc />

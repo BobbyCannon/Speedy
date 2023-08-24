@@ -24,20 +24,30 @@ public static class AssemblyExtensions
 	/// <returns> The directory info for the assembly. </returns>
 	public static DirectoryInfo GetAssemblyDirectory(this Assembly assembly)
 	{
+		return new DirectoryInfo(GetAssemblyPath(assembly));
+	}
+
+	/// <summary>
+	/// Gets the directory the assembly file exists in.
+	/// </summary>
+	/// <param name="assembly"> The assembly to be tested. </param>
+	/// <returns> The directory path for the assembly. </returns>
+	public static string GetAssemblyPath(this Assembly assembly)
+	{
 		var response =
-			#if (NET7_0_OR_GREATER)
-				Path.GetDirectoryName(assembly.Location)
+			#if (NET6_0_OR_GREATER)
+			Path.GetDirectoryName(assembly.Location)
 			#else
 			Path.GetDirectoryName(assembly.CodeBase)
 			#endif
-			?? AppDomain.CurrentDomain.BaseDirectory;
+			?? AppContext.BaseDirectory;
 
 		if (response.StartsWith("file:\\"))
 		{
 			response = response.Substring(6);
 		}
 
-		return new DirectoryInfo(response);
+		return response;
 	}
 
 	/// <summary>

@@ -14,7 +14,7 @@ namespace Speedy;
 /// Represents a page of results for a paged request to a service.
 /// </summary>
 /// <typeparam name="T"> The type of the items in the results collection. </typeparam>
-public class PagedResults<T> : PartialUpdate<PagedResults<T>>, IPagedResults, IUpdatable<PagedResults<T>>
+public class PagedResults<T> : PartialUpdate<PagedResults<T>>, IPagedResults, IUpdateable<PagedResults<T>>
 {
 	#region Constructors
 

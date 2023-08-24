@@ -681,7 +681,7 @@ public abstract class SpeedyTest
 	}
 
 	/// <summary>
-	/// Validate a model that is "IUpdatable"
+	/// Validate a model that is "IUpdateable"
 	/// </summary>
 	/// <param name="model"> The model to test. </param>
 	/// <param name="exclusions"> An optional set of exclusions. </param>
@@ -694,7 +694,7 @@ public abstract class SpeedyTest
 	}
 
 	/// <summary>
-	/// Validate a model's UpdateWith using the "IUpdatable" interface.
+	/// Validate a model's UpdateWith using the "IUpdateable" interface.
 	/// </summary>
 	/// <param name="update"> The model to test. </param>
 	/// <param name="excludeVirtuals"> Exclude virtuals during the test. </param>
@@ -702,7 +702,7 @@ public abstract class SpeedyTest
 	protected void ValidateUpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
 	{
 		var updateType = update.GetType();
-		var actual = Activator.CreateInstance(updateType) as IUpdatable;
+		var actual = Activator.CreateInstance(updateType) as IUpdateable;
 
 		Assert.IsNotNull(actual);
 

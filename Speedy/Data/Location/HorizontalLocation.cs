@@ -165,7 +165,7 @@ public class HorizontalLocation : LocationInformation, IHorizontalLocation
 /// </summary>
 public interface IHorizontalLocation
 	: ILocationInformation,
-		IUpdatable<IHorizontalLocation>,
+		IUpdateable<IHorizontalLocation>,
 		ICloneable<IHorizontalLocation>,
 		IMinimalHorizontalLocation
 {

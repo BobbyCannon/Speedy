@@ -73,12 +73,12 @@ public abstract class CloneableBindable<T> : Bindable<T>, ICloneable<T>
 				entity.UpdateWith(this, false, false, false);
 				break;
 			}
-			case IUpdatable<T> updatable:
+			case IUpdateable<T> updatable:
 			{
 				updatable.UpdateWith(this);
 				break;
 			}
-			case IUpdatable updatable:
+			case IUpdateable updatable:
 			{
 				updatable.UpdateWith(this);
 				break;

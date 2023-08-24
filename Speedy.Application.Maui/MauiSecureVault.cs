@@ -1,8 +1,10 @@
 ﻿#region References
 
 using Speedy.Data;
+using Speedy.Extensions;
 using Speedy.Net;
 using Speedy.Serialization;
+using Speedy.Storage;
 
 #endregion
 
@@ -28,7 +30,7 @@ public class MauiSecureVault : SecureVault
 
 	#region Properties
 
-	private string KeyName => _keyName ??= $"{_information.ApplicationName.Replace(" ", "")}Credential";
+	private string KeyName => _keyName ??= GetVaultKey(nameof(Credential));
 
 	#endregion
 
@@ -39,6 +41,11 @@ public class MauiSecureVault : SecureVault
 	{
 		Credential.Reset();
 		SecureStorage.Default.Remove(KeyName);
+	}
+
+	public override string GetVaultKey(string name)
+	{
+		return $"{_information.ApplicationName.Replace(" ", "")}.{name}";
 	}
 
 	/// <inheritdoc />
@@ -55,6 +62,31 @@ public class MauiSecureVault : SecureVault
 		Credential.UpdateWith(credential);
 		Credential.ResetHasChanges();
 
+		return true;
+	}
+
+	/// <inheritdoc />
+	public override bool TryReadData<T>(string key, out T data)
+	{
+		var storeKey = GetVaultKey(key);
+		var value = SecureStorage.Default.GetAsync(storeKey).AwaitResults();
+		if (string.IsNullOrEmpty(value))
+		{
+			data = default;
+			return false;
+		}
+
+		var response = value.FromJson<T>();
+		data = response;
+		return true;
+	}
+
+	/// <inheritdoc />
+	public override bool TryWriteData<T>(string key, T data)
+	{
+		var storeKey = GetVaultKey(key);
+		var response = data.ToJson();
+		SecureStorage.Default.SetAsync(storeKey, response).AwaitResults();
 		return true;
 	}
 

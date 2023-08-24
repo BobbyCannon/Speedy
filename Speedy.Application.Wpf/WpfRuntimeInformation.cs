@@ -2,11 +2,11 @@
 
 using System;
 using System.IO;
-using System.Reflection;
 using System.Security.Principal;
+using Speedy.Application.Internal.Windows;
 using Speedy.Application.Wpf.Extensions;
-using Speedy.Application.Wpf.Internal;
 using Speedy.Data;
+using Speedy.Extensions;
 
 #endregion
 
@@ -36,6 +36,13 @@ public class WpfRuntimeInformation : RuntimeInformation
 
 	#region Methods
 
+	/// <inheritdoc />
+	protected override string GetApplicationDataLocation()
+	{
+		var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+		return Path.Combine(localAppData, ApplicationName);
+	}
+
 	/// <summary>
 	/// The elevated status of an application.
 	/// </summary>
@@ -44,28 +51,22 @@ public class WpfRuntimeInformation : RuntimeInformation
 		return WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) ?? false;
 	}
 
-	private Assembly GetAssembly =>
-		Assembly.GetEntryAssembly()
-		?? Assembly.GetCallingAssembly();
-
 	/// <inheritdoc />
 	protected override string GetApplicationLocation()
 	{
-		// "C:\\Workspaces\\BecomeEpic\\BecomeEpic\\BecomeEpic.WindowsService\\bin\\Debug\\net7.0-windows\\BecomeEpic.WindowsService.dll"
-		var location = GetAssembly.Location;
-		return Path.GetDirectoryName(location);
+		return GetApplicationAssembly().GetAssemblyPath();
 	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationName()
 	{
-		return GetAssembly?.GetName().Name;
+		return GetApplicationAssembly()?.GetName().Name;
 	}
 
 	/// <inheritdoc />
 	protected override Version GetApplicationVersion()
 	{
-		return GetAssembly?.GetName().Version;
+		return GetApplicationAssembly()?.GetName().Version;
 	}
 
 	/// <inheritdoc />
@@ -84,13 +85,15 @@ public class WpfRuntimeInformation : RuntimeInformation
 	/// <inheritdoc />
 	protected override string GetDeviceManufacturer()
 	{
-		return new ManufacturerDeviceIdComponent().GetValue();
+		return new DeviceManufacturerRegistryComponent().GetValue()
+			?? new DeviceManufacturerWmiComponent().GetValue();
 	}
 
 	/// <inheritdoc />
 	protected override string GetDeviceModel()
 	{
-		return new ModelDeviceIdComponent().GetValue();
+		return new DeviceModelRegistryComponent().GetValue()
+			?? new DeviceModelWmiComponent().GetValue();
 	}
 
 	/// <inheritdoc />
@@ -102,6 +105,11 @@ public class WpfRuntimeInformation : RuntimeInformation
 	/// <inheritdoc />
 	protected override DevicePlatform GetDevicePlatform()
 	{
+		#if (NET48_OR_GREATER)
+		return DevicePlatform.Windows;
+		#elif (NETCOREAPP3_1)
+		return DevicePlatform.Windows;
+		#else
 		if (OperatingSystem.IsWindows())
 		{
 			return DevicePlatform.Windows;
@@ -123,11 +131,23 @@ public class WpfRuntimeInformation : RuntimeInformation
 		}
 
 		return DevicePlatform.Unknown;
+		#endif
+	}
+
+	/// <inheritdoc />
+	protected override Version GetDevicePlatformVersion()
+	{
+		return Environment.OSVersion.Version;
 	}
 
 	/// <inheritdoc />
 	protected override DeviceType GetDeviceType()
 	{
+		#if (NET48_OR_GREATER)
+		return DeviceType.Desktop;
+		#elif (NETCOREAPP3_1)
+		return DeviceType.Desktop;
+		#else
 		if (OperatingSystem.IsAndroid()
 			|| OperatingSystem.IsIOS())
 		{
@@ -135,6 +155,7 @@ public class WpfRuntimeInformation : RuntimeInformation
 		}
 
 		return DeviceType.Desktop;
+		#endif
 	}
 
 	#endregion

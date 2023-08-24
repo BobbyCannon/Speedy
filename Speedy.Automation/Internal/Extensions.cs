@@ -39,20 +39,6 @@ namespace Speedy.Automation.Internal
 		}
 
 		/// <summary>
-		/// Performs an action on each item in the collection.
-		/// </summary>
-		/// <param name="collection"> The collection of items to run the action with. </param>
-		/// <param name="action"> The action to run against each item in the collection. </param>
-		/// <typeparam name="T"> The type of the item in the collection. </typeparam>
-		public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
-		{
-			foreach (var item in collection)
-			{
-				action(item);
-			}
-		}
-
-		/// <summary>
 		/// Formats the string to be able to include inside inner string.
 		/// </summary>
 		/// <param name="source"> The source string value. </param>

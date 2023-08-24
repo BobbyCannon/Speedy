@@ -7,7 +7,7 @@ using System.Linq;
 namespace Speedy.Extensions;
 
 /// <summary>
-/// Extensions for the IUpdatable interface
+/// Extensions for the IUpdateable interface
 /// </summary>
 public static class UpdatableExtensions
 {
@@ -21,7 +21,7 @@ public static class UpdatableExtensions
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional list of members to exclude during updating. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
-	public static bool TryUpdateWith<T>(this IUpdatable<T> value, T update, params string[] exclusions)
+	public static bool TryUpdateWith<T>(this IUpdateable<T> value, T update, params string[] exclusions)
 	{
 		return value.ShouldUpdate(update)
 			&& value.UpdateWith(update, exclusions);
@@ -34,7 +34,7 @@ public static class UpdatableExtensions
 	/// <param name="update"> The update to be applied. </param>
 	/// <param name="exclusions"> An optional list of members to exclude during updating. </param>
 	/// <returns> True if the update was applied otherwise false. </returns>
-	public static bool TryUpdateWith(this IUpdatable value, object update, params string[] exclusions)
+	public static bool TryUpdateWith(this IUpdateable value, object update, params string[] exclusions)
 	{
 		return value.ShouldUpdate(update)
 			&& value.UpdateWith(update, exclusions);

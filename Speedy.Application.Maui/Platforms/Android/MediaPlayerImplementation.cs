@@ -1,4 +1,10 @@
-﻿// ReSharper disable once CheckNamespace
+﻿#region References
+
+using Speedy.Extensions;
+
+#endregion
+
+// ReSharper disable once CheckNamespace
 
 namespace Speedy.Application.Maui;
 
@@ -25,6 +31,31 @@ public class MediaPlayerImplementation : MediaPlayer
 	#region Properties
 
 	public override bool IsPlaying => _player.IsPlaying;
+
+	#endregion
+
+	#region Methods
+
+	public override void Play(string path)
+	{
+		_player.Stop();
+		_player.Reset();
+		_player.SetDataSource(path);
+		_player.Prepare();
+		_player.Start();
+	}
+
+	public void SetVolume(int volume)
+	{
+		var percent = volume.EnsureRange(0, 100) / 100.0f;
+		_player.SetVolume(percent, percent);
+	}
+
+	/// <inheritdoc />
+	public override async void Speak(string message)
+	{
+		await TextToSpeech.Default.SpeakAsync(message);
+	}
 
 	#endregion
 }

@@ -34,6 +34,17 @@ public class MauiRuntimeInformation : RuntimeInformation
 	#region Methods
 
 	/// <inheritdoc />
+	protected override string GetApplicationDataLocation()
+	{
+		#if (WINDOWS)
+		var location = GetApplicationAssembly().Location;
+		return Path.GetDirectoryName(location);
+		#else
+		return FileSystem.Current.AppDataDirectory;
+		#endif
+	}
+
+	/// <inheritdoc />
 	protected override bool GetApplicationIsElevated()
 	{
 		return false;
@@ -42,7 +53,7 @@ public class MauiRuntimeInformation : RuntimeInformation
 	/// <inheritdoc />
 	protected override string GetApplicationLocation()
 	{
-		return AppInfo.Current.PackageName;
+		return FileSystem.Current.AppDataDirectory;
 	}
 
 	/// <inheritdoc />
@@ -55,14 +66,13 @@ public class MauiRuntimeInformation : RuntimeInformation
 	protected override Version GetApplicationVersion()
 	{
 		#if (WINDOWS)
-		var entry = System.Reflection.Assembly.GetEntryAssembly();
-		var assemblyName = entry?.GetName();
+		var assemblyName = GetApplicationAssembly()?.GetName();
 		if (assemblyName != null)
 		{
 			return assemblyName.Version;
 		}
 		#endif
-		
+
 		var version = AppInfo.Current.Version;
 		var build = version.Build;
 		var major = version.Major;
@@ -126,6 +136,12 @@ public class MauiRuntimeInformation : RuntimeInformation
 	protected override DevicePlatform GetDevicePlatform()
 	{
 		return DeviceInfo.Current.Platform.ToDevicePlatform();
+	}
+
+	/// <inheritdoc />
+	protected override Version GetDevicePlatformVersion()
+	{
+		return DeviceInfo.Current.Version;
 	}
 
 	/// <inheritdoc />

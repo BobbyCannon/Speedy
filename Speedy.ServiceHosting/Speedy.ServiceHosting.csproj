@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net6.0-windows;net7.0-windows</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy.ServiceHosting</AssemblyTitle>
 		<Company>Bobby Cannon</Company>
@@ -24,9 +24,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
-		<AssemblyVersion>11.0.7.0</AssemblyVersion>
-		<FileVersion>11.0.7.0</FileVersion>
-		<Version>11.0.7</Version>
+		<AssemblyVersion>11.0.8.0</AssemblyVersion>
+		<FileVersion>11.0.8.0</FileVersion>
+		<Version>11.0.8.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -38,10 +38,11 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Remove="Speedy.png" />
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+		<None Include="Speedy.ServiceHosting.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.0" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />

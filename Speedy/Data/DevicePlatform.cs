@@ -1,4 +1,10 @@
-﻿namespace Speedy.Data;
+﻿#region References
+
+using System.ComponentModel.DataAnnotations;
+
+#endregion
+
+namespace Speedy.Data;
 
 /// <summary>
 /// Represents the platform of device
@@ -23,6 +29,7 @@ public enum DevicePlatform
 	/// <summary>
 	/// iOS
 	/// </summary>
+	[Display(Name = "iOS")]
 	IOS = 3,
 
 	/// <summary>

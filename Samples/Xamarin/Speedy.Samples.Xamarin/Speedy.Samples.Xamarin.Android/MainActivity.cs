@@ -4,7 +4,6 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
-using Android.Views;
 using Speedy.Application.Xamarin;
 using Speedy.Samples.Xamarin.Droid.Services;
 using Xamarin.Essentials;
@@ -17,7 +16,7 @@ using Platform = Xamarin.Essentials.Platform;
 [assembly: Dependency(typeof(FileService))]
 namespace Speedy.Samples.Xamarin.Droid
 {
-	[Activity(Label = "Speedy.Samples.Xamarin", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
+	[Activity(Label = "Speedy Xamarin", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
 	public class MainActivity : FormsAppCompatActivity
 	{
 		#region Methods

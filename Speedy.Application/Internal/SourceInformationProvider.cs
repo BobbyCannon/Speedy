@@ -67,7 +67,7 @@ internal class SourceInformationProvider : Bindable, IInformationProvider
 		return Task.CompletedTask;
 	}
 
-	protected virtual void OnUpdated(IUpdatable e)
+	protected virtual void OnUpdated(IUpdateable e)
 	{
 		Updated?.Invoke(this, e);
 	}
@@ -76,7 +76,7 @@ internal class SourceInformationProvider : Bindable, IInformationProvider
 
 	#region Events
 
-	public event EventHandler<IUpdatable> Updated;
+	public event EventHandler<IUpdateable> Updated;
 
 	#endregion
 }

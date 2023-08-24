@@ -11,7 +11,7 @@ namespace Speedy.Net;
 /// <summary>
 /// Represents a credential for a web client.
 /// </summary>
-public class WebCredential : Credential, IUpdatable<WebCredential>
+public class WebCredential : Credential, IUpdateable<WebCredential>
 {
 	#region Constructors
 

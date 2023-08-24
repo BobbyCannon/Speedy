@@ -7,9 +7,9 @@ using System.Collections.Generic;
 namespace Speedy;
 
 /// <summary>
-/// Represents exclusion provider for IUpdatable.
+/// Represents exclusion provider for IUpdateable.
 /// </summary>
-public interface IUpdatableExclusions
+public interface IUpdateableExclusions
 {
 	#region Methods
 

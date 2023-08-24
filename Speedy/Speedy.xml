@@ -4,9 +4,52 @@
         <name>Speedy</name>
     </assembly>
     <members>
+        <member name="T:Speedy.Attributes.ComputedPropertyAttribute">
+            <summary>
+            Attribute for computed properties.
+            </summary>
+        </member>
         <member name="T:Speedy.Attributes.IgnoreSettingAttribute">
             <summary>
             Attribute for ignoring settings.
+            </summary>
+        </member>
+        <member name="T:Speedy.Attributes.IgnoreUpdateWithAttribute">
+            <summary>
+            Attribute for properties when UpdateWith is called.
+            </summary>
+        </member>
+        <member name="T:Speedy.Attributes.SerializedModelAttribute">
+            <summary>
+            Attribute for ensuring a serialized class won't change and
+            break code that have serialized the object.
+            </summary>
+        </member>
+        <member name="M:Speedy.Attributes.SerializedModelAttribute.#ctor(System.String[])">
+            <summary>
+            Instantiates an attribute for helping test serialized objects.
+            </summary>
+            <param name="expected"> Expected list of serialized members. </param>
+        </member>
+        <member name="P:Speedy.Attributes.SerializedModelAttribute.Expected">
+            <summary>
+            Members to be
+            </summary>
+        </member>
+        <member name="T:Speedy.Attributes.SerializedModelExclusionsAttribute">
+            <summary>
+            Attribute for excluding members from a serialized class.
+            </summary>
+        </member>
+        <member name="M:Speedy.Attributes.SerializedModelExclusionsAttribute.#ctor(System.String[])">
+            <summary>
+            Instantiates an attribute for helping test serialized objects.
+            </summary>
+            <param name="exclusions"> Properties to exclude from testing of serialized members. </param>
+        </member>
+        <member name="P:Speedy.Attributes.SerializedModelExclusionsAttribute.Exclusions">
+            <summary>
+            Members to be excluded.
             </summary>
         </member>
         <member name="T:Speedy.Bindable`1">
@@ -2338,6 +2381,26 @@
             Sqlite Database
             </summary>
         </member>
+        <member name="T:Speedy.Data.Bitness">
+            <summary>
+            Represents the bitness of a platform, application, etc
+            </summary>
+        </member>
+        <member name="F:Speedy.Data.Bitness.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:Speedy.Data.Bitness.X86">
+            <summary>
+            Represents x86 or 32 bitness.
+            </summary>
+        </member>
+        <member name="F:Speedy.Data.Bitness.X64">
+            <summary>
+            Represents x64 or 64 bitness.
+            </summary>
+        </member>
         <member name="T:Speedy.Data.DevicePlatform">
             <summary>
             Represents the platform of device
@@ -2470,6 +2533,11 @@
         <member name="P:Speedy.Data.IInformationProvider`1.CurrentValue">
             <summary>
             Represents the current value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.IInformationProvider`1.RefreshAsync">
+            <summary>
+            Refresh the device information.
             </summary>
         </member>
         <member name="T:Speedy.Data.IInformationProvider">
@@ -2612,11 +2680,25 @@
         <member name="P:Speedy.Data.InformationProvider`1.SubProviders">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Data.InformationProvider`1.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.InformationProvider`1.RefreshAsync">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Data.InformationProvider`1.StartMonitoringAsync">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.InformationProvider`1.StopMonitoringAsync">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.InformationProvider`1.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="M:Speedy.Data.InformationProvider`1.OnUpdated(`0)">
             <summary>
@@ -3226,6 +3308,11 @@
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
+        <member name="P:Speedy.Data.Location.LocationProvider`4.HasPermission">
+            <summary>
+            True if the location provider has permission to be accessed.
+            </summary>
+        </member>
         <member name="P:Speedy.Data.Location.LocationProvider`4.IsLocationAvailable">
             <summary>
             Determines if location is available.
@@ -3290,6 +3377,11 @@
         <member name="E:Speedy.Data.Location.LocationProvider`4.LogEventWritten">
             <summary>
             Provider has written a log event.
+            </summary>
+        </member>
+        <member name="T:Speedy.Data.Location.ILocationProvider">
+            <summary>
+            Represents a location provider using all Speedy data models.
             </summary>
         </member>
         <member name="T:Speedy.Data.Location.ILocationProvider`4">
@@ -3599,6 +3691,21 @@
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
+        <member name="P:Speedy.Data.RuntimeInformation.ApplicationBitness">
+            <summary>
+            The bitness of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Data.RuntimeInformation.ApplicationDataLocation">
+            <summary>
+            The location of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Data.RuntimeInformation.ApplicationIsDevelopmentBuild">
+            <summary>
+            Flag indicating if the application is a development build.
+            </summary>
+        </member>
         <member name="P:Speedy.Data.RuntimeInformation.ApplicationIsElevated">
             <summary>
             Flag indicating if the application is elevated.
@@ -3644,6 +3751,16 @@
             The name of the platform.
             </summary>
         </member>
+        <member name="P:Speedy.Data.RuntimeInformation.DevicePlatformBitness">
+            <summary>
+            The bitness of the platform.
+            </summary>
+        </member>
+        <member name="P:Speedy.Data.RuntimeInformation.DevicePlatformVersion">
+            <summary>
+            The version of the device OS.
+            </summary>
+        </member>
         <member name="P:Speedy.Data.RuntimeInformation.DeviceType">
             <summary>
             The type of the device.
@@ -3652,6 +3769,11 @@
         <member name="P:Speedy.Data.RuntimeInformation.Instance">
             <summary>
             The global instance of the runtime information.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationAssembly">
+            <summary>
+            Gets the entry / calling assembly.
             </summary>
         </member>
         <member name="M:Speedy.Data.RuntimeInformation.IsWindows">
@@ -3670,8 +3792,29 @@
             Reset the cache.
             </summary>
         </member>
+        <member name="M:Speedy.Data.RuntimeInformation.SetApplicationName(System.String)">
+            <summary>
+            Override the application name provided by the runtime information.
+            </summary>
+            <param name="name"> The name to use as an override. </param>
+        </member>
         <member name="M:Speedy.Data.RuntimeInformation.ToString">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationBitness">
+            <summary>
+            The bitness of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationDataLocation">
+            <summary>
+            The data location of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationIsDevelopmentBuild">
+            <summary>
+            Get flag indicating if the application is a development build.
+            </summary>
         </member>
         <member name="M:Speedy.Data.RuntimeInformation.GetApplicationIsElevated">
             <summary>
@@ -3718,6 +3861,16 @@
             The name of the platform.
             </summary>
         </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetDevicePlatformBitness">
+            <summary>
+            The bitness of the platform.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.RuntimeInformation.GetDevicePlatformVersion">
+            <summary>
+            The version of the device platform version.
+            </summary>
+        </member>
         <member name="M:Speedy.Data.RuntimeInformation.GetDeviceType">
             <summary>
             The type of the device.
@@ -3731,49 +3884,14 @@
             <param name="name"> </param>
             <returns> </returns>
         </member>
-        <member name="T:Speedy.Data.SecureVault">
+        <member name="M:Speedy.Data.RuntimeInformation.SetOverride``1(System.String,``0)">
             <summary>
-            The vault to store credential securely.
+            Set an override for the value.
             </summary>
-        </member>
-        <member name="M:Speedy.Data.SecureVault.#ctor">
-            <summary>
-            Creates an instance of the vault.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.SecureVault.#ctor(Speedy.IDispatcher)">
-            <summary>
-            Creates an instance of the vault.
-            </summary>
-            <param name="dispatcher"> The optional dispatcher to use. </param>
-        </member>
-        <member name="P:Speedy.Data.SecureVault.Credential">
-            <summary>
-            The credential for the vault.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.SecureVault.ClearCredential">
-            <summary>
-            Clears the credential from the vault.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.SecureVault.ReadCredentialAsync">
-            <summary>
-            Gets the stored credential from the vault.
-            </summary>
-            <returns> Return true if the credential was read otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Data.SecureVault.WriteCredential">
-            <summary>
-            Writes a credential to the vault.
-            </summary>
-            <returns> Return true if the credential was written otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Data.SecureVault.WriteCredentialAsync">
-            <summary>
-            Writes a credential to the vault.
-            </summary>
-            <returns> Return true if the credential was written otherwise false. </returns>
+            <typeparam name="T"> </typeparam>
+            <param name="name"> </param>
+            <param name="value"> </param>
+            <returns> </returns>
         </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
@@ -3959,7 +4077,7 @@
             Gets the default exclusions for updatable. Warning: this is called during constructor, overrides need to be
             sure to only return static values as to not cause issues.
             </summary>
-            <returns> The values to exclude during processing <see cref="T:Speedy.IUpdatable" />. </returns>
+            <returns> The values to exclude during processing <see cref="T:Speedy.IUpdateable" />. </returns>
         </member>
         <member name="E:Speedy.Entity.PropertyChanged">
             <inheritdoc />
@@ -4269,6 +4387,13 @@
             </summary>
             <param name="assembly"> The assembly to be tested. </param>
             <returns> The directory info for the assembly. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.AssemblyExtensions.GetAssemblyPath(System.Reflection.Assembly)">
+            <summary>
+            Gets the directory the assembly file exists in.
+            </summary>
+            <param name="assembly"> The assembly to be tested. </param>
+            <returns> The directory path for the assembly. </returns>
         </member>
         <member name="M:Speedy.Extensions.AssemblyExtensions.IsAssemblyDebugBuild(System.Reflection.Assembly)">
             <summary>
@@ -5262,6 +5387,43 @@
             True if HttpStatusCode is in the successful range (200-299) otherwise false;
             </returns>
         </member>
+        <member name="T:Speedy.Extensions.IntegerExtensions">
+            <summary>
+            Extensions for numbers
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.IntegerExtensions.EnsureRange(System.Nullable{System.Int32},System.Int32,System.Int32)">
+            <summary>
+            Ensure the value falls between the ranges.
+            </summary>
+            <param name="value"> The nullable float value. </param>
+            <param name="min"> The inclusive minimal value. </param>
+            <param name="max"> The inclusive maximum value. </param>
+            <returns> The value within the provided ranges. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.IntegerExtensions.EnsureRange(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Ensure the value falls between the ranges.
+            </summary>
+            <param name="value"> The nullable int value. </param>
+            <param name="min"> The inclusive minimal value. </param>
+            <param name="max"> The inclusive maximum value. </param>
+            <returns> The value within the provided ranges. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.IntegerExtensions.IsEven(System.Int32)">
+            <summary>
+            Determines if a value represents an even integer value.
+            </summary>
+            <param name="value"> The value to be checked. </param>
+            <returns> True if value is an even integer otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.IntegerExtensions.IsOdd(System.Int32)">
+            <summary>
+            Determines if a value represents an odd integer value.
+            </summary>
+            <param name="value"> The value to be checked. </param>
+            <returns> True if value is an odd integer otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Extensions.LocationExtensions">
             <summary>
             Extensions for location related code.
@@ -6113,7 +6275,7 @@
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.IsVirtual(System.Reflection.PropertyInfo)">
             <summary>
-            Determine if the property is a virtual method.
+            Determine if the property is a virtual property.
             </summary>
             <param name="info"> The info to process. </param>
             <returns> True if the accessor is virtual. </returns>
@@ -6622,10 +6784,10 @@
         </member>
         <member name="T:Speedy.Extensions.UpdatableExtensions">
             <summary>
-            Extensions for the IUpdatable interface
+            Extensions for the IUpdateable interface
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith``1(Speedy.IUpdatable{``0},``0,System.String[])">
+        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith``1(Speedy.IUpdateable{``0},``0,System.String[])">
             <summary>
             Try to apply an update to the provided value.
             </summary>
@@ -6635,7 +6797,7 @@
             <param name="exclusions"> An optional list of members to exclude during updating. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith(Speedy.IUpdatable,System.Object,System.String[])">
+        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith(Speedy.IUpdateable,System.Object,System.String[])">
             <summary>
             Try to apply an update to the provided value.
             </summary>
@@ -7614,20 +7776,20 @@
             </summary>
             <returns> The unwrapped entity. </returns>
         </member>
-        <member name="T:Speedy.IUpdatable`1">
+        <member name="T:Speedy.IUpdateable`1">
             <summary>
             Represents an updatable item
             </summary>
             <typeparam name="T"> The type that is update is for. </typeparam>
         </member>
-        <member name="M:Speedy.IUpdatable`1.ShouldUpdate(`0)">
+        <member name="M:Speedy.IUpdateable`1.ShouldUpdate(`0)">
             <summary>
             Determine if the update should be applied.
             </summary>
             <param name="update"> The update to be tested. </param>
             <returns> True if the update should be applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.IUpdatable`1.TryUpdateWith(`0,System.String[])">
+        <member name="M:Speedy.IUpdateable`1.TryUpdateWith(`0,System.String[])">
             <summary>
             Determine if the update should be applied then applies it if so else do nothing.
             </summary>
@@ -7635,7 +7797,7 @@
             <param name="exclusions"> An optional list of members to exclude. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.IUpdatable`1.UpdateWith(`0,System.String[])">
+        <member name="M:Speedy.IUpdateable`1.UpdateWith(`0,System.String[])">
             <summary>
             Allows updating of one type to another based on member Name and Type.
             </summary>
@@ -7643,19 +7805,19 @@
             <param name="exclusions"> An optional list of members to exclude. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="T:Speedy.IUpdatable">
+        <member name="T:Speedy.IUpdateable">
             <summary>
             Represents an updatable item
             </summary>
         </member>
-        <member name="M:Speedy.IUpdatable.ShouldUpdate(System.Object)">
+        <member name="M:Speedy.IUpdateable.ShouldUpdate(System.Object)">
             <summary>
             Determine if the update should be applied.
             </summary>
             <param name="update"> The update to be tested. </param>
             <returns> True if the update should be applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.IUpdatable.TryUpdateWith(System.Object,System.String[])">
+        <member name="M:Speedy.IUpdateable.TryUpdateWith(System.Object,System.String[])">
             <summary>
             Determine if the update should be applied then applies it if so else do nothing.
             </summary>
@@ -7663,14 +7825,14 @@
             <param name="exclusions"> An optional list of members to exclude. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.IUpdatable.UpdateWith(System.Object,System.String[])">
+        <member name="M:Speedy.IUpdateable.UpdateWith(System.Object,System.String[])">
             <summary>
             Allows updating of one type to another based on member Name and Type.
             </summary>
             <param name="update"> The source of the update. </param>
             <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
-        <member name="M:Speedy.IUpdatable.UpdateWith(System.Object,System.Boolean,System.String[])">
+        <member name="M:Speedy.IUpdateable.UpdateWith(System.Object,System.Boolean,System.String[])">
             <summary>
             Allows updating of one type to another based on member Name and Type.
             </summary>
@@ -7678,12 +7840,12 @@
             <param name="excludeVirtuals"> An optional value to exclude virtual members. </param>
             <param name="exclusions"> An optional list of members to exclude. </param>
         </member>
-        <member name="T:Speedy.IUpdatableExclusions">
+        <member name="T:Speedy.IUpdateableExclusions">
             <summary>
-            Represents exclusion provider for IUpdatable.
+            Represents exclusion provider for IUpdateable.
             </summary>
         </member>
-        <member name="M:Speedy.IUpdatableExclusions.GetUpdatableExclusions">
+        <member name="M:Speedy.IUpdateableExclusions.GetUpdatableExclusions">
             <summary>
             Get exclusions for the updatable type.
             </summary>
@@ -14587,6 +14749,86 @@
             <summary>
             Occurs when an entity is being validated.
             </summary>
+        </member>
+        <member name="T:Speedy.Storage.SecureVault">
+            <summary>
+            The vault to store credential securely.
+            </summary>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.#ctor">
+            <summary>
+            Creates an instance of the vault.
+            </summary>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the vault.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.#ctor(Speedy.Net.Credential,Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the vault.
+            </summary>
+            <param name="credential"> The default credential. Allows setting web or token as base credential type. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Storage.SecureVault.Credential">
+            <summary>
+            The credential for the vault.
+            </summary>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.ClearCredential">
+            <summary>
+            Clears the credential from the vault.
+            </summary>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.GetVaultKey(System.String)">
+            <summary>
+            Calculate a vault key by the provide name.
+            </summary>
+            <param name="name"> The name of the object being stored. </param>
+            <returns> The vault key for the provided name. </returns>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.ReadCredential">
+            <summary>
+            Gets the stored credential from the vault.
+            </summary>
+            <returns> Return true if the credential was read otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.ReadCredentialAsync">
+            <summary>
+            Gets the stored credential from the vault.
+            </summary>
+            <returns> Return true if the credential was read otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.TryReadData``1(System.String,``0@)">
+            <summary>
+            Gets the stored data from the vault.
+            </summary>
+            <param name="name"> The name of the data to read. </param>
+            <param name="data"> The data read if the key was found. </param>
+            <returns> Return true if the data was read otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.TryWriteData``1(System.String,``0)">
+            <summary>
+            Writes the data to the vault.
+            </summary>
+            <param name="name"> The name of the data to write. </param>
+            <param name="data"> The data to write. </param>
+            <returns> Return true if the data was written otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.WriteCredential">
+            <summary>
+            Writes a credential to the vault.
+            </summary>
+            <returns> Return true if the credential was written otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Storage.SecureVault.WriteCredentialAsync">
+            <summary>
+            Writes a credential to the vault.
+            </summary>
+            <returns> Return true if the credential was written otherwise false. </returns>
         </member>
         <member name="T:Speedy.Storage.SyncableRepository`2">
             <summary>

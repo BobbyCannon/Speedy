@@ -13,6 +13,8 @@ using Speedy.Automation.Desktop.Pattern;
 using Speedy.Automation.Internal;
 using Speedy.Automation.Internal.Native;
 using Speedy.Exceptions;
+using Speedy.Extensions;
+using Image = Speedy.Automation.Desktop.Elements.Image;
 
 #endregion
 

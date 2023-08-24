@@ -4,7 +4,7 @@
 /// Represents an updatable item
 /// </summary>
 /// <typeparam name="T"> The type that is update is for. </typeparam>
-public interface IUpdatable<in T> : IUpdatable
+public interface IUpdateable<in T> : IUpdateable
 {
 	#region Methods
 
@@ -37,7 +37,7 @@ public interface IUpdatable<in T> : IUpdatable
 /// <summary>
 /// Represents an updatable item
 /// </summary>
-public interface IUpdatable
+public interface IUpdateable
 {
 	#region Methods
 

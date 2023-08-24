@@ -12,8 +12,8 @@ namespace Speedy.Data;
 /// <summary>
 /// Represents a provider of information.
 /// </summary>
-public interface IInformationProvider<out T> : IInformationProvider
-	where T : IUpdatable<T>, new()
+public interface IInformationProvider<T> : IInformationProvider
+	where T : IUpdateable, new()
 {
 	#region Properties
 
@@ -23,12 +23,21 @@ public interface IInformationProvider<out T> : IInformationProvider
 	public T CurrentValue { get; }
 
 	#endregion
+
+	#region Methods
+
+	/// <summary>
+	/// Refresh the device information.
+	/// </summary>
+	Task<T> RefreshAsync();
+
+	#endregion
 }
 
 /// <summary>
 /// Represents a provider of device information.
 /// </summary>
-public interface IInformationProvider : IUpdatable, INotifyPropertyChanged
+public interface IInformationProvider : IUpdateable, INotifyPropertyChanged
 {
 	#region Properties
 
@@ -78,7 +87,7 @@ public interface IInformationProvider : IUpdatable, INotifyPropertyChanged
 	/// <summary>
 	/// An event to notify when the device information was updated.
 	/// </summary>
-	event EventHandler<IUpdatable> Updated;
+	event EventHandler<IUpdateable> Updated;
 
 	#endregion
 }

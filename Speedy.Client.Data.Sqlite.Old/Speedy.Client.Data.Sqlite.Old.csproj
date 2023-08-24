@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
+		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\Speedy.Client.Data.Sqlite\ContosoClientDatabase.cs" Link="ContosoClientDatabase.cs" />

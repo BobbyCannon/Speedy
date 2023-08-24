@@ -12,8 +12,8 @@ namespace Speedy.Data.Location;
 public class LocationComparer<T, THorizontalLocation, TVerticalLocation>
 	: Comparer<T>, IComparer<T, THorizontalLocation, TVerticalLocation>
 	where T : class, ILocation<THorizontalLocation, TVerticalLocation>
-	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
-	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
+	where THorizontalLocation : class, IHorizontalLocation, IUpdateable<THorizontalLocation>
+	where TVerticalLocation : class, IVerticalLocation, IUpdateable<TVerticalLocation>
 {
 	#region Fields
 

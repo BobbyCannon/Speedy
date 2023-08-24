@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFrameworks>net48;net6.0-windows;net7.0-windows</TargetFrameworks>
+		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<IsPackable>false</IsPackable>
@@ -10,36 +11,32 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.79.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
-		<PackageReference Include="Moq" Version="4.18.4" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
+		<PackageReference Include="Moq" Version="[4.18.4]" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.IO.Ports" Version="7.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Samples\Website\Speedy.Website.Core\Speedy.Website.Core.csproj" />
+		<ProjectReference Include="..\Speedy\Speedy.csproj" />
 		<ProjectReference Include="..\Speedy.Automation\Speedy.Automation.csproj" />
-		<ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj" />
 		<ProjectReference Include="..\Speedy.Application\Speedy.Application.csproj" />
+		<ProjectReference Include="..\Speedy.Application.Web\Speedy.Application.Web.csproj" />
+		<ProjectReference Include="..\Speedy.Application.Wpf\Speedy.Application.Wpf.csproj" />
+		<ProjectReference Include="..\Speedy.Client.Data\Speedy.Client.Data.csproj" />
 		<ProjectReference Include="..\Speedy.NmeaConsole\Speedy.NmeaConsole.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />
 		<ProjectReference Include="..\Speedy.ServiceHosting.Example\Speedy.ServiceHosting.Example.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
-		<ProjectReference Include="..\Speedy\Speedy.csproj" />
+		<ProjectReference Include="..\Samples\Website\Speedy.Website.Core\Speedy.Website.Core.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
 		<ProjectReference Include="..\Speedy.Client.Data.Sqlite.Old\Speedy.Client.Data.Sqlite.Old.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sqlite.Old\Speedy.Website.Data.Sqlite.Old.csproj" />
 		<ProjectReference Include="..\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
-		<ProjectReference Include="..\Speedy.Client.Data.Sqlite.Old\Speedy.Client.Data.Sqlite.Old.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sqlite.Old\Speedy.Website.Data.Sqlite.Old.csproj" />
-		<ProjectReference Include="..\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows' or '$(TargetFramework)' == 'net7.0-windows'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows10.0.19041.0' or '$(TargetFramework)' == 'net7.0-windows10.0.19041.0'">
 		<ProjectReference Include="..\Speedy.Website\Speedy.Website.csproj" />
 		<ProjectReference Include="..\Speedy.Application.Wpf\Speedy.Application.Wpf.csproj" />
 		<ProjectReference Include="..\Speedy.Client.Data.Sqlite\Speedy.Client.Data.Sqlite.csproj" />

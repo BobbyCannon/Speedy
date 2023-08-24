@@ -10,7 +10,7 @@ namespace Speedy.Application.Internal;
 /// <summary>
 /// An implementation of <see cref="IByteArrayEncoder" /> that encodes byte arrays as Base32 strings.
 /// </summary>
-public class Base32ByteArrayEncoder : IByteArrayEncoder
+internal class Base32ByteArrayEncoder : IByteArrayEncoder
 {
 	#region Fields
 

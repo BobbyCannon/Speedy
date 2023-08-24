@@ -1,9 +1,7 @@
 ﻿#region References
 
-using System;
-using System.ComponentModel;
 using Microsoft.Win32;
-using Speedy.Application.Wpf.Internal;
+using Speedy.Application.Internal.Windows;
 
 #endregion
 
@@ -23,9 +21,9 @@ public static class DeviceIdExtensions
 	/// <param name="excludeWireless"> A value indicating whether wireless adapters should be excluded. </param>
 	/// <param name="excludeNonPhysical"> A value indicating whether non-physical adapters should be excluded. </param>
 	/// <returns> The <see cref="DeviceId" /> instance. </returns>
-	public static DeviceId AddMacAddressFromMmi(this DeviceId builder, bool excludeWireless, bool excludeNonPhysical)
+	public static DeviceId AddMacAddress(this DeviceId builder, bool excludeWireless, bool excludeNonPhysical)
 	{
-		return builder.AddComponent("MACAddress", new MmiMacAddressDeviceIdComponent(excludeWireless, excludeNonPhysical));
+		return builder.AddComponent("MACAddress", new MacAddressComponent(excludeWireless, excludeNonPhysical));
 	}
 
 	/// <summary>
@@ -50,7 +48,7 @@ public static class DeviceIdExtensions
 	/// <returns> The <see cref="DeviceId" /> instance. </returns>
 	public static DeviceId AddMotherboardSerialNumber(this DeviceId builder)
 	{
-		return builder.AddComponent("MotherboardSerialNumber", new MmiWqlDeviceIdComponent("Win32_BaseBoard", "SerialNumber"));
+		return builder.AddComponent("MotherboardSerialNumber", new WmiComponent("Win32_BaseBoard", "SerialNumber"));
 	}
 
 	/// <summary>
@@ -60,11 +58,11 @@ public static class DeviceIdExtensions
 	/// <returns> The <see cref="DeviceId" /> instance. </returns>
 	public static DeviceId AddProcessorId(this DeviceId builder)
 	{
-		return builder.AddComponent("ProcessorId", new MmiWqlDeviceIdComponent("Win32_Processor", "ProcessorId"));
+		return builder.AddComponent("ProcessorId", new WmiComponent("Win32_Processor", "ProcessorId"));
 	}
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="RegistryValueDeviceIdComponent" /> class.
+	/// Initializes a new instance of the <see cref="RegistryComponent" /> class.
 	/// </summary>
 	/// <param name="builder"> The builder to add the component to. </param>
 	/// <param name="componentName"> The name of the component. </param>
@@ -74,7 +72,7 @@ public static class DeviceIdExtensions
 	/// <param name="registryValueName"> The name of the registry value. </param>
 	public static DeviceId AddRegistryValue(this DeviceId builder, string componentName, RegistryView registryView, RegistryHive registryHive, string registryKeyName, string registryValueName)
 	{
-		return builder.AddComponent(componentName, new RegistryValueDeviceIdComponent(registryView, registryHive, registryKeyName, registryValueName));
+		return builder.AddComponent(componentName, new RegistryComponent(registryView, registryHive, registryKeyName, registryValueName));
 	}
 
 	/// <summary>
@@ -84,19 +82,7 @@ public static class DeviceIdExtensions
 	/// <returns> The <see cref="DeviceId" /> instance. </returns>
 	public static DeviceId AddSystemDriveSerialNumber(this DeviceId builder)
 	{
-		return builder.AddComponent("SystemDriveSerialNumber", new MmiSystemDriveSerialNumberDeviceIdComponent());
-	}
-
-	/// <summary>
-	/// Adds the system serial drive number to the device identifier.
-	/// </summary>
-	/// <param name="builder"> The builder to add the component to. </param>
-	/// <returns> The <see cref="DeviceId" /> instance. </returns>
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	[Obsolete("This method name was a typo. Use AddSystemDriveSerialNumber instead.")]
-	public static DeviceId AddSystemSerialDriveNumber(this DeviceId builder)
-	{
-		return builder.AddComponent("SystemDriveSerialNumber", new MmiSystemDriveSerialNumberDeviceIdComponent());
+		return builder.AddComponent("SystemDriveSerialNumber", new SystemDriveSerialNumberComponent());
 	}
 
 	/// <summary>
@@ -106,7 +92,7 @@ public static class DeviceIdExtensions
 	/// <returns> The <see cref="DeviceId" /> instance. </returns>
 	public static DeviceId AddSystemUuid(this DeviceId builder)
 	{
-		return builder.AddComponent("SystemUUID", new MmiWqlDeviceIdComponent("Win32_ComputerSystemProduct", "UUID"));
+		return builder.AddComponent("SystemUUID", new WmiComponent("Win32_ComputerSystemProduct", "UUID"));
 	}
 
 	#endregion

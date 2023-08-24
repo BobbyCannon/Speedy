@@ -73,6 +73,10 @@ internal class HashDeviceIdFormatter : IDeviceIdFormatter
 			.Select(x => x.Value.GetValue())
 			.ToArray()
 		);
+		if (string.IsNullOrEmpty(value))
+		{
+			return string.Empty;
+		}
 		var bytes = Encoding.UTF8.GetBytes(value);
 		var hash = _byteArrayHasher.Hash(bytes);
 		return _byteArrayEncoder.Encode(hash);

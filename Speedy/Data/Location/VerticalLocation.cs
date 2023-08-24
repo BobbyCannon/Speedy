@@ -178,7 +178,7 @@ public class VerticalLocation : LocationInformation, IVerticalLocation
 /// </summary>
 public interface IVerticalLocation
 	: ILocationInformation,
-		IUpdatable<IVerticalLocation>,
+		IUpdateable<IVerticalLocation>,
 		ICloneable<IVerticalLocation>,
 		IMinimalVerticalLocation
 {

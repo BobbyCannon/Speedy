@@ -165,7 +165,7 @@ namespace Speedy.Logging
 		/// <summary>
 		/// Occurs when an event is written.
 		/// </summary>
-		#if NETSTANDARD2_1 || NET7_0
+		#if NETSTANDARD2_1 || NET6_0_OR_GREATER
 		public new event EventHandler<EventWrittenEventArgs> EventWritten;
 		#else
 		public event EventHandler<EventWrittenEventArgs> EventWritten;

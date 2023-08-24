@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFrameworks>net48;net6.0-windows;net7.0-windows</TargetFrameworks>
+		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<Platforms>x64;x86</Platforms>
 		<UseWindowsForms>true</UseWindowsForms>

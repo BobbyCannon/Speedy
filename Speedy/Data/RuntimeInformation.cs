@@ -53,6 +53,33 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	#region Properties
 
 	/// <summary>
+	/// The bitness of the application.
+	/// </summary>
+	public Bitness ApplicationBitness
+	{
+		get => GetOrCache<Bitness>(nameof(ApplicationBitness));
+		set => throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// The location of the application.
+	/// </summary>
+	public string ApplicationDataLocation
+	{
+		get => GetOrCache<string>(nameof(ApplicationDataLocation));
+		set => throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// Flag indicating if the application is a development build.
+	/// </summary>
+	public bool ApplicationIsDevelopmentBuild
+	{
+		get => GetOrCache<bool>(nameof(ApplicationIsDevelopmentBuild));
+		set => throw new NotImplementedException();
+	}
+
+	/// <summary>
 	/// Flag indicating if the application is elevated.
 	/// </summary>
 	public bool ApplicationIsElevated
@@ -110,7 +137,11 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	/// <summary>
 	/// The name of the device.
 	/// </summary>
-	public string DeviceName => GetOrCache<string>(nameof(DeviceName));
+	public string DeviceName
+	{
+		get => GetOrCache<string>(nameof(DeviceName));
+		set => throw new NotImplementedException();
+	}
 
 	/// <summary>
 	/// The name of the platform.
@@ -118,6 +149,24 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	public DevicePlatform DevicePlatform
 	{
 		get => GetOrCache<DevicePlatform>(nameof(DevicePlatform));
+		set => throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// The bitness of the platform.
+	/// </summary>
+	public Bitness DevicePlatformBitness
+	{
+		get => GetOrCache<Bitness>(nameof(DevicePlatformBitness));
+		set => throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// The version of the device OS.
+	/// </summary>
+	public Version DevicePlatformVersion
+	{
+		get => GetOrCache<Version>(nameof(DevicePlatformVersion));
 		set => throw new NotImplementedException();
 	}
 
@@ -138,6 +187,15 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	#endregion
 
 	#region Methods
+
+	/// <summary>
+	/// Gets the entry / calling assembly.
+	/// </summary>
+	public static Assembly GetApplicationAssembly()
+	{
+		return Assembly.GetEntryAssembly()
+			?? Assembly.GetCallingAssembly();
+	}
 
 	/// <summary>
 	/// Determines if the platform is Windows.
@@ -167,6 +225,15 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 		_cache.Clear();
 	}
 
+	/// <summary>
+	/// Override the application name provided by the runtime information.
+	/// </summary>
+	/// <param name="name"> The name to use as an override. </param>
+	public void SetApplicationName(string name)
+	{
+		SetOverride(nameof(ApplicationName), name);
+	}
+
 	/// <inheritdoc />
 	public override string ToString()
 	{
@@ -178,6 +245,27 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 		}
 
 		return response.ToString();
+	}
+
+	/// <summary>
+	/// The bitness of the application.
+	/// </summary>
+	protected virtual Bitness GetApplicationBitness()
+	{
+		return Environment.Is64BitProcess ? Bitness.X64 : Bitness.X86;
+	}
+
+	/// <summary>
+	/// The data location of the application.
+	/// </summary>
+	protected abstract string GetApplicationDataLocation();
+
+	/// <summary>
+	/// Get flag indicating if the application is a development build.
+	/// </summary>
+	protected virtual bool GetApplicationIsDevelopmentBuild()
+	{
+		return GetApplicationAssembly().IsAssemblyDebugBuild();
 	}
 
 	/// <summary>
@@ -226,6 +314,19 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	protected abstract DevicePlatform GetDevicePlatform();
 
 	/// <summary>
+	/// The bitness of the platform.
+	/// </summary>
+	protected virtual Bitness GetDevicePlatformBitness()
+	{
+		return Environment.Is64BitOperatingSystem ? Bitness.X64 : Bitness.X86;
+	}
+
+	/// <summary>
+	/// The version of the device platform version.
+	/// </summary>
+	protected abstract Version GetDevicePlatformVersion();
+
+	/// <summary>
 	/// The type of the device.
 	/// </summary>
 	protected abstract DeviceType GetDeviceType();
@@ -239,6 +340,18 @@ public abstract class RuntimeInformation : Bindable, ISyncClientDetails
 	protected T GetOrCache<T>(string name)
 	{
 		return (T) _cache.GetOrAdd(name, _ => _propertyMethods[name].Invoke(this, null));
+	}
+
+	/// <summary>
+	/// Set an override for the value.
+	/// </summary>
+	/// <typeparam name="T"> </typeparam>
+	/// <param name="name"> </param>
+	/// <param name="value"> </param>
+	/// <returns> </returns>
+	protected void SetOverride<T>(string name, T value)
+	{
+		_cache.AddOrUpdate(name, value);
 	}
 
 	private void SetupPropertyAccessors()

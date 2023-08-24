@@ -2,7 +2,7 @@
 
 using Speedy.Data.Location;
 #if !(NETCOREAPP || WINDOWS_UWP || MONOANDROID || XAMARIN_IOS)
-using Speedy.Application.Internal;
+using Speedy.Application.Inactive;
 #endif
 
 #endregion
@@ -19,8 +19,8 @@ public class XamarinLocationProvider<T, TH, TV, T2>
 	: InactiveLocationProvider<T, TH, TV, T2>
 	#endif
 	where T : class, ILocation<TH, TV>, ICloneable<T>, new()
-	where TH : class, IHorizontalLocation, IUpdatable<TH>
-	where TV : class, IVerticalLocation, IUpdatable<TV>
+	where TH : class, IHorizontalLocation, IUpdateable<TH>
+	where TV : class, IVerticalLocation, IUpdateable<TV>
 	where T2 : LocationProviderSettings, new()
 {
 	#region Constructors

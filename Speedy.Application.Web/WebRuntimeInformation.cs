@@ -2,8 +2,12 @@
 
 using System;
 using System.IO;
-using System.Reflection;
+using System.Security.Principal;
+using Speedy.Application.Internal.Windows;
 using Speedy.Data;
+#if (NETFRAMEWORK)
+using System.Web;
+#endif
 
 #endregion
 
@@ -34,30 +38,42 @@ public class WebRuntimeInformation : RuntimeInformation
 	#region Methods
 
 	/// <inheritdoc />
+	protected override string GetApplicationDataLocation()
+	{
+		#if (NETFRAMEWORK)
+		var localAppData = HttpContext.Current.Server.MapPath("~/App_Data");
+		return Path.Combine(localAppData, ApplicationName);
+		#else
+		var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+		return Path.Combine(localAppData, ApplicationName);
+		#endif
+	}
+
+	/// <summary>
+	/// The elevated status of an application.
+	/// </summary>
 	protected override bool GetApplicationIsElevated()
 	{
-		return false;
+		return IsWindows() && (WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) ?? false);
 	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationLocation()
 	{
-		var location = Assembly.GetEntryAssembly()?.Location
-			?? Assembly.GetCallingAssembly().Location;
-
+		var location = GetApplicationAssembly().Location;
 		return Path.GetDirectoryName(location);
 	}
 
 	/// <inheritdoc />
 	protected override string GetApplicationName()
 	{
-		return Assembly.GetEntryAssembly()?.GetName().Name;
+		return GetApplicationAssembly()?.GetName().Name;
 	}
 
 	/// <inheritdoc />
 	protected override Version GetApplicationVersion()
 	{
-		return Assembly.GetEntryAssembly()?.GetName().Version;
+		return GetApplicationAssembly()?.GetName().Version;
 	}
 
 	/// <inheritdoc />
@@ -72,13 +88,15 @@ public class WebRuntimeInformation : RuntimeInformation
 	/// <inheritdoc />
 	protected override string GetDeviceManufacturer()
 	{
-		return string.Empty;
+		return new DeviceManufacturerRegistryComponent().GetValue()
+			?? new DeviceManufacturerWmiComponent().GetValue();
 	}
 
 	/// <inheritdoc />
 	protected override string GetDeviceModel()
 	{
-		return string.Empty;
+		return new DeviceModelRegistryComponent().GetValue()
+			?? new DeviceModelWmiComponent().GetValue();
 	}
 
 	/// <inheritdoc />
@@ -91,6 +109,12 @@ public class WebRuntimeInformation : RuntimeInformation
 	protected override DevicePlatform GetDevicePlatform()
 	{
 		return DevicePlatform.Windows;
+	}
+
+	/// <inheritdoc />
+	protected override Version GetDevicePlatformVersion()
+	{
+		return Environment.OSVersion.Version;
 	}
 
 	/// <inheritdoc />

@@ -16,7 +16,7 @@ namespace Speedy;
 /// Represents a Speedy entity.
 /// </summary>
 /// <typeparam name="T"> The type of the entity primary ID. </typeparam>
-public abstract class Entity<T> : Entity, IUpdatable<T>
+public abstract class Entity<T> : Entity, IUpdateable<T>
 {
 	#region Properties
 
@@ -374,7 +374,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// Gets the default exclusions for updatable. Warning: this is called during constructor, overrides need to be
 	/// sure to only return static values as to not cause issues.
 	/// </summary>
-	/// <returns> The values to exclude during processing <see cref="IUpdatable" />. </returns>
+	/// <returns> The values to exclude during processing <see cref="IUpdateable" />. </returns>
 	protected virtual HashSet<string> GetDefaultExclusionsForUpdatableExclusions()
 	{
 		return new HashSet<string>(RealType.GetVirtualPropertyNames());
@@ -393,7 +393,7 @@ public abstract class Entity : IEntity, IUnwrappable
 /// <summary>
 /// Represents a Speedy entity.
 /// </summary>
-public interface IEntity : INotifyPropertyChanged, IUpdatable, IUpdatableExclusions, IChangeable, ICloneable
+public interface IEntity : INotifyPropertyChanged, IUpdateable, IUpdateableExclusions, IChangeable, ICloneable
 {
 	#region Methods
 

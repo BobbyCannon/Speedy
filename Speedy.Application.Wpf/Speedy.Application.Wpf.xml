@@ -9,7 +9,7 @@
             Extension methods for <see cref="T:Speedy.Application.DeviceId" />.
             </summary>
         </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddMacAddressFromMmi(Speedy.Application.DeviceId,System.Boolean,System.Boolean)">
+        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddMacAddress(Speedy.Application.DeviceId,System.Boolean,System.Boolean)">
             <summary>
             Adds the MAC address to the device identifier, optionally excluding wireless adapters and/or non-physical adapters.
             </summary>
@@ -41,7 +41,7 @@
         </member>
         <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddRegistryValue(Speedy.Application.DeviceId,System.String,Microsoft.Win32.RegistryView,Microsoft.Win32.RegistryHive,System.String,System.String)">
             <summary>
-            Initializes a new instance of the <see cref="T:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent" /> class.
+            Initializes a new instance of the <see cref="T:Speedy.Application.Internal.Windows.RegistryComponent" /> class.
             </summary>
             <param name="builder"> The builder to add the component to. </param>
             <param name="componentName"> The name of the component. </param>
@@ -57,162 +57,12 @@
             <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
         </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddSystemSerialDriveNumber(Speedy.Application.DeviceId)">
-            <summary>
-            Adds the system serial drive number to the device identifier.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
         <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddSystemUuid(Speedy.Application.DeviceId)">
             <summary>
             Adds the system UUID to the device identifier.
             </summary>
             <param name="builder"> The builder to add the component to. </param>
             <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.ManagementObjectDeviceIdComponent.GetValue">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Application.Wpf.Internal.ManufacturerDeviceIdComponent">
-            <summary>
-            https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-computersystem
-            </summary>
-        </member>
-        <member name="T:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent">
-            <summary>
-            An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that uses the MAC Address of the PC.
-            This improves upon the basic <see cref="T:Speedy.Application.Internal.MacAddressDeviceIdComponent" /> by using MMI
-            to get better information from either MSFT_NetAdapter or Win32_NetworkAdapter.
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent._excludeNonPhysical">
-            <summary>
-            A value determining whether non-physical devices should be excluded.
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent._excludeWireless">
-            <summary>
-            A value determining whether wireless devices should be excluded.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent.#ctor(System.Boolean,System.Boolean)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent" /> class.
-            </summary>
-            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
-            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent.GetValue">
-            <summary>
-            Gets the component value.
-            </summary>
-            <returns> The component value. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent.GetValueUsingMicrosoftNetAdapter(System.Boolean,System.Boolean)">
-            <summary>
-            Gets the component value using MSFT_NetAdapter.
-            </summary>
-            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
-            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
-            <returns> The component value. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiMacAddressDeviceIdComponent.GetValueUsingWin32NetworkAdapter(System.Boolean,System.Boolean)">
-            <summary>
-            Gets the component value using Win32_NetworkAdapter.
-            </summary>
-            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
-            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
-            <returns> The component value. </returns>
-        </member>
-        <member name="T:Speedy.Application.Wpf.Internal.MmiSystemDriveSerialNumberDeviceIdComponent">
-            <summary>
-            An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that uses the system drive's serial number.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiSystemDriveSerialNumberDeviceIdComponent.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:Speedy.Application.Wpf.Internal.MmiSystemDriveSerialNumberDeviceIdComponent" /> class.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiSystemDriveSerialNumberDeviceIdComponent.GetValue">
-            <summary>
-            Gets the component value.
-            </summary>
-            <returns> The component value. </returns>
-        </member>
-        <member name="T:Speedy.Application.Wpf.Internal.MmiWqlDeviceIdComponent">
-            <summary>
-            An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that retrieves data from a WQL query
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.MmiWqlDeviceIdComponent._className">
-            <summary>
-            The class name.
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.MmiWqlDeviceIdComponent._propertyName">
-            <summary>
-            The property name.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiWqlDeviceIdComponent.#ctor(System.String,System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Speedy.Application.Wpf.Internal.MmiWqlDeviceIdComponent" /> class.
-            </summary>
-            <param name="className"> The class name. </param>
-            <param name="propertyName"> The property name. </param>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.MmiWqlDeviceIdComponent.GetValue">
-            <summary>
-            Gets the component value.
-            </summary>
-            <returns> The component value. </returns>
-        </member>
-        <member name="T:Speedy.Application.Wpf.Internal.ModelDeviceIdComponent">
-            <summary>
-            https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-computersystem
-            </summary>
-        </member>
-        <member name="T:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent">
-            <summary>
-            An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that retrieves its value from the Windows registry.
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent._keyName">
-            <summary>
-            The name of the registry key.
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent._registryHive">
-            <summary>
-            The registry hive.
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent._registryView">
-            <summary>
-            The registry views.
-            </summary>
-        </member>
-        <member name="F:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent._valueName">
-            <summary>
-            The name of the registry value.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent.#ctor(Microsoft.Win32.RegistryView,Microsoft.Win32.RegistryHive,System.String,System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent" /> class.
-            </summary>
-            <param name="registryView"> The registry view. </param>
-            <param name="registryHive"> The registry hive. </param>
-            <param name="keyName"> The name of the registry key. </param>
-            <param name="valueName"> The name of the registry value. </param>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Internal.RegistryValueDeviceIdComponent.GetValue">
-            <summary>
-            Gets the component value.
-            </summary>
-            <returns> The component value. </returns>
         </member>
         <member name="T:Speedy.Application.Wpf.Security.WindowsCredential">
             <summary>
@@ -285,7 +135,7 @@
             <summary>
             Delete a Windows credential.
             </summary>
-            <param name="credential"></param>
+            <param name="credential"> </param>
         </member>
         <member name="M:Speedy.Application.Wpf.Security.WindowsCredentialManager.EnumerateCredentials(System.Func{Speedy.Application.Wpf.Security.WindowsCredential,System.Boolean})">
             <summary>
@@ -305,16 +155,16 @@
             <summary>
             Write the provided credential.
             </summary>
-            <param name="applicationName"> The credential application name to write .</param>
-            <param name="userName"> The credential user name to write .</param>
-            <param name="password"> The credential password to write .</param>
+            <param name="applicationName"> The credential application name to write. </param>
+            <param name="userName"> The credential user name to write. </param>
+            <param name="password"> The credential password to write. </param>
             <returns> The created Windows credential. </returns>
         </member>
         <member name="M:Speedy.Application.Wpf.Security.WindowsCredentialManager.WriteCredential(Speedy.Application.Wpf.Security.WindowsCredential)">
             <summary>
             Write the provided credential.
             </summary>
-            <param name="credential"> The credential to write .</param>
+            <param name="credential"> The credential to write. </param>
             <returns> The created Windows credential. </returns>
         </member>
         <member name="T:Speedy.Application.Wpf.Security.WindowsCredentialManager.CredentialType">
@@ -362,27 +212,6 @@
             Maximum Ex
             </summary>
         </member>
-        <member name="T:Speedy.Application.Wpf.WindowsSecureVault">
-            <summary>
-            A secure vault for Windows.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.WindowsSecureVault.#ctor(Speedy.Data.RuntimeInformation,Speedy.IDispatcher)">
-            <summary>
-            Create an instance of the Windows secure value.
-            </summary>
-            <param name="information"> The runtime information. </param>
-            <param name="dispatcher"> The optional dispatcher to use. </param>
-        </member>
-        <member name="M:Speedy.Application.Wpf.WindowsSecureVault.ClearCredential">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WindowsSecureVault.ReadCredentialAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WindowsSecureVault.WriteCredentialAsync">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Application.Wpf.WpfDispatcher">
             <inheritdoc />
         </member>
@@ -404,6 +233,75 @@
         <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Application.Wpf.WpfLocationProvider">
+            <summary>
+            Implementation for LocationProvider
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfLocationProvider.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Constructor for Implementation
+            </summary>
+        </member>
+        <member name="T:Speedy.Application.Wpf.WpfLocationProvider`4">
+            <summary>
+            Implementation for LocationProvider
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfLocationProvider`4.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Constructor for Implementation
+            </summary>
+        </member>
+        <member name="P:Speedy.Application.Wpf.WpfLocationProvider`4.IsLocationAvailable">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Wpf.WpfLocationProvider`4.IsLocationEnabled">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Wpf.WpfLocationProvider`4.ProviderName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Wpf.WpfLocationProvider`4.HasPermission">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfLocationProvider`4.GetCurrentLocationAsync(System.Nullable{System.TimeSpan},System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets position async with specified parameters
+            </summary>
+            <param name="timeout"> Timeout to wait, Default Infinite </param>
+            <param name="cancelToken"> Cancellation token </param>
+            <returns> ProviderLocation </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfLocationProvider`4.StartMonitoringAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfLocationProvider`4.StopMonitoringAsync">
+            <summary>
+            Stop listening
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfLocationProvider`4.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Wpf.WpfMediaPlayer">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Application.Wpf.WpfMediaPlayer.IsPlaying">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfMediaPlayer.Play(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfMediaPlayer.SetVolume(System.Int32)">
+            <summary>
+            Set the volume of the output device.
+            </summary>
+            <param name="volume"> The volume to be set. </param>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfMediaPlayer.Speak(System.String)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.Wpf.WpfRuntimeInformation">
             <inheritdoc />
         </member>
@@ -411,6 +309,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationDataLocation">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationIsElevated">
@@ -442,7 +343,69 @@
         <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDevicePlatform">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDevicePlatformVersion">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDeviceType">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Application.Wpf.WpfSecureVault">
+            <summary>
+            A secure vault for WPF applications.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.#ctor(Speedy.Data.RuntimeInformation,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the WPF secure vault.
+            </summary>
+            <param name="information"> The runtime information. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.#ctor(System.IO.DirectoryInfo,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the WPF secure vault.
+            </summary>
+            <param name="dataDirectory"> The data directory to store the vault entries. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.#ctor(System.String,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the WPF secure vault.
+            </summary>
+            <param name="dataDirectory"> The data directory to store the vault entries. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.#ctor(Speedy.Net.Credential,System.String,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the WPF secure vault.
+            </summary>
+            <param name="credential"> The default credential.  </param>
+            <param name="dataDirectory"> The data directory to store the vault entries. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.ClearCredential">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.GetVaultKey(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.GetVaultKeyFilePath(System.String)">
+            <summary>
+            Get the file path of the vault key.
+            </summary>
+            <param name="name"> The name of the object being stored. </param>
+            <returns> The vault key file info for the provided name. </returns>
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.ReadCredentialAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.TryReadData``1(System.String,``0@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.TryWriteData``1(System.String,``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.WriteCredentialAsync">
             <inheritdoc />
         </member>
     </members>

@@ -18,8 +18,8 @@ namespace Speedy.Application.Maui;
 public class LocationProviderImplementation<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	: LocationProvider<TLocation, THorizontal, TVertical, TLocationProviderSettings>
 	where TLocation : class, ILocation<THorizontal, TVertical>, new()
-	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
-	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+	where THorizontal : class, IHorizontalLocation, IUpdateable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdateable<TVertical>
 	where TLocationProviderSettings : ILocationProviderSettings, IBindable, new()
 {
 	#region Fields
@@ -44,6 +44,9 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	#endregion
 
 	#region Properties
+
+	/// <inheritdoc />
+	public override bool HasPermission { get; protected set; }
 
 	/// <inheritdoc />
 	public override bool IsLocationAvailable
@@ -81,11 +84,6 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 
 	/// <inheritdoc />
 	public sealed override string ProviderName => "Xamarin Windows";
-
-	/// <summary>
-	/// True if the location provider has permission to be accessed.
-	/// </summary>
-	protected bool HasPermission { get; private set; }
 
 	#endregion
 

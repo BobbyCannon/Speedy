@@ -12,7 +12,7 @@ namespace Speedy.Data.Location;
 /// </summary>
 public class BasicLocation
 	: Bindable<BasicLocation>,
-		IUpdatable<ILocation<IHorizontalLocation, IVerticalLocation>>,
+		IUpdateable<ILocation<IHorizontalLocation, IVerticalLocation>>,
 		IBasicLocation, IComparable, IComparable<BasicLocation>,
 		IEquatable<BasicLocation>
 {

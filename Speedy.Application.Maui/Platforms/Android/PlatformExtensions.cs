@@ -105,8 +105,8 @@ public static class PlatformExtensions
 
 	internal static T ToPosition<T, THorizontal, TVertical>(this Location location, string providerName)
 		where T : class, ILocation<THorizontal, TVertical>, new()
-		where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
-		where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+		where THorizontal : class, IHorizontalLocation, IUpdateable<THorizontal>
+		where TVertical : class, IVerticalLocation, IUpdateable<TVertical>
 	{
 		var sourceName = location.Provider ?? "unknown";
 		var sourceTime = location.GetTimestamp().UtcDateTime;
@@ -150,7 +150,7 @@ public static class PlatformExtensions
 			response.VerticalLocation.HasValue = false;
 		}
 
-		if ((Build.VERSION.SdkInt >= BuildVersionCodes.O))
+		if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
 		{
 			#pragma warning disable CA1416 // Validate platform compatibility
 			if (location.HasVerticalAccuracy)

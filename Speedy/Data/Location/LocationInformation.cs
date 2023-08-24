@@ -110,7 +110,7 @@ public abstract class LocationInformation
 /// </summary>
 public interface ILocationInformation
 	: IAccurateInformation,
-		IUpdatable<ILocationInformation>
+		IUpdateable<ILocationInformation>
 {
 	#region Properties
 

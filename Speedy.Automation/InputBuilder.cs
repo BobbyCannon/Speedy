@@ -7,6 +7,7 @@ using Speedy.Automation.Desktop;
 using Speedy.Automation.Internal;
 using Speedy.Automation.Internal.Inputs;
 using Speedy.Automation.Internal.Native;
+using Speedy.Extensions;
 
 #endregion
 

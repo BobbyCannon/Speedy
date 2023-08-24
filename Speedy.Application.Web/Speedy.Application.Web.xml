@@ -13,8 +13,13 @@
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationIsElevated">
+        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationDataLocation">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationIsElevated">
+            <summary>
+            The elevated status of an application.
+            </summary>
         </member>
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationLocation">
             <inheritdoc />
@@ -38,6 +43,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDevicePlatform">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDevicePlatformVersion">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDeviceType">

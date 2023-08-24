@@ -106,8 +106,8 @@ public static class PlatformExtensions
 
 	internal static T ToPosition<T, THorizontal, TVertical>(this Location location, string providerName)
 		where T : class, ILocation<THorizontal, TVertical>, new()
-		where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
-		where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+		where THorizontal : class, IHorizontalLocation, IUpdateable<THorizontal>
+		where TVertical : class, IVerticalLocation, IUpdateable<TVertical>
 	{
 		var sourceName = location.Provider ?? "unknown";
 		var sourceTime = location.GetTimestamp().UtcDateTime;

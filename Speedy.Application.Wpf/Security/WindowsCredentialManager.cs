@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security;
 using Microsoft.Win32.SafeHandles;
+using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 #endregion
 
@@ -21,7 +21,7 @@ public static class WindowsCredentialManager
 	/// <summary>
 	/// Delete a Windows credential.
 	/// </summary>
-	/// <param name="credential"></param>
+	/// <param name="credential"> </param>
 	public static void Delete(WindowsCredential credential)
 	{
 		CredDelete(credential.ApplicationName, credential.CredentialType, 0);
@@ -87,9 +87,9 @@ public static class WindowsCredentialManager
 	/// <summary>
 	/// Write the provided credential.
 	/// </summary>
-	/// <param name="applicationName"> The credential application name to write .</param>
-	/// <param name="userName"> The credential user name to write .</param>
-	/// <param name="password"> The credential password to write .</param>
+	/// <param name="applicationName"> The credential application name to write. </param>
+	/// <param name="userName"> The credential user name to write. </param>
+	/// <param name="password"> The credential password to write. </param>
 	/// <returns> The created Windows credential. </returns>
 	public static WindowsCredential WriteCredential(string applicationName, string userName, SecureString password)
 	{
@@ -99,7 +99,7 @@ public static class WindowsCredentialManager
 	/// <summary>
 	/// Write the provided credential.
 	/// </summary>
-	/// <param name="credential"> The credential to write .</param>
+	/// <param name="credential"> The credential to write. </param>
 	/// <returns> The created Windows credential. </returns>
 	public static WindowsCredential WriteCredential(WindowsCredential credential)
 	{
@@ -262,12 +262,12 @@ public static class WindowsCredentialManager
 		/// Generic
 		/// </summary>
 		Generic = 1,
-		
+
 		/// <summary>
 		/// Domain Password
 		/// </summary>
 		DomainPassword = 2,
-		
+
 		/// <summary>
 		/// Domain Certificate
 		/// </summary>

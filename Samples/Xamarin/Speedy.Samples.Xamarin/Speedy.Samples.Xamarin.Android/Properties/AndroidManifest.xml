@@ -1,14 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-		android:versionCode="1"
-		android:versionName="1.0"
-		package="com.companyname.speedy.samples.xamarin"
-		android:installLocation="auto">
-	<uses-sdk android:minSdkVersion="26" android:targetSdkVersion="31" />
-	<application android:label="Speedy.Samples.Xamarin.Android" 
-			android:theme="@style/MainTheme"
-			android:requestLegacyExternalStorage="true">
-	</application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.speedy.samples.xamarin" android:installLocation="auto">
+	<uses-sdk android:minSdkVersion="26" android:targetSdkVersion="33" />
+	<application android:label="Speedy Xamarin" android:theme="@style/MainTheme" android:requestLegacyExternalStorage="true"></application>
 	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

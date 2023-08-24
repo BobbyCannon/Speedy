@@ -23,8 +23,8 @@ namespace Speedy.Application.Xamarin;
 [Preserve(AllMembers = true)]
 internal class GeolocationSingleListener<T, THorizontal, TVertical> : Object, ILocationListener
 	where T : class, ILocation<THorizontal, TVertical>, new()
-	where THorizontal : class, IHorizontalLocation, IUpdatable<THorizontal>
-	where TVertical : class, IVerticalLocation, IUpdatable<TVertical>
+	where THorizontal : class, IHorizontalLocation, IUpdateable<THorizontal>
+	where TVertical : class, IVerticalLocation, IUpdateable<TVertical>
 {
 	#region Fields
 

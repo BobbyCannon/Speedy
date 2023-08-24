@@ -11,7 +11,7 @@ namespace Speedy.Sync;
 /// <summary>
 /// Represents as issue that occurred during sync.
 /// </summary>
-public class SyncIssue : Bindable, IUpdatable<SyncIssue>
+public class SyncIssue : Bindable, IUpdateable<SyncIssue>
 {
 	#region Properties
 

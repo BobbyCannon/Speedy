@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
@@ -24,9 +25,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.EntityFramework.xml</DocumentationFile>
-		<AssemblyVersion>11.0.7.0</AssemblyVersion>
-		<FileVersion>11.0.7.0</FileVersion>
-		<Version>11.0.7</Version>
+		<AssemblyVersion>11.0.8.0</AssemblyVersion>
+		<FileVersion>11.0.8.0</FileVersion>
+		<Version>11.0.8.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -38,6 +39,7 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Remove="Speedy.png" />
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+		<None Include="Speedy.EntityFramework.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
@@ -52,10 +54,10 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.32" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'">
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.9" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.10" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />

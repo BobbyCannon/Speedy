@@ -10,7 +10,7 @@ namespace Speedy.Data.Location;
 /// The state comparer for the <see cref="ILocationInformation" /> type.
 /// </summary>
 public class LocationInformationComparer<T> : Comparer<T>
-	where T : ILocationInformation, IUpdatable<T>
+	where T : ILocationInformation, IUpdateable<T>
 {
 	#region Constructors
 

@@ -27,7 +27,7 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 	[TestMethod]
 	public void UpdateableShouldUpdateAll()
 	{
-		var updateableType = typeof(IUpdatable);
+		var updateableType = typeof(IUpdateable);
 		var assemblies = new[]
 		{
 			typeof(Database).Assembly,
@@ -69,7 +69,7 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 				}
 
 				return x.GetCachedMethods()
-					.Any(m => m.Name == nameof(IUpdatable.UpdateWith));
+					.Any(m => m.Name == nameof(IUpdateable.UpdateWith));
 			})
 			.ToArray();
 

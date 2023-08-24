@@ -20,7 +20,7 @@ namespace Speedy.Data;
 /// <typeparam name="T"> The type of the value to track. </typeparam>
 public abstract class InformationManager<T>
 	: Bindable, IInformationProvider
-	where T : IUpdatable<T>, new()
+	where T : IUpdateable<T>, new()
 {
 	#region Fields
 
@@ -189,7 +189,7 @@ public abstract class InformationManager<T>
 		}
 	}
 
-	private void ProviderOnUpdated(object sender, IUpdatable update)
+	private void ProviderOnUpdated(object sender, IUpdateable update)
 	{
 		ProviderUpdated?.Invoke(sender, update);
 
@@ -216,10 +216,10 @@ public abstract class InformationManager<T>
 	/// <summary>
 	/// Notification of specific provider updates.
 	/// </summary>
-	public event EventHandler<IUpdatable> ProviderUpdated;
+	public event EventHandler<IUpdateable> ProviderUpdated;
 
 	/// <inheritdoc />
-	public event EventHandler<IUpdatable> Updated;
+	public event EventHandler<IUpdateable> Updated;
 
 	#endregion
 }

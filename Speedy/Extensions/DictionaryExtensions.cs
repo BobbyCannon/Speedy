@@ -225,7 +225,7 @@ public static class DictionaryExtensions
 
 		foreach (var updateToApply in updateToBeApplied)
 		{
-			// todo: support IUpdatable or use reflection?
+			// todo: support IUpdateable or use reflection?
 			// todo: references should not be used?
 			dictionary[updateToApply.Key] = updateToApply.Value;
 		}

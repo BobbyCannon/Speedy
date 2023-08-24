@@ -16,7 +16,7 @@ namespace Speedy;
 /// <summary>
 /// Represents a bindable object.
 /// </summary>
-public abstract class Bindable<T> : Bindable, IUpdatable<T>
+public abstract class Bindable<T> : Bindable, IUpdateable<T>
 {
 	#region Constructors
 
@@ -53,7 +53,7 @@ public abstract class Bindable<T> : Bindable, IUpdatable<T>
 /// <summary>
 /// Represents a bindable object.
 /// </summary>
-public abstract class Bindable : IBindable, IUpdatable
+public abstract class Bindable : IBindable, IUpdateable
 {
 	#region Fields
 

@@ -7,26 +7,30 @@ using Speedy.Data.Location;
 
 #endregion
 
-namespace Speedy.Application.Internal;
+namespace Speedy.Application.Inactive;
 
 /// <inheritdoc />
 public abstract class InactiveLocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
 	: LocationProvider<T, THorizontalLocation, TVerticalLocation, T2>
-	where T : class, ILocation<THorizontalLocation, TVerticalLocation>, new()
-	where THorizontalLocation : class, IHorizontalLocation, IUpdatable<THorizontalLocation>
-	where TVerticalLocation : class, IVerticalLocation, IUpdatable<TVerticalLocation>
+	where T : class, ILocation<THorizontalLocation, TVerticalLocation>,  new()
+	where THorizontalLocation : class, IHorizontalLocation 
+	where TVerticalLocation : class, IVerticalLocation
 	where T2 : ILocationProviderSettings, new()
 {
 	#region Constructors
 
 	/// <inheritdoc />
-	public InactiveLocationProvider(IDispatcher dispatcher) : base(dispatcher)
+	protected InactiveLocationProvider(IDispatcher dispatcher) : base(dispatcher)
 	{
+		HasPermission = true;
 	}
 
 	#endregion
 
 	#region Properties
+
+	/// <inheritdoc />
+	public sealed override bool HasPermission { get; protected set; }
 
 	/// <inheritdoc />
 	public override string ProviderName => "Inactive Provider";

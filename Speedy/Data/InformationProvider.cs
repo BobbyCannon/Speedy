@@ -13,8 +13,8 @@ namespace Speedy.Data;
 /// Represents a provider of device information.
 /// </summary>
 public abstract class InformationProvider<T>
-	: Comparer<T>, IInformationProvider<T>
-	where T : IBindable, IUpdatable<T>, IUpdatable, new()
+	: Comparer<T>, IInformationProvider<T>, IDisposable
+	where T : IBindable, IUpdateable<T>, IUpdateable, new()
 {
 	#region Constructors
 
@@ -55,11 +55,34 @@ public abstract class InformationProvider<T>
 
 	#region Methods
 
+	/// <summary>
+	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+	/// </summary>
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+	/// <inheritdoc />
+	public virtual Task<T> RefreshAsync()
+	{
+		return Task.FromResult(new T());
+	}
+
 	/// <inheritdoc />
 	public abstract Task StartMonitoringAsync();
 
 	/// <inheritdoc />
 	public abstract Task StopMonitoringAsync();
+
+	/// <summary>
+	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+	/// </summary>
+	/// <param name="disposing"> True if disposing and false if otherwise. </param>
+	protected virtual void Dispose(bool disposing)
+	{
+	}
 
 	/// <summary>
 	/// Triggers the <see cref="OnUpdated" /> event when the device information changes.
@@ -76,7 +99,7 @@ public abstract class InformationProvider<T>
 			}
 			case ICloneable cloneable:
 			{
-				Updated?.Invoke(this, (IUpdatable) cloneable.ShallowClone());
+				Updated?.Invoke(this, (IUpdateable) cloneable.ShallowClone());
 				return;
 			}
 			default:
@@ -102,7 +125,7 @@ public abstract class InformationProvider<T>
 	#region Events
 
 	/// <inheritdoc />
-	public event EventHandler<IUpdatable> Updated;
+	public event EventHandler<IUpdateable> Updated;
 
 	#endregion
 }

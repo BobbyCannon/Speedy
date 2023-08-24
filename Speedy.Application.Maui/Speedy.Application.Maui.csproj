@@ -38,11 +38,13 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
-		<AssemblyVersion>11.0.7.0</AssemblyVersion>
-		<FileVersion>11.0.7.0</FileVersion>
-		<Version>11.0.7</Version>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<AssemblyVersion>11.0.8.0</AssemblyVersion>
+		<FileVersion>11.0.8.0</FileVersion>
+		<Version>11.0.8.0</Version>
 		<PublishReadyToRun>false</PublishReadyToRun>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<NoWarn>1701;1702;8002;CS8002;NU1701</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\README.md">
@@ -53,6 +55,7 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Remove="Speedy.png" />
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+		<None Include="Speedy.Application.Maui.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="**/Platforms/**/*.cs" />

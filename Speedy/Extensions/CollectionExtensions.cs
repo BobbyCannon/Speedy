@@ -435,7 +435,7 @@ public static class CollectionExtensions
 		string[] optionalExclusions = null
 	)
 		where TLeft : Entity<TLeftKey>
-		where TRight : IUpdatable
+		where TRight : IUpdateable
 	{
 		var filteredCollection = collection.Where(filter).ToList();
 		var updateList = updates.ToList();
@@ -500,8 +500,8 @@ public static class CollectionExtensions
 		Action<TLeft, TRight> optionalUpdates = null,
 		string[] optionalExclusions = null
 	)
-		where TLeft : IUpdatable
-		where TRight : IUpdatable
+		where TLeft : IUpdateable
+		where TRight : IUpdateable
 	{
 		var updateList = updates.ToList();
 
@@ -584,12 +584,12 @@ public static class CollectionExtensions
 		{
 			switch (updateToApply.item)
 			{
-				case IUpdatable<T> updateable:
+				case IUpdateable<T> updateable:
 				{
 					updateable.UpdateWith(updateToApply.update, optionalExclusions);
 					break;
 				}
-				case IUpdatable updatable:
+				case IUpdateable updatable:
 				{
 					updatable.UpdateWith(updateToApply.update, optionalExclusions);
 					break;

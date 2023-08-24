@@ -29,10 +29,11 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Xamarin.xml</DocumentationFile>
-		<AssemblyVersion>11.0.7.0</AssemblyVersion>
-		<FileVersion>11.0.7.0</FileVersion>
-		<Version>11.0.7</Version>
+		<AssemblyVersion>11.0.8.0</AssemblyVersion>
+		<FileVersion>11.0.8.0</FileVersion>
+		<Version>11.0.8.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<NoWarn>1701;1702;MSB3277;CS8002</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="..\README.md">
@@ -43,6 +44,7 @@
 		<None Include="License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
 		<None Remove="Speedy.png" />
 		<None Include="Speedy.png" Pack="true" PackagePath="\" />
+		<None Include="Speedy.Application.Xamarin.xml" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="**/Platforms/**/*.cs" />
@@ -68,7 +70,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-		<PackageReference Include="Xamarin.Essentials" Version="1.7.4" />
-		<PackageReference Include="Xamarin.Forms" Version="5.0.0.2545" />
+		<PackageReference Include="Xamarin.Essentials" Version="1.8.0" />
+		<PackageReference Include="Xamarin.Forms" Version="5.0.0.2612" />
 	</ItemGroup>
 </Project>

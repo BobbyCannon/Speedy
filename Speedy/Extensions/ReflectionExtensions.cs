@@ -1040,7 +1040,7 @@ public static class ReflectionExtensions
 		return model switch
 		{
 			ISyncEntity t => t.GetSyncExclusions(true, true, true),
-			IUpdatableExclusions t => t.GetUpdatableExclusions(),
+			IUpdateableExclusions t => t.GetUpdatableExclusions(),
 			_ => new HashSet<string>()
 		};
 	}
