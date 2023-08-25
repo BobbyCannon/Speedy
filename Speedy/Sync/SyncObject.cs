@@ -100,7 +100,7 @@ namespace Speedy.Sync
 				Data = json,
 				ModifiedOn = syncEntity.ModifiedOn,
 				SyncId = syncEntity.GetEntitySyncId(),
-				TypeName = syncEntity.RealType.ToAssemblyName(),
+				TypeName = syncEntity.GetRealType().ToAssemblyName(),
 				Status = syncEntity.IsDeleted
 					? SyncObjectStatus.Deleted
 					: syncEntity.CreatedOn == syncEntity.ModifiedOn

@@ -94,7 +94,7 @@ public class TokenCredential : Credential, IUpdateable<TokenCredential>
 	/// <inheritdoc />
 	public bool TryUpdateWith(TokenCredential update, params string[] exclusions)
 	{
-		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />

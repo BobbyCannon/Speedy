@@ -2,41 +2,33 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
 		xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-		x:Class="Speedy.Samples.Maui.MainPage">
+		xmlns:maui="clr-namespace:Speedy.Samples.Maui"
+		x:Class="Speedy.Samples.Maui.MainPage"
+		x:DataType="maui:MainViewModel">
 
 	<ScrollView>
 		<VerticalStackLayout
-				Spacing="25"
 				Padding="30,0"
 				VerticalOptions="Center">
-
-			<Image
-					Source="dotnet_bot.png"
-					SemanticProperties.Description="Cute dot net bot waving hi to you!"
-					HeightRequest="200"
-					HorizontalOptions="Center" />
-
-			<Label
-					Text="Hello, World!"
-					SemanticProperties.HeadingLevel="Level1"
-					FontSize="32"
-					HorizontalOptions="Center" />
-
-			<Label
-					Text="Welcome to .NET Multi-platform App UI"
-					SemanticProperties.HeadingLevel="Level2"
-					SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-					FontSize="18"
-					HorizontalOptions="Center" />
-
-			<Button
-					x:Name="CounterBtn"
-					Text="Click me"
-					SemanticProperties.Hint="Counts the number of times you click"
-					Clicked="OnCounterClicked"
-					HorizontalOptions="Center" />
-
+			<VerticalStackLayout.Resources>
+				<Style x:Key="Title" TargetType="Label">
+					<Setter Property="HorizontalOptions" Value="Center" />
+					<Setter Property="VerticalOptions" Value="Center" />
+					<Setter Property="FontSize" Value="18" />
+				</Style>
+			</VerticalStackLayout.Resources>
+			<Label Text="Application Name" Style="{StaticResource Title}"></Label>
+			<Label Text="{Binding RuntimeInformation.ApplicationName}"></Label>
+			<Label Text="Application Version" Style="{StaticResource Title}"></Label>
+			<Label Text="{Binding RuntimeInformation.ApplicationVersion}"></Label>
+			<Label Text="App Location" Style="{StaticResource Title}"></Label>
+			<Label Text="{Binding RuntimeInformation.ApplicationLocation}"></Label>
+			<Label Text="App Data Location" Style="{StaticResource Title}"></Label>
+			<Label Text="{Binding RuntimeInformation.ApplicationDataLocation}"></Label>
+			<Label Text="Is Elevated" Style="{StaticResource Title}"></Label>
+			<Label Text="{Binding RuntimeInformation.ApplicationIsElevated}"></Label>
+			<Label Text="Device Id" Style="{StaticResource Title}"></Label>
+			<Label Text="{Binding RuntimeInformation.DeviceId}"></Label>
 		</VerticalStackLayout>
 	</ScrollView>
-
 </ContentPage>

@@ -37,7 +37,7 @@ public class EndianBufferTests : SpeedyUnitTest
 	{
 		//                             0     1     2     3     4     5     6     7
 		var expected = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45 };
-		var little = LittleEndianBuffer.Load(expected);
+		var little = new LittleEndianBuffer(expected);
 		AreEqual(0, little.ReadIndex);
 		AreEqual(0, little.WriteIndex);
 		AreEqual(true, little.IsLittleEndian);
@@ -48,7 +48,7 @@ public class EndianBufferTests : SpeedyUnitTest
 		AreEqual(4, little.ReadIndex);
 		AreEqual(0, little.WriteIndex);
 
-		var big = BigEndianBuffer.Load(expected);
+		var big = new BigEndianBuffer(expected);
 		AreEqual(0, big.ReadIndex);
 		AreEqual(0, big.WriteIndex);
 		AreEqual(false, big.IsLittleEndian);

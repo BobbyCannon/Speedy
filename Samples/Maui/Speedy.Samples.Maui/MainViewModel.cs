@@ -1,10 +1,15 @@
 ﻿#region References
 
+using System;
 using System.Collections.Concurrent;
+using Microsoft.Maui.Devices;
 using Speedy.Application;
+using Speedy.Application.Maui;
 using Speedy.Collections;
 using Speedy.Commands;
+using Speedy.Data;
 using Speedy.Data.Location;
+using Speedy.Extensions;
 using Speedy.Logging;
 using Location = Speedy.Data.Location.Location;
 
@@ -18,21 +23,17 @@ public class MainViewModel : ViewModel
 
 	public MainViewModel(IDispatcher dispatcher) : base(dispatcher)
 	{
-		LocationHistory = new ConcurrentDictionary<string, BaseObservableCollection<Location>>();
+		LocationHistory = new ConcurrentDictionary<string, SpeedyList<Location>>();
 		LocationManager = new LocationManager<LocationProviderSettingsView>(dispatcher);
 		//LocationManager.LocationChanged += LocationManagerOnLocationChanged;
-		Locations = new BaseObservableCollection<Location>(dispatcher);
-		Logs = new LimitedObservableCollection<LogEventArgs>(25);
-
-		//var provider = new XamarinLocationProvider<Location, LocationProviderSettingsView>(dispatcher);
-		//var provider2 = new XamarinBarometerLocationProvider<Location>(dispatcher);
-
-		//LocationManager.LocationProviders.Add(provider);
-		//LocationManager.LocationProviders.Add(provider2);
+		Locations = new SpeedyList<Location>(dispatcher);
+		Logs = new SpeedyList<LogEventArgs> { Limit = 25 };
+		RuntimeInformation = new MauiRuntimeInformation(dispatcher);
 
 		DeviceDisplay.KeepScreenOn = true;
 
-		ExportHistoryCommand = new RelayCommand(x => OnExportHistoryRequest());
+		// Commands
+		ExportHistoryCommand = new RelayCommand(_ => OnExportHistoryRequest());
 	}
 
 	#endregion
@@ -41,13 +42,15 @@ public class MainViewModel : ViewModel
 
 	public RelayCommand ExportHistoryCommand { get; }
 
-	public ConcurrentDictionary<string, BaseObservableCollection<Location>> LocationHistory { get; }
+	public ConcurrentDictionary<string, SpeedyList<Location>> LocationHistory { get; }
 
 	public LocationManager<LocationProviderSettingsView> LocationManager { get; }
 
-	public BaseObservableCollection<Location> Locations { get; }
+	public SpeedyList<Location> Locations { get; }
 
-	public BaseObservableCollection<LogEventArgs> Logs { get; }
+	public SpeedyList<LogEventArgs> Logs { get; }
+	
+	public RuntimeInformation RuntimeInformation { get; }
 
 	#endregion
 
@@ -65,7 +68,7 @@ public class MainViewModel : ViewModel
 
 	private void LocationProviderOnLogEventWritten(object sender, LogEventArgs e)
 	{
-		Dispatcher.Run(() => Logs.Insert(0, e));
+		this.Dispatch(() => Logs.Insert(0, e));
 	}
 
 	private void ProcessLocation(Location location)
@@ -81,7 +84,7 @@ public class MainViewModel : ViewModel
 		//	currentLocation.UpdateWith(location);
 		//}
 
-		//var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new BaseObservableCollection<Location>());
+		//var history = LocationHistory.GetOrAdd(location.HorizontalSourceName, _ => new SpeedyList<Location>());
 		//history.Add(currentLocation.ShallowClone());
 	}
 

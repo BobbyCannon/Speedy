@@ -3,6 +3,7 @@
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Speedy.Extensions;
 
 #endregion
@@ -71,7 +72,7 @@ public class ThreadSafe : DynamicObject
 	{
 		lock (_doubleLock)
 		{
-			value = value.Decrement(decrease);
+			value = FloatExtensions.Decrement(value, decrease);
 		}
 	}
 
@@ -90,6 +91,30 @@ public class ThreadSafe : DynamicObject
 	}
 
 	/// <summary>
+	/// Increment an int by a value or default(1) if not provided.
+	/// </summary>
+	/// <param name="value"> The value to be incremented. </param>
+	/// <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
+	public static void Decrement(ref int value, int decrease = 1)
+	{
+		Interlocked.Add(ref value, decrease);
+	}
+
+	/// <summary>
+	/// Increment an float by a value or float.Epsilon if not provided.
+	/// </summary>
+	/// <param name="value"> The value to be incremented. </param>
+	/// <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
+	/// <returns> The incremented value. </returns>
+	public static void Increment(ref float value, float increase = float.Epsilon)
+	{
+		lock (_floatLock)
+		{
+			value = FloatExtensions.Increment(value, increase);
+		}
+	}
+
+	/// <summary>
 	/// Increment an double by a value or double.Epsilon if not provided.
 	/// </summary>
 	/// <param name="value"> The value to be incremented. </param>
@@ -104,17 +129,13 @@ public class ThreadSafe : DynamicObject
 	}
 
 	/// <summary>
-	/// Increment an float by a value or float.Epsilon if not provided.
+	/// Increment an int by a value or default(1) if not provided.
 	/// </summary>
 	/// <param name="value"> The value to be incremented. </param>
 	/// <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
-	/// <returns> The incremented value. </returns>
-	public static void Increment(ref float value, float increase = float.Epsilon)
+	public static void Increment(ref int value, int increase = 1)
 	{
-		lock (_floatLock)
-		{
-			value = value.Increment(increase);
-		}
+		Interlocked.Add(ref value, increase);
 	}
 
 	/// <inheritdoc />

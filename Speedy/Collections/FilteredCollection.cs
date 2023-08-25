@@ -20,8 +20,8 @@ public class FilteredCollection<T> : BaseObservableCollection<T>
 	#region Fields
 
 	private readonly Func<T, bool> _filter;
-
-	private readonly ObservableCollection<T> _originalCollection;
+	private readonly ObservableCollection<T> _observableCollection;
+	private readonly SpeedyList<T> _speedyList;
 
 	#endregion
 
@@ -33,10 +33,23 @@ public class FilteredCollection<T> : BaseObservableCollection<T>
 	/// <param name="originalCollection"> The collection to filter. </param>
 	/// <param name="filter"> The filter expression. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	public FilteredCollection(SpeedyList<T> originalCollection, Func<T, bool> filter, IDispatcher dispatcher = null) : base(dispatcher)
+	{
+		_speedyList = originalCollection;
+		_speedyList.CollectionChanged += new WeakEventHandler<NotifyCollectionChangedEventArgs>(OnCollectionChanged).Handler;
+		_filter = filter;
+	}
+
+	/// <summary>
+	/// Instantiates an instance of a filtered collection.
+	/// </summary>
+	/// <param name="originalCollection"> The collection to filter. </param>
+	/// <param name="filter"> The filter expression. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public FilteredCollection(ObservableCollection<T> originalCollection, Func<T, bool> filter, IDispatcher dispatcher = null) : base(dispatcher)
 	{
-		_originalCollection = originalCollection;
-		_originalCollection.CollectionChanged += new WeakEventHandler<NotifyCollectionChangedEventArgs>(OriginalCollectionOnCollectionChanged).Handler;
+		_observableCollection = originalCollection;
+		_observableCollection.CollectionChanged += new WeakEventHandler<NotifyCollectionChangedEventArgs>(OnCollectionChanged).Handler;
 		_filter = filter;
 	}
 
@@ -44,11 +57,11 @@ public class FilteredCollection<T> : BaseObservableCollection<T>
 
 	#region Methods
 
-	private void OriginalCollectionOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+	private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 	{
 		// Need to determine if our collection has changed.
-		var oldItems = e.OldItems?.Cast<T>().Where(x => _filter.Invoke(x)).ToList();
-		var newItems = e.NewItems?.Cast<T>().Where(x => _filter.Invoke(x)).ToList();
+		var oldItems = e.OldItems?.Cast<T>().ToList();
+		var newItems = e.NewItems?.Cast<T>().Where(_filter.Invoke).ToList();
 		var hasChanged = oldItems is { Count: > 0 } || newItems is { Count: > 0 };
 
 		if (!hasChanged)

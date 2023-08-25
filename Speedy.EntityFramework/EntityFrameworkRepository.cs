@@ -347,8 +347,13 @@ namespace Speedy.EntityFramework
 		{
 			var dataTable = new DataTable();
 			var columnValues = new Dictionary<string, object>();
-			var type = typeof(T).GetRealType();
+			var type = typeof(T).GetRealTypeUsingReflection();
 			var entityType = Database.Model.FindEntityType(type);
+			if (entityType == null)
+			{
+				return dataTable;
+			}
+
 			var entityProperties = entityType.GetProperties().ToDictionary(a => a.Name, a => a);
 			var properties = type.GetCachedProperties().Where(x => entityProperties.ContainsKey(x.Name)).ToList();
 
@@ -364,7 +369,7 @@ namespace Speedy.EntityFramework
 				#if NETSTANDARD
 				var columnName = entityPropertyType.GetColumnName();
 				#else
-				var columnName = entityPropertyType.GetColumnName(StoreObjectIdentifier.Table(tableName, schemaName));
+				var columnName = entityPropertyType.GetColumnName(StoreObjectIdentifier.Table(tableName ?? string.Empty, schemaName));
 				#endif
 				var underlyingType = Nullable.GetUnderlyingType(propertyType);
 				dataTable.Columns.Add(columnName, underlyingType ?? propertyType);
@@ -375,7 +380,7 @@ namespace Speedy.EntityFramework
 			{
 				foreach (var property in properties)
 				{
-					var propertyValue = property.GetMethod.Invoke(entity, null);
+					var propertyValue = property.GetMethod?.Invoke(entity, null);
 					columnValues[property.Name] = propertyValue;
 				}
 
@@ -451,7 +456,7 @@ namespace Speedy.EntityFramework
 				if ((otherEntitySyncIdProperty != null) && (entityRelationshipSyncIdProperty != null))
 				{
 					var entitySyncId = entityRelationshipSyncIdProperty.GetValue(entity, null);
-					var otherSyncId = otherEntitySyncIdProperty?.GetValue(otherEntity);
+					var otherSyncId = otherEntitySyncIdProperty.GetValue(otherEntity);
 
 					if (!Equals(entitySyncId, otherSyncId))
 					{

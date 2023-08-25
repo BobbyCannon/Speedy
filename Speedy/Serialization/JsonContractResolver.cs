@@ -49,7 +49,7 @@ namespace Speedy.Serialization
 		/// <inheritdoc />
 		protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
 		{
-			var typeIgnoredProperties = _getIgnoredProperties(type.GetRealType());
+			var typeIgnoredProperties = _getIgnoredProperties(type.GetRealTypeUsingReflection());
 			var properties = base.CreateProperties(type, memberSerialization);
 			var response = properties
 				.Where(p => !typeIgnoredProperties.Contains(p.PropertyName) && !_ignoreMember(p.PropertyName))

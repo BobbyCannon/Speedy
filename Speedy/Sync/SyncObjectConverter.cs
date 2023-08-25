@@ -33,7 +33,7 @@ namespace Speedy.Sync
 		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
 		/// <param name="update"> An optional update method to do some additional updating. </param>
 		public SyncObjectIncomingConverter(Action<T1, T3> convert = null, Func<T3, T3, Action, SyncObjectStatus, bool> update = null)
-			: base(typeof(T1).GetRealType().ToAssemblyName(), typeof(T3).GetRealType().ToAssemblyName())
+			: base(typeof(T1).GetRealTypeUsingReflection().ToAssemblyName(), typeof(T3).GetRealTypeUsingReflection().ToAssemblyName())
 		{
 			_convert = convert;
 			_update = update;
@@ -88,7 +88,7 @@ namespace Speedy.Sync
 		/// </summary>
 		/// <param name="convert"> An optional convert method to do some additional conversion. </param>
 		public SyncObjectOutgoingConverter(Action<T1, T3> convert = null)
-			: base(typeof(T1).GetRealType().ToAssemblyName(), typeof(T3).GetRealType().ToAssemblyName())
+			: base(typeof(T1).GetRealTypeUsingReflection().ToAssemblyName(), typeof(T3).GetRealTypeUsingReflection().ToAssemblyName())
 		{
 			_convert = convert;
 		}

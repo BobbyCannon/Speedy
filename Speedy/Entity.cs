@@ -81,7 +81,7 @@ public abstract class Entity<T> : Entity, IUpdateable<T>
 	/// <inheritdoc />
 	public bool TryUpdateWith(T update, params string[] exclusions)
 	{
-		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />
@@ -102,7 +102,7 @@ public abstract class Entity<T> : Entity, IUpdateable<T>
 		var totalExclusions = new HashSet<string>(exclusions);
 		if (excludeVirtuals)
 		{
-			totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
+			totalExclusions.AddRange(GetRealType().GetVirtualPropertyNames());
 		}
 
 		return UpdateWith(update, totalExclusions.ToArray());
@@ -111,7 +111,7 @@ public abstract class Entity<T> : Entity, IUpdateable<T>
 	/// <inheritdoc />
 	public sealed override bool UpdateWith(object update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 	{
-		var exclusions = SyncEntity.GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+		var exclusions = SyncEntity.GetExclusions(GetRealType(), excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
 		return UpdateWith(update, exclusions.ToArray());
 	}
 
@@ -141,10 +141,10 @@ public abstract class Entity : IEntity, IUnwrappable
 	{
 		ChangedProperties = new HashSet<string>();
 
-		SyncEntity.ExclusionCacheForUpdatableExclusions.GetOrAdd(RealType,
+		SyncEntity.ExclusionCacheForUpdatableExclusions.GetOrAdd(GetRealType(),
 			x => new HashSet<string>(GetDefaultExclusionsForUpdatableExclusions()));
 
-		SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(RealType,
+		SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(GetRealType(),
 			x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
 	}
 
@@ -156,11 +156,6 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// The properties that has changed since last <see cref="ResetHasChanges" /> event.
 	/// </summary>
 	internal HashSet<string> ChangedProperties { get; }
-
-	/// <summary>
-	/// Cached version of the "real" type, meaning not EF proxy but rather root type
-	/// </summary>
-	internal Type RealType => _realType ??= this.GetRealType();
 
 	#endregion
 
@@ -186,6 +181,10 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// <inheritdoc />
 	public virtual void EntityAddedDeletedOrModified()
 	{
+		if (this is IClientEntity clientEntity)
+		{
+			clientEntity.LastClientUpdate = TimeService.UtcNow;
+		}
 	}
 
 	/// <inheritdoc />
@@ -198,13 +197,19 @@ public abstract class Entity : IEntity, IUnwrappable
 	{
 	}
 
+	/// <inheritdoc />
+	public Type GetRealType()
+	{
+		return _realType ??= this.GetRealTypeUsingReflection();
+	}
+
 	/// <summary>
 	/// Default exclusions are all virtual members.
 	/// </summary>
 	/// <returns> The list of members to be excluded. </returns>
 	public HashSet<string> GetUpdatableExclusions()
 	{
-		return SyncEntity.ExclusionCacheForUpdatableExclusions[RealType];
+		return SyncEntity.ExclusionCacheForUpdatableExclusions[GetRealType()];
 	}
 
 	/// <inheritdoc />
@@ -225,7 +230,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// <inheritdoc />
 	public bool IsPropertyExcludedForChangeTracking(string propertyName)
 	{
-		return SyncEntity.ExclusionCacheForChangeTracking[RealType].Contains(propertyName);
+		return SyncEntity.ExclusionCacheForChangeTracking[GetRealType()].Contains(propertyName);
 	}
 
 	/// <summary>
@@ -238,14 +243,10 @@ public abstract class Entity : IEntity, IUnwrappable
 		{
 			if (!ChangedProperties.Contains(propertyName))
 			{
-				if (!SyncEntity.ExclusionCacheForChangeTracking[RealType].Contains(propertyName))
+				if (!SyncEntity.ExclusionCacheForChangeTracking[GetRealType()].Contains(propertyName))
 				{
 					ChangedProperties.Add(propertyName);
 				}
-			}
-			else if (!ChangedProperties.Contains(propertyName))
-			{
-				ChangedProperties.Add(propertyName);
 			}
 		}
 
@@ -267,7 +268,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// <inheritdoc />
 	public virtual object ShallowClone()
 	{
-		var test = Activator.CreateInstance(RealType);
+		var test = Activator.CreateInstance(GetRealType());
 		if (test is Entity entity)
 		{
 			entity.UpdateWith(this);
@@ -291,7 +292,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// <inheritdoc />
 	public virtual bool TryUpdateWith(object update, params string[] exclusions)
 	{
-		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <summary>
@@ -302,7 +303,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// </returns>
 	public virtual object Unwrap()
 	{
-		var test = Activator.CreateInstance(RealType);
+		var test = Activator.CreateInstance(GetRealType());
 		if (test is Entity entity)
 		{
 			entity.UpdateWith(this, false, false, false);
@@ -320,7 +321,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	public void UpdateLocalSyncIds()
 	{
 		var syncEntityInterface = typeof(ISyncEntity);
-		var properties = RealType.GetCachedProperties().ToList();
+		var properties = GetRealType().GetCachedProperties().ToList();
 		var entityRelationships = properties
 			.Where(x => x.IsVirtual())
 			.Where(x => syncEntityInterface.IsAssignableFrom(x.PropertyType))
@@ -377,7 +378,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// <returns> The values to exclude during processing <see cref="IUpdateable" />. </returns>
 	protected virtual HashSet<string> GetDefaultExclusionsForUpdatableExclusions()
 	{
-		return new HashSet<string>(RealType.GetVirtualPropertyNames());
+		return new HashSet<string>(GetRealType().GetVirtualPropertyNames());
 	}
 
 	#endregion
@@ -421,6 +422,11 @@ public interface IEntity : INotifyPropertyChanged, IUpdateable, IUpdateableExclu
 	/// Update an entity that has been modified.
 	/// </summary>
 	void EntityModified();
+
+	/// <summary>
+	/// Cached version of the "real" type, meaning not EF proxy but rather root type
+	/// </summary>
+	Type GetRealType();
 
 	/// <summary>
 	/// Determine if the ID is set on the entity.

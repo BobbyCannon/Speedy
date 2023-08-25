@@ -4,11 +4,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 using Speedy.Collections;
+using Speedy.Converters;
 using Speedy.Protocols.Osc;
 using Speedy.Sync;
 
@@ -96,7 +98,7 @@ public static class ReflectionExtensions
 	public static MethodInfo CachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
 	{
 		var fullName = info.ReflectedType?.FullName + "." + info.Name;
-		var key = info.ToString().Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
+		var key = info.ToString()?.Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
 		return _genericMethods.GetOrAdd(key, _ => info.MakeGenericMethod(arguments));
 	}
 
@@ -306,7 +308,7 @@ public static class ReflectionExtensions
 	public static IList<Type> GetCachedGenericArguments(this MethodInfo info)
 	{
 		var fullName = $"{info.ReflectedType?.FullName}.{info.Name}";
-		var key = info.ToString().Replace(info.Name, fullName);
+		var key = info.ToString()?.Replace(info.Name, fullName);
 		return _methodsGenericArgumentInfos.GetOrAdd(key, _ => info.GetGenericArguments());
 	}
 
@@ -573,10 +575,10 @@ public static class ReflectionExtensions
 	/// <param name="nonSupportedType"> An optional non supported type. </param>
 	public static object GetDefaultValue(this PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
 	{
-		return propertyInfo.PropertyType?.GetDefaultValue()
+		return propertyInfo?.PropertyType.GetDefaultValue()
 			?? nonSupportedType?.Invoke(propertyInfo);
 	}
-	
+
 	/// <summary>
 	/// Get a default value for a property.
 	/// </summary>
@@ -584,7 +586,7 @@ public static class ReflectionExtensions
 	/// <param name="nonSupportedType"> An optional non supported type. </param>
 	public static object GetDefaultValueNotNull(this PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
 	{
-		var response = propertyInfo.PropertyType?.GetDefaultValue()
+		var response = propertyInfo?.PropertyType.GetDefaultValue()
 			?? nonSupportedType?.Invoke(propertyInfo);
 
 		if (response != null)
@@ -592,12 +594,12 @@ public static class ReflectionExtensions
 			return response;
 		}
 
-		if (propertyInfo.PropertyType == typeof(string))
+		if (propertyInfo?.PropertyType == typeof(string))
 		{
 			return string.Empty;
 		}
 
-		return Activator.CreateInstance(propertyInfo.PropertyType);
+		return Activator.CreateInstance(propertyInfo?.PropertyType ?? typeof(object));
 	}
 
 	/// <summary>
@@ -632,7 +634,7 @@ public static class ReflectionExtensions
 			}
 
 			var arg = type.GenericTypeArguments?.ToArray();
-			if ((arg == null) || (arg.Length <= 0))
+			if (arg is not { Length: > 0 })
 			{
 				type = type.BaseType;
 				continue;
@@ -687,142 +689,154 @@ public static class ReflectionExtensions
 	/// </summary>
 	/// <param name="propertyInfo"> The property info. </param>
 	/// <param name="nonSupportedType"> An optional non supported type. </param>
-	public static object GetNonDefaultValue(this PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
+	public static object GetNonDefaultValue(this PropertyInfo propertyInfo, Func<Type, object> nonSupportedType = null)
 	{
 		var propertyType = propertyInfo.PropertyType;
-		if (propertyType.IsEnum)
+		return GetNonDefaultValue(propertyType, nonSupportedType);
+	}
+
+	/// <summary>
+	/// Get a non default value for data type.
+	/// </summary>
+	/// <param name="type"> The type of object to get the value for. </param>
+	/// <param name="nonSupportedType"> An optional non supported type. </param>
+	public static object GetNonDefaultValue(this Type type, Func<Type, object> nonSupportedType = null)
+	{
+		if (type.IsEnum)
 		{
-			var details = EnumExtensions.GetAllEnumDetails(propertyType).Values.ToList();
+			var details = EnumExtensions.GetAllEnumDetails(type).Values.ToList();
 			return details.Count >= 2
 				? details[1].Value
 				: details.FirstOrDefault().Value;
 		}
-		if ((propertyType == typeof(bool)) || (propertyType == typeof(bool?)))
+		if ((type == typeof(bool)) || (type == typeof(bool?)))
 		{
 			return true;
 		}
-		if ((propertyType == typeof(byte)) || (propertyType == typeof(byte?)))
+		if ((type == typeof(byte)) || (type == typeof(byte?)))
 		{
 			_random.GetBytes(_buffer, 0, 1);
 			return _buffer[0];
 		}
-		if ((propertyType == typeof(DateTime)) || (propertyType == typeof(DateTime?)))
+		if ((type == typeof(char)) || (type == typeof(char?)))
+		{
+			var value = RandomGenerator.NextInteger(char.MinValue, char.MaxValue);
+			return (char) (value == 0 ? 1 : value);
+		}
+		if ((type == typeof(DateTime)) || (type == typeof(DateTime?)))
 		{
 			return TimeService.UtcNow;
 		}
-		if ((propertyType == typeof(OscTimeTag)) || (propertyType == typeof(OscTimeTag?)))
+		if ((type == typeof(DateTimeOffset)) || (type == typeof(DateTimeOffset?)))
+		{
+			return DateTimeOffset.UtcNow;
+		}
+		if ((type == typeof(OscTimeTag)) || (type == typeof(OscTimeTag?)))
 		{
 			return OscTimeTag.UtcNow;
 		}
-		if ((propertyType == typeof(TimeSpan)) || (propertyType == typeof(TimeSpan?)))
+		if ((type == typeof(TimeSpan)) || (type == typeof(TimeSpan?)))
 		{
 			var ticks = RandomGenerator.NextLong(1, TimeSpan.FromDays(30).Ticks);
 			return TimeSpan.FromTicks(ticks == 0 ? 1 : ticks);
 		}
-		if (propertyType == typeof(double))
+		if ((type == typeof(double)) || (type == typeof(double?)))
 		{
 			return RandomGenerator.NextDouble(-100000, 100000);
 		}
-		if (propertyType == typeof(float))
+		if ((type == typeof(float)) || (type == typeof(float?)))
 		{
 			return (float) RandomGenerator.NextDouble(-100000, 100000);
 		}
-		if (propertyType == typeof(decimal))
+		if ((type == typeof(decimal)) || (type == typeof(decimal?)))
 		{
 			return RandomGenerator.NextDecimal(-100000, 100000);
 		}
-		if ((propertyType == typeof(Guid)) || (propertyType == typeof(Guid?)))
+		if ((type == typeof(Guid)) || (type == typeof(Guid?)))
 		{
 			return Guid.NewGuid();
 		}
-		if ((propertyType == typeof(ShortGuid)) || (propertyType == typeof(ShortGuid?)))
+		if ((type == typeof(ShortGuid)) || (type == typeof(ShortGuid?)))
 		{
 			return ShortGuid.NewGuid();
 		}
-		if ((propertyType == typeof(byte)) || (propertyType == typeof(byte?)))
+		if ((type == typeof(byte)) || (type == typeof(byte?)))
 		{
-			return RandomGenerator.NextInteger(1, byte.MaxValue);
+			return (byte) RandomGenerator.NextInteger(1, byte.MaxValue);
 		}
-		if ((propertyType == typeof(int)) || (propertyType == typeof(int?)))
+		if ((type == typeof(sbyte)) || (type == typeof(sbyte?)))
 		{
-			return RandomGenerator.NextInteger(1, int.MaxValue / 4);
+			var value = RandomGenerator.NextInteger(sbyte.MinValue, sbyte.MaxValue);
+			return (sbyte) (value == 0 ? 1 : value);
 		}
-		if ((propertyType == typeof(long)) || (propertyType == typeof(long?)))
+		if ((type == typeof(IntPtr)) || (type == typeof(IntPtr?)))
 		{
-			return RandomGenerator.NextLong(1, long.MaxValue / 4);
+			var value = RandomGenerator.NextInteger(int.MinValue + 1, int.MaxValue - 1);
+			return new IntPtr(value == 0 ? 1 : value);
 		}
-		if ((propertyType == typeof(ulong)) || (propertyType == typeof(ulong?)))
+		if ((type == typeof(UIntPtr)) || (type == typeof(UIntPtr?)))
+		{
+			var value = (ulong) RandomGenerator.NextLong(uint.MinValue + 1, uint.MaxValue - 1);
+			return new UIntPtr(value == 0 ? 1u : value);
+		}
+		if ((type == typeof(int)) || (type == typeof(int?)))
+		{
+			var value = RandomGenerator.NextInteger(int.MinValue + 1, int.MaxValue - 1);
+			return value == 0 ? 1 : value;
+		}
+		if ((type == typeof(uint)) || (type == typeof(uint?)))
+		{
+			return (uint) RandomGenerator.NextInteger(1, int.MaxValue / 4);
+		}
+		if ((type == typeof(long)) || (type == typeof(long?)))
+		{
+			var value = RandomGenerator.NextLong(long.MinValue / 4, long.MaxValue / 4);
+			return value == 0 ? 1 : value;
+		}
+		if ((type == typeof(ulong)) || (type == typeof(ulong?)))
 		{
 			return (ulong) RandomGenerator.NextLong(1, long.MaxValue / 4);
 		}
-		if ((propertyType == typeof(short)) || (propertyType == typeof(short?)))
+		if ((type == typeof(short)) || (type == typeof(short?)))
 		{
 			var value = RandomGenerator.NextInteger(short.MinValue / 4, short.MaxValue / 4);
 			return (short) (value == 0 ? 1 : value);
 		}
-		if ((propertyType == typeof(ushort)) || (propertyType == typeof(ushort?)))
+		if ((type == typeof(ushort)) || (type == typeof(ushort?)))
 		{
 			return (ushort) RandomGenerator.NextInteger(1, ushort.MaxValue / 4);
 		}
-		if (propertyType == typeof(string))
+		if (type == typeof(string))
 		{
 			return Guid.NewGuid().ToString();
 		}
 
-		var isSortableObservable = propertyType.IsGenericType 
-			&& (propertyType.GetGenericTypeDefinition() == typeof(SortedObservableCollection<>));
-		if (isSortableObservable)
+		if (type.IsGenericType)
 		{
-			var collectionType = typeof(SortedObservableCollection<>);
-			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
+			var genericInstanceType = ObjectConverter.GetGenericInstanceType(type);
+			if (genericInstanceType.GetGenericTypeDefinition() == typeof(Nullable<>))
+			{
+				var defaultValue = genericInstanceType.GenericTypeArguments[0].CreateInstance();
+				return Activator.CreateInstance(genericInstanceType, defaultValue);
+			}
+			return Activator.CreateInstance(genericInstanceType);
 		}
 
-		var isDictionary = propertyType.IsGenericType 
-			&& (propertyType.GetGenericTypeDefinition() == typeof(IDictionary<,>));
-		if (isDictionary)
+		if (type.IsArray)
 		{
-			var collectionType = typeof(Dictionary<,>);
-			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
+			return Array.CreateInstance(type.GetElementType() ?? type, 0);
 		}
 
-		var isEnumerable = propertyType.IsGenericType 
-			&& (propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-		if (isEnumerable)
+		if (type == typeof(Rectangle))
 		{
-			var collectionType = typeof(Collection<>);
-			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
+			return new Rectangle(1, 2, 3, 4);
 		}
 
-		var isCollection = propertyType.IsGenericType 
-			&& (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>));
-		if (isCollection)
-		{
-			var collectionType = typeof(Collection<>);
-			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
-		}
-
-		var isList = propertyType.IsGenericType && (propertyType.GetGenericTypeDefinition() == typeof(IList<>));
-		if (isList)
-		{
-			var collectionType = typeof(List<>);
-			var constructedListType = collectionType.MakeGenericType(propertyType.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
-		}
-
-		if (propertyType.IsArray)
-		{
-			return Array.CreateInstance(propertyType.GetElementType() ?? propertyType, 0);
-		}
-
-		if (propertyType.IsNullable())
+		if (type.IsNullable())
 		{
 			try
 			{
-				return Activator.CreateInstance(propertyType);
+				return Activator.CreateInstance(type);
 			}
 			catch
 			{
@@ -830,7 +844,7 @@ public static class ReflectionExtensions
 			}
 		}
 
-		return nonSupportedType?.Invoke(propertyInfo);
+		return nonSupportedType?.Invoke(type);
 	}
 
 	/// <summary>
@@ -838,12 +852,10 @@ public static class ReflectionExtensions
 	/// </summary>
 	/// <param name="item"> The object to process. </param>
 	/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
-	public static Type GetRealType(this object item)
+	public static Type GetRealTypeUsingReflection(this object item)
 	{
 		var type = item.GetType();
-		var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true)
-			|| (type.FullName?.Contains("Castle.Proxies") == true);
-		return isProxy ? type.BaseType : type;
+		return GetRealTypeUsingReflection(type);
 	}
 
 	/// <summary>
@@ -851,7 +863,7 @@ public static class ReflectionExtensions
 	/// </summary>
 	/// <param name="type"> The type to process. </param>
 	/// <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
-	public static Type GetRealType(this Type type)
+	public static Type GetRealTypeUsingReflection(this Type type)
 	{
 		var isProxy = (type.FullName?.Contains("System.Data.Entity.DynamicProxies") == true)
 			|| (type.FullName?.Contains("Castle.Proxies") == true);
@@ -873,6 +885,21 @@ public static class ReflectionExtensions
 	}
 
 	/// <summary>
+	/// Determine if the property is a abstract property.
+	/// </summary>
+	/// <param name="info"> The info to process. </param>
+	/// <returns> True if the accessor is abstract. </returns>
+	public static bool IsAbstract(this PropertyInfo info)
+	{
+		return (info.CanRead
+				&& (info.GetMethod != null)
+				&& info.GetMethod.IsAbstract)
+			|| (info.CanWrite
+				&& (info.SetMethod != null)
+				&& info.SetMethod.IsAbstract);
+	}
+
+	/// <summary>
 	/// Determine if the property is a virtual property.
 	/// </summary>
 	/// <param name="info"> The info to process. </param>
@@ -882,13 +909,11 @@ public static class ReflectionExtensions
 		return (info.CanRead
 				&& (info.GetMethod != null)
 				&& info.GetMethod.IsVirtual
-				&& !info.GetMethod.IsAbstract
 				&& !info.GetMethod.IsFinal
 				&& info.GetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask))
 			|| (info.CanWrite
 				&& (info.SetMethod != null)
 				&& info.SetMethod.IsVirtual
-				&& !info.SetMethod.IsAbstract
 				&& !info.SetMethod.IsFinal
 				&& info.SetMethod.Attributes.HasFlag(MethodAttributes.VtableLayoutMask));
 	}
@@ -962,7 +987,7 @@ public static class ReflectionExtensions
 	/// <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
 	/// <returns> The type updated with non default values. </returns>
-	public static T UpdateWithNonDefaultValues<T>(this T model, Func<PropertyInfo, object> nonSupportedType = null, params string[] exclusions)
+	public static T UpdateWithNonDefaultValues<T>(this T model, Func<Type, object> nonSupportedType = null, params string[] exclusions)
 	{
 		var allExclusions = GetExclusions(model);
 		allExclusions.AddRange(exclusions);
@@ -1008,6 +1033,11 @@ public static class ReflectionExtensions
 
 			var propertyValue = property.GetValue(model);
 			var defaultValue = property.PropertyType.GetDefaultValue();
+
+			if (propertyValue?.Equals(defaultValue) == true)
+			{
+				continue;
+			}
 
 			if (Equals(propertyValue, defaultValue))
 			{

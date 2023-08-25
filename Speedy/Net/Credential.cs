@@ -159,7 +159,7 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 	/// <inheritdoc />
 	public bool TryUpdateWith(Credential update, params string[] exclusions)
 	{
-		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />

@@ -91,10 +91,10 @@ namespace Speedy.Serialization
 			if (maxDepth != null)
 			{
 				var settings = new SerializerSettings(ignoreVirtuals: ignoreVirtuals) { JsonSettings = { MaxDepth = maxDepth } };
-				return FromJson(item.ToJson(settings), item.GetRealType());
+				return FromJson(item.ToJson(settings), item.GetRealTypeUsingReflection());
 			}
 
-			return FromJson(item.ToJson(ignoreVirtuals ? _settingsForDeepClone1 : _settingsForDeepClone2), item.GetRealType());
+			return FromJson(item.ToJson(ignoreVirtuals ? _settingsForDeepClone1 : _settingsForDeepClone2), item.GetRealTypeUsingReflection());
 		}
 
 		/// <summary>

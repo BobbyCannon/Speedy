@@ -93,11 +93,6 @@ public abstract class Bindable : IBindable, IUpdateable
 	[IgnoreDataMember]
 	protected IDispatcher Dispatcher { get; private set; }
 
-	/// <summary>
-	/// Cached version of the "real" type, meaning not EF proxy but rather root type
-	/// </summary>
-	internal Type RealType => _realType ??= this.GetRealType();
-
 	#endregion
 
 	#region Methods
@@ -106,6 +101,14 @@ public abstract class Bindable : IBindable, IUpdateable
 	public IDispatcher GetDispatcher()
 	{
 		return Dispatcher;
+	}
+
+	/// <summary>
+	/// Cached version of the "real" type, meaning not EF proxy but rather root type
+	/// </summary>
+	public Type GetRealType()
+	{
+		return _realType ??= this.GetRealTypeUsingReflection();
 	}
 
 	/// <inheritdoc />
@@ -130,7 +133,7 @@ public abstract class Bindable : IBindable, IUpdateable
 	/// Indicates the property has changed on the bindable object.
 	/// </summary>
 	/// <param name="propertyName"> The name of the property has changed. </param>
-	public void OnPropertyChanged([CallerMemberName] string propertyName = null)
+	public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
 	{
 		// Ensure we have not paused property notifications
 		if ((propertyName == null) || _pausePropertyChanged)
@@ -181,7 +184,7 @@ public abstract class Bindable : IBindable, IUpdateable
 	/// <inheritdoc />
 	public virtual bool TryUpdateWith(object update, params string[] exclusions)
 	{
-		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />
@@ -203,7 +206,7 @@ public abstract class Bindable : IBindable, IUpdateable
 		var totalExclusions = new HashSet<string>(exclusions);
 		if (excludeVirtuals)
 		{
-			totalExclusions.AddRange(RealType.GetVirtualPropertyNames());
+			totalExclusions.AddRange(GetRealType().GetVirtualPropertyNames());
 		}
 
 		return UpdateWith(update, totalExclusions.ToArray());

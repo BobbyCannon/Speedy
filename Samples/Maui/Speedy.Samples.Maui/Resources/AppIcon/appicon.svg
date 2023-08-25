@@ -1,4 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="456" height="456" fill="#512BD4" />
-</svg>
+<svg
+   width="456"
+   height="456"
+   viewBox="0 0 456 456"
+   version="1.1"
+   id="svg293"
+   sodipodi:docname="appicon.svg"
+   xml:space="preserve"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+     id="defs297" /><sodipodi:namedview
+     id="namedview295"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="2.252193"
+     inkscape:cx="146.74586"
+     inkscape:cy="241.76436"
+     inkscape:window-width="1914"
+     inkscape:window-height="1230"
+     inkscape:window-x="293"
+     inkscape:window-y="62"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg293" /><g
+     id="g1505"><path
+       style="display:inline;fill:#fe0000;stroke-width:1.48438"
+       d="m 61.75,346.75 v -47.5 h 47.5 47.5 v 47.5 47.5 h -47.5 -47.5 z m 237.5,0 v -47.5 h 47.5 47.5 v 47.5 47.5 h -47.5 -47.5 z M 180.5,228 V 180.5 H 228 275.5 V 228 275.5 H 228 180.5 Z M 61.75,109.25 v -47.5 h 47.5 47.5 v 47.5 47.5 h -47.5 -47.5 z m 237.5,0 v -47.5 h 47.5 47.5 v 47.5 47.5 h -47.5 -47.5 z"
+       id="path1509" /><path
+       style="display:inline;fill:#545454;stroke-width:1.48438"
+       d="m 180.5,346.75 v -47.5 h 47.5 47.5 v 47.5 47.5 H 228 180.5 Z M 61.75,228 v -47.5 h 47.5 47.5 v 47.5 47.5 h -47.5 -47.5 z m 237.5,0 v -47.5 h 47.5 47.5 v 47.5 47.5 h -47.5 -47.5 z M 180.5,109.25 v -47.5 h 47.5 47.5 v 47.5 47.5 H 228 180.5 Z"
+       id="path1507" /></g></svg>

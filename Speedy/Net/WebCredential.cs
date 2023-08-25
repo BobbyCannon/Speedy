@@ -86,7 +86,7 @@ public class WebCredential : Credential, IUpdateable<WebCredential>
 	/// <inheritdoc />
 	public bool TryUpdateWith(WebCredential update, params string[] exclusions)
 	{
-		return UpdatableExtensions.TryUpdateWith(this, update, exclusions);
+		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />

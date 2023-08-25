@@ -1,39 +1,22 @@
 ﻿namespace Speedy.Samples.Maui;
 
-public partial class MainPage : ContentPage
+public partial class MainPage
 {
-	#region Fields
-
-	private int count;
-
-	#endregion
-
 	#region Constructors
 
-	public MainPage()
+	public MainPage(MainViewModel model)
 	{
 		InitializeComponent();
+
+		ViewModel = model;
+		BindingContext = model;
 	}
 
 	#endregion
 
-	#region Methods
+	#region Properties
 
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		count++;
-
-		if (count == 1)
-		{
-			CounterBtn.Text = $"Clicked {count} time";
-		}
-		else
-		{
-			CounterBtn.Text = $"Clicked {count} times";
-		}
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+	public MainViewModel ViewModel { get; }
 
 	#endregion
 }

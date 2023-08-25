@@ -20,7 +20,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests.Extensions;
 
 [TestClass]
-public class UpdatableExtensionsTests : SpeedyUnitTest
+public class UpdateableExtensionsTests : SpeedyUnitTest
 {
 	#region Methods
 
@@ -143,14 +143,14 @@ public class UpdatableExtensionsTests : SpeedyUnitTest
 		Assert.AreEqual(destination.SyncId, source.SyncId);
 	}
 
-	private object NonSupportedType(PropertyInfo arg)
+	private object NonSupportedType(Type type)
 	{
-		if (arg.PropertyType == typeof(IHorizontalLocation))
+		if (type == typeof(IHorizontalLocation))
 		{
 			return new HorizontalLocation();
 		}
 
-		if (arg.PropertyType == typeof(IVerticalLocation))
+		if (type == typeof(IVerticalLocation))
 		{
 			return new VerticalLocation();
 		}

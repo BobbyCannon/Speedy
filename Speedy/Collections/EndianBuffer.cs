@@ -25,20 +25,14 @@ public class LittleEndianBuffer : EndianBuffer
 	{
 	}
 
-	#endregion
-
-	#region Methods
-
 	/// <summary>
 	/// Load a buffer that contains data in a little endian order.
 	/// </summary>
 	/// <param name="buffer"> The buffer to load. </param>
 	/// <returns> The little endian buffer. </returns>
-	public static LittleEndianBuffer Load(byte[] buffer)
+	public LittleEndianBuffer(byte[] buffer) : this(buffer.Length)
 	{
-		var response = new LittleEndianBuffer(buffer.Length);
-		response.LoadBuffer(buffer);
-		return response;
+		LoadBuffer(buffer);
 	}
 
 	#endregion
@@ -62,20 +56,14 @@ public class BigEndianBuffer : EndianBuffer
 	{
 	}
 
-	#endregion
-
-	#region Methods
-
 	/// <summary>
 	/// Load a buffer that contains data in a big endian order.
 	/// </summary>
 	/// <param name="buffer"> The buffer to load. </param>
 	/// <returns> The big endian buffer. </returns>
-	public static BigEndianBuffer Load(byte[] buffer)
+	public BigEndianBuffer(byte[] buffer) : this(buffer.Length)
 	{
-		var response = new BigEndianBuffer(buffer.Length);
-		response.LoadBuffer(buffer);
-		return response;
+		LoadBuffer(buffer);
 	}
 
 	#endregion

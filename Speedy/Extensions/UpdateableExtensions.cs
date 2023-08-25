@@ -9,7 +9,7 @@ namespace Speedy.Extensions;
 /// <summary>
 /// Extensions for the IUpdateable interface
 /// </summary>
-public static class UpdatableExtensions
+public static class UpdateableExtensions
 {
 	#region Methods
 
@@ -55,8 +55,8 @@ public static class UpdatableExtensions
 			return false;
 		}
 
-		var destinationType = value.GetRealType();
-		var sourceType = update.GetRealType();
+		var destinationType = value.GetRealTypeUsingReflection();
+		var sourceType = update.GetRealTypeUsingReflection();
 		var destinationProperties = destinationType.GetCachedProperties();
 		var sourceProperties = sourceType.GetCachedProperties();
 

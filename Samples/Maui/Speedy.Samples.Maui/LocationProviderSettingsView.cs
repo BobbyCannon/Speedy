@@ -1,5 +1,6 @@
 ﻿#region References
 
+using System;
 using Speedy.Data.Location;
 
 #endregion

@@ -1,8 +1,10 @@
 ﻿#region References
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Speedy.Extensions;
 
 #endregion
 
@@ -22,6 +24,10 @@ public class OrderBy<T>
 	/// <param name="descending"> True to order descending and otherwise sort ascending. Default value is false for ascending order. </param>
 	public OrderBy(bool descending = false) : this(x => x, descending)
 	{
+		if (!typeof(T).IsDescendantOf(typeof(IComparable)))
+		{
+			throw new InvalidOperationException("The type must implement IComparable to use this constructor.");
+		}
 	}
 
 	/// <summary>
@@ -59,9 +65,32 @@ public class OrderBy<T>
 	/// <param name="query"> The query to order. </param>
 	/// <param name="thenBys"> An optional set of subsequent orderings. </param>
 	/// <returns> The ordered queryable for the provided query. </returns>
+	public IOrderedQueryable<T> Process(IEnumerable<T> query, params OrderBy<T>[] thenBys)
+	{
+		return Process(query.AsQueryable(), thenBys);
+	}
+
+	/// <summary>
+	/// Processes a query through the "order by" that will return the query ordered base on the value.
+	/// </summary>
+	/// <param name="query"> The query to order. </param>
+	/// <param name="thenBys"> An optional set of subsequent orderings. </param>
+	/// <returns> The ordered queryable for the provided query. </returns>
 	public IOrderedQueryable<T> Process(IQueryable<T> query, params OrderBy<T>[] thenBys)
 	{
-		var response = Descending ? query.OrderByDescending(KeySelector) : query.OrderBy(KeySelector);
+		if (KeySelector == null)
+		{
+			return (IOrderedQueryable<T>) query;
+		}
+
+		var response = Descending
+			? query.OrderByDescending(KeySelector)
+			: query.OrderBy(KeySelector);
+
+		if (thenBys is not { Length: > 0 })
+		{
+			return response;
+		}
 
 		foreach (var thenBy in thenBys)
 		{

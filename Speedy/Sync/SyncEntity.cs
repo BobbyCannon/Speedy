@@ -26,9 +26,9 @@ public abstract class SyncEntity<T> : Entity<T>, ISyncEntity
 	/// </summary>
 	protected SyncEntity()
 	{
-		SyncEntity.ExclusionCacheForIncomingSync.GetOrAdd(RealType, _ => GetDefaultExclusionsForIncomingSync());
-		SyncEntity.ExclusionCacheForOutgoingSync.GetOrAdd(RealType, _ => GetDefaultExclusionsForOutgoingSync());
-		SyncEntity.ExclusionCacheForSyncUpdate.GetOrAdd(RealType, _ => GetDefaultExclusionsForSyncUpdate());
+		SyncEntity.ExclusionCacheForIncomingSync.GetOrAdd(GetRealType(), _ => GetDefaultExclusionsForIncomingSync());
+		SyncEntity.ExclusionCacheForOutgoingSync.GetOrAdd(GetRealType(), _ => GetDefaultExclusionsForOutgoingSync());
+		SyncEntity.ExclusionCacheForSyncUpdate.GetOrAdd(GetRealType(), _ => GetDefaultExclusionsForSyncUpdate());
 	}
 
 	#endregion
@@ -72,25 +72,25 @@ public abstract class SyncEntity<T> : Entity<T>, ISyncEntity
 	/// <returns> The list of members to be excluded. </returns>
 	public HashSet<string> GetSyncExclusions(bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 	{
-		return SyncEntity.GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+		return SyncEntity.GetExclusions(GetRealType(), excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
 	}
 
 	/// <inheritdoc />
 	public bool IsPropertyExcludedForIncomingSync(string propertyName)
 	{
-		return SyncEntity.ExclusionCacheForIncomingSync[RealType].Contains(propertyName);
+		return SyncEntity.ExclusionCacheForIncomingSync[GetRealType()].Contains(propertyName);
 	}
 
 	/// <inheritdoc />
 	public bool IsPropertyExcludedForOutgoingSync(string propertyName)
 	{
-		return SyncEntity.ExclusionCacheForOutgoingSync[RealType].Contains(propertyName);
+		return SyncEntity.ExclusionCacheForOutgoingSync[GetRealType()].Contains(propertyName);
 	}
 
 	/// <inheritdoc />
 	public bool IsPropertyExcludedForSyncUpdate(string propertyName)
 	{
-		return SyncEntity.ExclusionCacheForSyncUpdate[RealType].Contains(propertyName);
+		return SyncEntity.ExclusionCacheForSyncUpdate[GetRealType()].Contains(propertyName);
 	}
 
 	/// <inheritdoc />
@@ -108,7 +108,7 @@ public abstract class SyncEntity<T> : Entity<T>, ISyncEntity
 	/// <inheritdoc />
 	public bool UpdateSyncEntity(ISyncEntity update, bool excludePropertiesForIncomingSync, bool excludePropertiesForOutgoingSync, bool excludePropertiesForSyncUpdate)
 	{
-		var exclusions = SyncEntity.GetExclusions(RealType, excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
+		var exclusions = SyncEntity.GetExclusions(GetRealType(), excludePropertiesForIncomingSync, excludePropertiesForOutgoingSync, excludePropertiesForSyncUpdate);
 		return UpdateWith(update, exclusions.ToArray());
 	}
 
@@ -150,7 +150,7 @@ public abstract class SyncEntity<T> : Entity<T>, ISyncEntity
 	protected string GetPartialJson(IEnumerable<string> properties)
 	{
 		var jToken = new JTokenWriter();
-		var propertiesInfos = SyncEntity.GetPropertyDictionary(RealType);
+		var propertiesInfos = SyncEntity.GetPropertyDictionary(GetRealType());
 
 		jToken.WriteStartObject();
 

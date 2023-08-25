@@ -88,13 +88,13 @@
             Represents a thread dispatcher to help with cross threaded request.
             </summary>
         </member>
-        <member name="P:Speedy.Bindable.RealType">
+        <member name="M:Speedy.Bindable.GetDispatcher">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.GetRealType">
             <summary>
             Cached version of the "real" type, meaning not EF proxy but rather root type
             </summary>
-        </member>
-        <member name="M:Speedy.Bindable.GetDispatcher">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.HasChanges">
             <inheritdoc />
@@ -149,6 +149,22 @@
         </member>
         <member name="E:Speedy.Bindable.PropertyChanged">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.ClientEntity`1">
+            <inheritdoc cref="T:Speedy.Sync.SyncModel`1" />
+        </member>
+        <member name="P:Speedy.ClientEntity`1.LastClientUpdate">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.IClientEntity">
+            <summary>
+            Represents a client entity.
+            </summary>
+        </member>
+        <member name="P:Speedy.IClientEntity.LastClientUpdate">
+            <summary>
+            The last time the client entity was updated.
+            </summary>
         </member>
         <member name="T:Speedy.CloneableBindable`2">
             <summary>
@@ -305,7 +321,7 @@
             </summary>
             <param name="size"> The size of the buffer. </param>
         </member>
-        <member name="M:Speedy.Collections.LittleEndianBuffer.Load(System.Byte[])">
+        <member name="M:Speedy.Collections.LittleEndianBuffer.#ctor(System.Byte[])">
             <summary>
             Load a buffer that contains data in a little endian order.
             </summary>
@@ -326,7 +342,7 @@
             </summary>
             <param name="size"> The size of the buffer. </param>
         </member>
-        <member name="M:Speedy.Collections.BigEndianBuffer.Load(System.Byte[])">
+        <member name="M:Speedy.Collections.BigEndianBuffer.#ctor(System.Byte[])">
             <summary>
             Load a buffer that contains data in a big endian order.
             </summary>
@@ -725,11 +741,42 @@
             <param name="wantsLittleEndian"> True to read the value as little endian otherwise big endian </param>
             <returns> True if the read was successful otherwise false. </returns>
         </member>
+        <member name="T:Speedy.Collections.EqualityComparer`1">
+            <summary>
+            Exposes a method that compares two objects.
+            </summary>
+            <typeparam name="T"> The type of the object to compare. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.EqualityComparer`1.#ctor">
+            <summary>
+            Create an instance of the comparer.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.EqualityComparer`1.#ctor(System.Func{`0,`0,System.Boolean})">
+            <summary>
+            Create an instance of the comparer.
+            </summary>
+            <param name="compare"> The function to compare two objects. </param>
+        </member>
+        <member name="M:Speedy.Collections.EqualityComparer`1.Equals(`0,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.EqualityComparer`1.GetHashCode(`0)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Collections.FilteredCollection`1">
             <summary>
             This collection representing a list of entities for a relationship.
             </summary>
             <typeparam name="T"> The type for the relationship. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.FilteredCollection`1.#ctor(Speedy.Collections.SpeedyList{`0},System.Func{`0,System.Boolean},Speedy.IDispatcher)">
+            <summary>
+            Instantiates an instance of a filtered collection.
+            </summary>
+            <param name="originalCollection"> The collection to filter. </param>
+            <param name="filter"> The filter expression. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="M:Speedy.Collections.FilteredCollection`1.#ctor(System.Collections.ObjectModel.ObservableCollection{`0},System.Func{`0,System.Boolean},Speedy.IDispatcher)">
             <summary>
@@ -852,6 +899,14 @@
             A function to extract a key from an element.
             </summary>
         </member>
+        <member name="M:Speedy.Collections.OrderBy`1.Process(System.Collections.Generic.IEnumerable{`0},Speedy.Collections.OrderBy{`0}[])">
+            <summary>
+            Processes a query through the "order by" that will return the query ordered base on the value.
+            </summary>
+            <param name="query"> The query to order. </param>
+            <param name="thenBys"> An optional set of subsequent orderings. </param>
+            <returns> The ordered queryable for the provided query. </returns>
+        </member>
         <member name="M:Speedy.Collections.OrderBy`1.Process(System.Linq.IQueryable{`0},Speedy.Collections.OrderBy{`0}[])">
             <summary>
             Processes a query through the "order by" that will return the query ordered base on the value.
@@ -859,6 +914,91 @@
             <param name="query"> The query to order. </param>
             <param name="thenBys"> An optional set of subsequent orderings. </param>
             <returns> The ordered queryable for the provided query. </returns>
+        </member>
+        <member name="T:Speedy.Collections.ReadOnlySet`1">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.#ctor">
+            <summary>
+            Instantiates an empty readonly set.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.#ctor(`0[])">
+            <summary>
+            Instantiates a readonly set with the provided values.
+            </summary>
+            <param name="values"> The values to include in a read only set. </param>
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.#ctor(System.Collections.Generic.ISet{`0})">
+            <summary>
+            Instantiates a readonly version of the provided set.
+            </summary>
+            <param name="set"> The set to make readonly. </param>
+        </member>
+        <member name="P:Speedy.Collections.ReadOnlySet`1.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.ReadOnlySet`1.Empty">
+            <summary>
+            Represents an empty collection.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.ReadOnlySet`1.IsReadOnly">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.Contains(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.CopyTo(`0[],System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.ExceptWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.IntersectWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.IsProperSubsetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.IsProperSupersetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.IsSubsetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.IsSupersetOf(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.Overlaps(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.Remove(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.SetEquals(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.SymmetricExceptWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.UnionWith(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.System#Collections#Generic#ICollection{T}#Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.System#Collections#Generic#ISet{T}#Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Collections.SortedObservableCollection`1">
             <summary>
@@ -907,6 +1047,346 @@
             </summary>
         </member>
         <member name="M:Speedy.Collections.SortedObservableCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Collections.SpeedyList`1">
+            <summary>
+            A thread-safe, dispatch safe, limitable, sortable, filterable, and observable list.
+            Dispatch safe, limit, sortable, and filterable settings are optional.
+            </summary>
+            <typeparam name="T"> The type of items in the list. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor">
+            <summary>
+            Create an instance of the list.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="items"> An optional set. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(`0[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="items"> An optional set. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.Collections.OrderBy{`0}[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="orderBy"> The optional set of order by settings. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(System.Collections.Generic.IEnumerable{`0},Speedy.Collections.OrderBy{`0}[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="items"> An optional set. </param>
+            <param name="orderBy"> The optional set of order by settings. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(`0[],Speedy.Collections.OrderBy{`0}[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="items"> An optional set. </param>
+            <param name="orderBy"> The optional set of order by settings. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.Collections.OrderBy{`0}[],`0[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="orderBy"> The optional set of order by settings. </param>
+            <param name="items"> An optional set. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+            <param name="items"> An optional set. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,`0[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+            <param name="items"> An optional set. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+            <param name="orderBy"> The optional set of order by settings. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,`0[],Speedy.Collections.OrderBy{`0}[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+            <param name="items"> An optional set. </param>
+            <param name="orderBy"> The optional set of order by settings. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[],`0[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+            <param name="orderBy"> The optional set of order by settings. </param>
+            <param name="items"> An optional set. </param>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.ComparerFunction">
+            <summary>
+            An optional comparer to use if you want a distinct list.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.Count">
+            <inheritdoc cref="T:System.Collections.IList" />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.Filtered">
+            <summary>
+            The filter items if this list is being filtered.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.IncludeInFilter">
+            <summary>
+            An optional filter to restrict the <see cref="P:Speedy.Collections.SpeedyList`1.Filtered" /> sub collection.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.IsFixedSize">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.IsReadOnly">
+            <inheritdoc cref="T:System.Collections.IList" />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.IsSynchronized">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.Item(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.Limit">
+            <summary>
+            The maximum limit for this list.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.OrderBy">
+            <summary>
+            The expression to order this collection by.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.SortingDisabled">
+            <summary>
+            True if sorting has been disabled.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.SyncRoot">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.System#Collections#IList#Item(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Add(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.AddRange(`0[])">
+            <summary>
+            Add a range of items.
+            </summary>
+            <param name="items"> The items to be added. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.AddRange(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Add a range of items.
+            </summary>
+            <param name="items"> The items to be added. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Clear">
+            <inheritdoc cref="T:System.Collections.IList" />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Contains(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Contains(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.CopyTo(System.Array,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.CopyTo(`0[],System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.First">
+            <summary>
+            Get the first item in the list.
+            </summary>
+            <returns> The first item. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.FirstOrDefault">
+            <summary>
+            Get the first item in the list or default value.
+            </summary>
+            <returns> The first item or default. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.IndexOf(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.IndexOf(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Insert(System.Int32,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Insert(System.Int32,`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Last">
+            <summary>
+            Get the last item in the list or default value.
+            </summary>
+            <returns> The last item or default. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.LastOrDefault">
+            <summary>
+            Get the last item in the list or default value.
+            </summary>
+            <returns> The last item or default. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Load(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Loads the items into the list. All existing items will be cleared.
+            </summary>
+            <param name="items"> The items to be loaded. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Load(`0[])">
+            <summary>
+            Loads the items into the list. All existing items will be cleared.
+            </summary>
+            <param name="items"> The items to be loaded. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.OnPropertyChanged(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.ProcessThenSort(System.Action)">
+            <summary>
+            Process an action then sort the collection.
+            </summary>
+            <param name="process"> The process to execute before sorting. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.ProcessThenSort``1(System.Func{``0})">
+            <summary>
+            Process an action then sort, filter, event on the collection changes. ** see remarks **
+            </summary>
+            <param name="process"> The process to execute before sorting. </param>
+            <typeparam name="T2"> The type of the item from the process. </typeparam>
+            <returns> The items returned from the process. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.RefreshFilter">
+            <summary>
+            Refresh the filter.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Remove(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Remove(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Remove(System.Predicate{`0})">
+            <summary>
+            Remove all entries that match predicate
+            </summary>
+            <param name="predicate"> The predicate to find entries to remove. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.RemoveAll">
+            <summary>
+            Remove all items from the collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.RemoveAt(System.Int32)">
+            <inheritdoc cref="T:System.Collections.IList" />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.RemoveRange(System.Int32,System.Int32)">
+            <summary>
+            Remove all items from the collection.
+            </summary>
+            <param name="index"> The zero-based starting index of the range of items to remove. </param>
+            <param name="length"> The number of items to remove. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Sort">
+            <summary>
+            Sort the collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.TryGetAndRemoveAt(System.Int32,`0@)">
+            <summary>
+            Try to get an item then remove it.
+            </summary>
+            <param name="index"> The index to get the item from. </param>
+            <param name="item"> The item retrieved or default. </param>
+            <returns> True if the item was available and retrieved otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
+            <summary>
+            Raises the <see cref="E:Speedy.Collections.SpeedyList`1.CollectionChanged" /> event.
+            </summary>
+            <param name="e"> A <see cref="T:System.Collections.Specialized.NotifyCollectionChangedEventArgs" /> describing the event arguments. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.OnPropertyChangedInDispatcher(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Collections.SpeedyList`1.CollectionChanged">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1">
+            <summary>
+            Represents a sorted observable collection. The collection supports notification on clear and ability to be sorted.
+            </summary>
+            <typeparam name="T2"> The type of the item stored in the collection. </typeparam>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.#ctor">
+            <summary>
+            Instantiates an instance of the collection.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.DisableSorting">
+            <summary>
+            Allows disable sorting for faster loading.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.OrderBy">
+            <summary>
+            The expression to order this collection by.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.ThenBy">
+            <summary>
+            An optional set of expressions to further order this collection by.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.Sort">
+            <summary>
+            Sort the collection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Commands.RelayCommand">
@@ -3975,11 +4455,6 @@
             The properties that has changed since last <see cref="M:Speedy.Entity.ResetHasChanges(System.Boolean)" /> event.
             </summary>
         </member>
-        <member name="P:Speedy.Entity.RealType">
-            <summary>
-            Cached version of the "real" type, meaning not EF proxy but rather root type
-            </summary>
-        </member>
         <member name="M:Speedy.Entity.CanBeModified">
             <inheritdoc />
         </member>
@@ -3996,6 +4471,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.EntityModified">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Entity.GetRealType">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.GetUpdatableExclusions">
@@ -4110,6 +4588,11 @@
         <member name="M:Speedy.IEntity.EntityModified">
             <summary>
             Update an entity that has been modified.
+            </summary>
+        </member>
+        <member name="M:Speedy.IEntity.GetRealType">
+            <summary>
+            Cached version of the "real" type, meaning not EF proxy but rather root type
             </summary>
         </member>
         <member name="M:Speedy.IEntity.IdIsSet">
@@ -4401,6 +4884,46 @@
             </summary>
             <param name="assembly"> The assembly to check. </param>
             <returns> True if the assembly is a debug build otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.BindableExtensions">
+            <summary>
+            Extensions for bindable.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.BindableExtensions.Dispatch(Speedy.IBindable,System.Action)">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="bindable"> The bindable to dispatch for. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.BindableExtensions.Dispatch``1(Speedy.IBindable,System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="bindable"> The bindable to dispatch for. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.BindableExtensions.DispatchAsync(Speedy.IBindable,System.Action)">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="bindable"> The bindable to dispatch for. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.BindableExtensions.DispatchAsync``1(Speedy.IBindable,System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="bindable"> The bindable to dispatch for. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.BindableExtensions.ShouldDispatch(Speedy.IBindable)">
+            <summary>
+            Returns true if the current context is on the dispatcher thread.
+            </summary>
+            <param name="bindable"> The bindable to dispatch for. </param>
+            <returns> True if on the dispatcher thread otherwise false. </returns>
         </member>
         <member name="T:Speedy.Extensions.CollectionExtensions">
             <summary>
@@ -4910,6 +5433,46 @@
             Safely delete a directory.
             </summary>
             <param name="info"> The information of the directory to delete. </param>
+        </member>
+        <member name="T:Speedy.Extensions.DispatcherExtensions">
+            <summary>
+            Extensions for dispatcher.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.DispatcherExtensions.Dispatch(Speedy.IDispatcher,System.Action)">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="dispatcher"> The dispatcher to use. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DispatcherExtensions.Dispatch``1(Speedy.IDispatcher,System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="dispatcher"> The dispatcher to use. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DispatcherExtensions.DispatchAsync(Speedy.IDispatcher,System.Action)">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="dispatcher"> The dispatcher to use. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DispatcherExtensions.DispatchAsync``1(Speedy.IDispatcher,System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread if available and required.
+            </summary>
+            <param name="dispatcher"> The dispatcher to use. </param>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DispatcherExtensions.ShouldDispatch(Speedy.IDispatcher)">
+            <summary>
+            Returns true if the current context is on the dispatcher thread.
+            </summary>
+            <param name="dispatcher"> The dispatcher to use. </param>
+            <returns> True if on the dispatcher thread otherwise false. </returns>
         </member>
         <member name="T:Speedy.Extensions.DoubleExtensions">
             <summary>
@@ -6244,21 +6807,28 @@
             <returns> The value of the value member. </returns>
             <exception cref="T:System.NotImplementedException"> The member info is not a field or property. </exception>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetNonDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetNonDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Type,System.Object})">
             <summary>
             Get a non default value for a property.
             </summary>
             <param name="propertyInfo"> The property info. </param>
             <param name="nonSupportedType"> An optional non supported type. </param>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetRealType(System.Object)">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetNonDefaultValue(System.Type,System.Func{System.Type,System.Object})">
+            <summary>
+            Get a non default value for data type.
+            </summary>
+            <param name="type"> The type of object to get the value for. </param>
+            <param name="nonSupportedType"> An optional non supported type. </param>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetRealTypeUsingReflection(System.Object)">
             <summary>
             Gets the real type of the entity. For use with proxy entities.
             </summary>
             <param name="item"> The object to process. </param>
             <returns> The real base type for the proxy or just the initial type if it is not a proxy. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetRealType(System.Type)">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetRealTypeUsingReflection(System.Type)">
             <summary>
             Gets the real type of the entity. For use with proxy entities.
             </summary>
@@ -6272,6 +6842,13 @@
             <param name="type"> The value to get the property names for. </param>
             <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
             <returns> The list of virtual property names for the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.IsAbstract(System.Reflection.PropertyInfo)">
+            <summary>
+            Determine if the property is a abstract property.
+            </summary>
+            <param name="info"> The info to process. </param>
+            <returns> True if the accessor is abstract. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.IsVirtual(System.Reflection.PropertyInfo)">
             <summary>
@@ -6305,7 +6882,7 @@
             <param name="exclusions"> An optional set of properties to exclude. </param>
             <returns> The type updated with non default values. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Reflection.PropertyInfo,System.Object},System.String[])">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Type,System.Object},System.String[])">
             <summary>
             Update the provided object with non default values.
             </summary>
@@ -6782,12 +7359,12 @@
             <param name="directDescendantOnly"> Direct base class only. </param>
             <returns> True if the child implements the parent otherwise false. </returns>
         </member>
-        <member name="T:Speedy.Extensions.UpdatableExtensions">
+        <member name="T:Speedy.Extensions.UpdateableExtensions">
             <summary>
             Extensions for the IUpdateable interface
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith``1(Speedy.IUpdateable{``0},``0,System.String[])">
+        <member name="M:Speedy.Extensions.UpdateableExtensions.TryUpdateWith``1(Speedy.IUpdateable{``0},``0,System.String[])">
             <summary>
             Try to apply an update to the provided value.
             </summary>
@@ -6797,7 +7374,7 @@
             <param name="exclusions"> An optional list of members to exclude during updating. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.TryUpdateWith(Speedy.IUpdateable,System.Object,System.String[])">
+        <member name="M:Speedy.Extensions.UpdateableExtensions.TryUpdateWith(Speedy.IUpdateable,System.Object,System.String[])">
             <summary>
             Try to apply an update to the provided value.
             </summary>
@@ -6806,7 +7383,7 @@
             <param name="exclusions"> An optional list of members to exclude during updating. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UpdatableExtensions.UpdateWithUsingReflection``2(``0,``1,System.String[])">
+        <member name="M:Speedy.Extensions.UpdateableExtensions.UpdateWithUsingReflection``2(``0,``1,System.String[])">
             <summary>
             Allows updating of one type to another based on member Name and Type.
             </summary>
@@ -7849,6 +8426,119 @@
             <summary>
             Get exclusions for the updatable type.
             </summary>
+        </member>
+        <member name="T:Speedy.LockableBindable">
+            <summary>
+            Represents a bindable object that is lockable (thread-safe).
+            </summary>
+        </member>
+        <member name="M:Speedy.LockableBindable.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiates a lockable bindable object.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.LockableBindable.IsReadLocked">
+            <summary>
+            Gets a value that indicates whether the current thread has entered the lock in read mode.
+            </summary>
+        </member>
+        <member name="P:Speedy.LockableBindable.IsUpgradeableReadLockHeld">
+            <summary>
+            Gets a value that indicates whether the current thread has entered the lock in upgradeable mode.
+            </summary>
+        </member>
+        <member name="P:Speedy.LockableBindable.IsWriteLocked">
+            <summary>
+            Gets a value that indicates whether the current thread has entered the lock in write mode.
+            </summary>
+        </member>
+        <member name="M:Speedy.LockableBindable.DispatchWithReadLock(System.Action)">
+            <summary>
+            Run an action on the dispatching thread with a read lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.DispatchWithReadLock``1(System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread with a read lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.DispatchWithUpgradeableReadLock(System.Action)">
+            <summary>
+            Run an action on the dispatching thread with an upgradeable read lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.DispatchWithUpgradeableReadLock``1(System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread with an upgradeable read lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.DispatchWithWriteLock(System.Action)">
+            <summary>
+            Run an action on the dispatching thread with a write lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.DispatchWithWriteLock``1(System.Func{``0})">
+            <summary>
+            Run an action on the dispatching thread with a write lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Speedy.LockableBindable.ReadLock(System.Action)">
+            <summary>
+            Run an action with a read lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.ReadLock``1(System.Func{``0})">
+            <summary>
+            Run an action with a read lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.UpgradeableReadLock(System.Action)">
+            <summary>
+            Process on action in a read lock that can be upgraded to a write lock.
+            Note: be sure to upgrade on the same thread!
+            </summary>
+            <param name="action"> The action to execute. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.UpgradeableReadLock``1(System.Func{``0})">
+            <summary>
+            Process on action in a read lock that can be upgraded to a write lock.
+            Note: be sure to upgrade on the same thread!
+            </summary>
+            <typeparam name="T"> The type the action returns. </typeparam>
+            <param name="action"> The action to execute. </param>
+            <returns> The value returned from the action. </returns>
+        </member>
+        <member name="M:Speedy.LockableBindable.WriteLock(System.Action)">
+            <summary>
+            Run an action with a write lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.WriteLock``1(System.Func{``0})">
+            <summary>
+            Run an action with a write lock.
+            </summary>
+            <param name="action"> The action to be executed. </param>
+        </member>
+        <member name="M:Speedy.LockableBindable.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="T:Speedy.Logging.LogEventArgs">
             <summary>
@@ -17146,13 +17836,12 @@
             <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
         </member>
-        <member name="M:Speedy.ThreadSafe.Increment(System.Double@,System.Double)">
+        <member name="M:Speedy.ThreadSafe.Decrement(System.Int32@,System.Int32)">
             <summary>
-            Increment an double by a value or double.Epsilon if not provided.
+            Increment an int by a value or default(1) if not provided.
             </summary>
             <param name="value"> The value to be incremented. </param>
-            <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
-            <returns> The incremented value. </returns>
+            <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
         </member>
         <member name="M:Speedy.ThreadSafe.Increment(System.Single@,System.Single)">
             <summary>
@@ -17161,6 +17850,21 @@
             <param name="value"> The value to be incremented. </param>
             <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.ThreadSafe.Increment(System.Double@,System.Double)">
+            <summary>
+            Increment an double by a value or double.Epsilon if not provided.
+            </summary>
+            <param name="value"> The value to be incremented. </param>
+            <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
+            <returns> The incremented value. </returns>
+        </member>
+        <member name="M:Speedy.ThreadSafe.Increment(System.Int32@,System.Int32)">
+            <summary>
+            Increment an int by a value or default(1) if not provided.
+            </summary>
+            <param name="value"> The value to be incremented. </param>
+            <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
         </member>
         <member name="M:Speedy.ThreadSafe.TryGetIndex(System.Dynamic.GetIndexBinder,System.Object[],System.Object@)">
             <inheritdoc />

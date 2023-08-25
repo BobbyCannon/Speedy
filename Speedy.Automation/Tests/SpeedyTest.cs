@@ -580,7 +580,7 @@ public abstract class SpeedyTest
 	/// <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
 	/// <param name="exclusions"> An optional set of exclusions. </param>
 	/// <returns> The instance of the type with non default values. </returns>
-	protected object GetModelWithNonDefaultValues(Type type, Func<PropertyInfo, object> nonSupportedType = null, params string[] exclusions)
+	protected object GetModelWithNonDefaultValues(Type type, Func<Type, object> nonSupportedType = null, params string[] exclusions)
 	{
 		var response = Activator.CreateInstance(type);
 		response.UpdateWithNonDefaultValues(nonSupportedType, exclusions);
@@ -605,7 +605,7 @@ public abstract class SpeedyTest
 	/// <param name="propertyInfo"> The info for the property. </param>
 	/// <param name="nonSupportedType"> An optional non supported type. </param>
 	/// <returns> The non default value. </returns>
-	protected object GetNonDefaultValue(PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
+	protected object GetNonDefaultValue(PropertyInfo propertyInfo, Func<Type, object> nonSupportedType = null)
 	{
 		return propertyInfo.GetNonDefaultValue(nonSupportedType);
 	}
