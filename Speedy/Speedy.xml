@@ -4378,19 +4378,22 @@
             Represents a default dispatcher
             </summary>
         </member>
+        <member name="M:Speedy.DefaultDispatcher.#ctor">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.DefaultDispatcher.IsDispatcherThread">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.Run(System.Action)">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcher(System.Action)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.Run``1(System.Func{``0})">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.RunAsync(System.Action)">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcherAsync(System.Action)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.RunAsync``1(System.Func{``0})">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Entity`1">

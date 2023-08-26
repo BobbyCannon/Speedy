@@ -10,13 +10,11 @@ namespace Speedy.Automation.Tests;
 /// <summary>
 /// Represents a test dispatcher
 /// </summary>
-public class TestDispatcher : IDispatcher
+public class TestDispatcher : Dispatcher
 {
 	#region Constructors
 
-	/// <summary>
-	/// Instantiate a test dispatcher
-	/// </summary>
+	/// <inheritdoc />
 	public TestDispatcher()
 	{
 		IsDispatcherThread = true;
@@ -27,32 +25,32 @@ public class TestDispatcher : IDispatcher
 	#region Properties
 
 	/// <inheritdoc />
-	public bool IsDispatcherThread { get; set; }
+	public override bool IsDispatcherThread { get; }
 
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public void Run(Action action)
+	protected override void ExecuteOnDispatcher(Action action)
 	{
 		action();
 	}
 
 	/// <inheritdoc />
-	public T Run<T>(Func<T> action)
+	protected override T ExecuteOnDispatcher<T>(Func<T> action)
 	{
 		return action();
 	}
 
 	/// <inheritdoc />
-	public Task RunAsync(Action action)
+	protected override Task ExecuteOnDispatcherAsync(Action action)
 	{
 		return Task.Run(action);
 	}
 
 	/// <inheritdoc />
-	public Task<T> RunAsync<T>(Func<T> action)
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
 		return Task.Run(action);
 	}

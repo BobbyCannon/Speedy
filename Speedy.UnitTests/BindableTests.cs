@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Extensions;
 using Speedy.Profiling;
 
@@ -26,7 +27,7 @@ namespace Speedy.UnitTests
 			var model = GetModelWithNonDefaultValues();
 			Assert.AreEqual(null, model.GetDispatcher());
 
-			var expected = new DefaultDispatcher();
+			var expected = new TestDispatcher();
 			model.UpdateDispatcher(expected);
 			TestHelper.AreEqual(expected, model.GetDispatcher());
 		}

@@ -144,9 +144,9 @@ public abstract class Bindable : IBindable, IUpdateable
 
 		// If we have a dispatcher *and* not on the dispatcher thread
 		// then switch to to the dispatcher thread to trigger property changed
-		if (Dispatcher?.IsDispatcherThread == false)
+		if (this.ShouldDispatch())
 		{
-			Dispatcher.Run(() => OnPropertyChanged(propertyName));
+			this.Dispatch(() => OnPropertyChanged(propertyName));
 			return;
 		}
 

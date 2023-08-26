@@ -1,6 +1,7 @@
 ﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data;
 
 #endregion
@@ -30,7 +31,7 @@ public class DeviceManagerTests
     {
         #region Constructors
 
-        public TestInformationManager() : base(new DefaultDispatcher())
+        public TestInformationManager() : base(new TestDispatcher())
         {
         }
 

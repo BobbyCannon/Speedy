@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
+using Speedy.Automation.Tests;
 using Speedy.Net;
 using Speedy.Serialization;
 using Speedy.Sync;
@@ -18,7 +19,7 @@ namespace Speedy.UnitTests
 	{
 		#region Constructors
 
-		public TestSyncManager() : this(new DefaultDispatcher())
+		public TestSyncManager() : this(new TestDispatcher())
 		{
 		}
 

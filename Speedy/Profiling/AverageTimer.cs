@@ -15,7 +15,7 @@ namespace Speedy.Profiling
 	{
 		#region Fields
 
-		private readonly LimitedCollection<long> _collection;
+		private readonly SpeedyList<long> _collection;
 		private readonly Timer _timer;
 
 		#endregion
@@ -52,7 +52,7 @@ namespace Speedy.Profiling
 		/// <param name="dispatcher"> The dispatcher. </param>
 		public AverageTimer(int limit, IDispatcher dispatcher) : base(dispatcher)
 		{
-			_collection = new LimitedCollection<long>(limit);
+			_collection = new SpeedyList<long>(dispatcher) { Limit = limit };
 			_timer = new Timer();
 		}
 

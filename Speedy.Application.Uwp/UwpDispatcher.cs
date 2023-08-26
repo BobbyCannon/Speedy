@@ -5,13 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
-using Microsoft.Toolkit.Uwp.Helpers;
 using Speedy.Application.Uwp.Extensions;
 using Speedy.Extensions;
 
 #endregion
-
-#pragma warning disable CS0618
 
 namespace Speedy.Application.Uwp;
 
@@ -51,17 +48,54 @@ public class UwpDispatcher : Dispatcher
 
 	protected override T ExecuteOnDispatcher<T>(Func<T> action)
 	{
-		return _dispatcher.AwaitableRunAsync(action).AwaitResults();
+		return AwaitableRunAsync(_dispatcher, action, CoreDispatcherPriority.Normal).AwaitResults();
 	}
 
 	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
-		return _dispatcher.AwaitableRunAsync(action);
+		return AwaitableRunAsync(_dispatcher, action, CoreDispatcherPriority.Normal);
 	}
 
 	protected override Task ExecuteOnDispatcherAsync(Action action)
 	{
 		return _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => action()).AsTask();
+	}
+
+	private Task<T> AwaitableRunAsync<T>(CoreDispatcher dispatcher, Func<T> function, CoreDispatcherPriority priority = CoreDispatcherPriority.Normal)
+	{
+		if (function is null)
+		{
+			throw new ArgumentNullException(nameof(function));
+		}
+
+		// Skip the dispatch, if possible
+		if (dispatcher.HasThreadAccess)
+		{
+			try
+			{
+				return Task.FromResult(function());
+			}
+			catch (Exception e)
+			{
+				return Task.FromException<T>(e);
+			}
+		}
+
+		var taskCompletionSource = new TaskCompletionSource<T>();
+
+		_ = dispatcher.RunAsync(priority, () =>
+		{
+			try
+			{
+				taskCompletionSource.SetResult(function());
+			}
+			catch (Exception e)
+			{
+				taskCompletionSource.SetException(e);
+			}
+		});
+
+		return taskCompletionSource.Task;
 	}
 
 	#endregion

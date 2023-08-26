@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Speedy.Extensions;
 
 #endregion
@@ -462,7 +461,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	}
 
 	/// <inheritdoc />
-	public override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+	public override void OnPropertyChanged(string propertyName)
 	{
 		switch (propertyName)
 		{

@@ -24,45 +24,6 @@ public class SpeedyListTests : BaseCollectionTests
 	#region Methods
 
 	[TestMethod]
-	public void Constructors()
-	{
-		var scenarios = new[]
-		{
-			new SpeedyList<int>(1, 2, 3, 4),
-			new SpeedyList<int>(new List<int> { 1, 2, 3, 4 }),
-			// ReSharper disable once RedundantExplicitParamsArrayCreation
-			new SpeedyList<int>(new[] { 1, 2, 3, 4 }),
-			new SpeedyList<int>(new[] { 4, 2, 1, 3 }, new OrderBy<int>())
-		};
-
-		foreach (var scenario in scenarios)
-		{
-			AreEqual(4, scenario.Count);
-			AreEqual(new[] { 1, 2, 3, 4 }, scenario.ToArray());
-		}
-
-		var list = new SpeedyList<int>();
-		IsNull(list.GetDispatcher());
-
-		var dispatcher = new TestDispatcher();
-		scenarios = new[]
-		{
-			new SpeedyList<int>(dispatcher, 1, 2, 3, 4),
-			new SpeedyList<int>(dispatcher, new List<int> { 1, 2, 3, 4 }),
-			// ReSharper disable once RedundantExplicitParamsArrayCreation
-			new SpeedyList<int>(dispatcher, new[] { 1, 2, 3, 4 }),
-			new SpeedyList<int>(dispatcher, new[] { 4, 2, 1, 3 }, new OrderBy<int>())
-		};
-
-		foreach (var scenario in scenarios)
-		{
-			AreEqual(dispatcher, scenario.GetDispatcher());
-			AreEqual(4, scenario.Count);
-			AreEqual(new[] { 1, 2, 3, 4 }, scenario.ToArray());
-		}
-	}
-
-	[TestMethod]
 	public void Add()
 	{
 		var list = new SpeedyList<int>();
@@ -162,6 +123,45 @@ public class SpeedyListTests : BaseCollectionTests
 		var collection = new SpeedyList<string> { OrderBy = new[] { new OrderBy<string>(x => x) } };
 		collection.AddRange("b", "d", "c", "a");
 		TestHelper.AreEqual(new[] { "a", "b", "c", "d" }, collection.ToArray());
+	}
+
+	[TestMethod]
+	public void Constructors()
+	{
+		var scenarios = new[]
+		{
+			new SpeedyList<int>(1, 2, 3, 4),
+			new SpeedyList<int>(new List<int> { 1, 2, 3, 4 }),
+			// ReSharper disable once RedundantExplicitParamsArrayCreation
+			new SpeedyList<int>(new[] { 1, 2, 3, 4 }),
+			new SpeedyList<int>(new[] { 4, 2, 1, 3 }, new OrderBy<int>())
+		};
+
+		foreach (var scenario in scenarios)
+		{
+			AreEqual(4, scenario.Count);
+			AreEqual(new[] { 1, 2, 3, 4 }, scenario.ToArray());
+		}
+
+		var list = new SpeedyList<int>();
+		IsNull(list.GetDispatcher());
+
+		var dispatcher = new TestDispatcher();
+		scenarios = new[]
+		{
+			new SpeedyList<int>(dispatcher, 1, 2, 3, 4),
+			new SpeedyList<int>(dispatcher, new List<int> { 1, 2, 3, 4 }),
+			// ReSharper disable once RedundantExplicitParamsArrayCreation
+			new SpeedyList<int>(dispatcher, new[] { 1, 2, 3, 4 }),
+			new SpeedyList<int>(dispatcher, new[] { 4, 2, 1, 3 }, new OrderBy<int>())
+		};
+
+		foreach (var scenario in scenarios)
+		{
+			AreEqual(dispatcher, scenario.GetDispatcher());
+			AreEqual(4, scenario.Count);
+			AreEqual(new[] { 1, 2, 3, 4 }, scenario.ToArray());
+		}
 	}
 
 	[TestMethod]
@@ -671,6 +671,32 @@ public class SpeedyListTests : BaseCollectionTests
 		var list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8);
 		list.RemoveAll();
 		AreEqual(Array.Empty<int>(), list.ToArray());
+	}
+
+	[TestMethod]
+	public void RemoveIndividually()
+	{
+		var toRemove = new[] { 8, 7, 6, 5, 4, 3, 2, 1 };
+		var list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8);
+
+		void onListOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+		{
+			$"{args.OldStartingIndex}, {args.OldItems?[0] ?? -1}".Dump();
+		}
+
+		try
+		{
+			list.CollectionChanged += onListOnCollectionChanged;
+
+			foreach (var item in toRemove)
+			{
+				list.Remove(item);
+			}
+		}
+		finally
+		{
+			list.CollectionChanged -= onListOnCollectionChanged;
+		}
 	}
 
 	[TestMethod]

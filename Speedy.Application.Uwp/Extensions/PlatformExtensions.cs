@@ -56,6 +56,32 @@ public static class PlatformExtensions
 			Longitude = location.Longitude
 		};
 	}
+	
+	public static BasicGeoposition ToBasicGeoposition(this ILocation<IHorizontalLocation, IVerticalLocation> location, double? altitudeOverride = null)
+	{
+		if ((altitudeOverride == null)
+			&& (location.VerticalLocation.AltitudeReference == AltitudeReferenceType.Unspecified))
+		{
+			altitudeOverride = 0;
+		}
+
+		return new BasicGeoposition
+		{
+			Altitude = altitudeOverride ?? location.VerticalLocation.Altitude,
+			Latitude = location.HorizontalLocation.Latitude,
+			Longitude = location.HorizontalLocation.Longitude
+		};
+	}
+	
+	public static BasicGeoposition ToBasicGeoposition(this IMinimalHorizontalLocation location, double? altitudeOverride = null)
+	{
+		return new BasicGeoposition
+		{
+			Altitude = altitudeOverride ?? 0,
+			Latitude = location.Latitude,
+			Longitude = location.Longitude
+		};
+	}
 
 	public static Geopoint ToGeopoint(this IBasicLocation location)
 	{

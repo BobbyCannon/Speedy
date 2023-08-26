@@ -10,64 +10,49 @@ namespace Speedy;
 /// <summary>
 /// Represents a default dispatcher
 /// </summary>
-public class DefaultDispatcher : IDispatcher
+public class DefaultDispatcher : Dispatcher
 {
+	#region Constructors
+
+	/// <inheritdoc />
+	public DefaultDispatcher()
+	{
+		IsDispatcherThread = true;
+	}
+
+	#endregion
+
 	#region Properties
 
 	/// <inheritdoc />
-	public bool IsDispatcherThread { get; private set; }
+	public override bool IsDispatcherThread { get; }
 
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
-	public void Run(Action action)
+	protected override void ExecuteOnDispatcher(Action action)
 	{
-		if (IsDispatcherThread == false)
-		{
-			// Go ahead and mark thread access as true
-			IsDispatcherThread = true;
-		}
-
 		action();
 	}
 
 	/// <inheritdoc />
-	public T Run<T>(Func<T> action)
+	protected override T ExecuteOnDispatcher<T>(Func<T> action)
 	{
-		if (IsDispatcherThread == false)
-		{
-			// Go ahead and mark thread access as true
-			IsDispatcherThread = true;
-		}
-
 		return action();
 	}
 
 	/// <inheritdoc />
-	public Task RunAsync(Action action)
+	protected override Task ExecuteOnDispatcherAsync(Action action)
 	{
-		if (IsDispatcherThread == false)
-		{
-			// Go ahead and mark thread access as true
-			IsDispatcherThread = true;
-		}
-
-		action();
-		return Task.CompletedTask;
+		return Task.Run(action);
 	}
 
 	/// <inheritdoc />
-	public Task<T> RunAsync<T>(Func<T> action)
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
-		if (IsDispatcherThread == false)
-		{
-			// Go ahead and mark thread access as true
-			IsDispatcherThread = true;
-		}
-
-		return Task.FromResult(action());
+		return Task.Run(action);
 	}
 
 	#endregion

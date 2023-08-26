@@ -53,7 +53,7 @@ public class WpfDispatcher : Dispatcher
 	{
 		return _dispatcher.InvokeAsync(action, DispatcherPriority.Normal).Task;
 	}
-	
+
 	/// <inheritdoc />
 	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
 	{
