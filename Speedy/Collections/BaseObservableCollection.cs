@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 #endregion
@@ -91,6 +92,60 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	#region Methods
 
 	/// <inheritdoc />
+	public void Dispatch(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			dispatcher.Dispatch(action, priority);
+			return;
+		}
+
+		action();
+	}
+
+	/// <inheritdoc />
+	public T2 Dispatch<T2>(Func<T2> action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		return dispatcher is { IsDispatcherThread: false }
+			? dispatcher.Dispatch(action, priority)
+			: action();
+	}
+
+	/// <inheritdoc />
+	public Task DispatchAsync(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			return dispatcher.DispatchAsync(action, priority);
+		}
+
+		action();
+		return Task.CompletedTask;
+	}
+
+	/// <inheritdoc />
+	public Task<T2> DispatchAsync<T2>(Func<T2> action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			return dispatcher.DispatchAsync(action, priority);
+		}
+
+		var result = action();
+		return Task.FromResult(result);
+	}
+
+	/// <inheritdoc />
+	public ReadOnlySet<string> GetChangedProperties()
+	{
+		return ReadOnlySet<string>.Empty;
+	}
+
+	/// <inheritdoc />
 	public IDispatcher GetDispatcher()
 	{
 		return Dispatcher;
@@ -131,9 +186,9 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	/// <param name="values"> The values to be set to. </param>
 	public void Reset(params T[] values)
 	{
-		if (Dispatcher?.IsDispatcherThread == false)
+		if (ShouldDispatch())
 		{
-			Dispatcher.Run(() => Reset(values));
+			Dispatch(() => Reset(values));
 			return;
 		}
 
@@ -153,9 +208,16 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	}
 
 	/// <inheritdoc />
-	public void ResetHasChanges(bool hasChanges = false)
+	public void ResetHasChanges()
 	{
-		_hasChanges = hasChanges;
+		_hasChanges = false;
+	}
+
+	/// <inheritdoc />
+	public bool ShouldDispatch()
+	{
+		var dispatcher = GetDispatcher();
+		return dispatcher is { IsDispatcherThread: false };
 	}
 
 	/// <inheritdoc />
@@ -174,9 +236,9 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 			return;
 		}
 
-		if (Dispatcher?.IsDispatcherThread == false)
+		if (ShouldDispatch())
 		{
-			Dispatcher.Run(ClearItems);
+			Dispatch(ClearItems);
 			return;
 		}
 
@@ -191,9 +253,9 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	/// <inheritdoc />
 	protected override void InsertItem(int index, T item)
 	{
-		if (Dispatcher?.IsDispatcherThread == false)
+		if (ShouldDispatch())
 		{
-			Dispatcher.Run(() => InsertItem(index, item));
+			Dispatch(() => InsertItem(index, item));
 			return;
 		}
 
@@ -236,9 +298,9 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	/// <inheritdoc />
 	protected sealed override void OnPropertyChanged(PropertyChangedEventArgs e)
 	{
-		if (Dispatcher?.IsDispatcherThread == false)
+		if (ShouldDispatch())
 		{
-			Dispatcher.Run(() => OnPropertyChanged(e));
+			Dispatch(() => OnPropertyChanged(e));
 			return;
 		}
 

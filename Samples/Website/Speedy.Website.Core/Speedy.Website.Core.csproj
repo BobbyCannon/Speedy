@@ -4,6 +4,6 @@
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
+		<ProjectReference Include="..\Speedy.Website.Data\Speedy.Website.Data.csproj" />
 	</ItemGroup>
 </Project>

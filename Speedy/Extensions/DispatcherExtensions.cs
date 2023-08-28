@@ -19,11 +19,12 @@ public static class DispatcherExtensions
 	/// </summary>
 	/// <param name="dispatcher"> The dispatcher to use. </param>
 	/// <param name="action"> The action to be executed. </param>
-	public static void Dispatch(this IDispatcher dispatcher, Action action)
+	/// <param name="priority"> An optional priority for the action. </param>
+	public static void Dispatch(this IDispatcher dispatcher, Action action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
 		if (dispatcher is { IsDispatcherThread: false })
 		{
-			dispatcher.Run(action);
+			dispatcher.Dispatch(action, priority);
 			return;
 		}
 
@@ -35,10 +36,11 @@ public static class DispatcherExtensions
 	/// </summary>
 	/// <param name="dispatcher"> The dispatcher to use. </param>
 	/// <param name="action"> The action to be executed. </param>
-	public static T Dispatch<T>(this IDispatcher dispatcher, Func<T> action)
+	/// <param name="priority"> An optional priority for the action. </param>
+	public static T Dispatch<T>(this IDispatcher dispatcher, Func<T> action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
 		return dispatcher is { IsDispatcherThread: false }
-			? dispatcher.Run(action)
+			? dispatcher.Dispatch(action, priority)
 			: action();
 	}
 
@@ -47,11 +49,16 @@ public static class DispatcherExtensions
 	/// </summary>
 	/// <param name="dispatcher"> The dispatcher to use. </param>
 	/// <param name="action"> The action to be executed. </param>
-	public static Task DispatchAsync(this IDispatcher dispatcher, Action action)
+	/// <param name="priority"> An optional priority for the action. </param>
+	public static Task DispatchAsync(this IDispatcher dispatcher, Action action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
-		return dispatcher is { IsDispatcherThread: false }
-			? dispatcher.RunAsync(action)
-			: Task.Run(action);
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			return dispatcher.DispatchAsync(action, priority);
+		}
+
+		action();
+		return Task.CompletedTask;
 	}
 
 	/// <summary>
@@ -59,11 +66,16 @@ public static class DispatcherExtensions
 	/// </summary>
 	/// <param name="dispatcher"> The dispatcher to use. </param>
 	/// <param name="action"> The action to be executed. </param>
-	public static Task<T2> DispatchAsync<T2>(this IDispatcher dispatcher, Func<T2> action)
+	/// <param name="priority"> An optional priority for the action. </param>
+	public static Task<T2> DispatchAsync<T2>(this IDispatcher dispatcher, Func<T2> action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
-		return dispatcher is { IsDispatcherThread: false }
-			? dispatcher.RunAsync(action)
-			: Task.Run(action);
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			return dispatcher.DispatchAsync(action, priority);
+		}
+
+		var result = action();
+		return Task.FromResult(result);
 	}
 
 	/// <summary>

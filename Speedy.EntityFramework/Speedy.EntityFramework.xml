@@ -252,6 +252,9 @@
             <param name="database"> The database where this repository resides. </param>
             <param name="set"> The database set this repository is for. </param>
         </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.Count">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.Database">
             <summary>
             The database where this repository resides.
@@ -275,6 +278,9 @@
             The <see cref="T:System.Linq.Expressions.Expression" /> that is associated with this instance of
             <see cref="T:System.Linq.IQueryable" />.
             </returns>
+        </member>
+        <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.IsReadOnly">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.EntityFramework.EntityFrameworkRepository`2.Provider">
             <summary>
@@ -313,6 +319,15 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.BulkUpdate(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{`0,`0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.Contains(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.CopyTo(`0[],System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.EntityFrameworkRepository`2.GetEnumerator">
@@ -467,6 +482,9 @@
             <param name="database"> The database where this repository resides. </param>
             <param name="set"> The database set this repository is for. </param>
         </member>
+        <member name="P:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Count">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.ElementType">
             <summary>
             Gets the type of the element(s) that are returned when the expression tree associated with this instance of
@@ -485,6 +503,9 @@
             The <see cref="T:System.Linq.Expressions.Expression" /> that is associated with this instance of
             <see cref="T:System.Linq.IQueryable" />.
             </returns>
+        </member>
+        <member name="P:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.IsReadOnly">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Provider">
             <summary>
@@ -516,6 +537,15 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.BulkUpdate(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{`0,`0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.Contains(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.CopyTo(`0[],System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.EntityFramework.ReadOnlyEntityFrameworkRepository`2.GetEnumerator">

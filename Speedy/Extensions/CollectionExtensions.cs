@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
+using Speedy.Collections;
 using Speedy.Protocols;
 using Speedy.Storage;
 
@@ -172,6 +173,11 @@ public static class CollectionExtensions
 	/// <typeparam name="T"> The type of the items in the collection. </typeparam>
 	public static ICollection<T> AddRange<T>(this ICollection<T> set, params T[] items)
 	{
+		if (set is ReadOnlySet<T>)
+		{
+			set = new HashSet<T>(set);
+		}
+
 		foreach (var item in items)
 		{
 			set.Add(item);
@@ -216,6 +222,26 @@ public static class CollectionExtensions
 		var secondProperties = typeof(T2).GetCachedProperties().Select(x => x.Name);
 		var missing = firstProperties.Except(secondProperties);
 		collection.AddRange(missing);
+	}
+
+	/// <summary>
+	/// Converts a set into a readonly set.
+	/// </summary>
+	/// <param name="set"> The set to protect as readonly. </param>
+	/// <returns> The provided set as a readonly version. </returns>
+	public static ReadOnlySet<string> AsReadOnly(this IEnumerable<string> set)
+	{
+		return new ReadOnlySet<string>(set);
+	}
+	
+	/// <summary>
+	/// Converts a set into a readonly set.
+	/// </summary>
+	/// <param name="set"> The set to protect as readonly. </param>
+	/// <returns> The provided set as a readonly version. </returns>
+	public static ReadOnlySet<string> AsReadOnly(this ISet<string> set)
+	{
+		return new ReadOnlySet<string>(set);
 	}
 
 	/// <summary>
@@ -460,7 +486,7 @@ public static class CollectionExtensions
 				continue;
 			}
 
-			newItem.UpdateWith(addedUpdates, optionalExclusions);
+			newItem.UpdateWith(addedUpdates, optionalExclusions ?? Array.Empty<string>());
 			optionalUpdates?.Invoke(newItem, addedUpdates);
 			collection.Add(newItem);
 		}
@@ -472,7 +498,7 @@ public static class CollectionExtensions
 				continue;
 			}
 
-			updateToApply.item.UpdateWith(updateToApply.update, optionalExclusions);
+			updateToApply.item.UpdateWith(updateToApply.update, optionalExclusions ?? Array.Empty<string>());
 			optionalUpdates?.Invoke(updateToApply.item, updateToApply.update);
 		}
 
@@ -649,7 +675,7 @@ public static class CollectionExtensions
 			collection.Remove(item);
 		}
 	}
-	
+
 	/// <summary>
 	/// Remove items from a collection based on the provided filter.
 	/// </summary>

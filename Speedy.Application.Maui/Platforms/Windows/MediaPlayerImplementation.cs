@@ -66,7 +66,7 @@ public class MediaPlayerImplementation : MediaPlayer
 	{
 		MauiDispatcher
 			.Instance?
-			.Run(() =>
+			.DispatchAsync(() =>
 			{
 				_player.Source = null;
 				_player.MediaPlayer.MediaEnded -= MediaPlayerOnMediaEnded;

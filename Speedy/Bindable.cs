@@ -1,12 +1,7 @@
 ﻿#region References
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 using Speedy.Extensions;
 
 #endregion
@@ -53,14 +48,11 @@ public abstract class Bindable<T> : Bindable, IUpdateable<T>
 /// <summary>
 /// Represents a bindable object.
 /// </summary>
-public abstract class Bindable : IBindable, IUpdateable
+public abstract class Bindable : Notifiable, IBindable
 {
 	#region Fields
 
-	private bool _hasChanges;
-	private bool _pausePropertyChanged;
-	private Type _realType;
-	private readonly HashSet<string> _writableProperties;
+	private IDispatcher _dispatcher;
 
 	#endregion
 
@@ -72,153 +64,98 @@ public abstract class Bindable : IBindable, IUpdateable
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	protected Bindable(IDispatcher dispatcher = null)
 	{
-		Dispatcher = dispatcher;
-
-		_writableProperties = GetType()
-			.GetCachedProperties()
-			.Where(x => x.CanWrite)
-			.Select(x => x.Name)
-			.ToHashSet();
+		_dispatcher = dispatcher;
 	}
-
-	#endregion
-
-	#region Properties
-
-	/// <summary>
-	/// Represents a thread dispatcher to help with cross threaded request.
-	/// </summary>
-	[Browsable(false)]
-	[JsonIgnore]
-	[IgnoreDataMember]
-	protected IDispatcher Dispatcher { get; private set; }
 
 	#endregion
 
 	#region Methods
 
 	/// <inheritdoc />
+	public void Dispatch(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			dispatcher.Dispatch(action, priority);
+			return;
+		}
+
+		action();
+	}
+
+	/// <inheritdoc />
+	public T2 Dispatch<T2>(Func<T2> action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		return dispatcher is { IsDispatcherThread: false }
+			? dispatcher.Dispatch(action, priority)
+			: action();
+	}
+
+	/// <inheritdoc />
+	public Task DispatchAsync(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			return dispatcher.DispatchAsync(action, priority);
+		}
+
+		action();
+		return Task.CompletedTask;
+	}
+
+	/// <inheritdoc />
+	public Task<T2> DispatchAsync<T2>(Func<T2> action, DispatcherPriority priority = DispatcherPriority.Normal)
+	{
+		var dispatcher = GetDispatcher();
+		if (dispatcher is { IsDispatcherThread: false })
+		{
+			return dispatcher.DispatchAsync(action, priority);
+		}
+
+		var result = action();
+		return Task.FromResult(result);
+	}
+
+	/// <inheritdoc />
 	public IDispatcher GetDispatcher()
 	{
-		return Dispatcher;
-	}
-
-	/// <summary>
-	/// Cached version of the "real" type, meaning not EF proxy but rather root type
-	/// </summary>
-	public Type GetRealType()
-	{
-		return _realType ??= this.GetRealTypeUsingReflection();
-	}
-
-	/// <inheritdoc />
-	public bool HasChanges()
-	{
-		return HasChanges(Array.Empty<string>());
-	}
-
-	/// <inheritdoc />
-	public virtual bool HasChanges(params string[] exclusions)
-	{
-		return _hasChanges;
-	}
-
-	/// <inheritdoc />
-	public virtual bool IsChangeNotificationsPaused()
-	{
-		return _pausePropertyChanged;
+		return _dispatcher;
 	}
 
 	/// <summary>
 	/// Indicates the property has changed on the bindable object.
 	/// </summary>
 	/// <param name="propertyName"> The name of the property has changed. </param>
-	public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+	public override void OnPropertyChanged(string propertyName)
 	{
 		// Ensure we have not paused property notifications
-		if ((propertyName == null) || _pausePropertyChanged)
+		if ((propertyName == null) || IsChangeNotificationsPaused())
 		{
-			// Property change notifications have been paused so bounce
+			// Property change notifications have been paused or property null so bounce
 			return;
 		}
 
-		// If we have a dispatcher *and* not on the dispatcher thread
-		// then switch to to the dispatcher thread to trigger property changed
-		if (this.ShouldDispatch())
+		DispatchAsync(() =>
 		{
-			this.Dispatch(() => OnPropertyChanged(propertyName));
-			return;
-		}
-
-		OnPropertyChangedInDispatcher(propertyName);
-
-		if (_writableProperties?.Contains(propertyName) == true)
-		{
-			_hasChanges = true;
-		}
-
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			OnPropertyChangedInDispatcher(propertyName);
+			base.OnPropertyChanged(propertyName);
+		});
 	}
 
 	/// <inheritdoc />
-	public virtual void PausePropertyChangeNotifications(bool pause = true)
+	public bool ShouldDispatch()
 	{
-		_pausePropertyChanged = pause;
-	}
-
-	/// <summary>
-	/// Reset the change tracking flag.
-	/// </summary>
-	/// <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
-	public virtual void ResetHasChanges(bool hasChanges = false)
-	{
-		_hasChanges = hasChanges;
-	}
-
-	/// <inheritdoc />
-	public virtual bool ShouldUpdate(object update)
-	{
-		return true;
-	}
-
-	/// <inheritdoc />
-	public virtual bool TryUpdateWith(object update, params string[] exclusions)
-	{
-		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
+		var dispatcher = GetDispatcher();
+		return dispatcher is { IsDispatcherThread: false };
 	}
 
 	/// <inheritdoc />
 	public virtual void UpdateDispatcher(IDispatcher dispatcher)
 	{
-		Dispatcher = dispatcher;
-	}
-
-	/// <inheritdoc />
-	public virtual bool UpdateWith(object update, params string[] exclusions)
-	{
-		this.UpdateWithUsingReflection(update, exclusions);
-		return true;
-	}
-
-	/// <inheritdoc />
-	public bool UpdateWith(object update, bool excludeVirtuals, params string[] exclusions)
-	{
-		var totalExclusions = new HashSet<string>(exclusions);
-		if (excludeVirtuals)
-		{
-			totalExclusions.AddRange(GetRealType().GetVirtualPropertyNames());
-		}
-
-		return UpdateWith(update, totalExclusions.ToArray());
-	}
-
-	/// <summary>
-	/// Indicates the property has changed on the bindable object.
-	/// </summary>
-	/// <param name="propertyChangedEvent"> The changed event value of the property that changed. </param>
-	protected void OnPropertyChanged(PropertyChangedEventArgs propertyChangedEvent)
-	{
-		OnPropertyChanged(propertyChangedEvent.PropertyName);
+		_dispatcher = dispatcher;
 	}
 
 	/// <summary>
@@ -230,11 +167,35 @@ public abstract class Bindable : IBindable, IUpdateable
 	}
 
 	#endregion
+}
 
-	#region Events
+/// <summary>
+/// Represents a bindable object.
+/// </summary>
+public interface IBindable<in T> : IBindable, IUpdateable<T>
+{
+}
 
-	/// <inheritdoc />
-	public event PropertyChangedEventHandler PropertyChanged;
+/// <summary>
+/// Represents a bindable object.
+/// </summary>
+public interface IBindable : INotifiable, IDispatchable
+{
+	#region Methods
+
+	/// <summary>
+	/// Get the current dispatcher in use.
+	/// </summary>
+	/// <returns>
+	/// The dispatcher that is currently being used. Null if no dispatcher is assigned.
+	/// </returns>
+	public IDispatcher GetDispatcher();
+
+	/// <summary>
+	/// Updates the entity for this entity.
+	/// </summary>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	public void UpdateDispatcher(IDispatcher dispatcher);
 
 	#endregion
 }

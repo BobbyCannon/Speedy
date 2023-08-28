@@ -44,7 +44,7 @@ public static class DirectoryInfoExtensions
 			}
 		}, 1000, 10);
 
-		return UtilityExtensions.Wait(() =>
+		return UtilityExtensions.WaitUntil(() =>
 		{
 			info.Refresh();
 			return info.Exists;
@@ -67,7 +67,7 @@ public static class DirectoryInfoExtensions
 			}
 		}, 1000, 10);
 
-		UtilityExtensions.Wait(() =>
+		UtilityExtensions.WaitUntil(() =>
 		{
 			info.Refresh();
 			return !info.Exists;

@@ -358,6 +358,111 @@
         <member name="M:Speedy.Application.Internal.SourceInformationProvider.StopMonitoringAsync">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.Application.Internal.Windows.MacAddressComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that uses the MAC Address of the PC.
+            This improves upon the basic <see cref="T:Speedy.Application.Internal.MacAddressDeviceIdComponent" /> by using WMI
+            to get better information from either MSFT_NetAdapter or Win32_NetworkAdapter.
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Internal.Windows.MacAddressComponent._excludeNonPhysical">
+            <summary>
+            A value determining whether non-physical devices should be excluded.
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Internal.Windows.MacAddressComponent._excludeWireless">
+            <summary>
+            A value determining whether wireless devices should be excluded.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.MacAddressComponent.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Application.Internal.Windows.MacAddressComponent" /> class.
+            </summary>
+            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
+            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.MacAddressComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.MacAddressComponent.GetValueUsingMsftNetAdapter(System.Boolean,System.Boolean)">
+            <summary>
+            Gets the component value using MSFT_NetAdapter.
+            </summary>
+            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
+            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
+            <returns> The component value. </returns>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.MacAddressComponent.GetValueUsingWin32NetworkAdapter(System.Boolean,System.Boolean)">
+            <summary>
+            Gets the component value using Win32_NetworkAdapter.
+            </summary>
+            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
+            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
+            <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Application.Internal.Windows.RegistryComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that retrieves its value from the Windows registry.
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Internal.Windows.RegistryComponent._keyName">
+            <summary>
+            The name of the registry key.
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Internal.Windows.RegistryComponent._registryHive">
+            <summary>
+            The registry hive.
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Internal.Windows.RegistryComponent._registryView">
+            <summary>
+            The registry views.
+            </summary>
+        </member>
+        <member name="F:Speedy.Application.Internal.Windows.RegistryComponent._valueName">
+            <summary>
+            The name of the registry value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.RegistryComponent.#ctor(Microsoft.Win32.RegistryView,Microsoft.Win32.RegistryHive,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Application.Internal.Windows.RegistryComponent" /> class.
+            </summary>
+            <param name="registryView"> The registry view. </param>
+            <param name="registryHive"> The registry hive. </param>
+            <param name="keyName"> The name of the registry key. </param>
+            <param name="valueName"> The name of the registry value. </param>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.RegistryComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Application.Internal.Windows.SystemDriveSerialNumberComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Application.IDeviceIdComponent" /> that uses the system drive's serial number.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.SystemDriveSerialNumberComponent.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Application.Internal.Windows.SystemDriveSerialNumberComponent" /> class.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.SystemDriveSerialNumberComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="M:Speedy.Application.Internal.Windows.WmiComponent.GetValue">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Application.MediaPlayer">
             <summary>
             Represents a media player.
@@ -409,7 +514,7 @@
         <member name="M:Speedy.Application.Settings.Setting`2.HasChanges(System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Settings.Setting`2.ResetHasChanges(System.Boolean)">
+        <member name="M:Speedy.Application.Settings.Setting`2.ResetHasChanges">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Settings.Setting`2.UpdateWith(Speedy.Application.Settings.Setting{`0,`1},System.String[])">
@@ -506,7 +611,7 @@
             </summary>
             <param name="repository"> The repository contains the settings. </param>
         </member>
-        <member name="M:Speedy.Application.Settings.SettingsManager`2.ResetHasChanges(System.Boolean)">
+        <member name="M:Speedy.Application.Settings.SettingsManager`2.ResetHasChanges">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Settings.SettingsManager`2.Save(Speedy.IRepository{`0,`1})">

@@ -1,0 +1,193 @@
+﻿<Window x:Class="Speedy.Example.Wpf.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:core="clr-namespace:Speedy.Example.Core;assembly=Speedy.Example.Core"
+		mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=core:MainViewModel}"
+		Title="MainWindow" Height="800" Width="800"
+		Topmost="False" WindowStartupLocation="CenterScreen">
+	<DockPanel LastChildFill="True">
+		<StatusBar DockPanel.Dock="Bottom">
+			<StatusBarItem>
+				<TextBlock Text="{Binding RuntimeInformation.DeviceId, Mode=OneWay}" />
+			</StatusBarItem>
+			<StatusBarItem>
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="Is Running:" />
+					<TextBlock Text="{Binding IsRunning, Mode=OneWay}" />
+				</StackPanel>
+			</StatusBarItem>
+			<StatusBarItem>
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="Cancellation Pending:" />
+					<TextBlock Text="{Binding CancellationPending, Mode=OneWay}" />
+				</StackPanel>
+			</StatusBarItem>
+			<StatusBarItem>
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="Elapsed:" />
+					<TextBlock Text="{Binding RunElapsed, Mode=OneWay}" />
+				</StackPanel>
+			</StatusBarItem>
+		</StatusBar>
+		<StackPanel DockPanel.Dock="Top"
+				Orientation="Horizontal">
+			<TextBox Text="{Binding NumberOfItems, Mode=TwoWay}"
+					IsReadOnly="false"
+					TextAlignment="Center"
+					Padding="10,2"
+					/>
+			<TextBox Text="{Binding NumberOfThreads, Mode=OneWay}"
+					IsReadOnly="True"
+					TextAlignment="Center"
+					Padding="10,2"
+					/>
+			<Button Content="+"
+					Command="{Binding NumberOfThreadsCommand, Mode=OneWay}"
+					CommandParameter="+"
+					Padding="10,2"
+					/>
+			<Button Content="-"
+					Command="{Binding NumberOfThreadsCommand, Mode=OneWay}"
+					CommandParameter="-"
+					Padding="10,2"
+					/>
+			<CheckBox Margin="10,2"
+					IsChecked="{Binding UseOrder, Mode=TwoWay}">
+				<Label Content="Order" />
+			</CheckBox>
+			<CheckBox Margin="10,2"
+					IsChecked="{Binding UseLimit, Mode=TwoWay}">
+				<Label Content="Limit" />
+			</CheckBox>
+			<TextBox Text="{Binding Limit, Mode=TwoWay}"
+					IsReadOnly="false"
+					TextAlignment="Center"
+					Padding="10,2"
+					Margin="0,2,10,2"
+					/>
+			<ComboBox ItemsSource="{Binding ThrottleDelayValues, Mode=OneTime}"
+					SelectedItem="{Binding ThrottleDelay, Mode=TwoWay}"
+					DisplayMemberPath="Name">
+			</ComboBox>
+			<CheckBox Margin="10,2"
+					IsChecked="{Binding LoopTest, Mode=TwoWay}">
+				<Label Content="Loop Test" />
+			</CheckBox>
+			<Button Command="{Binding RandomizeCommand, Mode=OneTime}"
+					Margin="10,0,0,0"
+					Padding="10,2">
+				<Grid>
+					<Label Content="Randomize" Visibility="{Binding IsRunning, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}" />
+					<Label Content="Cancel" Visibility="{Binding IsRunning, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
+				</Grid>
+			</Button>
+			
+		</StackPanel>
+		<ProgressBar DockPanel.Dock="Bottom"
+				Height="15"
+				Value="{Binding Progress, Mode=OneWay}"
+				Minimum="0"
+				Maximum="{Binding Maximum, Mode=OneWay}"
+				/>
+		<TextBox DockPanel.Dock="Bottom"
+				Text="{Binding Message, Mode=OneWay}"
+				Height="200"
+				IsReadOnly="true" />
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<Grid.Resources>
+				<Style TargetType="TextBlock">
+					<Setter Property="Padding" Value="0,0,6,0" />
+				</Style>
+			</Grid.Resources>
+			<Grid Grid.Column="0">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<ListView Grid.Row="0" ItemsSource="{Binding LeftList, Mode=OneWay}"
+						VirtualizingStackPanel.IsVirtualizing="True">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+				<ListView Grid.Row="0" ItemsSource="{Binding LeftList.Filtered, Mode=OneWay}"
+						Visibility="{Binding ListFilterForLeft, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+						VirtualizingStackPanel.IsVirtualizing="True">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+				<StackPanel Grid.Row="1" Orientation="Horizontal">
+					<TextBlock Text="Count" />
+					<TextBlock Text="{Binding LeftList.Count, Mode=OneWay}" />
+				</StackPanel>
+				<TextBox Grid.Row="2" Text="{Binding ListFilterForLeft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			</Grid>
+			<Grid Grid.Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<ListView Grid.Row="0" ItemsSource="{Binding MiddleList, Mode=OneWay}"
+						VirtualizingStackPanel.IsVirtualizing="True">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+				<ListView Grid.Row="0" ItemsSource="{Binding MiddleList.Filtered, Mode=OneWay}"
+						Visibility="{Binding ListFilterForMiddle, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+						VirtualizingStackPanel.IsVirtualizing="True">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+				<StackPanel Grid.Row="1" Orientation="Horizontal">
+					<TextBlock Text="Count" />
+					<TextBlock Text="{Binding MiddleList.Count, Mode=OneWay}" />
+				</StackPanel>
+				<TextBox Grid.Row="2" Text="{Binding ListFilterForMiddle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			</Grid>
+			<Grid Grid.Column="2">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<ListView Grid.Row="0" ItemsSource="{Binding RightList, Mode=OneWay}"
+						VirtualizingStackPanel.IsVirtualizing="True">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+				<ListView Grid.Row="0" ItemsSource="{Binding RightList.Filtered, Mode=OneWay}"
+						Visibility="{Binding ListFilterForRight, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+						VirtualizingStackPanel.IsVirtualizing="True"
+						/>
+				<StackPanel Grid.Row="1" Orientation="Horizontal">
+					<TextBlock Text="Count" />
+					<TextBlock Text="{Binding RightList.Count, Mode=OneWay}" />
+				</StackPanel>
+				<TextBox Grid.Row="2" Text="{Binding ListFilterForRight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			</Grid>
+		</Grid>
+	</DockPanel>
+</Window>

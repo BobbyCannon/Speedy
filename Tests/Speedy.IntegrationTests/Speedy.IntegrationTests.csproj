@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<IsPackable>false</IsPackable>
+		<LangVersion>latest</LangVersion>
+		<SignAssembly>false</SignAssembly>
+		<DelaySign>false</DelaySign>
+		<AssemblyOriginatorKeyFile>..\Speedy\Speedy.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
+		<PackageReference Include="System.IO.Ports" Version="7.0.0" />
+		<PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.32">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.32">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<ProjectReference Include="..\..\Samples\Client\Speedy.Client.Data.Sqlite.Old\Speedy.Client.Data.Sqlite.Old.csproj" />
+		<ProjectReference Include="..\..\Samples\Website\Speedy.Website.Data.Sqlite.Old\Speedy.Website.Data.Sqlite.Old.csproj" />
+		<ProjectReference Include="..\..\Samples\Website\Speedy.Website.Data.Sql.Old\Speedy.Website.Data.Sql.Old.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.6" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<ProjectReference Include="..\..\Samples\Website\Speedy.Website\Speedy.Website.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows10.0.19041.0' or '$(TargetFramework)' == 'net7.0-windows10.0.19041.0'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<ProjectReference Include="..\..\Samples\Client\Speedy.Client.Data.Sqlite\Speedy.Client.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\..\Samples\Website\Speedy.Website.Data.Sqlite\Speedy.Website.Data.Sqlite.csproj" />
+		<ProjectReference Include="..\..\Samples\Website\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
+		<ProjectReference Include="..\..\Samples\Website\Speedy.Website\Speedy.Website.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Speedy.Automation\Speedy.Automation.csproj" />
+		<ProjectReference Include="..\..\Samples\Client\Speedy.Client.Data\Speedy.Client.Data.csproj" />
+		<ProjectReference Include="..\Speedy.UnitTests\Speedy.UnitTests.csproj" />
+		<ProjectReference Include="..\..\Samples\Website\Speedy.Website.Data\Speedy.Website.Data.csproj" />
+		<ProjectReference Include="..\..\Speedy\Speedy.csproj" />
+	</ItemGroup>
+</Project>

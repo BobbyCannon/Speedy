@@ -258,7 +258,7 @@ public class PartialUpdate<T> : PartialUpdate
 
 	internal override Validator GetValidator(string name)
 	{
-		return _validators.GetOrAdd(name, _ => new Validator<PartialUpdate<T>>(Dispatcher));
+		return _validators.GetOrAdd(name, _ => new Validator<PartialUpdate<T>>(GetDispatcher()));
 	}
 
 	internal override string ToAssemblyName()

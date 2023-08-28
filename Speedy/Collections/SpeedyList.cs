@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using Speedy.Extensions;
 
 #endregion
 
@@ -90,7 +89,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// Create an instance of the list.
 	/// </summary>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public SpeedyList(IDispatcher dispatcher) : this(dispatcher, (OrderBy<T>[]) null, null)
+	public SpeedyList(IDispatcher dispatcher) : this(dispatcher, null, Array.Empty<T>())
 	{
 	}
 
@@ -204,7 +203,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		}
 		set
 		{
-			DispatchWithWriteLock(() =>
+			UpgradeableReadLock(() =>
 			{
 				var oldItem = WriteLock(() =>
 				{
@@ -213,7 +212,11 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 					return oldItem;
 				});
 
-				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem, index));
+				Dispatch(() =>
+				{
+					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem, index));
+					OnPropertyChanged(nameof(Count));
+				});
 			});
 		}
 	}
@@ -261,40 +264,12 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			throw new ArgumentException("The item is the incorrect value type.", nameof(item));
 		}
 
-		return DispatchWithWriteLock(() =>
+		return UpgradeableReadLock(() =>
 		{
+			var limitFromStart = OrderBy is not { Length: > 0 };
 			var response = InternalAdd(value);
-			InternalSort();
-			InternalEnforceLimit(true);
-			InternalFilter();
+			InternalEnforceLimit(limitFromStart);
 			return response;
-		});
-	}
-
-	/// <summary>
-	/// Add a range of items.
-	/// </summary>
-	/// <param name="items"> The items to be added. </param>
-	public void AddRange(params T[] items)
-	{
-		AddRange((IEnumerable<T>) items);
-	}
-
-	/// <summary>
-	/// Add a range of items.
-	/// </summary>
-	/// <param name="items"> The items to be added. </param>
-	public void AddRange(IEnumerable<T> items)
-	{
-		DispatchWithWriteLock(() =>
-		{
-			foreach (var item in items)
-			{
-				InternalAdd(item);
-			}
-			InternalSort();
-			InternalEnforceLimit(true);
-			InternalFilter();
 		});
 	}
 
@@ -306,7 +281,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			return;
 		}
 
-		RemoveAll();
+		InternalRemoveRange(0, Count);
 	}
 
 	/// <inheritdoc />
@@ -384,7 +359,14 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <inheritdoc />
 	public void Insert(int index, T item)
 	{
-		DispatchWithWriteLock(() =>
+		if (OrderBy is { Length: > 0 })
+		{
+			// Just add because the list is an ordered list.
+			Add(item);
+			return;
+		}
+
+		UpgradeableReadLock(() =>
 		{
 			if (!InternalInsert(index, item))
 			{
@@ -430,8 +412,11 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <param name="items"> The items to be loaded. </param>
 	public void Load(params T[] items)
 	{
-		// Ensure items is not null.
-		items ??= Array.Empty<T>();
+		if (items is not { Length: > 0 })
+		{
+			Clear();
+			return;
+		}
 
 		// Guarantee uniqueness of items if we have a comparer
 		IList<T> processedItems = ComparerFunction != null
@@ -448,15 +433,20 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			processedItems = processedItems.Take(Limit).ToList();
 		}
 
-		this.Dispatch(() =>
+		UpgradeableReadLock(() =>
 		{
 			Clear();
+			WriteLock(() => _list.AddRange(processedItems));
+			Dispatch(() =>
+			{
+				for (var index = 0; index < processedItems.Count; index++)
+				{
+					var item = processedItems[index];
+					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+				}
 
-			WriteLock(() => { _list.AddRange(processedItems); });
-
-			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, (IList) processedItems, 0));
-
-			InternalFilter();
+				OnPropertyChanged(nameof(Count));
+			});
 		});
 	}
 
@@ -518,7 +508,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// </summary>
 	public void RefreshFilter()
 	{
-		DispatchWithReadLock(InternalFilter);
+		ReadLock(InternalFilter);
 	}
 
 	/// <inheritdoc />
@@ -530,7 +520,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <inheritdoc />
 	public bool Remove(T item)
 	{
-		return DispatchWithWriteLock(() =>
+		return UpgradeableReadLock(() =>
 		{
 			var index = InternalIndexOf(item);
 			if (index < 0)
@@ -538,10 +528,18 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 				return false;
 			}
 
-			var oldItem = _list[index];
-			_list.RemoveAt(index);
+			var removedItem = WriteLock(() =>
+			{
+				var removedItem = _list[index];
+				_list.RemoveAt(index);
+				return removedItem;
+			});
 
-			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+			Dispatch(() =>
+			{
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+				OnPropertyChanged(nameof(Count));
+			});
 
 			return true;
 		});
@@ -553,55 +551,22 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <param name="predicate"> The predicate to find entries to remove. </param>
 	public void Remove(Predicate<T> predicate)
 	{
-		DispatchWithWriteLock(() =>
+		UpgradeableReadLock(() =>
 		{
-			var until = -1;
-
 			for (var i = _list.Count - 1; i >= 0; i--)
 			{
 				if (predicate.Invoke(_list[i]))
 				{
-					if (until >= 0)
-					{
-						if (i == 0)
-						{
-							InternalRemoveRange(0, (until - i) + 1);
-						}
-						continue;
-					}
-
-					if (i == 0)
-					{
-						// Remove the first entry because that
-						InternalRemoveRange(0, 1);
-						continue;
-					}
-
-					until = i;
-					continue;
-				}
-
-				if (until >= 0)
-				{
-					InternalRemoveRange(i + 1, until - i);
-					until = -1;
+					InternalRemoveAt(i);
 				}
 			}
 		});
 	}
 
-	/// <summary>
-	/// Remove all items from the collection.
-	/// </summary>
-	public void RemoveAll()
-	{
-		DispatchWithWriteLock(() => InternalRemoveRange(0, Count));
-	}
-
 	/// <inheritdoc cref="IList" />
 	public void RemoveAt(int index)
 	{
-		DispatchWithWriteLock(() => InternalRemoveAt(index));
+		UpgradeableReadLock(() => InternalRemoveAt(index));
 	}
 
 	/// <summary>
@@ -611,7 +576,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <param name="length"> The number of items to remove. </param>
 	public void RemoveRange(int index, int length)
 	{
-		DispatchWithWriteLock(() => InternalRemoveRange(index, length));
+		InternalRemoveRange(index, length);
 	}
 
 	/// <summary>
@@ -619,7 +584,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// </summary>
 	public void Sort()
 	{
-		DispatchWithWriteLock(InternalSort);
+		WriteLock(InternalSort);
 	}
 
 	/// <summary>
@@ -630,7 +595,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <returns> True if the item was available and retrieved otherwise false. </returns>
 	public bool TryGetAndRemoveAt(int index, out T item)
 	{
-		var result = DispatchWithWriteLock(() =>
+		var result = UpgradeableReadLock(() =>
 		{
 			if (!InternalHasIndex(index))
 			{
@@ -654,7 +619,6 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	{
 		InternalUpdateFilter(e);
 		CollectionChanged?.Invoke(this, e);
-		OnPropertyChanged(nameof(Count));
 	}
 
 	/// <inheritdoc />
@@ -682,8 +646,9 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	private int InternalAdd(T item)
 	{
 		int index;
+		var function = ComparerFunction;
 
-		if (ComparerFunction != null)
+		if (function != null)
 		{
 			index = InternalIndexOf(item);
 			if (index >= 0)
@@ -692,14 +657,28 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			}
 		}
 
-		index = WriteLock(() =>
+		var orderBy = OrderBy?.ToArray();
+
+		if (orderBy is { Length: > 0 })
 		{
-			_list.Add(item);
-			return _list.Count - 1;
-		});
+			for (var i = 0; i < _list.Count; i++)
+			{
+				var existingItem = _list[i];
 
-		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+				foreach (var by in orderBy)
+				{
+					var isLessThan = Comparer.Default.Compare(by.CompiledKeySelector.Invoke(item), by.CompiledKeySelector.Invoke(existingItem));
+					if (isLessThan == (by.Descending ? 1 : -1))
+					{
+						InternalInsert(i, item);
+						return i;
+					}
+				}
+			}
+		}
 
+		index = Count;
+		InternalInsert(index, item);
 		return index;
 	}
 
@@ -775,7 +754,11 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 
 		WriteLock(() => _list.Insert(index, item));
 
-		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+		Dispatch(() =>
+		{
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+			OnPropertyChanged(nameof(Count));
+		});
 
 		return true;
 	}
@@ -790,7 +773,11 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			_list.Insert(newIndex, removedItem);
 		});
 
-		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex));
+		Dispatch(() =>
+		{
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex));
+			OnPropertyChanged(nameof(Count));
+		});
 	}
 
 	private void InternalRemoveAt(int index)
@@ -802,29 +789,44 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			return oldItem;
 		});
 
-		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+		Dispatch(() =>
+		{
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+			OnPropertyChanged(nameof(Count));
+		});
 	}
 
 	private void InternalRemoveRange(int index, int length)
 	{
 		List<T> itemsRemoved = null;
 
-		WriteLock(() =>
+		UpgradeableReadLock(() =>
 		{
-			var remaining = _list.Count - index;
-			var itemsToRemoved = Math.Min(length, remaining);
-			var until = index + itemsToRemoved;
-			itemsRemoved = new List<T>(itemsToRemoved);
-
-			for (var i = index; i < until; i++)
+			WriteLock(() =>
 			{
-				itemsRemoved.Add(_list[i]);
-			}
+				var remaining = _list.Count - index;
+				var itemsToRemoved = Math.Min(length, remaining);
+				var until = index + itemsToRemoved;
+				itemsRemoved = new List<T>(itemsToRemoved);
 
-			_list.RemoveRange(index, length);
+				for (var i = index; i < until; i++)
+				{
+					itemsRemoved.Add(_list[i]);
+				}
+
+				_list.RemoveRange(index, length);
+			});
+
+			Dispatch(() =>
+			{
+				foreach (var item in itemsRemoved)
+				{
+					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+				}
+
+				OnPropertyChanged(nameof(Count));
+			});
 		});
-
-		OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, itemsRemoved, index));
 	}
 
 	private void InternalSort()
@@ -836,7 +838,9 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			return;
 		}
 
-		var sorted = OrderCollection(_list);
+		var firstOrder = OrderBy.First();
+		var thenBy = OrderBy.Skip(1).ToArray();
+		var sorted = firstOrder.Process(_list.AsQueryable(), thenBy).ToList();
 
 		for (var i = 0; i < sorted.Count; i++)
 		{

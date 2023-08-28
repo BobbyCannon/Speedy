@@ -299,9 +299,9 @@ public class MemoryCache : Bindable, ICollection<MemoryCacheItem>, ICollection, 
 	/// <param name="getArgs"> The changed event. </param>
 	protected virtual void OnCollectionChanged(Func<NotifyCollectionChangedEventArgs> getArgs)
 	{
-		if (Dispatcher?.IsDispatcherThread == false)
+		if (ShouldDispatch())
 		{
-			Dispatcher.Run(() => OnCollectionChanged(getArgs));
+			Dispatch(() => OnCollectionChanged(getArgs));
 			return;
 		}
 

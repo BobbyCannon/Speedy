@@ -87,8 +87,8 @@ public static class UtilityExtensions
 	/// provided delay time.
 	/// </summary>
 	/// <param name="action"> The action to attempt to retry. </param>
-	/// <param name="timeout"> The timeout to stop retrying. </param>
-	/// <param name="delay"> The delay between retries. </param>
+	/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+	/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
 	/// <returns> The response from the action. </returns>
 	public static void Retry(Action action, int timeout, int delay)
 	{
@@ -121,7 +121,50 @@ public static class UtilityExtensions
 	/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
 	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
 	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
-	public static bool Wait(Func<bool> action, int timeout, int delay, bool useTimeService = false)
+	public static bool WaitUntil(this Func<bool> action, int timeout, int delay, bool useTimeService = false)
+	{
+		return WaitUntil(action, TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(delay), TimeSpan.MinValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
+	/// time.
+	/// </summary>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+	public static bool WaitUntil(this Func<bool> action, TimeSpan timeout, int delay, bool useTimeService = false)
+	{
+		return WaitUntil(action, timeout, TimeSpan.FromMilliseconds(delay), TimeSpan.MinValue, TimeSpan.MaxValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay between checks. </param>
+	/// <param name="minimum"> The minimal time to wait. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil(Func<bool> action, TimeSpan timeout, TimeSpan delay, TimeSpan minimum, bool useTimeService = false)
+	{
+		return WaitUntil(action, timeout, delay, minimum, TimeSpan.MaxValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay between checks. </param>
+	/// <param name="minimum"> The minimal time to wait. </param>
+	/// <param name="maximum"> The maximum time to wait. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil(Func<bool> action, TimeSpan timeout, TimeSpan delay, TimeSpan minimum, TimeSpan maximum, bool useTimeService = false)
 	{
 		// Leave here for performance reason, in case cancellation has already been requested
 		// Note: this cut 75% of time for existing cancellations
@@ -133,50 +176,13 @@ public static class UtilityExtensions
 		var watch = Stopwatch.StartNew();
 		var timer = Timer.StartNew();
 		var elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
-		var watchTimeout = TimeSpan.FromMilliseconds(timeout);
-
-		while (!action())
-		{
-			if (elapsed() > watchTimeout)
-			{
-				return false;
-			}
-
-			Thread.Sleep(delay);
-		}
-
-		return true;
-	}
-
-	/// <summary>
-	/// Wait for a cancellation or for the value to time out.
-	/// </summary>
-	/// <param name="cancellationPending"> A check for cancellation. </param>
-	/// <param name="value"> The value of time to wait for. </param>
-	/// <param name="delay"> The delay between checks. </param>
-	/// <param name="minimum"> The minimal time to wait. </param>
-	/// <param name="maximum"> The maximum time to wait. </param>
-	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
-	public static bool Wait(Func<bool> cancellationPending, TimeSpan value, TimeSpan delay, TimeSpan minimum, TimeSpan maximum, bool useTimeService = false)
-	{
-		// Leave here for performance reason, in case cancellation has already been requested
-		// Note: this cut 75% of time for existing cancellations
-		if (cancellationPending())
-		{
-			return false;
-		}
-
-		var watch = Stopwatch.StartNew();
-		var timer = Timer.StartNew();
-		var elapsed = () => useTimeService ? timer.Elapsed : watch.Elapsed;
 		var shouldDelay = delay.Ticks > 0;
 
-		while (((elapsed() < value) || (elapsed() < minimum)) && (elapsed() < maximum))
+		while (((elapsed() < timeout) || (elapsed() < minimum)) && (elapsed() < maximum))
 		{
-			if (cancellationPending())
+			if (action())
 			{
-				return false;
+				return true;
 			}
 
 			if (shouldDelay)
@@ -185,7 +191,106 @@ public static class UtilityExtensions
 			}
 		}
 
-		return true;
+		return false;
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="value"> The value to process in the action. </param>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+	/// <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil<T>(this T value, Func<bool> action, int timeout, int delay, bool useTimeService = false)
+	{
+		return WaitUntil(value, _ => action(), TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(delay), TimeSpan.MinValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="value"> The value to process in the action. </param>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil<T>(this T value, Func<bool> action, TimeSpan timeout, int delay, bool useTimeService = false)
+	{
+		return WaitUntil(value, _ => action(), timeout, TimeSpan.FromMilliseconds(delay), TimeSpan.MinValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="value"> The value to process in the action. </param>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay between checks. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil<T>(this T value, Func<bool> action, TimeSpan timeout, TimeSpan delay, bool useTimeService = false)
+	{
+		return WaitUntil(value, _ => action(), timeout, delay, TimeSpan.MinValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="value"> The value to process in the action. </param>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+	/// <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil<T>(this T value, Func<T, bool> action, int timeout, int delay, bool useTimeService = false)
+	{
+		return WaitUntil(() => action(value), TimeSpan.FromMilliseconds(timeout), TimeSpan.FromMilliseconds(delay), TimeSpan.MinValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="value"> The value to process in the action. </param>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil<T>(this T value, Func<T, bool> action, TimeSpan timeout, int delay, bool useTimeService = false)
+	{
+		return WaitUntil(() => action(value), timeout, TimeSpan.FromMilliseconds(delay), TimeSpan.MinValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="value"> The value to process in the action. </param>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay between checks. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil<T>(this T value, Func<T, bool> action, TimeSpan timeout, TimeSpan delay, bool useTimeService = false)
+	{
+		return WaitUntil(() => action(value), timeout, delay, TimeSpan.MinValue, useTimeService);
+	}
+
+	/// <summary>
+	/// Wait for a cancellation or for the value to time out.
+	/// </summary>
+	/// <param name="value"> The value to process in the action. </param>
+	/// <param name="action"> The action to call. </param>
+	/// <param name="timeout"> The timeout to attempt the action. </param>
+	/// <param name="delay"> The delay between checks. </param>
+	/// <param name="minimum"> The minimal time to wait. </param>
+	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+	public static bool WaitUntil<T>(this T value, Func<T, bool> action, TimeSpan timeout, TimeSpan delay, TimeSpan minimum, bool useTimeService = false)
+	{
+		return WaitUntil(() => action(value), timeout, delay, minimum, useTimeService);
 	}
 
 	#endregion

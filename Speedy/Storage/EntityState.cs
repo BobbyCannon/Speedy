@@ -90,7 +90,7 @@ namespace Speedy.Storage
 		public IEnumerable<PropertyInfo> GetChangedProperties()
 		{
 			var properties = _type.GetCachedProperties();
-			var changedProperties = Entity.ChangedProperties;
+			var changedProperties = Entity.GetChangedProperties();
 			return properties.Where(x => changedProperties.Contains(x.Name)).ToList();
 		}
 

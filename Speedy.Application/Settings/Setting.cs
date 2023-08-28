@@ -67,14 +67,14 @@ public class Setting<T, T2> : Setting<T2>
 	}
 
 	/// <inheritdoc />
-	public override void ResetHasChanges(bool hasChanges = false)
+	public override void ResetHasChanges()
 	{
 		if (Data is IChangeable changeable)
 		{
 			changeable.ResetHasChanges();
 		}
 
-		base.ResetHasChanges(hasChanges);
+		base.ResetHasChanges();
 	}
 
 	/// <summary>

@@ -93,10 +93,10 @@ public abstract class SettingsManager<T, T2> : Bindable
 	}
 
 	/// <inheritdoc />
-	public override void ResetHasChanges(bool hasChanges = false)
+	public override void ResetHasChanges()
 	{
 		_settings.ForEach(x => x.Value.ResetHasChanges());
-		base.ResetHasChanges(hasChanges);
+		base.ResetHasChanges();
 	}
 
 	/// <summary>
@@ -166,7 +166,7 @@ public abstract class SettingsManager<T, T2> : Bindable
 	/// <returns> The new setting. </returns>
 	protected Setting<TData, T2> InitializeSetting<TData>(string name, TData defaultValue = default, Action<Setting<TData, T2>> update = null)
 	{
-		var response = new Setting<TData, T2>(Dispatcher)
+		var response = new Setting<TData, T2>(GetDispatcher())
 		{
 			Name = name,
 			Data = defaultValue

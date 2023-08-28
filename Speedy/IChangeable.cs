@@ -1,11 +1,23 @@
-﻿namespace Speedy;
+﻿#region References
+
+using Speedy.Collections;
+
+#endregion
+
+namespace Speedy;
 
 /// <summary>
-/// Represents an object that can track changes
+/// Represents an object that can track changes for properties.
 /// </summary>
 public interface IChangeable
 {
 	#region Methods
+
+	/// <summary>
+	/// Get the list of changed properties.
+	/// </summary>
+	/// <returns> The list of changed property in a read only set. </returns>
+	ReadOnlySet<string> GetChangedProperties();
 
 	/// <summary>
 	/// Determines if the object has changes.
@@ -23,8 +35,7 @@ public interface IChangeable
 	/// <summary>
 	/// Reset the "has changes" state.
 	/// </summary>
-	/// <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
-	void ResetHasChanges(bool hasChanges = false);
+	void ResetHasChanges();
 
 	#endregion
 }

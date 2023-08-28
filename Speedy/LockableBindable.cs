@@ -2,8 +2,6 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
-using Speedy.Extensions;
 
 #endregion
 
@@ -53,68 +51,6 @@ public class LockableBindable : Bindable, IDisposable
 	#endregion
 
 	#region Methods
-
-	/// <summary>
-	/// Run an action on the dispatching thread with a read lock.
-	/// </summary>
-	/// <param name="action"> The action to be executed. </param>
-	public void DispatchWithReadLock(Action action)
-	{
-		this.Dispatch(() => ReadLock(action));
-	}
-
-	/// <summary>
-	/// Run an action on the dispatching thread with a read lock.
-	/// </summary>
-	/// <param name="action"> The action to be executed. </param>
-	public T2 DispatchWithReadLock<T2>(Func<T2> action)
-	{
-		return this.Dispatch(() => ReadLock(action));
-	}
-
-	/// <summary>
-	/// Run an action on the dispatching thread with an upgradeable read lock.
-	/// </summary>
-	/// <param name="action"> The action to be executed. </param>
-	public void DispatchWithUpgradeableReadLock(Action action)
-	{
-		// Must dispatch before getting upgradeable lock, locks can only be upgraded on the same thread.
-		this.Dispatch(() => UpgradeableReadLock(action));
-	}
-
-	/// <summary>
-	/// Run an action on the dispatching thread with an upgradeable read lock.
-	/// </summary>
-	/// <param name="action"> The action to be executed. </param>
-	public T2 DispatchWithUpgradeableReadLock<T2>(Func<T2> action)
-	{
-		// Must dispatch before getting upgradeable lock, locks can only be upgraded on the same thread.
-		return this.Dispatch(() => UpgradeableReadLock(action));
-	}
-
-	/// <summary>
-	/// Run an action on the dispatching thread with a write lock.
-	/// </summary>
-	/// <param name="action"> The action to be executed. </param>
-	public void DispatchWithWriteLock(Action action)
-	{
-		if (this.ShouldDispatch() && IsWriteLocked)
-		{
-			Task.Run(() => DispatchWithWriteLock(action));
-			return;
-		}
-
-		this.Dispatch(() => WriteLock(action));
-	}
-
-	/// <summary>
-	/// Run an action on the dispatching thread with a write lock.
-	/// </summary>
-	/// <param name="action"> The action to be executed. </param>
-	public T2 DispatchWithWriteLock<T2>(Func<T2> action)
-	{
-		return this.Dispatch(() => WriteLock(action));
-	}
 
 	/// <summary>
 	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

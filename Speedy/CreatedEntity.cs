@@ -19,3 +19,18 @@ public abstract class CreatedEntity<T> : Entity<T>, ICreatedEntity
 
 	#endregion
 }
+
+/// <summary>
+/// Represents a Speedy entity that track the date and time it was created.
+/// </summary>
+public interface ICreatedEntity : IEntity
+{
+	#region Properties
+
+	/// <summary>
+	/// Gets or sets the date and time the entity was created.
+	/// </summary>
+	DateTime CreatedOn { get; set; }
+
+	#endregion
+}

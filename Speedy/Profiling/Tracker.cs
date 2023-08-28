@@ -208,7 +208,7 @@ namespace Speedy.Profiling
 
 			_pathProcessor.RunWorkerAsync(this);
 
-			UtilityExtensions.Wait(() => PathProcessorRunning, 5000, 10);
+			UtilityExtensions.WaitUntil(() => PathProcessorRunning, 5000, 10);
 		}
 
 		/// <summary>
@@ -242,7 +242,7 @@ namespace Speedy.Profiling
 				if (PathProcessorRunning && !_pathProcessor.CancellationPending)
 				{
 					_pathProcessor.CancelAsync();
-					UtilityExtensions.Wait(() => !PathProcessorRunning, 5000, 10);
+					UtilityExtensions.WaitUntil(() => !PathProcessorRunning, 5000, 10);
 				}
 
 				ProcessSession();

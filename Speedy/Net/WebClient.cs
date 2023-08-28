@@ -336,7 +336,7 @@ public class WebClient : Bindable, IWebClient
 	/// <inheritdoc />
 	public virtual object ShallowClone()
 	{
-		return new WebClient(BaseUri, Timeout, Credential, Proxy, Dispatcher);
+		return new WebClient(BaseUri, Timeout, Credential, Proxy, GetDispatcher());
 	}
 
 	/// <summary>

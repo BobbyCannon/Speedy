@@ -32,25 +32,25 @@ public class DefaultDispatcher : Dispatcher
 	#region Methods
 
 	/// <inheritdoc />
-	protected override void ExecuteOnDispatcher(Action action)
+	protected override void ExecuteOnDispatcher(Action action, DispatcherPriority priority)
 	{
 		action();
 	}
 
 	/// <inheritdoc />
-	protected override T ExecuteOnDispatcher<T>(Func<T> action)
+	protected override T ExecuteOnDispatcher<T>(Func<T> action, DispatcherPriority priority)
 	{
 		return action();
 	}
 
 	/// <inheritdoc />
-	protected override Task ExecuteOnDispatcherAsync(Action action)
+	protected override Task ExecuteOnDispatcherAsync(Action action, DispatcherPriority priority)
 	{
 		return Task.Run(action);
 	}
 
 	/// <inheritdoc />
-	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action, DispatcherPriority priority)
 	{
 		return Task.Run(action);
 	}

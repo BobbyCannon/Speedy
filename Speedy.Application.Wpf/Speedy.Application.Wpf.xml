@@ -221,16 +221,16 @@
         <member name="P:Speedy.Application.Wpf.WpfDispatcher.IsDispatcherThread">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcher(System.Action)">
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcher(System.Action,Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcher``1(System.Func{``0},Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync(System.Action)">
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync(System.Action,Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
+        <member name="M:Speedy.Application.Wpf.WpfDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Application.Wpf.WpfLocationProvider">

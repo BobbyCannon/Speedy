@@ -83,26 +83,19 @@
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
-        <member name="P:Speedy.Bindable.Dispatcher">
-            <summary>
-            Represents a thread dispatcher to help with cross threaded request.
-            </summary>
+        <member name="M:Speedy.Bindable.Dispatch(System.Action,Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.Dispatch``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.DispatchAsync(System.Action,Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Bindable.DispatchAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.GetDispatcher">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.GetRealType">
-            <summary>
-            Cached version of the "real" type, meaning not EF proxy but rather root type
-            </summary>
-        </member>
-        <member name="M:Speedy.Bindable.HasChanges">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.HasChanges(System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.IsChangeNotificationsPaused">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.OnPropertyChanged(System.String)">
@@ -111,35 +104,11 @@
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
         </member>
-        <member name="M:Speedy.Bindable.PausePropertyChangeNotifications(System.Boolean)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.ResetHasChanges(System.Boolean)">
-            <summary>
-            Reset the change tracking flag.
-            </summary>
-            <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
-        </member>
-        <member name="M:Speedy.Bindable.ShouldUpdate(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.TryUpdateWith(System.Object,System.String[])">
+        <member name="M:Speedy.Bindable.ShouldDispatch">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Bindable.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.UpdateWith(System.Object,System.Boolean,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Bindable.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
-            <summary>
-            Indicates the property has changed on the bindable object.
-            </summary>
-            <param name="propertyChangedEvent"> The changed event value of the property that changed. </param>
         </member>
         <member name="M:Speedy.Bindable.OnPropertyChangedInDispatcher(System.String)">
             <summary>
@@ -147,8 +116,51 @@
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
         </member>
-        <member name="E:Speedy.Bindable.PropertyChanged">
-            <inheritdoc />
+        <member name="T:Speedy.IBindable`1">
+            <summary>
+            Represents a bindable object.
+            </summary>
+        </member>
+        <member name="T:Speedy.IBindable">
+            <summary>
+            Represents a bindable object.
+            </summary>
+        </member>
+        <member name="M:Speedy.IBindable.GetDispatcher">
+            <summary>
+            Get the current dispatcher in use.
+            </summary>
+            <returns>
+            The dispatcher that is currently being used. Null if no dispatcher is assigned.
+            </returns>
+        </member>
+        <member name="M:Speedy.IBindable.UpdateDispatcher(Speedy.IDispatcher)">
+            <summary>
+            Updates the entity for this entity.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="T:Speedy.Cache">
+            <summary>
+            Internal static class for caching items that are internal to Speedy.
+            </summary>
+        </member>
+        <member name="P:Speedy.Cache.NotifiableWriteables">
+            <summary>
+            Property dictionary for a sync object, this is for optimization
+            </summary>
+        </member>
+        <member name="P:Speedy.Cache.PropertyDictionaryForType">
+            <summary>
+            Property dictionary for a sync object, this is for optimization
+            </summary>
+        </member>
+        <member name="M:Speedy.Cache.GetPropertyDictionary(System.Type)">
+            <summary>
+            Get the property dictionary for a provided type.
+            </summary>
+            <param name="type"> The type to get the properties for. </param>
+            <returns> The properties in a dictionary. The key is the property name. </returns>
         </member>
         <member name="T:Speedy.ClientEntity`1">
             <inheritdoc cref="T:Speedy.Sync.SyncModel`1" />
@@ -253,6 +265,21 @@
             Represents a thread dispatcher to help with cross threaded request.
             </summary>
         </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.Dispatch(System.Action,Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.Dispatch``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.DispatchAsync(System.Action,Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.DispatchAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.GetChangedProperties">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.GetDispatcher">
             <inheritdoc />
         </member>
@@ -277,7 +304,10 @@
             </summary>
             <param name="values"> The values to be set to. </param>
         </member>
-        <member name="M:Speedy.Collections.BaseObservableCollection`1.ResetHasChanges(System.Boolean)">
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.ResetHasChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.ShouldDispatch">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.UpdateDispatcher(Speedy.IDispatcher)">
@@ -899,6 +929,11 @@
             A function to extract a key from an element.
             </summary>
         </member>
+        <member name="P:Speedy.Collections.OrderBy`1.CompiledKeySelector">
+            <summary>
+            The compiled function for extracting a key from an element.
+            </summary>
+        </member>
         <member name="M:Speedy.Collections.OrderBy`1.Process(System.Collections.Generic.IEnumerable{`0},Speedy.Collections.OrderBy{`0}[])">
             <summary>
             Processes a query through the "order by" that will return the query ordered base on the value.
@@ -924,6 +959,12 @@
             </summary>
         </member>
         <member name="M:Speedy.Collections.ReadOnlySet`1.#ctor(`0[])">
+            <summary>
+            Instantiates a readonly set with the provided values.
+            </summary>
+            <param name="values"> The values to include in a read only set. </param>
+        </member>
+        <member name="M:Speedy.Collections.ReadOnlySet`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
             <summary>
             Instantiates a readonly set with the provided values.
             </summary>
@@ -1200,18 +1241,6 @@
         <member name="M:Speedy.Collections.SpeedyList`1.Add(System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.AddRange(`0[])">
-            <summary>
-            Add a range of items.
-            </summary>
-            <param name="items"> The items to be added. </param>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.AddRange(System.Collections.Generic.IEnumerable{`0})">
-            <summary>
-            Add a range of items.
-            </summary>
-            <param name="items"> The items to be added. </param>
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Clear">
             <inheritdoc cref="T:System.Collections.IList" />
         </member>
@@ -1311,11 +1340,6 @@
             Remove all entries that match predicate
             </summary>
             <param name="predicate"> The predicate to find entries to remove. </param>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.RemoveAll">
-            <summary>
-            Remove all items from the collection.
-            </summary>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.RemoveAt(System.Int32)">
             <inheritdoc cref="T:System.Collections.IList" />
@@ -2333,6 +2357,16 @@
         </member>
         <member name="P:Speedy.CreatedEntity`1.CreatedOn">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.ICreatedEntity">
+            <summary>
+            Represents a Speedy entity that track the date and time it was created.
+            </summary>
+        </member>
+        <member name="P:Speedy.ICreatedEntity.CreatedOn">
+            <summary>
+            Gets or sets the date and time the entity was created.
+            </summary>
         </member>
         <member name="T:Speedy.Database">
             <summary>
@@ -4373,6 +4407,34 @@
             <param name="value"> </param>
             <returns> </returns>
         </member>
+        <member name="T:Speedy.Data.SelectionOption`1">
+            <summary>
+            Represents a option for selection.
+            </summary>
+            <typeparam name="T"> The type of the ID. </typeparam>
+        </member>
+        <member name="M:Speedy.Data.SelectionOption`1.#ctor">
+            <summary>
+            Instantiates an option for a selection.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.SelectionOption`1.#ctor(`0,System.String)">
+            <summary>
+            Instantiates an option for a selection.
+            </summary>
+            <param name="id"> The ID value for the option. </param>
+            <param name="name"> The name of the option. </param>
+        </member>
+        <member name="P:Speedy.Data.SelectionOption`1.Id">
+            <summary>
+            The ID value for the option.
+            </summary>
+        </member>
+        <member name="P:Speedy.Data.SelectionOption`1.Name">
+            <summary>
+            The name of the option.
+            </summary>
+        </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
             Represents a default dispatcher
@@ -4384,17 +4446,106 @@
         <member name="P:Speedy.DefaultDispatcher.IsDispatcherThread">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcher(System.Action)">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcher(System.Action,Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcher``1(System.Func{``0},Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcherAsync(System.Action)">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcherAsync(System.Action,Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
+        <member name="M:Speedy.DefaultDispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Dispatcher">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Dispatcher.IsDispatcherThread">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.Dispatch(System.Action,Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.Dispatch``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.DispatchAsync(System.Action,Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.DispatchAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.ShouldDispatch">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcher(System.Action,Speedy.DispatcherPriority)">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+            <param name="priority"> An optional priority for the action. </param>
+        </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcher``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+            <param name="priority"> An optional priority for the action. </param>
+        </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcherAsync(System.Action,Speedy.DispatcherPriority)">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+            <param name="priority"> An optional priority for the action. </param>
+        </member>
+        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <summary>
+            Execute the action on the dispatcher.
+            </summary>
+            <param name="action"> The action to execute. </param>
+            <param name="priority"> An optional priority for the action. </param>
+        </member>
+        <member name="T:Speedy.IDispatcher">
+            <summary>
+            Represents a dispatcher to help with handling dispatcher thread access.
+            </summary>
+        </member>
+        <member name="P:Speedy.IDispatcher.IsDispatcherThread">
+            <summary>
+            Returns true if currently executing on the dispatcher thread.
+            </summary>
+        </member>
+        <member name="T:Speedy.DispatcherPriority">
+            <summary>
+            The priorities at which operations can be invoked via the Dispatcher.
+            </summary>
+        </member>
+        <member name="F:Speedy.DispatcherPriority.Normal">
+            <summary>
+            Operations at this priority are processed at normal priority.
+            </summary>
+        </member>
+        <member name="F:Speedy.DispatcherPriority.SystemIdle">
+            <summary>
+            Operations at this priority are processed when the system is idle.
+            </summary>
+        </member>
+        <member name="F:Speedy.DispatcherPriority.ApplicationIdle">
+            <summary>
+            Operations at this priority are processed when the application is idle.
+            </summary>
+        </member>
+        <member name="F:Speedy.DispatcherPriority.ContextIdle">
+            <summary>
+            Operations at this priority are processed when the context is idle.
+            </summary>
+        </member>
+        <member name="F:Speedy.DispatcherPriority.Background">
+            <summary>
+            Operations at this priority are processed after all other non-idle operations are done.
+            </summary>
         </member>
         <member name="T:Speedy.Entity`1">
             <summary>
@@ -4443,19 +4594,9 @@
             Represents a Speedy entity.
             </summary>
         </member>
-        <member name="F:Speedy.Entity._realType">
-            <summary>
-            Cached version of the "real" type, meaning not EF proxy but rather root type
-            </summary>
-        </member>
         <member name="M:Speedy.Entity.#ctor">
             <summary>
             Instantiates an entity
-            </summary>
-        </member>
-        <member name="P:Speedy.Entity.ChangedProperties">
-            <summary>
-            The properties that has changed since last <see cref="M:Speedy.Entity.ResetHasChanges(System.Boolean)" /> event.
             </summary>
         </member>
         <member name="M:Speedy.Entity.CanBeModified">
@@ -4476,20 +4617,11 @@
         <member name="M:Speedy.Entity.EntityModified">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity.GetRealType">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity.GetUpdatableExclusions">
             <summary>
             Default exclusions are all virtual members.
             </summary>
             <returns> The list of members to be excluded. </returns>
-        </member>
-        <member name="M:Speedy.Entity.HasChanges">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity.HasChanges(System.String[])">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.IdIsSet">
             <inheritdoc />
@@ -4497,25 +4629,10 @@
         <member name="M:Speedy.Entity.IsPropertyExcludedForChangeTracking(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity.OnPropertyChanged(System.String)">
-            <summary>
-            Notify that a property has changed
-            </summary>
-            <param name="propertyName"> The name of the property that changed. </param>
-        </member>
-        <member name="M:Speedy.Entity.ResetHasChanges(System.Boolean)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity.ShallowClone">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Entity.ShouldUpdate(System.Object)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity.TrySetId(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity.TryUpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.Unwrap">
@@ -4530,12 +4647,6 @@
             <summary>
             Update all local sync IDs.
             </summary>
-        </member>
-        <member name="M:Speedy.Entity.UpdateWith(System.Object,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity.UpdateWith(System.Object,System.Boolean,System.String[])">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Entity.UpdateWith(System.Object,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
@@ -4559,9 +4670,6 @@
             sure to only return static values as to not cause issues.
             </summary>
             <returns> The values to exclude during processing <see cref="T:Speedy.IUpdateable" />. </returns>
-        </member>
-        <member name="E:Speedy.Entity.PropertyChanged">
-            <inheritdoc />
         </member>
         <member name="T:Speedy.IEntity">
             <summary>
@@ -4616,26 +4724,6 @@
             Try to set the ID from a serialized version.
             </summary>
             <returns> True if the ID is successfully set or false if otherwise. </returns>
-        </member>
-        <member name="T:Speedy.ICreatedEntity">
-            <summary>
-            Represents a Speedy entity that track the date and time it was created.
-            </summary>
-        </member>
-        <member name="P:Speedy.ICreatedEntity.CreatedOn">
-            <summary>
-            Gets or sets the date and time the entity was created.
-            </summary>
-        </member>
-        <member name="T:Speedy.IModifiableEntity">
-            <summary>
-            Represents a Speedy entity that track the date and time it was last modified.
-            </summary>
-        </member>
-        <member name="P:Speedy.IModifiableEntity.ModifiedOn">
-            <summary>
-            Gets or sets the date and time the entity was modified.
-            </summary>
         </member>
         <member name="T:Speedy.Exceptions.SpeedyException">
             <summary>
@@ -4888,46 +4976,6 @@
             <param name="assembly"> The assembly to check. </param>
             <returns> True if the assembly is a debug build otherwise false. </returns>
         </member>
-        <member name="T:Speedy.Extensions.BindableExtensions">
-            <summary>
-            Extensions for bindable.
-            </summary>
-        </member>
-        <member name="M:Speedy.Extensions.BindableExtensions.Dispatch(Speedy.IBindable,System.Action)">
-            <summary>
-            Run an action on the dispatching thread if available and required.
-            </summary>
-            <param name="bindable"> The bindable to dispatch for. </param>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.Extensions.BindableExtensions.Dispatch``1(Speedy.IBindable,System.Func{``0})">
-            <summary>
-            Run an action on the dispatching thread if available and required.
-            </summary>
-            <param name="bindable"> The bindable to dispatch for. </param>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.Extensions.BindableExtensions.DispatchAsync(Speedy.IBindable,System.Action)">
-            <summary>
-            Run an action on the dispatching thread if available and required.
-            </summary>
-            <param name="bindable"> The bindable to dispatch for. </param>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.Extensions.BindableExtensions.DispatchAsync``1(Speedy.IBindable,System.Func{``0})">
-            <summary>
-            Run an action on the dispatching thread if available and required.
-            </summary>
-            <param name="bindable"> The bindable to dispatch for. </param>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.Extensions.BindableExtensions.ShouldDispatch(Speedy.IBindable)">
-            <summary>
-            Returns true if the current context is on the dispatcher thread.
-            </summary>
-            <param name="bindable"> The bindable to dispatch for. </param>
-            <returns> True if on the dispatcher thread otherwise false. </returns>
-        </member>
         <member name="T:Speedy.Extensions.CollectionExtensions">
             <summary>
             Extensions for collections.
@@ -5009,6 +5057,20 @@
             <typeparam name="T1"> The type of the first item. </typeparam>
             <typeparam name="T2"> The type of the second item. </typeparam>
             <param name="collection"> The collection to be updated. </param>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AsReadOnly(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Converts a set into a readonly set.
+            </summary>
+            <param name="set"> The set to protect as readonly. </param>
+            <returns> The provided set as a readonly version. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AsReadOnly(System.Collections.Generic.ISet{System.String})">
+            <summary>
+            Converts a set into a readonly set.
+            </summary>
+            <param name="set"> The set to protect as readonly. </param>
+            <returns> The provided set as a readonly version. </returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.CalculateCrc16(System.Byte[],Speedy.Protocols.CrcType)">
             <summary>
@@ -5442,33 +5504,37 @@
             Extensions for dispatcher.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.DispatcherExtensions.Dispatch(Speedy.IDispatcher,System.Action)">
+        <member name="M:Speedy.Extensions.DispatcherExtensions.Dispatch(Speedy.IDispatcher,System.Action,Speedy.DispatcherPriority)">
             <summary>
             Run an action on the dispatching thread if available and required.
             </summary>
             <param name="dispatcher"> The dispatcher to use. </param>
             <param name="action"> The action to be executed. </param>
+            <param name="priority"> An optional priority for the action. </param>
         </member>
-        <member name="M:Speedy.Extensions.DispatcherExtensions.Dispatch``1(Speedy.IDispatcher,System.Func{``0})">
+        <member name="M:Speedy.Extensions.DispatcherExtensions.Dispatch``1(Speedy.IDispatcher,System.Func{``0},Speedy.DispatcherPriority)">
             <summary>
             Run an action on the dispatching thread if available and required.
             </summary>
             <param name="dispatcher"> The dispatcher to use. </param>
             <param name="action"> The action to be executed. </param>
+            <param name="priority"> An optional priority for the action. </param>
         </member>
-        <member name="M:Speedy.Extensions.DispatcherExtensions.DispatchAsync(Speedy.IDispatcher,System.Action)">
+        <member name="M:Speedy.Extensions.DispatcherExtensions.DispatchAsync(Speedy.IDispatcher,System.Action,Speedy.DispatcherPriority)">
             <summary>
             Run an action on the dispatching thread if available and required.
             </summary>
             <param name="dispatcher"> The dispatcher to use. </param>
             <param name="action"> The action to be executed. </param>
+            <param name="priority"> An optional priority for the action. </param>
         </member>
-        <member name="M:Speedy.Extensions.DispatcherExtensions.DispatchAsync``1(Speedy.IDispatcher,System.Func{``0})">
+        <member name="M:Speedy.Extensions.DispatcherExtensions.DispatchAsync``1(Speedy.IDispatcher,System.Func{``0},Speedy.DispatcherPriority)">
             <summary>
             Run an action on the dispatching thread if available and required.
             </summary>
             <param name="dispatcher"> The dispatcher to use. </param>
             <param name="action"> The action to be executed. </param>
+            <param name="priority"> An optional priority for the action. </param>
         </member>
         <member name="M:Speedy.Extensions.DispatcherExtensions.ShouldDispatch(Speedy.IDispatcher)">
             <summary>
@@ -7437,11 +7503,11 @@
             provided delay time.
             </summary>
             <param name="action"> The action to attempt to retry. </param>
-            <param name="timeout"> The timeout to stop retrying. </param>
-            <param name="delay"> The delay between retries. </param>
+            <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+            <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
             <returns> The response from the action. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UtilityExtensions.Wait(System.Func{System.Boolean},System.Int32,System.Int32,System.Boolean)">
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil(System.Func{System.Boolean},System.Int32,System.Int32,System.Boolean)">
             <summary>
             Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
             time.
@@ -7452,15 +7518,115 @@
             <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
             <returns> Returns true of the call completed successfully or false if it timed out. </returns>
         </member>
-        <member name="M:Speedy.Extensions.UtilityExtensions.Wait(System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Boolean)">
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil(System.Func{System.Boolean},System.TimeSpan,System.Int32,System.Boolean)">
+            <summary>
+            Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
+            time.
+            </summary>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
+            <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> Returns true of the call completed successfully or false if it timed out. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil(System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Boolean)">
             <summary>
             Wait for a cancellation or for the value to time out.
             </summary>
-            <param name="cancellationPending"> A check for cancellation. </param>
-            <param name="value"> The value of time to wait for. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
+            <param name="delay"> The delay between checks. </param>
+            <param name="minimum"> The minimal time to wait. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil(System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
             <param name="delay"> The delay between checks. </param>
             <param name="minimum"> The minimal time to wait. </param>
             <param name="maximum"> The maximum time to wait. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil``1(``0,System.Func{System.Boolean},System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="value"> The value to process in the action. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+            <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil``1(``0,System.Func{System.Boolean},System.TimeSpan,System.Int32,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="value"> The value to process in the action. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
+            <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil``1(``0,System.Func{System.Boolean},System.TimeSpan,System.TimeSpan,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="value"> The value to process in the action. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
+            <param name="delay"> The delay between checks. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil``1(``0,System.Func{``0,System.Boolean},System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="value"> The value to process in the action. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
+            <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil``1(``0,System.Func{``0,System.Boolean},System.TimeSpan,System.Int32,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="value"> The value to process in the action. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
+            <param name="delay"> The delay between checks. This value is in milliseconds. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil``1(``0,System.Func{``0,System.Boolean},System.TimeSpan,System.TimeSpan,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="value"> The value to process in the action. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
+            <param name="delay"> The delay between checks. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <returns> True if the wait was completed, false if the wait was cancelled. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.UtilityExtensions.WaitUntil``1(``0,System.Func{``0,System.Boolean},System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Boolean)">
+            <summary>
+            Wait for a cancellation or for the value to time out.
+            </summary>
+            <param name="value"> The value to process in the action. </param>
+            <param name="action"> The action to call. </param>
+            <param name="timeout"> The timeout to attempt the action. </param>
+            <param name="delay"> The delay between checks. </param>
+            <param name="minimum"> The minimal time to wait. </param>
             <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
             <returns> True if the wait was completed, false if the wait was cancelled. </returns>
         </member>
@@ -7476,50 +7642,16 @@
             <param name="version"> The version to check. </param>
             <returns> True if the version is the default value of 0.0.0.0. </returns>
         </member>
-        <member name="T:Speedy.IBindable`1">
-            <summary>
-            Represents a bindable object.
-            </summary>
-        </member>
-        <member name="T:Speedy.IBindable">
-            <summary>
-            Represents a bindable object.
-            </summary>
-        </member>
-        <member name="M:Speedy.IBindable.GetDispatcher">
-            <summary>
-            Get the current dispatcher in use.
-            </summary>
-            <returns>
-            The dispatcher that is currently being used. Null if no dispatcher is assigned.
-            </returns>
-        </member>
-        <member name="M:Speedy.IBindable.IsChangeNotificationsPaused">
-            <summary>
-            Return true if the change notifications are paused or otherwise false.
-            </summary>
-        </member>
-        <member name="M:Speedy.IBindable.OnPropertyChanged(System.String)">
-            <summary>
-            Indicates the property has changed on the bindable object.
-            </summary>
-            <param name="propertyName"> The name of the property has changed. </param>
-        </member>
-        <member name="M:Speedy.IBindable.PausePropertyChangeNotifications(System.Boolean)">
-            <summary>
-            Pause / Un-pause the property change notifications
-            </summary>
-        </member>
-        <member name="M:Speedy.IBindable.UpdateDispatcher(Speedy.IDispatcher)">
-            <summary>
-            Updates the entity for this entity.
-            </summary>
-            <param name="dispatcher"> The optional dispatcher to use. </param>
-        </member>
         <member name="T:Speedy.IChangeable">
             <summary>
-            Represents an object that can track changes
+            Represents an object that can track changes for properties.
             </summary>
+        </member>
+        <member name="M:Speedy.IChangeable.GetChangedProperties">
+            <summary>
+            Get the list of changed properties.
+            </summary>
+            <returns> The list of changed property in a read only set. </returns>
         </member>
         <member name="M:Speedy.IChangeable.HasChanges">
             <summary>
@@ -7534,11 +7666,10 @@
             <param name="exclusions"> An optional set of exclusions. </param>
             <returns> True if the object has changes otherwise false. </returns>
         </member>
-        <member name="M:Speedy.IChangeable.ResetHasChanges(System.Boolean)">
+        <member name="M:Speedy.IChangeable.ResetHasChanges">
             <summary>
             Reset the "has changes" state.
             </summary>
-            <param name="hasChanges"> An optional value to indicate if this object has changes. Defaults to false. </param>
         </member>
         <member name="T:Speedy.ICloneable`1">
             <summary>
@@ -7833,83 +7964,44 @@
             <param name="options"> The database options to use for the new database instance. </param>
             <returns> The database instance. </returns>
         </member>
-        <member name="T:Speedy.Dispatcher">
-            <inheritdoc />
-        </member>
-        <member name="P:Speedy.Dispatcher.IsDispatcherThread">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Dispatcher.Run(System.Action)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Dispatcher.Run``1(System.Func{``0})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Dispatcher.RunAsync(System.Action)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Dispatcher.RunAsync``1(System.Func{``0})">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcher(System.Action)">
+        <member name="T:Speedy.IDispatchable">
             <summary>
-            Execute the action on the dispatcher.
-            </summary>
-            <param name="action"> The action to execute. </param>
-        </member>
-        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcher``1(System.Func{``0})">
-            <summary>
-            Execute the action on the dispatcher.
-            </summary>
-            <param name="action"> The action to execute. </param>
-        </member>
-        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcherAsync(System.Action)">
-            <summary>
-            Execute the action on the dispatcher.
-            </summary>
-            <param name="action"> The action to execute. </param>
-        </member>
-        <member name="M:Speedy.Dispatcher.ExecuteOnDispatcherAsync``1(System.Func{``0})">
-            <summary>
-            Execute the action on the dispatcher.
-            </summary>
-            <param name="action"> The action to execute. </param>
-        </member>
-        <member name="T:Speedy.IDispatcher">
-            <summary>
-            Represents a dispatcher to help with handling dispatcher thread access.
+            Represents a dispatchable object.
             </summary>
         </member>
-        <member name="P:Speedy.IDispatcher.IsDispatcherThread">
+        <member name="M:Speedy.IDispatchable.Dispatch(System.Action,Speedy.DispatcherPriority)">
             <summary>
-            Returns true if currently executing on the dispatcher thread.
-            </summary>
-        </member>
-        <member name="M:Speedy.IDispatcher.Run(System.Action)">
-            <summary>
-            Run an action on the dispatching thread.
+            Run an action on the dispatching thread if available and required.
             </summary>
             <param name="action"> The action to be executed. </param>
+            <param name="priority"> An optional priority for the action. </param>
         </member>
-        <member name="M:Speedy.IDispatcher.Run``1(System.Func{``0})">
+        <member name="M:Speedy.IDispatchable.Dispatch``1(System.Func{``0},Speedy.DispatcherPriority)">
             <summary>
-            Run an action on the dispatching thread.
+            Run an action on the dispatching thread if available and required.
             </summary>
             <param name="action"> The action to be executed. </param>
+            <param name="priority"> An optional priority for the action. </param>
         </member>
-        <member name="M:Speedy.IDispatcher.RunAsync(System.Action)">
+        <member name="M:Speedy.IDispatchable.DispatchAsync(System.Action,Speedy.DispatcherPriority)">
             <summary>
-            Run an asynchronous action on the dispatching thread.
+            Run an action on the dispatching thread if available and required.
             </summary>
             <param name="action"> The action to be executed. </param>
-            <returns> The task. </returns>
+            <param name="priority"> An optional priority for the action. </param>
         </member>
-        <member name="M:Speedy.IDispatcher.RunAsync``1(System.Func{``0})">
+        <member name="M:Speedy.IDispatchable.DispatchAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
             <summary>
-            Run an asynchronous action on the dispatching thread.
+            Run an action on the dispatching thread if available and required.
             </summary>
             <param name="action"> The action to be executed. </param>
-            <returns> The task. </returns>
+            <param name="priority"> An optional priority for the action. </param>
+        </member>
+        <member name="M:Speedy.IDispatchable.ShouldDispatch">
+            <summary>
+            Returns true if the current context is on the dispatcher thread.
+            </summary>
+            <returns> True if on the dispatcher thread otherwise false. </returns>
         </member>
         <member name="T:Speedy.IIncludableQueryable`2">
             <summary>
@@ -7981,12 +8073,6 @@
             </summary>
             <typeparam name="T"> The type of the entity of the collection. </typeparam>
             <typeparam name="T2"> The type of the entity key. </typeparam>
-        </member>
-        <member name="M:Speedy.IRepository`2.Add(`0)">
-            <summary>
-            Add an entity to the repository. The ID of the entity must be the default value.
-            </summary>
-            <param name="entity"> The entity to be added. </param>
         </member>
         <member name="M:Speedy.IRepository`2.AddOrUpdate(`0)">
             <summary>
@@ -8064,12 +8150,6 @@
             Removes an entity from the repository.
             </summary>
             <param name="id"> The ID of the entity to remove. </param>
-        </member>
-        <member name="M:Speedy.IRepository`2.Remove(`0)">
-            <summary>
-            Removes an entity from the repository.
-            </summary>
-            <param name="entity"> The entity to remove. </param>
         </member>
         <member name="M:Speedy.IRepository`2.Remove(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
             <summary>
@@ -8456,42 +8536,6 @@
             Gets a value that indicates whether the current thread has entered the lock in write mode.
             </summary>
         </member>
-        <member name="M:Speedy.LockableBindable.DispatchWithReadLock(System.Action)">
-            <summary>
-            Run an action on the dispatching thread with a read lock.
-            </summary>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.LockableBindable.DispatchWithReadLock``1(System.Func{``0})">
-            <summary>
-            Run an action on the dispatching thread with a read lock.
-            </summary>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.LockableBindable.DispatchWithUpgradeableReadLock(System.Action)">
-            <summary>
-            Run an action on the dispatching thread with an upgradeable read lock.
-            </summary>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.LockableBindable.DispatchWithUpgradeableReadLock``1(System.Func{``0})">
-            <summary>
-            Run an action on the dispatching thread with an upgradeable read lock.
-            </summary>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.LockableBindable.DispatchWithWriteLock(System.Action)">
-            <summary>
-            Run an action on the dispatching thread with a write lock.
-            </summary>
-            <param name="action"> The action to be executed. </param>
-        </member>
-        <member name="M:Speedy.LockableBindable.DispatchWithWriteLock``1(System.Func{``0})">
-            <summary>
-            Run an action on the dispatching thread with a write lock.
-            </summary>
-            <param name="action"> The action to be executed. </param>
-        </member>
         <member name="M:Speedy.LockableBindable.Dispose">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -8725,6 +8769,16 @@
         </member>
         <member name="P:Speedy.ModifiableEntity`1.ModifiedOn">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.IModifiableEntity">
+            <summary>
+            Represents a Speedy entity that track the date and time it was last modified.
+            </summary>
+        </member>
+        <member name="P:Speedy.IModifiableEntity.ModifiedOn">
+            <summary>
+            Gets or sets the date and time the entity was modified.
+            </summary>
         </member>
         <member name="T:Speedy.Net.Credential">
             <summary>
@@ -9556,6 +9610,97 @@
         <member name="P:Speedy.Net.WebSyncClientProvider.Client">
             <summary>
             The client for web access.
+            </summary>
+        </member>
+        <member name="T:Speedy.Notifiable">
+            <summary>
+            Represents a notifiable object.
+            </summary>
+        </member>
+        <member name="F:Speedy.Notifiable._changedProperties">
+            <summary>
+            The properties that has changed since last <see cref="M:Speedy.Notifiable.ResetHasChanges" /> event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Notifiable.#ctor">
+            <summary>
+            Instantiates a notifiable object.
+            </summary>
+        </member>
+        <member name="M:Speedy.Notifiable.GetChangedProperties">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.GetRealType">
+            <summary>
+            Cached version of the "real" type, meaning not EF proxy but rather root type
+            </summary>
+        </member>
+        <member name="M:Speedy.Notifiable.HasChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.HasChanges(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.IsChangeNotificationsPaused">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.OnPropertyChanged(System.String)">
+            <summary>
+            Indicates the property has changed on the notifiable object.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
+        </member>
+        <member name="M:Speedy.Notifiable.PausePropertyChangeNotifications(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.ResetHasChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.ShouldUpdate(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.TryUpdateWith(System.Object,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.UpdateWith(System.Object,System.String[])">
+            <summary>
+            Allows updating of one type to another based on member Name and Type.
+            </summary>
+            <param name="update"> The source of the update. </param>
+            <param name="exclusions"> An optional list of members to exclude. </param>
+            <returns> True if the update was applied otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Notifiable.UpdateWith(System.Object,System.Boolean,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs)">
+            <summary>
+            Indicates the property has changed on the notifiable object.
+            </summary>
+            <param name="propertyChangedEvent"> The changed event value of the property that changed. </param>
+        </member>
+        <member name="E:Speedy.Notifiable.PropertyChanged">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.INotifiable">
+            <summary>
+            Represents a notifiable object.
+            </summary>
+        </member>
+        <member name="M:Speedy.INotifiable.IsChangeNotificationsPaused">
+            <summary>
+            Return true if the change notifications are paused or otherwise false.
+            </summary>
+        </member>
+        <member name="M:Speedy.INotifiable.OnPropertyChanged(System.String)">
+            <summary>
+            Indicates the property has changed on the notifiable object.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
+        </member>
+        <member name="M:Speedy.INotifiable.PausePropertyChangeNotifications(System.Boolean)">
+            <summary>
+            Pause / Un-pause the property change notifications
             </summary>
         </member>
         <member name="T:Speedy.PagedRequest">
@@ -15240,6 +15385,12 @@
             </summary>
             <param name="database"> The database this repository is for. </param>
         </member>
+        <member name="P:Speedy.Storage.Repository`2.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Storage.Repository`2.IsReadOnly">
+            <inheritdoc />
+        </member>
         <member name="P:Speedy.Storage.Repository`2.NeverClearCache">
             <summary>
             Will keep the repository items in cache for the life cycle of the repository.
@@ -15296,6 +15447,9 @@
         <member name="M:Speedy.Storage.Repository`2.BulkUpdate(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{`0,`0}})">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Storage.Repository`2.Clear">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Storage.Repository`2.Contains(`0)">
             <summary>
             Check to see if the repository contains this entity.
@@ -15303,10 +15457,16 @@
             <param name="entity"> The entity to test for. </param>
             <returns> True if the entity exist or false it otherwise. </returns>
         </member>
+        <member name="M:Speedy.Storage.Repository`2.CopyTo(`0[],System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Storage.Repository`2.DiscardChanges">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.Repository`2.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.Repository`2.GetChangedProperties">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.Repository`2.GetEnumerator">
@@ -15323,9 +15483,6 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.Repository`2.HasChanges(System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Storage.Repository`2.ResetHasChanges(System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.Repository`2.HasDependentRelationship(System.Object[],System.Object)">
@@ -15364,6 +15521,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.Repository`2.RemoveDependent(System.Object[],System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Storage.Repository`2.ResetHasChanges">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Storage.Repository`2.SaveChanges">
@@ -17076,15 +17236,19 @@
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
-        <member name="P:Speedy.Sync.SyncModel`1.Dispatcher">
-            <summary>
-            Represents a thread dispatcher to help with cross threaded request.
-            </summary>
-        </member>
-        <member name="M:Speedy.Sync.SyncModel`1.GetDispatcher">
+        <member name="M:Speedy.Sync.SyncModel`1.Dispatch(System.Action,Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.SyncModel`1.IsChangeNotificationsPaused">
+        <member name="M:Speedy.Sync.SyncModel`1.Dispatch``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncModel`1.DispatchAsync(System.Action,Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncModel`1.DispatchAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncModel`1.GetDispatcher">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncModel`1.OnPropertyChanged(System.String)">
@@ -17093,7 +17257,7 @@
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
         </member>
-        <member name="M:Speedy.Sync.SyncModel`1.PausePropertyChangeNotifications(System.Boolean)">
+        <member name="M:Speedy.Sync.SyncModel`1.ShouldDispatch">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.SyncModel`1.UpdateDispatcher(Speedy.IDispatcher)">

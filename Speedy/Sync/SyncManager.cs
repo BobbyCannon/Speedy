@@ -50,7 +50,7 @@ public abstract class SyncManager<T> : Bindable where T : Enum
 		IsEnabled = true;
 		ProcessTimeout = TimeSpan.FromMilliseconds(60000);
 		ShowProgressThreshold = TimeSpan.FromMilliseconds(1000);
-		SyncState = new SyncEngineState(Dispatcher);
+		SyncState = new SyncEngineState(GetDispatcher());
 		SyncType = default;
 
 		_syncOptions = new ConcurrentDictionary<T, SyncOptions>();
@@ -360,7 +360,7 @@ public abstract class SyncManager<T> : Bindable where T : Enum
 	/// </remarks>
 	protected SyncTimer GetOrAddSyncTimer(T syncType, int limit = 10)
 	{
-		return _syncTimers.GetOrAdd(syncType, new SyncTimer(limit, Dispatcher));
+		return _syncTimers.GetOrAdd(syncType, new SyncTimer(limit, GetDispatcher()));
 	}
 
 	/// <summary>
@@ -648,7 +648,7 @@ public abstract class SyncManager<T> : Bindable where T : Enum
 
 	private void TriggerPropertyChanges()
 	{
-		Dispatcher?.RunAsync(() =>
+		DispatchAsync(() =>
 		{
 			OnPropertyChanged(nameof(IsCancellationPending));
 			OnPropertyChanged(nameof(IsRunning));

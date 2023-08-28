@@ -36,6 +36,15 @@ public class ReadOnlySet<T> : ISet<T>
 	}
 
 	/// <summary>
+	/// Instantiates a readonly set with the provided values.
+	/// </summary>
+	/// <param name="values"> The values to include in a read only set. </param>
+	public ReadOnlySet(IEnumerable<T> values)
+	{
+		_set = new HashSet<T>(values);
+	}
+
+	/// <summary>
 	/// Instantiates a readonly version of the provided set.
 	/// </summary>
 	/// <param name="set"> The set to make readonly. </param>

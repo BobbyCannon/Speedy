@@ -174,7 +174,8 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 				}
 			}
 
-			_singleListener = new GeolocationSingleListener<TLocation, THorizontal, TVertical>(Dispatcher,
+			_singleListener = new GeolocationSingleListener<TLocation, THorizontal, TVertical>(
+				GetDispatcher(),
 				ProviderName,
 				Manager,
 				LocationProviderSettings.DesiredAccuracy,
@@ -280,7 +281,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			_sourceProviders[LocationManager.FusedProvider].IsMonitoring = true;
 		}
 
-		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(Dispatcher, ProviderName, Manager, sources);
+		_listener = new GeolocationContinuousListener<TLocation, THorizontal, TVertical>(GetDispatcher(), ProviderName, Manager, sources);
 		_listener.LogEventWritten += ListenerOnLogEventWritten;
 		_listener.PositionChanged += ListenerPositionChanged;
 

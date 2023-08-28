@@ -45,7 +45,7 @@ public static class FileExtensions
 			File.Create(file.FullName).Dispose();
 		}, 1000, 10);
 
-		UtilityExtensions.Wait(() =>
+		UtilityExtensions.WaitUntil(() =>
 		{
 			file.Refresh();
 			return file.Exists;
@@ -68,7 +68,7 @@ public static class FileExtensions
 			}
 		}, 1000, 10);
 
-		UtilityExtensions.Wait(() =>
+		UtilityExtensions.WaitUntil(() =>
 		{
 			info.Refresh();
 			return !info.Exists;
@@ -108,7 +108,7 @@ public static class FileExtensions
 		UtilityExtensions.Retry(() => movingFileLocation.MoveTo(newLocation.FullName), timeout, delay);
 		#endif
 
-		UtilityExtensions.Wait(() =>
+		UtilityExtensions.WaitUntil(() =>
 		{
 			fileLocation.Refresh();
 			newLocation.Refresh();

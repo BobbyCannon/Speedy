@@ -22,25 +22,25 @@ public class XamarinDispatcher : Dispatcher
 	#region Methods
 
 	/// <inheritdoc />
-	protected override void ExecuteOnDispatcher(Action action)
+	protected override void ExecuteOnDispatcher(Action action, DispatcherPriority priority)
 	{
 		XamarinForms.Device.InvokeOnMainThreadAsync(action).AwaitResults();
 	}
 
 	/// <inheritdoc />
-	protected override T ExecuteOnDispatcher<T>(Func<T> action)
+	protected override T ExecuteOnDispatcher<T>(Func<T> action, DispatcherPriority priority)
 	{
 		return XamarinForms.Device.InvokeOnMainThreadAsync(action).AwaitResults();
 	}
 
 	/// <inheritdoc />
-	protected override Task ExecuteOnDispatcherAsync(Action action)
+	protected override Task ExecuteOnDispatcherAsync(Action action, DispatcherPriority priority)
 	{
 		return XamarinForms.Device.InvokeOnMainThreadAsync(action);
 	}
 
 	/// <inheritdoc />
-	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action, DispatcherPriority priority)
 	{
 		return XamarinForms.Device.InvokeOnMainThreadAsync(action);
 	}

@@ -59,9 +59,9 @@ public class LimitedObservableCollection<T> : BaseObservableCollection<T>
 	/// <inheritdoc />
 	protected override void InsertItem(int index, T item)
 	{
-		if (Dispatcher?.IsDispatcherThread == false)
+		if (ShouldDispatch())
 		{
-			Dispatcher.Run(() => InsertItem(index, item));
+			Dispatch(() => InsertItem(index, item));
 			return;
 		}
 

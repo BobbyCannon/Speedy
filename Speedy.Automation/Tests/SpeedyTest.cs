@@ -517,7 +517,7 @@ public abstract class SpeedyTest
 	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
 	public static bool Wait(Func<bool> action, bool useTimeService = false)
 	{
-		return UtilityExtensions.Wait(action, WaitTimeout, 10, useTimeService);
+		return UtilityExtensions.WaitUntil(action, WaitTimeout, 10, useTimeService);
 	}
 
 	/// <summary>
@@ -531,7 +531,7 @@ public abstract class SpeedyTest
 	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
 	public static bool Wait(Func<bool> action, int timeout, int delay, bool useTimeService = false)
 	{
-		return UtilityExtensions.Wait(action, timeout, delay, useTimeService);
+		return UtilityExtensions.WaitUntil(action, timeout, delay, useTimeService);
 	}
 
 	/// <summary>
@@ -546,7 +546,7 @@ public abstract class SpeedyTest
 	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
 	public static bool Wait(Func<bool> cancellationPending, TimeSpan value, TimeSpan delay, TimeSpan minimum, TimeSpan maximum, bool useTimeService = false)
 	{
-		return UtilityExtensions.Wait(cancellationPending, value, delay, minimum, maximum, useTimeService);
+		return UtilityExtensions.WaitUntil(cancellationPending, value, delay, minimum, maximum, useTimeService);
 	}
 
 	/// <summary>

@@ -175,7 +175,7 @@ namespace Speedy.Serialization
 				}
 			}
 
-			ResetHasChanges(true);
+			ResetHasChanges();
 		}
 
 		/// <summary>
@@ -186,7 +186,7 @@ namespace Speedy.Serialization
 		{
 			_globalIgnoredMembers.AddRange(propertyNames);
 
-			ResetHasChanges(true);
+			ResetHasChanges();
 		}
 
 		/// <inheritdoc />

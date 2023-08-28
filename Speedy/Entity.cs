@@ -121,17 +121,8 @@ public abstract class Entity<T> : Entity, IUpdateable<T>
 /// <summary>
 /// Represents a Speedy entity.
 /// </summary>
-public abstract class Entity : IEntity, IUnwrappable
+public abstract class Entity : Notifiable, IEntity, IUnwrappable
 {
-	#region Fields
-
-	/// <summary>
-	/// Cached version of the "real" type, meaning not EF proxy but rather root type
-	/// </summary>
-	private Type _realType;
-
-	#endregion
-
 	#region Constructors
 
 	/// <summary>
@@ -139,23 +130,8 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// </summary>
 	protected Entity()
 	{
-		ChangedProperties = new HashSet<string>();
-
-		SyncEntity.ExclusionCacheForUpdatableExclusions.GetOrAdd(GetRealType(),
-			x => new HashSet<string>(GetDefaultExclusionsForUpdatableExclusions()));
-
-		SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(GetRealType(),
-			x => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
+		
 	}
-
-	#endregion
-
-	#region Properties
-
-	/// <summary>
-	/// The properties that has changed since last <see cref="ResetHasChanges" /> event.
-	/// </summary>
-	internal HashSet<string> ChangedProperties { get; }
 
 	#endregion
 
@@ -197,12 +173,6 @@ public abstract class Entity : IEntity, IUnwrappable
 	{
 	}
 
-	/// <inheritdoc />
-	public Type GetRealType()
-	{
-		return _realType ??= this.GetRealTypeUsingReflection();
-	}
-
 	/// <summary>
 	/// Default exclusions are all virtual members.
 	/// </summary>
@@ -213,56 +183,12 @@ public abstract class Entity : IEntity, IUnwrappable
 	}
 
 	/// <inheritdoc />
-	public bool HasChanges()
-	{
-		return HasChanges(Array.Empty<string>());
-	}
-
-	/// <inheritdoc />
-	public virtual bool HasChanges(params string[] exclusions)
-	{
-		return ChangedProperties.Any(x => !exclusions.Contains(x));
-	}
-
-	/// <inheritdoc />
 	public abstract bool IdIsSet();
 
 	/// <inheritdoc />
 	public bool IsPropertyExcludedForChangeTracking(string propertyName)
 	{
 		return SyncEntity.ExclusionCacheForChangeTracking[GetRealType()].Contains(propertyName);
-	}
-
-	/// <summary>
-	/// Notify that a property has changed
-	/// </summary>
-	/// <param name="propertyName"> The name of the property that changed. </param>
-	public virtual void OnPropertyChanged(string propertyName)
-	{
-		if (propertyName != null)
-		{
-			if (!ChangedProperties.Contains(propertyName))
-			{
-				if (!SyncEntity.ExclusionCacheForChangeTracking[GetRealType()].Contains(propertyName))
-				{
-					ChangedProperties.Add(propertyName);
-				}
-			}
-		}
-
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-	}
-
-	/// <inheritdoc />
-	public virtual void ResetHasChanges(bool hasChanges = false)
-	{
-		if (hasChanges)
-		{
-			// Nothing to do...
-			return;
-		}
-
-		ChangedProperties.Clear();
 	}
 
 	/// <inheritdoc />
@@ -281,19 +207,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	}
 
 	/// <inheritdoc />
-	public virtual bool ShouldUpdate(object update)
-	{
-		return true;
-	}
-
-	/// <inheritdoc />
 	public abstract bool TrySetId(string id);
-
-	/// <inheritdoc />
-	public virtual bool TryUpdateWith(object update, params string[] exclusions)
-	{
-		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
-	}
 
 	/// <summary>
 	/// Unwrap the entity from the proxy. Will ignore virtual properties.
@@ -346,13 +260,7 @@ public abstract class Entity : IEntity, IUnwrappable
 		}
 	}
 
-	/// <inheritdoc />
-	public abstract bool UpdateWith(object update, params string[] exclusions);
-
-	/// <inheritdoc />
-	public abstract bool UpdateWith(object update, bool excludeVirtuals, params string[] exclusions);
-
-	/// <summary>
+		/// <summary>
 	/// Allows updating of one type to another based on member Name and Type. Virtual properties are ignore by default.
 	/// </summary>
 	/// <param name="update"> The source of the updates. </param>
@@ -366,7 +274,7 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// sure to only return static values as to not cause issues.
 	/// </summary>
 	/// <returns> The values to exclude during change tracking. </returns>
-	protected virtual HashSet<string> GetDefaultExclusionsForChangeTracking()
+	protected internal virtual HashSet<string> GetDefaultExclusionsForChangeTracking()
 	{
 		return new HashSet<string>();
 	}
@@ -376,17 +284,10 @@ public abstract class Entity : IEntity, IUnwrappable
 	/// sure to only return static values as to not cause issues.
 	/// </summary>
 	/// <returns> The values to exclude during processing <see cref="IUpdateable" />. </returns>
-	protected virtual HashSet<string> GetDefaultExclusionsForUpdatableExclusions()
+	protected internal virtual HashSet<string> GetDefaultExclusionsForUpdatableExclusions()
 	{
 		return new HashSet<string>(GetRealType().GetVirtualPropertyNames());
 	}
-
-	#endregion
-
-	#region Events
-
-	/// <inheritdoc />
-	public event PropertyChangedEventHandler PropertyChanged;
 
 	#endregion
 }
@@ -446,36 +347,6 @@ public interface IEntity : INotifyPropertyChanged, IUpdateable, IUpdateableExclu
 	/// </summary>
 	/// <returns> True if the ID is successfully set or false if otherwise. </returns>
 	bool TrySetId(string id);
-
-	#endregion
-}
-
-/// <summary>
-/// Represents a Speedy entity that track the date and time it was created.
-/// </summary>
-public interface ICreatedEntity : IEntity
-{
-	#region Properties
-
-	/// <summary>
-	/// Gets or sets the date and time the entity was created.
-	/// </summary>
-	DateTime CreatedOn { get; set; }
-
-	#endregion
-}
-
-/// <summary>
-/// Represents a Speedy entity that track the date and time it was last modified.
-/// </summary>
-public interface IModifiableEntity : ICreatedEntity
-{
-	#region Properties
-
-	/// <summary>
-	/// Gets or sets the date and time the entity was modified.
-	/// </summary>
-	DateTime ModifiedOn { get; set; }
 
 	#endregion
 }

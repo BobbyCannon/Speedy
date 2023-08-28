@@ -43,25 +43,25 @@ public class MauiDispatcher : Dispatcher
 	}
 
 	/// <inheritdoc />
-	protected override void ExecuteOnDispatcher(Action action)
+	protected override void ExecuteOnDispatcher(Action action, DispatcherPriority priority)
 	{
 		_dispatcher.Dispatch(action);
 	}
 
 	/// <inheritdoc />
-	protected override T ExecuteOnDispatcher<T>(Func<T> action)
+	protected override T ExecuteOnDispatcher<T>(Func<T> action, DispatcherPriority priority)
 	{
 		return _dispatcher.DispatchAsync(action).AwaitResults();
 	}
 
 	/// <inheritdoc />
-	protected override Task ExecuteOnDispatcherAsync(Action action)
+	protected override Task ExecuteOnDispatcherAsync(Action action, DispatcherPriority priority)
 	{
 		return _dispatcher.DispatchAsync(action);
 	}
 
 	/// <inheritdoc />
-	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action)
+	protected override Task<T> ExecuteOnDispatcherAsync<T>(Func<T> action, DispatcherPriority priority)
 	{
 		return _dispatcher.DispatchAsync(action);
 	}

@@ -37,6 +37,7 @@ public class OrderBy<T>
 	/// <param name="descending"> True to order descending and otherwise sort ascending. Default value is false for ascending order. </param>
 	public OrderBy(Expression<Func<T, object>> keySelector, bool descending = false)
 	{
+		CompiledKeySelector = keySelector.Compile();
 		KeySelector = keySelector;
 		Descending = descending;
 	}
@@ -54,6 +55,11 @@ public class OrderBy<T>
 	/// A function to extract a key from an element.
 	/// </summary>
 	public Expression<Func<T, object>> KeySelector { get; set; }
+
+	/// <summary>
+	/// The compiled function for extracting a key from an element.
+	/// </summary>
+	internal Func<T, object> CompiledKeySelector { get; }
 
 	#endregion
 
