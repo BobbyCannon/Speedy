@@ -23,8 +23,8 @@ public struct IsoDateTime : IComparable<IsoDateTime>, IComparable, IEquatable<Is
 
 	#region Fields
 
-	private static readonly Regex _durationRegex;
 	private DateTime _dateTime;
+	private static readonly Regex _durationRegex;
 
 	#endregion
 
@@ -57,7 +57,7 @@ public struct IsoDateTime : IComparable<IsoDateTime>, IComparable, IEquatable<Is
 	public TimeSpan Duration { get; set; }
 
 	/// <summary>
-	/// When this date time expires on. This is an inclusive time. 
+	/// When this date time expires on. This is an inclusive time.
 	/// </summary>
 	public DateTime ExpiresAfter => DateTime.Add(Duration);
 

@@ -17,8 +17,8 @@ public class DictionaryExtensionsTests : SpeedyUnitTest
 	public void GetOrAdd()
 	{
 		var dictionary = new Dictionary<string, int>();
-		AreEqual(3, dictionary.GetOrAdd("Foo", () => 3));
-		AreEqual(3, dictionary.GetOrAdd("Foo", () => 5));
+		AreEqual(3, dictionary.GetOrAdd("Foo", _ => 3));
+		AreEqual(3, dictionary.GetOrAdd("Foo", _ => 5));
 	}
 
 	#endregion

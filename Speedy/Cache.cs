@@ -21,7 +21,8 @@ public static class Cache
 
 	static Cache()
 	{
-		NotifiableWriteables = new ConcurrentDictionary<Type, ReadOnlySet<string>>();
+		SettableProperties = new ConcurrentDictionary<Type, ReadOnlySet<PropertyInfo>>();
+		SettablePropertiesPublicOnly = new ConcurrentDictionary<Type, ReadOnlySet<PropertyInfo>>();
 		PropertyDictionaryForType = new ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyInfo>>();
 	}
 
@@ -32,12 +33,17 @@ public static class Cache
 	/// <summary>
 	/// Property dictionary for a sync object, this is for optimization
 	/// </summary>
-	private static ConcurrentDictionary<Type, ReadOnlySet<string>> NotifiableWriteables { get; }
+	private static ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyInfo>> PropertyDictionaryForType { get; }
 
 	/// <summary>
 	/// Property dictionary for a sync object, this is for optimization
 	/// </summary>
-	private static ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyInfo>> PropertyDictionaryForType { get; }
+	private static ConcurrentDictionary<Type, ReadOnlySet<PropertyInfo>> SettableProperties { get; }
+
+	/// <summary>
+	/// Property dictionary for a sync object, this is for optimization
+	/// </summary>
+	private static ConcurrentDictionary<Type, ReadOnlySet<PropertyInfo>> SettablePropertiesPublicOnly { get; }
 
 	#endregion
 
@@ -57,19 +63,43 @@ public static class Cache
 		});
 	}
 
-	internal static ReadOnlySet<string> GetWriteables(Notifiable value)
+	/// <summary>
+	/// Get settable properties for an object.
+	/// </summary>
+	/// <param name="value"> The value to process. </param>
+	/// <returns> The settable properties information. </returns>
+	public static ReadOnlySet<PropertyInfo> GetSettableProperties(object value)
 	{
-		var realType = value.GetRealType();
-		return GetWriteables(realType);
-	}
+		var realType = value is Notifiable notifiable
+			? notifiable.GetRealType()
+			: value.GetRealTypeUsingReflection();
 
-	internal static ReadOnlySet<string> GetWriteables(Type realType)
-	{
-		return NotifiableWriteables
+		return SettableProperties
 			.GetOrAdd(realType, t => t
 				.GetCachedProperties()
 				.Where(x => x.CanWrite)
-				.Select(x => x.Name)
+				.ToHashSet()
+				.AsReadOnly()
+			);
+	}
+
+	/// <summary>
+	/// Get public settable properties for an object.
+	/// </summary>
+	/// <param name="value"> The value to process. </param>
+	/// <returns> The public settable properties information. </returns>
+	public static ReadOnlySet<PropertyInfo> GetSettablePropertiesPublicOnly(object value)
+	{
+		var realType = value is Notifiable notifiable
+			? notifiable.GetRealType()
+			: value.GetRealTypeUsingReflection();
+
+		return SettablePropertiesPublicOnly
+			.GetOrAdd(realType, t => t
+				.GetCachedProperties()
+				.Where(x => x.CanWrite
+					&& (x.SetMethod != null)
+					&& x.SetMethod.IsPublic)
 				.ToHashSet()
 				.AsReadOnly()
 			);

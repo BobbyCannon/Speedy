@@ -20,11 +20,8 @@ public abstract class Notifiable : INotifiable, IUpdateable
 {
 	#region Fields
 
-	/// <summary>
-	/// The properties that has changed since last <see cref="ResetHasChanges" /> event.
-	/// </summary>
 	private readonly ConcurrentDictionary<string, DateTime> _changedProperties;
-	private bool _pausePropertyChanged;
+	private bool _notificationsEnabled;
 	private Type _realType;
 	private readonly ReadOnlySet<string> _writableProperties;
 
@@ -45,21 +42,35 @@ public abstract class Notifiable : INotifiable, IUpdateable
 			var exclusions = SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(GetRealType(),
 				_ => new HashSet<string>(entity.GetDefaultExclusionsForChangeTracking()));
 
-			var writeables = Cache.GetWriteables(this);
-
-			_writableProperties = writeables.Where(x => !exclusions.Contains(x)).AsReadOnly();
+			_writableProperties = Cache.GetSettableProperties(this)
+				.Select(x => x.Name)
+				.Except(exclusions)
+				.AsReadOnly();
 		}
 		else
 		{
-			_writableProperties = Cache.GetWriteables(this);
+			_writableProperties = Cache.GetSettableProperties(this).Select(x => x.Name).AsReadOnly();
 		}
 
 		_changedProperties = new ConcurrentDictionary<string, DateTime>();
+		_notificationsEnabled = true;
 	}
 
 	#endregion
 
 	#region Methods
+
+	/// <inheritdoc />
+	public virtual void DisablePropertyChangeNotifications()
+	{
+		_notificationsEnabled = false;
+	}
+
+	/// <inheritdoc />
+	public virtual void EnablePropertyChangeNotifications()
+	{
+		_notificationsEnabled = true;
+	}
 
 	/// <inheritdoc />
 	public ReadOnlySet<string> GetChangedProperties()
@@ -88,9 +99,9 @@ public abstract class Notifiable : INotifiable, IUpdateable
 	}
 
 	/// <inheritdoc />
-	public virtual bool IsChangeNotificationsPaused()
+	public virtual bool IsPropertyChangeNotificationsEnabled()
 	{
-		return _pausePropertyChanged;
+		return _notificationsEnabled;
 	}
 
 	/// <summary>
@@ -100,7 +111,7 @@ public abstract class Notifiable : INotifiable, IUpdateable
 	public virtual void OnPropertyChanged(string propertyName)
 	{
 		// Ensure we have not paused property notifications
-		if ((propertyName == null) || IsChangeNotificationsPaused())
+		if ((propertyName == null) || !IsPropertyChangeNotificationsEnabled())
 		{
 			// Property change notifications have been paused or property null so bounce
 			return;
@@ -108,16 +119,10 @@ public abstract class Notifiable : INotifiable, IUpdateable
 
 		if (_writableProperties?.Contains(propertyName) == true)
 		{
-			_changedProperties.AddOrUpdate(propertyName, v => TimeService.UtcNow, (k,v) => TimeService.UtcNow);
+			_changedProperties.AddOrUpdate(propertyName, () => DateTime.UtcNow, _ => DateTime.UtcNow);
 		}
 
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-	}
-
-	/// <inheritdoc />
-	public virtual void PausePropertyChangeNotifications(bool pause = true)
-	{
-		_pausePropertyChanged = pause;
 	}
 
 	/// <inheritdoc />
@@ -188,20 +193,25 @@ public interface INotifiable : IChangeable, INotifyPropertyChanged
 	#region Methods
 
 	/// <summary>
-	/// Return true if the change notifications are paused or otherwise false.
+	/// Disable the property change notifications
 	/// </summary>
-	public bool IsChangeNotificationsPaused();
+	public void DisablePropertyChangeNotifications();
+
+	/// <summary>
+	/// Enable the property change notifications
+	/// </summary>
+	public void EnablePropertyChangeNotifications();
+
+	/// <summary>
+	/// Return true if the change notifications are enabled or otherwise false.
+	/// </summary>
+	public bool IsPropertyChangeNotificationsEnabled();
 
 	/// <summary>
 	/// Indicates the property has changed on the notifiable object.
 	/// </summary>
 	/// <param name="propertyName"> The name of the property has changed. </param>
 	public void OnPropertyChanged(string propertyName);
-
-	/// <summary>
-	/// Pause / Un-pause the property change notifications
-	/// </summary>
-	public void PausePropertyChangeNotifications(bool pause = true);
 
 	#endregion
 }

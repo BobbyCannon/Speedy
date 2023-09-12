@@ -11,6 +11,22 @@
 	- Relationships that are batched sync fails
 	- We should try to wire up relationships before saving as a batch or try to fix it from the batch?
 
+
+# Development Notes / Patterns
+
+The patterns below are used when working in the Speedy solution.
+
+### Data Models
+
+Client[Name] : Storage models for client side entities.
+[Name]Entity : Storage models for server side entities.
+
+### Method / Process verbs
+
+Assign[Name] : Represents an assignment model.
+Update[Name] : Represents the actual changing of state.
+
+
 # Migrations
 
 Whenever changes are made to entities we just reset migrations.

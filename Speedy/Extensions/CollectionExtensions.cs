@@ -66,34 +66,67 @@ public static class CollectionExtensions
 	#region Methods
 
 	/// <summary>
-	/// Add the item or replace the item with a new
+	/// Add or create with update.
 	/// </summary>
-	/// <typeparam name="T"> </typeparam>
-	/// <param name="collection"> </param>
-	/// <param name="lookup"> </param>
-	/// <param name="create"> </param>
-	/// <param name="replace"> </param>
-	/// <returns> </returns>
-	public static T AddOrReplace<T>(this ICollection<T> collection, Func<T, bool> lookup, Func<T> create, Func<T, T> replace)
+	/// <typeparam name="T"> The item type. </typeparam>
+	/// <param name="collection"> The collection of items. </param>
+	/// <param name="filter"> Queries the collection for an item. </param>
+	/// <param name="create"> The function to create an item. </param>
+	/// <param name="update"> The function to update the item. </param>
+	public static T AddOrUpdate<T>(this ICollection<T> collection, Func<T, bool> filter, Func<T> create, Action<T> update) where T : class
 	{
-		var foundItem = collection.FirstOrDefault(lookup);
+		var response = collection.FirstOrDefault(filter);
 
 		// See if the item was found
-		if (Equals(foundItem, default(T)))
+		if (!Equals(response, default(T)))
 		{
-			// Item was not found so just add
-			var result = create();
-			collection.Add(result);
-			return result;
+			if (response is not ValueType)
+			{
+				update(response);
+			}
+
+			collection.Remove(response);
+			update(response);
+			collection.Add(response);
+			return response;
 		}
-		else
+
+		response = create();
+		update(response);
+		collection.Add(response);
+		return response;
+	}
+
+	/// <summary>
+	/// Add or create with update.
+	/// </summary>
+	/// <typeparam name="T"> The item type. </typeparam>
+	/// <param name="collection"> The collection of items. </param>
+	/// <param name="filter"> Queries the collection for an item. </param>
+	/// <param name="create"> The function to create an item. </param>
+	/// <param name="update"> The function to update the item. </param>
+	public static T AddOrUpdate<T>(this ICollection<T> collection, Func<T, bool> filter, Func<T> create, Func<T, T> update)
+	{
+		var response = collection.FirstOrDefault(filter);
+
+		// See if the item was found
+		if (!Equals(response, default(T)))
 		{
-			// Item existed so replace it
-			var result = replace(foundItem);
-			collection.Remove(foundItem);
-			collection.Add(result);
-			return result;
+			if (response is not ValueType)
+			{
+				return update(response);
+			}
+
+			collection.Remove(response);
+			response = update(response);
+			collection.Add(response);
+			return response;
 		}
+
+		response = create();
+		update(response);
+		collection.Add(response);
+		return response;
 	}
 
 	/// <summary>
@@ -134,11 +167,11 @@ public static class CollectionExtensions
 	}
 
 	/// <summary>
-	/// Add multiple items to a list
+	/// Add multiple items to a list.
 	/// </summary>
+	/// <typeparam name="T"> The type of the items in the list. </typeparam>
 	/// <param name="set"> The set to add items to. </param>
 	/// <param name="items"> The items to add. </param>
-	/// <typeparam name="T"> The type of the items in the list. </typeparam>
 	public static IList<T> AddRange<T>(this IList<T> set, params T[] items)
 	{
 		foreach (var item in items)
@@ -187,27 +220,34 @@ public static class CollectionExtensions
 	}
 
 	/// <summary>
-	/// Appends new values to an existing HashSet.
+	/// Appends new values to an existing set.
 	/// </summary>
-	/// <typeparam name="T"> The type of value in the set. </typeparam>
+	/// <typeparam name="T"> The type of the set. </typeparam>
+	/// <typeparam name="T2"> The type of value in the set. </typeparam>
 	/// <param name="set"> The set to append to. </param>
 	/// <param name="values"> The values to add. </param>
-	/// <returns> A new HashSet containing the new values. </returns>
-	public static HashSet<T> Append<T>(this HashSet<T> set, params T[] values)
+	/// <returns> The updated set containing the new values. </returns>
+	public static T AddRange<T, T2>(this T set, params T2[] values) where T : ISet<T2>
 	{
-		return new HashSet<T>(set.Union(values));
+		foreach (var item in values)
+		{
+			set.Add(item);
+		}
+
+		return set;
 	}
 
 	/// <summary>
-	/// Appends new values to an existing HashSet.
+	/// Appends new values to an existing set.
 	/// </summary>
-	/// <typeparam name="T"> The type of value in the set. </typeparam>
+	/// <typeparam name="T"> The type of the set. </typeparam>
+	/// <typeparam name="T2"> The type of value in the set. </typeparam>
 	/// <param name="set"> The set to append to. </param>
 	/// <param name="values"> The values to add. </param>
-	/// <returns> A new HashSet containing the new values. </returns>
-	public static HashSet<T> Append<T>(this HashSet<T> set, HashSet<T> values)
+	/// <returns> The updated set containing the new values. </returns>
+	public static T AddRange<T, T2>(this T set, IEnumerable<T2> values) where T : ISet<T2>
 	{
-		return new HashSet<T>(set.Union(values));
+		return AddRange(set, values.ToArray());
 	}
 
 	/// <summary>
@@ -229,19 +269,19 @@ public static class CollectionExtensions
 	/// </summary>
 	/// <param name="set"> The set to protect as readonly. </param>
 	/// <returns> The provided set as a readonly version. </returns>
-	public static ReadOnlySet<string> AsReadOnly(this IEnumerable<string> set)
+	public static ReadOnlySet<T> AsReadOnly<T>(this IEnumerable<T> set)
 	{
-		return new ReadOnlySet<string>(set);
+		return new ReadOnlySet<T>(set);
 	}
-	
+
 	/// <summary>
 	/// Converts a set into a readonly set.
 	/// </summary>
 	/// <param name="set"> The set to protect as readonly. </param>
 	/// <returns> The provided set as a readonly version. </returns>
-	public static ReadOnlySet<string> AsReadOnly(this ISet<string> set)
+	public static ReadOnlySet<T> AsReadOnly<T>(this ISet<T> set)
 	{
-		return new ReadOnlySet<string>(set);
+		return new ReadOnlySet<T>(set);
 	}
 
 	/// <summary>
@@ -660,6 +700,18 @@ public static class CollectionExtensions
 	}
 
 	/// <summary>
+	/// Reconcile one collection with another.
+	/// </summary>
+	/// <typeparam name="T"> The type of the collections. </typeparam>
+	/// <param name="collection"> The left collection. </param>
+	/// <param name="updates"> The right collection. </param>
+	public static void Reconcile<T>(this ICollection<T> collection, IEnumerable<T> updates)
+	{
+		collection.Clear();
+		collection.AddRange(updates);
+	}
+
+	/// <summary>
 	/// Remove items from a collection based on the provided filter.
 	/// </summary>
 	/// <param name="collection"> The collection to update. </param>
@@ -691,6 +743,40 @@ public static class CollectionExtensions
 			callback?.Invoke(item);
 			collection.Remove(item);
 		}
+	}
+
+	/// <summary>
+	/// Remove multiple items from a list.
+	/// </summary>
+	/// <typeparam name="T"> The type of the items in the list. </typeparam>
+	/// <param name="set"> The set to add items to. </param>
+	/// <param name="items"> The items to remove. </param>
+	public static IList<T> RemoveRange<T>(this IList<T> set, params T[] items)
+	{
+		foreach (var item in items)
+		{
+			set.Remove(item);
+		}
+
+		return set;
+	}
+
+	/// <summary>
+	/// Remove values from an existing set.
+	/// </summary>
+	/// <typeparam name="T"> The type of the set. </typeparam>
+	/// <typeparam name="T2"> The type of value in the set. </typeparam>
+	/// <param name="set"> The set to append to. </param>
+	/// <param name="values"> The values to remove. </param>
+	/// <returns> The updated set excluding the removed values. </returns>
+	public static T RemoveRange<T, T2>(this T set, params T2[] values) where T : ISet<T2>
+	{
+		foreach (var item in values)
+		{
+			set.Remove(item);
+		}
+
+		return set;
 	}
 
 	/// <summary>
@@ -773,6 +859,38 @@ public static class CollectionExtensions
 				// Ignore "Collection was modified"
 			}
 		}
+	}
+
+	/// <summary>
+	/// Try to dequeue multiple values from a concurrent queue.
+	/// </summary>
+	/// <typeparam name="T"> The type of the value in the queue. </typeparam>
+	/// <param name="queue"> The queue to process. </param>
+	/// <param name="maxCount"> The maximum amount to try and dequeue. </param>
+	/// <param name="data"> The dequeued data. </param>
+	/// <returns> True if something was dequeued otherwise false. </returns>
+	public static bool TryDequeueMany<T>(this ConcurrentQueue<T> queue, int maxCount, out T[] data)
+	{
+		var response = new List<T>();
+
+		while (queue.TryDequeue(out var item))
+		{
+			response.Add(item);
+
+			if (response.Count >= maxCount)
+			{
+				break;
+			}
+		}
+
+		if (response.Any())
+		{
+			data = response.ToArray();
+			return true;
+		}
+
+		data = null;
+		return false;
 	}
 
 	/// <summary>

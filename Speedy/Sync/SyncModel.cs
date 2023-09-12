@@ -92,22 +92,20 @@ public abstract class SyncModel<T> : SyncEntity<T>, IBindable
 	/// Indicates the property has changed on the bindable object.
 	/// </summary>
 	/// <param name="propertyName"> The name of the property has changed. </param>
-	public override void OnPropertyChanged(string propertyName)
+	public sealed override void OnPropertyChanged(string propertyName)
 	{
 		// Ensure we have not paused property notifications
-		if (IsChangeNotificationsPaused())
+		if ((propertyName == null) || !IsPropertyChangeNotificationsEnabled())
 		{
-			// Property change notifications have been paused so bounce
+			// Property change notifications have been paused or property null so bounce
 			return;
 		}
 
-		if (ShouldDispatch())
+		Dispatch(() =>
 		{
-			Dispatch(() => OnPropertyChanged(propertyName));
-			return;
-		}
-
-		base.OnPropertyChanged(propertyName);
+			OnPropertyChangedInDispatcher(propertyName);
+			base.OnPropertyChanged(propertyName);
+		});
 	}
 
 	/// <inheritdoc />
@@ -121,6 +119,14 @@ public abstract class SyncModel<T> : SyncEntity<T>, IBindable
 	public virtual void UpdateDispatcher(IDispatcher dispatcher)
 	{
 		_dispatcher = dispatcher;
+	}
+
+	/// <summary>
+	/// fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
+	/// </summary>
+	/// <param name="propertyName"> The name of the property has changed. </param>
+	protected virtual void OnPropertyChangedInDispatcher(string propertyName)
+	{
 	}
 
 	#endregion

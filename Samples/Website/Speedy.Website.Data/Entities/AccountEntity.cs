@@ -107,7 +107,7 @@ namespace Speedy.Website.Data.Entities
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
 			return base.GetDefaultExclusionsForIncomingSync()
-				.Append(nameof(Address), nameof(AddressId), nameof(Groups),
+				.AddRange(nameof(Address), nameof(AddressId), nameof(Groups),
 					nameof(LastLoginDate), nameof(PasswordHash), nameof(Pets),
 					nameof(Roles)
 				);
@@ -117,7 +117,7 @@ namespace Speedy.Website.Data.Entities
 		{
 			// Update defaults are the same as incoming sync defaults
 			var response = base.GetDefaultExclusionsForOutgoingSync()
-				.Append(GetDefaultExclusionsForIncomingSync());
+				.AddRange(GetDefaultExclusionsForIncomingSync());
 			response.Remove(nameof(LastLoginDate));
 			response.Remove(nameof(Roles));
 			return response;
@@ -127,8 +127,8 @@ namespace Speedy.Website.Data.Entities
 		{
 			// Update defaults are the same as incoming sync defaults plus some
 			return base.GetDefaultExclusionsForSyncUpdate()
-				.Append(GetDefaultExclusionsForIncomingSync())
-				.Append(nameof(IsDeleted), nameof(LastLoginDate));
+				.AddRange(GetDefaultExclusionsForIncomingSync())
+				.AddRange(nameof(IsDeleted), nameof(LastLoginDate));
 		}
 
 		#endregion

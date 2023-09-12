@@ -34,6 +34,11 @@ public class LockableBindable : Bindable, IDisposable
 	#region Properties
 
 	/// <summary>
+	/// True if the object has been disposed otherwise false.
+	/// </summary>
+	public bool IsDisposed { get; private set; }
+
+	/// <summary>
 	/// Gets a value that indicates whether the current thread has entered the lock in read mode.
 	/// </summary>
 	public bool IsReadLocked => _cacheLock.IsReadLockHeld;
@@ -191,6 +196,8 @@ public class LockableBindable : Bindable, IDisposable
 		{
 			return;
 		}
+
+		IsDisposed = true;
 
 		_cacheLock.Dispose();
 	}

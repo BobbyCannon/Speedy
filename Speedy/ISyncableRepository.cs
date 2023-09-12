@@ -13,7 +13,8 @@ namespace Speedy;
 /// </summary>
 /// <typeparam name="T"> The type of the entity of the collection. </typeparam>
 /// <typeparam name="T2"> The type of the entity key. </typeparam>
-public interface ISyncableRepository<T, in T2> : ISyncableRepository, IRepository<T, T2> where T : SyncEntity<T2>
+public interface ISyncableRepository<T, in T2> : ISyncableRepository, IRepository<T, T2>
+	where T : SyncEntity<T2>
 {
 	#region Methods
 

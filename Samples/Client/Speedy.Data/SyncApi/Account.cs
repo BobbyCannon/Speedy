@@ -12,12 +12,16 @@ namespace Speedy.Data.SyncApi;
 /// <summary>
 /// Represents the public account model.
 /// </summary>
-public class Account : SyncModel<int>, IComparable<Account>, IComparable
+public class Account : HierarchyListSyncModel<int>, IComparable<Account>, IComparable
 {
 	#region Constructors
 
+	public Account() : this(null)
+	{
+	}
+
 	[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
-	public Account()
+	public Account(IDispatcher dispatcher) : base(dispatcher)
 	{
 		ResetHasChanges();
 	}

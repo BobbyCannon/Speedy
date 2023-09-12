@@ -22,6 +22,7 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	#region Fields
 
 	private bool _hasChanges;
+	private bool _notificationsEnabled;
 
 	#endregion
 
@@ -92,6 +93,12 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	#region Methods
 
 	/// <inheritdoc />
+	public virtual void DisablePropertyChangeNotifications()
+	{
+		_notificationsEnabled = false;
+	}
+
+	/// <inheritdoc />
 	public void Dispatch(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
 		var dispatcher = GetDispatcher();
@@ -140,6 +147,12 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	}
 
 	/// <inheritdoc />
+	public virtual void EnablePropertyChangeNotifications()
+	{
+		_notificationsEnabled = true;
+	}
+
+	/// <inheritdoc />
 	public ReadOnlySet<string> GetChangedProperties()
 	{
 		return ReadOnlySet<string>.Empty;
@@ -164,20 +177,15 @@ public class BaseObservableCollection<T> : ObservableCollection<T>, IBindable
 	}
 
 	/// <inheritdoc />
-	public bool IsChangeNotificationsPaused()
+	public virtual bool IsPropertyChangeNotificationsEnabled()
 	{
-		return false;
+		return _notificationsEnabled;
 	}
 
 	/// <inheritdoc />
 	public virtual void OnPropertyChanged(string propertyName = null)
 	{
 		OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-	}
-
-	/// <inheritdoc />
-	public void PausePropertyChangeNotifications(bool pause = true)
-	{
 	}
 
 	/// <summary>

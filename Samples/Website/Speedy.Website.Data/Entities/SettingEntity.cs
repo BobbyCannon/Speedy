@@ -29,14 +29,14 @@ namespace Speedy.Website.Data.Entities
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
 		{
 			return base.GetDefaultExclusionsForOutgoingSync()
-				.Append(GetDefaultExclusionsForIncomingSync());
+				.AddRange(GetDefaultExclusionsForIncomingSync());
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForSyncUpdate()
 		{
 			return base.GetDefaultExclusionsForSyncUpdate()
-				.Append(GetDefaultExclusionsForIncomingSync())
-				.Append(nameof(IsDeleted));
+				.AddRange(GetDefaultExclusionsForIncomingSync())
+				.AddRange(nameof(IsDeleted));
 		}
 
 		#endregion

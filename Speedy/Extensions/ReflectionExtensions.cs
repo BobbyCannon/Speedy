@@ -9,8 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
-using Speedy.Collections;
-using Speedy.Converters;
 using Speedy.Protocols.Osc;
 using Speedy.Sync;
 
@@ -26,14 +24,14 @@ public static class ReflectionExtensions
 	#region Constants
 
 	/// <summary>
-	/// Default event flags for cached access.
-	/// </summary>
-	public const BindingFlags DefaultEventFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic;
-
-	/// <summary>
 	/// Default flags for cached access.
 	/// </summary>
 	public const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public;
+
+	/// <summary>
+	/// Default event flags for cached access.
+	/// </summary>
+	public const BindingFlags DefaultPrivateFlags = BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic;
 
 	/// <summary>
 	/// Flags for direct member only.
@@ -46,6 +44,7 @@ public static class ReflectionExtensions
 
 	private static readonly byte[] _buffer;
 	private static readonly ConcurrentDictionary<string, MethodInfo> _genericMethods;
+	private static readonly ConcurrentDictionary<string, Type> _makeGenericTypes;
 	private static readonly ConcurrentDictionary<string, ParameterInfo[]> _methodParameters;
 	private static readonly ConcurrentDictionary<string, Type[]> _methodsGenericArgumentInfos;
 	private static readonly ConcurrentDictionary<string, MethodInfo[]> _propertyGetAccessors;
@@ -68,8 +67,8 @@ public static class ReflectionExtensions
 	{
 		_buffer = new byte[32];
 		_random = RandomNumberGenerator.Create();
-
 		_genericMethods = new ConcurrentDictionary<string, MethodInfo>();
+		_makeGenericTypes = new ConcurrentDictionary<string, Type>();
 		_methodParameters = new ConcurrentDictionary<string, ParameterInfo[]>();
 		_methodsGenericArgumentInfos = new ConcurrentDictionary<string, Type[]>();
 		_propertyGetAccessors = new ConcurrentDictionary<string, MethodInfo[]>();
@@ -89,17 +88,26 @@ public static class ReflectionExtensions
 	#region Methods
 
 	/// <summary>
-	/// Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
-	/// MethodInfo object representing the resulting constructed method. The results are cached so the next query is much faster.
+	/// Create an instance for a given property.
 	/// </summary>
-	/// <param name="info"> The property information to get the generic arguments for. </param>
-	/// <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
-	/// <returns> The method information with generics. </returns>
-	public static MethodInfo CachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
+	/// <param name="propertyInfo"> The property type for which to get an instance of. </param>
+	/// <param name="arguments"> The value of the arguments. </param>
+	/// <returns> The new instances of the property type. </returns>
+	public static object CreateInstance(this PropertyInfo propertyInfo, params object[] arguments)
 	{
-		var fullName = info.ReflectedType?.FullName + "." + info.Name;
-		var key = info.ToString()?.Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
-		return _genericMethods.GetOrAdd(key, _ => info.MakeGenericMethod(arguments));
+		return Activator.CreateInstance(propertyInfo.PropertyType, arguments);
+	}
+
+	/// <summary>
+	/// Create an instance for a given property.
+	/// </summary>
+	/// <param name="propertyInfo"> The property type for which to get an instance of. </param>
+	/// <param name="update"> An action to update the new instance. </param>
+	/// <param name="arguments"> The value of the arguments. </param>
+	/// <returns> The new instances of the property type. </returns>
+	public static object CreateInstance(this PropertyInfo propertyInfo, Action<object> update = null, params object[] arguments)
+	{
+		return Activator.CreateInstance(propertyInfo.PropertyType, update, arguments);
 	}
 
 	/// <summary>
@@ -110,597 +118,63 @@ public static class ReflectionExtensions
 	/// <returns> The new instances of the type. </returns>
 	public static object CreateInstance(this Type type, params object[] arguments)
 	{
-		// If no type was supplied, return null.
-		if (type == null)
-		{
-			return null;
-		}
-
-		var isGeneric = type.IsGenericType && type.GenericTypeArguments.Any();
-		if (isGeneric)
-		{
-			return Activator.CreateInstance(type, arguments);
-		}
-
-		// If the supplied Type has generic parameters, its default value cannot be determined
-		if (type.ContainsGenericParameters)
-		{
-			throw new ArgumentException(
-				"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-				"> contains generic parameters, so the default value cannot be retrieved");
-		}
-
-		// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
-		//  default instance of the value type
-		if (type.IsPrimitive || !type.IsNotPublic)
-		{
-			try
-			{
-				if (type == typeof(string))
-				{
-					return string.Empty;
-				}
-
-				return arguments.Any()
-					? Activator.CreateInstance(type, arguments)
-					: Activator.CreateInstance(type);
-			}
-			catch (Exception e)
-			{
-				throw new ArgumentException(
-					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
-					"create a default instance of the supplied value type <" + type +
-					"> (Inner Exception message: \"" + e.Message + "\")", e);
-			}
-		}
-
-		// Fail with exception
-		throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-			"> is not a publicly-visible type, so the default value cannot be retrieved");
+		return Activator.CreateInstance(type, null, arguments);
 	}
 
 	/// <summary>
-	/// Quickly create a new type of a generic.
+	/// Create an instance for a given Type.
 	/// </summary>
-	/// <param name="type"> The base type that requires generics. </param>
-	/// <param name="genericTypes"> The types for the generic. </param>
+	/// <param name="type"> The Type for which to get an instance of. </param>
+	/// <param name="update"> An action to update the new instance. </param>
 	/// <param name="arguments"> The value of the arguments. </param>
 	/// <returns> The new instances of the type. </returns>
-	public static object CreateInstance(this Type type, Type[] genericTypes, params object[] arguments)
+	public static object CreateInstance(this Type type, Action<object> update = null, params object[] arguments)
 	{
-		if (!type.GenericTypeArguments.Any())
-		{
-			var genericType = type.MakeGenericType(genericTypes);
-			return CreateInstance(genericType, arguments);
-		}
-
-		return Activator.CreateInstance(type, arguments);
+		return Activator.CreateInstance(type, update, arguments);
 	}
 
 	/// <summary>
-	/// Gets a list of generic arguments for the provided property information. The results are cached so the next query is much faster.
+	/// Create an instance for a given Type.
 	/// </summary>
-	/// <param name="info"> The property information to get the generic arguments for. </param>
-	/// <returns> The list of generic arguments for the property information of the value. </returns>
-	public static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
+	/// <param name="type"> The Type for which to get an instance of. </param>
+	/// <param name="arguments"> The value of the arguments. </param>
+	/// <returns> The new instances of the type. </returns>
+	public static object CreateInstanceOfGeneric(this Type type, params object[] arguments)
 	{
-		if (info == null)
-		{
-			throw new InvalidOperationException();
-		}
-
-		var key = $"{info.ReflectedType?.FullName}.{info.Name}";
-		return _propertyGetAccessors.GetOrAdd(key, _ => info.GetAccessors());
+		return Activator.CreateInstanceOfGeneric(type, arguments);
 	}
 
 	/// <summary>
-	/// Get attributes for an enum.
+	/// Create an instance for a given Type.
 	/// </summary>
-	/// <typeparam name="T"> The type value of the attribute. </typeparam>
-	/// <param name="value"> The value to get attributes for. </param>
-	/// <returns> The attributes if found. </returns>
-	public static T[] GetCachedAttributes<T>(this Enum value) where T : Attribute
+	/// <param name="type"> The Type for which to get an instance of. </param>
+	/// <param name="generics"> The Types the generic is for. </param>
+	/// <param name="arguments"> The value of the arguments. </param>
+	/// <returns> The new instances of the type. </returns>
+	public static object CreateInstanceOfGeneric(this Type type, Type[] generics, params object[] arguments)
 	{
-		var attributeType = typeof(T);
-		var typeKey = GetCacheKey(value?.GetType() ?? throw new InvalidOperationException(), DefaultFlags);
-		var key = typeKey + value + attributeType.FullName;
-
-		return _typeAttributes.GetOrAdd(key, x =>
-			{
-				var type = value.GetType();
-				var memberInfo = type.GetMember(value.ToString());
-				var attributes = memberInfo[0]
-					.GetCustomAttributes(attributeType, false)
-					.Cast<Attribute>()
-					.ToArray();
-
-				return attributes;
-			})
-			.Cast<T>()
-			.ToArray();
-	}
-
-	/// <summary>
-	/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="value"> The value to get the events for. </param>
-	/// <param name="flags"> The flags to find events by. Defaults to Public, Instance, Flatten Hierarchy </param>
-	/// <returns> The list of field info of the events for the type. </returns>
-	public static IList<FieldInfo> GetCachedEventFields(this object value, BindingFlags? flags = null)
-	{
-		var type = value.GetType();
-		return GetCachedEventFields(type, flags);
-	}
-
-	/// <summary>
-	/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the events for. </param>
-	/// <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
-	/// <returns> The list of field info of the events for the type. </returns>
-	public static IList<FieldInfo> GetCachedEventFields(this Type type, BindingFlags? flags = null)
-	{
-		var typeFlags = flags ?? DefaultEventFlags;
-		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-
-		return _typeEventFieldInfos.GetOrAdd(key, _ => type
-			.GetEvents(typeFlags)
-			.Where(x => x.DeclaringType != null)
-			.Select(x => x.DeclaringType.GetField(x.Name, typeFlags))
-			.Where(x => x != null)
-			.ToList()
-		);
-	}
-
-	/// <summary>
-	/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="item"> The item to get the field for. </param>
-	/// <param name="name"> The type field name to locate. </param>
-	/// <param name="flags"> The flags used to query with. </param>
-	/// <returns> The field information for the type. </returns>
-	public static FieldInfo GetCachedField(this object item, string name, BindingFlags? flags = null)
-	{
-		return GetCachedField(item.GetType(), name, flags);
-	}
-
-	/// <summary>
-	/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the fields for. </param>
-	/// <param name="name"> The type field name to locate. </param>
-	/// <param name="flags"> The flags used to query with. </param>
-	/// <returns> The field information for the type. </returns>
-	public static FieldInfo GetCachedField(this Type type, string name, BindingFlags? flags = null)
-	{
-		return type.GetCachedFields(flags).FirstOrDefault(x => x.Name == name);
-	}
-
-	/// <summary>
-	/// Gets a list of fields for the provided item. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="item"> The item to get the fields for. </param>
-	/// <param name="flags"> The flags used to query with. </param>
-	/// <returns> The list of field infos for the item. </returns>
-	public static IList<FieldInfo> GetCachedFields(this object item, BindingFlags? flags = null)
-	{
-		return item.GetType().GetCachedFields(flags);
-	}
-
-	/// <summary>
-	/// Gets a list of fields for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the fields for. </param>
-	/// <param name="flags"> The flags used to query with. </param>
-	/// <returns> The list of field infos for the type. </returns>
-	public static IList<FieldInfo> GetCachedFields(this Type type, BindingFlags? flags = null)
-	{
-		var typeFlags = flags ?? DefaultFlags;
-		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-		return _typeFieldInfos.GetOrAdd(key, _ => type.GetFields(typeFlags));
-	}
-
-	/// <summary>
-	/// Gets a list of generic arguments for the provided method information. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="info"> The method information to get the generic arguments for. </param>
-	/// <returns> The list of generic arguments for the method information of the value. </returns>
-	public static IList<Type> GetCachedGenericArguments(this MethodInfo info)
-	{
-		var fullName = $"{info.ReflectedType?.FullName}.{info.Name}";
-		var key = info.ToString()?.Replace(info.Name, fullName);
-		return _methodsGenericArgumentInfos.GetOrAdd(key, _ => info.GetGenericArguments());
-	}
-
-	/// <summary>
-	/// Gets a list of generic arguments for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the generic arguments for. </param>
-	/// <returns> The list of generic arguments for the type of the value. </returns>
-	public static IList<Type> GetCachedGenericArguments(this Type type)
-	{
-		return _methodsGenericArgumentInfos.GetOrAdd(type.FullName ?? throw new InvalidOperationException(),
-			_ => type.GetGenericArguments());
-	}
-
-	/// <summary>
-	/// Searches for the specified public method whose parameters match the specified argument types.
-	/// The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the method for. </param>
-	/// <param name="name"> The string containing the name of the public method to get. </param>
-	/// <param name="types"> An array of type objects representing the number, order, and type of the parameters for the method to get.-or- An empty array of type objects (as provided by the EmptyTypes field) to get a method that takes no parameters. </param>
-	/// <returns> An object representing the public method whose parameters match the specified argument types, if found; otherwise null. </returns>
-	public static MethodInfo GetCachedMethod(this Type type, string name, params Type[] types)
-	{
-		var typeKey = GetCacheKey(type, DefaultFlags);
-		var methodKey = typeKey + name;
-		return _typeMethodInfos.GetOrAdd(methodKey, _ => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
-	}
-
-	/// <summary>
-	/// Gets the method info from the provided type by the name provided.
-	/// The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="value"> The value to get the methods for. </param>
-	/// <param name="name"> The name of the method to be queried. </param>
-	/// <param name="flags"> The flags used to query with. </param>
-	/// <returns> The list of method infos for the type. </returns>
-	public static MethodInfo GetCachedMethod(this object value, string name, BindingFlags? flags = null)
-	{
-		var typeFlags = flags ?? DefaultFlags;
-		var typeKey = GetCacheKey(value?.GetType() ?? throw new InvalidOperationException(), typeFlags);
-		var methodKey = typeKey + name;
-		return _typeMethodInfos.GetOrAdd(methodKey, GetCachedMethods(typeKey, flags).FirstOrDefault(x => x.Name == name));
-	}
-
-	/// <summary>
-	/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="value"> The value to get the methods for. </param>
-	/// <param name="flags"> The flags used to query with. </param>
-	/// <returns> The list of method infos for the type. </returns>
-	public static IList<MethodInfo> GetCachedMethods(this object value, BindingFlags? flags = null)
-	{
-		return GetCachedMethods(value?.GetType(), flags);
-	}
-
-	/// <summary>
-	/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the methods for. </param>
-	/// <param name="flags"> The flags used to query with. </param>
-	/// <returns> The list of method infos for the type. </returns>
-	public static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags? flags = null)
-	{
-		var typeFlags = flags ?? DefaultFlags;
-		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-		return _typeMethodsInfos.GetOrAdd(key, type.GetMethods(typeFlags));
-	}
-
-	/// <summary>
-	/// Gets a list of parameter infos for the provided method info. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="info"> The method info to get the parameters for. </param>
-	/// <returns> The list of parameter infos for the type. </returns>
-	public static IList<ParameterInfo> GetCachedParameters(this MethodInfo info)
-	{
-		if (info == null)
-		{
-			throw new InvalidOperationException();
-		}
-
-		var reflectedName = info.ReflectedType?.FullName;
-		var fullName = reflectedName != null ? $"{reflectedName}.{info.Name}" : info.Name;
-		var key = info.ToString().Replace(info.Name, fullName);
-
-		return _methodParameters.GetOrAdd(key, _ => info.GetParameters());
-	}
-
-	/// <summary>
-	/// Gets a list of property types for the provided object type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="value"> The value to get the properties for. </param>
-	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
-	/// <returns> The list of properties for the type of the value. </returns>
-	public static IList<PropertyInfo> GetCachedProperties(this object value, BindingFlags? flags = null)
-	{
-		return value.GetType().GetCachedProperties(flags);
-	}
-
-	/// <summary>
-	/// Gets a list of property information for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the properties for. </param>
-	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
-	/// <returns> The list of properties for the type. </returns>
-	public static IList<PropertyInfo> GetCachedProperties(this Type type, BindingFlags? flags = null)
-	{
-		var typeFlags = flags ?? DefaultFlags;
-		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-		return _typePropertyInfos.GetOrAdd(key, _ =>
-		{
-			return type.GetProperties(typeFlags)
-				.OrderBy(x => x.Name)
-				.ToArray();
-		});
-	}
-
-	/// <summary>
-	/// Gets the information for the provided type and property name. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the property for. </param>
-	/// <param name="name"> The name of the property to be queried. </param>
-	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
-	/// <returns> The list of properties for the type. </returns>
-	public static PropertyInfo GetCachedProperty(this Type type, string name, BindingFlags? flags = null)
-	{
-		return GetCachedProperties(type, flags).FirstOrDefault(x => x.Name == name);
-	}
-
-	/// <summary>
-	/// Gets a list of property information for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the properties for. </param>
-	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
-	/// <returns> The list of properties for the type. </returns>
-	public static IDictionary<string, PropertyInfo> GetCachedPropertyDictionary(this Type type, BindingFlags? flags = null)
-	{
-		var typeFlags = flags ?? DefaultFlags;
-		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-		return _typePropertyInfoDictionaries.GetOrAdd(key, _ =>
-		{
-			var properties = type.GetProperties(typeFlags);
-			return properties.ToDictionary(p => p.Name, p => p, StringComparer.InvariantCultureIgnoreCase);
-		});
-	}
-
-	/// <summary>
-	/// Gets a list of virtual property types for the provided type. The results are cached so the next query is much faster.
-	/// </summary>
-	/// <param name="type"> The type to get the properties for. </param>
-	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
-	/// <returns> The list of properties for the type. </returns>
-	public static IList<PropertyInfo> GetCachedVirtualProperties(this Type type, BindingFlags? flags = null)
-	{
-		var typeFlags = flags ?? DefaultFlags;
-		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
-
-		return _typeVirtualPropertyInfos.GetOrAdd(key, _ =>
-		{
-			return type
-				.GetCachedProperties(typeFlags)
-				.Where(p => p.IsVirtual())
-				.OrderBy(p => p.Name)
-				.ToArray();
-		});
-	}
-
-	/// <summary>
-	/// Retrieves the default value for a given Type.
-	/// </summary>
-	/// <param name="type"> The Type for which to get the default value </param>
-	/// <returns> The default value for <paramref name="type" /> </returns>
-	/// <remarks>
-	/// If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
-	/// is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
-	/// exception.
-	/// </remarks>
-	public static object GetDefaultValue(this Type type)
-	{
-		if ((type == null) || (type == typeof(string)) || (type == typeof(void)))
-		{
-			return null;
-		}
-
-		if (type.IsNullable()
-			&& !type.IsArray
-			&& !type.ContainsGenericParameters
-			&& (type.GenericTypeArguments.Length <= 0))
-		{
-			return null;
-		}
-
-		var isDictionary = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IDictionary<,>));
-		if (isDictionary)
-		{
-			var collectionType = typeof(Dictionary<,>);
-			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
-		}
-
-		var isEnumerable = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-		if (isEnumerable)
-		{
-			var collectionType = typeof(Collection<>);
-			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
-		}
-
-		var isCollection = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(ICollection<>));
-		if (isCollection)
-		{
-			var collectionType = typeof(Collection<>);
-			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
-		}
-
-		var isList = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IList<>));
-		if (isList)
-		{
-			var collectionType = typeof(List<>);
-			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
-			return Activator.CreateInstance(constructedListType);
-		}
-
-		if (type.IsArray)
-		{
-			return Array.CreateInstance(type.GetElementType() ?? typeof(object), 0);
-		}
-
-		// If the supplied Type has generic parameters, its default value cannot be determined
-		if (type.ContainsGenericParameters)
-		{
-			throw new ArgumentException(
-				"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-				"> contains generic parameters, so the default value cannot be retrieved");
-		}
-
-		// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
-		//  default instance of the value type
-		if (type.IsPrimitive || !type.IsNotPublic)
-		{
-			try
-			{
-				return Activator.CreateInstance(type);
-			}
-			catch (Exception e)
-			{
-				throw new ArgumentException(
-					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
-					"create a default instance of the supplied value type <" + type +
-					"> (Inner Exception message: \"" + e.Message + "\")", e);
-			}
-		}
-
-		// Fail with exception
-		throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
-			"> is not a publicly-visible type, so the default value cannot be retrieved");
-	}
-
-	/// <summary>
-	/// Get a default value for a property.
-	/// </summary>
-	/// <param name="propertyInfo"> The property info. </param>
-	/// <param name="nonSupportedType"> An optional non supported type. </param>
-	public static object GetDefaultValue(this PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
-	{
-		return propertyInfo?.PropertyType.GetDefaultValue()
-			?? nonSupportedType?.Invoke(propertyInfo);
-	}
-
-	/// <summary>
-	/// Get a default value for a property.
-	/// </summary>
-	/// <param name="propertyInfo"> The property info. </param>
-	/// <param name="nonSupportedType"> An optional non supported type. </param>
-	public static object GetDefaultValueNotNull(this PropertyInfo propertyInfo, Func<PropertyInfo, object> nonSupportedType = null)
-	{
-		var response = propertyInfo?.PropertyType.GetDefaultValue()
-			?? nonSupportedType?.Invoke(propertyInfo);
-
-		if (response != null)
-		{
-			return response;
-		}
-
-		if (propertyInfo?.PropertyType == typeof(string))
-		{
-			return string.Empty;
-		}
-
-		return Activator.CreateInstance(propertyInfo?.PropertyType ?? typeof(object));
-	}
-
-	/// <summary>
-	/// Get the name of the expression.
-	/// </summary>
-	/// <param name="expression"> The expression to process. </param>
-	/// <returns> The name of the expression. </returns>
-	public static string GetExpressionName(this LambdaExpression expression)
-	{
-		if (expression.Body is UnaryExpression unaryExpression)
-		{
-			return ((dynamic) unaryExpression.Operand).Member?.Name;
-		}
-
-		return ((dynamic) expression).Body.Member.Name;
-	}
-
-	/// <summary>
-	/// Get the types for the generic.
-	/// </summary>
-	/// <param name="value"> The value to get the types for. </param>
-	/// <returns> The type values for the generic object. </returns>
-	public static Type[] GetGenericTypes(this object value)
-	{
-		var type = value.GetType();
-
-		while (true)
-		{
-			if (type == null)
-			{
-				return null;
-			}
-
-			var arg = type.GenericTypeArguments?.ToArray();
-			if (arg is not { Length: > 0 })
-			{
-				type = type.BaseType;
-				continue;
-			}
-
-			return arg;
-		}
-	}
-
-	/// <summary>
-	/// Gets the public or private member using reflection.
-	/// </summary>
-	/// <param name="value"> The value that contains the member. </param>
-	/// <param name="memberName"> The name of the field or property to get the value of. </param>
-	/// <returns> The value of member. </returns>
-	public static object GetMemberValue(this object value, string memberName)
-	{
-		var memberInfo = GetCachedMember(value, memberName);
-
-		if (memberInfo == null)
-		{
-			throw new InvalidOperationException();
-		}
-
-		return memberInfo switch
-		{
-			PropertyInfo propertyInfo => propertyInfo.GetValue(value, null),
-			FieldInfo fieldInfo => fieldInfo.GetValue(value),
-			_ => throw new Exception()
-		};
-	}
-
-	/// <summary>
-	/// Gets the member value of an object using the provider info.
-	/// </summary>
-	/// <param name="memberInfo"> The info for the member. </param>
-	/// <param name="value"> </param>
-	/// <returns> The value of the value member. </returns>
-	/// <exception cref="NotImplementedException"> The member info is not a field or property. </exception>
-	public static object GetMemberValue(this MemberInfo memberInfo, object value)
-	{
-		return memberInfo.MemberType switch
-		{
-			MemberTypes.Field => ((FieldInfo) memberInfo).GetValue(value),
-			MemberTypes.Property => ((PropertyInfo) memberInfo).GetValue(value),
-			_ => throw new NotImplementedException()
-		};
+		return Activator.CreateInstanceOfGeneric(type, generics, arguments);
 	}
 
 	/// <summary>
 	/// Get a non default value for a property.
 	/// </summary>
 	/// <param name="propertyInfo"> The property info. </param>
-	/// <param name="nonSupportedType"> An optional non supported type. </param>
-	public static object GetNonDefaultValue(this PropertyInfo propertyInfo, Func<Type, object> nonSupportedType = null)
+	/// <param name="arguments"> The arguments for the constructing the instance. </param>
+	/// <returns> The new instances of the type. </returns>
+	public static object CreateInstanceWithNonDefaultValue(this PropertyInfo propertyInfo, params object[] arguments)
 	{
 		var propertyType = propertyInfo.PropertyType;
-		return GetNonDefaultValue(propertyType, nonSupportedType);
+		return CreateInstanceWithNonDefaultValue(propertyType, arguments);
 	}
 
 	/// <summary>
 	/// Get a non default value for data type.
 	/// </summary>
 	/// <param name="type"> The type of object to get the value for. </param>
-	/// <param name="nonSupportedType"> An optional non supported type. </param>
-	public static object GetNonDefaultValue(this Type type, Func<Type, object> nonSupportedType = null)
+	/// <param name="arguments"> The arguments for the constructing the instance. </param>
+	/// <returns> The new instances of the type. </returns>
+	public static object CreateInstanceWithNonDefaultValue(this Type type, params object[] arguments)
 	{
 		if (type.IsEnum)
 		{
@@ -811,40 +285,603 @@ public static class ReflectionExtensions
 			return Guid.NewGuid().ToString();
 		}
 
-		if (type.IsGenericType)
-		{
-			var genericInstanceType = ObjectConverter.GetGenericInstanceType(type);
-			if (genericInstanceType.GetGenericTypeDefinition() == typeof(Nullable<>))
-			{
-				var defaultValue = genericInstanceType.GenericTypeArguments[0].CreateInstance();
-				return Activator.CreateInstance(genericInstanceType, defaultValue);
-			}
-			return Activator.CreateInstance(genericInstanceType);
-		}
-
-		if (type.IsArray)
-		{
-			return Array.CreateInstance(type.GetElementType() ?? type, 0);
-		}
-
 		if (type == typeof(Rectangle))
 		{
 			return new Rectangle(1, 2, 3, 4);
 		}
 
-		if (type.IsNullable())
+		return Activator.CreateInstance(type, arguments);
+	}
+
+	/// <summary>
+	/// Create a new instance of the type then update the object with non default values.
+	/// </summary>
+	/// <param name="arguments"> The arguments for the constructing the instance. </param>
+	/// <returns> The instance of the type with non default values. </returns>
+	public static T CreateInstanceWithNonDefaultValues<T>(params object[] arguments)
+	{
+		return (T) Activator.CreateInstanceWithNonDefaultValues(typeof(T), arguments);
+	}
+
+	/// <summary>
+	/// Create a new instance of the type then update the object with non default values.
+	/// </summary>
+	/// <param name="type"> The type to create an instance of. </param>
+	/// <param name="arguments"> The arguments for the constructing the instance. </param>
+	/// <param name="exclusions"> An optional set of properties to exclude. </param>
+	/// <returns> The instance of the type with non default values. </returns>
+	public static object CreateInstanceWithNonDefaultValues(this Type type, object[] arguments, params string[] exclusions)
+	{
+		var response = Activator.CreateInstance(type, null, arguments);
+		var notifiable = response as Notifiable;
+		notifiable?.DisablePropertyChangeNotifications();
+		response.UpdateWithNonDefaultValues(exclusions);
+		notifiable?.EnablePropertyChangeNotifications();
+		return response;
+	}
+
+	/// <summary>
+	/// Gets a list of generic arguments for the provided property information. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="info"> The property information to get the generic arguments for. </param>
+	/// <returns> The list of generic arguments for the property information of the value. </returns>
+	public static IList<MethodInfo> GetCachedAccessors(this PropertyInfo info)
+	{
+		if (info == null)
+		{
+			throw new InvalidOperationException();
+		}
+
+		var key = $"{info.ReflectedType?.FullName}.{info.Name}";
+		return _propertyGetAccessors.GetOrAdd(key, _ => info.GetAccessors());
+	}
+
+	/// <summary>
+	/// Get attributes for an enum.
+	/// </summary>
+	/// <typeparam name="T"> The type value of the attribute. </typeparam>
+	/// <param name="value"> The value to get attributes for. </param>
+	/// <returns> The attributes if found. </returns>
+	public static T[] GetCachedAttributes<T>(this Enum value) where T : Attribute
+	{
+		var attributeType = typeof(T);
+		var typeKey = GetCacheKey(value?.GetType() ?? throw new InvalidOperationException(), DefaultFlags);
+		var key = typeKey + value + attributeType.FullName;
+
+		return _typeAttributes.GetOrAdd(key, _ =>
+			{
+				var type = value.GetType();
+				var memberInfo = type.GetMember(value.ToString());
+				var attributes = memberInfo[0]
+					.GetCustomAttributes(attributeType, false)
+					.Cast<Attribute>()
+					.ToArray();
+
+				return attributes;
+			})
+			.Cast<T>()
+			.ToArray();
+	}
+
+	/// <summary>
+	/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="value"> The value to get the events for. </param>
+	/// <param name="name"> The type event field name to locate. </param>
+	/// <param name="flags"> The flags to find events by. Defaults to Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of field info of the events for the type. </returns>
+	public static FieldInfo GetCachedEventField(this object value, string name, BindingFlags? flags = null)
+	{
+		return GetCachedEventField(value.GetType(), name, flags);
+	}
+
+	/// <summary>
+	/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the events for. </param>
+	/// <param name="name"> The type event field name to locate. </param>
+	/// <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of field info of the events for the type. </returns>
+	public static FieldInfo GetCachedEventField(this Type type, string name, BindingFlags? flags = null)
+	{
+		return type.GetCachedEventFields(flags).FirstOrDefault(x => x.Name == name);
+	}
+
+	/// <summary>
+	/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="value"> The value to get the events for. </param>
+	/// <param name="flags"> The flags to find events by. Defaults to Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of field info of the events for the type. </returns>
+	public static IList<FieldInfo> GetCachedEventFields(this object value, BindingFlags? flags = null)
+	{
+		var type = value.GetType();
+		return GetCachedEventFields(type, flags);
+	}
+
+	/// <summary>
+	/// Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the events for. </param>
+	/// <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of field info of the events for the type. </returns>
+	public static IList<FieldInfo> GetCachedEventFields(this Type type, BindingFlags? flags = null)
+	{
+		var typeFlags = flags ?? DefaultPrivateFlags;
+		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+
+		return _typeEventFieldInfos.GetOrAdd(key, _ => type
+			.GetEvents(typeFlags)
+			.Where(x => x.DeclaringType != null)
+			.Select(x => x.DeclaringType.GetField(x.Name, typeFlags))
+			.Where(x => x != null)
+			.ToList()
+		);
+	}
+
+	/// <summary>
+	/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="item"> The item to get the field for. </param>
+	/// <param name="name"> The type field name to locate. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The field information for the type. </returns>
+	public static FieldInfo GetCachedField(this object item, string name, BindingFlags? flags = null)
+	{
+		return GetCachedField(item.GetType(), name, flags);
+	}
+
+	/// <summary>
+	/// Gets a field by name for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the fields for. </param>
+	/// <param name="name"> The type field name to locate. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The field information for the type. </returns>
+	public static FieldInfo GetCachedField(this Type type, string name, BindingFlags? flags = null)
+	{
+		return type.GetCachedFields(flags).FirstOrDefault(x => x.Name == name);
+	}
+
+	/// <summary>
+	/// Gets a list of fields for the provided item. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="item"> The item to get the fields for. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The list of field infos for the item. </returns>
+	public static IList<FieldInfo> GetCachedFields(this object item, BindingFlags? flags = null)
+	{
+		return item.GetType().GetCachedFields(flags);
+	}
+
+	/// <summary>
+	/// Gets a list of fields for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the fields for. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The list of field infos for the type. </returns>
+	public static IList<FieldInfo> GetCachedFields(this Type type, BindingFlags? flags = null)
+	{
+		var typeFlags = flags ?? DefaultFlags;
+		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+		return _typeFieldInfos.GetOrAdd(key, _ => type.GetFields(typeFlags));
+	}
+
+	/// <summary>
+	/// Gets a list of generic arguments for the provided method information. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="info"> The method information to get the generic arguments for. </param>
+	/// <returns> The list of generic arguments for the method information of the value. </returns>
+	public static IList<Type> GetCachedGenericArguments(this MethodInfo info)
+	{
+		var fullName = $"{info.ReflectedType?.FullName}.{info.Name}";
+		var key = info.ToString()?.Replace(info.Name, fullName);
+		return _methodsGenericArgumentInfos.GetOrAdd(key, _ => info.GetGenericArguments());
+	}
+
+	/// <summary>
+	/// Gets a list of generic arguments for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the generic arguments for. </param>
+	/// <returns> The list of generic arguments for the type of the value. </returns>
+	public static IList<Type> GetCachedGenericArguments(this Type type)
+	{
+		return _methodsGenericArgumentInfos.GetOrAdd(type.FullName ?? throw new InvalidOperationException(),
+			_ => type.GetGenericArguments());
+	}
+
+	/// <summary>
+	/// Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
+	/// MethodInfo object representing the resulting constructed method. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="info"> The property information to get the generic arguments for. </param>
+	/// <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
+	/// <returns> The method information with generics. </returns>
+	public static MethodInfo GetCachedMakeGenericMethod(this MethodInfo info, Type[] arguments)
+	{
+		var fullName = $"{info.ReflectedType?.FullName}.{info.Name}";
+		var key = info.ToString()?.Replace(info.Name, fullName) + string.Join(", ", arguments.Select(x => x.FullName));
+		return _genericMethods.GetOrAdd(key, _ => info.MakeGenericMethod(arguments));
+	}
+
+	/// <summary>
+	/// Get the type of a generic with the provided types. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the generic arguments for. </param>
+	/// <param name="genericTypes"> An array of types to create the generic type with. </param>
+	/// <returns> The method information with generics. </returns>
+	public static Type GetCachedMakeGenericType(this Type type, Type[] genericTypes)
+	{
+		var key = $"{type.FullName}:{string.Join(", ", genericTypes.Select(x => x.FullName))}";
+		return _makeGenericTypes.GetOrAdd(key, _ => type.MakeGenericType(genericTypes));
+	}
+
+	/// <summary>
+	/// Searches for the specified public method whose parameters match the specified argument types.
+	/// The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the method for. </param>
+	/// <param name="name"> The string containing the name of the public method to get. </param>
+	/// <param name="types"> An array of type objects representing the number, order, and type of the parameters for the method to get.-or- An empty array of type objects (as provided by the EmptyTypes field) to get a method that takes no parameters. </param>
+	/// <returns> An object representing the public method whose parameters match the specified argument types, if found; otherwise null. </returns>
+	public static MethodInfo GetCachedMethod(this Type type, string name, params Type[] types)
+	{
+		var typeKey = GetCacheKey(type, DefaultFlags);
+		var methodKey = typeKey + name;
+		return _typeMethodInfos.GetOrAdd(methodKey, _ => types.Any() ? type.GetMethod(name, types) : type.GetMethod(name));
+	}
+
+	/// <summary>
+	/// Gets the method info from the provided type by the name provided.
+	/// The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="value"> The value to get the methods for. </param>
+	/// <param name="name"> The name of the method to be queried. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The list of method infos for the type. </returns>
+	public static MethodInfo GetCachedMethod(this object value, string name, BindingFlags? flags = null)
+	{
+		var typeFlags = flags ?? DefaultFlags;
+		var typeKey = GetCacheKey(value?.GetType() ?? throw new InvalidOperationException(), typeFlags);
+		var methodKey = typeKey + name;
+		return _typeMethodInfos.GetOrAdd(methodKey, GetCachedMethods(value, flags).FirstOrDefault(x => x.Name == name));
+	}
+
+	/// <summary>
+	/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="value"> The value to get the methods for. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The list of method infos for the type. </returns>
+	public static IList<MethodInfo> GetCachedMethods(this object value, BindingFlags? flags = null)
+	{
+		return GetCachedMethods(value?.GetType(), flags);
+	}
+
+	/// <summary>
+	/// Gets a list of methods for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the methods for. </param>
+	/// <param name="flags"> The flags used to query with. </param>
+	/// <returns> The list of method infos for the type. </returns>
+	public static IList<MethodInfo> GetCachedMethods(this Type type, BindingFlags? flags = null)
+	{
+		var typeFlags = flags ?? DefaultFlags;
+		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+		return _typeMethodsInfos.GetOrAdd(key, type.GetMethods(typeFlags));
+	}
+
+	/// <summary>
+	/// Gets a list of parameter infos for the provided method info. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="info"> The method info to get the parameters for. </param>
+	/// <returns> The list of parameter infos for the type. </returns>
+	public static IList<ParameterInfo> GetCachedParameters(this MethodInfo info)
+	{
+		if (info == null)
+		{
+			throw new InvalidOperationException();
+		}
+
+		var reflectedName = info.ReflectedType?.FullName;
+		var fullName = reflectedName != null ? $"{reflectedName}.{info.Name}" : info.Name;
+		var key = info.ToString()?.Replace(info.Name, fullName);
+
+		return _methodParameters.GetOrAdd(key, _ => info.GetParameters());
+	}
+
+	/// <summary>
+	/// Gets a list of property types for the provided object type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="value"> The value to get the properties for. </param>
+	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of properties for the type of the value. </returns>
+	public static IList<PropertyInfo> GetCachedProperties(this object value, BindingFlags? flags = null)
+	{
+		return value.GetType().GetCachedProperties(flags);
+	}
+
+	/// <summary>
+	/// Gets a list of property information for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the properties for. </param>
+	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of properties for the type. </returns>
+	public static IList<PropertyInfo> GetCachedProperties(this Type type, BindingFlags? flags = null)
+	{
+		var typeFlags = flags ?? DefaultFlags;
+		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+		return _typePropertyInfos.GetOrAdd(key, _ =>
+		{
+			return type.GetProperties(typeFlags)
+				.OrderBy(x => x.Name)
+				.ToArray();
+		});
+	}
+
+	/// <summary>
+	/// Gets the information for the provided type and property name. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the property for. </param>
+	/// <param name="name"> The name of the property to be queried. </param>
+	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of properties for the type. </returns>
+	public static PropertyInfo GetCachedProperty(this Type type, string name, BindingFlags? flags = null)
+	{
+		return GetCachedProperties(type, flags).FirstOrDefault(x => x.Name == name);
+	}
+
+	/// <summary>
+	/// Gets a list of property information for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the properties for. </param>
+	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of properties for the type. </returns>
+	public static IDictionary<string, PropertyInfo> GetCachedPropertyDictionary(this Type type, BindingFlags? flags = null)
+	{
+		var typeFlags = flags ?? DefaultFlags;
+		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+		return _typePropertyInfoDictionaries.GetOrAdd(key, _ =>
+		{
+			var properties = type.GetProperties(typeFlags);
+			return properties.ToDictionary(p => p.Name, p => p, StringComparer.InvariantCultureIgnoreCase);
+		});
+	}
+
+	/// <summary>
+	/// Gets a list of virtual property types for the provided type. The results are cached so the next query is much faster.
+	/// </summary>
+	/// <param name="type"> The type to get the properties for. </param>
+	/// <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
+	/// <returns> The list of properties for the type. </returns>
+	public static IList<PropertyInfo> GetCachedVirtualProperties(this Type type, BindingFlags? flags = null)
+	{
+		var typeFlags = flags ?? DefaultFlags;
+		var key = GetCacheKey(type ?? throw new InvalidOperationException(), typeFlags);
+
+		return _typeVirtualPropertyInfos.GetOrAdd(key, _ =>
+		{
+			return type
+				.GetCachedProperties(typeFlags)
+				.Where(p => p.IsVirtual())
+				.OrderBy(p => p.Name)
+				.ToArray();
+		});
+	}
+
+	/// <summary>
+	/// Get a default value for a property.
+	/// </summary>
+	/// <param name="propertyInfo"> The property info. </param>
+	/// <param name="arguments"> The arguments for the constructing the instance. </param>
+	/// <returns> The new instances of the type. </returns>
+	public static object GetDefaultValue(this PropertyInfo propertyInfo, params object[] arguments)
+	{
+		return propertyInfo.PropertyType.GetDefaultValue(arguments);
+	}
+
+	/// <summary>
+	/// Retrieves the default value for a given Type.
+	/// </summary>
+	/// <param name="type"> The Type for which to get the default value </param>
+	/// <param name="arguments"> The arguments for the constructing the instance. </param>
+	/// <returns> The new instances of the type. </returns>
+	/// <remarks>
+	/// If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
+	/// is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
+	/// exception.
+	/// </remarks>
+	public static object GetDefaultValue(this Type type, params object[] arguments)
+	{
+		if ((type == null) || (type == typeof(string)) || (type == typeof(void)))
+		{
+			return null;
+		}
+
+		if (type.IsNullable()
+			&& !type.IsArray
+			&& !type.ContainsGenericParameters
+			&& (type.GenericTypeArguments.Length <= 0))
+		{
+			return null;
+		}
+
+		var isDictionary = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+		if (isDictionary)
+		{
+			var collectionType = typeof(Dictionary<,>);
+			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		var isEnumerable = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+		if (isEnumerable)
+		{
+			var collectionType = typeof(Collection<>);
+			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		var isCollection = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(ICollection<>));
+		if (isCollection)
+		{
+			var collectionType = typeof(Collection<>);
+			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		var isList = type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(IList<>));
+		if (isList)
+		{
+			var collectionType = typeof(List<>);
+			var constructedListType = collectionType.MakeGenericType(type.GenericTypeArguments);
+			return Activator.CreateInstance(constructedListType);
+		}
+
+		if (type.IsArray)
+		{
+			return Array.CreateInstance(type.GetElementType() ?? typeof(object), 0);
+		}
+
+		// If the supplied Type has generic parameters, its default value cannot be determined
+		if (type.ContainsGenericParameters)
+		{
+			throw new ArgumentException(
+				"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+				"> contains generic parameters, so the default value cannot be retrieved");
+		}
+
+		// If the Type is a primitive type, or if it is another publicly-visible value type (i.e. struct/enum), return a 
+		//  default instance of the value type
+		if (type.IsPrimitive || !type.IsNotPublic)
 		{
 			try
 			{
-				return Activator.CreateInstance(type);
+				return Activator.CreateInstance(type, arguments);
 			}
-			catch
+			catch (Exception e)
 			{
-				// ignore
+				throw new ArgumentException(
+					"{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe Activator.CreateInstance method could not " +
+					"create a default instance of the supplied value type <" + type +
+					"> (Inner Exception message: \"" + e.Message + "\")", e);
 			}
 		}
 
-		return nonSupportedType?.Invoke(type);
+		// Fail with exception
+		throw new ArgumentException("{" + MethodBase.GetCurrentMethod() + "} Error:\n\nThe supplied value type <" + type +
+			"> is not a publicly-visible type, so the default value cannot be retrieved");
+	}
+
+	/// <summary>
+	/// Get a default value for a property.
+	/// </summary>
+	/// <param name="propertyInfo"> The property info. </param>
+	/// <param name="arguments"> The arguments for the constructing the instance. </param>
+	/// <returns> The new instances of the type. </returns>
+	public static object GetDefaultValueNotNull(this PropertyInfo propertyInfo, params object[] arguments)
+	{
+		var response = propertyInfo?.PropertyType.GetDefaultValue()
+			?? Activator.CreateInstance(propertyInfo?.PropertyType, arguments);
+
+		if (response != null)
+		{
+			return response;
+		}
+
+		if (propertyInfo?.PropertyType == typeof(string))
+		{
+			return string.Empty;
+		}
+
+		return Activator.CreateInstance(propertyInfo?.PropertyType ?? typeof(object));
+	}
+
+	/// <summary>
+	/// Get the name of the expression.
+	/// </summary>
+	/// <param name="expression"> The expression to process. </param>
+	/// <returns> The name of the expression. </returns>
+	public static string GetExpressionName(this LambdaExpression expression)
+	{
+		if (expression.Body is UnaryExpression unaryExpression)
+		{
+			return ((dynamic) unaryExpression.Operand).Member?.Name;
+		}
+
+		return ((dynamic) expression).Body.Member.Name;
+	}
+
+	/// <summary>
+	/// Get the types for the generic.
+	/// </summary>
+	/// <param name="value"> The value to get the types for. </param>
+	/// <returns> The type values for the generic object. </returns>
+	public static Type[] GetGenericTypes(this object value)
+	{
+		var type = value.GetType();
+
+		while (true)
+		{
+			if (type == null)
+			{
+				return null;
+			}
+
+			#if NET6_0_OR_GREATER
+			var arg = type.GenericTypeArguments.ToArray();
+			#else
+			var arg = type.GenericTypeArguments?.ToArray();
+			#endif
+
+			if (arg is not { Length: > 0 })
+			{
+				type = type.BaseType;
+				continue;
+			}
+
+			return arg;
+		}
+	}
+
+	/// <summary>
+	/// Gets the public or private member using reflection.
+	/// </summary>
+	/// <param name="value"> The value that contains the member. </param>
+	/// <param name="memberName"> The name of the field or property to get the value of. </param>
+	/// <returns> The value of member. </returns>
+	public static object GetMemberValue(this object value, string memberName)
+	{
+		var memberInfo = GetCachedMember(value, memberName);
+
+		if (memberInfo == null)
+		{
+			throw new InvalidOperationException();
+		}
+
+		return memberInfo switch
+		{
+			PropertyInfo propertyInfo => propertyInfo.GetValue(value, null),
+			FieldInfo fieldInfo => fieldInfo.GetValue(value),
+			_ => throw new Exception()
+		};
+	}
+
+	/// <summary>
+	/// Gets the member value of an object using the provider info.
+	/// </summary>
+	/// <param name="memberInfo"> The info for the member. </param>
+	/// <param name="value"> </param>
+	/// <returns> The value of the value member. </returns>
+	/// <exception cref="NotImplementedException"> The member info is not a field or property. </exception>
+	public static object GetMemberValue(this MemberInfo memberInfo, object value)
+	{
+		return memberInfo.MemberType switch
+		{
+			MemberTypes.Field => ((FieldInfo) memberInfo).GetValue(value),
+			MemberTypes.Property => ((PropertyInfo) memberInfo).GetValue(value),
+			_ => throw new NotImplementedException()
+		};
 	}
 
 	/// <summary>
@@ -971,40 +1008,36 @@ public static class ReflectionExtensions
 	/// Update the provided object with non default values.
 	/// </summary>
 	/// <typeparam name="T"> The type of the value. </typeparam>
-	/// <param name="value"> The value to update all properties for. </param>
-	/// <param name="exclusions"> An optional set of properties to exclude. </param>
-	/// <returns> The type updated with non default values. </returns>
-	public static T UpdateWithNonDefaultValues<T>(this T value, params string[] exclusions)
-	{
-		return value.UpdateWithNonDefaultValues(null, exclusions);
-	}
-
-	/// <summary>
-	/// Update the provided object with non default values.
-	/// </summary>
-	/// <typeparam name="T"> The type of the value. </typeparam>
 	/// <param name="model"> The value to update all properties for. </param>
-	/// <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
 	/// <param name="exclusions"> An optional set of properties to exclude. </param>
 	/// <returns> The type updated with non default values. </returns>
-	public static T UpdateWithNonDefaultValues<T>(this T model, Func<Type, object> nonSupportedType = null, params string[] exclusions)
+	public static T UpdateWithNonDefaultValues<T>(this T model, params string[] exclusions)
 	{
+		var notifiable = model as INotifiable;
+		notifiable?.DisablePropertyChangeNotifications();
+
 		var allExclusions = GetExclusions(model);
 		allExclusions.AddRange(exclusions);
 
-		var properties = model
-			.GetCachedProperties()
-			.Where(x => x.CanWrite)
-			.Where(x => !allExclusions.Contains(x.Name))
-			.ToList();
-
-		foreach (var property in properties)
+		try
 		{
-			var nonDefaultValue = GetNonDefaultValue(property, nonSupportedType);
-			property.SetValue(model, nonDefaultValue);
-		}
+			var properties = Cache.GetSettablePropertiesPublicOnly(model)
+				.Where(x => !allExclusions.Contains(x.Name))
+				.OrderBy(x => x.Name)
+				.ToList();
 
-		return model;
+			foreach (var property in properties)
+			{
+				var nonDefaultValue = CreateInstanceWithNonDefaultValue(property);
+				property.SetValue(model, nonDefaultValue);
+			}
+
+			return model;
+		}
+		finally
+		{
+			notifiable?.EnablePropertyChangeNotifications();
+		}
 	}
 
 	/// <summary>
@@ -1018,9 +1051,8 @@ public static class ReflectionExtensions
 		var allExclusions = GetExclusions(model);
 		allExclusions.AddRange(exclusions);
 
-		var properties = model
-			.GetCachedProperties()
-			.Where(x => x.CanWrite)
+		var properties = Cache
+			.GetSettablePropertiesPublicOnly(model)
 			.Where(x => !allExclusions.Contains(x.Name))
 			.ToList();
 
@@ -1046,16 +1078,40 @@ public static class ReflectionExtensions
 		}
 	}
 
+	internal static string GetCacheKey(Type type, BindingFlags flags)
+	{
+		return type.FullName + flags;
+	}
+
+	private static MemberInfo FindField(Type type, string memberName, BindingFlags flags)
+	{
+		var field = type.GetCachedField(memberName, flags);
+		if (field != null)
+		{
+			return field;
+		}
+
+		if (type.BaseType == typeof(object))
+		{
+			return null;
+		}
+
+		return FindField(type.BaseType, memberName, flags);
+	}
+
 	private static MemberInfo GetCachedMember(object obj, string memberName)
 	{
 		var type = obj?.GetType() ?? throw new ArgumentNullException(nameof(obj));
 		var flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
-		return (MemberInfo) type.GetCachedProperty(memberName, flags) ?? type.GetCachedField(memberName, flags);
-	}
+		var info = (MemberInfo) type.GetCachedProperty(memberName, flags);
 
-	private static string GetCacheKey(Type type, BindingFlags flags)
-	{
-		return type.FullName + flags;
+		if (info != null)
+		{
+			return info;
+		}
+
+		info = FindField(obj.GetType(), memberName, flags);
+		return info;
 	}
 
 	/// <summary>

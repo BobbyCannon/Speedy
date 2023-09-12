@@ -23,17 +23,19 @@ public static class DictionaryExtensions
 	/// <typeparam name="T2"> The type of the value. </typeparam>
 	/// <param name="dictionary"> The dictionary to update. </param>
 	/// <param name="key"> The value of the key. </param>
-	/// <param name="value"> The value of the value. </param>
-	public static void AddIfMissing<T1, T2>(this IDictionary<T1, T2> dictionary, T1 key, T2 value)
+	/// <param name="action"> The value of the value. </param>
+	public static T2 AddIfMissing<T1, T2>(this IDictionary<T1, T2> dictionary, T1 key, Func<T2> action)
 	{
-		if (dictionary.ContainsKey(key))
+		if (dictionary.TryGetValue(key, out var value1))
 		{
-			return;
+			return value1;
 		}
 
+		var value = action();
 		dictionary.Add(key, value);
+		return value;
 	}
-	
+
 	/// <summary>
 	/// Add or update a dictionary entry if the key is not found in the source.
 	/// </summary>
@@ -51,7 +53,7 @@ public static class DictionaryExtensions
 
 		dictionary.AddOrUpdate(key, source[key]);
 	}
-	
+
 	/// <summary>
 	/// Add or update an entry in a dictionary.
 	/// </summary>
@@ -177,14 +179,14 @@ public static class DictionaryExtensions
 	/// <param name="key"> The key value. </param>
 	/// <param name="create"> The function to create a new value. </param>
 	/// <returns> </returns>
-	public static T2 GetOrAdd<T, T2>(this IDictionary<T, T2> dictionary, T key, Func<T2> create)
+	public static T2 GetOrAdd<T, T2>(this IDictionary<T, T2> dictionary, T key, Func<T, T2> create)
 	{
-		if (dictionary.ContainsKey(key))
+		if (dictionary.TryGetValue(key, out var values))
 		{
-			return dictionary[key];
+			return values;
 		}
 
-		var response = create();
+		var response = create(key);
 		dictionary.Add(key, response);
 		return response;
 	}
@@ -199,7 +201,7 @@ public static class DictionaryExtensions
 	/// <returns> The value that was found or default value </returns>
 	public static T2 GetValue<T, T2>(this IDictionary<T, T2> dictionary, T key)
 	{
-		return dictionary.ContainsKey(key) ? dictionary[key] : default;
+		return dictionary.TryGetValue(key, out var value) ? value : default;
 	}
 
 	/// <summary>

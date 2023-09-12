@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -92,7 +93,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// The timeout to use when waiting for a test state to be hit.
 	/// </summary>
-	public static int WaitTimeout => IsDebugging ? 100000 : 1000;
+	public static TimeSpan WaitTimeout => TimeSpan.FromMilliseconds(IsDebugging ? 1000000 : 1000);
 
 	private static Func<DateTime> GetCurrentTime => () => CurrentTime.ToLocalTime();
 
@@ -101,6 +102,15 @@ public abstract class SpeedyTest
 	#endregion
 
 	#region Methods
+
+	/// <summary>
+	/// Add an item to a list and return it.
+	/// </summary>
+	public T Add<T>(IList list, T item)
+	{
+		list.Add(item);
+		return item;
+	}
 
 	/// <summary>
 	/// Validates that the expected and actual are equal.
@@ -145,7 +155,7 @@ public abstract class SpeedyTest
 		process?.Invoke(result.AreEqual);
 		Assert.IsTrue(result.AreEqual, result.DifferencesString);
 	}
-	
+
 	/// <summary>
 	/// Validates that the expected and actual are equal.
 	/// </summary>
@@ -517,7 +527,7 @@ public abstract class SpeedyTest
 	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
 	public static bool Wait(Func<bool> action, bool useTimeService = false)
 	{
-		return UtilityExtensions.WaitUntil(action, WaitTimeout, 10, useTimeService);
+		return action.WaitUntil(WaitTimeout, 10, useTimeService);
 	}
 
 	/// <summary>
@@ -531,7 +541,7 @@ public abstract class SpeedyTest
 	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
 	public static bool Wait(Func<bool> action, int timeout, int delay, bool useTimeService = false)
 	{
-		return UtilityExtensions.WaitUntil(action, timeout, delay, useTimeService);
+		return action.WaitUntil(timeout, delay, useTimeService);
 	}
 
 	/// <summary>
@@ -576,20 +586,6 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// Create a new instance of the type then update the object with non default values.
 	/// </summary>
-	/// <param name="type"> The type to create. </param>
-	/// <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
-	/// <param name="exclusions"> An optional set of exclusions. </param>
-	/// <returns> The instance of the type with non default values. </returns>
-	protected object GetModelWithNonDefaultValues(Type type, Func<Type, object> nonSupportedType = null, params string[] exclusions)
-	{
-		var response = Activator.CreateInstance(type);
-		response.UpdateWithNonDefaultValues(nonSupportedType, exclusions);
-		return response;
-	}
-
-	/// <summary>
-	/// Create a new instance of the type then update the object with non default values.
-	/// </summary>
 	/// <typeparam name="T"> The type to create. </typeparam>
 	/// <returns> The instance of the type with non default values. </returns>
 	protected T GetModelWithNonDefaultValues<T>() where T : new()
@@ -597,17 +593,6 @@ public abstract class SpeedyTest
 		var response = new T();
 		response.UpdateWithNonDefaultValues();
 		return response;
-	}
-
-	/// <summary>
-	/// Gets a non default value for the property info.
-	/// </summary>
-	/// <param name="propertyInfo"> The info for the property. </param>
-	/// <param name="nonSupportedType"> An optional non supported type. </param>
-	/// <returns> The non default value. </returns>
-	protected object GetNonDefaultValue(PropertyInfo propertyInfo, Func<Type, object> nonSupportedType = null)
-	{
-		return propertyInfo.GetNonDefaultValue(nonSupportedType);
 	}
 
 	/// <summary>

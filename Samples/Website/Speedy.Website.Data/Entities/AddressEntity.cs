@@ -66,7 +66,7 @@ namespace Speedy.Website.Data.Entities
 		protected override HashSet<string> GetDefaultExclusionsForIncomingSync()
 		{
 			return base.GetDefaultExclusionsForIncomingSync()
-				.Append(nameof(AccountId), nameof(Accounts), nameof(LinkedAddress), nameof(LinkedAddressId), nameof(LinkedAddresses));
+				.AddRange(nameof(AccountId), nameof(Accounts), nameof(LinkedAddress), nameof(LinkedAddressId), nameof(LinkedAddresses));
 		}
 
 		protected override HashSet<string> GetDefaultExclusionsForOutgoingSync()
@@ -79,8 +79,8 @@ namespace Speedy.Website.Data.Entities
 		{
 			// Update defaults are the same as incoming sync defaults plus some
 			return base.GetDefaultExclusionsForSyncUpdate()
-				.Append(GetDefaultExclusionsForIncomingSync())
-				.Append(nameof(IsDeleted));
+				.AddRange(GetDefaultExclusionsForIncomingSync())
+				.AddRange(nameof(IsDeleted));
 		}
 
 		#endregion

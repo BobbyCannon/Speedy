@@ -1,12 +1,11 @@
-﻿namespace Speedy.Data.SyncApi
+﻿namespace Speedy.Data.SyncApi;
+
+public enum LogLevel
 {
-	public enum LogLevel
-	{
-		Critical = 0,
-		Error = 1,
-		Warning = 2,
-		Information = 3,
-		Debug = 4,
-		Verbose = 5
-	}
+	Critical = 0,
+	Error = 1,
+	Warning = 2,
+	Information = 3,
+	Debug = 4,
+	Verbose = 5
 }

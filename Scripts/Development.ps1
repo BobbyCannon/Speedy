@@ -14,7 +14,7 @@ nuget restore "C:\Workspaces\GitHub\Speedy\Speedy.sln"
 #
 
 Clear-Host
-Stop-WebAppPool -Name "Speedy"
+Stop-WebAppPool -Name "Speedy" -ErrorAction Ignore
 Get-Process vbcs* | Stop-Process
 
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net7.0'
@@ -31,14 +31,14 @@ Start-WebAppPool -Name "Speedy"
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 0 -Build 8 -Revision 0
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build 0 -Revision 0
 
 #
 # Need to add readme to all packages
 # https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
 #
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 8
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 8 -VersionSuffix 'RC'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 
@@ -63,6 +63,7 @@ ii 'C:\Workspaces\Nuget\Release'
 # Web and Database 
 #
 
+Stop-WebAppPool -Name "Speedy" -ErrorAction Ignore
 Remove-Item "C:\inetpub\Speedy" -Recurse -Force
 
 Get-EnvironmentVariable -Target Machine -Variable "ASPNETCORE_ENVIRONMENT"

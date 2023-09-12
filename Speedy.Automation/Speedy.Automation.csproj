@@ -22,9 +22,9 @@
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Automation.xml</DocumentationFile>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
-		<AssemblyVersion>11.0.8.0</AssemblyVersion>
-		<FileVersion>11.0.8.0</FileVersion>
-		<Version>11.0.8.0</Version>
+		<AssemblyVersion>12.0.0.0</AssemblyVersion>
+		<FileVersion>12.0.0.0</FileVersion>
+		<Version>12.0.0.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -40,7 +40,7 @@
 		<None Remove="NativeMethods.txt" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CompareNETObjects" Version="4.79.0" />
+		<PackageReference Include="CompareNETObjects" Version="4.81.0" />
 		<PackageReference Include="Interop.UIAutomationClient" Version="10.19041.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.7.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />

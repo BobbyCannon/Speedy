@@ -63,14 +63,14 @@ public static class UpdateableExtensions
 		foreach (var thisProperty in destinationProperties)
 		{
 			// Ensure the source can read this property
-			var canRead = thisProperty.CanRead && thisProperty.GetMethod.IsPublic;
+			var canRead = thisProperty.GetMethod != null && thisProperty.CanRead && thisProperty.GetMethod.IsPublic;
 			if (!canRead)
 			{
 				continue;
 			}
 
 			// Ensure the destination can write this property
-			var canWrite = thisProperty.CanWrite && thisProperty.SetMethod.IsPublic;
+			var canWrite = thisProperty.SetMethod != null && thisProperty.CanWrite && thisProperty.SetMethod.IsPublic;
 			if (!canWrite)
 			{
 				continue;

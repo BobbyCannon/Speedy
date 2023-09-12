@@ -28,7 +28,7 @@ public struct ShortGuid
 	/// </summary>
 	public ShortGuid()
 	{
-		Guid = Guid.NewGuid();
+		Guid = Guid.Empty;
 		Value = Encode(Guid);
 	}
 

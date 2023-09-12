@@ -41,6 +41,9 @@ public abstract class Database : ISyncableDatabase
 	/// <param name="keyCache"> An optional key manager for caching entity IDs (primary and sync). </param>
 	protected Database(DatabaseOptions options, DatabaseKeyCache keyCache)
 	{
+		_collectionChangeTracker = new CollectionChangeTracker();
+		_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
+
 		IndexConfigurations = new Dictionary<string, IndexConfiguration>();
 		KeyCache = keyCache;
 		OneToManyRelationships = new Dictionary<string, object[]>();
@@ -49,9 +52,6 @@ public abstract class Database : ISyncableDatabase
 		EntityPropertyConfigurations = new Dictionary<Type, List<IPropertyConfiguration>>();
 		PropertyConfigurations = new Dictionary<string, IPropertyConfiguration>();
 		Repositories = new Dictionary<string, IDatabaseRepository>();
-
-		_collectionChangeTracker = new CollectionChangeTracker();
-		_syncableRepositories = new ConcurrentDictionary<string, ISyncableRepository>();
 	}
 
 	#endregion
@@ -109,6 +109,12 @@ public abstract class Database : ISyncableDatabase
 		IsDisposed = true;
 	}
 
+	/// <inheritdoc />
+	public DatabaseType GetDatabaseType()
+	{
+		return DatabaseType.Memory;
+	}
+
 	/// <summary>
 	/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
 	/// </summary>
@@ -139,9 +145,9 @@ public abstract class Database : ISyncableDatabase
 		var type = typeof(T);
 		var key = type.ToAssemblyName();
 
-		if (Repositories.ContainsKey(key))
+		if (Repositories.TryGetValue(key, out var foundRepository))
 		{
-			return (Repository<T, T2>) Repositories[key];
+			return (Repository<T, T2>) foundRepository;
 		}
 
 		var repository = CreateRepository<T, T2>();
@@ -211,9 +217,9 @@ public abstract class Database : ISyncableDatabase
 	{
 		var indexName = $"{name}";
 
-		if (IndexConfigurations.ContainsKey(indexName))
+		if (IndexConfigurations.TryGetValue(indexName, out var index))
 		{
-			return IndexConfigurations[indexName];
+			return index;
 		}
 
 		var response = new IndexConfiguration(indexName);
@@ -221,9 +227,9 @@ public abstract class Database : ISyncableDatabase
 
 		List<IndexConfiguration> entityConfigurations;
 
-		if (EntityIndexConfigurations.ContainsKey(entityType))
+		if (EntityIndexConfigurations.TryGetValue(entityType, out var configuration))
 		{
-			entityConfigurations = EntityIndexConfigurations[entityType];
+			entityConfigurations = configuration;
 		}
 		else
 		{
@@ -257,7 +263,7 @@ public abstract class Database : ISyncableDatabase
 		{
 			var key = $"{typeof(T3).Name}-{collectionKey.GetExpressionName()}";
 			var repositoryFactory = GetRepository<T1, T2>();
-			OneToManyRelationships.Add(key, new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile(), property });
+			OneToManyRelationships.AddIfMissing(key, () =>  new object[] { repositoryFactory, entity, entity.Compile(), foreignKey, foreignKey.Compile(), property });
 		}
 
 		return property;
@@ -275,19 +281,19 @@ public abstract class Database : ISyncableDatabase
 		var typeofT = typeof(T);
 		var name = $"{typeofT.ToAssemblyName()}.{expression.GetExpressionName()}";
 
-		if (PropertyConfigurations.ContainsKey(name))
+		if (PropertyConfigurations.TryGetValue(name, out var configuration))
 		{
-			return (PropertyConfiguration<T, T2>) PropertyConfigurations[name];
+			return (PropertyConfiguration<T, T2>) configuration;
 		}
 
 		var response = new PropertyConfiguration<T, T2>(expression);
-		PropertyConfigurations.Add(name, response);
+		PropertyConfigurations.AddIfMissing(name, () => response);
 
 		List<IPropertyConfiguration> entityConfigurations;
 
-		if (EntityPropertyConfigurations.ContainsKey(typeofT))
+		if (EntityPropertyConfigurations.TryGetValue(typeofT, out var propertyConfiguration))
 		{
-			entityConfigurations = EntityPropertyConfigurations[typeofT];
+			entityConfigurations = propertyConfiguration;
 		}
 		else
 		{
@@ -601,7 +607,7 @@ public abstract class Database : ISyncableDatabase
 				continue;
 			}
 
-			var m = method.CachedMakeGenericMethod(typeArgs);
+			var m = method.GetCachedMakeGenericMethod(typeArgs);
 			if (m.GetCachedParameters().Select((p, i) => p.ParameterType == argTypes[i]).All(x => x))
 			{
 				return m;
@@ -616,9 +622,9 @@ public abstract class Database : ISyncableDatabase
 		var type = typeof(T);
 		var key = type.ToAssemblyName();
 
-		if (Repositories.ContainsKey(key))
+		if (Repositories.TryGetValue(key, out var foundRepository))
 		{
-			return (SyncableRepository<T, T2>) Repositories[key];
+			return (SyncableRepository<T, T2>) foundRepository;
 		}
 
 		var repository = CreateSyncableRepository<T, T2>();
@@ -640,16 +646,18 @@ public abstract class Database : ISyncableDatabase
 			var repository = (IDatabaseRepository) relationship.Value[0];
 			var configuration = (IPropertyConfiguration) relationship.Value[5];
 
-			if (configuration.DeleteBehavior == RelationshipDeleteBehavior.Cascade)
+			switch (configuration.DeleteBehavior)
 			{
-				repository.RemoveDependent(relationship.Value, entity.Id);
-				continue;
-			}
-
-			if (configuration.DeleteBehavior == RelationshipDeleteBehavior.SetNull)
-			{
-				repository.SetDependentToNull(relationship.Value, entity.Id);
-				continue;
+				case RelationshipDeleteBehavior.Cascade:
+				{
+					repository.RemoveDependent(relationship.Value, entity.Id);
+					continue;
+				}
+				case RelationshipDeleteBehavior.SetNull:
+				{
+					repository.SetDependentToNull(relationship.Value, entity.Id);
+					continue;
+				}
 			}
 
 			if (!repository.HasDependentRelationship(relationship.Value, entity.Id))
@@ -682,9 +690,9 @@ public abstract class Database : ISyncableDatabase
 
 		var typeofT = typeof(T);
 
-		if (EntityPropertyConfigurations.ContainsKey(typeofT))
+		if (EntityPropertyConfigurations.TryGetValue(typeofT, out var propertyConfiguration))
 		{
-			foreach (var configuration in EntityPropertyConfigurations[typeofT])
+			foreach (var configuration in propertyConfiguration)
 			{
 				if (configuration is PropertyConfiguration<T, T2> validation)
 				{
@@ -693,9 +701,9 @@ public abstract class Database : ISyncableDatabase
 			}
 		}
 
-		if (EntityIndexConfigurations.ContainsKey(typeofT))
+		if (EntityIndexConfigurations.TryGetValue(typeofT, out var indexConfiguration))
 		{
-			foreach (var configuration in EntityIndexConfigurations[typeofT])
+			foreach (var configuration in indexConfiguration)
 			{
 				configuration.Validate(entity, repository);
 			}
@@ -713,7 +721,7 @@ public abstract class Database : ISyncableDatabase
 
 		foreach (var relationship in collectionRelationships)
 		{
-			if (!(relationship.GetValue(entity, null) is IEnumerable<IEntity> currentCollection))
+			if (relationship.GetValue(entity, null) is not IEnumerable<IEntity> currentCollection)
 			{
 				continue;
 			}
@@ -740,7 +748,7 @@ public abstract class Database : ISyncableDatabase
 
 		foreach (var entityRelationship in entityRelationships)
 		{
-			if (!(entityRelationship.GetValue(entity, null) is IEntity expectedEntity))
+			if (entityRelationship.GetValue(entity, null) is not IEntity expectedEntity)
 			{
 				continue;
 			}
@@ -922,6 +930,103 @@ public abstract class Database : ISyncableDatabase
 	public event EventHandler<CollectionChangeTracker> ChangesSaved;
 
 	/// <inheritdoc />
+	public event EventHandler Disposed;
+
+	#endregion
+}
+
+/// <summary>
+/// The interfaces for a Speedy database.
+/// </summary>
+public interface IDatabase : IDisposable
+{
+	#region Properties
+
+	/// <summary>
+	/// Gets a value indicating whether the database has been disposed of.
+	/// </summary>
+	bool IsDisposed { get; }
+
+	/// <summary>
+	/// Gets the options for this database.
+	/// </summary>
+	DatabaseOptions Options { get; }
+
+	#endregion
+
+	#region Methods
+
+	/// <summary>
+	/// Adds an entity to the database
+	/// </summary>
+	/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
+	/// <param name="item"> The item to be added. </param>
+	/// <returns> The entity that was added. </returns>
+	T Add<T, T2>(T item) where T : Entity<T2>;
+
+	/// <summary>
+	/// Discard all changes made in this context to the underlying database.
+	/// </summary>
+	int DiscardChanges();
+
+	/// <summary>
+	/// Return the type of the database.
+	/// </summary>
+	/// <returns> The type of the database. </returns>
+	DatabaseType GetDatabaseType();
+
+	/// <summary>
+	/// Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+	/// </summary>
+	Assembly GetMappingAssembly();
+
+	/// <summary>
+	/// Gets a read only repository of the requested entity.
+	/// </summary>
+	/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
+	/// <returns> The repository of entities requested. </returns>
+	IRepository<T, T2> GetReadOnlyRepository<T, T2>() where T : Entity<T2>;
+
+	/// <summary>
+	/// Gets a repository of the requested entity.
+	/// </summary>
+	/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
+	/// <returns> The repository of entities requested. </returns>
+	IRepository<T, T2> GetRepository<T, T2>() where T : Entity<T2>;
+
+	/// <summary>
+	/// Removes an entity from the database
+	/// </summary>
+	/// <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+	/// <typeparam name="T2"> The type of the entity key. </typeparam>
+	/// <param name="item"> The item to be removed. </param>
+	/// <returns> The entity that was removed. </returns>
+	T Remove<T, T2>(T item) where T : Entity<T2>;
+
+	/// <summary>
+	/// Saves all changes made in this context to the underlying database.
+	/// </summary>
+	/// <returns>
+	/// The number of objects written to the underlying database.
+	/// </returns>
+	/// <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
+	int SaveChanges();
+
+	#endregion
+
+	#region Events
+
+	/// <summary>
+	/// An event for when changes are saved. <see cref="SaveChanges" />
+	/// </summary>
+	public event EventHandler<CollectionChangeTracker> ChangesSaved;
+
+	/// <summary>
+	/// An event for when the database has been disposed.
+	/// </summary>
 	public event EventHandler Disposed;
 
 	#endregion

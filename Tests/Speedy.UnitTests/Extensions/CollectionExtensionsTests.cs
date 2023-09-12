@@ -24,15 +24,36 @@ public class CollectionExtensionsTests : SpeedyUnitTest
 	public void AddIfMissingTests()
 	{
 		var dictionary = new Dictionary<string, string>();
-		dictionary.AddIfMissing("foo", "bar");
-		dictionary.AddIfMissing("foo", "bar");
-		dictionary.AddIfMissing("foo", "bar");
-		dictionary.AddIfMissing("foo", "bar");
+		dictionary.AddIfMissing("foo", () => "bar");
+		dictionary.AddIfMissing("foo", () => "bar");
+		dictionary.AddIfMissing("foo", () => "bar");
+		dictionary.AddIfMissing("foo", () => "bar");
 		Assert.AreEqual(1, dictionary.Count);
 	}
 
 	[TestMethod]
-	public void AddOrUpdateTests()
+	public void AddOrUpdateTestsForCollections()
+	{
+		var collection = new Collection<Account>();
+		collection.AddOrUpdate(x => x.Name == "John", () => new Account(), x =>
+		{
+			x.Name = "John";
+			x.EmailAddress = "john.doe@domain.com";
+		});
+
+		AreEqual(1, collection.Count);
+		AreEqual("John", collection[0].Name);
+		AreEqual("john.doe@domain.com", collection[0].EmailAddress);
+
+		collection.AddOrUpdate(x => x.Name == "John", () => new Account(), x => x.EmailAddress = "john.doe@hotmail.com");
+
+		AreEqual(1, collection.Count);
+		AreEqual("John", collection[0].Name);
+		AreEqual("john.doe@hotmail.com", collection[0].EmailAddress);
+	}
+
+	[TestMethod]
+	public void AddOrUpdateTestsForDictionary()
 	{
 		var dictionary = new Dictionary<string, string>();
 		dictionary.AddOrUpdate("foo", "bar1");
@@ -64,14 +85,14 @@ public class CollectionExtensionsTests : SpeedyUnitTest
 	{
 		var data = new[] { "100", "11", "9", "2" };
 		var expected = new[] { "2", "9", "11", "100" };
-		TestHelper.AreEqual(expected, data.NaturalSort().ToArray());
+		AreEqual(expected, data.NaturalSort().ToArray());
 	}
 
 	[TestMethod]
 	public void ReconcileCollectionDefaults()
 	{
-		var updates = new SortedObservableCollection<Account>(new OrderBy<Account>(x => x.Id));
-		var existing = new SortedObservableCollection<Account>(new OrderBy<Account>(x => x.Id));
+		var updates = new SpeedyList<Account> { OrderBy = new[] { new OrderBy<Account>(x => x.Id) } };
+		var existing = new SpeedyList<Account> { OrderBy = new[] { new OrderBy<Account>(x => x.Id) } };
 		var addedAccount = new Account { Id = 1, Name = "John Doe", EmailAddress = "john@domain.com" };
 		var updatedAccount = new Account { Id = 2, Name = "Jane Doe", EmailAddress = "jane@domain.com" };
 		var removedAccount = new Account { Id = 3, Name = "Foo Bar", EmailAddress = "foo@bar.com" };
@@ -94,14 +115,14 @@ public class CollectionExtensionsTests : SpeedyUnitTest
 		var expectedAccount1 = new Account { Id = 1, Name = "John Doe", EmailAddress = "john@domain.com" };
 		var expectedAccount2 = new Account { Id = 2, Name = "Jane Doe", EmailAddress = "jane@domain.com" };
 
-		TestHelper.AreEqual(existing.ToArray(), new[] { expectedAccount1, expectedAccount2 });
+		AreEqual(existing.ToArray(), new[] { expectedAccount1, expectedAccount2 });
 	}
 
 	[TestMethod]
 	public void ReconcileCollections()
 	{
-		var updates = new SortedObservableCollection<Account>(new OrderBy<Account>(x => x.Id));
-		var existing = new SortedObservableCollection<ClientAccount>(new OrderBy<ClientAccount>(x => x.Id));
+		var updates = new SpeedyList<Account> { OrderBy = new[] { new OrderBy<Account>(x => x.Id) } };
+		var existing = new SpeedyList<ClientAccount> { OrderBy = new[] { new OrderBy<ClientAccount>(x => x.Id) } };
 		var addedAccount = new Account { Id = 1, Name = "John Doe", EmailAddress = "john@domain.com", SyncId = Guid.Parse("F872F61D-EC7C-40DC-8811-04BB5DBEC6C5") };
 		var updatedAccount = new Account { Id = 2, Name = "Jane Doe", EmailAddress = "jane@domain.com", SyncId = Guid.Parse("402516E7-D063-46E9-B1AF-79A24C0B8055") };
 		var removedAccount = new ClientAccount { Id = 3, Name = "Foo Bar", EmailAddress = "foo@bar.com", SyncId = Guid.Parse("50BF63A1-098D-44A4-8B69-A85E1CC9172A") };
@@ -124,7 +145,7 @@ public class CollectionExtensionsTests : SpeedyUnitTest
 		var expectedAccount1 = new ClientAccount { Id = 1, Name = "John Doe", EmailAddress = "john@domain.com", SyncId = Guid.Parse("F872F61D-EC7C-40DC-8811-04BB5DBEC6C5") };
 		var expectedAccount2 = new ClientAccount { Id = 2, Name = "Jane Doe", EmailAddress = "jane@domain.com", SyncId = Guid.Parse("402516E7-D063-46E9-B1AF-79A24C0B8055") };
 
-		TestHelper.AreEqual(existing.ToArray(), new[] { expectedAccount1, expectedAccount2 });
+		AreEqual(existing.ToArray(), new[] { expectedAccount1, expectedAccount2 });
 	}
 
 	[TestMethod]
@@ -162,7 +183,7 @@ public class CollectionExtensionsTests : SpeedyUnitTest
 		var expected = new List<Address> { values[0], values[2], values[5] };
 		var actual = values.ExcludeSequentialDuplicates(x => x.State).ToList();
 
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]
@@ -189,7 +210,7 @@ public class CollectionExtensionsTests : SpeedyUnitTest
 				})
 			.ToList();
 
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	#endregion

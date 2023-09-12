@@ -88,7 +88,7 @@ public abstract class InformationManager<T>
 	/// <param name="provider"> The provider of device information for the type. </param>
 	public void Add(IInformationProvider provider)
 	{
-		_providers.AddOrReplace(
+		_providers.AddOrUpdate(
 			x => x.ProviderName == provider.ProviderName,
 			() =>
 			{

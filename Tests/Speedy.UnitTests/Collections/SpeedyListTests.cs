@@ -26,7 +26,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Add()
 	{
-		var list = new SpeedyList<int>();
+		using var list = new SpeedyList<int>();
 
 		AreEqual(0, list.Count);
 
@@ -41,14 +41,16 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void AddRange()
 	{
-		var list = new SpeedyList<int>();
+		using var list = new SpeedyList<int>();
 		list.AddRange(8, 4, 6, 2);
 		AreEqual(new[] { 8, 4, 6, 2 }, list.ToArray());
 
 		list.AddRange(5, 7, 3, 1);
 		AreEqual(new[] { 8, 4, 6, 2, 5, 7, 3, 1 }, list.ToArray());
 
-		list = new SpeedyList<int>(new OrderBy<int>());
+		list.Clear();
+		list.OrderBy = new[] { new OrderBy<int>() };
+
 		list.AddRange(8, 4, 6, 2);
 		AreEqual(new[] { 2, 4, 6, 8 }, list.ToArray());
 
@@ -57,15 +59,13 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void AddWithOrderByShouldAutomaticallySort()
+	public void AddWithOrderByShouldAutomaticallyOrder()
 	{
-		var list = new SpeedyList<ClientAccount>
+		using var list = new SpeedyList<ClientAccount>();
+		list.OrderBy = new[]
 		{
-			OrderBy = new[]
-			{
-				new OrderBy<ClientAccount>(x => x.IsDeleted),
-				new OrderBy<ClientAccount>(x => x.CreatedOn, true)
-			}
+			new OrderBy<ClientAccount>(x => x.IsDeleted),
+			new OrderBy<ClientAccount>(x => x.CreatedOn, true)
 		};
 
 		var actual = new List<NotifyCollectionChangedEventArgs>();
@@ -89,7 +89,12 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Clear()
 	{
-		var list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8);
+		using var list = new SpeedyList<int>();
+		AreEqual(0, list.Count);
+
+		list.AddRange(1, 2, 3, 4, 5, 6, 7, 8);
+		AreEqual(8, list.Count);
+
 		list.Clear();
 		AreEqual(Array.Empty<int>(), list.ToArray());
 
@@ -98,26 +103,45 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void ClearEmptyCollection()
+	public void ClearEmptyList()
 	{
 		var changes = 0;
-		var collection = new SpeedyList<string>();
-		collection.CollectionChanged += (_, _) => changes++;
-		collection.Clear();
-		AreEqual(0, changes);
+		using var list = new SpeedyList<string>();
+
+		void onListOnCollectionChanged(object o, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs) => changes++;
+
+		try
+		{
+			list.CollectionChanged += onListOnCollectionChanged;
+			list.Clear();
+			AreEqual(0, changes);
+		}
+		finally
+		{
+			list.CollectionChanged -= onListOnCollectionChanged;
+		}
 	}
 
 	[TestMethod]
 	public void ClearShouldCallOnChangedEvent()
 	{
-		var collection = new SpeedyList<ClientAccount>();
+		using var list = new SpeedyList<ClientAccount>();
 		var actual = new List<NotifyCollectionChangedEventArgs>();
-		collection.Add(new ClientAccount());
-		collection.Add(new ClientAccount());
+		list.Add(new ClientAccount());
+		list.Add(new ClientAccount());
 
-		collection.CollectionChanged += (_, args) => actual.Add(args);
-		collection.Clear();
-		AreEqual(2, actual.Count);
+		void onListOnCollectionChanged(object _, NotifyCollectionChangedEventArgs args) => actual.Add(args);
+
+		try
+		{
+			list.CollectionChanged += onListOnCollectionChanged;
+			list.Clear();
+			AreEqual(2, actual.Count);
+		}
+		finally
+		{
+			list.CollectionChanged -= onListOnCollectionChanged;
+		}
 
 		var actualEvent = actual[0];
 		AreEqual(NotifyCollectionChangedAction.Remove, actualEvent.Action);
@@ -126,7 +150,7 @@ public class SpeedyListTests : BaseCollectionTests
 		AreEqual(0, actualEvent.OldStartingIndex);
 		AreEqual(null, actualEvent.NewItems);
 		AreEqual(-1, actualEvent.NewStartingIndex);
-		
+
 		actualEvent = actual[1];
 		AreEqual(NotifyCollectionChangedAction.Remove, actualEvent.Action);
 		Assert.IsNotNull(actualEvent.OldItems);
@@ -137,11 +161,35 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void CollectionShouldSort()
+	public void AddRangeShouldOrder()
 	{
-		var collection = new SpeedyList<string> { OrderBy = new[] { new OrderBy<string>(x => x) } };
-		collection.AddRange("b", "d", "c", "a");
-		TestHelper.AreEqual(new[] { "a", "b", "c", "d" }, collection.ToArray());
+		using var list = new SpeedyList<string>();
+		list.OrderBy = new[] { new OrderBy<string>(x => x) };
+		list.AddRange("b", "d", "c", "a");
+		AreEqual(new[] { "a", "b", "c", "d" }, list.ToArray());
+	}
+
+	[TestMethod]
+	public void Constructor()
+	{
+		using var list = new SpeedyList<int>();
+		
+		AreEqual(false, list.IsFixedSize);
+		AreEqual(false, list.IsReadOnly);
+		AreEqual(true, list.IsSynchronized);
+		AreEqual(false, list.IsReadLocked);
+		AreEqual(false, list.IsUpgradeableReadLockHeld);
+
+		IsNull(list.OrderBy);
+		IsNull(list.Profiler);
+		IsNull(list.ComparerFunction);
+		IsNull(list.IncludeInFilter);
+		
+		IsNotNull(list.Filtered);
+		IsNotNull(list.SyncRoot);
+		
+		IsTrue(list.IsSynchronized);
+		IsFalse(list.IsReadOnly);
 	}
 
 	[TestMethod]
@@ -162,7 +210,9 @@ public class SpeedyListTests : BaseCollectionTests
 			AreEqual(new[] { 1, 2, 3, 4 }, scenario.ToArray());
 		}
 
-		var list = new SpeedyList<int>();
+		scenarios.ForEach(x => x.Dispose());
+
+		using var list = new SpeedyList<int>();
 		IsNull(list.GetDispatcher());
 
 		var dispatcher = new TestDispatcher();
@@ -181,12 +231,14 @@ public class SpeedyListTests : BaseCollectionTests
 			AreEqual(4, scenario.Count);
 			AreEqual(new[] { 1, 2, 3, 4 }, scenario.ToArray());
 		}
+
+		scenarios.ForEach(x => x.Dispose());
 	}
 
 	[TestMethod]
 	public void Contains()
 	{
-		var list = new SpeedyList<int>(1, 2, 3, 4);
+		using var list = new SpeedyList<int>(1, 2, 3, 4);
 		IsTrue(list.Contains(2));
 		IsFalse(list.Contains(9));
 
@@ -198,7 +250,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void CopyTo()
 	{
-		var list = new SpeedyList<int>(1, 2, 3, 4);
+		using var list = new SpeedyList<int>(1, 2, 3, 4);
 		var array = new int[4];
 		list.CopyTo(array, 0);
 		AreEqual(array, list, false, null,
@@ -212,22 +264,10 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void Defaults()
-	{
-		var list = new SpeedyList<int>();
-		AreEqual(false, list.IsFixedSize);
-		AreEqual(false, list.IsReadOnly);
-		AreEqual(true, list.IsSynchronized);
-		AreEqual(false, list.IsReadLocked);
-		AreEqual(false, list.IsUpgradeableReadLockHeld);
-		IsNotNull(list.SyncRoot);
-	}
-
-	[TestMethod]
 	public void Dispatcher()
 	{
 		var dispatcher = new TestDispatcher();
-		var list = new SpeedyList<int>(dispatcher);
+		using var list = new SpeedyList<int>(dispatcher);
 		AreEqual(dispatcher, list.GetDispatcher());
 	}
 
@@ -244,7 +284,7 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void DistinctSortedObservableShouldNotAllowDuplicates()
+	public void DistinctOrderedObservableShouldNotAllowDuplicates()
 	{
 		var collection = new SpeedyList<ClientAccount>
 		{
@@ -261,7 +301,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Enumerator()
 	{
-		var list = new SpeedyList<int>(1, 2, 3, 4);
+		using var list = new SpeedyList<int>(1, 2, 3, 4);
 		var enumerable = (IEnumerable) list;
 		var enumerator = enumerable.GetEnumerator();
 		var expected = 1;
@@ -275,11 +315,9 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void FilterCollectionShouldFilter()
 	{
-		var list = new SpeedyList<int>
-		{
-			OrderBy = new[] { new OrderBy<int>(x => x) },
-			IncludeInFilter = x => (x % 3) == 0
-		};
+		using var list = new SpeedyList<int>();
+		list.OrderBy = new[] { new OrderBy<int>(x => x) };
+		list.IncludeInFilter = x => (x % 3) == 0;
 
 		list.Add(5);
 		list.Add(1);
@@ -321,10 +359,8 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void FilterCollectionShouldRefreshOnFilterChange()
 	{
-		var list = new SpeedyList<string>
-		{
-			IncludeInFilter = x => x.Contains("Bar")
-		};
+		using var list = new SpeedyList<string>();
+		list.IncludeInFilter = x => x.Contains("Bar");
 
 		// First entry should not be included in filtered collection
 		list.Add("Hello");
@@ -356,7 +392,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void First()
 	{
-		var list = new SpeedyList<string>("a", "b", "c");
+		using var list = new SpeedyList<string>("a", "b", "c");
 		var actual = list.First();
 		AreEqual("a", actual);
 
@@ -369,7 +405,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void FirstOrDefault()
 	{
-		var list = new SpeedyList<string>("a", "b", "c");
+		using var list = new SpeedyList<string>("a", "b", "c");
 		var actual = list.FirstOrDefault();
 		AreEqual("a", actual);
 	}
@@ -377,7 +413,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Indexer()
 	{
-		var list = new SpeedyList<string>("a", "b", "c");
+		using var list = new SpeedyList<string>("a", "b", "c");
 		AreEqual("a", list[0]);
 		AreEqual("b", list[1]);
 		AreEqual("c", list[2]);
@@ -403,7 +439,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void IndexOf()
 	{
-		var list = new SpeedyList<string>("a", "b", "c");
+		using var list = new SpeedyList<string>("a", "b", "c");
 
 		AreEqual(1, list.IndexOf("b"));
 		AreEqual(1, list.IndexOf((object) "b"));
@@ -422,7 +458,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Insert()
 	{
-		var list = new SpeedyList<int>();
+		using var list = new SpeedyList<int>();
 		list.Insert(0, 42);
 
 		AreEqual(1, list.Count);
@@ -452,7 +488,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Last()
 	{
-		var list = new SpeedyList<string>("a", "b", "c");
+		using var list = new SpeedyList<string>("a", "b", "c");
 		var actual = list.Last();
 		AreEqual("c", actual);
 
@@ -465,7 +501,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void LastOrDefault()
 	{
-		var list = new SpeedyList<string>("a", "b", "c");
+		using var list = new SpeedyList<string>("a", "b", "c");
 		var actual = list.LastOrDefault();
 		AreEqual("c", actual);
 	}
@@ -473,7 +509,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Limit()
 	{
-		var list = new SpeedyList<int> { Limit = 5 };
+		using var list = new SpeedyList<int> { Limit = 5 };
 
 		list.Add(1);
 		list.Add(2);
@@ -493,7 +529,7 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void LimitedCollectionShouldSortFirstThenLimit()
+	public void LimitedCollectionShouldOrderFirstThenLimit()
 	{
 		var collection = new SpeedyList<int> { Limit = 3, OrderBy = new[] { new OrderBy<int>(x => x) } };
 		var actual = new List<NotifyCollectionChangedEventArgs>();
@@ -504,11 +540,11 @@ public class SpeedyListTests : BaseCollectionTests
 		collection.Add(2);
 
 		var expected = new[] { 1, 2, 5 };
-		TestHelper.AreEqual(expected, collection.ToArray());
+		AreEqual(expected, collection.ToArray());
 
 		expected = new[] { 1, 2, 3 };
 		collection.Add(3);
-		TestHelper.AreEqual(expected, collection.ToArray());
+		AreEqual(expected, collection.ToArray());
 
 		actual.Select(x => x.Action.ToString()).DumpJson();
 
@@ -523,7 +559,7 @@ public class SpeedyListTests : BaseCollectionTests
 	[TestMethod]
 	public void Load()
 	{
-		var list = new SpeedyList<int>();
+		using var list = new SpeedyList<int>();
 		var changeCount = 0;
 		var itemsCount = 0;
 
@@ -567,7 +603,7 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void ManualSortShouldReorder()
+	public void ManualOrderShouldReorder()
 	{
 		var collection = new SpeedyList<ClientAccount>
 		{
@@ -600,7 +636,7 @@ public class SpeedyListTests : BaseCollectionTests
 		// This should push the items into the second position on sort
 		changeEvents.Clear();
 		client1.IsDeleted = true;
-		collection.Sort();
+		collection.Order();
 
 		// Should be a single move event
 		AreEqual(1, changeEvents.Count);
@@ -638,115 +674,7 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public virtual void ParallelShouldWork()
-	{
-		var list = new SpeedyList<int>();
-		TestParallelOperations(list);
-	}
-
-	[TestMethod]
-	public void ProcessThenSortWithAction()
-	{
-		var list = new SpeedyList<int> { OrderBy = new[] { new OrderBy<int>(x => x) } };
-		var expected = Enumerable.Range(1, 99).ToArray();
-
-		list.ProcessThenSort(() =>
-		{
-			for (var x = 99; x > 0; x--)
-			{
-				list.Add(x);
-			}
-		});
-
-		AreEqual(expected, list.ToArray());
-	}
-
-	[TestMethod]
-	public void ProcessThenSortWithParallelAction()
-	{
-		var list = new SpeedyList<int> { OrderBy = new[] { new OrderBy<int>(x => x) } };
-		var expected = Enumerable.Range(1, 99).ToArray();
-
-		list.ProcessThenSort(() => { Parallel.For(1, 100, x => { list.Add(x); }); });
-
-		AreEqual(expected, list.ToArray());
-	}
-
-	[TestMethod]
-	public void Remove()
-	{
-		var list = new SpeedyList<int>(1, 2, 3, 4);
-		list.Remove(2);
-		AreEqual(new[] { 1, 3, 4 }, list.ToArray());
-
-		list.Remove((object) 3);
-		AreEqual(new[] { 1, 4 }, list.ToArray());
-
-		list.Remove(3);
-		AreEqual(new[] { 1, 4 }, list.ToArray());
-	}
-
-	[TestMethod]
-	public void RemoveAt()
-	{
-		var list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8);
-		list.RemoveAt(0);
-		AreEqual(new[] { 2, 3, 4, 5, 6, 7, 8 }, list.ToArray());
-
-		// All of these are out of range.
-		ExpectedException<ArgumentOutOfRangeException>(() => list.RemoveAt(list.Count),
-			"Index was out of range. Must be non-negative and less than the size of the collection.");
-		ExpectedException<ArgumentOutOfRangeException>(() => list.RemoveAt(int.MaxValue),
-			"Index was out of range. Must be non-negative and less than the size of the collection.");
-		ExpectedException<ArgumentOutOfRangeException>(() => list.RemoveAt(int.MinValue),
-			"Index was out of range. Must be non-negative and less than the size of the collection.");
-
-		AreEqual(new[] { 2, 3, 4, 5, 6, 7, 8 }, list.ToArray());
-	}
-
-	[TestMethod]
-	public void RemoveRange()
-	{
-		var list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8);
-		list.RemoveRange(3, 2);
-		AreEqual(new[] { 1, 2, 3, 6, 7, 8 }, list.ToArray());
-
-		ExpectedException<ArgumentException>(() => list.RemoveRange(5, 2),
-			"Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection.");
-		ExpectedException<ArgumentException>(() => list.RemoveRange(5, 20),
-			"Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection.");
-
-		AreEqual(new[] { 1, 2, 3, 6, 7, 8 }, list.ToArray());
-	}
-
-	[TestMethod]
-	public void RemoveUsingPredicate()
-	{
-		var list = new SpeedyList<int>(1, 2, 3, 4);
-		list.Remove(x => (x % 2) == 0);
-		AreEqual(new[] { 1, 3 }, list.ToArray());
-
-		list = new SpeedyList<int>(1, 2, 3, 4);
-		list.Remove(x => x.IsEven());
-		AreEqual(new[] { 1, 3 }, list.ToArray());
-
-		list = new SpeedyList<int>(1, 2, 3, 4);
-		list.Remove(x => x.IsOdd());
-		AreEqual(new[] { 2, 4 }, list.ToArray());
-
-		list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-		list.Remove(x => x < 6);
-		AreEqual(new[] { 6, 7, 8, 9, 10 }, list.ToArray());
-
-		list.Remove(x => x >= 10);
-		AreEqual(new[] { 6, 7, 8, 9 }, list.ToArray());
-
-		list.Remove(x => x <= 6);
-		AreEqual(new[] { 7, 8, 9 }, list.ToArray());
-	}
-
-	[TestMethod]
-	public void SortAlpha()
+	public void OrderAlpha()
 	{
 		var collection = new SpeedyList<Account> { OrderBy = new[] { new OrderBy<Account>(x => x.Name) } };
 		var actual = new List<NotifyCollectionChangedEventArgs>();
@@ -766,7 +694,7 @@ public class SpeedyListTests : BaseCollectionTests
 		accounts[3].Name = "a";
 		accounts[4].Name = "d";
 
-		collection.Sort();
+		collection.Order();
 
 		Console.WriteLine(string.Join("", collection.SelectMany(x => x.Name)));
 
@@ -774,7 +702,7 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void SortAlphaNumeric()
+	public void OrderAlphaNumeric()
 	{
 		var collection = new SpeedyList<Account>
 		{
@@ -806,20 +734,20 @@ public class SpeedyListTests : BaseCollectionTests
 		accounts[4].Name = "b2";
 		accounts[4].Id = 2;
 
-		collection.Sort();
+		collection.Order();
 
 		var displayNames = string.Join("", collection.SelectMany(x => x.Name));
 		var ids = string.Join("", collection.SelectMany(x => x.Id.ToString()));
 		Console.WriteLine(displayNames);
 		Console.WriteLine(ids);
 
-		AreEqual(4, actual.Count);
+		AreEqual(2, actual.Count);
 		AreEqual("ab2b3b4c", displayNames);
 		AreEqual("12340", ids);
 	}
 
 	[TestMethod]
-	public void SortedObservableShouldAllowDuplicates()
+	public void OrderShouldAllowDuplicates()
 	{
 		var collection = new SpeedyList<ClientAccount>
 		{
@@ -833,24 +761,209 @@ public class SpeedyListTests : BaseCollectionTests
 	}
 
 	[TestMethod]
-	public void ThreadSafeSortedCollection()
+	public void OrderUsingManyOrderBy()
+	{
+		var scenarios = new List<(OrderBy<Account>[] order, string[] addOrder, string[] expectedOrder)>
+		{
+			(
+				new[]
+				{
+					new OrderBy<Account>(x => x.Name == "Zoe", true),
+					new OrderBy<Account>(x => x.Name == "Zane", true),
+					new OrderBy<Account>(x => x.Name)
+				},
+				new[] { "Bob", "Zane", "Zoe" },
+				new[] { "Zoe", "Zane", "Bob" }
+			),
+			(
+				new[]
+				{
+					new OrderBy<Account>(x => x.Name == "Zoe", false),
+					new OrderBy<Account>(x => x.Name == "Zane", false),
+					new OrderBy<Account>(x => x.Name)
+				},
+				new[] { "Bob", "Zoe", "Zane" },
+				new[] { "Bob", "Zane", "Zoe" }
+			)
+		};
+
+		for (var index = 0; index < scenarios.Count; index++)
+		{
+			$"Scenario {index}".Dump();
+
+			var scenario = scenarios[index];
+			using var list = new SpeedyList<Account>(scenario.order);
+
+			AreEqual(0, list.Count);
+
+			scenario.addOrder.ForEach(x => list.Add(new Account { Name = x }));
+			var expected = scenario.expectedOrder.Select(x => new Account { Name = x }).ToArray();
+
+			AreEqual(expected, list.ToArray());
+		}
+	}
+
+	[TestMethod]
+	public void OrderWhenAssigningOrderByProperty()
+	{
+		using var list = new SpeedyList<int>(1, 2);
+		list.Insert(1, 3);
+
+		AreEqual(new[] { 1, 3, 2 }, list.ToArray());
+
+		list.OrderBy = new[] { new OrderBy<int>() };
+		list.Order();
+
+		AreEqual(new[] { 1, 2, 3 }, list.ToArray());
+	}
+
+	[TestMethod]
+	public virtual void ParallelShouldWork()
+	{
+		using var list = new SpeedyList<int>();
+		TestParallelOperations(list);
+	}
+
+	[TestMethod]
+	public void ProcessThenOrderWithAction()
+	{
+		using var list = new SpeedyList<int>();
+		list.OrderBy = new[] { new OrderBy<int>(x => x) };
+
+		var expected = Enumerable.Range(1, 99).ToArray();
+		list.InitializeProfiler();
+
+		AreEqual(0, list.Profiler.OrderCount.Value);
+
+		list.ProcessThenOrder(() =>
+		{
+			for (var x = 99; x > 0; x--)
+			{
+				list.ProcessThenOrder(() => { list.Add(x); });
+			}
+		});
+
+		AreEqual(expected, list.ToArray());
+		AreEqual(1, list.Profiler.OrderCount.Value);
+	}
+
+	[TestMethod]
+	public void ProcessThenOrderWithParallelAction()
+	{
+		using var list = new SpeedyList<int>();
+		list.OrderBy = new[] { new OrderBy<int>(x => x) };
+
+		var expected = Enumerable.Range(1, 99).ToArray();
+		list.InitializeProfiler();
+
+		AreEqual(0, list.Profiler.OrderCount.Value);
+
+		list.ProcessThenOrder(() =>
+			Parallel.For(1, 100, x => { list.ProcessThenOrder(() => list.Add(x)); })
+		);
+
+		AreEqual(expected, list.ToArray());
+		AreEqual(1, list.Profiler.OrderCount.Value);
+	}
+
+	[TestMethod]
+	public void Remove()
+	{
+		using var list = new SpeedyList<int>();
+		AreEqual(0, list.Count);
+
+		list.AddRange(1, 2, 3, 4);
+		AreEqual(4, list.Count);
+		AreEqual(new[] { 1, 2, 3, 4 }, list.ToArray());
+
+		list.Remove(2);
+		AreEqual(new[] { 1, 3, 4 }, list.ToArray());
+
+		list.Remove((object) 3);
+		AreEqual(new[] { 1, 4 }, list.ToArray());
+
+		list.Remove(3);
+		AreEqual(new[] { 1, 4 }, list.ToArray());
+	}
+
+	[TestMethod]
+	public void RemoveAt()
+	{
+		using var list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8);
+		list.RemoveAt(0);
+		AreEqual(new[] { 2, 3, 4, 5, 6, 7, 8 }, list.ToArray());
+
+		// All of these are out of range.
+		ExpectedException<ArgumentOutOfRangeException>(() => list.RemoveAt(list.Count),
+			"Index was out of range. Must be non-negative and less than the size of the collection.");
+		ExpectedException<ArgumentOutOfRangeException>(() => list.RemoveAt(int.MaxValue),
+			"Index was out of range. Must be non-negative and less than the size of the collection.");
+		ExpectedException<ArgumentOutOfRangeException>(() => list.RemoveAt(int.MinValue),
+			"Index was out of range. Must be non-negative and less than the size of the collection.");
+
+		AreEqual(new[] { 2, 3, 4, 5, 6, 7, 8 }, list.ToArray());
+	}
+
+	[TestMethod]
+	public void RemoveRange()
+	{
+		using var list = new SpeedyList<int>(1, 2, 3, 4, 5, 6, 7, 8);
+		list.RemoveRange(3, 2);
+		AreEqual(new[] { 1, 2, 3, 6, 7, 8 }, list.ToArray());
+
+		ExpectedException<ArgumentException>(() => list.RemoveRange(5, 2),
+			"Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection.");
+		ExpectedException<ArgumentException>(() => list.RemoveRange(5, 20),
+			"Offset and length were out of bounds for the array or count is greater than the number of elements from index to the end of the source collection.");
+
+		AreEqual(new[] { 1, 2, 3, 6, 7, 8 }, list.ToArray());
+	}
+
+	[TestMethod]
+	public void RemoveUsingPredicate()
+	{
+		using var list = new SpeedyList<int>(1, 2, 3, 4);
+		list.Remove(x => (x % 2) == 0);
+		AreEqual(new[] { 1, 3 }, list.ToArray());
+
+		list.Load(1, 2, 3, 4);
+		list.Remove(x => x.IsEven());
+		AreEqual(new[] { 1, 3 }, list.ToArray());
+
+		list.Load(1, 2, 3, 4);
+		list.Remove(x => x.IsOdd());
+		AreEqual(new[] { 2, 4 }, list.ToArray());
+
+		list.Load(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+		list.Remove(x => x < 6);
+		AreEqual(new[] { 6, 7, 8, 9, 10 }, list.ToArray());
+
+		list.Remove(x => x >= 10);
+		AreEqual(new[] { 6, 7, 8, 9 }, list.ToArray());
+
+		list.Remove(x => x <= 6);
+		AreEqual(new[] { 7, 8, 9 }, list.ToArray());
+	}
+
+	[TestMethod]
+	public void ThreadSafeOrderedCollection()
 	{
 		var count = 1000;
 		var collection = new SpeedyList<int> { OrderBy = new[] { new OrderBy<int>(x => x) } };
-		var options = new ParallelOptions { MaxDegreeOfParallelism = 1 };
+		var options = new ParallelOptions { MaxDegreeOfParallelism = 32 };
 
 		Parallel.For(0, 1000, options, (x, _) => { collection.Add(x); });
 
 		var expected = Enumerable.Range(0, count).ToArray();
 		var actual = collection.ToArray();
 
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]
 	public void TryGetAndRemoveAt()
 	{
-		var list = new SpeedyList<int>(1, 2, 3, 4);
+		using var list = new SpeedyList<int>(1, 2, 3, 4);
 		IsTrue(list.TryGetAndRemoveAt(1, out var value));
 		AreEqual(2, value);
 		AreEqual(new[] { 1, 3, 4 }, list.ToArray());

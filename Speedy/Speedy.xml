@@ -4,6 +4,105 @@
         <name>Speedy</name>
     </assembly>
     <members>
+        <member name="T:Speedy.Activator">
+            <summary>
+            Activator help when creating new instances of types.
+            </summary>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstance``1(System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstance``1(System.Action{``0},System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="update"> An action to update the new instance. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstance(System.Type,System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstance(System.Type,System.Action{System.Object},System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="update"> An action to update the new instance. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstanceInternal(System.Boolean,System.Type,System.Action{System.Object},System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="useCustomActivators"> True if we can use custom activators. </param>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="update"> An action to update the new instance. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstanceOfGeneric(System.Type,System.Type[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="generics"> The Types the generic is for. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstanceOfGeneric(System.Type,System.Type[],System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="generics"> The Types the generic is for. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstanceOfGeneric(System.Type,System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstanceWithNonDefaultValues``1(System.Object[])">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <typeparam name="T"> The type to create an instance of. </typeparam>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The instance of the type with non default values. </returns>
+        </member>
+        <member name="M:Speedy.Activator.CreateInstanceWithNonDefaultValues(System.Type,System.Object[])">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <param name="type"> The type to create an instance of. </param>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The instance of the type with non default values. </returns>
+        </member>
+        <member name="M:Speedy.Activator.RegisterTypeActivator(Speedy.Data.TypeActivator[])">
+            <summary>
+            Register a type activator.
+            </summary>
+            <param name="activators"> The activators to provide type creation. </param>
+        </member>
+        <member name="M:Speedy.Activator.ResetTypeActivators">
+            <summary>
+            Reset the type activators.
+            </summary>
+        </member>
         <member name="T:Speedy.Attributes.ComputedPropertyAttribute">
             <summary>
             Attribute for computed properties.
@@ -145,12 +244,17 @@
             Internal static class for caching items that are internal to Speedy.
             </summary>
         </member>
-        <member name="P:Speedy.Cache.NotifiableWriteables">
+        <member name="P:Speedy.Cache.PropertyDictionaryForType">
             <summary>
             Property dictionary for a sync object, this is for optimization
             </summary>
         </member>
-        <member name="P:Speedy.Cache.PropertyDictionaryForType">
+        <member name="P:Speedy.Cache.SettableProperties">
+            <summary>
+            Property dictionary for a sync object, this is for optimization
+            </summary>
+        </member>
+        <member name="P:Speedy.Cache.SettablePropertiesPublicOnly">
             <summary>
             Property dictionary for a sync object, this is for optimization
             </summary>
@@ -161,6 +265,20 @@
             </summary>
             <param name="type"> The type to get the properties for. </param>
             <returns> The properties in a dictionary. The key is the property name. </returns>
+        </member>
+        <member name="M:Speedy.Cache.GetSettableProperties(System.Object)">
+            <summary>
+            Get settable properties for an object.
+            </summary>
+            <param name="value"> The value to process. </param>
+            <returns> The settable properties information. </returns>
+        </member>
+        <member name="M:Speedy.Cache.GetSettablePropertiesPublicOnly(System.Object)">
+            <summary>
+            Get public settable properties for an object.
+            </summary>
+            <param name="value"> The value to process. </param>
+            <returns> The public settable properties information. </returns>
         </member>
         <member name="T:Speedy.ClientEntity`1">
             <inheritdoc cref="T:Speedy.Sync.SyncModel`1" />
@@ -265,6 +383,9 @@
             Represents a thread dispatcher to help with cross threaded request.
             </summary>
         </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.DisablePropertyChangeNotifications">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.Dispatch(System.Action,Speedy.DispatcherPriority)">
             <inheritdoc />
         </member>
@@ -275,6 +396,9 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.DispatchAsync``1(System.Func{``0},Speedy.DispatcherPriority)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.EnablePropertyChangeNotifications">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.GetChangedProperties">
@@ -289,13 +413,10 @@
         <member name="M:Speedy.Collections.BaseObservableCollection`1.HasChanges(System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Collections.BaseObservableCollection`1.IsChangeNotificationsPaused">
+        <member name="M:Speedy.Collections.BaseObservableCollection`1.IsPropertyChangeNotificationsEnabled">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.OnPropertyChanged(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Collections.BaseObservableCollection`1.PausePropertyChangeNotifications(System.Boolean)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.BaseObservableCollection`1.Reset(`0[])">
@@ -816,6 +937,41 @@
             <param name="filter"> The filter expression. </param>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
+        <member name="T:Speedy.Collections.FlattenHierarchicalList">
+            <summary>
+            Represents a hierarchy of data from a root collection.
+            </summary>
+            <remarks>
+            - still need to fix ordering
+            - optimize pause ordering while other sub list is ordering
+            </remarks>
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.#ctor(Speedy.Collections.ISpeedyList)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.#ctor(Speedy.Collections.ISpeedyList,Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.CleanupEventSubscriptions">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.Refresh">
+            <summary>
+            Refresh the root elements ShouldBeShown and ShouldShowChildren.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.ShouldOrder">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.InternalOrder">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Collections.GenericComparer`1">
             <summary>
             Exposes a method that compares two objects.
@@ -933,6 +1089,25 @@
             <summary>
             The compiled function for extracting a key from an element.
             </summary>
+        </member>
+        <member name="M:Speedy.Collections.OrderBy`1.GetInsertIndex``1(System.Collections.Generic.IList{``0},``0,Speedy.Collections.OrderBy{``0}[])">
+            <summary>
+            Locate the insert index for an item.
+            </summary>
+            <typeparam name="T2"> The type of the item. </typeparam>
+            <param name="list"> The current item list. </param>
+            <param name="item"> The item to determine index for. </param>
+            <param name="orderBy"> The list of order by requirements. </param>
+            <returns> The index to insert the item at. </returns>
+        </member>
+        <member name="M:Speedy.Collections.OrderBy`1.OrderCollection``1(System.Collections.Generic.IList{``0},Speedy.Collections.OrderBy{``0}[])">
+            <summary>
+            Order the collection by the provided OrderBy collection.
+            </summary>
+            <typeparam name="T2"> The type of the items. </typeparam>
+            <param name="items"> The items to be ordered. </param>
+            <param name="orderBy"> The order by expressions. </param>
+            <returns> The ordered list. </returns>
         </member>
         <member name="M:Speedy.Collections.OrderBy`1.Process(System.Collections.Generic.IEnumerable{`0},Speedy.Collections.OrderBy{`0}[])">
             <summary>
@@ -1092,8 +1267,8 @@
         </member>
         <member name="T:Speedy.Collections.SpeedyList`1">
             <summary>
-            A thread-safe, dispatch safe, limitable, sortable, filterable, and observable list.
-            Dispatch safe, limit, sortable, and filterable settings are optional.
+            A thread-safe, dispatch safe, limitable, orderable, filterable, and observable list.
+            Dispatch safe, limit, orderable, and filterable settings are optional.
             </summary>
             <typeparam name="T"> The type of items in the list. </typeparam>
         </member>
@@ -1205,6 +1380,14 @@
         <member name="P:Speedy.Collections.SpeedyList`1.IsFixedSize">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.IsLoading">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.IsOrdering">
+            <summary>
+            True if the list is in the process of ordering.
+            </summary>
+        </member>
         <member name="P:Speedy.Collections.SpeedyList`1.IsReadOnly">
             <inheritdoc cref="T:System.Collections.IList" />
         </member>
@@ -1224,9 +1407,14 @@
             The expression to order this collection by.
             </summary>
         </member>
-        <member name="P:Speedy.Collections.SpeedyList`1.SortingDisabled">
+        <member name="P:Speedy.Collections.SpeedyList`1.PauseOrdering">
             <summary>
-            True if sorting has been disabled.
+            Flag to track pausing of ordering.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.Profiler">
+            <summary>
+            The profiler for the list. <see cref="M:Speedy.Collections.SpeedyList`1.InitializeProfiler" /> must be called before accessing the profiler.
             </summary>
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.SyncRoot">
@@ -1262,10 +1450,24 @@
             </summary>
             <returns> The first item. </returns>
         </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.First(System.Func{`0,System.Boolean})">
+            <summary>
+            Get the first item in the list.
+            </summary>
+            <param name="predicate"> The predicate filter. </param>
+            <returns> The first item. </returns>
+        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.FirstOrDefault">
             <summary>
             Get the first item in the list or default value.
             </summary>
+            <returns> The first item or default. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.FirstOrDefault(System.Func{`0,System.Boolean})">
+            <summary>
+            Get the first item in the list or default value.
+            </summary>
+            <param name="predicate"> The predicate filter. </param>
             <returns> The first item or default. </returns>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.GetEnumerator">
@@ -1276,6 +1478,11 @@
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.IndexOf(`0)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.InitializeProfiler">
+            <summary>
+            Initialize the profiler to allow tracking of list events.
+            </summary>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Insert(System.Int32,System.Object)">
             <inheritdoc />
@@ -1289,10 +1496,24 @@
             </summary>
             <returns> The last item or default. </returns>
         </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Last(System.Func{`0,System.Boolean})">
+            <summary>
+            Get the last item in the list or default value.
+            </summary>
+            <param name="predicate"> The predicate filter. </param>
+            <returns> The last item or default. </returns>
+        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.LastOrDefault">
             <summary>
             Get the last item in the list or default value.
             </summary>
+            <returns> The last item or default. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.LastOrDefault(System.Func{`0,System.Boolean})">
+            <summary>
+            Get the last item in the list or default value.
+            </summary>
+            <param name="predicate"> The predicate filter. </param>
             <returns> The last item or default. </returns>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Load(System.Collections.Generic.IEnumerable{`0})">
@@ -1307,20 +1528,22 @@
             </summary>
             <param name="items"> The items to be loaded. </param>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.OnPropertyChanged(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.ProcessThenSort(System.Action)">
+        <member name="M:Speedy.Collections.SpeedyList`1.Order">
             <summary>
-            Process an action then sort the collection.
+            Order the collection.
             </summary>
-            <param name="process"> The process to execute before sorting. </param>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.ProcessThenSort``1(System.Func{``0})">
+        <member name="M:Speedy.Collections.SpeedyList`1.ProcessThenOrder(System.Action)">
             <summary>
-            Process an action then sort, filter, event on the collection changes. ** see remarks **
+            Process an action then order the collection.
             </summary>
-            <param name="process"> The process to execute before sorting. </param>
+            <param name="process"> The process to execute before ordering. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.ProcessThenOrder``1(System.Func{``0})">
+            <summary>
+            Process an action then order, filter, event on the collection changes. ** see remarks **
+            </summary>
+            <param name="process"> The process to execute before ordering. </param>
             <typeparam name="T2"> The type of the item from the process. </typeparam>
             <returns> The items returned from the process. </returns>
         </member>
@@ -1351,11 +1574,6 @@
             <param name="index"> The zero-based starting index of the range of items to remove. </param>
             <param name="length"> The number of items to remove. </param>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.Sort">
-            <summary>
-            Sort the collection.
-            </summary>
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.TryGetAndRemoveAt(System.Int32,`0@)">
             <summary>
             Try to get an item then remove it.
@@ -1363,6 +1581,12 @@
             <param name="index"> The index to get the item from. </param>
             <param name="item"> The item retrieved or default. </param>
             <returns> True if the item was available and retrieved otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.InternalLoad(`0[])">
+            <summary>
+            Loads the items into the list. All existing items will be cleared.
+            </summary>
+            <param name="items"> The items to be loaded. </param>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <summary>
@@ -1373,15 +1597,27 @@
         <member name="M:Speedy.Collections.SpeedyList`1.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.ShouldOrder">
+            <summary>
+            Determine if the list should order.
+            </summary>
+            <returns> True if the list should order or false otherwise. </returns>
+        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IEnumerable#GetEnumerator">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.Speedy#Collections#ISpeedyList#ShouldOrder">
+            <summary>
+            Determine if the list should order.
+            </summary>
+            <returns> True if the list should order or false otherwise. </returns>
         </member>
         <member name="E:Speedy.Collections.SpeedyList`1.CollectionChanged">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1">
             <summary>
-            Represents a sorted observable collection. The collection supports notification on clear and ability to be sorted.
+            Represents a ordered observable collection. The collection supports notification on clear and ability to be ordered.
             </summary>
             <typeparam name="T2"> The type of the item stored in the collection. </typeparam>
         </member>
@@ -1390,9 +1626,9 @@
             Instantiates an instance of the collection.
             </summary>
         </member>
-        <member name="P:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.DisableSorting">
+        <member name="P:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.DisableOrdering">
             <summary>
-            Allows disable sorting for faster loading.
+            Allows disable ordering for faster loading.
             </summary>
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.OrderBy">
@@ -1405,13 +1641,50 @@
             An optional set of expressions to further order this collection by.
             </summary>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.Sort">
+        <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.Order">
             <summary>
-            Sort the collection.
+            Order the collection.
             </summary>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.Collections.ISpeedyList`1">
+            <summary>
+            Represents a speedy list.
+            </summary>
+        </member>
+        <member name="T:Speedy.Collections.ISpeedyList">
+            <summary>
+            Represents a speedy list.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.ISpeedyList.IsDisposed">
+            <summary>
+            True if the list has been disposed.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.ISpeedyList.IsLoading">
+            <summary>
+            True if the list is currently loading items.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.ISpeedyList.ShouldOrder">
+            <summary>
+            Determine if the list should order.
+            </summary>
+            <returns> True if the list should order or false otherwise. </returns>
+        </member>
+        <member name="T:Speedy.Collections.SpeedyListProfiler">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyListProfiler.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyListProfiler.OrderCount">
+            <summary>
+            The amount of times the list was ordered.
+            </summary>
         </member>
         <member name="T:Speedy.Commands.RelayCommand">
             <summary>
@@ -2402,6 +2675,9 @@
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
+        <member name="M:Speedy.Database.GetDatabaseType">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Database.GetMappingAssembly">
             <summary>
             Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
@@ -2534,6 +2810,90 @@
         </member>
         <member name="E:Speedy.Database.Disposed">
             <inheritdoc />
+        </member>
+        <member name="T:Speedy.IDatabase">
+            <summary>
+            The interfaces for a Speedy database.
+            </summary>
+        </member>
+        <member name="P:Speedy.IDatabase.IsDisposed">
+            <summary>
+            Gets a value indicating whether the database has been disposed of.
+            </summary>
+        </member>
+        <member name="P:Speedy.IDatabase.Options">
+            <summary>
+            Gets the options for this database.
+            </summary>
+        </member>
+        <member name="M:Speedy.IDatabase.Add``2(``0)">
+            <summary>
+            Adds an entity to the database
+            </summary>
+            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+            <param name="item"> The item to be added. </param>
+            <returns> The entity that was added. </returns>
+        </member>
+        <member name="M:Speedy.IDatabase.DiscardChanges">
+            <summary>
+            Discard all changes made in this context to the underlying database.
+            </summary>
+        </member>
+        <member name="M:Speedy.IDatabase.GetDatabaseType">
+            <summary>
+            Return the type of the database.
+            </summary>
+            <returns> The type of the database. </returns>
+        </member>
+        <member name="M:Speedy.IDatabase.GetMappingAssembly">
+            <summary>
+            Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
+            </summary>
+        </member>
+        <member name="M:Speedy.IDatabase.GetReadOnlyRepository``2">
+            <summary>
+            Gets a read only repository of the requested entity.
+            </summary>
+            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+            <returns> The repository of entities requested. </returns>
+        </member>
+        <member name="M:Speedy.IDatabase.GetRepository``2">
+            <summary>
+            Gets a repository of the requested entity.
+            </summary>
+            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+            <returns> The repository of entities requested. </returns>
+        </member>
+        <member name="M:Speedy.IDatabase.Remove``2(``0)">
+            <summary>
+            Removes an entity from the database
+            </summary>
+            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
+            <typeparam name="T2"> The type of the entity key. </typeparam>
+            <param name="item"> The item to be removed. </param>
+            <returns> The entity that was removed. </returns>
+        </member>
+        <member name="M:Speedy.IDatabase.SaveChanges">
+            <summary>
+            Saves all changes made in this context to the underlying database.
+            </summary>
+            <returns>
+            The number of objects written to the underlying database.
+            </returns>
+            <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
+        </member>
+        <member name="E:Speedy.IDatabase.ChangesSaved">
+            <summary>
+            An event for when changes are saved. <see cref="M:Speedy.IDatabase.SaveChanges" />
+            </summary>
+        </member>
+        <member name="E:Speedy.IDatabase.Disposed">
+            <summary>
+            An event for when the database has been disposed.
+            </summary>
         </member>
         <member name="T:Speedy.DatabaseKeyCache">
             <summary>
@@ -2983,6 +3343,216 @@
         <member name="F:Speedy.Data.DeviceType.TV">
             <summary>
             TV
+            </summary>
+        </member>
+        <member name="T:Speedy.Data.HierarchyListItem">
+            <summary>
+            Represents a sync model in a hierarchy list.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.CleanupEventSubscriptions">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.GetChildren">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.GetParent">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.HasBeenDisposed">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.HasChildren">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.ShouldBeShownAsChild">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.ShouldShowChild(Speedy.Data.IHierarchyListItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.ShouldShowChildren">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.OnChildAdded(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Trigger the ChildAdded event.
+            </summary>
+            <param name="e"> The child added. </param>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.OnChildRemoved(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Trigger the ChildRemoved event.
+            </summary>
+            <param name="e"> The child removed. </param>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.OnParentChanged(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Trigger the ParentChanged event.
+            </summary>
+            <param name="e"> The parent that was assigned. </param>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.OnShouldBeShownChanged">
+            <summary>
+            Trigger the ShouldBeShownChanged event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.OnShouldShowChildrenChanged">
+            <summary>
+            Trigger the ShouldShowChildrenChanged event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.UpdateChildren(Speedy.Collections.ISpeedyList)">
+            <summary>
+            Initialize the relationship. This should be called in the constructor.
+            </summary>
+            <param name="children"> The children for the list item. </param>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.UpdateParent(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Initialize the relationship.
+            </summary>
+            <param name="parent"> The parent of the list item. </param>
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#ClearParent">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#OnShouldBeShownChanged">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#OnShouldShowChildrenChanged">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#RemoveChild(Speedy.Data.IHierarchyListItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#UpdateParent(Speedy.Data.IHierarchyListItem)">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Data.HierarchyListItem.ChildAdded">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Data.HierarchyListItem.ChildRemoved">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Data.HierarchyListItem.ParentChanged">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Data.HierarchyListItem.ShouldBeShownChanged">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Data.HierarchyListItem.ShouldShowChildrenChanged">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Data.IHierarchyListItem">
+            <summary>
+            Represents a hierarchy of data.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.GetChildren">
+            <summary>
+            Get the children for the list item.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.GetParent">
+            <summary>
+            Get the parent of this item.
+            </summary>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.HasBeenDisposed">
+            <summary>
+            Determine if the list item has been disposed of.
+            </summary>
+            <returns> True if the list item has been disposed otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.HasChildren">
+            <summary>
+            Determine if the list item has a child collections.
+            </summary>
+            <returns> True if this list item has children. </returns>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.ShouldBeShownAsChild">
+            <summary>
+            Determine if the item should be shown as a child in the parent collection.
+            </summary>
+            <returns> True if this list item should be shown. </returns>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.ShouldShowChild(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Determine if the items child should be shown.
+            </summary>
+            <returns> True if this items child should be shown. </returns>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.ShouldShowChildren">
+            <summary>
+            Determine if the items children should be shown.
+            </summary>
+            <returns> True if this items children should be shown. </returns>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.ClearParent">
+            <summary>
+            Removes the parent from the item.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.OnShouldBeShownChanged">
+            <summary>
+            Trigger the ShouldBeShownChanged event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.OnShouldShowChildrenChanged">
+            <summary>
+            Trigger the OnShouldShowChildrenChanged event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.RemoveChild(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Removes the child from this parent.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.IHierarchyListItem.UpdateParent(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Update the parent of this item.
+            </summary>
+        </member>
+        <member name="E:Speedy.Data.IHierarchyListItem.ChildAdded">
+            <summary>
+            Event for when a child is added to this list item.
+            </summary>
+        </member>
+        <member name="E:Speedy.Data.IHierarchyListItem.ChildRemoved">
+            <summary>
+            Event for when a child is removed from this list item.
+            </summary>
+        </member>
+        <member name="E:Speedy.Data.IHierarchyListItem.ParentChanged">
+            <summary>
+            Event for when the parent has changed.
+            </summary>
+        </member>
+        <member name="E:Speedy.Data.IHierarchyListItem.ShouldBeShownChanged">
+            <summary>
+            Event when this list item shown state is changed.
+            </summary>
+        </member>
+        <member name="E:Speedy.Data.IHierarchyListItem.ShouldShowChildrenChanged">
+            <summary>
+            Event when this list item children shown state is changed.
             </summary>
         </member>
         <member name="T:Speedy.Data.IAccurateInformation">
@@ -4435,6 +5005,63 @@
             The name of the option.
             </summary>
         </member>
+        <member name="T:Speedy.Data.TypeActivator`2">
+            <summary>
+            Allows assigning an interface to a specific implementation.
+            </summary>
+            <typeparam name="T"> The interface type. </typeparam>
+            <typeparam name="T2"> The implementation type. </typeparam>
+        </member>
+        <member name="M:Speedy.Data.TypeActivator`2.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.TypeActivator`2.#ctor(System.Func{System.Object[],`1})">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.TypeActivator`2.CreateInstance(System.Object[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Data.TypeActivator`1">
+            <summary>
+            Allows assigning an interface to a specific implementation.
+            </summary>
+            <typeparam name="T"> The interface type. </typeparam>
+        </member>
+        <member name="M:Speedy.Data.TypeActivator`1.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Data.TypeActivator`1.#ctor(System.Func{System.Object[],`0})">
+            <summary>
+            Create an instance of the type activator.
+            </summary>
+            <param name="activator"> The activator for the type. </param>
+        </member>
+        <member name="M:Speedy.Data.TypeActivator`1.CreateInstance(System.Object[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Data.TypeActivator">
+            <summary>
+            Allows assigning an interface to a specific implementation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.TypeActivator.#ctor(System.Type)">
+            <summary>
+            Create an instance of the type activator.
+            </summary>
+            <param name="type"> The type this activator is for. </param>
+        </member>
+        <member name="P:Speedy.Data.TypeActivator.Type">
+            <summary>
+            The type this activator is for.
+            </summary>
+        </member>
+        <member name="M:Speedy.Data.TypeActivator.CreateInstance(System.Object[])">
+            <summary>
+            Create an instance of the Type.
+            </summary>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
             Represents a default dispatcher
@@ -4981,16 +5608,25 @@
             Extensions for collections.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.AddOrReplace``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean},System.Func{``0},System.Func{``0,``0})">
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean},System.Func{``0},System.Action{``0})">
             <summary>
-            Add the item or replace the item with a new
+            Add or create with update.
             </summary>
-            <typeparam name="T"> </typeparam>
-            <param name="collection"> </param>
-            <param name="lookup"> </param>
-            <param name="create"> </param>
-            <param name="replace"> </param>
-            <returns> </returns>
+            <typeparam name="T"> The item type. </typeparam>
+            <param name="collection"> The collection of items. </param>
+            <param name="filter"> Queries the collection for an item. </param>
+            <param name="create"> The function to create an item. </param>
+            <param name="update"> The function to update the item. </param>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean},System.Func{``0},System.Func{``0,``0})">
+            <summary>
+            Add or create with update.
+            </summary>
+            <typeparam name="T"> The item type. </typeparam>
+            <param name="collection"> The collection of items. </param>
+            <param name="filter"> Queries the collection for an item. </param>
+            <param name="create"> The function to create an item. </param>
+            <param name="update"> The function to update the item. </param>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddOrUpdate(System.Net.Http.Headers.HttpHeaders,System.String,System.String)">
             <summary>
@@ -5010,11 +5646,11 @@
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``1(System.Collections.Generic.IList{``0},``0[])">
             <summary>
-            Add multiple items to a list
+            Add multiple items to a list.
             </summary>
+            <typeparam name="T"> The type of the items in the list. </typeparam>
             <param name="set"> The set to add items to. </param>
             <param name="items"> The items to add. </param>
-            <typeparam name="T"> The type of the items in the list. </typeparam>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``1(System.Collections.Generic.ICollection{``0},System.Collections.Generic.IEnumerable{``0})">
             <summary>
@@ -5032,23 +5668,25 @@
             <param name="items"> The items to add. </param>
             <typeparam name="T"> The type of the items in the collection. </typeparam>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.Append``1(System.Collections.Generic.HashSet{``0},``0[])">
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``2(``0,``1[])">
             <summary>
-            Appends new values to an existing HashSet.
+            Appends new values to an existing set.
             </summary>
-            <typeparam name="T"> The type of value in the set. </typeparam>
+            <typeparam name="T"> The type of the set. </typeparam>
+            <typeparam name="T2"> The type of value in the set. </typeparam>
             <param name="set"> The set to append to. </param>
             <param name="values"> The values to add. </param>
-            <returns> A new HashSet containing the new values. </returns>
+            <returns> The updated set containing the new values. </returns>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.Append``1(System.Collections.Generic.HashSet{``0},System.Collections.Generic.HashSet{``0})">
+        <member name="M:Speedy.Extensions.CollectionExtensions.AddRange``2(``0,System.Collections.Generic.IEnumerable{``1})">
             <summary>
-            Appends new values to an existing HashSet.
+            Appends new values to an existing set.
             </summary>
-            <typeparam name="T"> The type of value in the set. </typeparam>
+            <typeparam name="T"> The type of the set. </typeparam>
+            <typeparam name="T2"> The type of value in the set. </typeparam>
             <param name="set"> The set to append to. </param>
             <param name="values"> The values to add. </param>
-            <returns> A new HashSet containing the new values. </returns>
+            <returns> The updated set containing the new values. </returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.AppendExtraProperties``2(System.Collections.Generic.HashSet{System.String})">
             <summary>
@@ -5058,14 +5696,14 @@
             <typeparam name="T2"> The type of the second item. </typeparam>
             <param name="collection"> The collection to be updated. </param>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.AsReadOnly(System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Speedy.Extensions.CollectionExtensions.AsReadOnly``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Converts a set into a readonly set.
             </summary>
             <param name="set"> The set to protect as readonly. </param>
             <returns> The provided set as a readonly version. </returns>
         </member>
-        <member name="M:Speedy.Extensions.CollectionExtensions.AsReadOnly(System.Collections.Generic.ISet{System.String})">
+        <member name="M:Speedy.Extensions.CollectionExtensions.AsReadOnly``1(System.Collections.Generic.ISet{``0})">
             <summary>
             Converts a set into a readonly set.
             </summary>
@@ -5195,6 +5833,14 @@
             <param name="collection"> The left collection. </param>
             <param name="updates"> The right collection. </param>
         </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.Reconcile``1(System.Collections.Generic.ICollection{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Reconcile one collection with another.
+            </summary>
+            <typeparam name="T"> The type of the collections. </typeparam>
+            <param name="collection"> The left collection. </param>
+            <param name="updates"> The right collection. </param>
+        </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.Remove``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean},System.Action{``0})">
             <summary>
             Remove items from a collection based on the provided filter.
@@ -5210,6 +5856,24 @@
             <param name="collection"> The collection to update. </param>
             <param name="filter"> The filter of the items to remove. </param>
             <param name="callback"> An optional callback to be used before each remove. </param>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.RemoveRange``1(System.Collections.Generic.IList{``0},``0[])">
+            <summary>
+            Remove multiple items from a list.
+            </summary>
+            <typeparam name="T"> The type of the items in the list. </typeparam>
+            <param name="set"> The set to add items to. </param>
+            <param name="items"> The items to remove. </param>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.RemoveRange``2(``0,``1[])">
+            <summary>
+            Remove values from an existing set.
+            </summary>
+            <typeparam name="T"> The type of the set. </typeparam>
+            <typeparam name="T2"> The type of value in the set. </typeparam>
+            <param name="set"> The set to append to. </param>
+            <param name="values"> The values to remove. </param>
+            <returns> The updated set excluding the removed values. </returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.SubArray``1(``0[],System.Int32,System.Int32)">
             <summary>
@@ -5253,6 +5917,16 @@
             <typeparam name="T2"> The type of the entity key. </typeparam>
             <param name="values"> The enumeration to convert to a list. </param>
             <returns> The values in a list format. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.CollectionExtensions.TryDequeueMany``1(System.Collections.Concurrent.ConcurrentQueue{``0},System.Int32,``0[]@)">
+            <summary>
+            Try to dequeue multiple values from a concurrent queue.
+            </summary>
+            <typeparam name="T"> The type of the value in the queue. </typeparam>
+            <param name="queue"> The queue to process. </param>
+            <param name="maxCount"> The maximum amount to try and dequeue. </param>
+            <param name="data"> The dequeued data. </param>
+            <returns> True if something was dequeued otherwise false. </returns>
         </member>
         <member name="M:Speedy.Extensions.CollectionExtensions.TryFirst``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean},``0@)">
             <summary>
@@ -5366,7 +6040,7 @@
             Extensions for dictionary
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.DictionaryExtensions.AddIfMissing``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+        <member name="M:Speedy.Extensions.DictionaryExtensions.AddIfMissing``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``1})">
             <summary>
             Add a dictionary entry if the key is not found.
             </summary>
@@ -5374,7 +6048,7 @@
             <typeparam name="T2"> The type of the value. </typeparam>
             <param name="dictionary"> The dictionary to update. </param>
             <param name="key"> The value of the key. </param>
-            <param name="value"> The value of the value. </param>
+            <param name="action"> The value of the value. </param>
         </member>
         <member name="M:Speedy.Extensions.DictionaryExtensions.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Collections.Generic.IDictionary{``0,``1})">
             <summary>
@@ -5435,7 +6109,7 @@
             <param name="dictionary"> The dictionary to clone. </param>
             <returns> The clone dictionary. </returns>
         </member>
-        <member name="M:Speedy.Extensions.DictionaryExtensions.GetOrAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``1})">
+        <member name="M:Speedy.Extensions.DictionaryExtensions.GetOrAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``0,``1})">
             <summary>
             Get a value if the key is found otherwise create a new item, add to dictionary, then return.
             </summary>
@@ -5995,6 +6669,27 @@
             </summary>
             <param name="guid"> The Guid to convert. </param>
             <returns> The Guid in a Short Guid format. </returns>
+        </member>
+        <member name="T:Speedy.Extensions.HierarchyListItemExtensions">
+            <summary>
+            The extensions for <see cref="T:Speedy.Data.IHierarchyListItem" />
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.HierarchyListItemExtensions.IsDescendantOf(Speedy.Data.IHierarchyListItem,Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Determine if the provided item is a descendant of the provided parent.
+            </summary>
+            <param name="item"> The item to process. </param>
+            <param name="parent"> The parent to process. </param>
+            <returns> True if the child is a descendant of the parent. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.HierarchyListItemExtensions.IsDirectDescendantOf(Speedy.Data.IHierarchyListItem,Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Determine if the provided item is a descendant of the provided parent.
+            </summary>
+            <param name="item"> The item to process. </param>
+            <param name="parent"> The parent to process. </param>
+            <returns> True if the child is a descendant of the parent. </returns>
         </member>
         <member name="T:Speedy.Extensions.HttpExtensions">
             <summary>
@@ -6615,14 +7310,14 @@
             Extensions for all the things.
             </summary>
         </member>
-        <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultEventFlags">
-            <summary>
-            Default event flags for cached access.
-            </summary>
-        </member>
         <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultFlags">
             <summary>
             Default flags for cached access.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.ReflectionExtensions.DefaultPrivateFlags">
+            <summary>
+            Default event flags for cached access.
             </summary>
         </member>
         <member name="F:Speedy.Extensions.ReflectionExtensions.DirectMemberFlags">
@@ -6630,14 +7325,22 @@
             Flags for direct member only.
             </summary>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.CachedMakeGenericMethod(System.Reflection.MethodInfo,System.Type[])">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstance(System.Reflection.PropertyInfo,System.Object[])">
             <summary>
-            Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
-            MethodInfo object representing the resulting constructed method. The results are cached so the next query is much faster.
+            Create an instance for a given property.
             </summary>
-            <param name="info"> The property information to get the generic arguments for. </param>
-            <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
-            <returns> The method information with generics. </returns>
+            <param name="propertyInfo"> The property type for which to get an instance of. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the property type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstance(System.Reflection.PropertyInfo,System.Action{System.Object},System.Object[])">
+            <summary>
+            Create an instance for a given property.
+            </summary>
+            <param name="propertyInfo"> The property type for which to get an instance of. </param>
+            <param name="update"> An action to update the new instance. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the property type. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstance(System.Type,System.Object[])">
             <summary>
@@ -6647,14 +7350,63 @@
             <param name="arguments"> The value of the arguments. </param>
             <returns> The new instances of the type. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstance(System.Type,System.Type[],System.Object[])">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstance(System.Type,System.Action{System.Object},System.Object[])">
             <summary>
-            Quickly create a new type of a generic.
+            Create an instance for a given Type.
             </summary>
-            <param name="type"> The base type that requires generics. </param>
-            <param name="genericTypes"> The types for the generic. </param>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="update"> An action to update the new instance. </param>
             <param name="arguments"> The value of the arguments. </param>
             <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstanceOfGeneric(System.Type,System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstanceOfGeneric(System.Type,System.Type[],System.Object[])">
+            <summary>
+            Create an instance for a given Type.
+            </summary>
+            <param name="type"> The Type for which to get an instance of. </param>
+            <param name="generics"> The Types the generic is for. </param>
+            <param name="arguments"> The value of the arguments. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstanceWithNonDefaultValue(System.Reflection.PropertyInfo,System.Object[])">
+            <summary>
+            Get a non default value for a property.
+            </summary>
+            <param name="propertyInfo"> The property info. </param>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstanceWithNonDefaultValue(System.Type,System.Object[])">
+            <summary>
+            Get a non default value for data type.
+            </summary>
+            <param name="type"> The type of object to get the value for. </param>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstanceWithNonDefaultValues``1(System.Object[])">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The instance of the type with non default values. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.CreateInstanceWithNonDefaultValues(System.Type,System.Object[],System.String[])">
+            <summary>
+            Create a new instance of the type then update the object with non default values.
+            </summary>
+            <param name="type"> The type to create an instance of. </param>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <param name="exclusions"> An optional set of properties to exclude. </param>
+            <returns> The instance of the type with non default values. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedAccessors(System.Reflection.PropertyInfo)">
             <summary>
@@ -6670,6 +7422,24 @@
             <typeparam name="T"> The type value of the attribute. </typeparam>
             <param name="value"> The value to get attributes for. </param>
             <returns> The attributes if found. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedEventField(System.Object,System.String,System.Nullable{System.Reflection.BindingFlags})">
+            <summary>
+            Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+            </summary>
+            <param name="value"> The value to get the events for. </param>
+            <param name="name"> The type event field name to locate. </param>
+            <param name="flags"> The flags to find events by. Defaults to Public, Instance, Flatten Hierarchy </param>
+            <returns> The list of field info of the events for the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedEventField(System.Type,System.String,System.Nullable{System.Reflection.BindingFlags})">
+            <summary>
+            Gets a list of event information for the provided type. The results are cached so the next query is much faster.
+            </summary>
+            <param name="type"> The type to get the events for. </param>
+            <param name="name"> The type event field name to locate. </param>
+            <param name="flags"> The flags to find events by. Defaults to Public, Non Public, Instance, Flatten Hierarchy </param>
+            <returns> The list of field info of the events for the type. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedEventFields(System.Object,System.Nullable{System.Reflection.BindingFlags})">
             <summary>
@@ -6734,6 +7504,23 @@
             </summary>
             <param name="type"> The type to get the generic arguments for. </param>
             <returns> The list of generic arguments for the type of the value. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedMakeGenericMethod(System.Reflection.MethodInfo,System.Type[])">
+            <summary>
+            Substitutes the elements of an array of types for the type parameters of the current generic method definition, and returns a
+            MethodInfo object representing the resulting constructed method. The results are cached so the next query is much faster.
+            </summary>
+            <param name="info"> The property information to get the generic arguments for. </param>
+            <param name="arguments"> An array of types to be substituted for the type parameters of the current generic method definition. </param>
+            <returns> The method information with generics. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedMakeGenericType(System.Type,System.Type[])">
+            <summary>
+            Get the type of a generic with the provided types. The results are cached so the next query is much faster.
+            </summary>
+            <param name="type"> The type to get the generic arguments for. </param>
+            <param name="genericTypes"> An array of types to create the generic type with. </param>
+            <returns> The method information with generics. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetCachedMethod(System.Type,System.String,System.Type[])">
             <summary>
@@ -6819,31 +7606,34 @@
             <param name="flags"> The flags to find properties by. Defaults to Public, Instance, Flatten Hierarchy </param>
             <returns> The list of properties for the type. </returns>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValue(System.Type)">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValue(System.Reflection.PropertyInfo,System.Object[])">
+            <summary>
+            Get a default value for a property.
+            </summary>
+            <param name="propertyInfo"> The property info. </param>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The new instances of the type. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValue(System.Type,System.Object[])">
             <summary>
             Retrieves the default value for a given Type.
             </summary>
             <param name="type"> The Type for which to get the default value </param>
-            <returns> The default value for <paramref name="type" /> </returns>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The new instances of the type. </returns>
             <remarks>
             If a null Type, a reference Type, or a System.Void Type is supplied, this method always returns null.  If a value type
             is supplied which is not publicly visible or which contains generic parameters, this method will fail with an
             exception.
             </remarks>
         </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
+        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValueNotNull(System.Reflection.PropertyInfo,System.Object[])">
             <summary>
             Get a default value for a property.
             </summary>
             <param name="propertyInfo"> The property info. </param>
-            <param name="nonSupportedType"> An optional non supported type. </param>
-        </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetDefaultValueNotNull(System.Reflection.PropertyInfo,System.Func{System.Reflection.PropertyInfo,System.Object})">
-            <summary>
-            Get a default value for a property.
-            </summary>
-            <param name="propertyInfo"> The property info. </param>
-            <param name="nonSupportedType"> An optional non supported type. </param>
+            <param name="arguments"> The arguments for the constructing the instance. </param>
+            <returns> The new instances of the type. </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetExpressionName(System.Linq.Expressions.LambdaExpression)">
             <summary>
@@ -6875,20 +7665,6 @@
             <param name="value"> </param>
             <returns> The value of the value member. </returns>
             <exception cref="T:System.NotImplementedException"> The member info is not a field or property. </exception>
-        </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetNonDefaultValue(System.Reflection.PropertyInfo,System.Func{System.Type,System.Object})">
-            <summary>
-            Get a non default value for a property.
-            </summary>
-            <param name="propertyInfo"> The property info. </param>
-            <param name="nonSupportedType"> An optional non supported type. </param>
-        </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.GetNonDefaultValue(System.Type,System.Func{System.Type,System.Object})">
-            <summary>
-            Get a non default value for data type.
-            </summary>
-            <param name="type"> The type of object to get the value for. </param>
-            <param name="nonSupportedType"> An optional non supported type. </param>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.GetRealTypeUsingReflection(System.Object)">
             <summary>
@@ -6947,17 +7723,7 @@
             Update the provided object with non default values.
             </summary>
             <typeparam name="T"> The type of the value. </typeparam>
-            <param name="value"> The value to update all properties for. </param>
-            <param name="exclusions"> An optional set of properties to exclude. </param>
-            <returns> The type updated with non default values. </returns>
-        </member>
-        <member name="M:Speedy.Extensions.ReflectionExtensions.UpdateWithNonDefaultValues``1(``0,System.Func{System.Type,System.Object},System.String[])">
-            <summary>
-            Update the provided object with non default values.
-            </summary>
-            <typeparam name="T"> The type of the value. </typeparam>
             <param name="model"> The value to update all properties for. </param>
-            <param name="nonSupportedType"> An optional function to update non supported property value types. </param>
             <param name="exclusions"> An optional set of properties to exclude. </param>
             <returns> The type updated with non default values. </returns>
         </member>
@@ -7635,12 +8401,26 @@
             Extensions for Version
             </summary>
         </member>
+        <member name="M:Speedy.Extensions.VersionExtensions.FromVersionHash(System.UInt64)">
+            <summary>
+            Converts a version hash to a version number.
+            </summary>
+            <param name="version"> The version hash as a decimal. </param>
+            <returns> The version number. </returns>
+        </member>
         <member name="M:Speedy.Extensions.VersionExtensions.IsDefault(System.Version)">
             <summary>
             Checks to see if version is default (not set). Ex. 0.0.0.0
             </summary>
             <param name="version"> The version to check. </param>
             <returns> True if the version is the default value of 0.0.0.0. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.VersionExtensions.ToVersionHash(System.Version)">
+            <summary>
+            Converts a version number into a version hash.
+            </summary>
+            <param name="version"> The version to be converted. </param>
+            <returns> The hash of the version. </returns>
         </member>
         <member name="T:Speedy.IChangeable">
             <summary>
@@ -7827,84 +8607,6 @@
             <param name="exclusions"> An optional list of members to exclude. </param>
             <returns> True if the update was applied otherwise false. </returns>
         </member>
-        <member name="T:Speedy.IDatabase">
-            <summary>
-            The interfaces for a Speedy database.
-            </summary>
-        </member>
-        <member name="P:Speedy.IDatabase.IsDisposed">
-            <summary>
-            Gets a value indicating whether the database has been disposed of.
-            </summary>
-        </member>
-        <member name="P:Speedy.IDatabase.Options">
-            <summary>
-            Gets the options for this database.
-            </summary>
-        </member>
-        <member name="M:Speedy.IDatabase.Add``2(``0)">
-            <summary>
-            Adds an entity to the database
-            </summary>
-            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
-            <typeparam name="T2"> The type of the entity key. </typeparam>
-            <param name="item"> The item to be added. </param>
-            <returns> The entity that was added. </returns>
-        </member>
-        <member name="M:Speedy.IDatabase.DiscardChanges">
-            <summary>
-            Discard all changes made in this context to the underlying database.
-            </summary>
-        </member>
-        <member name="M:Speedy.IDatabase.GetMappingAssembly">
-            <summary>
-            Gets the assembly that contains the entity mappings. Base implementation defaults to the implemented types assembly.
-            </summary>
-        </member>
-        <member name="M:Speedy.IDatabase.GetReadOnlyRepository``2">
-            <summary>
-            Gets a read only repository of the requested entity.
-            </summary>
-            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
-            <typeparam name="T2"> The type of the entity key. </typeparam>
-            <returns> The repository of entities requested. </returns>
-        </member>
-        <member name="M:Speedy.IDatabase.GetRepository``2">
-            <summary>
-            Gets a repository of the requested entity.
-            </summary>
-            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
-            <typeparam name="T2"> The type of the entity key. </typeparam>
-            <returns> The repository of entities requested. </returns>
-        </member>
-        <member name="M:Speedy.IDatabase.Remove``2(``0)">
-            <summary>
-            Removes an entity from the database
-            </summary>
-            <typeparam name="T"> The type of the entity to get a repository for. </typeparam>
-            <typeparam name="T2"> The type of the entity key. </typeparam>
-            <param name="item"> The item to be removed. </param>
-            <returns> The entity that was removed. </returns>
-        </member>
-        <member name="M:Speedy.IDatabase.SaveChanges">
-            <summary>
-            Saves all changes made in this context to the underlying database.
-            </summary>
-            <returns>
-            The number of objects written to the underlying database.
-            </returns>
-            <exception cref="T:System.InvalidOperationException"> Thrown if the context has been disposed. </exception>
-        </member>
-        <member name="E:Speedy.IDatabase.ChangesSaved">
-            <summary>
-            An event for when changes are saved. <see cref="M:Speedy.IDatabase.SaveChanges" />
-            </summary>
-        </member>
-        <member name="E:Speedy.IDatabase.Disposed">
-            <summary>
-            An event for when the database has been disposed.
-            </summary>
-        </member>
         <member name="T:Speedy.IDatabaseProvider`1">
             <summary>
             Represents a database provider for syncable databases.
@@ -8002,6 +8704,16 @@
             Returns true if the current context is on the dispatcher thread.
             </summary>
             <returns> True if on the dispatcher thread otherwise false. </returns>
+        </member>
+        <member name="T:Speedy.IEventSubscriber">
+            <summary>
+            Represents an object that subscribes to events.
+            </summary>
+        </member>
+        <member name="M:Speedy.IEventSubscriber.CleanupEventSubscriptions">
+            <summary>
+            Cleanup all subscribed events.
+            </summary>
         </member>
         <member name="T:Speedy.IIncludableQueryable`2">
             <summary>
@@ -8177,7 +8889,7 @@
         </member>
         <member name="P:Speedy.IsoDateTime.ExpiresAfter">
             <summary>
-            When this date time expires on. This is an inclusive time. 
+            When this date time expires on. This is an inclusive time.
             </summary>
         </member>
         <member name="P:Speedy.IsoDateTime.IsExpired">
@@ -8520,6 +9232,11 @@
             Instantiates a lockable bindable object.
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.LockableBindable.IsDisposed">
+            <summary>
+            True if the object has been disposed otherwise false.
+            </summary>
         </member>
         <member name="P:Speedy.LockableBindable.IsReadLocked">
             <summary>
@@ -9617,15 +10334,16 @@
             Represents a notifiable object.
             </summary>
         </member>
-        <member name="F:Speedy.Notifiable._changedProperties">
-            <summary>
-            The properties that has changed since last <see cref="M:Speedy.Notifiable.ResetHasChanges" /> event.
-            </summary>
-        </member>
         <member name="M:Speedy.Notifiable.#ctor">
             <summary>
             Instantiates a notifiable object.
             </summary>
+        </member>
+        <member name="M:Speedy.Notifiable.DisablePropertyChangeNotifications">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Notifiable.EnablePropertyChangeNotifications">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Notifiable.GetChangedProperties">
             <inheritdoc />
@@ -9641,7 +10359,7 @@
         <member name="M:Speedy.Notifiable.HasChanges(System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Notifiable.IsChangeNotificationsPaused">
+        <member name="M:Speedy.Notifiable.IsPropertyChangeNotificationsEnabled">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Notifiable.OnPropertyChanged(System.String)">
@@ -9649,9 +10367,6 @@
             Indicates the property has changed on the notifiable object.
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
-        </member>
-        <member name="M:Speedy.Notifiable.PausePropertyChangeNotifications(System.Boolean)">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Notifiable.ResetHasChanges">
             <inheritdoc />
@@ -9687,9 +10402,19 @@
             Represents a notifiable object.
             </summary>
         </member>
-        <member name="M:Speedy.INotifiable.IsChangeNotificationsPaused">
+        <member name="M:Speedy.INotifiable.DisablePropertyChangeNotifications">
             <summary>
-            Return true if the change notifications are paused or otherwise false.
+            Disable the property change notifications
+            </summary>
+        </member>
+        <member name="M:Speedy.INotifiable.EnablePropertyChangeNotifications">
+            <summary>
+            Enable the property change notifications
+            </summary>
+        </member>
+        <member name="M:Speedy.INotifiable.IsPropertyChangeNotificationsEnabled">
+            <summary>
+            Return true if the change notifications are enabled or otherwise false.
             </summary>
         </member>
         <member name="M:Speedy.INotifiable.OnPropertyChanged(System.String)">
@@ -9697,11 +10422,6 @@
             Indicates the property has changed on the notifiable object.
             </summary>
             <param name="propertyName"> The name of the property has changed. </param>
-        </member>
-        <member name="M:Speedy.INotifiable.PausePropertyChangeNotifications(System.Boolean)">
-            <summary>
-            Pause / Un-pause the property change notifications
-            </summary>
         </member>
         <member name="T:Speedy.PagedRequest">
             <summary>
@@ -10607,51 +11327,266 @@
         <member name="M:Speedy.Profiling.AverageTimer.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Profiling.DebounceService">
+        <member name="T:Speedy.Profiling.Counter">
             <summary>
-            The service to throttle work that supports cancellation.
+            Represents a counter for profiling.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken})">
+        <member name="M:Speedy.Profiling.Counter.#ctor(Speedy.IDispatcher)">
             <summary>
-            Create an instance of the service for debouncing an action.
+            Instantiate the counter for profiling.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Profiling.Counter.Value">
+            <summary>
+            The current count value;
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.Counter.Decrement(System.Int32)">
+            <summary>
+            Decrement the counter by a value or default(1) if not provided.
+            </summary>
+            <param name="decrease"> The value to be decremented. </param>
+        </member>
+        <member name="M:Speedy.Profiling.Counter.Increment(System.Int32)">
+            <summary>
+            Increment the counter by a value or default(1) if not provided.
+            </summary>
+            <param name="increase"> The value to be incremented. </param>
+        </member>
+        <member name="T:Speedy.Profiling.DebounceService">
+            <summary>
+            The service to debounce work that supports cancellation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken},System.Boolean)">
+            <summary>
+            Create an instance of the service for throttling an action.
             </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to debounce. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService.Trigger(System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceService.Trigger">
             <summary>
             Trigger the service. Will be trigger after the timespan.
             </summary>
-            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
         </member>
         <member name="T:Speedy.Profiling.DebounceService`1">
             <summary>
-            The service to throttle work that supports cancellation.
+            The service to debounce work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0})">
+        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0},System.Boolean)">
             <summary>
             Create an instance of the service for debouncing an action.
             </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to debounce. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.Dispose">
+        <member name="M:Speedy.Profiling.DebounceService`1.DebouncedAction(System.Threading.CancellationToken,`0)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.Trigger(`0,System.Boolean)">
+        <member name="T:Speedy.Profiling.DebounceServiceBase`1">
+            <summary>
+            The service to debounce work that supports cancellation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase`1.#ctor(System.TimeSpan,System.Boolean)">
+            <summary>
+            Create an instance of the service for throttling an action.
+            </summary>
+            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase`1.Trigger(`0,System.Boolean)">
             <summary>
             Trigger the service. Will be trigger after the timespan.
             </summary>
             <param name="value"> The value to trigger with. </param>
-            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.Dispose(System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceServiceBase`1.DebouncedAction(System.Threading.CancellationToken,`0)">
+            <summary>
+            The action to be debounced.
+            </summary>
+            <param name="token"> </param>
+            <param name="result"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase`1.DebouncedAction(System.Threading.CancellationToken,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Profiling.DebounceServiceBase">
+            <summary>
+            The service to debounce work that supports cancellation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase.#ctor(System.TimeSpan,System.Boolean)">
+            <summary>
+            Create an instance of the service for throttling an action.
+            </summary>
+            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase.ClearData">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase.DebouncedAction(System.Threading.CancellationToken,System.Object)">
+            <summary>
+            The action to be debounced.
+            </summary>
+            <param name="token"> </param>
+            <param name="result"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase.DoWorkAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase.HasMoreData">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.DebounceServiceBase.SetData(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Profiling.DebounceOrThrottleServiceBase">
+            <summary>
+            The service to debounce or throttle work that supports cancellation.
+            This class is the service base for <see cref="T:Speedy.Profiling.DebounceServiceBase" />
+            and <see cref="T:Speedy.Profiling.ThrottleServiceBase" />.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.#ctor(System.TimeSpan,System.Boolean)">
+            <summary>
+            Create an instance of the service for throttling an action.
+            </summary>
+            <param name="interval"> The amount of time before the action will trigger. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.IsReadyToProcess">
+            <summary>
+            The debounce is ready to process.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.IsTriggered">
+            <summary>
+            True if the throttle service has been triggered. It will remain true until all triggers are process.
+            If trigger are queued then IsTriggered will remain true until the queue is emptied (fully processed).
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.IsTriggeredAndReadyToProcess">
+            <summary>
+            The throttle is triggered and the delay has expired so it is ready to process.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.TimeToNextTrigger">
+            <summary>
+            The timespan until next trigger
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.CancellationTokenSource">
+            <summary>
+            The cancellation token source.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.CurrentTime">
+            <summary>
+            The current time for the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.Interval">
+            <summary>
+            The amount of time before the action will trigger.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.NoDelayOnNextTrigger">
+            <summary>
+            If true do not delay on the next trigger.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.RequestedFor">
+            <summary>
+            The date and time the trigger was requested for.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.ServiceLock">
+            <summary>
+            The lock for the service.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.TaskWaitDelay">
+            <summary>
+            The delay while waiting on the service to be ready to process.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.OnPropertyChanged(System.String)">
+            <summary>
+            Indicates the property has changed on the bindable object.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Reset">
+            <summary>
+            Reset the throttle service
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Trigger(System.Object,System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan.
+            </summary>
+            <param name="value"> The value to trigger with. </param>
+            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.CheckIsReadyToProcess(System.DateTime)">
+            <summary>
+            Check to see if the trigger is ready to process.
+            </summary>
+            <param name="currentTime"> The date to validate against. </param>
+            <returns> True if ready to process otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.CheckIsTriggeredAndReadyToProcess(System.DateTime)">
+            <summary>
+            Check to see if the service has been triggered is ready to process.
+            </summary>
+            <param name="currentTime"> The date to validate against. </param>
+            <returns> True if triggered and ready to process otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.ClearData">
+            <summary>
+            Clear the data in the service.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Dispose(System.Boolean)">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
             <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.DoWorkAsync">
+            <summary>
+            The work to be performed by the service.
+            </summary>
+            <returns> The task for the work. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.HasMoreData">
+            <summary>
+            Check to see if there is more data.
+            </summary>
+            <returns> True if there is more data otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.SetData(System.Object)">
+            <summary>
+            Set the data for the service.
+            </summary>
+            <param name="value"> The value of the data. </param>
+        </member>
+        <member name="E:Speedy.Profiling.DebounceOrThrottleServiceBase.PropertyChanged">
+            <inheritdoc />
         </member>
         <member name="T:Speedy.Profiling.ITrackerPathRepository">
             <summary>
@@ -10702,6 +11637,24 @@
             <param name="action"> The action to profile. </param>
             <returns> The time the action took. </returns>
         </member>
+        <member name="T:Speedy.Profiling.ProfilerService">
+            <summary>
+            Class for profiling actions
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.ProfilerService.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiate an instance of the provider service.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="M:Speedy.Profiling.ProfilerService.Profile(System.Action)">
+            <summary>
+            Profile an action.
+            </summary>
+            <param name="action"> The action to profile. </param>
+            <returns> The time the action took. </returns>
+        </member>
         <member name="T:Speedy.Profiling.ThrottleService">
             <summary>
             The service to throttle work that supports cancellation.
@@ -10711,7 +11664,7 @@
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="interval"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
             <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
@@ -10719,7 +11672,7 @@
             <summary>
             Trigger the service. Will be trigger after the timespan.
             </summary>
-            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
         </member>
         <member name="T:Speedy.Profiling.ThrottleService`1">
             <summary>
@@ -10730,56 +11683,127 @@
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
+            <param name="interval"> The amount of time before the action will trigger. </param>
+            <param name="action"> The action to throttle. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleService`1.ThrottledAction(System.Threading.CancellationToken,`0)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Profiling.ThrottleServiceAsync">
+            <summary>
+            The service to throttle work that supports cancellation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleServiceAsync.#ctor(System.TimeSpan,System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Boolean)">
+            <summary>
+            Create an instance of the service for throttling an action.
+            </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
             <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggered">
+        <member name="M:Speedy.Profiling.ThrottleServiceAsync.Trigger(System.Boolean)">
             <summary>
-            True if the throttle service has been triggered.
+            Trigger the service. Will be trigger after the timespan.
+            </summary>
+            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="T:Speedy.Profiling.ThrottleServiceAsync`1">
+            <summary>
+            The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggeredAndReadyToProcess">
+        <member name="M:Speedy.Profiling.ThrottleServiceAsync`1.#ctor(System.TimeSpan,System.Func{System.Threading.CancellationToken,`0,System.Threading.Tasks.Task},System.Boolean)">
             <summary>
-            The throttle is triggered and the delay has expired so it is ready to process.
+            Create an instance of the service for throttling an action.
+            </summary>
+            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="action"> The action to throttle. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleServiceAsync`1.ThrottledAction(System.Threading.CancellationToken,`0)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Profiling.ThrottleServiceBase`1">
+            <summary>
+            The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.QueueTriggers">
+        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.#ctor(System.TimeSpan,System.Boolean)">
+            <summary>
+            Create an instance of the service for throttling an action.
+            </summary>
+            <param name="interval"> The amount of time before the action will trigger. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.Trigger(`0,System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan.
+            </summary>
+            <param name="value"> The value to trigger with. </param>
+            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.ThrottledAction(System.Threading.CancellationToken,`0)">
+            <summary>
+            The action to be throttled.
+            </summary>
+            <param name="token"> The token to track cancellation. </param>
+            <param name="value"> The data for the throttled action. </param>
+            <returns> The task for the throttled action. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.ThrottledAction(System.Threading.CancellationToken,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Profiling.ThrottleServiceBase">
+            <summary>
+            The service to throttle work that supports cancellation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleServiceBase.#ctor(System.TimeSpan,System.Boolean)">
+            <summary>
+            Create an instance of the service for throttling an action.
+            </summary>
+            <param name="interval"> The amount of time before the action will trigger. </param>
+            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+        </member>
+        <member name="P:Speedy.Profiling.ThrottleServiceBase.IsTriggered">
+            <summary>
+            True if the throttle service has been triggered. It will remain true until all triggers are process.
+            If trigger are queued then IsTriggered will remain true until the queue is emptied (fully processed).
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.ThrottleServiceBase.QueueTriggers">
             <summary>
             If true trigger will queue and be processed. Be careful because queueing on a delay could
             end with a never processed queue. Defaults to false, meaning only last trigger processes.
             </summary>
         </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.TimeToNextTrigger">
+        <member name="M:Speedy.Profiling.ThrottleServiceBase.OnPropertyChanged(System.String)">
             <summary>
-            The timespan until next trigger
+            Indicates the property has changed on the bindable object.
             </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
         </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.CurrentTime">
-            <summary>
-            The current time for the throttle.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Dispose">
+        <member name="M:Speedy.Profiling.ThrottleServiceBase.ClearData">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Reset">
-            <summary>
-            Reset the throttle service
-            </summary>
+        <member name="M:Speedy.Profiling.ThrottleServiceBase.DoWorkAsync">
+            <inheritdoc />
         </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Trigger(`0,System.Boolean)">
-            <summary>
-            Trigger the service. Will be trigger after the timespan.
-            </summary>
-            <param name="value"> The value to trigger with. </param>
-            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        <member name="M:Speedy.Profiling.ThrottleServiceBase.HasMoreData">
+            <inheritdoc />
         </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Dispose(System.Boolean)">
+        <member name="M:Speedy.Profiling.ThrottleServiceBase.SetData(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleServiceBase.ThrottledAction(System.Threading.CancellationToken,System.Object)">
             <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            The action to be throttled.
             </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
+            <param name="token"> The token to track cancellation. </param>
+            <param name="value"> The data for the throttled action. </param>
+            <returns> The task for the throttled action. </returns>
         </member>
         <member name="T:Speedy.Profiling.Timer">
             <summary>
@@ -15794,6 +16818,123 @@
             </summary>
             <param name="disposing"> Should be true if managed resources should be disposed. </param>
         </member>
+        <member name="T:Speedy.Sync.HierarchyListSyncModel`1">
+            <summary>
+            Represents a sync model in a hierarchy list.
+            </summary>
+            <typeparam name="T"> The type for the sync model key. </typeparam>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.#ctor(Speedy.IDispatcher)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.HierarchyListSyncModel`1.Id">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.CleanupEventSubscriptions">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.GetChildren">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.GetParent">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.HasBeenDisposed">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.HasChildren">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.ShouldBeShownAsChild">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.ShouldShowChild(Speedy.Data.IHierarchyListItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.ShouldShowChildren">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.OnChildAdded(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Trigger the ChildAdded event.
+            </summary>
+            <param name="e"> The child added. </param>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.OnChildRemoved(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Trigger the ChildRemoved event.
+            </summary>
+            <param name="e"> The child removed. </param>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.OnParentChanged(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Trigger the ParentChanged event.
+            </summary>
+            <param name="e"> The parent that was assigned. </param>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.OnShouldBeShownChanged">
+            <summary>
+            Trigger the ShouldBeShownChanged event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.OnShouldShowChildrenChanged">
+            <summary>
+            Trigger the ShouldShowChildrenChanged event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.UpdateChildren(Speedy.Collections.ISpeedyList)">
+            <summary>
+            Initialize the relationship. This should be called in the constructor.
+            </summary>
+            <param name="children"> The children for the list item. </param>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.UpdateParent(Speedy.Data.IHierarchyListItem)">
+            <summary>
+            Initialize the relationship.
+            </summary>
+            <param name="parent"> The parent of the list item. </param>
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#ClearParent">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#OnShouldBeShownChanged">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#OnShouldShowChildrenChanged">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#RemoveChild(Speedy.Data.IHierarchyListItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#UpdateParent(Speedy.Data.IHierarchyListItem)">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Sync.HierarchyListSyncModel`1.ChildAdded">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Sync.HierarchyListSyncModel`1.ChildRemoved">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Sync.HierarchyListSyncModel`1.ParentChanged">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Sync.HierarchyListSyncModel`1.ShouldBeShownChanged">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Sync.HierarchyListSyncModel`1.ShouldShowChildrenChanged">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Sync.ISyncClient">
             <summary>
             Represents a sync client.
@@ -17262,6 +18403,12 @@
         </member>
         <member name="M:Speedy.Sync.SyncModel`1.UpdateDispatcher(Speedy.IDispatcher)">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Sync.SyncModel`1.OnPropertyChangedInDispatcher(System.String)">
+            <summary>
+            fires the OnPropertyChanged notice for the bindable object on the dispatcher thread.
+            </summary>
+            <param name="propertyName"> The name of the property has changed. </param>
         </member>
         <member name="T:Speedy.Sync.SyncObject">
             <summary>

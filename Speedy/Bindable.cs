@@ -129,16 +129,16 @@ public abstract class Bindable : Notifiable, IBindable
 	/// Indicates the property has changed on the bindable object.
 	/// </summary>
 	/// <param name="propertyName"> The name of the property has changed. </param>
-	public override void OnPropertyChanged(string propertyName)
+	public sealed override void OnPropertyChanged(string propertyName)
 	{
 		// Ensure we have not paused property notifications
-		if ((propertyName == null) || IsChangeNotificationsPaused())
+		if ((propertyName == null) || !IsPropertyChangeNotificationsEnabled())
 		{
 			// Property change notifications have been paused or property null so bounce
 			return;
 		}
 
-		DispatchAsync(() =>
+		Dispatch(() =>
 		{
 			OnPropertyChangedInDispatcher(propertyName);
 			base.OnPropertyChanged(propertyName);

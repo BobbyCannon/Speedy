@@ -12,11 +12,11 @@ using System.Linq;
 namespace Speedy.Collections;
 
 /// <summary>
-/// A thread-safe, dispatch safe, limitable, sortable, filterable, and observable list.
-/// Dispatch safe, limit, sortable, and filterable settings are optional.
+/// A thread-safe, dispatch safe, limitable, orderable, filterable, and observable list.
+/// Dispatch safe, limit, orderable, and filterable settings are optional.
 /// </summary>
 /// <typeparam name="T"> The type of items in the list. </typeparam>
-public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectionChanged
+public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 {
 	#region Fields
 
@@ -144,7 +144,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		ComparerFunction = null;
 		Limit = int.MaxValue;
 		OrderBy = orderBy;
-		SortingDisabled = false;
+		IsOrdering = false;
 		SyncRoot = new object();
 
 		Load(items);
@@ -174,6 +174,14 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 
 	/// <inheritdoc />
 	public bool IsFixedSize => false;
+
+	/// <inheritdoc />
+	public bool IsLoading { get; private set; }
+
+	/// <summary>
+	/// True if the list is in the process of ordering.
+	/// </summary>
+	public bool IsOrdering { get; protected set; }
 
 	/// <inheritdoc cref="IList" />
 	public bool IsReadOnly => false;
@@ -232,9 +240,14 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	public OrderBy<T>[] OrderBy { get; set; }
 
 	/// <summary>
-	/// True if sorting has been disabled.
+	/// Flag to track pausing of ordering.
 	/// </summary>
-	public bool SortingDisabled { get; private set; }
+	public bool PauseOrdering { get; private set; }
+
+	/// <summary>
+	/// The profiler for the list. <see cref="InitializeProfiler" /> must be called before accessing the profiler.
+	/// </summary>
+	public SpeedyListProfiler Profiler { get; private set; }
 
 	/// <inheritdoc />
 	public object SyncRoot { get; }
@@ -266,7 +279,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 
 		return UpgradeableReadLock(() =>
 		{
-			var limitFromStart = OrderBy is not { Length: > 0 };
+			var limitFromStart = !ShouldOrder();
 			var response = InternalAdd(value);
 			InternalEnforceLimit(limitFromStart);
 			return response;
@@ -318,12 +331,32 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	}
 
 	/// <summary>
+	/// Get the first item in the list.
+	/// </summary>
+	/// <param name="predicate"> The predicate filter. </param>
+	/// <returns> The first item. </returns>
+	public T First(Func<T, bool> predicate)
+	{
+		return ReadLock(() => _list.First(predicate));
+	}
+
+	/// <summary>
 	/// Get the first item in the list or default value.
 	/// </summary>
 	/// <returns> The first item or default. </returns>
 	public T FirstOrDefault()
 	{
 		return ReadLock(() => _list.FirstOrDefault());
+	}
+
+	/// <summary>
+	/// Get the first item in the list or default value.
+	/// </summary>
+	/// <param name="predicate"> The predicate filter. </param>
+	/// <returns> The first item or default. </returns>
+	public T FirstOrDefault(Func<T, bool> predicate)
+	{
+		return ReadLock(() => _list.FirstOrDefault(predicate));
 	}
 
 	/// <inheritdoc />
@@ -350,6 +383,14 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		return ReadLock(() => InternalIndexOf(item));
 	}
 
+	/// <summary>
+	/// Initialize the profiler to allow tracking of list events.
+	/// </summary>
+	public void InitializeProfiler()
+	{
+		Profiler ??= new SpeedyListProfiler(GetDispatcher());
+	}
+
 	/// <inheritdoc />
 	public void Insert(int index, object value)
 	{
@@ -359,7 +400,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <inheritdoc />
 	public void Insert(int index, T item)
 	{
-		if (OrderBy is { Length: > 0 })
+		if (ShouldOrder())
 		{
 			// Just add because the list is an ordered list.
 			Add(item);
@@ -373,7 +414,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 				return;
 			}
 
-			InternalSort();
+			InternalOrder();
 			InternalEnforceLimit(false);
 			InternalFilter();
 		});
@@ -391,10 +432,30 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <summary>
 	/// Get the last item in the list or default value.
 	/// </summary>
+	/// <param name="predicate"> The predicate filter. </param>
+	/// <returns> The last item or default. </returns>
+	public T Last(Func<T, bool> predicate)
+	{
+		return ReadLock(() => _list.Last(predicate));
+	}
+
+	/// <summary>
+	/// Get the last item in the list or default value.
+	/// </summary>
 	/// <returns> The last item or default. </returns>
 	public T LastOrDefault()
 	{
 		return ReadLock(() => _list.LastOrDefault());
+	}
+
+	/// <summary>
+	/// Get the last item in the list or default value.
+	/// </summary>
+	/// <param name="predicate"> The predicate filter. </param>
+	/// <returns> The last item or default. </returns>
+	public T LastOrDefault(Func<T, bool> predicate)
+	{
+		return ReadLock(() => _list.LastOrDefault(predicate));
 	}
 
 	/// <summary>
@@ -412,66 +473,24 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	/// <param name="items"> The items to be loaded. </param>
 	public void Load(params T[] items)
 	{
-		if (items is not { Length: > 0 })
-		{
-			Clear();
-			return;
-		}
-
-		// Guarantee uniqueness of items if we have a comparer
-		IList<T> processedItems = ComparerFunction != null
-			? items.Distinct(new EqualityComparer<T>(ComparerFunction)).ToList()
-			: items.ToList();
-
-		// Order the collection if we have any OrderBy configuration
-		processedItems = OrderCollection(processedItems);
-
-		// See if we should limit the collection
-		if (processedItems.Count > Limit)
-		{
-			// Limit to the set limit
-			processedItems = processedItems.Take(Limit).ToList();
-		}
-
-		UpgradeableReadLock(() =>
-		{
-			Clear();
-			WriteLock(() => _list.AddRange(processedItems));
-			Dispatch(() =>
-			{
-				for (var index = 0; index < processedItems.Count; index++)
-				{
-					var item = processedItems[index];
-					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
-				}
-
-				OnPropertyChanged(nameof(Count));
-			});
-		});
-	}
-
-	/// <inheritdoc />
-	public override void OnPropertyChanged(string propertyName)
-	{
-		switch (propertyName)
-		{
-			case nameof(IncludeInFilter):
-			{
-				RefreshFilter();
-				break;
-			}
-		}
-
-		base.OnPropertyChanged(propertyName);
+		InternalLoad(items);
 	}
 
 	/// <summary>
-	/// Process an action then sort the collection.
+	/// Order the collection.
 	/// </summary>
-	/// <param name="process"> The process to execute before sorting. </param>
-	public void ProcessThenSort(Action process)
+	public void Order()
 	{
-		ProcessThenSort<object>(() =>
+		WriteLock(InternalOrder);
+	}
+
+	/// <summary>
+	/// Process an action then order the collection.
+	/// </summary>
+	/// <param name="process"> The process to execute before ordering. </param>
+	public void ProcessThenOrder(Action process)
+	{
+		ProcessThenOrder<object>(() =>
 		{
 			process();
 			return null;
@@ -479,27 +498,34 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	}
 
 	/// <summary>
-	/// Process an action then sort, filter, event on the collection changes. ** see remarks **
+	/// Process an action then order, filter, event on the collection changes. ** see remarks **
 	/// </summary>
-	/// <param name="process"> The process to execute before sorting. </param>
+	/// <param name="process"> The process to execute before ordering. </param>
 	/// <typeparam name="T2"> The type of the item from the process. </typeparam>
 	/// <returns> The items returned from the process. </returns>
-	public T2 ProcessThenSort<T2>(Func<T2> process)
+	public T2 ProcessThenOrder<T2>(Func<T2> process)
 	{
+		// Check to see if we are already ordering
+		if (IsOrdering || PauseOrdering)
+		{
+			// Do the processing
+			return process();
+		}
+
 		try
 		{
-			// Disable sorting
-			SortingDisabled = true;
+			// Disable ordering
+			PauseOrdering = true;
 
 			// Do the processing
 			return process();
 		}
 		finally
 		{
-			// Re-enable sorting then sort
-			SortingDisabled = false;
+			// Re-enable ordering then order
+			PauseOrdering = false;
 
-			Sort();
+			Order();
 		}
 	}
 
@@ -580,14 +606,6 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	}
 
 	/// <summary>
-	/// Sort the collection.
-	/// </summary>
-	public void Sort()
-	{
-		WriteLock(InternalSort);
-	}
-
-	/// <summary>
 	/// Try to get an item then remove it.
 	/// </summary>
 	/// <param name="index"> The index to get the item from. </param>
@@ -612,6 +630,55 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	}
 
 	/// <summary>
+	/// Loads the items into the list. All existing items will be cleared.
+	/// </summary>
+	/// <param name="items"> The items to be loaded. </param>
+	protected virtual void InternalLoad(params T[] items)
+	{
+		IsLoading = true;
+
+		if (items is not { Length: > 0 })
+		{
+			Clear();
+			IsLoading = false;
+			return;
+		}
+
+		// Guarantee uniqueness of items if we have a comparer
+		IList<T> processedItems = ComparerFunction != null
+			? items.Distinct(new EqualityComparer<T>(ComparerFunction)).ToList()
+			: items.ToList();
+
+		// Order the collection if we have any OrderBy configuration
+		processedItems = OrderCollection(processedItems);
+
+		// See if we should limit the collection
+		if (processedItems.Count > Limit)
+		{
+			// Limit to the set limit
+			processedItems = processedItems.Take(Limit).ToList();
+		}
+
+		UpgradeableReadLock(() =>
+		{
+			Clear();
+			WriteLock(() => _list.AddRange(processedItems));
+			Dispatch(() =>
+			{
+				for (var index = 0; index < processedItems.Count; index++)
+				{
+					var item = processedItems[index];
+					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+				}
+
+				OnPropertyChanged(nameof(Count));
+			});
+		});
+
+		IsLoading = false;
+	}
+
+	/// <summary>
 	/// Raises the <see cref="CollectionChanged" /> event.
 	/// </summary>
 	/// <param name="e"> A <see cref="NotifyCollectionChangedEventArgs" /> describing the event arguments. </param>
@@ -626,6 +693,11 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	{
 		switch (propertyName)
 		{
+			case nameof(IncludeInFilter):
+			{
+				RefreshFilter();
+				break;
+			}
 			case nameof(OrderBy):
 			{
 				_filtered.OrderBy = OrderBy?.FirstOrDefault();
@@ -635,6 +707,90 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		}
 
 		base.OnPropertyChangedInDispatcher(propertyName);
+	}
+
+	/// <summary>
+	/// Determine if the list should order.
+	/// </summary>
+	/// <returns> True if the list should order or false otherwise. </returns>
+	protected virtual bool ShouldOrder()
+	{
+		return !IsLoading
+			&& !PauseOrdering
+			&& !IsOrdering
+			&& (_list.Count > 0)
+			&& OrderBy is { Length: > 0 };
+	}
+
+	internal int InternalIndexOf(T item)
+	{
+		if (ComparerFunction == null)
+		{
+			return _list.IndexOf(item);
+		}
+
+		for (var i = 0; i < _list.Count; i++)
+		{
+			if (ComparerFunction.Invoke(item, _list[i]))
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	internal void InternalMove(int oldIndex, int newIndex)
+	{
+		var removedItem = _list[oldIndex];
+
+		WriteLock(() =>
+		{
+			// Be sure that if the last item was select we insert at count instead of the
+			// requested new index because it will be (Count + 1) instead of Count (end).
+			_list.RemoveAt(oldIndex);
+			_list.Insert(newIndex > _list.Count ? _list.Count : newIndex, removedItem);
+		});
+
+		Dispatch(() =>
+		{
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex));
+			OnPropertyChanged(nameof(Count));
+		});
+	}
+
+	internal virtual void InternalOrder()
+	{
+		if (!ShouldOrder())
+		{
+			return;
+		}
+
+		IsOrdering = true;
+
+		try
+		{
+			Profiler?.OrderCount.Increment();
+
+			var firstOrder = OrderBy.First();
+			var thenBy = OrderBy.Skip(1).ToArray();
+			var ordered = firstOrder.Process(_list.AsQueryable(), thenBy).ToList();
+
+			for (var i = 0; i < ordered.Count; i++)
+			{
+				var currentItem = ordered[i];
+				var index = InternalIndexOf(currentItem);
+
+				if ((index != -1) && (index != i))
+				{
+					InternalMove(index, i);
+				}
+			}
+		}
+		finally
+		{
+			IsOrdering = false;
+		}
 	}
 
 	/// <inheritdoc />
@@ -657,28 +813,33 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			}
 		}
 
-		var orderBy = OrderBy?.ToArray();
-
-		if (orderBy is { Length: > 0 })
+		if (_list.Count > 0)
 		{
-			for (var i = 0; i < _list.Count; i++)
-			{
-				var existingItem = _list[i];
+			var orderBy = OrderBy?.ToArray();
 
-				foreach (var by in orderBy)
+			if (orderBy is { Length: > 0 })
+			{
+				// Check to see if there is a place to insert
+				var insertIndex = OrderBy<T>.GetInsertIndex(this, item, orderBy);
+
+				if (insertIndex >= 0)
 				{
-					var isLessThan = Comparer.Default.Compare(by.CompiledKeySelector.Invoke(item), by.CompiledKeySelector.Invoke(existingItem));
-					if (isLessThan == (by.Descending ? 1 : -1))
-					{
-						InternalInsert(i, item);
-						return i;
-					}
+					// Found a place to insert so do the insert
+					InternalInsert(insertIndex, item);
+					return insertIndex;
 				}
 			}
 		}
 
 		index = Count;
 		InternalInsert(index, item);
+
+		if (ShouldOrder())
+		{
+			// This is a custom order
+			InternalOrder();
+		}
+
 		return index;
 	}
 
@@ -715,30 +876,12 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 			_filtered.Add(item);
 		}
 
-		_filtered.Sort();
+		_filtered.Order();
 	}
 
 	private bool InternalHasIndex(int index)
 	{
 		return (index >= 0) && (index < _list.Count);
-	}
-
-	private int InternalIndexOf(T item)
-	{
-		if (ComparerFunction == null)
-		{
-			return _list.IndexOf(item);
-		}
-
-		for (var i = 0; i < _list.Count; i++)
-		{
-			if (ComparerFunction.Invoke(item, _list[i]))
-			{
-				return i;
-			}
-		}
-
-		return -1;
 	}
 
 	private bool InternalInsert(int index, T item)
@@ -761,23 +904,6 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		});
 
 		return true;
-	}
-
-	private void InternalMove(int oldIndex, int newIndex)
-	{
-		var removedItem = _list[oldIndex];
-
-		WriteLock(() =>
-		{
-			_list.RemoveAt(oldIndex);
-			_list.Insert(newIndex, removedItem);
-		});
-
-		Dispatch(() =>
-		{
-			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex));
-			OnPropertyChanged(nameof(Count));
-		});
 	}
 
 	private void InternalRemoveAt(int index)
@@ -829,31 +955,6 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		});
 	}
 
-	private void InternalSort()
-	{
-		if ((_list.Count <= 1)
-			|| (OrderBy == null)
-			|| SortingDisabled)
-		{
-			return;
-		}
-
-		var firstOrder = OrderBy.First();
-		var thenBy = OrderBy.Skip(1).ToArray();
-		var sorted = firstOrder.Process(_list.AsQueryable(), thenBy).ToList();
-
-		for (var i = 0; i < sorted.Count; i++)
-		{
-			var currentItem = sorted[i];
-			var index = InternalIndexOf(currentItem);
-
-			if ((index != -1) && (index != i))
-			{
-				InternalMove(index, i);
-			}
-		}
-	}
-
 	private void InternalUpdateFilter(NotifyCollectionChangedEventArgs e)
 	{
 		if (IncludeInFilter == null)
@@ -895,8 +996,17 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 
 		var firstOrder = OrderBy.First();
 		var thenBy = OrderBy.Skip(1).ToArray();
-		var sorted = firstOrder.Process(items, thenBy).ToList();
-		return sorted;
+		var ordered = firstOrder.Process(items, thenBy).ToList();
+		return ordered;
+	}
+
+	/// <summary>
+	/// Determine if the list should order.
+	/// </summary>
+	/// <returns> True if the list should order or false otherwise. </returns>
+	bool ISpeedyList.ShouldOrder()
+	{
+		return ShouldOrder();
 	}
 
 	#endregion
@@ -911,14 +1021,14 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 	#region Classes
 
 	/// <summary>
-	/// Represents a sorted observable collection. The collection supports notification on clear and ability to be sorted.
+	/// Represents a ordered observable collection. The collection supports notification on clear and ability to be ordered.
 	/// </summary>
 	/// <typeparam name="T2"> The type of the item stored in the collection. </typeparam>
 	private class FilteredObservableCollection<T2> : ObservableCollection<T2>
 	{
 		#region Fields
 
-		private readonly object _sortLock;
+		private readonly object _orderLock;
 
 		#endregion
 
@@ -929,7 +1039,7 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		/// </summary>
 		public FilteredObservableCollection()
 		{
-			_sortLock = new object();
+			_orderLock = new object();
 		}
 
 		#endregion
@@ -937,9 +1047,9 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		#region Properties
 
 		/// <summary>
-		/// Allows disable sorting for faster loading.
+		/// Allows disable ordering for faster loading.
 		/// </summary>
-		public bool DisableSorting { get; set; }
+		public bool DisableOrdering { get; set; }
 
 		/// <summary>
 		/// The expression to order this collection by.
@@ -956,32 +1066,32 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 		#region Methods
 
 		/// <summary>
-		/// Sort the collection.
+		/// Order the collection.
 		/// </summary>
-		public void Sort()
+		public void Order()
 		{
 			if ((Count <= 1) || (OrderBy == null))
 			{
 				return;
 			}
 
-			lock (_sortLock)
+			lock (_orderLock)
 			{
-				// Track if we are currently already disable sorting
-				var wasDisableSorting = DisableSorting;
+				// Track if we are currently already disable ordering
+				var wasDisableOrdering = DisableOrdering;
 
 				try
 				{
-					// Disable sorting while we are sorting
-					DisableSorting = true;
+					// Disable ordering while we are ordering
+					DisableOrdering = true;
 
-					var sorted = ThenBy?.Length > 0
+					var ordered = ThenBy?.Length > 0
 						? OrderBy.Process(this.AsQueryable(), ThenBy).ToList()
 						: OrderBy.Process(this.AsQueryable()).ToList();
 
-					for (var i = 0; i < sorted.Count; i++)
+					for (var i = 0; i < ordered.Count; i++)
 					{
-						var index = IndexOf(sorted[i]);
+						var index = IndexOf(ordered[i]);
 						if ((index != -1) && (index != i))
 						{
 							Move(index, i);
@@ -990,8 +1100,8 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 				}
 				finally
 				{
-					// Reset sorting back to what it was
-					DisableSorting = wasDisableSorting;
+					// Reset ordering back to what it was
+					DisableOrdering = wasDisableOrdering;
 				}
 			}
 		}
@@ -1006,19 +1116,56 @@ public class SpeedyList<T> : LockableBindable, IList<T>, IList, INotifyCollectio
 				|| (e.Action == NotifyCollectionChangedAction.Remove)
 				|| (e.Action == NotifyCollectionChangedAction.Reset))
 			{
-				// No need to sort on these actions
+				// No need to order on these actions
 				return;
 			}
 
-			// Some mass inserts may disable sorting to speed up the process
-			if (!DisableSorting)
+			// Some mass inserts may disable ordering to speed up the process
+			if (!DisableOrdering)
 			{
-				Sort();
+				Order();
 			}
 		}
 
 		#endregion
 	}
+
+	#endregion
+}
+
+/// <summary>
+/// Represents a speedy list.
+/// </summary>
+public interface ISpeedyList<T> : ISpeedyList, IList<T>
+{
+}
+
+/// <summary>
+/// Represents a speedy list.
+/// </summary>
+public interface ISpeedyList : IList, INotifyCollectionChanged, IDisposable
+{
+	#region Properties
+
+	/// <summary>
+	/// True if the list has been disposed.
+	/// </summary>
+	bool IsDisposed { get; }
+
+	/// <summary>
+	/// True if the list is currently loading items.
+	/// </summary>
+	bool IsLoading { get; }
+
+	#endregion
+
+	#region Methods
+
+	/// <summary>
+	/// Determine if the list should order.
+	/// </summary>
+	/// <returns> True if the list should order or false otherwise. </returns>
+	internal bool ShouldOrder();
 
 	#endregion
 }

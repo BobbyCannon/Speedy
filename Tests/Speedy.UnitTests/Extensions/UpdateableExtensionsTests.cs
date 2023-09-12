@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Application;
 using Speedy.Automation.Tests;
@@ -82,7 +81,7 @@ public class UpdateableExtensionsTests : SpeedyUnitTest
 				.SelectMany(x => x.Value)
 				.ToArray();
 
-			ValidateUpdateableModel(GetModelWithNonDefaultValues(type, NonSupportedType, typeExclusion), typeExclusion);
+			ValidateUpdateableModel(GetModelWithNonDefaultValues(type, typeExclusion), typeExclusion);
 		}
 	}
 
