@@ -11,7 +11,7 @@ using Speedy.Sync;
 namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
-	public class SyncEngineStateTests
+	public class SyncEngineStateTests : CloneableSpeedUnitTests
 	{
 		#region Methods
 
@@ -56,7 +56,7 @@ namespace Speedy.UnitTests.Sync
 				new SyncEngineState { Count = 0, Message = string.Empty, Status = SyncEngineStatus.Cancelled, Total = 1 }
 			};
 
-			CloneableHelper.BaseShouldCloneTest(testItems);
+			BaseShouldCloneTest(testItems);
 		}
 
 		[TestMethod]
@@ -125,11 +125,11 @@ namespace Speedy.UnitTests.Sync
 			Assert.AreEqual(0, actual.Total);
 
 			actual.UpdateWith((object) expected);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			expected.Count = 3;
 			actual.UpdateWith(expected, nameof(SyncEngineState.HasChanges));
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		#endregion

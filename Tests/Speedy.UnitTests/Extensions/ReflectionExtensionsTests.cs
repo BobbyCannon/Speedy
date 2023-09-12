@@ -18,7 +18,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests.Extensions
 {
 	[TestClass]
-	public class ReflectionExtensionsTests
+	public class ReflectionExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -61,12 +61,12 @@ namespace Speedy.UnitTests.Extensions
 			{
 				var type = list.GetType();
 				type.FullName.Dump();
-				TestHelper.AreEqual(list, type.CreateInstance(list), type.FullName);
+				AreEqual(list, type.CreateInstance(list), type.FullName);
 
 				if (!list.IsReadOnly)
 				{
 					list.Clear();
-					TestHelper.AreEqual(list, type.CreateInstance(), type.FullName);
+					AreEqual(list, type.CreateInstance(), type.FullName);
 				}
 			}
 		}
@@ -77,20 +77,20 @@ namespace Speedy.UnitTests.Extensions
 			var expected = new[] { "PublicField" };
 			var type = typeof(ReflectionClassTest);
 			var fields = type.GetCachedFields().Select(x => x.Name).ToArray();
-			TestHelper.AreEqual(expected, fields);
+			AreEqual(expected, fields);
 
 			expected = new[] { "_privateField", "<PublicProperty>k__BackingField", "<PrivateProperty>k__BackingField" };
 			fields = type.GetCachedFields(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic).Select(x => x.Name).ToArray();
-			TestHelper.AreEqual(expected, fields);
+			AreEqual(expected, fields);
 
 			var type2 = typeof(ReflectionStructTest);
 			expected = new[] { "PublicField2" };
 			fields = type2.GetCachedFields().Select(x => x.Name).ToArray();
-			TestHelper.AreEqual(expected, fields);
+			AreEqual(expected, fields);
 
 			expected = new[] { "_privateField2", "<PublicProperty2>k__BackingField", "<PrivateProperty2>k__BackingField" };
 			fields = type2.GetCachedFields(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic).Select(x => x.Name).ToArray();
-			TestHelper.AreEqual(expected, fields);
+			AreEqual(expected, fields);
 		}
 
 		[TestMethod]
@@ -136,10 +136,10 @@ namespace Speedy.UnitTests.Extensions
 			var expected = new[] { "PublicProperty" };
 			var type = typeof(ReflectionClassTest);
 			var properties = type.GetCachedProperties().Select(x => x.Name).ToArray();
-			TestHelper.AreEqual(expected, properties);
+			AreEqual(expected, properties);
 			expected = new[] { "PrivateProperty" };
 			properties = type.GetCachedProperties(BindingFlags.Instance | BindingFlags.FlattenHierarchy | BindingFlags.NonPublic).Select(x => x.Name).ToArray();
-			TestHelper.AreEqual(expected, properties);
+			AreEqual(expected, properties);
 		}
 
 		[TestMethod]

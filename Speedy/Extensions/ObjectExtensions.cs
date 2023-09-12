@@ -54,7 +54,7 @@ public static class ObjectExtensions
 		void removeEventHandler(EventInfo info, Delegate subscriber)
 		{
 			var privateRemoveMethod = info.GetRemoveMethod(true);
-			privateRemoveMethod.Invoke(value, flags, null, new object[] { subscriber }, CultureInfo.CurrentCulture);
+			privateRemoveMethod?.Invoke(value, flags, null, new object[] { subscriber }, CultureInfo.CurrentCulture);
 		}
 
 		foreach (var eventField in eventFields)
@@ -127,7 +127,7 @@ public static class ObjectExtensions
 			_ => value.DeepClone(1)
 		};
 	}
-	
+
 	/// <summary>
 	/// Global shallow clone. If the object is ICloneable then the interface implementation will be used.
 	/// </summary>
@@ -138,6 +138,36 @@ public static class ObjectExtensions
 		return value is ICloneable cloneable
 			? cloneable.ShallowClone()
 			: value.DeepClone(1);
+	}
+
+	/// <summary>
+	/// Unwrap the entity from the proxy.
+	/// </summary>
+	/// <returns>
+	/// The real entity unwrapped from the Entity Framework proxy.
+	/// </returns>
+	public static T Unwrap<T>(this T value)
+	{
+		var type = value is IEntity entity
+			? entity.GetRealType()
+			: value.GetRealTypeUsingReflection();
+
+		var response = (T) type.CreateInstance();
+		var notifiable = response as INotifiable;
+
+		notifiable?.DisablePropertyChangeNotifications();
+
+		if (response is Entity updateable)
+		{
+			updateable.UpdateWith(value, false, false, false);
+		}
+		else
+		{
+			response.UpdateWithUsingReflection(value);
+		}
+
+		notifiable?.EnablePropertyChangeNotifications();
+		return response;
 	}
 
 	#endregion

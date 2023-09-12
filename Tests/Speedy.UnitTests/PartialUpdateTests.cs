@@ -104,7 +104,7 @@ public class PartialUpdateTests : SpeedyUnitTest
 		Assert.AreEqual(null, actual.Get<string>("Name", null));
 		Assert.AreEqual("Fred", actual.Name);
 		Assert.AreEqual(2, actual.Updates.Count);
-		TestHelper.AreEqual(new[] { "age", "IsDeleted" }, actual.Updates.Keys);
+		AreEqual(new[] { "age", "IsDeleted" }, actual.Updates.Keys);
 
 		var entity = new MyEntity();
 		Assert.AreEqual(0, entity.Age);
@@ -244,7 +244,7 @@ public class PartialUpdateTests : SpeedyUnitTest
 				? entity.GetSyncExclusions(true, true, false)
 				: new HashSet<string>();
 
-			TestHelper.AreEqual(item.Key, actual, exclusions.ToArray());
+			AreEqual(item.Key, actual, exclusions.ToArray());
 
 			foreach (var exclusion in exclusions)
 			{
@@ -355,7 +355,7 @@ public class PartialUpdateTests : SpeedyUnitTest
 		{
 			var actual = (PartialUpdate) scenario.value;
 			actual.ToRawJson(true).Dump();
-			TestHelper.AreEqual(scenario.expected, actual);
+			AreEqual(scenario.expected, actual);
 		}
 	}
 

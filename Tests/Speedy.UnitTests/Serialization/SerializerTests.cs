@@ -10,7 +10,7 @@ using Speedy.Sync;
 namespace Speedy.UnitTests.Serialization
 {
 	[TestClass]
-	public class SerializerTests
+	public class SerializerTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -192,7 +192,7 @@ namespace Speedy.UnitTests.Serialization
 			//actualJson.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual(expectedJson, actualJson);
 			var actualObject = actualJson.FromJson<T>();
-			TestHelper.AreEqual(expectedObject, actualObject);
+			AreEqual(expectedObject, actualObject);
 		}
 
 		private void ToFromJson<T>(T expectedObject, string expectedJson, SerializerSettings settings, params string[] exceptions)
@@ -201,7 +201,7 @@ namespace Speedy.UnitTests.Serialization
 			//actualJson.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual(expectedJson, actualJson);
 			var actualObject = actualJson.FromJson<T>(settings);
-			TestHelper.AreEqual(expectedObject, actualObject, exceptions);
+			AreEqual(expectedObject, actualObject, exceptions);
 		}
 		
 		private void ToFromJson<T>(T expectedObject, string expectedJson, Action<SerializerSettings> update, params string[] exceptions)
@@ -212,7 +212,7 @@ namespace Speedy.UnitTests.Serialization
 			//actualJson.Escape().CopyToClipboard().Dump();
 			Assert.AreEqual(expectedJson, actualJson);
 			var actualObject = actualJson.FromJson<T>();
-			TestHelper.AreEqual(expectedObject, actualObject, exceptions);
+			AreEqual(expectedObject, actualObject, exceptions);
 		}
 
 		#endregion

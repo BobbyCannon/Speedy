@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.Client;
+using Speedy.Extensions;
 using Speedy.Storage.KeyValue;
 
 #endregion
@@ -264,7 +265,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -286,7 +287,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -303,7 +304,7 @@ namespace Speedy.UnitTests
 			var expected = new List<string> { "Item2", "Item3", "Item1" };
 			var actual = repository.ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		//[TestMethod]
@@ -319,7 +320,7 @@ namespace Speedy.UnitTests
 
 		//		var expected = new HashSet<string> { "Foo4" };
 		//		var actual = repository.FindMissingKeys(new HashSet<string> { "Foo1", "Foo2", "Foo3", "Foo4" });
-		//		TestHelper.AreEqual(expected, actual);
+		//		AreEqual(expected, actual);
 		//	}
 		//}
 
@@ -361,7 +362,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -383,7 +384,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -542,7 +543,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			repository.Dispose();
 		}
@@ -593,7 +594,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			repository.Dispose();
 		}
@@ -616,7 +617,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(2, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -683,7 +684,7 @@ namespace Speedy.UnitTests
 			var expected = new List<string> { "Key2", "Key3", "Key1" };
 			var actual = repository.ReadKeys().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -734,7 +735,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToList();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -763,7 +764,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToList();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -785,7 +786,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read(key => key != repository.Name).ToList();
 			Assert.AreEqual(2, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -826,7 +827,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read(id);
 
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -843,7 +844,7 @@ namespace Speedy.UnitTests
 			var info = new FileInfo($"{TestHelper.Directory}\\{name}.speedy");
 			var expected = string.Format("Bar2|\"Foo2\"{0}Foo1|\"Bar1\"{0}", Environment.NewLine);
 			var actual = info.ReadAllText();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -965,7 +966,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]

@@ -23,7 +23,7 @@ namespace Speedy.UnitTests.Collections
 			Parallel.For(0, count, (x, s) => { collection.Add(x); });
 
 			var expected = Enumerable.Range(0, count).ToArray();
-			TestHelper.AreEqual(expected, collection.OrderBy(x => x).ToArray());
+			AreEqual(expected, collection.OrderBy(x => x).ToArray());
 		}
 
 		#endregion

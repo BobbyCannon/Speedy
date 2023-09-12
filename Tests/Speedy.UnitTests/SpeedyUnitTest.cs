@@ -36,9 +36,11 @@ public class SpeedyUnitTest : SpeedyTest
 	#region Methods
 
 	[TestInitialize]
-	public virtual void TestInitialize()
+	public override void TestInitialize()
 	{
 		TestHelper.Initialize();
+
+		base.TestInitialize();
 	}
 
 	#endregion

@@ -1,8 +1,9 @@
 ﻿#region References
 
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using Speedy.Extensions;
 
 #endregion
 
@@ -11,16 +12,13 @@ namespace Speedy;
 /// <summary>
 /// Represents the service to provide time. Allows control for when the system is being tested.
 /// </summary>
-public static class TimeService
+public class TimeService : IDateTimeProvider
 {
 	#region Fields
 
-	private static Func<DateTime> _currentNowProvider;
-	private static Func<DateTime> _currentUtcNowProvider;
-	private static uint _nowIndex, _utcNowIndex;
-	private static readonly ConcurrentDictionary<uint, Func<DateTime>> _nowProviders;
+	private static readonly List<IDateTimeProvider> _providers;
 	private static bool _serviceLocked;
-	private static readonly ConcurrentDictionary<uint, Func<DateTime>> _utcNowProviders;
+	private static readonly TimeService _defaultProvider;
 
 	#endregion
 
@@ -28,10 +26,14 @@ public static class TimeService
 
 	static TimeService()
 	{
-		_nowProviders = new ConcurrentDictionary<uint, Func<DateTime>>();
-		_utcNowProviders = new ConcurrentDictionary<uint, Func<DateTime>>();
+		_providers = new List<IDateTimeProvider>();
+		_defaultProvider = new TimeService();
 
 		Reset();
+	}
+
+	private TimeService()
+	{
 	}
 
 	#endregion
@@ -41,12 +43,12 @@ public static class TimeService
 	/// <summary>
 	/// Gets the ID of the Now provider.
 	/// </summary>
-	public static uint? CurrentNowProviderId => _nowProviders.Keys.LastOrDefault();
+	public static IDateTimeProvider CurrentProvider => _providers.LastOrDefault() ?? _defaultProvider;
 
 	/// <summary>
-	/// Gets the ID of the UtcNow provider.
+	/// Gets the ID of the Now provider.
 	/// </summary>
-	public static uint? CurrentUtcNowProviderId => _utcNowProviders.Keys.LastOrDefault();
+	public static Guid CurrentProviderId => CurrentProvider.GetProviderId();
 
 	/// <summary>
 	/// Gets the date time in the format of the current time zone.
@@ -62,36 +64,23 @@ public static class TimeService
 
 	#region Methods
 
-	/// <summary>
-	/// Add a new DateTime.Now provider onto the stack.
-	/// </summary>
-	/// <returns>
-	/// The id of the provider. Use this id to remove it from the stack.
-	/// </returns>
-	public static uint? AddNowProvider(Func<DateTime> provider)
+	/// <inheritdoc />
+	public DateTime GetDateTime()
 	{
-		if (_serviceLocked)
-		{
-			throw new InvalidOperationException("The time service has been locked.");
-		}
-
-		return TryAddNowProvider(provider, out var id) ? id : null;
+		return _providers.LastOrDefault()?.GetDateTime() ?? DateTime.Now;
 	}
 
-	/// <summary>
-	/// Add a new DateTime.UtcNow provider onto the stack.
-	/// </summary>
-	/// <returns>
-	/// The id of the provider. Use this id to remove it from the stack.
-	/// </returns>
-	public static uint? AddUtcNowProvider(Func<DateTime> provider)
+	/// <inheritdoc />
+	public Guid GetProviderId()
 	{
-		if (_serviceLocked)
-		{
-			throw new InvalidOperationException("The time service has been locked.");
-		}
+		return _providers.LastOrDefault()?.GetProviderId()
+			?? Guid.Parse("48E21BDA-9E7A-4767-8E3B-B218203C9A71");
+	}
 
-		return TryAddUtcNowProvider(provider, out var id) ? id : null;
+	/// <inheritdoc />
+	public DateTime GetUtcDateTime()
+	{
+		return _providers.LastOrDefault()?.GetUtcDateTime() ?? DateTime.UtcNow;
 	}
 
 	/// <summary>
@@ -103,45 +92,61 @@ public static class TimeService
 	}
 
 	/// <summary>
-	/// Remove the DateTime.Now provider from the stack by the provided id.
+	/// Remove the current provider from the stack
 	/// </summary>
-	public static void RemoveNowProvider(uint id)
+	public static void PopProvider()
 	{
 		if (_serviceLocked)
 		{
 			throw new InvalidOperationException("The time service has been locked.");
 		}
 
-		if (!_nowProviders.TryRemove(id, out var provider))
-		{
-			return;
-		}
-
-		if (provider == _currentNowProvider)
-		{
-			_currentNowProvider = _nowProviders.LastOrDefault().Value;
-		}
+		var provider = _providers.LastOrDefault();
+		_providers.Remove(provider);
 	}
 
 	/// <summary>
-	/// Remove the DateTime.UtcNow provider from the stack by the provided id.
+	/// Add a new DateTime provider onto the stack.
 	/// </summary>
-	public static void RemoveUtcNowProvider(uint id)
+	public static DateTimeProvider PushProvider(Func<DateTime> provider)
 	{
 		if (_serviceLocked)
 		{
 			throw new InvalidOperationException("The time service has been locked.");
 		}
 
-		if (!_utcNowProviders.TryRemove(id, out var provider))
+		var response = new DateTimeProvider(provider);
+		_providers.Add(response);
+		return response;
+	}
+
+	/// <summary>
+	/// Add a new DateTime provider onto the stack.
+	/// </summary>
+	public static void PushProvider(IDateTimeProvider provider)
+	{
+		if (_serviceLocked)
 		{
-			return;
+			throw new InvalidOperationException("The time service has been locked.");
 		}
 
-		if (provider == _currentUtcNowProvider)
-		{
-			_currentUtcNowProvider = _utcNowProviders.LastOrDefault().Value;
-		}
+		_providers.Add(provider);
+	}
+
+	/// <summary>
+	/// Remove the provider from the stack
+	/// </summary>
+	public static void RemoveProvider(Guid providerId)
+	{
+		_providers.Remove(x => x.GetProviderId() == providerId);
+	}
+
+	/// <summary>
+	/// Remove the provider from the stack
+	/// </summary>
+	public static void RemoveProvider(DateTimeProvider provider)
+	{
+		_providers.Remove(provider);
 	}
 
 	/// <summary>
@@ -149,86 +154,17 @@ public static class TimeService
 	/// </summary>
 	public static void Reset()
 	{
-		_utcNowProviders.Clear();
-		_currentUtcNowProvider = null;
-		_nowProviders.Clear();
-		_currentNowProvider = null;
-	}
-
-	/// <summary>
-	/// Try to add a new DateTime.Now provider onto the stack.
-	/// </summary>
-	/// <param name="provider"> The provider to add. </param>
-	/// <param name="id"> The id of the added provider. Returns null if provider not added. </param>
-	public static bool TryAddNowProvider(Func<DateTime> provider, out uint? id)
-	{
-		if (_serviceLocked)
-		{
-			throw new InvalidOperationException("The time service has been locked.");
-		}
-
-		var key = _nowIndex++;
-		var result = _nowProviders.TryAdd(key, provider);
-
-		if (result)
-		{
-			_currentNowProvider = provider;
-			id = key;
-		}
-		else
-		{
-			id = null;
-		}
-
-		return result;
-	}
-
-	/// <summary>
-	/// Try to add a new DateTime.UtcNow provider onto the stack.
-	/// </summary>
-	/// <param name="provider"> The provider to add. </param>
-	/// <param name="id"> The id of the added provider. Returns null if provider not added. </param>
-	public static bool TryAddUtcNowProvider(Func<DateTime> provider, out uint? id)
-	{
-		if (_serviceLocked)
-		{
-			throw new InvalidOperationException("The time service has been locked.");
-		}
-
-		var key = _utcNowIndex++;
-		var result = _utcNowProviders.TryAdd(key, provider);
-
-		if (result)
-		{
-			_currentUtcNowProvider = provider;
-			id = key;
-		}
-		else
-		{
-			id = null;
-		}
-
-		return result;
+		_providers.Clear();
 	}
 
 	private static DateTime GetNow()
 	{
-		if (_serviceLocked)
-		{
-			return DateTime.Now;
-		}
-
-		return _currentNowProvider?.Invoke() ?? DateTime.Now;
+		return CurrentProvider.GetDateTime();
 	}
 
 	private static DateTime GetUtcNow()
 	{
-		if (_serviceLocked)
-		{
-			return DateTime.UtcNow;
-		}
-
-		return _currentUtcNowProvider?.Invoke() ?? DateTime.UtcNow;
+		return CurrentProvider.GetUtcDateTime();
 	}
 
 	#endregion

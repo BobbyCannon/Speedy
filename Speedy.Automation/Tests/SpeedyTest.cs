@@ -6,10 +6,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Data;
+using Speedy.Data.Location;
 using Speedy.Extensions;
+using Speedy.Serialization;
 
 #endregion
 
@@ -54,8 +58,7 @@ public abstract class SpeedyTest
 	#region Fields
 
 	private static Action<string> _clipboardProvider;
-	private static DateTime? _currentTime;
-	private static uint? _lastUtcNowProviderId;
+	private DateTimeProvider _currentDateTimeProvider;
 
 	#endregion
 
@@ -64,7 +67,8 @@ public abstract class SpeedyTest
 	static SpeedyTest()
 	{
 		// Default start date
-		StartDateTime = new DateTime(2022, 12, 29, 08, 00, 00, DateTimeKind.Utc);
+		StartDateTime = new DateTime(2022, 01, 02, 03, 04, 00, DateTimeKind.Utc);
+		RegisterTypeActivators();
 	}
 
 	#endregion
@@ -72,11 +76,11 @@ public abstract class SpeedyTest
 	#region Properties
 
 	/// <summary>
-	/// Represents the current time returned by TimeService.UtcNow;
+	/// Represents the current time of the test.
 	/// </summary>
-	public static DateTime CurrentTime
+	public DateTime CurrentTime
 	{
-		get => _currentTime ?? DateTime.UtcNow;
+		get => GetUtcDateTime();
 		set => ResetCurrentTime(value);
 	}
 
@@ -94,10 +98,6 @@ public abstract class SpeedyTest
 	/// The timeout to use when waiting for a test state to be hit.
 	/// </summary>
 	public static TimeSpan WaitTimeout => TimeSpan.FromMilliseconds(IsDebugging ? 1000000 : 1000);
-
-	private static Func<DateTime> GetCurrentTime => () => CurrentTime.ToLocalTime();
-
-	private static Func<DateTime> GetCurrentTimeUtc => () => CurrentTime;
 
 	#endregion
 
@@ -190,7 +190,11 @@ public abstract class SpeedyTest
 		configuration.MembersToIgnore.AddRange(membersToIgnore);
 		var logic = new CompareLogic(configuration);
 		var result = logic.Compare(expected, actual);
-		Assert.IsTrue(result.AreEqual, message?.Invoke() + Environment.NewLine + result.DifferencesString);
+
+		if (!result.AreEqual)
+		{
+			Assert.Fail($"{message?.Invoke()}{Environment.NewLine}{result.DifferencesString}");
+		}
 	}
 
 	/// <summary>
@@ -223,7 +227,7 @@ public abstract class SpeedyTest
 	/// <typeparam name="T"> The type of the value. </typeparam>
 	/// <param name="value"> The object to copy to the clipboard. Calls ToString on the value. </param>
 	/// <returns> The value input to allow for method chaining. </returns>
-	public T CopyToClipboard<T>(T value)
+	public static T CopyToClipboard<T>(T value)
 	{
 		var thread = new Thread(() =>
 		{
@@ -237,7 +241,15 @@ public abstract class SpeedyTest
 			}
 		});
 
+		#if (NET6_0_OR_GREATER)
+		if (OperatingSystem.IsWindows())
+		{
+			thread.SetApartmentState(ApartmentState.STA);
+		}
+		#else
 		thread.SetApartmentState(ApartmentState.STA);
+		#endif
+
 		thread.Start();
 		thread.Join();
 
@@ -281,13 +293,89 @@ public abstract class SpeedyTest
 			extraValidation?.Invoke(ex);
 			return;
 		}
+		catch (Exception ex)
+		{
+			Assert.Fail($"The expected exception was not thrown. {ex.GetType()} thrown instead.");
+		}
 
 		Assert.Fail("The expected exception was not thrown.");
+	}
+
+	public string GenerateUpdateWith(Type type)
+	{
+		var builder = new StringBuilder();
+		var properties = type
+			//.GetCachedProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+			.GetCachedProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Instance)
+			.Where(x => x.CanWrite)
+			.OrderBy(x => x.Name)
+			.ToList();
+
+		builder.AppendLine($@"/// <summary>
+/// Update the {type.Name} with an update.
+/// </summary>
+/// <param name=""update""> The update to be applied. </param>
+/// <param name=""exclusions""> An optional set of properties to exclude. </param>
+public override bool UpdateWith({type.Name} update, params string[] exclusions)
+{{");
+		builder.AppendLine("\t// If the update is null then there is nothing to do.");
+		builder.AppendLine("\tif (update == null)\r\n\t{\r\n\t\treturn false;\r\n\t}\r\n");
+		builder.AppendLine("\t// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******");
+		builder.AppendLine();
+		builder.AppendLine("\tif (exclusions.Length <= 0)");
+		builder.AppendLine("\t{");
+
+		foreach (var p in properties)
+		{
+			builder.AppendLine($"\t\t{p.Name} = update.{p.Name};");
+		}
+
+		builder.AppendLine("\t}");
+		builder.AppendLine("\telse");
+		builder.AppendLine("\t{");
+
+		foreach (var p in properties)
+		{
+			builder.AppendLine($"\t\tthis.IfThen(_ => !exclusions.Contains(nameof({p.Name})), x => x.{p.Name} = update.{p.Name});");
+		}
+
+		builder.AppendLine("\t}\r\n");
+		builder.AppendLine("\treturn true;");
+		builder.AppendLine("}\r\n");
+		builder.AppendLine($@"/// <inheritdoc />
+public override bool UpdateWith(object update, params string[] exclusions)
+{{
+	return update switch
+	{{
+		{type.Name} value => UpdateWith(value, exclusions),
+		_ => base.UpdateWith(update, exclusions)
+	}};
+}}");
+
+		builder.ToString().CopyToClipboard();
+		return builder.ToString();
+	}
+
+	public DateTime GetDateTime()
+	{
+		return _currentDateTimeProvider?.GetDateTime() ?? TimeService.Now;
+	}
+
+	public Guid GetProviderId()
+	{
+		return _currentDateTimeProvider?.GetProviderId() ?? TimeService.CurrentProviderId;
+	}
+
+	public DateTime GetUtcDateTime()
+	{
+		return _currentDateTimeProvider?.GetUtcDateTime() ?? TimeService.UtcNow;
 	}
 
 	/// <summary>
 	/// Increment the current time. This only works if current time is set. Negative values will subtract time.
 	/// </summary>
+	/// <param name="years"> The years to increment by. </param>
+	/// <param name="months"> The months to increment by. </param>
 	/// <param name="days"> The days to increment by. </param>
 	/// <param name="hours"> The hours to increment by. </param>
 	/// <param name="minutes"> The minutes to increment by. </param>
@@ -295,12 +383,24 @@ public abstract class SpeedyTest
 	/// <param name="milliseconds"> The milliseconds to increment by. </param>
 	/// <param name="microseconds"> The microseconds to increment by. Only supported in .NET 7 or greater. </param>
 	/// <param name="ticks"> The ticks to increment by. </param>
-	public static void IncrementTime(int days = 0, int hours = 0, int minutes = 0, int seconds = 0, int milliseconds = 0, int microseconds = 0, long ticks = 0)
+	public DateTime IncrementTime(int years = 0, int months = 0, int days = 0, int hours = 0, int minutes = 0, int seconds = 0, int milliseconds = 0, int microseconds = 0, long ticks = 0)
 	{
-		var currentTime = _currentTime;
-		if (currentTime == null)
+		var provider = _currentDateTimeProvider;
+		if (provider == null)
 		{
-			return;
+			return CurrentTime;
+		}
+
+		var currentTime = provider.GetUtcDateTime();
+
+		if (years != 0)
+		{
+			currentTime = currentTime.AddYears(years);
+		}
+
+		if (months != 0)
+		{
+			currentTime = currentTime.AddMonths(months);
 		}
 
 		if (days != 0)
@@ -340,31 +440,24 @@ public abstract class SpeedyTest
 			currentTime += TimeSpan.FromTicks(ticks);
 		}
 
-		ResetCurrentTime(currentTime);
+		return SetTime(currentTime);
 	}
 
 	/// <summary>
 	/// Increment the current time. This only works if current time is set. Negative values will subtract time.
 	/// </summary>
 	/// <param name="value"> The value to increment by. </param>
-	public static void IncrementTime(TimeSpan value)
+	public void IncrementTime(TimeSpan value)
 	{
-		var currentTime = _currentTime;
-		if (currentTime == null)
+		var provider = _currentDateTimeProvider;
+		if (provider == null)
 		{
 			return;
 		}
 
-		ResetCurrentTime(currentTime + value);
-	}
+		var currentTime = provider.GetUtcDateTime();
 
-	/// <summary>
-	/// Initialize the defaults
-	/// </summary>
-	public static void Initialize()
-	{
-		// Reset the current time back to the start time.
-		ResetCurrentTime(StartDateTime);
+		SetTime(currentTime + value);
 	}
 
 	/// <summary>
@@ -485,19 +578,18 @@ public abstract class SpeedyTest
 	/// Reset the <see cref="CurrentTime" /> back to using DateTime.
 	/// </summary>
 	/// <param name="currentTime"> An optional current time to reset to otherwise back to DateTime.UtcNow and Now. </param>
-	public static void ResetCurrentTime(DateTime? currentTime = null)
+	public void ResetCurrentTime(DateTime? currentTime = null)
 	{
-		_currentTime = currentTime?.ToUtcDateTime();
-
-		if ((_lastUtcNowProviderId != null) && (_lastUtcNowProviderId == TimeService.CurrentUtcNowProviderId))
-		{
-			// Service has already been set.
-			return;
-		}
-
 		TimeService.Reset();
-		_lastUtcNowProviderId = TimeService.AddUtcNowProvider(GetCurrentTimeUtc);
-		TimeService.AddNowProvider(GetCurrentTime);
+
+		_currentDateTimeProvider = currentTime > DateTime.MinValue
+			? new DateTimeProvider((DateTime) currentTime)
+			: null;
+
+		if (_currentDateTimeProvider != null)
+		{
+			TimeService.PushProvider(_currentDateTimeProvider);
+		}
 	}
 
 	/// <summary>
@@ -513,50 +605,63 @@ public abstract class SpeedyTest
 	/// Set the CurrentTime value.
 	/// </summary>
 	/// <param name="value"> The new time to set. </param>
-	public static void SetTime(DateTime value)
+	public DateTime SetTime(DateTime value)
 	{
-		ResetCurrentTime(value);
+		var utcTime = value.ToUtcDateTime();
+
+		if (_currentDateTimeProvider != null)
+		{
+			_currentDateTimeProvider.UpdateDateTime(utcTime);
+			return CurrentTime;
+		}
+
+		_currentDateTimeProvider = new DateTimeProvider(utcTime);
+
+		TimeService.PushProvider(_currentDateTimeProvider);
+
+		return CurrentTime;
 	}
 
 	/// <summary>
-	/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions using the
-	/// <see cref="WaitTimeout" /> property with a delay of 10ms.
+	/// Set the CurrentTime value.
 	/// </summary>
-	/// <param name="action"> The action to call. </param>
-	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
-	public static bool Wait(Func<bool> action, bool useTimeService = false)
+	/// <param name="provider"> The provider for time. </param>
+	public DateTime SetTime(Func<DateTime> provider)
 	{
-		return action.WaitUntil(WaitTimeout, 10, useTimeService);
+		return SetTime(new DateTimeProvider(provider));
 	}
 
 	/// <summary>
-	/// Runs the action until the action returns true or the timeout is reached. Will delay in between actions of the provided
-	/// time.
+	/// Set the CurrentTime value.
 	/// </summary>
-	/// <param name="action"> The action to call. </param>
-	/// <param name="timeout"> The timeout to attempt the action. This value is in milliseconds. </param>
-	/// <param name="delay"> The delay in between actions. This value is in milliseconds. </param>
-	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-	/// <returns> Returns true of the call completed successfully or false if it timed out. </returns>
-	public static bool Wait(Func<bool> action, int timeout, int delay, bool useTimeService = false)
+	/// <param name="provider"> The provider for time. </param>
+	public DateTime SetTime(DateTimeProvider provider)
 	{
-		return action.WaitUntil(timeout, delay, useTimeService);
+		TimeService.Reset();
+		_currentDateTimeProvider = provider;
+		TimeService.PushProvider(_currentDateTimeProvider);
+		return CurrentTime;
 	}
 
 	/// <summary>
-	/// Wait for a cancellation or for the value to time out.
+	/// Initialize the defaults
 	/// </summary>
-	/// <param name="cancellationPending"> A check for cancellation. </param>
-	/// <param name="value"> The value of time to wait for. </param>
-	/// <param name="delay"> The delay between checks. </param>
-	/// <param name="minimum"> The minimal time to wait. </param>
-	/// <param name="maximum"> The maximum time to wait. </param>
-	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-	/// <returns> True if the wait was completed, false if the wait was cancelled. </returns>
-	public static bool Wait(Func<bool> cancellationPending, TimeSpan value, TimeSpan delay, TimeSpan minimum, TimeSpan maximum, bool useTimeService = false)
+	[TestCleanup]
+	public virtual void TestCleanup()
 	{
-		return UtilityExtensions.WaitUntil(cancellationPending, value, delay, minimum, maximum, useTimeService);
+		//_disposableManager.Dispose();
+	}
+
+	/// <summary>
+	/// Initialize the defaults
+	/// </summary>
+	[TestInitialize]
+	public virtual void TestInitialize()
+	{
+		Serializer.ResetDefaultSettings();
+
+		// Reset the current time back to the start time.
+		ResetCurrentTime(StartDateTime);
 	}
 
 	/// <summary>
@@ -654,15 +759,34 @@ public abstract class SpeedyTest
 			return;
 		}
 
-		var actual = entity.Unwrap();
-		var allExclusions = new List<string>(exclusions);
-		allExclusions.AddRange(
-			entity.GetCachedProperties()
-				.Where(x => x.IsVirtual())
-				.Select(x => x.Name)
-		);
+		entity.DisablePropertyChangeNotifications();
 
-		AreEqual(model, actual, () => model.GetType().FullName, allExclusions.ToArray());
+		try
+		{
+			var actual = entity.Unwrap();
+			actual.DisablePropertyChangeNotifications();
+
+			var allExclusions = new List<string>(exclusions);
+			allExclusions.AddRange(
+				entity.GetCachedProperties()
+					.Where(x => x.IsVirtual()
+						|| (x.SetMethod == null)
+						|| x.SetMethod.IsPrivate)
+					.Select(x => x.Name)
+			);
+
+			AreEqual(model, actual, () =>
+			{
+				var builder = GenerateUpdateWith(actual.GetType());
+				CopyToClipboard(builder);
+				builder.Dump();
+				return model.GetType().FullName;
+			}, allExclusions.ToArray());
+		}
+		finally
+		{
+			entity.EnablePropertyChangeNotifications();
+		}
 	}
 
 	/// <summary>
@@ -698,6 +822,20 @@ public abstract class SpeedyTest
 		actual.UpdateWith(update, allExclusions);
 
 		AreEqual(update, actual, () => updateType.FullName, allExclusions);
+	}
+
+	/// <summary>
+	/// Registers all Speedy types for <see cref="Activator" />.
+	/// </summary>
+	private static void RegisterTypeActivators()
+	{
+		Activator.RegisterTypeActivator(
+			new TypeActivator<IBasicLocation, BasicLocation>(),
+			new TypeActivator<IHorizontalLocation, HorizontalLocation>(),
+			new TypeActivator<IMinimalHorizontalLocation, HorizontalLocation>(),
+			new TypeActivator<IVerticalLocation, VerticalLocation>(),
+			new TypeActivator<IMinimalVerticalLocation, VerticalLocation>()
+		);
 	}
 
 	#endregion

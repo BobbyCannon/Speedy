@@ -240,7 +240,7 @@ public class RandomGeneratorTests : SpeedyUnitTest
 
 			actual.Dump();
 
-			TestHelper.AreNotEqual(expected, actual);
+			AreNotEqual(expected, actual);
 		}
 	}
 

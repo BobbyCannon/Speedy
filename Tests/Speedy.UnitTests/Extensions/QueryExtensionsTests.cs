@@ -10,7 +10,7 @@ using Speedy.Extensions;
 namespace Speedy.UnitTests.Extensions
 {
 	[TestClass]
-	public class QueryExtensionsTests
+	public class QueryExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -25,7 +25,7 @@ namespace Speedy.UnitTests.Extensions
 			var anonymousResult = query.GetPagedResults(request, x => new { x.Id, x.Address.FullAddress }, x => x.Id);
 			var typedResult = anonymousResult.ConvertResults(x => new AccountView { Id = x.Id, FullAddress = x.FullAddress });
 
-			TestHelper.AreEqual<IPagedResults>(anonymousResult, typedResult, nameof(anonymousResult.Results));
+			AreEqual<IPagedResults>(anonymousResult, typedResult, nameof(anonymousResult.Results));
 			Assert.AreEqual(1, typedResult.Results.Count);
 			Assert.AreEqual(1, typedResult.Results[0].Id);
 			Assert.AreEqual("Line1\r\nCity, ST  12345", typedResult.Results[0].FullAddress);

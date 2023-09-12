@@ -8,7 +8,7 @@ using Speedy.Sync;
 namespace Speedy.UnitTests.Sync
 {
 	[TestClass]
-	public class SyncClientOptionsTests
+	public class SyncClientOptionsTests : CloneableSpeedUnitTests
 	{
 		#region Methods
 
@@ -23,7 +23,7 @@ namespace Speedy.UnitTests.Sync
 				new SyncClientOptions { EnablePrimaryKeyCache = false, IsServerClient = true }
 			};
 
-			CloneableHelper.BaseShouldCloneTest(testItems);
+			BaseShouldCloneTest(testItems);
 		}
 
 		#endregion

@@ -10,7 +10,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class ExclusionKeyTests
+	public class ExclusionKeyTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -128,7 +128,7 @@ namespace Speedy.UnitTests
 				"Speedy.Website.Data.Entities.AccountEntity, I:True, O:True, U:True"
 			};
 
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		private static ExclusionKey[] GetCombinations()

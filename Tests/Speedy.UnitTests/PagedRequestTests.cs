@@ -26,7 +26,7 @@ public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 		actual.Cleanup();
 
 		var expected = new PagedRequest { Page = 1, PerPage = 1000 };
-		TestHelper.AreEqual(expected, actual, nameof(PagedRequest.Updates));
+		AreEqual(expected, actual, nameof(PagedRequest.Updates));
 	}
 
 	[TestMethod]
@@ -36,7 +36,7 @@ public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 		var actual = request.ToJson();
 		actual.Escape().Dump();
 		var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"Order\":\"\",\"Page\":1,\"PerPage\":10}";
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]
@@ -49,7 +49,7 @@ public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 
 		request.ParseQueryString("?options[]=foo&options[]=bar");
 		var actual = request.Get<string[]>("options");
-		TestHelper.AreEqual(new[] { "foo", "bar" }, actual);
+		AreEqual(new[] { "foo", "bar" }, actual);
 	}
 
 	[TestMethod]
@@ -122,7 +122,7 @@ public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 			var actual = new PagedRequest();
 			actual.ParseQueryString(scenario.expected);
 
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class PagedRequestTests : SpeedyUnitTest<PagedRequest>
 		var actual = GetModel();
 		var withValues = GetModelWithNonDefaultValues();
 		actual.UpdateWith(withValues);
-		TestHelper.AreEqual(withValues, actual);
+		AreEqual(withValues, actual);
 	}
 
 	#endregion

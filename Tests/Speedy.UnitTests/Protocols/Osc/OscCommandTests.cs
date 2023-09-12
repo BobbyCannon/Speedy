@@ -38,7 +38,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(5.11f, command.GetArgument<float>());
 			Assert.AreEqual(164.32, command.GetArgument<double>());
 			Assert.AreEqual((byte) 4, command.GetArgument<byte>());
-			TestHelper.AreEqual(new byte[] { 0, 1, 1, 2, 3, 5, 8, 13 }, command.GetArgumentAsBlob());
+			AreEqual(new byte[] { 0, 1, 1, 2, 3, 5, 8, 13 }, command.GetArgumentAsBlob());
 			Assert.AreEqual(true, command.GetArgument<bool>());
 			Assert.AreEqual(Guid.Parse("E3966202-40FA-443D-B21F-E1528A1E6DFE"), command.GetArgument<Guid>());
 			Assert.AreEqual(uint.MaxValue, command.GetArgument<uint>());
@@ -70,7 +70,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(5.11f, command.GetArgumentAsFloat());
 			Assert.AreEqual(164.32, command.GetArgumentAsDouble());
 			Assert.AreEqual((byte) 4, command.GetArgumentAsByte());
-			TestHelper.AreEqual(new byte[] { 0, 1, 1, 2, 3, 5, 8, 13 }, command.GetArgumentAsBlob());
+			AreEqual(new byte[] { 0, 1, 1, 2, 3, 5, 8, 13 }, command.GetArgumentAsBlob());
 			Assert.AreEqual(true, command.GetArgumentAsBoolean());
 			Assert.AreEqual(Guid.Parse("E3966202-40FA-443D-B21F-E1528A1E6DFE"), command.GetArgumentAsGuid());
 			Assert.AreEqual(uint.MaxValue, command.GetArgumentAsUnsignedInteger());
@@ -88,7 +88,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var expected = new byte[] { 0x2F, 0x74, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x2C, 0x69, 0x48, 0x73, 0x69, 0x74, 0x66, 0x64, 0x63, 0x62, 0x54, 0x73, 0x75, 0x68, 0x70, 0x69, 0x69, 0x69, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, 0x4A, 0x6F, 0x68, 0x6E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0xBC, 0x2A, 0x37, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0xA3, 0x85, 0x1F, 0x40, 0x64, 0x8A, 0x3D, 0x70, 0xA3, 0xD7, 0x0A, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x08, 0x00, 0x01, 0x01, 0x02, 0x03, 0x05, 0x08, 0x0D, 0x65, 0x33, 0x39, 0x36, 0x36, 0x32, 0x30, 0x32, 0x2D, 0x34, 0x30, 0x66, 0x61, 0x2D, 0x34, 0x34, 0x33, 0x64, 0x2D, 0x62, 0x32, 0x31, 0x66, 0x2D, 0x65, 0x31, 0x35, 0x32, 0x38, 0x61, 0x31, 0x65, 0x36, 0x64, 0x66, 0x65, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x69, 0x76, 0x85, 0x18, 0x00, 0x00, 0x00, 0x00, 0x02, 0xFF, 0xFF, 0x80, 0x00, 0x00, 0x00, 0xFF, 0xFF };
 			var actual = command.ToMessage().ToByteArray();
 			actual.Dump();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			var actualMessage = OscPacket.Parse(command.Time, actual) as OscMessage;
 			Assert.IsNotNull(actualMessage, "Failed to parse the byte data.");
@@ -96,7 +96,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var actualCommand = new TestOscCommand();
 			actualCommand.Load(actualMessage);
 
-			TestHelper.AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 		}
 
 		[TestMethod]
@@ -118,7 +118,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.IsNotNull(actualMessage);
 			var actualCommand = new TestOscCommand();
 			actualCommand.Load(actualMessage);
-			TestHelper.AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 
 			command = GetTestCommand();
 			command.Version = 2;
@@ -132,7 +132,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.IsNotNull(actualMessage);
 			actualCommand = new TestOscCommand();
 			actualCommand.Load(actualMessage);
-			TestHelper.AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 
 			command = GetTestCommand();
 			command.Version = 3;
@@ -143,7 +143,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.IsNotNull(actualMessage);
 			actualCommand = new TestOscCommand();
 			actualCommand.Load(actualMessage);
-			TestHelper.AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 		}
 
 		[TestMethod]

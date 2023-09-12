@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Extensions;
 using Speedy.Sync;
 using Speedy.UnitTests;
 using Speedy.Website.Data;
@@ -135,7 +136,7 @@ namespace Speedy.IntegrationTests
 			{
 				var addresses = database.Addresses.ToList();
 				Assert.AreEqual(1, addresses.Count);
-				TestHelper.AreEqual(address, addresses[0].Unwrap());
+				AreEqual(address, addresses[0].Unwrap());
 
 				// Change the server address while we have it available
 				addresses[0].Line1 = "foo bar";

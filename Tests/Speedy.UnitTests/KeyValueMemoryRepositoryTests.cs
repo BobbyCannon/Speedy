@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data.Client;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Storage.KeyValue;
 
 #endregion
@@ -215,7 +216,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -237,7 +238,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -253,7 +254,7 @@ namespace Speedy.UnitTests
 			var expected = new List<string> { "Item2", "Item3", "Item1" };
 			var actual = repository.ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -276,7 +277,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -298,7 +299,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -455,7 +456,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			repository.Dispose();
 		}
@@ -506,7 +507,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			repository.Dispose();
 		}
@@ -549,7 +550,7 @@ namespace Speedy.UnitTests
 			var expected = new List<string> { "Key2", "Key3", "Key1" };
 			var actual = repository.ReadKeys().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -576,7 +577,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToList();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -601,7 +602,7 @@ namespace Speedy.UnitTests
 			};
 
 			var actual = repository.Read().ToList();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -623,7 +624,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read(key => key != repository.Name).ToList();
 			Assert.AreEqual(2, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -664,7 +665,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read(id);
 
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -706,7 +707,7 @@ namespace Speedy.UnitTests
 
 			var actual = repository.Read().ToList();
 			Assert.AreEqual(3, actual.Count);
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		#endregion

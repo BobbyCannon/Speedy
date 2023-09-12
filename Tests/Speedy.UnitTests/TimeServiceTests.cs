@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Automation.Tests;
-using Speedy.Profiling;
 
 #endregion
 
@@ -17,77 +15,57 @@ public class TimeServiceTests : SpeedyUnitTest
 	#region Methods
 
 	[TestMethod]
-	public void CanPopOldProvidersWithoutAffectingCurrentTime()
-	{
-		var start = TimeService.UtcNow;
-		var provider1 = () => new DateTime(2022, 08, 26, 02, 44, 00, DateTimeKind.Utc);
-		var provider2 = () => new DateTime(2022, 08, 26, 02, 44, 01, DateTimeKind.Utc);
-		var provider3 = () => new DateTime(2022, 08, 26, 02, 44, 02, DateTimeKind.Utc);
-
-		var id1 = TimeService.AddUtcNowProvider(provider1);
-		Assert.IsNotNull(id1);
-		AreEqual(provider1.Invoke(), TimeService.UtcNow);
-		var id2 = TimeService.AddUtcNowProvider(provider2);
-		Assert.IsNotNull(id2);
-		AreEqual(provider2.Invoke(), TimeService.UtcNow);
-		var id3 = TimeService.AddUtcNowProvider(provider3);
-		Assert.IsNotNull(id3);
-		AreEqual(provider3.Invoke(), TimeService.UtcNow);
-
-		AreEqual(provider3.Invoke(), TimeService.UtcNow);
-		TimeService.RemoveUtcNowProvider(id1.Value);
-		AreEqual(provider3.Invoke(), TimeService.UtcNow);
-		TimeService.RemoveUtcNowProvider(id2.Value);
-		AreEqual(provider3.Invoke(), TimeService.UtcNow);
-		TimeService.RemoveUtcNowProvider(id3.Value);
-		Assert.IsTrue(DateTime.UtcNow > start);
-	}
-
-	[TestMethod]
-	public void LastProviderShouldBeUsed()
+	public void CanPopAndRemoveProviders()
 	{
 		TimeService.Reset();
 
 		var start = TimeService.UtcNow;
-		var provider1 = () => new DateTime(2022, 08, 26, 02, 44, 00, DateTimeKind.Utc);
-		var provider2 = () => new DateTime(2022, 08, 26, 02, 44, 01, DateTimeKind.Utc);
-		var provider3 = () => new DateTime(2022, 08, 26, 02, 44, 02, DateTimeKind.Utc);
+		var provider1 = new DateTimeProvider(
+			Guid.Parse("2B5ED0B5-7ED5-4613-88F2-389F6835958C"),
+			new DateTime(2022, 08, 26, 02, 44, 00, DateTimeKind.Utc)
+		);
+		var provider2 = new DateTimeProvider(
+			Guid.Parse("16F0EE1E-2EEF-41D7-AA2C-102439A0CCD9"),
+			new DateTime(2022, 08, 26, 02, 44, 01, DateTimeKind.Utc)
+		);
+		var provider3 = new DateTimeProvider(
+			Guid.Parse("E5F864BB-1578-4D21-9475-C166F876485F"),
+			new DateTime(2022, 08, 26, 02, 44, 02, DateTimeKind.Utc)
+		);
 
-		var id1 = TimeService.AddUtcNowProvider(provider1);
-		Assert.IsNotNull(id1);
-		var id2 = TimeService.AddUtcNowProvider(provider2);
-		Assert.IsNotNull(id2);
-		var id3 = TimeService.AddUtcNowProvider(provider3);
-		Assert.IsNotNull(id3);
+		TimeService.PushProvider(provider1);
+		var expected = new DateTime(2022, 08, 26, 02, 44, 00, DateTimeKind.Utc);
+		AreEqual(provider1.GetProviderId(), TimeService.CurrentProviderId);
+		AreEqual(expected.ToLocalTime(), TimeService.Now);
+		AreEqual(expected, TimeService.UtcNow);
 
-		DateTime actual1, actual2;
+		TimeService.PushProvider(provider2);
+		expected = new DateTime(2022, 08, 26, 02, 44, 01, DateTimeKind.Utc);
+		AreEqual(provider2.GetProviderId(), TimeService.CurrentProviderId);
+		AreEqual(expected.ToLocalTime(), TimeService.Now);
+		AreEqual(expected, TimeService.UtcNow);
 
-		var result1 = Profiler.Profile(() => actual1 = TimeService.UtcNow);
-		var result2 = Profiler.Profile(() => actual2 = DateTime.UtcNow);
+		TimeService.PushProvider(provider3);
+		expected = new DateTime(2022, 08, 26, 02, 44, 02, DateTimeKind.Utc);
+		AreEqual(provider3.GetProviderId(), TimeService.CurrentProviderId);
+		AreEqual(expected.ToLocalTime(), TimeService.Now);
+		AreEqual(expected, TimeService.UtcNow);
 
-		result1.Dump();
-		result2.Dump();
+		AreEqual(provider3.GetUtcDateTime(), TimeService.UtcNow);
+		TimeService.PopProvider();
 
-		result1 = Profiler.Profile(() => actual1 = TimeService.UtcNow);
-		result2 = Profiler.Profile(() => actual2 = DateTime.UtcNow);
+		// Now that provider 3 should be off the stack, we should fall back to provider 2
+		AreEqual(provider2.GetUtcDateTime(), TimeService.UtcNow);
 
-		result1.Dump();
-		result2.Dump();
+		// Now that provider 1 should be off the stack, we should still be on provider 2
+		TimeService.RemoveProvider(provider1.GetProviderId());
+		AreEqual(provider2.GetProviderId(), TimeService.CurrentProviderId);
+		AreEqual(provider2.GetUtcDateTime(), TimeService.UtcNow);
 
-		var expected = provider3.Invoke();
-		var actual = TimeService.UtcNow;
-		AreEqual(expected, actual);
-		TimeService.RemoveUtcNowProvider(id3.Value);
-		expected = provider2.Invoke();
-		actual = TimeService.UtcNow;
-		AreEqual(expected, actual);
-		TimeService.RemoveUtcNowProvider(id2.Value);
-		expected = provider1.Invoke();
-		actual = TimeService.UtcNow;
-		AreEqual(expected, actual);
-		TimeService.RemoveUtcNowProvider(id1.Value);
-		actual = TimeService.UtcNow;
-		IsTrue(actual > start, $"{actual:O} > {start:O}");
+		// Remove the last provider
+		TimeService.RemoveProvider(provider2);
+		Assert.IsTrue(TimeService.UtcNow > start);
+		AreEqual(Guid.Parse("48E21BDA-9E7A-4767-8E3B-B218203C9A71"), TimeService.CurrentProviderId);
 	}
 
 	[TestMethod]
@@ -100,12 +78,10 @@ public class TimeServiceTests : SpeedyUnitTest
 
 			var scenarios = new Action[]
 			{
-				() => TimeService.AddNowProvider(() => new DateTime(2022, 12, 16)),
-				() => TimeService.AddUtcNowProvider(() => new DateTime(2022, 12, 16)),
-				() => TimeService.RemoveNowProvider(1),
-				() => TimeService.RemoveUtcNowProvider(1),
-				() => TimeService.TryAddNowProvider(() => new DateTime(2022, 12, 16), out var id),
-				() => TimeService.TryAddUtcNowProvider(() => new DateTime(2022, 12, 16), out var id)
+				() => TimeService.PushProvider(() => new DateTime(2022, 12, 16)),
+				() => TimeService.PushProvider(() => new DateTime(2022, 12, 16)),
+				TimeService.PopProvider,
+				TimeService.PopProvider
 			};
 
 			foreach (var scenario in scenarios)
@@ -126,15 +102,13 @@ public class TimeServiceTests : SpeedyUnitTest
 	{
 		var current = TimeService.UtcNow;
 		var start = new DateTime(2022, 08, 26, 02, 44, 00, DateTimeKind.Utc);
-		var ids = new List<uint>(1000);
+		var ids = new List<Guid>(1000);
 
 		for (var i = 0; i < ids.Count; i++)
 		{
 			var providerDateTime = start.AddSeconds(i);
-			if (TimeService.TryAddUtcNowProvider(() => providerDateTime, out var id) && id is { } uid)
-			{
-				ids.Add(uid);
-			}
+			var p = TimeService.PushProvider(() => providerDateTime);
+			ids.Add(p.GetProviderId());
 		}
 
 		var random = new Random();
@@ -147,7 +121,7 @@ public class TimeServiceTests : SpeedyUnitTest
 			var randomIndex = random.Next(0, ids.Count);
 			var providerId = ids[randomIndex];
 
-			TimeService.RemoveUtcNowProvider(providerId);
+			TimeService.RemoveProvider(providerId);
 		}
 	}
 

@@ -147,7 +147,7 @@ namespace Speedy.IntegrationTests
 				var actual = SqlBuilder.GetSqlDelete(database, database.Accounts.Where(filter.Key));
 				actual.Query.ToString().Dump();
 				Assert.AreEqual(filter.Value.query, actual.Query.ToString());
-				TestHelper.AreEqual(filter.Value.p, actual.Parameters.Cast<SqlParameter>().ToArray());
+				AreEqual(filter.Value.p, actual.Parameters.Cast<SqlParameter>().ToArray());
 				Assert.AreEqual(filter.Value.parameters, GetParameterNames(actual.ParametersByColumnName));
 			});
 
@@ -234,7 +234,7 @@ namespace Speedy.IntegrationTests
 				var actual = SqlBuilder.GetSqlDelete(database, database.Addresses.Where(filter.Key));
 				actual.Query.ToString().Dump();
 				Assert.AreEqual(filter.Value.query, actual.Query.ToString());
-				TestHelper.AreEqual(filter.Value.p, actual.Parameters.Cast<SqlParameter>().ToArray());
+				AreEqual(filter.Value.p, actual.Parameters.Cast<SqlParameter>().ToArray());
 			});
 		}
 
@@ -378,7 +378,7 @@ namespace Speedy.IntegrationTests
 				var actual = SqlBuilder.GetSqlDelete(database, database.Addresses.Where(filter.Key));
 				actual.Query.ToString().Dump();
 				Assert.AreEqual(filter.Value.s, actual.Query.ToString());
-				TestHelper.AreEqual(filter.Value.p, actual.Parameters.Cast<SqliteParameter>().ToArray());
+				AreEqual(filter.Value.p, actual.Parameters.Cast<SqliteParameter>().ToArray());
 			});
 		}
 

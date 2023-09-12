@@ -12,7 +12,7 @@ using Speedy.Website.Data.Entities;
 namespace Speedy.IntegrationTests
 {
 	[TestClass]
-	public class EntityTests
+	public class EntityTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -39,7 +39,7 @@ namespace Speedy.IntegrationTests
 			};
 
 			var actual = (AccountEntity) expected.Unwrap();
-			TestHelper.AreEqual(expected, actual, nameof(AccountEntity.Address));
+			AreEqual(expected, actual, nameof(AccountEntity.Address));
 			Assert.AreEqual(null, actual.Address);
 			Assert.AreNotEqual(null, actual.Groups);
 			Assert.AreEqual(0, actual.Groups.Count);
@@ -70,7 +70,7 @@ namespace Speedy.IntegrationTests
 						var actual = entity.Unwrap();
 						var expected = new FoodEntity { Name = "Bourbon Reduction" };
 
-						TestHelper.AreEqual(expected, actual, true, nameof(FoodEntity.Id), nameof(FoodEntity.CreatedOn), nameof(FoodEntity.ModifiedOn));
+						AreEqual(expected, actual, nameof(FoodEntity.Id), nameof(FoodEntity.CreatedOn), nameof(FoodEntity.ModifiedOn));
 					}
 				});
 		}
@@ -102,7 +102,7 @@ namespace Speedy.IntegrationTests
 			var actual = new AccountEntity();
 			actual.UpdateWith(expected, true, true, true);
 
-			TestHelper.AreEqual(expected, actual,
+			AreEqual(expected, actual,
 				nameof(AccountEntity.Address),
 				nameof(AccountEntity.AddressId),
 				nameof(AccountEntity.Groups),
@@ -149,7 +149,7 @@ namespace Speedy.IntegrationTests
 			var actual = new AccountEntity();
 			actual.UpdateWith(expected, true);
 
-			TestHelper.AreEqual(expected, actual,
+			AreEqual(expected, actual,
 				nameof(AccountEntity.Address),
 				nameof(AccountEntity.Groups),
 				nameof(AccountEntity.Pets)
@@ -189,7 +189,7 @@ namespace Speedy.IntegrationTests
 			var actual = new AccountEntity();
 			actual.UpdateWith(expected);
 
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 			Assert.AreNotEqual(null, actual.Address);
 			Assert.AreNotEqual(null, actual.Groups);
 			Assert.AreEqual(1, actual.Groups.Count);

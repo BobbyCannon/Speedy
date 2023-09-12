@@ -99,8 +99,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 		[TestMethod]
 		public void DateTimeZoneTest()
 		{
-			TimeService.AddNowProvider(() => new DateTime(2021, 02, 17, 08, 54, 00, DateTimeKind.Local));
-			TimeService.AddUtcNowProvider(() => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc));
+			SetTime(() => new DateTime(2021, 02, 18, 01, 54, 00, DateTimeKind.Utc));
 
 			var originalZone = TimeZoneHelper.GetSystemTimeZone();
 
@@ -202,13 +201,13 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var expected2 = new byte[] { 0x2F, 0x73, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x00, 0x2C, 0x69, 0x73, 0x00, 0x00, 0x00, 0x00, 0x01, 0x42, 0x6F, 0x62, 0x00 };
 			var actual2 = command.ToMessage().ToByteArray();
 			actual2.Dump();
-			TestHelper.AreEqual(expected2, actual2);
+			AreEqual(expected2, actual2);
 			Assert.AreEqual(0, actual2.Length % 4);
 
 			var actualCommand = OscCommand.FromMessage<SampleOscCommand>((OscMessage) OscPacket.Parse(expected));
-			TestHelper.AreEqual(command, actualCommand, false, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 			actualCommand = OscCommand.FromMessage<SampleOscCommand>((OscMessage) OscPacket.Parse(expected2));
-			TestHelper.AreEqual(command, actualCommand, false, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 		}
 
 		[TestMethod]
@@ -222,13 +221,13 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var expected2 = new byte[] { 0x2F, 0x73, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x00, 0x2C, 0x69, 0x73, 0x74, 0x54, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x42, 0x6F, 0x62, 0x00, 0xE1, 0xF1, 0x04, 0xAF, 0x00, 0x00, 0x00, 0x00 };
 			var actual2 = command.ToMessage().ToByteArray();
 			actual2.Dump();
-			TestHelper.AreEqual(expected2, actual2);
+			AreEqual(expected2, actual2);
 			Assert.AreEqual(0, actual2.Length % 4);
 
 			var actualCommand = OscCommand.FromMessage<SampleOscCommand>((OscMessage) OscPacket.Parse(expected));
-			TestHelper.AreEqual(command, actualCommand, false, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 			actualCommand = OscCommand.FromMessage<SampleOscCommand>((OscMessage) OscPacket.Parse(expected2));
-			TestHelper.AreEqual(command, actualCommand, false, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 		}
 
 		[TestMethod]
@@ -243,14 +242,14 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var expected2 = new byte[] { 0x2F, 0x73, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x00, 0x2C, 0x69, 0x73, 0x74, 0x54, 0x61, 0x74, 0x00, 0x00, 0x00, 0x00, 0x03, 0x42, 0x6F, 0x62, 0x00, 0xE1, 0xF1, 0x04, 0xAF, 0x52, 0x4A, 0xFC, 0x7D, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0xE1, 0xF1, 0x04, 0xAF, 0x74, 0xBC, 0x6A, 0x7E };
 			var actual2 = command.ToMessage().ToByteArray();
 			actual2.ToHexString(prefix: "0x", delimiter: ", ").Dump();
-			TestHelper.AreEqual(expected2, actual2);
+			AreEqual(expected2, actual2);
 			Assert.AreEqual(0, actual2.Length % 4);
 			
 			var parser = new OscArgumentParser<SampleCustomValue>();
 			var actualCommand = OscCommand.FromMessage<SampleOscCommand>((OscMessage) OscPacket.Parse(expected, parser));
-			TestHelper.AreEqual(command, actualCommand, false, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 			actualCommand = OscCommand.FromMessage<SampleOscCommand>((OscMessage) OscPacket.Parse(expected2, parser));
-			TestHelper.AreEqual(command, actualCommand, false, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
+			AreEqual(command, actualCommand, nameof(SampleOscCommand.Time), nameof(OscCommand.HasBeenRead), nameof(OscCommand.HasBeenUpdated));
 		}
 
 		[TestMethod]

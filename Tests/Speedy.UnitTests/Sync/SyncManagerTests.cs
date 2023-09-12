@@ -29,7 +29,7 @@ public class SyncManagerTests : SpeedyUnitTest
 
 		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-		TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
+		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 
 		var manager = new TestSyncManager();
 		var syncPostUpdateCalled = false;
@@ -226,7 +226,7 @@ public class SyncManagerTests : SpeedyUnitTest
 		var actual = logListener.Events.Select(x => x.GetDetailedMessage()).ToArray();
 		actual.ForEach(x => Console.WriteLine($"$\"{x.Replace(manager.SessionId.ToString(), "{manager.SessionId}")}\","));
 
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 		Assert.AreEqual(0, manager.SyncTimers[TestSyncType.All].CancelledSyncs);
 		Assert.AreEqual(1, manager.SyncTimers[TestSyncType.Accounts].SuccessfulSyncs);
 		Assert.AreEqual(0, manager.SyncTimers[TestSyncType.Accounts].FailedSyncs);
@@ -237,7 +237,7 @@ public class SyncManagerTests : SpeedyUnitTest
 	{
 		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-		TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
+		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 
 		var manager = new TestSyncManager();
 		using var logListener = MemoryLogListener.CreateSession(Guid.Empty, EventLevel.Verbose);
@@ -276,7 +276,7 @@ public class SyncManagerTests : SpeedyUnitTest
 		var actual = logListener.Events.Select(x => x.GetDetailedMessage()).ToArray();
 		actual.ForEach(x => Console.WriteLine($"$\"{x.Replace(manager.SessionId.ToString(), "{manager.SessionId}")}\","));
 
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 		Assert.IsTrue(actualResult1.SyncSuccessful, "Sync should have been successful");
 		Assert.AreEqual(SyncResultStatus.Unknown, actualResult2.SyncStatus, "Sync should not have started");
 		Assert.AreEqual(0, manager.SyncTimers[TestSyncType.All].Average.TotalMilliseconds);
@@ -290,7 +290,7 @@ public class SyncManagerTests : SpeedyUnitTest
 	{
 		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-		TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
+		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 
 		var manager = new TestSyncManager();
 		using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);
@@ -354,7 +354,7 @@ public class SyncManagerTests : SpeedyUnitTest
 
 		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
 
-		TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
+		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 
 		var manager = new TestSyncManager();
 		using var logListener = MemoryLogListener.CreateSession(manager.SessionId, EventLevel.Verbose);

@@ -19,7 +19,7 @@ using Speedy.UnitTests;
 namespace Speedy.AutomationTests.Desktop
 {
 	[TestClass]
-	public class WinFormTests
+	public class WinFormTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -337,7 +337,7 @@ namespace Speedy.AutomationTests.Desktop
 			var expected = Keyboard.GetAllPrintableCharacters();
 			textBox1.SendInput(expected);
 			var actual = keyPress.Text;
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		#endregion

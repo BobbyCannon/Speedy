@@ -33,7 +33,7 @@ namespace Speedy.UnitTests.Logging
 			var id2 = Guid.NewGuid();
 			var startTime = new DateTime(2020, 04, 23, 03, 26, 11, DateTimeKind.Utc);
 			
-			TimeService.AddUtcNowProvider(() => startTime += TimeSpan.FromSeconds(1));
+			SetTime(() => startTime += TimeSpan.FromSeconds(1));
 			
 			using (var listener = MemoryLogListener.CreateSession(id1, EventLevel.Informational))
 			{

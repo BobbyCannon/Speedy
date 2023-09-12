@@ -22,7 +22,7 @@ namespace Speedy.UnitTests.Protocols.Nmea.Messages
 
 				var actual = new T();
 				actual.Parse(scenario.sentance);
-				TestHelper.AreEqual(scenario.expected, actual);
+				AreEqual(scenario.expected, actual);
 
 				scenario.expected.UpdateChecksum();
 				Assert.AreEqual(scenario.expected.ToString(), actual.ToString());

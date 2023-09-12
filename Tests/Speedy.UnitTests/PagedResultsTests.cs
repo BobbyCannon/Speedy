@@ -71,7 +71,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 		var actual = response.ToJson();
 		actual.Escape().Dump();
 		var expected = "{\"$id\":\"1\",\"Filter\":\"\",\"HasMore\":false,\"Order\":\"\",\"Page\":1,\"PerPage\":10,\"TotalCount\":0,\"TotalPages\":1,\"Results\":[]}";
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]
@@ -102,7 +102,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 		Assert.AreEqual(40, actual.TotalPages);
 		Assert.AreEqual(400, actual.TotalCount);
 		Assert.AreEqual(4, actual.Updates.Count);
-		TestHelper.AreEqual(new[]
+		AreEqual(new[]
 		{
 			new PartialUpdateValue("Filter", "foo"),
 			new PartialUpdateValue("Page", 2),
@@ -123,7 +123,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 
 		// Options and Updates are not required to be equal after serialization
 		var update = expected.FromJson<PagedResults<object>>();
-		TestHelper.AreEqual(results, update, nameof(results.Options), nameof(results.Updates));
+		AreEqual(results, update, nameof(results.Options), nameof(results.Updates));
 
 		actual = results.ToRawJson(true, true);
 		expected = "{\r\n  \"filter\": \"\",\r\n  \"hasMore\": false,\r\n  \"order\": \"\",\r\n  \"page\": 2,\r\n  \"perPage\": 11,\r\n  \"totalCount\": 12,\r\n  \"totalPages\": 2,\r\n  \"results\": [\r\n    1,\r\n    \"foo\",\r\n    true\r\n  ]\r\n}";
@@ -132,7 +132,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 
 		// Options and Updates are not required to be equal after serialization
 		update = expected.FromJson<PagedResults<object>>();
-		TestHelper.AreEqual(results, update);
+		AreEqual(results, update);
 	}
 
 	[TestMethod]
@@ -161,7 +161,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 		Assert.AreEqual(expected, actual);
 
 		var actualPagedResults = actual.FromJson<PagedResults<SyncObject>>();
-		TestHelper.AreEqual(results, actualPagedResults);
+		AreEqual(results, actualPagedResults);
 		Assert.AreEqual(2, actualPagedResults.Results.Count);
 	}
 
@@ -188,7 +188,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 		Assert.AreEqual(expected, actual);
 
 		var actualPagedResults = actual.FromJson<PagedResults<int[][]>>();
-		TestHelper.AreEqual(results, actualPagedResults);
+		AreEqual(results, actualPagedResults);
 		Assert.AreEqual(2, actualPagedResults.Results.Count);
 	}
 
@@ -214,7 +214,7 @@ public class PagedResultsTests : SpeedyUnitTest<PagedResults<object>>
 		var actual = GetModel();
 		var withValues = GetModelWithNonDefaultValues();
 		actual.UpdateWith(withValues);
-		TestHelper.AreEqual(withValues, actual);
+		AreEqual(withValues, actual);
 	}
 
 	[TestMethod]

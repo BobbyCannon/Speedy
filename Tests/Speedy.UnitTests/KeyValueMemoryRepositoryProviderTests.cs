@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Exceptions;
+using Speedy.Extensions;
 using Speedy.Storage.KeyValue;
 
 #endregion
@@ -52,7 +53,7 @@ namespace Speedy.UnitTests
 			var actual = provider.AvailableRepositories(name2);
 			repository1.Dispose();
 			repository2.Dispose();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -69,7 +70,7 @@ namespace Speedy.UnitTests
 			var actual = provider.AvailableRepositories();
 			repository1.Dispose();
 			repository2.Dispose();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -82,7 +83,7 @@ namespace Speedy.UnitTests
 			provider.OpenRepository(name).Dispose();
 			var expected = new List<string> { name };
 			var actual = provider.AvailableRepositories();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[ClassCleanup]
@@ -101,11 +102,11 @@ namespace Speedy.UnitTests
 			provider.OpenRepository(name).Dispose();
 			var expected = new List<string> { name };
 			var actual = provider.AvailableRepositories();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 			provider.DeleteRepository(name);
 			expected.Clear();
 			actual = provider.AvailableRepositories();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -151,7 +152,7 @@ namespace Speedy.UnitTests
 			provider.OpenRepository(name2).Dispose();
 			var actual = provider.OpenAvailableRepository(name1);
 			repository1.Dispose();
-			TestHelper.AreEqual(name2, actual.Name);
+			AreEqual(name2, actual.Name);
 			actual.Dispose();
 		}
 
@@ -165,7 +166,7 @@ namespace Speedy.UnitTests
 			provider.OpenRepository(name).Dispose();
 			var expected = new List<string> { name };
 			var actual = provider.AvailableRepositories();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			using (var repository = provider.OpenRepository(name))
 			{
@@ -174,7 +175,7 @@ namespace Speedy.UnitTests
 
 			expected.Clear();
 			actual = provider.AvailableRepositories();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]

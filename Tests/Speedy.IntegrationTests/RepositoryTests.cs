@@ -17,7 +17,7 @@ namespace Speedy.IntegrationTests
 {
 	[TestClass]
 	[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-	public class RepositoryTests
+	public class RepositoryTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -53,9 +53,9 @@ namespace Speedy.IntegrationTests
 						var actual = database.Accounts.ToList();
 						Assert.AreEqual(2, actual.Count);
 						Assert.AreEqual(1, actual[0].Id);
-						TestHelper.AreEqual(expected[0].Unwrap(), actual[0].Unwrap(), "Id");
+						AreEqual(expected[0].Unwrap(), actual[0].Unwrap(), "Id");
 						Assert.AreEqual(2, actual[1].Id);
-						TestHelper.AreEqual(expected[1].Unwrap(), actual[1].Unwrap(), "Id");
+						AreEqual(expected[1].Unwrap(), actual[1].Unwrap(), "Id");
 					}
 				});
 		}
@@ -100,9 +100,9 @@ namespace Speedy.IntegrationTests
 						var actual = database.Addresses.ToList();
 						Assert.AreEqual(2, actual.Count);
 						Assert.AreEqual(1, actual[0].Id);
-						TestHelper.AreEqual(expected[0].Unwrap(), actual[0].Unwrap(), "Id");
+						AreEqual(expected[0].Unwrap(), actual[0].Unwrap(), "Id");
 						Assert.AreEqual(2, actual[1].Id);
-						TestHelper.AreEqual(expected[1].Unwrap(), actual[1].Unwrap(), "Id");
+						AreEqual(expected[1].Unwrap(), actual[1].Unwrap(), "Id");
 					}
 				});
 		}
@@ -149,9 +149,9 @@ namespace Speedy.IntegrationTests
 						var actual = database.Addresses.ToList();
 						Assert.AreEqual(2, actual.Count);
 						Assert.AreEqual(1, actual[0].Id);
-						TestHelper.AreEqual(expected[0].Unwrap(), actual[0].Unwrap(), "Id");
+						AreEqual(expected[0].Unwrap(), actual[0].Unwrap(), "Id");
 						Assert.AreEqual(2, actual[1].Id);
-						TestHelper.AreEqual(expected[1].Unwrap(), actual[1].Unwrap(), "Id");
+						AreEqual(expected[1].Unwrap(), actual[1].Unwrap(), "Id");
 					}
 				});
 		}

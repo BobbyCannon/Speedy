@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Automation.Tests;
+using Speedy.Extensions;
 using Speedy.Storage.KeyValue;
 
 #endregion
@@ -53,7 +54,7 @@ public class KeyValueRepositoryProviderTests : SpeedyUnitTest
 		var actual = provider.AvailableRepositories(name2);
 		repository1.Dispose();
 		repository2.Dispose();
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]
@@ -70,7 +71,7 @@ public class KeyValueRepositoryProviderTests : SpeedyUnitTest
 		var actual = provider.AvailableRepositories();
 		repository1.Dispose();
 		repository2.Dispose();
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]
@@ -83,7 +84,7 @@ public class KeyValueRepositoryProviderTests : SpeedyUnitTest
 		provider.OpenRepository(name).Dispose();
 		var expected = new List<string> { name };
 		var actual = provider.AvailableRepositories();
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[ClassCleanup]
@@ -102,11 +103,11 @@ public class KeyValueRepositoryProviderTests : SpeedyUnitTest
 		provider.OpenRepository(name).Dispose();
 		var expected = new List<string> { name };
 		var actual = provider.AvailableRepositories();
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 		provider.DeleteRepository(name);
 		expected.Clear();
 		actual = provider.AvailableRepositories();
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]
@@ -155,7 +156,7 @@ public class KeyValueRepositoryProviderTests : SpeedyUnitTest
 		provider.OpenRepository(name2).Dispose();
 		var actual = provider.OpenAvailableRepository(name1);
 		repository1.Dispose();
-		TestHelper.AreEqual(name2, actual.Name);
+		AreEqual(name2, actual.Name);
 		actual.Dispose();
 	}
 
@@ -169,7 +170,7 @@ public class KeyValueRepositoryProviderTests : SpeedyUnitTest
 		provider.OpenRepository(name).Dispose();
 		var expected = new List<string> { name };
 		var actual = provider.AvailableRepositories();
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 
 		using (var repository = provider.OpenRepository(name))
 		{
@@ -178,7 +179,7 @@ public class KeyValueRepositoryProviderTests : SpeedyUnitTest
 
 		expected.Clear();
 		actual = provider.AvailableRepositories();
-		TestHelper.AreEqual(expected, actual);
+		AreEqual(expected, actual);
 	}
 
 	[TestMethod]

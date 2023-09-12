@@ -56,7 +56,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreNotEqual(0, actual.Id);
 					Assert.AreEqual(1, actual.Id);
 					Assert.AreNotEqual(default, actual.CreatedOn);
-					TestHelper.AreEqual(expected, actual);
+					AreEqual(expected, actual);
 				});
 		}
 
@@ -237,7 +237,7 @@ namespace Speedy.IntegrationTests
 					Assert.IsNotNull(actual);
 					Assert.AreNotEqual(0, actual.Id);
 					Assert.AreEqual(default, actual.CreatedOn);
-					TestHelper.AreEqual(expected, actual);
+					AreEqual(expected, actual);
 				});
 		}
 
@@ -264,7 +264,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreNotEqual(0, actual.Id);
 					Assert.AreEqual(default, actual.CreatedOn);
 					Assert.AreEqual(default, actual.ModifiedOn);
-					TestHelper.AreEqual(expected, actual);
+					AreEqual(expected, actual);
 				});
 		}
 
@@ -347,7 +347,7 @@ namespace Speedy.IntegrationTests
 					Assert.IsNotNull(actual);
 					Assert.AreNotEqual(0, actual.Id);
 					Assert.AreNotEqual(default, actual.CreatedOn);
-					TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
+					AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 				});
 		}
 
@@ -466,7 +466,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreNotEqual(0, actual.Id);
 					Assert.AreEqual(1, actual.Id);
 					Assert.AreNotEqual(default, actual.CreatedOn);
-					TestHelper.AreEqual(expected, actual);
+					AreEqual(expected, actual);
 
 					expected = new AddressEntity { City = "City", Line1 = "Line1", Line2 = "Line2", Postal = "Postal", State = "State" };
 					database.Addresses.Add(expected);
@@ -477,7 +477,7 @@ namespace Speedy.IntegrationTests
 					Assert.AreNotEqual(0, actual.Id);
 					Assert.AreEqual(2, actual.Id);
 					Assert.AreNotEqual(default, actual.CreatedOn);
-					TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
+					AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 				});
 		}
 
@@ -861,7 +861,7 @@ namespace Speedy.IntegrationTests
 					using (var database = provider.GetDatabase())
 					{
 						var actual = database.LogEvents.ToList().First().Unwrap();
-						TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
+						AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 					}
 				});
 		}
@@ -959,7 +959,7 @@ namespace Speedy.IntegrationTests
 
 					var expected = new[] { address2, address1 };
 					var actual = database.Addresses.ToArray();
-					TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
+					AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 				});
 		}
 
@@ -1758,7 +1758,7 @@ namespace Speedy.IntegrationTests
 					actual = database.Addresses.FirstOrDefault();
 					Assert.IsNotNull(actual);
 					Assert.AreNotEqual(0, actual.Id);
-					TestHelper.AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
+					AreEqual(expected, actual, nameof(AddressEntity.CreatedOn), nameof(AddressEntity.ModifiedOn));
 
 					var originalDate = actual.CreatedOn;
 					actual.CreatedOn = DateTime.MaxValue;
@@ -1791,7 +1791,7 @@ namespace Speedy.IntegrationTests
 				address1.Line1 = "Line One";
 
 				var address2 = database.Addresses.First();
-				TestHelper.AreEqual(address1, address2);
+				AreEqual(address1, address2);
 			});
 
 			providers.ForEach(provider =>
@@ -1825,7 +1825,7 @@ namespace Speedy.IntegrationTests
 				address1.Line1 = "Line One";
 
 				var address2 = database.Addresses.First();
-				TestHelper.AreEqual(address1, address2);
+				AreEqual(address1, address2);
 
 				database.SaveChanges();
 			});

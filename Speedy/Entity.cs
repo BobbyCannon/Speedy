@@ -121,7 +121,7 @@ public abstract class Entity<T> : Entity, IUpdateable<T>
 /// <summary>
 /// Represents a Speedy entity.
 /// </summary>
-public abstract class Entity : Notifiable, IEntity, IUnwrappable
+public abstract class Entity : Notifiable, IEntity
 {
 	#region Constructors
 
@@ -210,26 +210,6 @@ public abstract class Entity : Notifiable, IEntity, IUnwrappable
 	public abstract bool TrySetId(string id);
 
 	/// <summary>
-	/// Unwrap the entity from the proxy. Will ignore virtual properties.
-	/// </summary>
-	/// <returns>
-	/// The real entity unwrapped from the Entity Framework proxy.
-	/// </returns>
-	public virtual object Unwrap()
-	{
-		var test = Activator.CreateInstance(GetRealType());
-		if (test is Entity entity)
-		{
-			entity.UpdateWith(this, false, false, false);
-		}
-		else
-		{
-			test.UpdateWithUsingReflection(this);
-		}
-		return test;
-	}
-
-	/// <summary>
 	/// Update all local sync IDs.
 	/// </summary>
 	public void UpdateLocalSyncIds()
@@ -260,7 +240,7 @@ public abstract class Entity : Notifiable, IEntity, IUnwrappable
 		}
 	}
 
-		/// <summary>
+	/// <summary>
 	/// Allows updating of one type to another based on member Name and Type. Virtual properties are ignore by default.
 	/// </summary>
 	/// <param name="update"> The source of the updates. </param>

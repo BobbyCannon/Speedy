@@ -55,8 +55,8 @@ namespace Speedy.IntegrationTests
 					var exclusions = GetEntityExclusions(addresses1[0]);
 					Assert.AreEqual(2, addresses1.Count);
 					Assert.AreEqual(2, addresses2.Count);
-					TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
-					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), exclusions);
+					AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
+					AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), exclusions);
 				}
 
 				issues = CompleteTestSync(client, server, options);
@@ -87,9 +87,9 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(3, addresses1.Count);
 					Assert.AreEqual(3, addresses2.Count);
 
-					TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
-					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[2].Unwrap(), exclusions);
-					TestHelper.AreEqual(addresses1[2].Unwrap(), addresses2[1].Unwrap(), exclusions);
+					AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
+					AreEqual(addresses1[1].Unwrap(), addresses2[2].Unwrap(), exclusions);
+					AreEqual(addresses1[2].Unwrap(), addresses2[1].Unwrap(), exclusions);
 				}
 
 				CompleteTestSync(client, server, options);
@@ -126,12 +126,12 @@ namespace Speedy.IntegrationTests
 
 					Assert.AreEqual(3, actualAccount.Address.Id);
 					Assert.AreEqual("Foo", actualAccount.Address.Line1);
-					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
-					TestHelper.AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
+					AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
 
-					TestHelper.AreEqual(clientAddresses[0].Unwrap(), serverAddresses[0].Unwrap(), exclusions);
-					TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
-					TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
+					AreEqual(clientAddresses[0].Unwrap(), serverAddresses[0].Unwrap(), exclusions);
+					AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
+					AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
 				}
 
 				CompleteTestSync(client, server, options);
@@ -170,7 +170,7 @@ namespace Speedy.IntegrationTests
 						.AddRange(nameof(ISyncEntity.SyncId))
 						.ToArray();
 
-					TestHelper.AreEqual(actual1, actual2, exclusions);
+					AreEqual(actual1, actual2, exclusions);
 					Assert.AreNotEqual(actual1.SyncId, actual2.SyncId);
 				}
 
@@ -206,8 +206,8 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual(2, addresses2.Count);
 					var exclusions = GetEntityExclusions(addresses1[0]);
 
-					TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
-					TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), exclusions);
+					AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
+					AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), exclusions);
 				}
 
 				using var engine2 = SyncEngine.Run(client, server, options);
@@ -243,8 +243,8 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(2, addresses1.Count);
 				Assert.AreEqual(2, addresses2.Count);
 
-				TestHelper.AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), exclusions);
+				AreEqual(addresses1[0].Unwrap(), addresses2[0].Unwrap(), exclusions);
+				AreEqual(addresses1[1].Unwrap(), addresses2[1].Unwrap(), exclusions);
 			});
 		}
 
@@ -274,12 +274,12 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(3, serverPeople.Count);
 
 				var exclusions = GetEntityExclusions(clientAddresses[0]);
-				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
+				AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
+				AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
 
 				exclusions = GetEntityExclusions(clientPeople[0]);
-				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), exclusions);
+				AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), exclusions);
+				AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), exclusions);
 
 				Assert.AreEqual("Foo", clientAddresses[1].Line1);
 				Assert.AreEqual("Foo", clientPeople[1].Name);
@@ -330,12 +330,12 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(3, serverPeople.Count);
 
 				var exclusions = GetEntityExclusions(clientAddresses[0]);
-				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
+				AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
+				AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
 
 				exclusions = GetEntityExclusions(clientPeople[0]);
-				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), exclusions);
+				AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), exclusions);
+				AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), exclusions);
 
 				Assert.AreEqual("Foo", clientAddresses[1].Line1);
 				Assert.AreEqual("Foo", clientPeople[1].Name);
@@ -386,12 +386,12 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(3, serverPeople.Count);
 
 				var exclusions = GetEntityExclusions(clientAddresses[0]);
-				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
+				AreEqual(clientAddresses[1].Unwrap(), serverAddresses[2].Unwrap(), exclusions);
+				AreEqual(clientAddresses[2].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
 
 				exclusions = GetEntityExclusions(clientPeople[0]);
-				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), exclusions);
+				AreEqual(clientPeople[1].Unwrap(), serverPeople[2].Unwrap(), exclusions);
+				AreEqual(clientPeople[2].Unwrap(), serverPeople[1].Unwrap(), exclusions);
 
 				Assert.AreEqual("Foo", clientAddresses[1].Line1);
 				Assert.AreEqual("Foo", clientPeople[1].Name);
@@ -442,12 +442,12 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(2, serverPeople.Count);
 
 				var exclusions = GetEntityExclusions(clientAddresses[0]);
-				TestHelper.AreEqual(clientAddresses[0].Unwrap(), serverAddresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientAddresses[1].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
+				AreEqual(clientAddresses[0].Unwrap(), serverAddresses[0].Unwrap(), exclusions);
+				AreEqual(clientAddresses[1].Unwrap(), serverAddresses[1].Unwrap(), exclusions);
 
 				exclusions = GetEntityExclusions(clientPeople[0]);
-				TestHelper.AreEqual(clientPeople[0].Unwrap(), serverPeople[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(clientPeople[1].Unwrap(), serverPeople[1].Unwrap(), exclusions);
+				AreEqual(clientPeople[0].Unwrap(), serverPeople[0].Unwrap(), exclusions);
+				AreEqual(clientPeople[1].Unwrap(), serverPeople[1].Unwrap(), exclusions);
 			});
 		}
 
@@ -1140,8 +1140,8 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(1, client2Addresses.Count);
 
 				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true).ToArray();
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
 
 				// Add another address to client 2
 				SetTime(new DateTime(2019, 07, 10, 11, 59, 04));
@@ -1185,8 +1185,8 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(2, client2Addresses.Count);
 
 				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true).ToArray();
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
 			}
 
 			// Do first part of syncing client 2 (client2 <- server 2)
@@ -1221,8 +1221,8 @@ namespace Speedy.IntegrationTests
 				Assert.AreEqual(2, client2Addresses.Count);
 
 				var exclusions = client1Addresses[0].GetSyncExclusions(true, false, true).ToArray();
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
 			}
 
 			// Do second part of client 2 (client2 -> server2)
@@ -1258,9 +1258,9 @@ namespace Speedy.IntegrationTests
 					.AddRange(nameof(IModifiableEntity.ModifiedOn))
 					.ToArray();
 
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), exclusions);
 			}
 
 			// Do second part of client 1 (client1 -> server1)
@@ -1295,9 +1295,9 @@ namespace Speedy.IntegrationTests
 					.AddRange(nameof(IModifiableEntity.ModifiedOn))
 					.ToArray();
 
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), exclusions);
 			}
 
 			// Sync Set 2: Go ahead and sync the data to all locations
@@ -1332,10 +1332,10 @@ namespace Speedy.IntegrationTests
 					.AddRange(nameof(IModifiableEntity.ModifiedOn))
 					.ToArray();
 
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client1Addresses[1].Unwrap(), exclusions);
-				TestHelper.AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client1Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[0].Unwrap(), client2Addresses[0].Unwrap(), exclusions);
+				AreEqual(serverAddresses[1].Unwrap(), client1Addresses[1].Unwrap(), exclusions);
+				AreEqual(serverAddresses[1].Unwrap(), client2Addresses[1].Unwrap(), exclusions);
 			}
 
 			// Sync Set 3
@@ -1479,8 +1479,8 @@ namespace Speedy.IntegrationTests
 				{
 					var account = serverDatabase.Accounts.Including(x => x.Address).OrderBy(x => x.Id).Skip(1).First();
 					Assert.AreEqual("Foo", account.Address.Line1);
-					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
-					TestHelper.AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
+					AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
 					Assert.AreEqual(3, clientDatabase.Addresses.Count());
 					Assert.AreEqual(2, clientDatabase.Accounts.Count());
 					Assert.AreEqual(3, serverDatabase.Addresses.Count());
@@ -1512,8 +1512,8 @@ namespace Speedy.IntegrationTests
 					Assert.AreEqual("Bar", serverPerson.Address.Line1);
 					Assert.AreEqual(removedAddress.SyncId, serverPerson.AddressSyncId);
 					Assert.AreEqual(removedAddress.SyncId, serverPerson.Address.SyncId);
-					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
-					TestHelper.AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
+					AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
 					Assert.AreEqual(3, clientDatabase.Addresses.Count());
 					Assert.AreEqual(2, clientDatabase.Accounts.Count());
 					Assert.AreEqual(3, serverDatabase.Addresses.Count());
@@ -1550,8 +1550,8 @@ namespace Speedy.IntegrationTests
 				using (var serverDatabase = server.GetDatabase<IContosoDatabase>())
 				{
 					Assert.AreEqual("Foo", serverDatabase.Accounts.Include(x => x.Address).OrderBy(x => x.Id).Skip(1).First().Address.Line1);
-					TestHelper.AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
-					TestHelper.AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
+					AreEqual(serverDatabase.Addresses.Count(), clientDatabase.Addresses.Count());
+					AreEqual(serverDatabase.Accounts.Count(), clientDatabase.Accounts.Count());
 					Assert.AreEqual(3, clientDatabase.Addresses.Count());
 					Assert.AreEqual(2, clientDatabase.Accounts.Count());
 					Assert.AreEqual(3, serverDatabase.Addresses.Count());

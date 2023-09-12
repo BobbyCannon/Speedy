@@ -20,7 +20,7 @@ using Speedy.UnitTests;
 namespace Speedy.AutomationTests.Web
 {
 	[TestClass]
-	public class BrowserTests
+	public class BrowserTests : SpeedyUnitTest
 	{
 		#region Constructors
 
@@ -56,14 +56,14 @@ namespace Speedy.AutomationTests.Web
 
 				var expected = "ng-valid-parse ng-untouched ng-scope ng-invalid ng-not-empty ng-dirty ng-invalid-email ng-valid-required".Split(' ');
 				var actual = email.GetAttributeValue("class", true).Split(' ');
-				TestHelper.AreEqual("user", email.Text);
-				TestHelper.AreEqual(expected, actual);
+				AreEqual("user", email.Text);
+				AreEqual(expected, actual);
 
 				email.SendKeys("@domain.com");
 				expected = "ng-valid-parse ng-untouched ng-scope ng-not-empty ng-dirty ng-valid-required ng-valid ng-valid-email".Split(' ');
 				actual = email.GetAttributeValue("class", true).Split(' ');
-				TestHelper.AreEqual("user@domain.com", email.Text);
-				TestHelper.AreEqual(expected, actual);
+				AreEqual("user@domain.com", email.Text);
+				AreEqual(expected, actual);
 			});
 		}
 
@@ -374,7 +374,7 @@ namespace Speedy.AutomationTests.Web
 
 				var expected = new[] { "child1div", "child2span", "child3br", "child4input" };
 				Assert.AreEqual(4, children.Count);
-				TestHelper.AreEqual(expected.ToList(), children.Select(x => x.Id).ToList());
+				AreEqual(expected.ToList(), children.Select(x => x.Id).ToList());
 			});
 		}
 

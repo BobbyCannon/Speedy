@@ -88,12 +88,12 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(123, actual.Arguments[index++]);
 			Assert.AreEqual(123.45f, actual.Arguments[index++]);
 			Assert.AreEqual("Boom", actual.Arguments[index++]);
-			TestHelper.AreEqual(new byte[] { 1, 2, 3 }, actual.Arguments[index++]);
+			AreEqual(new byte[] { 1, 2, 3 }, actual.Arguments[index++]);
 			Assert.AreEqual((long) 321, actual.Arguments[index++]);
 			Assert.AreEqual(new OscTimeTag(new DateTime(2019, 1, 20, 07, 53, 56, DateTimeKind.Local)), actual.Arguments[index++]);
 			Assert.AreEqual(new OscTimeTag(new DateTime(2019, 1, 20, 08, 50, 12, DateTimeKind.Local)), actual.Arguments[index++]);
 			Assert.AreEqual(54.321d, actual.Arguments[index++]);
-			TestHelper.AreEqual(new List<object> { true, 123, "fox", null }, actual.Arguments[index++]);
+			AreEqual(new List<object> { true, 123, "fox", null }, actual.Arguments[index++]);
 			Assert.AreEqual('A', actual.Arguments[index++]);
 			Assert.AreEqual(true, actual.Arguments[index++]);
 			Assert.AreEqual(false, actual.Arguments[index++]);
@@ -102,9 +102,9 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(null, actual.Arguments[index++]);
 			Assert.AreEqual(double.PositiveInfinity, actual.Arguments[index++]);
 			Assert.AreEqual(double.PositiveInfinity, actual.Arguments[index++]);
-			TestHelper.AreEqual(new OscSymbol("Test"), actual.Arguments[index++]);
-			TestHelper.AreEqual(new OscRgba(1, 2, 3, 4), actual.Arguments[index++]);
-			TestHelper.AreEqual(new OscMidi(), actual.Arguments[index++]);
+			AreEqual(new OscSymbol("Test"), actual.Arguments[index++]);
+			AreEqual(new OscRgba(1, 2, 3, 4), actual.Arguments[index++]);
+			AreEqual(new OscMidi(), actual.Arguments[index++]);
 		}
 
 		[TestMethod]
@@ -257,7 +257,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			actual.Dump();
 
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 			Assert.IsTrue((actual.Length % 4) == 1);
 		}
 
@@ -272,7 +272,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			data.Dump();
 
-			TestHelper.AreEqual(expected, data);
+			AreEqual(expected, data);
 			Assert.IsTrue((data.Length % 4) == 1);
 
 			var packets = new List<OscPacket>();
@@ -307,7 +307,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			data.Dump();
 
-			TestHelper.AreEqual(expected, data);
+			AreEqual(expected, data);
 			Assert.IsTrue((data.Length % 4) == 1);
 
 			var packets = new List<OscPacket>();
@@ -343,7 +343,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			data.Dump();
 
-			TestHelper.AreEqual(expected, data);
+			AreEqual(expected, data);
 			Assert.IsTrue((data.Length % 4) == 1);
 
 			var packets = new List<OscPacket>();

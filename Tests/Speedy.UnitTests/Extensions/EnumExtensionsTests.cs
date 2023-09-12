@@ -16,7 +16,7 @@ using Speedy.Sync;
 namespace Speedy.UnitTests.Extensions
 {
 	[TestClass]
-	public class EnumExtensionsTests
+	public class EnumExtensionsTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -94,35 +94,35 @@ namespace Speedy.UnitTests.Extensions
 		{
 			var valuesByte = EnumExtensions.GetFlagValues<MyEnumByte>();
 			var expectedByte = new[] { MyEnumByte.One, MyEnumByte.Two };
-			TestHelper.AreEqual(expectedByte, valuesByte);
+			AreEqual(expectedByte, valuesByte);
 
 			var valuesSByte = EnumExtensions.GetFlagValues<MyEnumSByte>();
 			var expectedSByte = new[] { MyEnumSByte.One, MyEnumSByte.Two };
-			TestHelper.AreEqual(expectedSByte, valuesSByte);
+			AreEqual(expectedSByte, valuesSByte);
 
 			var valuesShort = EnumExtensions.GetFlagValues<MyEnumShort>();
 			var expectedShort = new[] { MyEnumShort.One, MyEnumShort.Two };
-			TestHelper.AreEqual(expectedShort, valuesShort);
+			AreEqual(expectedShort, valuesShort);
 
 			var valuesUnsignedShort = EnumExtensions.GetFlagValues<MyEnumUnsignedShort>();
 			var expectedUnsignedShort = new[] { MyEnumUnsignedShort.One, MyEnumUnsignedShort.Two };
-			TestHelper.AreEqual(expectedUnsignedShort, valuesUnsignedShort);
+			AreEqual(expectedUnsignedShort, valuesUnsignedShort);
 
 			var values1 = EnumExtensions.GetFlagValues<MyEnum>();
 			var expected1 = new[] { MyEnum.One, MyEnum.Two };
-			TestHelper.AreEqual(expected1, values1);
+			AreEqual(expected1, values1);
 
 			var valuesUnsigned = EnumExtensions.GetFlagValues<MyEnumUnsigned>();
 			var expectedUnsigned = new[] { MyEnumUnsigned.One, MyEnumUnsigned.Two };
-			TestHelper.AreEqual(expectedUnsigned, valuesUnsigned);
+			AreEqual(expectedUnsigned, valuesUnsigned);
 
 			var valuesLong = EnumExtensions.GetFlagValues<MyEnumLong>();
 			var expectedLong = new[] { MyEnumLong.One, MyEnumLong.Two };
-			TestHelper.AreEqual(expectedLong, valuesLong);
+			AreEqual(expectedLong, valuesLong);
 
 			var valuesLongUnsigned = EnumExtensions.GetFlagValues<MyEnumLongUnsigned>();
 			var expectedLongUnsigned = new[] { MyEnumLongUnsigned.One, MyEnumLongUnsigned.Two };
-			TestHelper.AreEqual(expectedLongUnsigned, valuesLongUnsigned);
+			AreEqual(expectedLongUnsigned, valuesLongUnsigned);
 		}
 
 		[TestMethod]

@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Speedy.Extensions;
@@ -16,6 +17,18 @@ namespace Speedy.Automation.Tests;
 public static class TestingExtensions
 {
 	#region Methods
+
+	/// <summary>
+	/// Copy the string version of the value to the clipboard.
+	/// </summary>
+	/// <typeparam name="T"> The type of the value. </typeparam>
+	/// <param name="value"> The object to copy to the clipboard. Calls ToString on the value. </param>
+	/// <returns> The value input to allow for method chaining. </returns>
+	public static T CopyToClipboard<T>(this T value)
+	{
+		SpeedyTest.CopyToClipboard(value);
+		return value;
+	}
 
 	/// <summary>
 	/// Dump the item to the Console.WriteLine().
@@ -34,7 +47,51 @@ public static class TestingExtensions
 	/// <param name="items"> The objects to dump. </param>
 	/// <param name="prefix"> On optional prefix to write before each character. </param>
 	/// <returns> The items that was dumped. </returns>
+	public static string Dump(this IEnumerable items, string prefix = null)
+	{
+		var builder = new StringBuilder();
+		foreach (var item in items)
+		{
+			if (prefix != null)
+			{
+				builder.Append(prefix);
+			}
+
+			builder.Append(item);
+		}
+		Console.WriteLine(builder.ToString());
+		return builder.ToString();
+	}
+
+	/// <summary>
+	/// Dump the objects to the Console.WriteLine().
+	/// </summary>
+	/// <param name="items"> The objects to dump. </param>
+	/// <param name="prefix"> On optional prefix to write before each character. </param>
+	/// <returns> The items that was dumped. </returns>
 	public static string Dump(this IEnumerable<object> items, string prefix = null)
+	{
+		var builder = new StringBuilder();
+		foreach (var item in items)
+		{
+			if (prefix != null)
+			{
+				builder.Append(prefix);
+			}
+
+			builder.Append(item);
+		}
+		Console.WriteLine(builder.ToString());
+		return builder.ToString();
+	}
+
+	/// <summary>
+	/// Dump the objects to the Console.WriteLine().
+	/// </summary>
+	/// <param name="items"> The objects to dump. </param>
+	/// <param name="prefix"> On optional prefix to write before each character. </param>
+	/// <returns> The items that was dumped. </returns>
+	public static string Dump<T>(this IList<T> items, string prefix = null)
 	{
 		var builder = new StringBuilder();
 		foreach (var item in items)
@@ -127,6 +184,22 @@ public static class TestingExtensions
 	}
 
 	/// <summary>
+	/// Dump each item to the Console.WriteLine().
+	/// </summary>
+	/// <typeparam name="T"> The type of the item in the list. </typeparam>
+	/// <param name="items"> The items to dump. </param>
+	/// <returns> The items that was dumped. </returns>
+	public static T[] Dump<T>(this T[] items)
+	{
+		foreach (var item in items)
+		{
+			item.Dump();
+		}
+
+		return items;
+	}
+
+	/// <summary>
 	/// Dump the item to the Console.WriteLine().
 	/// </summary>
 	/// <typeparam name="T"> The type of the item. </typeparam>
@@ -135,12 +208,20 @@ public static class TestingExtensions
 	/// <returns> The item that was dumped. </returns>
 	public static T Dump<T>(this T item, string prefix = null)
 	{
-		if (!string.IsNullOrWhiteSpace(prefix))
+		if (item is IEnumerable enumerable)
 		{
-			Console.Write(prefix);
+			enumerable.Dump(prefix);
+			return item;
 		}
 
-		Console.WriteLine(item);
+		if (!string.IsNullOrWhiteSpace(prefix))
+		{
+			Console.WriteLine(prefix + " : " + item);
+		}
+		else
+		{
+			Console.WriteLine(item);
+		}
 		return item;
 	}
 
@@ -168,7 +249,22 @@ public static class TestingExtensions
 	/// <param name="item"> The item to dump. </param>
 	public static string DumpJson(this object item)
 	{
-		var json = item.ToRawJson(true);
+		return DumpJson(item, null);
+	}
+
+	/// <summary>
+	/// Dump the item to the Console.WriteLine().
+	/// </summary>
+	/// <param name="item"> The item to dump. </param>
+	/// <param name="prefix"> An optional prefix. </param>
+	public static string DumpJson(this object item, string prefix)
+	{
+		if (!string.IsNullOrEmpty(prefix))
+		{
+			Console.Write(prefix);
+		}
+
+		var json = item.ToRawJson(indented: true);
 		Console.WriteLine(json);
 		return json;
 	}

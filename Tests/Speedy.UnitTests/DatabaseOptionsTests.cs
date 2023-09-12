@@ -9,7 +9,7 @@ using Speedy.Sync;
 namespace Speedy.UnitTests
 {
 	[TestClass]
-	public class DatabaseOptionsTests
+	public class DatabaseOptionsTests : CloneableSpeedUnitTests
 	{
 		#region Methods
 
@@ -29,7 +29,7 @@ namespace Speedy.UnitTests
 				new DatabaseOptions { DisableEntityValidations = false, MaintainCreatedOn = false, MaintainModifiedOn = false, MaintainSyncId = false, PermanentSyncEntityDeletions = false, SyncOrder = Array.Empty<string>(), Timeout = TimeSpan.FromTicks(1), UnmaintainedEntities = new[] { typeof(ISyncEntity) } }
 			};
 
-			CloneableHelper.BaseShouldCloneTest(testItems);
+			BaseShouldCloneTest(testItems);
 		}
 
 		#endregion

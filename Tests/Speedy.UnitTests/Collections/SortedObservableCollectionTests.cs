@@ -51,7 +51,7 @@ namespace Speedy.UnitTests.Collections
 		{
 			var collection = new SortedObservableCollection<string>(new OrderBy<string>(x => x));
 			collection.AddRange("b", "d", "c", "a");
-			TestHelper.AreEqual(new[] { "a", "b", "c", "d" }, collection.ToArray());
+			AreEqual(new[] { "a", "b", "c", "d" }, collection.ToArray());
 		}
 
 		[TestMethod]
@@ -80,11 +80,11 @@ namespace Speedy.UnitTests.Collections
 			collection.Add(2);
 
 			var expected = new[] { 1, 2, 5 };
-			TestHelper.AreEqual(expected, collection.ToArray());
+			AreEqual(expected, collection.ToArray());
 
 			expected = new[] { 2, 3, 5 };
 			collection.Add(3);
-			TestHelper.AreEqual(expected, collection.ToArray());
+			AreEqual(expected, collection.ToArray());
 
 			Assert.AreEqual(8, actual.Count);
 			Assert.AreEqual(NotifyCollectionChangedAction.Add, actual[0].Action); // Add 5
@@ -221,7 +221,7 @@ namespace Speedy.UnitTests.Collections
 			Parallel.For(0, count, (x, s) => { collection.Add(x); });
 
 			var expected = Enumerable.Range(0, count).ToArray();
-			TestHelper.AreEqual(expected, collection.ToArray());
+			AreEqual(expected, collection.ToArray());
 		}
 
 		#endregion

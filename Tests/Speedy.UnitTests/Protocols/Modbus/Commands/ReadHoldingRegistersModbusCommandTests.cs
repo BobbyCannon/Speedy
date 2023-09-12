@@ -8,7 +8,7 @@ using Speedy.Protocols.Modbus.Commands;
 namespace Speedy.UnitTests.Protocols.Modbus.Commands
 {
 	[TestClass]
-	public class ReadHoldingRegistersModbusCommandTests
+	public class ReadHoldingRegistersModbusCommandTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -18,14 +18,14 @@ namespace Speedy.UnitTests.Protocols.Modbus.Commands
 			var command = new ReadHoldingRegistersModbusCommand(1, 18, 1);
 			var expected = new byte[] { 0x01, 0x03, 0x00, 0x12, 0x00, 0x01, 0x24, 0x0F };
 			var actual = command.ToBuffer();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		#endregion
 	}
 	
 	[TestClass]
-	public class ReadHoldingRegistersModbusResponseTests
+	public class ReadHoldingRegistersModbusResponseTests : SpeedyUnitTest
 	{
 		#region Methods
 
@@ -35,7 +35,7 @@ namespace Speedy.UnitTests.Protocols.Modbus.Commands
 			var command = new ReadHoldingRegistersModbusCommand(1, 18, 1);
 			var expected = new byte[] { 0x01, 0x03, 0x00, 0x12, 0x00, 0x01, 0x24, 0x0F };
 			var actual = command.ToBuffer();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		#endregion

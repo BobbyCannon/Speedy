@@ -5062,6 +5062,68 @@
             <param name="arguments"> The value of the arguments. </param>
             <returns> The new instances of the type. </returns>
         </member>
+        <member name="T:Speedy.DateTimeProvider">
+            <summary>
+            Represents a time provider
+            </summary>
+        </member>
+        <member name="M:Speedy.DateTimeProvider.#ctor">
+            <summary>
+            Instantiate an provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.DateTimeProvider.#ctor(System.DateTime)">
+            <summary>
+            Instantiate an provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.DateTimeProvider.#ctor(System.Guid,System.DateTime)">
+            <summary>
+            Instantiate an provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.DateTimeProvider.#ctor(System.Func{System.DateTime})">
+            <summary>
+            Instantiate an provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.DateTimeProvider.#ctor(System.Guid,System.Func{System.DateTime})">
+            <summary>
+            Instantiate an provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.DateTimeProvider.GetDateTime">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.DateTimeProvider.GetProviderId">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.DateTimeProvider.GetUtcDateTime">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.DateTimeProvider.UpdateDateTime(System.DateTime)">
+            <summary>
+            Update the time for the provider.
+            </summary>
+            <param name="time"> </param>
+        </member>
+        <member name="T:Speedy.IDateTimeProvider">
+            <summary>
+            Represents a time provider
+            </summary>
+        </member>
+        <member name="M:Speedy.IDateTimeProvider.GetDateTime">
+            <summary>
+            Gets the DateTime in the current time zone.
+            </summary>
+            <returns> The current UTC date and time for the sync client. </returns>
+        </member>
+        <member name="M:Speedy.IDateTimeProvider.GetUtcDateTime">
+            <summary>
+            Gets the DateTime in UTC.
+            </summary>
+            <returns> The current UTC date and time for the sync client. </returns>
+        </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
             Represents a default dispatcher
@@ -5261,14 +5323,6 @@
         </member>
         <member name="M:Speedy.Entity.TrySetId(System.String)">
             <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity.Unwrap">
-            <summary>
-            Unwrap the entity from the proxy. Will ignore virtual properties.
-            </summary>
-            <returns>
-            The real entity unwrapped from the Entity Framework proxy.
-            </returns>
         </member>
         <member name="M:Speedy.Entity.UpdateLocalSyncIds">
             <summary>
@@ -7188,6 +7242,14 @@
             <param name="value"> </param>
             <returns> </returns>
         </member>
+        <member name="M:Speedy.Extensions.ObjectExtensions.Unwrap``1(``0)">
+            <summary>
+            Unwrap the entity from the proxy.
+            </summary>
+            <returns>
+            The real entity unwrapped from the Entity Framework proxy.
+            </returns>
+        </member>
         <member name="T:Speedy.Extensions.QueryableExtensions">
             <summary>
             Extensions for queryable
@@ -8779,6 +8841,17 @@
         <member name="M:Speedy.IncludableQueryable`2.System#Collections#IEnumerable#GetEnumerator">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.IProvider">
+            <summary>
+            Represents a provider of data. This is the base contract that only provider the ID for the provider.
+            </summary>
+        </member>
+        <member name="M:Speedy.IProvider.GetProviderId">
+            <summary>
+            Gets the ID of the provider.
+            </summary>
+            <returns> </returns>
+        </member>
         <member name="T:Speedy.IRepository`2">
             <summary>
             Represents a collection of entities for a Speedy database.
@@ -9136,17 +9209,6 @@
             Removes a sync entity to the repository.
             </summary>
             <param name="entity"> The entity to be added. </param>
-        </member>
-        <member name="T:Speedy.IUnwrappable">
-            <summary>
-            Represents an unwrappable entity
-            </summary>
-        </member>
-        <member name="M:Speedy.IUnwrappable.Unwrap">
-            <summary>
-            Unwraps an object from the object proxy.
-            </summary>
-            <returns> The unwrapped entity. </returns>
         </member>
         <member name="T:Speedy.IUpdateable`1">
             <summary>
@@ -14278,6 +14340,21 @@
             The full alphabet with lower and upper cased versions.
             </summary>
         </member>
+        <member name="F:Speedy.RandomGenerator.AlphabetLowerOnly">
+            <summary>
+            The full alphabet with only lower cased versions.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.AlphabetUpperOnly">
+            <summary>
+            The full alphabet with only upper cased versions.
+            </summary>
+        </member>
+        <member name="F:Speedy.RandomGenerator.AlphabetUpperOnlyAndNumbers">
+            <summary>
+            The full alphabet with only upper cased versions and numbers.
+            </summary>
+        </member>
         <member name="F:Speedy.RandomGenerator.AlphabetAndNumbers">
             <summary>
             The full alphabet with lower / upper cased versions and numbers.
@@ -14382,10 +14459,10 @@
             <summary>
             Create a random string containing the "lorem ipsum" words. This is very useful during testing.
             </summary>
-            <param name="minWords"> The minimum number of words per sentence. </param>
-            <param name="maxWords"> The maximum number of words per sentence. </param>
-            <param name="minSentences"> The minimum number of sentences per paragraph. </param>
-            <param name="maxSentences"> The maximum number of sentences per paragraph. </param>
+            <param name="minWords"> The minimumInclusive number of words per sentence. </param>
+            <param name="maxWords"> The maximumExclusive number of words per sentence. </param>
+            <param name="minSentences"> The minimumInclusive number of sentences per paragraph. </param>
+            <param name="maxSentences"> The maximumExclusive number of sentences per paragraph. </param>
             <param name="numParagraphs"> The number of paragraphs to generate. </param>
             <param name="prefix"> An optional paragraph prefix. </param>
             <param name="suffix"> An optional paragraph suffix. </param>
@@ -14410,8 +14487,8 @@
             <summary>
             Returns a random datetime that is within a specified range.
             </summary>
-            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximumExclusive"> The exclusive maximumExclusive bound of the random number returned. </param>
             <returns>
             A datetime greater than or equal to minValue and less than maxValue; that is, the range of return
             values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
@@ -14421,8 +14498,8 @@
             <summary>
             Returns a random decimal number that is within a specified range.
             </summary>
-            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximumExclusive"> The exclusive maximumExclusive bound of the random number returned. </param>
             <param name="scale"> The scale about to include in the next double. Defaults to 0. </param>
             <returns>
             A decimal number greater than or equal to minValue and less than maxValue; that is, the range of return
@@ -14433,8 +14510,8 @@
             <summary>
             Returns a random double floating point that is within a specified range.
             </summary>
-            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-            <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+            <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximumExclusive"> The exclusive maximumExclusive bound of the random number returned. </param>
             <param name="scale"> The scale of the double. How precise? 1 = 0.1, 2 = 0.01 </param>
             <returns>
             A double floating point number greater than or equal to minValue and less than maxValue; that is, the
@@ -14445,22 +14522,22 @@
             <summary>
             Returns a random integer that is within a specified range.
             </summary>
-            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-            <param name="maximum"> The exclusive upper bound of the random number returned. </param>
+            <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximumExclusive"> The exclusive upper bound of the random number returned. </param>
             <returns>
-            A 32-bit signed integer greater than or equal to minimum and less than maximum; that is, the range
-            of return values includes minimum but not maximum. If minimum equals maximum, minimum is returned.
+            A 32-bit signed integer greater than or equal to minimumInclusive and less than maximumExclusive; that is, the range
+            of return values includes minimumInclusive but not maximumExclusive. If minimumInclusive equals maximumExclusive, minimumInclusive is returned.
             </returns>
         </member>
         <member name="M:Speedy.RandomGenerator.NextLong(System.Int64,System.Int64)">
             <summary>
             Returns a random integer that is within a specified range.
             </summary>
-            <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-            <param name="maximum"> The exclusive upper bound of the random number returned. </param>
+            <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+            <param name="maximumExclusive"> The exclusive upper bound of the random number returned. </param>
             <returns>
-            A 64-bit signed integer greater than or equal to minimum and less than maximum; that is, the range
-            of return values includes minimum but not maximum. If minimum equals maximum, minimum is returned.
+            A 64-bit signed integer greater than or equal to minimumInclusive and less than maximumExclusive; that is, the range
+            of return values includes minimumInclusive but not maximumExclusive. If minimumInclusive equals maximumExclusive, minimumInclusive is returned.
             </returns>
         </member>
         <member name="M:Speedy.RandomGenerator.NextString(System.Int32,System.String)">
@@ -19209,14 +19286,14 @@
             Represents the service to provide time. Allows control for when the system is being tested.
             </summary>
         </member>
-        <member name="P:Speedy.TimeService.CurrentNowProviderId">
+        <member name="P:Speedy.TimeService.CurrentProvider">
             <summary>
             Gets the ID of the Now provider.
             </summary>
         </member>
-        <member name="P:Speedy.TimeService.CurrentUtcNowProviderId">
+        <member name="P:Speedy.TimeService.CurrentProviderId">
             <summary>
-            Gets the ID of the UtcNow provider.
+            Gets the ID of the Now provider.
             </summary>
         </member>
         <member name="P:Speedy.TimeService.Now">
@@ -19229,55 +19306,49 @@
             Gets the date time in the format of UTC time zone.
             </summary>
         </member>
-        <member name="M:Speedy.TimeService.AddNowProvider(System.Func{System.DateTime})">
-            <summary>
-            Add a new DateTime.Now provider onto the stack.
-            </summary>
-            <returns>
-            The id of the provider. Use this id to remove it from the stack.
-            </returns>
+        <member name="M:Speedy.TimeService.GetDateTime">
+            <inheritdoc />
         </member>
-        <member name="M:Speedy.TimeService.AddUtcNowProvider(System.Func{System.DateTime})">
-            <summary>
-            Add a new DateTime.UtcNow provider onto the stack.
-            </summary>
-            <returns>
-            The id of the provider. Use this id to remove it from the stack.
-            </returns>
+        <member name="M:Speedy.TimeService.GetProviderId">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.TimeService.GetUtcDateTime">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.TimeService.LockService">
             <summary>
             Log the service to not allow the time service to be mocked / changed.
             </summary>
         </member>
-        <member name="M:Speedy.TimeService.RemoveNowProvider(System.UInt32)">
+        <member name="M:Speedy.TimeService.PopProvider">
             <summary>
-            Remove the DateTime.Now provider from the stack by the provided id.
+            Remove the current provider from the stack
             </summary>
         </member>
-        <member name="M:Speedy.TimeService.RemoveUtcNowProvider(System.UInt32)">
+        <member name="M:Speedy.TimeService.PushProvider(System.Func{System.DateTime})">
             <summary>
-            Remove the DateTime.UtcNow provider from the stack by the provided id.
+            Add a new DateTime provider onto the stack.
+            </summary>
+        </member>
+        <member name="M:Speedy.TimeService.PushProvider(Speedy.IDateTimeProvider)">
+            <summary>
+            Add a new DateTime provider onto the stack.
+            </summary>
+        </member>
+        <member name="M:Speedy.TimeService.RemoveProvider(System.Guid)">
+            <summary>
+            Remove the provider from the stack
+            </summary>
+        </member>
+        <member name="M:Speedy.TimeService.RemoveProvider(Speedy.DateTimeProvider)">
+            <summary>
+            Remove the provider from the stack
             </summary>
         </member>
         <member name="M:Speedy.TimeService.Reset">
             <summary>
             Resets the providers to the default values.
             </summary>
-        </member>
-        <member name="M:Speedy.TimeService.TryAddNowProvider(System.Func{System.DateTime},System.Nullable{System.UInt32}@)">
-            <summary>
-            Try to add a new DateTime.Now provider onto the stack.
-            </summary>
-            <param name="provider"> The provider to add. </param>
-            <param name="id"> The id of the added provider. Returns null if provider not added. </param>
-        </member>
-        <member name="M:Speedy.TimeService.TryAddUtcNowProvider(System.Func{System.DateTime},System.Nullable{System.UInt32}@)">
-            <summary>
-            Try to add a new DateTime.UtcNow provider onto the stack.
-            </summary>
-            <param name="provider"> The provider to add. </param>
-            <param name="id"> The id of the added provider. Returns null if provider not added. </param>
         </member>
         <member name="P:Speedy.Validation.FailedValidation.Message">
             <inheritdoc />

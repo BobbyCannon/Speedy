@@ -61,7 +61,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 
 			actual.Dump();
 
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -71,22 +71,22 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(float.PositiveInfinity);
 			var actual = message.ToByteArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(float.NegativeInfinity);
 			actual = message.ToByteArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(double.PositiveInfinity);
 			actual = message.ToByteArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 
 			message = new OscMessage(TimeService.UtcNow, "/test");
 			message.Arguments.Add(double.NegativeInfinity);
 			actual = message.ToByteArray();
-			TestHelper.AreEqual(expected, actual);
+			AreEqual(expected, actual);
 		}
 
 		[TestMethod]
@@ -128,7 +128,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var expected = new OscMessage("/command", 123, 1234L);
 			var actual = (OscMessage) OscPacket.Parse(data);
 
-			TestHelper.AreEqual(expected, actual, false, nameof(OscMessage.Time));
+			AreEqual(expected, actual, nameof(OscMessage.Time));
 		}
 
 		[TestMethod]
@@ -264,14 +264,14 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var actualString = oscMessage.ToString();
 			Assert.AreEqual(expected, actualString);
 			var actualMessage = OscPacket.Parse(expected) as OscMessage;
-			TestHelper.AreEqual(oscMessage, actualMessage, false, nameof(OscMessage.Time));
+			AreEqual(oscMessage, actualMessage,nameof(OscMessage.Time));
 
 			// The hex version
 			expected = "/command,0x0000007B,0x000001C8u,0x00000000000010E1L,0x000000000000223DU,12.34f,123.456d,\"123456\",True,False,{ Blob: 0x000102 },[0xFFFFFF85,0x000001C8u,0xFFFFFFFFFFFFEF1FL,0x000000000000223DU,-12.34f,-123.456d,True,False],{ Time: 2021-02-17T09:18:41.8420000Z },{ Time: 2021-02-17T09:18:41.8420000Z }";
 			actualString = oscMessage.ToHexString();
 			Assert.AreEqual(expected, actualString);
 			actualMessage = OscPacket.Parse(expected) as OscMessage;
-			TestHelper.AreEqual(oscMessage, actualMessage, false, nameof(OscMessage.Time));
+			AreEqual(oscMessage, actualMessage, nameof(OscMessage.Time));
 		}
 
 		[TestMethod]
@@ -284,7 +284,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(expected, actualString);
 
 			var actualMessage = OscPacket.Parse(expected) as OscMessage;
-			TestHelper.AreEqual(oscMessage, actualMessage, false, nameof(OscMessage.Time));
+			AreEqual(oscMessage, actualMessage, nameof(OscMessage.Time));
 
 			oscMessage = new OscMessage("/command", int.MinValue, long.MinValue);
 			expected = "/command,0x80000000,0x8000000000000000L";
@@ -293,7 +293,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(expected, actualString);
 
 			actualMessage = OscPacket.Parse(expected) as OscMessage;
-			TestHelper.AreEqual(oscMessage, actualMessage, false, nameof(OscMessage.Time));
+			AreEqual(oscMessage, actualMessage, nameof(OscMessage.Time));
 
 			oscMessage = new OscMessage("/command", int.MaxValue, long.MaxValue);
 			expected = "/command,0x7FFFFFFF,0x7FFFFFFFFFFFFFFFL";
@@ -302,7 +302,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			Assert.AreEqual(expected, actualString);
 
 			actualMessage = OscPacket.Parse(expected) as OscMessage;
-			TestHelper.AreEqual(oscMessage, actualMessage, false, nameof(OscMessage.Time));
+			AreEqual(oscMessage, actualMessage, nameof(OscMessage.Time));
 		}
 
 		#endregion

@@ -27,7 +27,22 @@ public static class RandomGenerator
 	/// <summary>
 	/// The full alphabet with lower and upper cased versions.
 	/// </summary>
-	public const string Alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public const string Alphabet = AlphabetLowerOnly + AlphabetUpperOnly;
+
+	/// <summary>
+	/// The full alphabet with only lower cased versions.
+	/// </summary>
+	public const string AlphabetLowerOnly = "abcdefghijklmnopqrstuvwxyz";
+
+	/// <summary>
+	/// The full alphabet with only upper cased versions.
+	/// </summary>
+	public const string AlphabetUpperOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	/// <summary>
+	/// The full alphabet with only upper cased versions and numbers.
+	/// </summary>
+	public const string AlphabetUpperOnlyAndNumbers = AlphabetUpperOnly + Numbers;
 
 	/// <summary>
 	/// The full alphabet with lower / upper cased versions and numbers.
@@ -57,7 +72,7 @@ public static class RandomGenerator
 	/// <summary>
 	/// A subset of symbols. Not an exhaustive list.
 	/// </summary>
-	public const string Symbols = " !\"#$%&\'()*+,-./:;<=>?@\\]^_`~";
+	public const string Symbols = "!\"#$%&\'()*+,-./:;<=>?@\\]^_`~";
 
 	#endregion
 
@@ -227,10 +242,10 @@ public static class RandomGenerator
 	/// <summary>
 	/// Create a random string containing the "lorem ipsum" words. This is very useful during testing.
 	/// </summary>
-	/// <param name="minWords"> The minimum number of words per sentence. </param>
-	/// <param name="maxWords"> The maximum number of words per sentence. </param>
-	/// <param name="minSentences"> The minimum number of sentences per paragraph. </param>
-	/// <param name="maxSentences"> The maximum number of sentences per paragraph. </param>
+	/// <param name="minWords"> The minimumInclusive number of words per sentence. </param>
+	/// <param name="maxWords"> The maximumExclusive number of words per sentence. </param>
+	/// <param name="minSentences"> The minimumInclusive number of sentences per paragraph. </param>
+	/// <param name="maxSentences"> The maximumExclusive number of sentences per paragraph. </param>
 	/// <param name="numParagraphs"> The number of paragraphs to generate. </param>
 	/// <param name="prefix"> An optional paragraph prefix. </param>
 	/// <param name="suffix"> An optional paragraph suffix. </param>
@@ -304,40 +319,40 @@ public static class RandomGenerator
 	/// <summary>
 	/// Returns a random datetime that is within a specified range.
 	/// </summary>
-	/// <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-	/// <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+	/// <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+	/// <param name="maximumExclusive"> The exclusive maximumExclusive bound of the random number returned. </param>
 	/// <returns>
 	/// A datetime greater than or equal to minValue and less than maxValue; that is, the range of return
 	/// values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
 	/// </returns>
-	public static DateTime NextDateTime(DateTime minimum, DateTime maximum)
+	public static DateTime NextDateTime(DateTime minimumInclusive, DateTime maximumExclusive)
 	{
-		if (maximum <= minimum)
+		if (maximumExclusive <= minimumInclusive)
 		{
-			return minimum;
+			return minimumInclusive;
 		}
 
 		lock (_syncLockForRandom)
 		{
-			return new DateTime(NextLong(minimum.Ticks, maximum.Ticks));
+			return new DateTime(NextLong(minimumInclusive.Ticks, maximumExclusive.Ticks));
 		}
 	}
 
 	/// <summary>
 	/// Returns a random decimal number that is within a specified range.
 	/// </summary>
-	/// <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-	/// <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+	/// <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+	/// <param name="maximumExclusive"> The exclusive maximumExclusive bound of the random number returned. </param>
 	/// <param name="scale"> The scale about to include in the next double. Defaults to 0. </param>
 	/// <returns>
 	/// A decimal number greater than or equal to minValue and less than maxValue; that is, the range of return
 	/// values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
 	/// </returns>
-	public static decimal NextDecimal(decimal minimum = 0, decimal maximum = decimal.MaxValue, byte scale = 0)
+	public static decimal NextDecimal(decimal minimumInclusive = 0, decimal maximumExclusive = decimal.MaxValue, byte scale = 0)
 	{
-		if ((maximum < minimum) || (minimum == maximum))
+		if ((maximumExclusive < minimumInclusive) || (minimumInclusive == maximumExclusive))
 		{
-			return minimum;
+			return minimumInclusive;
 		}
 
 		lock (_syncLockForRandom)
@@ -345,26 +360,26 @@ public static class RandomGenerator
 			decimal response;
 			var value = new decimal(NextInteger(), NextInteger(), NextInteger(), false, scale);
 
-			if ((Math.Sign(minimum) == Math.Sign(maximum)) || (minimum == 0) || (maximum == 0))
+			if ((Math.Sign(minimumInclusive) == Math.Sign(maximumExclusive)) || (minimumInclusive == 0) || (maximumExclusive == 0))
 			{
-				var remainder = (maximum != decimal.MaxValue) || (minimum == maximum)
-					? decimal.Remainder(value, (maximum - minimum) + 1)
-					: decimal.Remainder(value, maximum - minimum);
-				response = remainder + minimum;
+				var remainder = (maximumExclusive != decimal.MaxValue) || (minimumInclusive == maximumExclusive)
+					? decimal.Remainder(value, (maximumExclusive - minimumInclusive) + 1)
+					: decimal.Remainder(value, maximumExclusive - minimumInclusive);
+				response = remainder + minimumInclusive;
 			}
 			else
 			{
-				var getFromNegativeRange = ((double) minimum + (InternalNextDouble() * ((double) maximum - (double) minimum))) < 0;
-				response = getFromNegativeRange ? decimal.Remainder(value, -minimum + 1) + minimum : decimal.Remainder(value, maximum + 1);
+				var getFromNegativeRange = ((double) minimumInclusive + (InternalNextDouble() * ((double) maximumExclusive - (double) minimumInclusive))) < 0;
+				response = getFromNegativeRange ? decimal.Remainder(value, -minimumInclusive + 1) + minimumInclusive : decimal.Remainder(value, maximumExclusive + 1);
 			}
 
-			if (response < minimum)
+			if (response < minimumInclusive)
 			{
-				response = minimum;
+				response = minimumInclusive;
 			}
-			else if (response > maximum)
+			else if (response > maximumExclusive)
 			{
-				response = maximum;
+				response = maximumExclusive;
 			}
 
 			return response;
@@ -374,23 +389,23 @@ public static class RandomGenerator
 	/// <summary>
 	/// Returns a random double floating point that is within a specified range.
 	/// </summary>
-	/// <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-	/// <param name="maximum"> The exclusive maximum bound of the random number returned. </param>
+	/// <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+	/// <param name="maximumExclusive"> The exclusive maximumExclusive bound of the random number returned. </param>
 	/// <param name="scale"> The scale of the double. How precise? 1 = 0.1, 2 = 0.01 </param>
 	/// <returns>
 	/// A double floating point number greater than or equal to minValue and less than maxValue; that is, the
 	/// range of return values includes minValue but not maxValue. If minValue equals maxValue, minValue is returned.
 	/// </returns>
-	public static double NextDouble(double minimum = double.MinValue, double maximum = double.MaxValue, byte scale = 0)
+	public static double NextDouble(double minimumInclusive = double.MinValue, double maximumExclusive = double.MaxValue, byte scale = 0)
 	{
-		if (maximum <= minimum)
+		if (maximumExclusive <= minimumInclusive)
 		{
-			return minimum;
+			return minimumInclusive;
 		}
 
 		lock (_syncLockForRandom)
 		{
-			var result = (InternalNextDouble() * (maximum - minimum)) + minimum;
+			var result = (InternalNextDouble() * (maximumExclusive - minimumInclusive)) + minimumInclusive;
 			return Math.Round(result, scale);
 		}
 	}
@@ -398,25 +413,25 @@ public static class RandomGenerator
 	/// <summary>
 	/// Returns a random integer that is within a specified range.
 	/// </summary>
-	/// <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-	/// <param name="maximum"> The exclusive upper bound of the random number returned. </param>
+	/// <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+	/// <param name="maximumExclusive"> The exclusive upper bound of the random number returned. </param>
 	/// <returns>
-	/// A 32-bit signed integer greater than or equal to minimum and less than maximum; that is, the range
-	/// of return values includes minimum but not maximum. If minimum equals maximum, minimum is returned.
+	/// A 32-bit signed integer greater than or equal to minimumInclusive and less than maximumExclusive; that is, the range
+	/// of return values includes minimumInclusive but not maximumExclusive. If minimumInclusive equals maximumExclusive, minimumInclusive is returned.
 	/// </returns>
-	public static int NextInteger(int minimum = int.MinValue, int maximum = int.MaxValue)
+	public static int NextInteger(int minimumInclusive = int.MinValue, int maximumExclusive = int.MaxValue)
 	{
-		if (maximum <= minimum)
+		if (maximumExclusive <= minimumInclusive)
 		{
-			return minimum;
+			return minimumInclusive;
 		}
 
 		lock (_syncLockForRandom)
 		{
 			#if (NETSTANDARD2_0)
-			return _oldRandom.Next(minimum, maximum);
+			return _oldRandom.Next(minimumInclusive, maximumExclusive);
 			#else
-			return RandomNumberGenerator.GetInt32(minimum, maximum);
+			return RandomNumberGenerator.GetInt32(minimumInclusive, maximumExclusive);
 			#endif
 		}
 	}
@@ -424,17 +439,17 @@ public static class RandomGenerator
 	/// <summary>
 	/// Returns a random integer that is within a specified range.
 	/// </summary>
-	/// <param name="minimum"> The inclusive lower bound of the random number returned. </param>
-	/// <param name="maximum"> The exclusive upper bound of the random number returned. </param>
+	/// <param name="minimumInclusive"> The inclusive lower bound of the random number returned. </param>
+	/// <param name="maximumExclusive"> The exclusive upper bound of the random number returned. </param>
 	/// <returns>
-	/// A 64-bit signed integer greater than or equal to minimum and less than maximum; that is, the range
-	/// of return values includes minimum but not maximum. If minimum equals maximum, minimum is returned.
+	/// A 64-bit signed integer greater than or equal to minimumInclusive and less than maximumExclusive; that is, the range
+	/// of return values includes minimumInclusive but not maximumExclusive. If minimumInclusive equals maximumExclusive, minimumInclusive is returned.
 	/// </returns>
-	public static long NextLong(long minimum = long.MinValue, long maximum = long.MaxValue)
+	public static long NextLong(long minimumInclusive = long.MinValue, long maximumExclusive = long.MaxValue)
 	{
-		if (maximum <= minimum)
+		if (maximumExclusive <= minimumInclusive)
 		{
-			return minimum;
+			return minimumInclusive;
 		}
 
 		lock (_syncLockForRandom)
@@ -448,7 +463,7 @@ public static class RandomGenerator
 			RandomNumberGenerator.Fill(span);
 			#endif
 			var longRand = BitConverter.ToInt64(data, 0);
-			return Math.Abs(longRand % (maximum - minimum)) + minimum;
+			return Math.Abs(longRand % (maximumExclusive - minimumInclusive)) + minimumInclusive;
 		}
 	}
 

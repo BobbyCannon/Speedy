@@ -27,10 +27,10 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(4, l.Count);
-			TestHelper.AreEqual(new CsvValue("A", "B"), l[0]);
-			TestHelper.AreEqual(new CsvValue("a", "b"), l[1]);
-			TestHelper.AreEqual(new CsvValue("a1", "b1"), l[2]);
-			TestHelper.AreEqual(new CsvValue("c", "d"), l[3]);
+			AreEqual(new CsvValue("A", "B"), l[0]);
+			AreEqual(new CsvValue("a", "b"), l[1]);
+			AreEqual(new CsvValue("a1", "b1"), l[2]);
+			AreEqual(new CsvValue("c", "d"), l[3]);
 		}
 
 		[TestMethod]
@@ -45,8 +45,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
+			AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
+			AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
 		}
 
 		[TestMethod]
@@ -63,8 +63,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
+			AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
+			AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
 		}
 
 		[TestMethod]
@@ -79,8 +79,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
+			AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
+			AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
 		}
 
 		[TestMethod]
@@ -96,8 +96,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
+			AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
+			AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[1]);
 		}
 
 		[TestMethod]
@@ -112,9 +112,9 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(3, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue("111", "222", "333"), l[1]);
-			TestHelper.AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[2]);
+			AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
+			AreEqual(new CsvValue("111", "222", "333"), l[1]);
+			AreEqual(new CsvValue("xxx", "yyy", "zzz"), l[2]);
 		}
 
 		[TestMethod]
@@ -129,8 +129,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "bbb", ""), l[0]);
-			TestHelper.AreEqual(new CsvValue("xxx", "yyy", ""), l[1]);
+			AreEqual(new CsvValue("aaa", "bbb", ""), l[0]);
+			AreEqual(new CsvValue("xxx", "yyy", ""), l[1]);
 		}
 
 		[TestMethod]
@@ -145,8 +145,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa ", "  bbb ", " ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue(" xxx", " yyy  ", "zzz "), l[1]);
+			AreEqual(new CsvValue("aaa ", "  bbb ", " ccc"), l[0]);
+			AreEqual(new CsvValue(" xxx", " yyy  ", "zzz "), l[1]);
 		}
 
 		[TestMethod]
@@ -161,8 +161,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "b\r\nbb", "ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue("xxx", "y, yy", "zzz"), l[1]);
+			AreEqual(new CsvValue("aaa", "b\r\nbb", "ccc"), l[0]);
+			AreEqual(new CsvValue("xxx", "y, yy", "zzz"), l[1]);
 		}
 
 		[TestMethod]
@@ -177,7 +177,7 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(1, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "b\"bb", "ccc"), l[0]);
+			AreEqual(new CsvValue("aaa", "b\"bb", "ccc"), l[0]);
 		}
 
 		[TestMethod]
@@ -194,8 +194,8 @@ namespace Speedy.UnitTests.Protocols.Csv
 				return true;
 			});
 			Assert.AreEqual(2, l.Count);
-			TestHelper.AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
-			TestHelper.AreEqual(new CsvValue("xxx", "y, yy", "zzz"), l[1]);
+			AreEqual(new CsvValue("aaa", "bbb", "ccc"), l[0]);
+			AreEqual(new CsvValue("xxx", "y, yy", "zzz"), l[1]);
 		}
 
 		[TestMethod]

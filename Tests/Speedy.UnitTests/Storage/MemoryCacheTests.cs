@@ -157,7 +157,7 @@ public class MemoryCacheTests : SpeedyUnitTest
 
 		cache.CopyTo(array, 0);
 
-		TestHelper.AreEqual(cache.ToArray(), array);
+		AreEqual(cache.ToArray(), array);
 	}
 
 	[TestMethod]
