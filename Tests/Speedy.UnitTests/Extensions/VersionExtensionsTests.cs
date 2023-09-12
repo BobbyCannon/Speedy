@@ -7,35 +7,34 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy.UnitTests.Extensions
+namespace Speedy.UnitTests.Extensions;
+
+[TestClass]
+public class VersionExtensionsTests
 {
-	[TestClass]
-	public class VersionExtensionsTests
+	#region Methods
+
+	[TestMethod]
+	public void IsDefault()
 	{
-		#region Methods
-
-		[TestMethod]
-		public void IsDefault()
+		var scenarios = new[]
 		{
-			var scenarios = new[]
-			{
-				new Version(),
-				new Version(0, 0),
-				new Version(0, 0, 0),
-				new Version(0, 0, 0, 0),
-				Version.Parse("0.0"),
-				Version.Parse("0.0.0"),
-				Version.Parse("0.0.0.0")
-			};
+			new Version(),
+			new Version(0, 0),
+			new Version(0, 0, 0),
+			new Version(0, 0, 0, 0),
+			Version.Parse("0.0"),
+			Version.Parse("0.0.0"),
+			Version.Parse("0.0.0.0")
+		};
 
-			for (var index = 0; index < scenarios.Length; index++)
-			{
-				index.Dump();
-				var scenario = scenarios[index];
-				Assert.IsTrue(scenario.IsDefault());
-			}
+		for (var index = 0; index < scenarios.Length; index++)
+		{
+			index.Dump();
+			var scenario = scenarios[index];
+			Assert.IsTrue(scenario.IsDefault());
 		}
-
-		#endregion
 	}
+
+	#endregion
 }

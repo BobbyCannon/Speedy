@@ -12,43 +12,42 @@ using Speedy.Website.Data;
 
 #endregion
 
-namespace Speedy.UnitTests.Extensions
+namespace Speedy.UnitTests.Extensions;
+
+[TestClass]
+public class DatabaseExtensionsTests
 {
-	[TestClass]
-	public class DatabaseExtensionsTests
+	#region Methods
+
+	[TestMethod]
+	public void EnsureAllPropertiesAreMappedForClientDatabase()
 	{
-		#region Methods
-
-		[TestMethod]
-		public void EnsureAllPropertiesAreMappedForClientDatabase()
-		{
-			var database = new ContosoClientMemoryDatabase();
-			var missingProperties = database.ValidateMappings();
-			Validate(missingProperties);
-		}
-
-		[TestMethod]
-		public void EnsureAllPropertiesAreMappedForEntityDatabase()
-		{
-			var database = new ContosoMemoryDatabase();
-			var missingProperties = database.ValidateMappings();
-			Validate(missingProperties);
-		}
-
-		private void Validate(IDictionary<string, ICollection<string>> missingProperties)
-		{
-			missingProperties.ForEach(x =>
-			{
-				x.Key.Dump();
-				x.Value.ForEach(v => $"\tb.Property(x => x.{v}).IsRequired();".Dump());
-			});
-
-			if (missingProperties.Any())
-			{
-				throw new Exception("An entity mapping is missing members.");
-			}
-		}
-
-		#endregion
+		var database = new ContosoClientMemoryDatabase();
+		var missingProperties = database.ValidateMappings();
+		Validate(missingProperties);
 	}
+
+	[TestMethod]
+	public void EnsureAllPropertiesAreMappedForEntityDatabase()
+	{
+		var database = new ContosoMemoryDatabase();
+		var missingProperties = database.ValidateMappings();
+		Validate(missingProperties);
+	}
+
+	private void Validate(IDictionary<string, ICollection<string>> missingProperties)
+	{
+		missingProperties.ForEach(x =>
+		{
+			x.Key.Dump();
+			x.Value.ForEach(v => $"\tb.Property(x => x.{v}).IsRequired();".Dump());
+		});
+
+		if (missingProperties.Any())
+		{
+			throw new Exception("An entity mapping is missing members.");
+		}
+	}
+
+	#endregion
 }

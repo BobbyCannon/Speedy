@@ -1152,7 +1152,7 @@ public class PartialUpdate : Bindable
 			return (PartialUpdate) Activator.CreateInstance(type);
 		}
 
-		return (PartialUpdate) typeof(PartialUpdate<>).CreateInstance(new[] { type });
+		return (PartialUpdate) Activator.CreateInstanceOfGeneric(typeof(PartialUpdate<>), new[] { type });
 	}
 
 	private PartialUpdateOptions GetValidationGroupOptions(string groupName)

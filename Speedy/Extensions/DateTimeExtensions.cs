@@ -76,6 +76,25 @@ public static class DateTimeExtensions
 	}
 
 	/// <summary>
+	/// Calculate the time since a provided date until now.
+	/// </summary>
+	/// <param name="dateTime"> The date and time to process. </param>
+	/// <param name="useTimeService"> Optional flag to use time service. </param>
+	/// <returns> The time span between the date time and now. </returns>
+	public static TimeSpan Since(this DateTime dateTime, bool useTimeService = false)
+	{
+		var utcNow = useTimeService ? TimeService.UtcNow : DateTime.UtcNow;
+		if (dateTime > utcNow)
+		{
+			return TimeSpan.Zero;
+		}
+
+		var utcDateTime = dateTime.ToUtcDateTime();
+		var response = utcNow - utcDateTime;
+		return response < TimeSpan.Zero ? TimeSpan.Zero : response;
+	}
+
+	/// <summary>
 	/// Convert a DateTime to an OscTimeTag.
 	/// </summary>
 	/// <param name="time"> The time to be converted. </param>

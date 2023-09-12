@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -105,37 +104,6 @@ public static class ObjectConverter
 		return TryConvert(type, value, out var result)
 			? result
 			: throw new FormatException("The value format is not supported.");
-	}
-
-	/// <summary>
-	/// Convert the generic type to the instance type.
-	/// Ex. IEnumerable -> List, ICollection -> Collection, IDictionary -> Dictionary
-	/// </summary>
-	/// <param name="type"> </param>
-	/// <returns> </returns>
-	public static Type GetGenericInstanceType(Type type)
-	{
-		var definition = type.GetGenericTypeDefinition();
-		var arguments = type.GenericTypeArguments;
-		if (definition.IsInterface)
-		{
-			// note: fill out more types
-			if (definition == typeof(IDictionary<,>))
-			{
-				definition = typeof(Dictionary<,>);
-			}
-			else if (definition == typeof(IReadOnlyDictionary<,>))
-			{
-				definition = typeof(ReadOnlyDictionary<,>);
-			}
-			else
-			{
-				definition = typeof(List<>);
-			}
-		}
-
-		var genericInstanceType = definition.MakeGenericType(arguments);
-		return genericInstanceType;
 	}
 
 	/// <summary>
@@ -554,7 +522,7 @@ public static class ObjectConverter
 				result = castValue;
 				return true;
 			}
-			
+
 			if (Guid.TryParse(value.ToString(), out result))
 			{
 				return true;
@@ -569,7 +537,7 @@ public static class ObjectConverter
 			return false;
 		}
 	}
-	
+
 	/// <summary>
 	/// Converts the object to a Int64 value.
 	/// </summary>
@@ -687,9 +655,8 @@ public static class ObjectConverter
 				return true;
 			}
 
-			var definition = GetGenericInstanceType(requestedType);
 			var genericType = requestedType.GenericTypeArguments.FirstOrDefault() ?? typeof(object);
-			var genericList = (IList) Activator.CreateInstance(definition);
+			var genericList = (IList) requestedType.CreateInstanceOfGeneric();
 
 			foreach (var jArrayValue in jArray)
 			{

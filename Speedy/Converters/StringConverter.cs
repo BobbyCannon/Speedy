@@ -74,7 +74,7 @@ public abstract class StringConverter
 	/// <returns> </returns>
 	public static StringConverter Create(Type targetType, string value)
 	{
-		return (StringConverter) typeof(StringConverter<>).CreateInstance(new[] { targetType }, value);
+		return (StringConverter) Activator.CreateInstanceOfGeneric(typeof(StringConverter<>), new[] { targetType }, value);
 	}
 
 	/// <summary>

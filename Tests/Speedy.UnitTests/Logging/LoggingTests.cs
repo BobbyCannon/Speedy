@@ -31,7 +31,7 @@ namespace Speedy.UnitTests.Logging
 		{
 			var id1 = Guid.NewGuid();
 			var id2 = Guid.NewGuid();
-			var startTime = new DateTime(2020, 04, 23, 03, 26, 11, DateTimeKind.Utc);
+			var startTime = new DateTime(2020, 04, 23, 03, 26, 10, DateTimeKind.Utc);
 			
 			SetTime(() => startTime += TimeSpan.FromSeconds(1));
 			

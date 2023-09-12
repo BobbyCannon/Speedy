@@ -447,17 +447,17 @@ public override bool UpdateWith(object update, params string[] exclusions)
 	/// Increment the current time. This only works if current time is set. Negative values will subtract time.
 	/// </summary>
 	/// <param name="value"> The value to increment by. </param>
-	public void IncrementTime(TimeSpan value)
+	public DateTime IncrementTime(TimeSpan value)
 	{
 		var provider = _currentDateTimeProvider;
 		if (provider == null)
 		{
-			return;
+			return CurrentTime;
 		}
 
 		var currentTime = provider.GetUtcDateTime();
 
-		SetTime(currentTime + value);
+		return SetTime(currentTime + value);
 	}
 
 	/// <summary>

@@ -27,7 +27,7 @@ public class SyncManagerTests : SpeedyUnitTest
 		SyncOptions firstSyncOptions = null;
 		SyncOptions secondSyncOptions = null;
 
-		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
+		var startTime = new DateTime(2020, 04, 23, 01, 55, 21, DateTimeKind.Utc);
 
 		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 
@@ -235,7 +235,7 @@ public class SyncManagerTests : SpeedyUnitTest
 	[TestMethod]
 	public void SyncsShouldNotAverageIfCancelled()
 	{
-		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
+		var startTime = new DateTime(2020, 04, 23, 01, 55, 21, DateTimeKind.Utc);
 
 		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 
@@ -288,7 +288,7 @@ public class SyncManagerTests : SpeedyUnitTest
 	[TestMethod]
 	public void SyncsShouldNotWaitForEachOther()
 	{
-		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
+		var startTime = new DateTime(2020, 04, 23, 01, 55, 21, DateTimeKind.Utc);
 
 		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 
@@ -352,7 +352,7 @@ public class SyncManagerTests : SpeedyUnitTest
 	{
 		SyncOptions thirdSyncOptions = null;
 
-		var startTime = new DateTime(2020, 04, 23, 01, 55, 22, DateTimeKind.Utc);
+		var startTime = new DateTime(2020, 04, 23, 01, 55, 21, DateTimeKind.Utc);
 
 		SetTime(() => startTime += TimeSpan.FromSeconds(1));
 

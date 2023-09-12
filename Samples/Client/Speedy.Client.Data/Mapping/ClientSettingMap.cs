@@ -20,7 +20,10 @@ namespace Speedy.Client.Data.Mapping
 			b.ToTable("Settings", "dbo");
 			b.HasKey(x => x.Id);
 
+			b.Property(x => x.CanSync).IsRequired();
+			b.Property(x => x.Category).IsRequired();
 			b.Property(x => x.CreatedOn).IsRequired();
+			b.Property(x => x.ExpiresOn).IsRequired();
 			b.Property(x => x.Id).IsRequired();
 			b.Property(x => x.IsDeleted).IsRequired();
 			b.Property(x => x.LastClientUpdate).IsRequired();
@@ -29,13 +32,8 @@ namespace Speedy.Client.Data.Mapping
 			b.Property(x => x.SyncId).IsRequired();
 			b.Property(x => x.Value).IsRequired();
 
-			#if NET6_0_OR_GREATER
-			b.HasIndex(x => x.LastClientUpdate).HasDatabaseName("IX_Settings_LastClientUpdate").IsUnique(false);
-			b.HasIndex(x => x.SyncId).HasDatabaseName("IX_Settings_SyncId").IsUnique();
-			#else
-			b.HasIndex(x => x.LastClientUpdate).HasName("IX_Settings_LastClientUpdate").IsUnique(false);
-			b.HasIndex(x => x.SyncId).HasName("IX_Settings_SyncId").IsUnique();
-			#endif
+			b.HasIndex(x => x.LastClientUpdate).HasIndexName("IX_Settings_LastClientUpdate").IsUnique(false);
+			b.HasIndex(x => x.SyncId).HasIndexName("IX_Settings_SyncId").IsUnique();
 		}
 
 		#endregion

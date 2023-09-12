@@ -903,12 +903,6 @@ namespace Speedy.IntegrationTests
 				});
 		}
 
-		[TestInitialize]
-		public void TestInitialize()
-		{
-			TestHelper.Initialize();
-		}
-
 		[TestMethod]
 		public void MaintainSyncIdShouldNotSaveIfThatIsAllThatChanged()
 		{

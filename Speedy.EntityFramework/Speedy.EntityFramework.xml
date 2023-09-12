@@ -238,6 +238,28 @@
         <member name="E:Speedy.EntityFramework.EntityFrameworkDatabase.Disposed">
             <inheritdoc />
         </member>
+        <member name="T:Speedy.EntityFramework.EntityFrameworkExtension">
+            <summary>
+            Extensions to assist in upgrading of old ef to new EF without tons of code changes.
+            </summary>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkExtension.HasIndexName(Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder,System.String)">
+            <summary>
+            Configures the name of the index in the database when targeting a relational database.
+            </summary>
+            <param name="builder"> The builder for the index being configured. </param>
+            <param name="name"> The name of the index. </param>
+            <returns> A builder to further configure the index. </returns>
+        </member>
+        <member name="M:Speedy.EntityFramework.EntityFrameworkExtension.HasIndexName``1(Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder{``0},System.String)">
+            <summary>
+            Configures the name of the index in the database when targeting a relational database.
+            </summary>
+            <typeparam name="T"> The entity type being configured. </typeparam>
+            <param name="builder"> The builder for the index being configured. </param>
+            <param name="name"> The name of the index. </param>
+            <returns> A builder to further configure the index. </returns>
+        </member>
         <member name="T:Speedy.EntityFramework.EntityFrameworkRepository`2">
             <summary>
             Represents a collection of entities for a Speedy database.

@@ -7,7 +7,7 @@
 		<NoWarn>1701;1702;NU1701</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CompareNETObjects" Version="4.81.0" />
+		<PackageReference Include="CompareNETObjects" Version="4.79.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
 		<PackageReference Include="Moq" Version="[4.18.4]" />
 		<PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />

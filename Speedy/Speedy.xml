@@ -2178,14 +2178,6 @@
             <returns> The value in the type provider </returns>
             <exception cref="T:System.NotSupportedException"> The type ({type.FullName}) could not be converted. </exception>
         </member>
-        <member name="M:Speedy.Converters.ObjectConverter.GetGenericInstanceType(System.Type)">
-            <summary>
-            Convert the generic type to the instance type.
-            Ex. IEnumerable -> List, ICollection -> Collection, IDictionary -> Dictionary
-            </summary>
-            <param name="type"> </param>
-            <returns> </returns>
-        </member>
         <member name="M:Speedy.Converters.ObjectConverter.ToByte(System.Object)">
             <summary>
             Converts the object to a byte value.
@@ -6050,6 +6042,14 @@
             <returns>
             The date of the first day of the next month.
             </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DateTimeExtensions.Since(System.DateTime,System.Boolean)">
+            <summary>
+            Calculate the time since a provided date until now.
+            </summary>
+            <param name="dateTime"> The date and time to process. </param>
+            <param name="useTimeService"> Optional flag to use time service. </param>
+            <returns> The time span between the date time and now. </returns>
         </member>
         <member name="M:Speedy.Extensions.DateTimeExtensions.ToOscTimeTag(System.DateTime)">
             <summary>

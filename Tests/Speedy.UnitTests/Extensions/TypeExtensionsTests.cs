@@ -7,43 +7,42 @@ using Speedy.Sync;
 
 #endregion
 
-namespace Speedy.UnitTests.Extensions
+namespace Speedy.UnitTests.Extensions;
+
+[TestClass]
+public class TypeExtensionsTests
 {
-	[TestClass]
-	public class TypeExtensionsTests
+	#region Methods
+
+	[TestMethod]
+	public void IsNullable()
 	{
-		#region Methods
-
-		[TestMethod]
-		public void IsNullable()
+		var nullableTypes = new[]
 		{
-			var nullableTypes = new[]
-			{
-				typeof(string),
-				typeof(DBNull)
-			};
+			typeof(string),
+			typeof(DBNull)
+		};
 
-			foreach (var type in nullableTypes)
-			{
-				Assert.IsTrue(type.IsNullable());
-			}
-
-			var nonNullableTypes = new[]
-			{
-				typeof(bool),
-				typeof(ConsoleKey),
-				typeof(DateTime),
-				typeof(int),
-				typeof(double),
-				typeof(SyncObject)
-			};
-
-			foreach (var type in nonNullableTypes)
-			{
-				Assert.IsFalse(type.IsNullable());
-			}
+		foreach (var type in nullableTypes)
+		{
+			Assert.IsTrue(type.IsNullable());
 		}
 
-		#endregion
+		var nonNullableTypes = new[]
+		{
+			typeof(bool),
+			typeof(ConsoleKey),
+			typeof(DateTime),
+			typeof(int),
+			typeof(double),
+			typeof(SyncObject)
+		};
+
+		foreach (var type in nonNullableTypes)
+		{
+			Assert.IsFalse(type.IsNullable());
+		}
 	}
+
+	#endregion
 }
