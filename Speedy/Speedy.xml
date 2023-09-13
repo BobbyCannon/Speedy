@@ -1375,15 +1375,18 @@
             An optional comparer to use if you want a distinct list.
             </summary>
         </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.FilterCheck">
+            <summary>
+            An optional filter to restrict the <see cref="P:Speedy.Collections.SpeedyList`1.Filtered" /> sub collection.
+            </summary>
+        </member>
         <member name="P:Speedy.Collections.SpeedyList`1.Filtered">
             <summary>
             The filter items if this list is being filtered.
             </summary>
         </member>
-        <member name="P:Speedy.Collections.SpeedyList`1.IncludeInFilter">
-            <summary>
-            An optional filter to restrict the <see cref="P:Speedy.Collections.SpeedyList`1.Filtered" /> sub collection.
-            </summary>
+        <member name="P:Speedy.Collections.SpeedyList`1.IsFiltering">
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.IsFixedSize">
             <inheritdoc />
@@ -1672,9 +1675,19 @@
             True if the list has been disposed.
             </summary>
         </member>
+        <member name="P:Speedy.Collections.ISpeedyList.IsFiltering">
+            <summary>
+            True if the list is currently filtering items.
+            </summary>
+        </member>
         <member name="P:Speedy.Collections.ISpeedyList.IsLoading">
             <summary>
             True if the list is currently loading items.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.ISpeedyList.IsOrdering">
+            <summary>
+            True if the list is currently ordering items.
             </summary>
         </member>
         <member name="M:Speedy.Collections.ISpeedyList.ShouldOrder">

@@ -183,7 +183,7 @@ public class SpeedyListTests : BaseCollectionTests
 		IsNull(list.OrderBy);
 		IsNull(list.Profiler);
 		IsNull(list.DistinctCheck);
-		IsNull(list.IncludeInFilter);
+		IsNull(list.FilterCheck);
 		
 		IsNotNull(list.Filtered);
 		IsNotNull(list.SyncRoot);
@@ -317,7 +317,7 @@ public class SpeedyListTests : BaseCollectionTests
 	{
 		using var list = new SpeedyList<int>();
 		list.OrderBy = new[] { new OrderBy<int>(x => x) };
-		list.IncludeInFilter = x => (x % 3) == 0;
+		list.FilterCheck = x => (x % 3) == 0;
 
 		list.Add(5);
 		list.Add(1);
@@ -360,7 +360,7 @@ public class SpeedyListTests : BaseCollectionTests
 	public void FilterCollectionShouldRefreshOnFilterChange()
 	{
 		using var list = new SpeedyList<string>();
-		list.IncludeInFilter = x => x.Contains("Bar");
+		list.FilterCheck = x => x.Contains("Bar");
 
 		// First entry should not be included in filtered collection
 		list.Add("Hello");
@@ -383,7 +383,7 @@ public class SpeedyListTests : BaseCollectionTests
 		AreEqual(0, list.Filtered.Count);
 		AreEqual(2, list.Count);
 
-		list.IncludeInFilter = x => x.Contains("foo");
+		list.FilterCheck = x => x.Contains("foo");
 		AreEqual("foo", list.Filtered[0]);
 		AreEqual(1, list.Filtered.Count);
 		AreEqual(2, list.Count);

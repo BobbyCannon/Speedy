@@ -163,14 +163,17 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	public Func<T, T, bool> DistinctCheck { get; set; }
 
 	/// <summary>
+	/// An optional filter to restrict the <see cref="Filtered" /> sub collection.
+	/// </summary>
+	public Func<T, bool> FilterCheck { get; set; }
+
+	/// <summary>
 	/// The filter items if this list is being filtered.
 	/// </summary>
 	public ReadOnlyObservableCollection<T> Filtered => new ReadOnlyObservableCollection<T>(_filtered);
 
-	/// <summary>
-	/// An optional filter to restrict the <see cref="Filtered" /> sub collection.
-	/// </summary>
-	public Func<T, bool> IncludeInFilter { get; set; }
+	/// <inheritdoc />
+	public bool IsFiltering { get; private set; }
 
 	/// <inheritdoc />
 	public bool IsFixedSize => false;
@@ -693,7 +696,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	{
 		switch (propertyName)
 		{
-			case nameof(IncludeInFilter):
+			case nameof(FilterCheck):
 			{
 				RefreshFilter();
 				break;
@@ -859,24 +862,41 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 	private void InternalFilter()
 	{
-		if (IncludeInFilter == null)
+		if (FilterCheck == null)
 		{
 			return;
 		}
 
-		var toRemove = _filtered.Where(x => !InternalContains(x) || !IncludeInFilter(x)).ToList();
-		foreach (var item in toRemove)
-		{
-			_filtered.Remove(item);
-		}
+		IsFiltering = true;
 
-		var toAdd = _list.Where(item => IncludeInFilter(item) && !_filtered.Contains(item)).ToList();
-		foreach (var item in toAdd)
+		try
 		{
-			_filtered.Add(item);
-		}
+			var toRemove = _filtered.Where(x =>
+				!InternalContains(x)
+				|| !FilterCheck(x)
+			).ToList();
 
-		_filtered.Order();
+			foreach (var item in toRemove)
+			{
+				_filtered.Remove(item);
+			}
+
+			var toAdd = _list.Where(x =>
+				FilterCheck(x)
+				&& !_filtered.Contains(x)
+			).ToList();
+
+			foreach (var item in toAdd)
+			{
+				_filtered.Add(item);
+			}
+
+			_filtered.Order();
+		}
+		finally
+		{
+			IsFiltering = false;
+		}
 	}
 
 	private bool InternalHasIndex(int index)
@@ -957,14 +977,14 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 	private void InternalUpdateFilter(NotifyCollectionChangedEventArgs e)
 	{
-		if (IncludeInFilter == null)
+		if (FilterCheck == null)
 		{
 			return;
 		}
 
 		// Need to determine if our collection has changed.
 		var oldItems = e.OldItems?.Cast<T>().ToList();
-		var newItems = e.NewItems?.Cast<T>().Where(IncludeInFilter.Invoke).ToList();
+		var newItems = e.NewItems?.Cast<T>().Where(FilterCheck.Invoke).ToList();
 		var hasChanged = oldItems is { Count: > 0 } || newItems is { Count: > 0 };
 
 		if (!hasChanged)
@@ -972,18 +992,27 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 			return;
 		}
 
-		switch (e.Action)
+		IsFiltering = true;
+
+		try
 		{
-			case NotifyCollectionChangedAction.Add:
+			switch (e.Action)
 			{
-				newItems?.ForEach(_filtered.Add);
-				break;
+				case NotifyCollectionChangedAction.Add:
+				{
+					newItems?.ForEach(_filtered.Add);
+					break;
+				}
+				case NotifyCollectionChangedAction.Remove:
+				{
+					oldItems?.ForEach(x => _filtered.Remove(x));
+					break;
+				}
 			}
-			case NotifyCollectionChangedAction.Remove:
-			{
-				oldItems?.ForEach(x => _filtered.Remove(x));
-				break;
-			}
+		}
+		finally
+		{
+			IsFiltering = false;
 		}
 	}
 
@@ -1153,9 +1182,19 @@ public interface ISpeedyList : IList, INotifyCollectionChanged, IDisposable
 	bool IsDisposed { get; }
 
 	/// <summary>
+	/// True if the list is currently filtering items.
+	/// </summary>
+	bool IsFiltering { get; }
+
+	/// <summary>
 	/// True if the list is currently loading items.
 	/// </summary>
 	bool IsLoading { get; }
+
+	/// <summary>
+	/// True if the list is currently ordering items.
+	/// </summary>
+	bool IsOrdering { get; }
 
 	#endregion
 

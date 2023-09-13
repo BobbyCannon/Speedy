@@ -109,7 +109,7 @@ public class MainViewModel : ViewModel
 		{
 			case nameof(ListFilterForLeft):
 			{
-				LeftList.IncludeInFilter = string.IsNullOrWhiteSpace(ListFilterForLeft)
+				LeftList.FilterCheck = string.IsNullOrWhiteSpace(ListFilterForLeft)
 					? null
 					: x => x.ToString().Contains(ListFilterForLeft);
 				LeftList.RefreshFilter();
@@ -117,7 +117,7 @@ public class MainViewModel : ViewModel
 			}
 			case nameof(ListFilterForMiddle):
 			{
-				MiddleList.IncludeInFilter = string.IsNullOrWhiteSpace(ListFilterForMiddle)
+				MiddleList.FilterCheck = string.IsNullOrWhiteSpace(ListFilterForMiddle)
 					? null
 					: x => x.ToString().Contains(ListFilterForMiddle);
 				MiddleList.RefreshFilter();
@@ -125,7 +125,7 @@ public class MainViewModel : ViewModel
 			}
 			case nameof(ListFilterForRight):
 			{
-				RightList.IncludeInFilter = string.IsNullOrWhiteSpace(ListFilterForRight)
+				RightList.FilterCheck = string.IsNullOrWhiteSpace(ListFilterForRight)
 					? null
 					: x => x.ToString().Contains(ListFilterForRight);
 				RightList.RefreshFilter();
