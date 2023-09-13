@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Speedy.Collections;
 using Speedy.Data;
-using Speedy.Exceptions;
 using Speedy.Extensions;
 
 #endregion
@@ -122,7 +121,8 @@ public static class Activator
 		}
 		catch (MissingMethodException ex)
 		{
-			throw new SpeedyException($"{type.FullName} missing requested constructor.", ex);
+			// Add a bit more information.
+			throw new MissingMethodException($"{type.FullName} missing requested constructor.", ex);
 		}
 
 		update?.Invoke(response);
