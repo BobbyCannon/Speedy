@@ -952,6 +952,14 @@
         <member name="M:Speedy.Collections.FlattenHierarchicalList.#ctor(Speedy.Collections.ISpeedyList,Speedy.IDispatcher)">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Collections.FlattenHierarchicalList.ManageRelationships">
+            <summary>
+            Enable to allow parent and child collections to be managed.
+            Ex. Removing a child will clear its parent.
+            	Adding a child to a parent assigns the parent to the child.
+            	Adding a child to a different parent will remove child from old parent.
+            </summary>
+        </member>
         <member name="M:Speedy.Collections.FlattenHierarchicalList.CleanupEventSubscriptions">
             <inheritdoc />
         </member>
@@ -1359,13 +1367,13 @@
             <param name="orderBy"> The optional set of order by settings. </param>
             <param name="items"> An optional set. </param>
         </member>
-        <member name="P:Speedy.Collections.SpeedyList`1.ComparerFunction">
+        <member name="P:Speedy.Collections.SpeedyList`1.Count">
+            <inheritdoc cref="T:System.Collections.IList" />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyList`1.DistinctCheck">
             <summary>
             An optional comparer to use if you want a distinct list.
             </summary>
-        </member>
-        <member name="P:Speedy.Collections.SpeedyList`1.Count">
-            <inheritdoc cref="T:System.Collections.IList" />
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.Filtered">
             <summary>
@@ -3416,11 +3424,10 @@
         </member>
         <member name="M:Speedy.Data.HierarchyListItem.UpdateParent(Speedy.Data.IHierarchyListItem)">
             <summary>
-            Initialize the relationship.
+            Update the parent of this item.
             </summary>
-            <param name="parent"> The parent of the list item. </param>
         </member>
-        <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#ClearParent">
+        <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#DisconnectParent(Speedy.Data.IHierarchyListItem)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.HierarchyListItem.Speedy#Data#IHierarchyListItem#OnShouldBeShownChanged">
@@ -3497,9 +3504,10 @@
             </summary>
             <returns> True if this items children should be shown. </returns>
         </member>
-        <member name="M:Speedy.Data.IHierarchyListItem.ClearParent">
+        <member name="M:Speedy.Data.IHierarchyListItem.DisconnectParent(Speedy.Data.IHierarchyListItem)">
             <summary>
-            Removes the parent from the item.
+            Disconnect the parent of this item. This will remove parent events.
+            It will also clear the parent if the current parent is the provided parent.
             </summary>
         </member>
         <member name="M:Speedy.Data.IHierarchyListItem.OnShouldBeShownChanged">
@@ -3534,7 +3542,9 @@
         </member>
         <member name="E:Speedy.Data.IHierarchyListItem.ParentChanged">
             <summary>
-            Event for when the parent has changed.
+            Event for when the parent has changed. The event arg is the old
+            parent that was removed. The sender is the item that has a
+            reference to the new parent.
             </summary>
         </member>
         <member name="E:Speedy.Data.IHierarchyListItem.ShouldBeShownChanged">
@@ -16978,11 +16988,10 @@
         </member>
         <member name="M:Speedy.Sync.HierarchyListSyncModel`1.UpdateParent(Speedy.Data.IHierarchyListItem)">
             <summary>
-            Initialize the relationship.
+            Update the parent of this item.
             </summary>
-            <param name="parent"> The parent of the list item. </param>
         </member>
-        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#ClearParent">
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#DisconnectParent(Speedy.Data.IHierarchyListItem)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.HierarchyListSyncModel`1.Speedy#Data#IHierarchyListItem#OnShouldBeShownChanged">

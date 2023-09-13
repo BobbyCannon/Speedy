@@ -39,8 +39,20 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 		_rootList = rootList;
 		_rootList.CollectionChanged += RootListOnCollectionChanged;
 
-		ComparerFunction = Equals;
+		DistinctCheck = Equals;
 	}
+
+	#endregion
+
+	#region Properties
+
+	/// <summary>
+	/// Enable to allow parent and child collections to be managed.
+	/// Ex. Removing a child will clear its parent.
+	///		Adding a child to a parent assigns the parent to the child.
+	///		Adding a child to a different parent will remove child from old parent.
+	/// </summary>
+	public bool ManageRelationships { get; set; }
 
 	#endregion
 
@@ -136,6 +148,7 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 
 	private void AttachEvents(IHierarchyListItem hierarchyItem)
 	{
+		hierarchyItem.ParentChanged += HierarchyItemOnParentChanged;
 		hierarchyItem.ChildAdded += HierarchyItemOnChildAdded;
 		hierarchyItem.ChildRemoved += HierarchyItemOnChildRemoved;
 		hierarchyItem.ShouldBeShownChanged += HierarchyItemShouldBeShownChanged;
@@ -162,12 +175,35 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 
 	private void HierarchyItemOnChildAdded(object sender, IHierarchyListItem e)
 	{
+		if (ManageRelationships)
+		{
+			var parent = (IHierarchyListItem) sender;
+			e.UpdateParent(parent);
+		}
+
 		RequestAdd(e);
 	}
 
 	private void HierarchyItemOnChildRemoved(object sender, IHierarchyListItem e)
 	{
 		RequestRemove(e);
+
+		if (ManageRelationships)
+		{
+			var parent = (IHierarchyListItem) sender;
+			e.DisconnectParent(parent);
+		}
+	}
+
+	private void HierarchyItemOnParentChanged(object sender, IHierarchyListItem oldParent)
+	{
+		if (!ManageRelationships)
+		{
+			return;
+		}
+
+		var child = (IHierarchyListItem) sender;
+		oldParent?.RemoveChild(child);
 	}
 
 	private void HierarchyItemShouldBeShownChanged(object sender, EventArgs e)
@@ -212,6 +248,7 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 
 	private void RemoveEvents(IHierarchyListItem hierarchyItem)
 	{
+		hierarchyItem.ParentChanged -= HierarchyItemOnParentChanged;
 		hierarchyItem.ChildAdded -= HierarchyItemOnChildAdded;
 		hierarchyItem.ChildRemoved -= HierarchyItemOnChildRemoved;
 		hierarchyItem.ShouldBeShownChanged -= HierarchyItemShouldBeShownChanged;

@@ -21,14 +21,16 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	{
 		using var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
+		actualList.ManageRelationships = true;
 
 		var account1 = Activator.CreateInstance<AccountView>(x => x.Name = "John");
 		var account2 = Activator.CreateInstance<AccountView>(x => x.Name = "Jane");
 		var address = Activator.CreateInstance<AddressView>(x => x.Line1 = "123 Main Street");
-		account1.Addresses.Add(address);
-		accountList.Add(account1);
-		accountList.Add(account2);
 
+		accountList.Add(account1);
+		account1.Addresses.Add(address);
+		accountList.Add(account2);
+		
 		AreEqual(new IHierarchyListItem[] { account2, account1, address }, actualList.ToArray());
 		AreEqual(1, account1.Addresses.Count);
 		AreEqual(0, account2.Addresses.Count);
@@ -140,6 +142,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	{
 		using var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
+		actualList.ManageRelationships = true;
 
 		// Adding account 1 to the list should add to list.
 		var account1 = Activator.CreateInstance<AccountView>(x => x.Name = "John");
@@ -277,6 +280,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	{
 		using var accountList = GetAccountsList();
 		using var list = new FlattenHierarchicalList(accountList);
+		list.ManageRelationships = true;
 
 		var account1 = Add(accountList, Activator.CreateInstance<AccountView>(x => x.Name = "Jane"));
 		var account2 = Add(accountList, Activator.CreateInstance<AccountView>(x => x.Name = "John"));

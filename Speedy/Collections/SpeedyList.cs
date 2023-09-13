@@ -141,7 +141,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 		_filtered = new FilteredObservableCollection<T>();
 		_list = new List<T>();
 
-		ComparerFunction = null;
+		DistinctCheck = null;
 		Limit = int.MaxValue;
 		OrderBy = orderBy;
 		IsOrdering = false;
@@ -154,13 +154,13 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 	#region Properties
 
+	/// <inheritdoc cref="IList" />
+	public int Count => _list.Count;
+
 	/// <summary>
 	/// An optional comparer to use if you want a distinct list.
 	/// </summary>
-	public Func<T, T, bool> ComparerFunction { get; set; }
-
-	/// <inheritdoc cref="IList" />
-	public int Count => _list.Count;
+	public Func<T, T, bool> DistinctCheck { get; set; }
 
 	/// <summary>
 	/// The filter items if this list is being filtered.
@@ -645,8 +645,8 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 		}
 
 		// Guarantee uniqueness of items if we have a comparer
-		IList<T> processedItems = ComparerFunction != null
-			? items.Distinct(new EqualityComparer<T>(ComparerFunction)).ToList()
+		IList<T> processedItems = DistinctCheck != null
+			? items.Distinct(new EqualityComparer<T>(DistinctCheck)).ToList()
 			: items.ToList();
 
 		// Order the collection if we have any OrderBy configuration
@@ -724,14 +724,14 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 	internal int InternalIndexOf(T item)
 	{
-		if (ComparerFunction == null)
+		if (DistinctCheck == null)
 		{
 			return _list.IndexOf(item);
 		}
 
 		for (var i = 0; i < _list.Count; i++)
 		{
-			if (ComparerFunction.Invoke(item, _list[i]))
+			if (DistinctCheck.Invoke(item, _list[i]))
 			{
 				return i;
 			}
@@ -802,7 +802,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	private int InternalAdd(T item)
 	{
 		int index;
-		var function = ComparerFunction;
+		var function = DistinctCheck;
 
 		if (function != null)
 		{
@@ -886,7 +886,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 	private bool InternalInsert(int index, T item)
 	{
-		if (ComparerFunction != null)
+		if (DistinctCheck != null)
 		{
 			var existingIndex = _list.IndexOf(item);
 			if (existingIndex >= 0)

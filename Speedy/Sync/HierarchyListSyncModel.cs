@@ -20,8 +20,8 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 	#region Fields
 
 	private ISpeedyList _children;
-	private IHierarchyListItem _parent;
 	private bool _disposed;
+	private IHierarchyListItem _parent;
 
 	#endregion
 
@@ -46,8 +46,8 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 	/// <inheritdoc />
 	public virtual void CleanupEventSubscriptions()
 	{
-		DisconnectParent(_parent);
-		DisconnectChildrenEvents(_children);
+		DisconnectParentEventSubscriptions(_parent);
+		DisconnectChildrenEventSubscriptions(_children);
 	}
 
 	/// <summary>
@@ -177,14 +177,13 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 			return;
 		}
 
-		DisconnectChildrenEvents(_children);
+		DisconnectChildrenEventSubscriptions(_children);
 		_children = ConnectChildrenEvents(children);
 	}
 
 	/// <summary>
-	/// Initialize the relationship.
+	/// Update the parent of this item.
 	/// </summary>
-	/// <param name="parent"> The parent of the list item. </param>
 	protected void UpdateParent(IHierarchyListItem parent)
 	{
 		if (parent == _parent)
@@ -192,10 +191,12 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 			return;
 		}
 
-		DisconnectParent(_parent);
+		var oldParent = _parent;
+
+		DisconnectParentEventSubscriptions(_parent);
 		_parent = ConnectParentEvents(parent);
 
-		OnParentChanged(_parent);
+		OnParentChanged(oldParent);
 	}
 
 	private void ChildrenOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -210,9 +211,7 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 			foreach (var item in e.OldItems)
 			{
 				var listItem = (IHierarchyListItem) item;
-				listItem.ClearParent();
 				listItem.CleanupEventSubscriptions();
-
 				OnChildRemoved(listItem);
 			}
 		}
@@ -222,17 +221,9 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 			foreach (var item in e.NewItems)
 			{
 				var listItem = (IHierarchyListItem) item;
-				listItem.UpdateParent(this);
-
 				OnChildAdded(listItem);
 			}
 		}
-	}
-
-	/// <inheritdoc />
-	void IHierarchyListItem.ClearParent()
-	{
-		UpdateParent(null);
 	}
 
 	private ISpeedyList ConnectChildrenEvents(ISpeedyList children)
@@ -256,26 +247,36 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 		return parent;
 	}
 
-	private void DisconnectChildrenEvents(ISpeedyList children)
+	private void DisconnectChildrenEventSubscriptions(ISpeedyList children)
 	{
-		if (children != null)
+		if (children == null)
 		{
-			children.CollectionChanged -= ChildrenOnCollectionChanged;
+			return;
+		}
+
+		children.CollectionChanged -= ChildrenOnCollectionChanged;
+	}
+
+	/// <inheritdoc />
+	void IHierarchyListItem.DisconnectParent(IHierarchyListItem parent)
+	{
+		DisconnectParentEventSubscriptions(parent);
+
+		if (_parent == parent)
+		{
+			_parent = null;
 		}
 	}
 
-	private void DisconnectParent(IHierarchyListItem parent)
+	private void DisconnectParentEventSubscriptions(IHierarchyListItem parent)
 	{
 		if (parent == null)
 		{
 			return;
 		}
 
-		_parent = null;
-
 		parent.ShouldBeShownChanged -= ParentOnShouldBeShownChanged;
 		parent.ShouldShowChildrenChanged -= ParentShouldShowChildrenChanged;
-		parent.RemoveChild(this);
 	}
 
 	/// <inheritdoc />

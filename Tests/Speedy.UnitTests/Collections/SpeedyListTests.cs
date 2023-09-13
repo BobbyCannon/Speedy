@@ -182,7 +182,7 @@ public class SpeedyListTests : BaseCollectionTests
 
 		IsNull(list.OrderBy);
 		IsNull(list.Profiler);
-		IsNull(list.ComparerFunction);
+		IsNull(list.DistinctCheck);
 		IsNull(list.IncludeInFilter);
 		
 		IsNotNull(list.Filtered);
@@ -276,7 +276,7 @@ public class SpeedyListTests : BaseCollectionTests
 	{
 		var collection = new SpeedyList<string>
 		{
-			ComparerFunction = string.Equals
+			DistinctCheck = string.Equals
 		};
 		collection.AddRange("test", "test", "test", "test");
 		AreEqual(1, collection.Count);
@@ -288,7 +288,7 @@ public class SpeedyListTests : BaseCollectionTests
 	{
 		var collection = new SpeedyList<ClientAccount>
 		{
-			ComparerFunction = (x, y) => x.SyncId == y.SyncId,
+			DistinctCheck = (x, y) => x.SyncId == y.SyncId,
 			OrderBy = new[] { new OrderBy<ClientAccount>(x => x.SyncId) }
 		};
 		var account1 = new ClientAccount { SyncId = Guid.Parse("CE0CBFAD-504C-47BB-B7CD-0919E9A327C0") };
@@ -449,7 +449,7 @@ public class SpeedyListTests : BaseCollectionTests
 		AreEqual(-1, list.IndexOf(null));
 		AreEqual(-1, list.IndexOf(TimeService.UtcNow));
 
-		list.ComparerFunction = Equals;
+		list.DistinctCheck = Equals;
 
 		AreEqual(1, list.IndexOf("b"));
 		AreEqual(-1, list.IndexOf("z"));
@@ -471,7 +471,7 @@ public class SpeedyListTests : BaseCollectionTests
 		AreEqual(42, list[1]);
 
 		// This insert should not duplicate because 44 already in list
-		list.ComparerFunction = (x, y) => x.Equals(y);
+		list.DistinctCheck = (x, y) => x.Equals(y);
 		list.Insert(1, (object) 44);
 
 		AreEqual(2, list.Count);

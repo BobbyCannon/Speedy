@@ -665,6 +665,17 @@ public override bool UpdateWith(object update, params string[] exclusions)
 	}
 
 	/// <summary>
+	/// Validates that all event handlers have been disconnected on an object and all
+	/// relationships.
+	/// </summary>
+	/// <param name="value"> The value to be checked. </param>
+	public void ValidateAllEventHandlersAreDisconnected(object value)
+	{
+		// todo: implement
+		throw new NotImplementedException();
+	}
+
+	/// <summary>
 	/// Gets a default value for the property info.
 	/// </summary>
 	/// <param name="propertyInfo"> The info for the property. </param>
