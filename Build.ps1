@@ -15,6 +15,7 @@ $productName = "Speedy"
 
 # $scriptPath = "C:\Workspaces\EpicCoders\$productName"
 # $scriptPath = "C:\Workspaces\GitHub\$productName"
+# $BuildNumber = 0
 # $VersionSuffix = "RC7"
 
 if ($scriptPath.Length -le 0)
@@ -43,7 +44,7 @@ try
 {
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 11 -Minor 0 -Build $BuildNumber -Revision 0
+	$newVersion = .\IncrementVersion.ps1 -Major 11 -Minor 1 -Build $BuildNumber -Revision 0
 	$nugetVersion = ([Version] $newVersion).ToString(3)
 	
 	if ($VersionSuffix.Length -gt 0)

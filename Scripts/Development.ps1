@@ -56,8 +56,8 @@ ii 'C:\Workspaces\Nuget\Development'
 ii 'C:\Workspaces\Nuget\Release'
 
 # Build a final release
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -BuildNumber 5 -Configuration Release
-
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -BuildNumber 0 -Configuration Release
+# Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 
 
 #
