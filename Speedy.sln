@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Development.md = Development.md
 		LICENSE.md = LICENSE.md
 		README.md = README.md
+		Speedy.Application.Uwp\Speedy.Application.Uwp.nuspec = Speedy.Application.Uwp\Speedy.Application.Uwp.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{F1A7E526-B6CD-4FFA-9149-B469DA2819E3}"

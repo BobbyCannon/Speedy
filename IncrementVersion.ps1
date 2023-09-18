@@ -82,25 +82,34 @@ function Set-BuildNumbers
 		$desiredPath,
 		$versionNumber
 	)
+	
+	# $desiredPath = "C:\Workspaces\GitHub\Speedy"
+	# $versionNumber = "11.1.1"
 
 	$files = Get-ChildItem -Path $desiredPath -Filter *.csproj -Recurse
+	# $file = $files[0]
+	# $file = Get-ChildItem -Path "C:\Workspaces\GitHub\Speedy\Speedy.Application.Uwp\Speedy.Application.Uwp.csproj"
 
 	foreach ($file in $files)
 	{
+		Write-Verbose $file.FullName
+	
 		$fileXml = [xml](Get-Content $file.FullName -Raw)
-
-		if ($fileXml.Project.PropertyGroup.AssemblyVersion -ne $null)
+		$propertyGroup = $fileXml.Project.PropertyGroup
+				
+		if ($propertyGroup -is [Array])
 		{
-			Write-Verbose $file.FullName
-			$fileXml.Project.PropertyGroup.AssemblyVersion = $versionNumber
-			$fileXml.Project.PropertyGroup.FileVersion = $versionNumber
+			continue;
+		}
 
-			foreach ($group in $fileXml.Project.PropertyGroup)
+		if ($propertyGroup.AssemblyVersion -ne $null)
+		{
+			$propertyGroup.AssemblyVersion = $versionNumber
+			$propertyGroup.FileVersion = $versionNumber
+
+			if ($propertyGroup.Version)
 			{
-				if ($group.Version)
-				{
-					$group.Version = $versionNumber
-				}
+				$propertyGroup.Version = $versionNumber
 			}
 
 			Set-Content -Path $file.FullName -Value (Format-Xml -Data $fileXml.OuterXml) -Encoding UTF8

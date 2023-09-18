@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>Speedy.Application.Uwp</id>
+		<title>Speedy Application UWP</title>
+		<version>$version$</version>
+		<authors>Bobby Cannon</authors>
+		<description>Small thread safe embedded key value pair persistent repository for .NET.</description>
+		<projectUrl>https://github.com/BobbyCannon/Speedy</projectUrl>
+		<icon>Speedy.png</icon>
+		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
+		<dependencies>
+			<group targetFramework="uap10.0">
+				<dependency id="Speedy" version="$version$" />
+				<dependency id="Speedy.Application" version="$version$" />
+			</group>
+		</dependencies>
+		<references>
+			<group targetFramework="uap10.0">
+				<reference file="Speedy.Application.Uwp.dll" />
+			</group>
+		</references>
+	</metadata>
+	<files>
+		<file src="C:\Workspaces\GitHub\Speedy\Speedy.Application.Uwp\bin\Release\Speedy.Application.Uwp.dll" target="lib\uap10.0" />
+		<file src="C:\Workspaces\GitHub\Speedy\Speedy.Application.Uwp\bin\Release\Speedy.Application.Uwp.pdb" target="lib\uap10.0" />
+		<file src="C:\Workspaces\GitHub\Speedy\Speedy.png" target="\" />
+	</files>
+</package>

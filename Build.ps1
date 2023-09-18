@@ -13,10 +13,10 @@ $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = $PSScriptRoot
 $productName = "Speedy"
 
-# $scriptPath = "C:\Workspaces\EpicCoders\$productName"
 # $scriptPath = "C:\Workspaces\GitHub\$productName"
 # $BuildNumber = 0
 # $VersionSuffix = "RC7"
+# $Version = "11.1.0"
 
 if ($scriptPath.Length -le 0)
 {
@@ -81,11 +81,14 @@ try
 		Write-Host "Build has failed! " $LASTEXITCODE $watch.Elapsed -ForegroundColor Red
 		exit $LASTEXITCODE
 	}
+	
+	& "NuGet.exe" pack "$scriptPath\Speedy.Application.Uwp\Speedy.Application.Uwp.nuspec" -Prop Configuration="$Configuration" -Version $nugetVersion -OutputDirectory "$scriptPath\Speedy.Application.Uwp\bin\$Configuration\"
 
 	Copy-Item "$productName\bin\$Configuration\$productName.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application\bin\$Configuration\$productName.Application.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application.Maui\bin\$Configuration\$productName.Application.Maui.$nugetVersion.nupkg" "$destination\"
+	Copy-Item "$productName.Application.Uwp\bin\$Configuration\$productName.Application.Uwp.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application.Web\bin\$Configuration\$productName.Application.Web.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application.WPF\bin\$Configuration\$productName.Application.WPF.$nugetVersion.nupkg" "$destination\"
 	Copy-Item "$productName.Application.Xamarin\bin\$Configuration\$productName.Application.Xamarin.$nugetVersion.nupkg" "$destination\"
@@ -96,6 +99,7 @@ try
 	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination\$productName.Automation.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application\bin\$Configuration\$productName.Application.$nugetVersion.nupkg" "$destination\$productName.Application.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application.Maui\bin\$Configuration\$productName.Application.Maui.$nugetVersion.nupkg" "$destination\$productName.Application.Maui.$nugetVersion.nupkg.zip"
+	Copy-Item "$productName.Application.Uwp\bin\$Configuration\$productName.Application.Uwp.$nugetVersion.nupkg" "$destination\$productName.Application.Uwp.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application.Web\bin\$Configuration\$productName.Application.Web.$nugetVersion.nupkg" "$destination\$productName.Application.Web.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application.WPF\bin\$Configuration\$productName.Application.WPF.$nugetVersion.nupkg" "$destination\$productName.Application.WPF.$nugetVersion.nupkg.zip"
 	Copy-Item "$productName.Application.Xamarin\bin\$Configuration\$productName.Application.Xamarin.$nugetVersion.nupkg" "$destination\$productName.Application.Xamarin.$nugetVersion.nupkg.zip"
@@ -106,6 +110,7 @@ try
 	Copy-Item "$productName.Automation\bin\$Configuration\$productName.Automation.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application\bin\$Configuration\$productName.Application.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application.Maui\bin\$Configuration\$productName.Application.Maui.$nugetVersion.nupkg" "$destination2\"
+	Copy-Item "$productName.Application.Uwp\bin\$Configuration\$productName.Application.Uwp.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application.Web\bin\$Configuration\$productName.Application.Web.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application.WPF\bin\$Configuration\$productName.Application.WPF.$nugetVersion.nupkg" "$destination2\"
 	Copy-Item "$productName.Application.Xamarin\bin\$Configuration\$productName.Application.Xamarin.$nugetVersion.nupkg" "$destination2\"
