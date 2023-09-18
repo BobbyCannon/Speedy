@@ -25,9 +25,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Web.xml</DocumentationFile>
-		<AssemblyVersion>12.0.0.0</AssemblyVersion>
-		<FileVersion>12.0.0.0</FileVersion>
-		<Version>12.0.0.0</Version>
+		<AssemblyVersion>11.1.0.0</AssemblyVersion>
+		<FileVersion>11.1.0.0</FileVersion>
+		<Version>11.1.0.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 		<NoWarn>CA1416</NoWarn>

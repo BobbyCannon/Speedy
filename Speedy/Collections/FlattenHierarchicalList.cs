@@ -164,7 +164,7 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 
 		foreach (var item in itemsToAdd)
 		{
-			if (item.ShouldBeShownAsChild())
+			if (item.ShouldBeShown())
 			{
 				objects.Add(item);
 			}
@@ -216,7 +216,7 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 		ProcessThenOrder(() =>
 		{
 			var contains = Contains(hierarchyItem);
-			var shouldBeShown = hierarchyItem.ShouldBeShownAsChild();
+			var shouldBeShown = hierarchyItem.ShouldBeShown();
 
 			if (!contains && shouldBeShown)
 			{
@@ -259,7 +259,7 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 	{
 		ProcessThenOrder(() =>
 		{
-			if (hierarchyItem.ShouldBeShownAsChild() && (IndexOf(hierarchyItem) == -1))
+			if (hierarchyItem.ShouldBeShown() && (IndexOf(hierarchyItem) == -1))
 			{
 				Add(hierarchyItem);
 			}

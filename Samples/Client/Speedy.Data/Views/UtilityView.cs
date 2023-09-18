@@ -24,9 +24,9 @@ public class UtilityView : HierarchyListItem
 
 	#region Methods
 
-	public override bool ShouldBeShownAsChild()
+	public override bool ShouldBeShown()
 	{
-		return IsActive && (Type != UtilityType.Unknown) && base.ShouldBeShownAsChild();
+		return IsActive && (Type != UtilityType.Unknown) && base.ShouldBeShown();
 	}
 
 	protected override void OnPropertyChangedInDispatcher(string propertyName)

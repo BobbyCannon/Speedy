@@ -39,9 +39,9 @@ public class AccountView : Account
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool ShouldBeShownAsChild()
+	public override bool ShouldBeShown()
 	{
-		return IsShown && base.ShouldBeShownAsChild();
+		return IsShown && base.ShouldBeShown();
 	}
 
 	/// <inheritdoc />

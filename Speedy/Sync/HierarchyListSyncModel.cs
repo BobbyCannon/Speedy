@@ -89,7 +89,7 @@ public class HierarchyListSyncModel<T> : SyncModel<T>, IHierarchyListItem
 	}
 
 	/// <inheritdoc />
-	public virtual bool ShouldBeShownAsChild()
+	public virtual bool ShouldBeShown()
 	{
 		var parent = GetParent();
 		return (parent == null)

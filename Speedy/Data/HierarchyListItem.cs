@@ -80,7 +80,7 @@ public class HierarchyListItem : Bindable, IHierarchyListItem
 	}
 
 	/// <inheritdoc />
-	public virtual bool ShouldBeShownAsChild()
+	public virtual bool ShouldBeShown()
 	{
 		var parent = GetParent();
 		return (parent == null)
@@ -364,7 +364,7 @@ public interface IHierarchyListItem : IEventSubscriber, IDisposable
 	/// Determine if the item should be shown as a child in the parent collection.
 	/// </summary>
 	/// <returns> True if this list item should be shown. </returns>
-	bool ShouldBeShownAsChild();
+	bool ShouldBeShown();
 
 	/// <summary>
 	/// Determine if the items child should be shown.

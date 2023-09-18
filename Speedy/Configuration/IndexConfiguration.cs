@@ -103,7 +103,8 @@ public class IndexConfiguration
 				return false;
 			}
 
-			return !ReferenceEquals(x, entity) && _properties.All(p => p.Matches(x, entity));
+			var response = !ReferenceEquals(x, entity) && _properties.All(p => p.Matches(x, entity));
+			return response;
 		}
 
 		var propertyValues = _properties.Select(x => x.GetValue(typedEntity)).ToList();

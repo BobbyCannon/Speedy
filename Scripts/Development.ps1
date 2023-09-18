@@ -21,6 +21,7 @@ Get-Process vbcs* | Stop-Process
 
 Start-WebAppPool -Name "Speedy"
 
+# Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
 #
 # Other server frameworks
@@ -31,7 +32,7 @@ Start-WebAppPool -Name "Speedy"
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build 0 -Revision 0
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 1 -Build 0 -Revision 0
 
 #
 # Need to add readme to all packages

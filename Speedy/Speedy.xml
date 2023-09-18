@@ -1712,14 +1712,14 @@
             A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default return value for the CanExecute method is 'true'.
             </summary>
         </member>
-        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Action{System.Object},System.Predicate{System.Object})">
+        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Action{System.Object},System.Predicate{System.Boolean})">
             <summary>
             Creates a new command.
             </summary>
             <param name="execute"> The execution logic. </param>
             <param name="canExecute"> The execution status logic. </param>
         </member>
-        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Windows.Input.ICommand,System.String,System.Predicate{System.Object})">
+        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Windows.Input.ICommand,System.String,System.Predicate{System.Boolean})">
             <summary>
             Creates a new command.
             </summary>
@@ -3386,7 +3386,7 @@
         <member name="M:Speedy.Data.HierarchyListItem.HasChildren">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Data.HierarchyListItem.ShouldBeShownAsChild">
+        <member name="M:Speedy.Data.HierarchyListItem.ShouldBeShown">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Data.HierarchyListItem.ShouldShowChild(Speedy.Data.IHierarchyListItem)">
@@ -3499,7 +3499,7 @@
             </summary>
             <returns> True if this list item has children. </returns>
         </member>
-        <member name="M:Speedy.Data.IHierarchyListItem.ShouldBeShownAsChild">
+        <member name="M:Speedy.Data.IHierarchyListItem.ShouldBeShown">
             <summary>
             Determine if the item should be shown as a child in the parent collection.
             </summary>
@@ -16950,7 +16950,7 @@
         <member name="M:Speedy.Sync.HierarchyListSyncModel`1.HasChildren">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.ShouldBeShownAsChild">
+        <member name="M:Speedy.Sync.HierarchyListSyncModel`1.ShouldBeShown">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Sync.HierarchyListSyncModel`1.ShouldShowChild(Speedy.Data.IHierarchyListItem)">

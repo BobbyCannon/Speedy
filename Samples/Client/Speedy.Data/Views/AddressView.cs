@@ -38,9 +38,9 @@ public class AddressView : Address
 
 	#region Methods
 
-	public override bool ShouldBeShownAsChild()
+	public override bool ShouldBeShown()
 	{
-		return IsShown && base.ShouldBeShownAsChild();
+		return IsShown && base.ShouldBeShown();
 	}
 
 	public override bool ShouldShowChildren()
