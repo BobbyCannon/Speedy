@@ -14,9 +14,10 @@ $scriptPath = $PSScriptRoot
 $productName = "Speedy"
 
 # $scriptPath = "C:\Workspaces\GitHub\$productName"
-# $BuildNumber = 0
+# $BuildNumber = 1
 # $VersionSuffix = "RC7"
-# $Version = "11.1.0"
+# $Version = "11.1.1"
+# $nugetVersion = "11.1.1"
 
 if ($scriptPath.Length -le 0)
 {

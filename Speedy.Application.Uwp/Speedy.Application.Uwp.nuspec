@@ -6,25 +6,19 @@
 		<title>Speedy Application UWP</title>
 		<version>$version$</version>
 		<authors>Bobby Cannon</authors>
-		<description>Small thread safe embedded key value pair persistent repository for .NET.</description>
+		<description>Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.</description>
 		<projectUrl>https://github.com/BobbyCannon/Speedy</projectUrl>
 		<icon>Speedy.png</icon>
-		<tags>Embedded key value pair persistent repository database thread safe thread-safe</tags>
+		<tags>UWP UAP Embedded key value pair persistent repository database thread safe thread-safe EntityFramework Entity Framework EntityFrameworkCore EFCore</tags>
 		<dependencies>
 			<group targetFramework="uap10.0">
 				<dependency id="Speedy" version="$version$" />
 				<dependency id="Speedy.Application" version="$version$" />
 			</group>
 		</dependencies>
-		<references>
-			<group targetFramework="uap10.0">
-				<reference file="Speedy.Application.Uwp.dll" />
-			</group>
-		</references>
 	</metadata>
 	<files>
 		<file src="C:\Workspaces\GitHub\Speedy\Speedy.Application.Uwp\bin\Release\Speedy.Application.Uwp.dll" target="lib\uap10.0" />
-		<file src="C:\Workspaces\GitHub\Speedy\Speedy.Application.Uwp\bin\Release\Speedy.Application.Uwp.pdb" target="lib\uap10.0" />
 		<file src="C:\Workspaces\GitHub\Speedy\Speedy.png" target="\" />
 	</files>
 </package>
