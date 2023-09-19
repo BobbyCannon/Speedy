@@ -1712,14 +1712,14 @@
             A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default return value for the CanExecute method is 'true'.
             </summary>
         </member>
-        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Action{System.Object},System.Predicate{System.Boolean})">
+        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Action{System.Object},System.Predicate{System.Object})">
             <summary>
             Creates a new command.
             </summary>
             <param name="execute"> The execution logic. </param>
             <param name="canExecute"> The execution status logic. </param>
         </member>
-        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Windows.Input.ICommand,System.String,System.Predicate{System.Boolean})">
+        <member name="M:Speedy.Commands.RelayCommand.#ctor(System.Windows.Input.ICommand,System.String,System.Predicate{System.Object})">
             <summary>
             Creates a new command.
             </summary>

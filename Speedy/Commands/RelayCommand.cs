@@ -30,7 +30,7 @@ public class RelayCommand : ICommand
 	/// </summary>
 	/// <param name="execute"> The execution logic. </param>
 	/// <param name="canExecute"> The execution status logic. </param>
-	public RelayCommand(Action<object> execute, Predicate<bool> canExecute = null)
+	public RelayCommand(Action<object> execute, Predicate<object> canExecute = null)
 	{
 		_executeReference = new WeakReference<object>(execute.Target);
 		_executeCallback = execute.GetMethodInfo();
@@ -48,7 +48,7 @@ public class RelayCommand : ICommand
 	/// <param name="execute"> The execution logic. </param>
 	/// <param name="parameter"> The parameter to pass during execute. </param>
 	/// <param name="canExecute"> The execution status logic. </param>
-	public RelayCommand(ICommand execute, string parameter, Predicate<bool> canExecute = null)
+	public RelayCommand(ICommand execute, string parameter, Predicate<object> canExecute = null)
 		: this(_ => execute.Execute(parameter), canExecute)
 	{
 	}
