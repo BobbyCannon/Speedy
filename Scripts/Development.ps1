@@ -32,8 +32,8 @@ Start-WebAppPool -Name "Speedy"
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 1 -Build 0
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 1 -Build +
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 2 -Build 0
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 2 -Build +
 
 #
 # Need to add readme to all packages
@@ -57,7 +57,7 @@ ii 'C:\Workspaces\Nuget\Development'
 ii 'C:\Workspaces\Nuget\Release'
 
 # Build a final release
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -BuildNumber 1 -Configuration Release
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -BuildNumber 2 -Configuration Release
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 
 

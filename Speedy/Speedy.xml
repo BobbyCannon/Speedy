@@ -11442,236 +11442,49 @@
         </member>
         <member name="T:Speedy.Profiling.DebounceService">
             <summary>
-            The service to debounce work that supports cancellation.
+            The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken},System.Boolean)">
-            <summary>
-            Create an instance of the service for throttling an action.
-            </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
-            <param name="action"> The action to debounce. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceService.Trigger">
-            <summary>
-            Trigger the service. Will be trigger after the timespan.
-            </summary>
-        </member>
-        <member name="T:Speedy.Profiling.DebounceService`1">
-            <summary>
-            The service to debounce work that supports cancellation.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0},System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken})">
             <summary>
             Create an instance of the service for debouncing an action.
             </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to debounce. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.DebouncedAction(System.Threading.CancellationToken,`0)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Profiling.DebounceServiceBase`1">
+        <member name="M:Speedy.Profiling.DebounceService.Trigger(System.Boolean)">
             <summary>
-            The service to debounce work that supports cancellation.
+            Trigger the service. Will be trigger after the timespan.
+            </summary>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="T:Speedy.Profiling.DebounceService`1">
+            <summary>
+            The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase`1.#ctor(System.TimeSpan,System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0})">
             <summary>
-            Create an instance of the service for throttling an action.
+            Create an instance of the service for debouncing an action.
             </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <param name="action"> The action to debounce. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase`1.Trigger(`0,System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceService`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.DebounceService`1.Trigger(`0,System.Boolean)">
             <summary>
             Trigger the service. Will be trigger after the timespan.
             </summary>
             <param name="value"> The value to trigger with. </param>
-            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase`1.DebouncedAction(System.Threading.CancellationToken,`0)">
-            <summary>
-            The action to be debounced.
-            </summary>
-            <param name="token"> </param>
-            <param name="result"> </param>
-            <returns> </returns>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase`1.DebouncedAction(System.Threading.CancellationToken,System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Profiling.DebounceServiceBase">
-            <summary>
-            The service to debounce work that supports cancellation.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase.#ctor(System.TimeSpan,System.Boolean)">
-            <summary>
-            Create an instance of the service for throttling an action.
-            </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase.ClearData">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase.DebouncedAction(System.Threading.CancellationToken,System.Object)">
-            <summary>
-            The action to be debounced.
-            </summary>
-            <param name="token"> </param>
-            <param name="result"> </param>
-            <returns> </returns>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase.DoWorkAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase.HasMoreData">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.DebounceServiceBase.SetData(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Profiling.DebounceOrThrottleServiceBase">
-            <summary>
-            The service to debounce or throttle work that supports cancellation.
-            This class is the service base for <see cref="T:Speedy.Profiling.DebounceServiceBase" />
-            and <see cref="T:Speedy.Profiling.ThrottleServiceBase" />.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.#ctor(System.TimeSpan,System.Boolean)">
-            <summary>
-            Create an instance of the service for throttling an action.
-            </summary>
-            <param name="interval"> The amount of time before the action will trigger. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.IsReadyToProcess">
-            <summary>
-            The debounce is ready to process.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.IsTriggered">
-            <summary>
-            True if the throttle service has been triggered. It will remain true until all triggers are process.
-            If trigger are queued then IsTriggered will remain true until the queue is emptied (fully processed).
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.IsTriggeredAndReadyToProcess">
-            <summary>
-            The throttle is triggered and the delay has expired so it is ready to process.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.TimeToNextTrigger">
-            <summary>
-            The timespan until next trigger
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.CancellationTokenSource">
-            <summary>
-            The cancellation token source.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.CurrentTime">
-            <summary>
-            The current time for the service.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.Interval">
-            <summary>
-            The amount of time before the action will trigger.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.NoDelayOnNextTrigger">
-            <summary>
-            If true do not delay on the next trigger.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.RequestedFor">
-            <summary>
-            The date and time the trigger was requested for.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.ServiceLock">
-            <summary>
-            The lock for the service.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.DebounceOrThrottleServiceBase.TaskWaitDelay">
-            <summary>
-            The delay while waiting on the service to be ready to process.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.OnPropertyChanged(System.String)">
-            <summary>
-            Indicates the property has changed on the bindable object.
-            </summary>
-            <param name="propertyName"> The name of the property has changed. </param>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Reset">
-            <summary>
-            Reset the throttle service
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Trigger(System.Object,System.Boolean)">
-            <summary>
-            Trigger the service. Will be trigger after the timespan.
-            </summary>
-            <param name="value"> The value to trigger with. </param>
-            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.CheckIsReadyToProcess(System.DateTime)">
-            <summary>
-            Check to see if the trigger is ready to process.
-            </summary>
-            <param name="currentTime"> The date to validate against. </param>
-            <returns> True if ready to process otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.CheckIsTriggeredAndReadyToProcess(System.DateTime)">
-            <summary>
-            Check to see if the service has been triggered is ready to process.
-            </summary>
-            <param name="currentTime"> The date to validate against. </param>
-            <returns> True if triggered and ready to process otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.ClearData">
-            <summary>
-            Clear the data in the service.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.Dispose(System.Boolean)">
+        <member name="M:Speedy.Profiling.DebounceService`1.Dispose(System.Boolean)">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
             <param name="disposing"> True if disposing and false if otherwise. </param>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.DoWorkAsync">
-            <summary>
-            The work to be performed by the service.
-            </summary>
-            <returns> The task for the work. </returns>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.HasMoreData">
-            <summary>
-            Check to see if there is more data.
-            </summary>
-            <returns> True if there is more data otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceOrThrottleServiceBase.SetData(System.Object)">
-            <summary>
-            Set the data for the service.
-            </summary>
-            <param name="value"> The value of the data. </param>
-        </member>
-        <member name="E:Speedy.Profiling.DebounceOrThrottleServiceBase.PropertyChanged">
-            <inheritdoc />
         </member>
         <member name="T:Speedy.Profiling.ITrackerPathRepository">
             <summary>
@@ -11749,7 +11562,7 @@
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
-            <param name="interval"> The amount of time before the action will trigger. </param>
+            <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
             <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
@@ -11757,7 +11570,7 @@
             <summary>
             Trigger the service. Will be trigger after the timespan.
             </summary>
-            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
         </member>
         <member name="T:Speedy.Profiling.ThrottleService`1">
             <summary>
@@ -11768,127 +11581,56 @@
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
-            <param name="interval"> The amount of time before the action will trigger. </param>
-            <param name="action"> The action to throttle. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.ThrottledAction(System.Threading.CancellationToken,`0)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Profiling.ThrottleServiceAsync">
-            <summary>
-            The service to throttle work that supports cancellation.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceAsync.#ctor(System.TimeSpan,System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task},System.Boolean)">
-            <summary>
-            Create an instance of the service for throttling an action.
-            </summary>
             <param name="delay"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
             <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceAsync.Trigger(System.Boolean)">
+        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggered">
             <summary>
-            Trigger the service. Will be trigger after the timespan.
-            </summary>
-            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
-        </member>
-        <member name="T:Speedy.Profiling.ThrottleServiceAsync`1">
-            <summary>
-            The service to throttle work that supports cancellation.
+            True if the throttle service has been triggered.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceAsync`1.#ctor(System.TimeSpan,System.Func{System.Threading.CancellationToken,`0,System.Threading.Tasks.Task},System.Boolean)">
+        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggeredAndReadyToProcess">
             <summary>
-            Create an instance of the service for throttling an action.
-            </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
-            <param name="action"> The action to throttle. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceAsync`1.ThrottledAction(System.Threading.CancellationToken,`0)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Profiling.ThrottleServiceBase`1">
-            <summary>
-            The service to throttle work that supports cancellation.
+            The throttle is triggered and the delay has expired so it is ready to process.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.#ctor(System.TimeSpan,System.Boolean)">
-            <summary>
-            Create an instance of the service for throttling an action.
-            </summary>
-            <param name="interval"> The amount of time before the action will trigger. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.Trigger(`0,System.Boolean)">
-            <summary>
-            Trigger the service. Will be trigger after the timespan.
-            </summary>
-            <param name="value"> The value to trigger with. </param>
-            <param name="noDelay"> An optional flag to immediately trigger if true. Defaults to false. </param>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.ThrottledAction(System.Threading.CancellationToken,`0)">
-            <summary>
-            The action to be throttled.
-            </summary>
-            <param name="token"> The token to track cancellation. </param>
-            <param name="value"> The data for the throttled action. </param>
-            <returns> The task for the throttled action. </returns>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase`1.ThrottledAction(System.Threading.CancellationToken,System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="T:Speedy.Profiling.ThrottleServiceBase">
-            <summary>
-            The service to throttle work that supports cancellation.
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase.#ctor(System.TimeSpan,System.Boolean)">
-            <summary>
-            Create an instance of the service for throttling an action.
-            </summary>
-            <param name="interval"> The amount of time before the action will trigger. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="P:Speedy.Profiling.ThrottleServiceBase.IsTriggered">
-            <summary>
-            True if the throttle service has been triggered. It will remain true until all triggers are process.
-            If trigger are queued then IsTriggered will remain true until the queue is emptied (fully processed).
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.ThrottleServiceBase.QueueTriggers">
+        <member name="P:Speedy.Profiling.ThrottleService`1.QueueTriggers">
             <summary>
             If true trigger will queue and be processed. Be careful because queueing on a delay could
             end with a never processed queue. Defaults to false, meaning only last trigger processes.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase.OnPropertyChanged(System.String)">
+        <member name="P:Speedy.Profiling.ThrottleService`1.TimeToNextTrigger">
             <summary>
-            Indicates the property has changed on the bindable object.
+            The timespan until next trigger
             </summary>
-            <param name="propertyName"> The name of the property has changed. </param>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase.ClearData">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase.DoWorkAsync">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase.HasMoreData">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase.SetData(System.Object)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleServiceBase.ThrottledAction(System.Threading.CancellationToken,System.Object)">
+        <member name="P:Speedy.Profiling.ThrottleService`1.CurrentTime">
             <summary>
-            The action to be throttled.
+            The current time for the throttle.
             </summary>
-            <param name="token"> The token to track cancellation. </param>
-            <param name="value"> The data for the throttled action. </param>
-            <returns> The task for the throttled action. </returns>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleService`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleService`1.Reset">
+            <summary>
+            Reset the throttle service
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleService`1.Trigger(`0,System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan.
+            </summary>
+            <param name="value"> The value to trigger with. </param>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="M:Speedy.Profiling.ThrottleService`1.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="T:Speedy.Profiling.Timer">
             <summary>

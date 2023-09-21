@@ -167,6 +167,7 @@ namespace Speedy.IntegrationTests
 					var actual1 = (SettingEntity) settings1[0].Unwrap();
 					var actual2 = (SettingEntity) settings2[0].Unwrap();
 					var exclusions = GetEntityExclusions(actual1)
+						.ToList()
 						.AddRange(nameof(ISyncEntity.SyncId))
 						.ToArray();
 

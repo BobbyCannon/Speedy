@@ -20,10 +20,7 @@ namespace Speedy.Website.Data.Mappings
 			b.ToTable("Settings", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CanSync).IsRequired();
-			b.Property(x => x.Category).IsRequired();
 			b.Property(x => x.CreatedOn).HasColumnName("CreatedOn").IsRequired();
-			b.Property(x => x.ExpiresOn).IsRequired();
 			b.Property(x => x.Id).HasColumnName("Id").IsRequired();
 			b.Property(x => x.IsDeleted).HasColumnName("IsDeleted").IsRequired();
 			b.Property(x => x.ModifiedOn).HasColumnName("ModifiedOn").IsRequired();

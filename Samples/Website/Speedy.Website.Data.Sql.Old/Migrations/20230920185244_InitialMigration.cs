@@ -19,7 +19,7 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false)
+                    Name = table.Column<string>(maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,9 +34,9 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Description = table.Column<string>(unicode: false, maxLength: 4000, nullable: false),
+                    Description = table.Column<string>(maxLength: 4000, nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false)
+                    Name = table.Column<string>(maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,7 +55,7 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Level = table.Column<int>(nullable: false),
-                    Message = table.Column<string>(unicode: false, nullable: true),
+                    Message = table.Column<string>(nullable: true),
                     AcknowledgedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LoggedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -69,10 +69,10 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    PetTypeId = table.Column<string>(unicode: false, maxLength: 25, nullable: false),
+                    PetTypeId = table.Column<string>(maxLength: 25, nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Type = table.Column<string>(unicode: false, maxLength: 200, nullable: true)
+                    Type = table.Column<string>(maxLength: 200, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -90,8 +90,8 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    Value = table.Column<string>(unicode: false, nullable: false)
+                    Name = table.Column<string>(maxLength: 256, nullable: false),
+                    Value = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,20 +109,20 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompletedOnName = table.Column<string>(unicode: false, nullable: true),
-                    DataName = table.Column<string>(unicode: false, nullable: true),
-                    Name01 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name02 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name03 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name04 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name05 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name06 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name07 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name08 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Name09 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    PathName = table.Column<string>(unicode: false, maxLength: 896, nullable: false),
-                    PathType = table.Column<string>(unicode: false, nullable: false),
-                    StartedOnName = table.Column<string>(unicode: false, nullable: true),
+                    CompletedOnName = table.Column<string>(nullable: true),
+                    DataName = table.Column<string>(nullable: true),
+                    Name01 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name02 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name03 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name04 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name05 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name06 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name07 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name08 = table.Column<string>(maxLength: 900, nullable: true),
+                    Name09 = table.Column<string>(maxLength: 900, nullable: true),
+                    PathName = table.Column<string>(maxLength: 896, nullable: false),
+                    PathType = table.Column<string>(nullable: false),
+                    StartedOnName = table.Column<string>(nullable: true),
                     Type01 = table.Column<int>(nullable: false),
                     Type02 = table.Column<int>(nullable: false),
                     Type03 = table.Column<int>(nullable: false),
@@ -183,19 +183,19 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompletedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConfigurationId = table.Column<int>(nullable: false),
-                    Data = table.Column<string>(unicode: false, nullable: true),
+                    Data = table.Column<string>(nullable: true),
                     ElapsedTicks = table.Column<long>(nullable: false),
                     ParentId = table.Column<long>(nullable: true),
                     StartedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Value01 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value02 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value03 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value04 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value05 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value06 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value07 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value08 = table.Column<string>(unicode: false, maxLength: 900, nullable: true),
-                    Value09 = table.Column<string>(unicode: false, maxLength: 900, nullable: true)
+                    Value01 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value02 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value03 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value04 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value05 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value06 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value07 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value08 = table.Column<string>(maxLength: 900, nullable: true),
+                    Value09 = table.Column<string>(maxLength: 900, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -227,11 +227,11 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     AddressIsDeleted = table.Column<bool>(nullable: false),
                     AddressModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AddressCity = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AddressLineOne = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AddressLineTwo = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AddressPostal = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
-                    AddressState = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+                    AddressCity = table.Column<string>(maxLength: 256, nullable: false),
+                    AddressLineOne = table.Column<string>(maxLength: 256, nullable: false),
+                    AddressLineTwo = table.Column<string>(maxLength: 256, nullable: false),
+                    AddressPostal = table.Column<string>(maxLength: 128, nullable: false),
+                    AddressState = table.Column<string>(maxLength: 128, nullable: false),
                     AccountId = table.Column<int>(nullable: true),
                     AddressAccountSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AddressLinkedAddressId = table.Column<long>(nullable: true),
@@ -262,13 +262,13 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     AccountSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AccountAddressId = table.Column<long>(nullable: false),
                     AccountAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountEmailAddress = table.Column<string>(unicode: false, nullable: true),
-                    AccountExternalId = table.Column<string>(unicode: false, nullable: true),
+                    AccountEmailAddress = table.Column<string>(nullable: true),
+                    AccountExternalId = table.Column<string>(nullable: true),
                     AccountLastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountName = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    AccountNickname = table.Column<string>(unicode: false, maxLength: 256, nullable: true),
-                    AccountPasswordHash = table.Column<string>(unicode: false, nullable: true),
-                    AccountRoles = table.Column<string>(unicode: false, nullable: true)
+                    AccountName = table.Column<string>(maxLength: 256, nullable: false),
+                    AccountNickname = table.Column<string>(maxLength: 256, nullable: true),
+                    AccountPasswordHash = table.Column<string>(nullable: true),
+                    AccountRoles = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -294,7 +294,7 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                     MemberId = table.Column<int>(nullable: false),
                     MemberSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Role = table.Column<string>(unicode: false, maxLength: 4000, nullable: false)
+                    Role = table.Column<string>(maxLength: 4000, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -320,11 +320,11 @@ namespace Speedy.Website.Data.Sql.Old.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    Name = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+                    Name = table.Column<string>(maxLength: 128, nullable: false),
                     OwnerId = table.Column<int>(nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TypeId = table.Column<string>(unicode: false, maxLength: 25, nullable: true)
+                    TypeId = table.Column<string>(maxLength: 25, nullable: true)
                 },
                 constraints: table =>
                 {

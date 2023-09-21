@@ -20,10 +20,7 @@ namespace Speedy.Client.Data.Mapping
 			b.ToTable("Settings", "dbo");
 			b.HasKey(x => x.Id);
 
-			b.Property(x => x.CanSync).IsRequired();
-			b.Property(x => x.Category).IsRequired();
 			b.Property(x => x.CreatedOn).IsRequired();
-			b.Property(x => x.ExpiresOn).IsRequired();
 			b.Property(x => x.Id).IsRequired();
 			b.Property(x => x.IsDeleted).IsRequired();
 			b.Property(x => x.LastClientUpdate).IsRequired();

@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Speedy.Client.Data;
+using Speedy.Client.Data.Sqlite;
 
 namespace Speedy.Client.Data.Sqlite.Old.Migrations
 {
@@ -14,7 +14,7 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.28");
+                .HasAnnotation("ProductVersion", "3.1.32");
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAccount", b =>
                 {
@@ -39,8 +39,7 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                         .IsRequired()
                         .HasColumnName("AccountEmailAddress")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(128)
-                        .IsUnicode(false);
+                        .HasMaxLength(128);
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnName("AccountIsDeleted")
@@ -57,14 +56,12 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnName("AccountName")
-                        .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Roles")
                         .IsRequired()
                         .HasColumnName("AccountRoles")
-                        .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("SyncId")
                         .HasColumnName("AccountSyncId")
@@ -94,8 +91,7 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnName("AddressCity")
-                        .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnName("AddressCreatedOn")
@@ -113,15 +109,13 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                         .IsRequired()
                         .HasColumnName("AddressLineOne")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(128)
-                        .IsUnicode(false);
+                        .HasMaxLength(128);
 
                     b.Property<string>("Line2")
                         .IsRequired()
                         .HasColumnName("AddressLineTwo")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(128)
-                        .IsUnicode(false);
+                        .HasMaxLength(128);
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnName("AddressModifiedOn")
@@ -131,15 +125,13 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                         .IsRequired()
                         .HasColumnName("AddressPostal")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(25)
-                        .IsUnicode(false);
+                        .HasMaxLength(25);
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasColumnName("AddressState")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(25)
-                        .IsUnicode(false);
+                        .HasMaxLength(25);
 
                     b.Property<Guid>("SyncId")
                         .HasColumnName("AddressSyncId")
@@ -178,8 +170,7 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("TEXT")
-                        .HasMaxLength(256)
-                        .IsUnicode(false);
+                        .HasMaxLength(256);
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
@@ -220,16 +211,14 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT")
-                        .HasMaxLength(256)
-                        .IsUnicode(false);
+                        .HasMaxLength(256);
 
                     b.Property<Guid>("SyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

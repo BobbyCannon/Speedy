@@ -8,7 +8,6 @@ $watch = [System.Diagnostics.Stopwatch]::StartNew()
 $scriptPath = Split-Path(Get-Variable MyInvocation).Value.MyCommand.Path
 $scriptPath = (Get-Item $scriptPath).Parent.FullName
 
-# $scriptPath = "C:\Workspaces\EpicCoders\Speedy"
 # $scriptPath = "C:\Workspaces\GitHub\Speedy"
 
 Write-Host $scriptPath
@@ -20,8 +19,8 @@ Write-Host $scriptPath
 # Client Data Sqlite
 #
 
-$projectPath = "$scriptPath\Speedy.Client.Data.Sqlite"
-$startupPath = "$scriptPath\Speedy.IntegrationTests"
+$projectPath = "$scriptPath\Samples\Client\Speedy.Client.Data.Sqlite"
+$startupPath = "$scriptPath\Tests\Speedy.IntegrationTests"
 
 if (!(Test-Path $projectPath))
 {
@@ -36,14 +35,14 @@ if (!(Test-Path $startupPath))
 # ii $projectPath
 
 Remove-Item "$projectPath\Migrations" -ErrorAction Ignore
-dotnet ef migrations add InitialMigration --framework "net7.0-windows" --configuration "debug" -c "ClientDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
+dotnet ef migrations add InitialMigration --framework "net7.0-windows10.0.19041.0" --configuration "debug" -c "ContosoClientDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
 
 #
 # Client Data Sqlite Old
 #
 
-$projectPath = "$scriptPath\Speedy.Client.Data.Sqlite.Old"
-$startupPath = "$scriptPath\Speedy.IntegrationTests"
+$projectPath = "$scriptPath\Samples\Client\Speedy.Client.Data.Sqlite.Old"
+$startupPath = "$scriptPath\Tests\Speedy.IntegrationTests"
 
 if (!(Test-Path $projectPath))
 {
@@ -56,15 +55,15 @@ if (!(Test-Path $startupPath))
 }
 
 Remove-Item "$projectPath\Migrations" -ErrorAction Ignore
-dotnet ef migrations add InitialMigration --framework "net48" --configuration "debug" -c "ClientDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
+dotnet ef migrations add InitialMigration --framework "net48" --configuration "debug" -c "ContosoClientDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
 
 
 #
 # Website Data Sql
 #
 
-$projectPath = "$scriptPath\Speedy.Website.Data.Sql"
-$startupPath = "$scriptPath\Speedy.Website"
+$projectPath = "$scriptPath\Samples\Website\Speedy.Website.Data.Sql"
+$startupPath = "$scriptPath\Samples\Website\Speedy.Website"
 
 if (!(Test-Path $projectPath))
 {
@@ -77,14 +76,14 @@ if (!(Test-Path $startupPath))
 }
 
 Remove-Item "$projectPath\Migrations" -ErrorAction Ignore
-dotnet ef migrations add InitialMigration --framework "net7.0" --configuration "debug" -c "ServerSqlDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
+dotnet ef migrations add InitialMigration --framework "net7.0" --configuration "debug" -c "ContosoSqlDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
 
 #
 # Website Data Sql Old
 #
 
-$projectPath = "$scriptPath\Speedy.Website.Data.Sql.Old"
-$startupPath = "$scriptPath\Speedy.Website"
+$projectPath = "$scriptPath\Samples\Website\Speedy.Website.Data.Sql.Old"
+$startupPath = "$scriptPath\Samples\Website\Speedy.Website"
 
 if (!(Test-Path $projectPath))
 {
@@ -97,14 +96,14 @@ if (!(Test-Path $startupPath))
 }
 
 Remove-Item "$projectPath\Migrations" -ErrorAction Ignore
-dotnet ef migrations add InitialMigration --framework "netcoreapp3.1" --configuration "debug" -c "ServerSqlDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
+dotnet ef migrations add InitialMigration --framework "netcoreapp3.1" --configuration "debug" -c "ContosoSqlDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
 
 #
 # Website Data Sqlite
 #
 
-$projectPath = "$scriptPath\Speedy.Website.Data.Sqlite"
-$startupPath = "$scriptPath\Speedy.Website"
+$projectPath = "$scriptPath\Samples\Website\Speedy.Website.Data.Sqlite"
+$startupPath = "$scriptPath\Samples\Website\Speedy.Website"
 
 if (!(Test-Path $projectPath))
 {
@@ -117,14 +116,14 @@ if (!(Test-Path $startupPath))
 }
 
 Remove-Item "$projectPath\Migrations" -ErrorAction Ignore
-dotnet ef migrations add InitialMigration --framework "net7.0" --configuration "debug" -c "ServerSqliteDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
+dotnet ef migrations add InitialMigration --framework "net7.0" --configuration "debug" -c "ContosoSqliteDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
 
 #
 # Website Data Sqlite Old
 #
 
-$projectPath = "$scriptPath\Speedy.Website.Data.Sqlite.Old"
-$startupPath = "$scriptPath\Speedy.Website"
+$projectPath = "$scriptPath\Samples\Website\Speedy.Website.Data.Sqlite.Old"
+$startupPath = "$scriptPath\Samples\Website\Speedy.Website"
 
 if (!(Test-Path $projectPath))
 {
@@ -137,4 +136,4 @@ if (!(Test-Path $startupPath))
 }
 
 Remove-Item "$projectPath\Migrations" -ErrorAction Ignore
-dotnet ef migrations add InitialMigration --framework "netcoreapp3.1" --configuration "debug" -c "ServerSqliteDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"
+dotnet ef migrations add InitialMigration --framework "netcoreapp3.1" --configuration "debug" -c "ContosoSqliteDatabase" -p $projectPath -s $startupPath -o "$projectPath\Migrations"

@@ -81,6 +81,7 @@ $projects = "Speedy",
 	"Speedy.Automation",
 	"Speedy.Application",
 	"Speedy.Application.Maui",
+	"Speedy.Application.Uwp",
 	"Speedy.Application.Wpf",
 	"Speedy.Application.Xamarin",
 	"Speedy.EntityFramework",
@@ -103,6 +104,7 @@ for ($i = 0; $i -le $projects.Length; $i++)
 		
 	# Specific frameworks
 	$projectPlatformReferences = @()
+	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.0\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\netstandard2.1\$project.dll</HintPath></Reference>"
 	$projectPlatformReferences += "<Reference Include=`"$project`"><HintPath>$scriptPath\$project\bin\Debug\monoandroid10.0\$project.dll</HintPath></Reference>"
@@ -173,6 +175,9 @@ foreach ($file in $files)
 			if ($data.Contains("<TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>")) 
 			{
 				#Write-Host "UAP detected"
+				$data = $data.Replace("Speedy.Application.Uwp\bin\Debug\netstandard2.0\Speedy.Application.Uwp.dll", `
+					"Speedy.Application.Uwp\bin\Debug\Speedy.Application.Uwp.dll")
+				
 				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.0\Speedy.Application.Xamarin.dll", `
 					"Speedy.Application.Xamarin\bin\Debug\uap10.0.19041\Speedy.Application.Xamarin.dll")
 				$data = $data.Replace("Speedy.Application.Xamarin\bin\Debug\netstandard2.1\Speedy.Application.Xamarin.dll", `

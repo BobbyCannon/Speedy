@@ -4,159 +4,153 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Speedy.Client.Data;
+using Speedy.Client.Data.Sqlite;
 
-namespace Speedy.Client.Data.Sqlite.Old.Migrations
+#nullable disable
+
+namespace Speedy.Client.Data.Sqlite.Migrations
 {
     [DbContext(typeof(ContosoClientDatabase))]
-    [Migration("20220725002519_InitialMigration")]
+    [Migration("20230920185020_InitialMigration")]
     partial class InitialMigration
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.28");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.11");
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("AccountId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("AccountId");
 
                     b.Property<long>("AddressId")
-                        .HasColumnName("AccountAddressId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("AccountAddressId");
 
                     b.Property<Guid>("AddressSyncId")
-                        .HasColumnName("AccountAddressSyncId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("AccountAddressSyncId");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("AccountCreatedOn")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("AccountCreatedOn");
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
-                        .HasColumnName("AccountEmailAddress")
-                        .HasColumnType("TEXT")
                         .HasMaxLength(128)
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT")
+                        .HasColumnName("AccountEmailAddress");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnName("AccountIsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("AccountIsDeleted");
 
                     b.Property<DateTime>("LastClientUpdate")
-                        .HasColumnName("AccountLastClientUpdate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("AccountLastClientUpdate");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnName("AccountModifiedOn")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("AccountModifiedOn");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnName("AccountName")
                         .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnName("AccountName");
 
                     b.Property<string>("Roles")
                         .IsRequired()
-                        .HasColumnName("AccountRoles")
                         .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnName("AccountRoles");
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnName("AccountSyncId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("AccountSyncId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
 
                     b.HasIndex("LastClientUpdate")
-                        .HasName("IX_Accounts_LastClientUpdate");
+                        .HasDatabaseName("IX_Accounts_LastClientUpdate");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasName("IX_Accounts_SyncId");
+                        .HasDatabaseName("IX_Accounts_SyncId");
 
-                    b.ToTable("Accounts","dbo");
+                    b.ToTable("Accounts", "dbo");
                 });
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAddress", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("AddressId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("AddressId");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnName("AddressCity")
                         .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnName("AddressCity");
 
                     b.Property<DateTime>("CreatedOn")
-                        .HasColumnName("AddressCreatedOn")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("AddressCreatedOn");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnName("AddressIsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("AddressIsDeleted");
 
                     b.Property<DateTime>("LastClientUpdate")
-                        .HasColumnName("AddressLastClientUpdate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("AddressLastClientUpdate");
 
                     b.Property<string>("Line1")
                         .IsRequired()
-                        .HasColumnName("AddressLineOne")
-                        .HasColumnType("TEXT")
                         .HasMaxLength(128)
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT")
+                        .HasColumnName("AddressLineOne");
 
                     b.Property<string>("Line2")
                         .IsRequired()
-                        .HasColumnName("AddressLineTwo")
-                        .HasColumnType("TEXT")
                         .HasMaxLength(128)
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT")
+                        .HasColumnName("AddressLineTwo");
 
                     b.Property<DateTime>("ModifiedOn")
-                        .HasColumnName("AddressModifiedOn")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("AddressModifiedOn");
 
                     b.Property<string>("Postal")
                         .IsRequired()
-                        .HasColumnName("AddressPostal")
-                        .HasColumnType("TEXT")
                         .HasMaxLength(25)
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT")
+                        .HasColumnName("AddressPostal");
 
                     b.Property<string>("State")
                         .IsRequired()
-                        .HasColumnName("AddressState")
-                        .HasColumnType("TEXT")
                         .HasMaxLength(25)
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT")
+                        .HasColumnName("AddressState");
 
                     b.Property<Guid>("SyncId")
-                        .HasColumnName("AddressSyncId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("AddressSyncId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LastClientUpdate")
-                        .HasName("IX_Addresses_LastClientUpdate");
+                        .HasDatabaseName("IX_Addresses_LastClientUpdate");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasName("IX_Addresses_SyncId");
+                        .HasDatabaseName("IX_Addresses_SyncId");
 
-                    b.ToTable("Addresses","dbo");
+                    b.ToTable("Addresses", "dbo");
                 });
 
             modelBuilder.Entity("Speedy.Data.Client.ClientLogEvent", b =>
@@ -179,9 +173,8 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
@@ -192,13 +185,13 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("LastClientUpdate")
-                        .HasName("IX_LogEvents_LastClientUpdate");
+                        .HasDatabaseName("IX_LogEvents_LastClientUpdate");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasName("IX_LogEvents_SyncId");
+                        .HasDatabaseName("IX_LogEvents_SyncId");
 
-                    b.ToTable("LogEvents","dbo");
+                    b.ToTable("LogEvents", "dbo");
                 });
 
             modelBuilder.Entity("Speedy.Data.Client.ClientSetting", b =>
@@ -221,28 +214,26 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT")
                         .HasMaxLength(256)
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("SyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .IsUnicode(false);
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LastClientUpdate")
-                        .HasName("IX_Settings_LastClientUpdate");
+                        .HasDatabaseName("IX_Settings_LastClientUpdate");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
-                        .HasName("IX_Settings_SyncId");
+                        .HasDatabaseName("IX_Settings_SyncId");
 
-                    b.ToTable("Settings","dbo");
+                    b.ToTable("Settings", "dbo");
                 });
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAccount", b =>
@@ -252,6 +243,13 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("Speedy.Data.Client.ClientAddress", b =>
+                {
+                    b.Navigation("Accounts");
                 });
 #pragma warning restore 612, 618
         }

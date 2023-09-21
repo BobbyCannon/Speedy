@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Speedy.Client.Data;
+using Speedy.Client.Data.Sqlite;
 
 #nullable disable
 
@@ -15,7 +15,7 @@ namespace Speedy.Client.Data.Sqlite.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.8");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.11");
 
             modelBuilder.Entity("Speedy.Data.Client.ClientAccount", b =>
                 {
@@ -39,7 +39,6 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountEmailAddress");
 
@@ -57,13 +56,11 @@ namespace Speedy.Client.Data.Sqlite.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountName");
 
                     b.Property<string>("Roles")
                         .IsRequired()
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AccountRoles");
 
@@ -94,7 +91,6 @@ namespace Speedy.Client.Data.Sqlite.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressCity");
 
@@ -113,14 +109,12 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     b.Property<string>("Line1")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressLineOne");
 
                     b.Property<string>("Line2")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressLineTwo");
 
@@ -131,14 +125,12 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     b.Property<string>("Postal")
                         .IsRequired()
                         .HasMaxLength(25)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressPostal");
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(25)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT")
                         .HasColumnName("AddressState");
 
@@ -179,7 +171,6 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -221,7 +212,6 @@ namespace Speedy.Client.Data.Sqlite.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("SyncId")
@@ -229,7 +219,6 @@ namespace Speedy.Client.Data.Sqlite.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .IsUnicode(false)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

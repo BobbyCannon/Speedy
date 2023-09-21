@@ -21,11 +21,11 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     AddressIsDeleted = table.Column<bool>(nullable: false),
                     AddressModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AddressCity = table.Column<string>(unicode: false, nullable: false),
-                    AddressLineOne = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
-                    AddressLineTwo = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
-                    AddressPostal = table.Column<string>(unicode: false, maxLength: 25, nullable: false),
-                    AddressState = table.Column<string>(unicode: false, maxLength: 25, nullable: false),
+                    AddressCity = table.Column<string>(nullable: false),
+                    AddressLineOne = table.Column<string>(maxLength: 128, nullable: false),
+                    AddressLineTwo = table.Column<string>(maxLength: 128, nullable: false),
+                    AddressPostal = table.Column<string>(maxLength: 25, nullable: false),
+                    AddressState = table.Column<string>(maxLength: 25, nullable: false),
                     AddressLastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -45,7 +45,7 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Level = table.Column<int>(nullable: false),
-                    Message = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
+                    Message = table.Column<string>(maxLength: 256, nullable: false),
                     LastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -64,8 +64,8 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     IsDeleted = table.Column<bool>(nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(unicode: false, maxLength: 256, nullable: false),
-                    Value = table.Column<string>(unicode: false, nullable: false),
+                    Name = table.Column<string>(maxLength: 256, nullable: false),
+                    Value = table.Column<string>(nullable: false),
                     LastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -86,10 +86,10 @@ namespace Speedy.Client.Data.Sqlite.Old.Migrations
                     AccountSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AccountAddressId = table.Column<long>(nullable: false),
                     AccountAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountEmailAddress = table.Column<string>(unicode: false, maxLength: 128, nullable: false),
+                    AccountEmailAddress = table.Column<string>(maxLength: 128, nullable: false),
                     AccountLastClientUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountName = table.Column<string>(unicode: false, nullable: false),
-                    AccountRoles = table.Column<string>(unicode: false, nullable: false)
+                    AccountName = table.Column<string>(nullable: false),
+                    AccountRoles = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {

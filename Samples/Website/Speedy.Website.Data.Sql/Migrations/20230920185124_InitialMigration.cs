@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Speedy.Website.Data.Sql.Migrations
 {
+    /// <inheritdoc />
     public partial class InitialMigration : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
@@ -21,7 +23,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,9 +38,9 @@ namespace Speedy.Website.Data.Sql.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Description = table.Column<string>(type: "varchar(4000)", unicode: false, maxLength: 4000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Name = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,7 +61,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Level = table.Column<int>(type: "int", nullable: false),
-                    Message = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true)
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -71,8 +73,8 @@ namespace Speedy.Website.Data.Sql.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    PetTypeId = table.Column<string>(type: "varchar(25)", unicode: false, maxLength: 25, nullable: false),
-                    Type = table.Column<string>(type: "varchar(200)", unicode: false, maxLength: 200, nullable: true),
+                    PetTypeId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -92,8 +94,8 @@ namespace Speedy.Website.Data.Sql.Migrations
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: false),
-                    Value = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,20 +109,20 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CompletedOnName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
-                    DataName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
-                    Name01 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name02 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name03 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name04 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name05 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name06 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name07 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name08 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Name09 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    PathName = table.Column<string>(type: "varchar(896)", unicode: false, maxLength: 896, nullable: false),
-                    PathType = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
-                    StartedOnName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
+                    CompletedOnName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DataName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name01 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name02 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name03 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name04 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name05 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name06 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name07 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name08 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Name09 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    PathName = table.Column<string>(type: "nvarchar(896)", maxLength: 896, nullable: false),
+                    PathType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartedOnName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type01 = table.Column<int>(type: "int", nullable: false),
                     Type02 = table.Column<int>(type: "int", nullable: false),
                     Type03 = table.Column<int>(type: "int", nullable: false),
@@ -181,19 +183,19 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CompletedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConfigurationId = table.Column<int>(type: "int", nullable: false),
-                    Data = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ElapsedTicks = table.Column<long>(type: "bigint", nullable: false),
                     ParentId = table.Column<long>(type: "bigint", nullable: true),
                     StartedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Value01 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value02 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value03 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value04 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value05 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value06 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value07 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value08 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
-                    Value09 = table.Column<string>(type: "varchar(900)", unicode: false, maxLength: 900, nullable: true),
+                    Value01 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value02 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value03 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value04 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value05 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value06 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value07 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value08 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
+                    Value09 = table.Column<string>(type: "nvarchar(900)", maxLength: 900, nullable: true),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -227,13 +229,13 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AccountAddressId = table.Column<long>(type: "bigint", nullable: false),
                     AccountAddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccountEmailAddress = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
-                    AccountExternalId = table.Column<string>(type: "varchar(900)", unicode: false, nullable: true),
+                    AccountEmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AccountExternalId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     AccountLastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountName = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: false),
-                    AccountNickname = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: true),
-                    AccountPasswordHash = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
-                    AccountRoles = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
+                    AccountName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    AccountNickname = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    AccountPasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AccountRoles = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AccountCreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AccountIsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     AccountModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -259,11 +261,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                     AddressIsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     AddressModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AddressSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AddressCity = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: false),
-                    AddressLineOne = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: false),
-                    AddressLineTwo = table.Column<string>(type: "varchar(256)", unicode: false, maxLength: 256, nullable: false),
-                    AddressPostal = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
-                    AddressState = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false)
+                    AddressCity = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    AddressLineOne = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    AddressLineTwo = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    AddressPostal = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    AddressState = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -296,7 +298,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     MemberId = table.Column<int>(type: "int", nullable: false),
                     MemberSyncId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Role = table.Column<string>(type: "varchar(4000)", unicode: false, maxLength: 4000, nullable: false)
+                    Role = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -322,11 +324,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    Name = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     OwnerId = table.Column<int>(type: "int", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TypeId = table.Column<string>(type: "varchar(25)", unicode: false, maxLength: 25, nullable: true)
+                    TypeId = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -509,6 +511,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 onDelete: ReferentialAction.Restrict);
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(

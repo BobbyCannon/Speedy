@@ -2,39 +2,37 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Speedy.Website.Data.Sql;
+using Speedy.Website.Data.Sqlite;
 
 #nullable disable
 
-namespace Speedy.Website.Data.Sql.Migrations
+namespace Speedy.Website.Data.Sqlite.Migrations
 {
-    [DbContext(typeof(ContosoSqlDatabase))]
-    [Migration("20220725002532_InitialMigration")]
+    [DbContext(typeof(ContosoSqliteDatabase))]
+    [Migration("20230920185303_InitialMigration")]
     partial class InitialMigration
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.8")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+                .HasAnnotation("ProductVersion", "7.0.11")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true);
 
             modelBuilder.Entity("Speedy.Website.Data.Entities.AccountEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("AccountId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
                     b.Property<long>("AddressId")
-                        .HasColumnType("bigint")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("AccountAddressId");
 
                     b.Property<Guid>("AddressSyncId")
@@ -46,17 +44,15 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnName("AccountCreatedOn");
 
                     b.Property<string>("EmailAddress")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AccountEmailAddress");
 
                     b.Property<string>("ExternalId")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AccountExternalId");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("AccountIsDeleted");
 
                     b.Property<DateTime>("LastLoginDate")
@@ -70,24 +66,20 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AccountName");
 
                     b.Property<string>("Nickname")
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AccountNickname");
 
                     b.Property<string>("PasswordHash")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AccountPasswordHash");
 
                     b.Property<string>("Roles")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AccountRoles");
 
                     b.Property<Guid>("SyncId")
@@ -105,8 +97,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.HasIndex("Nickname")
                         .IsUnique()
-                        .HasDatabaseName("IX_Accounts_Nickname")
-                        .HasFilter("[AccountNickname] IS NOT NULL");
+                        .HasDatabaseName("IX_Accounts_Nickname");
 
                     b.HasIndex("SyncId")
                         .IsUnique()
@@ -114,8 +105,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.HasIndex("AddressId", "ExternalId")
                         .IsUnique()
-                        .HasDatabaseName("IX_Accounts_AddressId_ExternalId")
-                        .HasFilter("[AccountExternalId] IS NOT NULL");
+                        .HasDatabaseName("IX_Accounts_AddressId_ExternalId");
 
                     b.ToTable("Accounts", "dbo");
                 });
@@ -124,13 +114,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("AddressId");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
                     b.Property<int?>("AccountId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("AccountSyncId")
                         .HasColumnType("uniqueidentifier")
@@ -139,8 +127,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AddressCity");
 
                     b.Property<DateTime>("CreatedOn")
@@ -148,25 +135,23 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnName("AddressCreatedOn");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("AddressIsDeleted");
 
                     b.Property<string>("Line1")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AddressLineOne");
 
                     b.Property<string>("Line2")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AddressLineTwo");
 
                     b.Property<long?>("LinkedAddressId")
-                        .HasColumnType("bigint")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("AddressLinkedAddressId");
 
                     b.Property<Guid?>("LinkedAddressSyncId")
@@ -180,15 +165,13 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Postal")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AddressPostal");
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("AddressState");
 
                     b.Property<Guid>("SyncId")
@@ -213,10 +196,8 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2")
@@ -229,8 +210,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
                     b.HasKey("Id");
@@ -246,13 +226,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("Id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
                     b.Property<int>("ChildId")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("ChildId");
 
                     b.Property<DateTime>("CreatedOn")
@@ -264,11 +242,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnName("ModifiedOn");
 
                     b.Property<int>("ParentId")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("ParentId");
 
                     b.Property<double>("Quantity")
-                        .HasColumnType("float")
+                        .HasColumnType("REAL")
                         .HasColumnName("Quantity");
 
                     b.HasKey("Id");
@@ -286,10 +264,8 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2")
@@ -298,8 +274,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Description");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -309,8 +284,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
                     b.HasKey("Id");
@@ -322,21 +296,19 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedOn");
 
                     b.Property<int>("GroupId")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("GroupId");
 
                     b.Property<int>("MemberId")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("MemberId");
 
                     b.Property<Guid>("MemberSyncId")
@@ -350,8 +322,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Role");
 
                     b.HasKey("Id");
@@ -373,9 +344,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(250)
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("AcknowledgedOn")
                         .HasColumnType("datetime2");
@@ -384,17 +353,16 @@ namespace Speedy.Website.Data.Sql.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Level")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LoggedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Message")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
@@ -411,12 +379,11 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<string>("Name")
                         .HasMaxLength(128)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(128)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
                     b.Property<int>("OwnerId")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("OwnerId");
 
                     b.Property<DateTime>("CreatedOn")
@@ -429,8 +396,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<string>("TypeId")
                         .HasMaxLength(25)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(25)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("TypeId");
 
                     b.HasKey("Name", "OwnerId");
@@ -451,8 +417,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(25)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(25)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("PetTypeId");
 
                     b.Property<DateTime>("CreatedOn")
@@ -465,8 +430,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<string>("Type")
                         .HasMaxLength(200)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(200)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Type");
 
                     b.HasKey("Id");
@@ -478,17 +442,15 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("Id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreatedOn");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("IsDeleted");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -498,8 +460,7 @@ namespace Speedy.Website.Data.Sql.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(256)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Name");
 
                     b.Property<Guid>("SyncId")
@@ -508,8 +469,7 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("Value");
 
                     b.HasKey("Id");
@@ -529,116 +489,100 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CompletedOnName")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DataName")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name01")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name02")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name03")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name04")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name05")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name06")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name07")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name08")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name09")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PathName")
                         .IsRequired()
                         .HasMaxLength(896)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(896)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("PathType")
                         .IsRequired()
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("StartedOnName")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("SyncId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type01")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type02")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type03")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type04")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type05")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type06")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type07")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type08")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type09")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -653,34 +597,31 @@ namespace Speedy.Website.Data.Sql.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CompletedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ConfigurationId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Data")
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<long>("ElapsedTicks")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<long?>("ParentId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("StartedOn")
                         .HasColumnType("datetime2");
@@ -690,48 +631,39 @@ namespace Speedy.Website.Data.Sql.Migrations
 
                     b.Property<string>("Value01")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value02")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value03")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value04")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value05")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value06")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value07")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value08")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Value09")
                         .HasMaxLength(900)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(900)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
