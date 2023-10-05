@@ -8127,26 +8127,26 @@
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults(System.Threading.Tasks.Task)">
             <summary>
-            Synchronously await the results of an asynchronous operation without deadlocking.
+            Await the results of a task.
             </summary>
-            <param name="task"> The <see cref="T:System.Threading.Tasks.Task" /> representing the pending operation. </param>
+            <param name="task"> The task to run. </param>
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults``1(System.Threading.Tasks.Task{``0})">
             <summary>
-            Synchronously await the results of an asynchronous operation without deadlocking.
+            Await the results of a task.
             </summary>
-            <typeparam name="T"> The result type of the operation. </typeparam>
-            <param name="task"> The <see cref="T:System.Threading.Tasks.Task" /> representing the pending operation. </param>
-            <returns> The result of the operation. </returns>
+            <typeparam name="T"> The type to return. </typeparam>
+            <param name="task"> The task to run. </param>
+            <returns> The result of the task. </returns>
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.AwaitResults``1(System.Threading.Tasks.Task{``0},System.TimeSpan)">
             <summary>
-            Synchronously await the results of an asynchronous operation without deadlocking.
+            Await the results of a task.
             </summary>
-            <typeparam name="T"> The result type of the operation. </typeparam>
-            <param name="task"> The <see cref="T:System.Threading.Tasks.Task" /> representing the pending operation. </param>
+            <typeparam name="T"> The type to return. </typeparam>
+            <param name="task"> The task to run. </param>
             <param name="timeout"> The timeout if the task does not complete. </param>
-            <returns> The result of the operation. </returns>
+            <returns> The result of the task. </returns>
         </member>
         <member name="M:Speedy.Extensions.TaskExtensions.IsCompleted(System.Threading.Tasks.Task)">
             <summary>

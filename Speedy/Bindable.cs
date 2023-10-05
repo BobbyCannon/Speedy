@@ -75,7 +75,7 @@ public abstract class Bindable : Notifiable, IBindable
 	public void Dispatch(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
 		var dispatcher = GetDispatcher();
-		if (dispatcher is { IsDispatcherThread: false })
+		if (dispatcher != null && dispatcher.ShouldDispatch())
 		{
 			dispatcher.Dispatch(action, priority);
 			return;
@@ -88,7 +88,7 @@ public abstract class Bindable : Notifiable, IBindable
 	public T2 Dispatch<T2>(Func<T2> action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
 		var dispatcher = GetDispatcher();
-		return dispatcher is { IsDispatcherThread: false }
+		return dispatcher != null && dispatcher.ShouldDispatch()
 			? dispatcher.Dispatch(action, priority)
 			: action();
 	}
@@ -97,7 +97,7 @@ public abstract class Bindable : Notifiable, IBindable
 	public Task DispatchAsync(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
 		var dispatcher = GetDispatcher();
-		if (dispatcher is { IsDispatcherThread: false })
+		if (dispatcher != null && dispatcher.ShouldDispatch())
 		{
 			return dispatcher.DispatchAsync(action, priority);
 		}
@@ -110,7 +110,7 @@ public abstract class Bindable : Notifiable, IBindable
 	public Task<T2> DispatchAsync<T2>(Func<T2> action, DispatcherPriority priority = DispatcherPriority.Normal)
 	{
 		var dispatcher = GetDispatcher();
-		if (dispatcher is { IsDispatcherThread: false })
+		if (dispatcher != null && dispatcher.ShouldDispatch())
 		{
 			return dispatcher.DispatchAsync(action, priority);
 		}
@@ -149,7 +149,7 @@ public abstract class Bindable : Notifiable, IBindable
 	public bool ShouldDispatch()
 	{
 		var dispatcher = GetDispatcher();
-		return dispatcher is { IsDispatcherThread: false };
+		return dispatcher?.ShouldDispatch() ?? false;
 	}
 
 	/// <inheritdoc />

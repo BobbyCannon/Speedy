@@ -24,13 +24,16 @@ public class XamarinDispatcher : Dispatcher
 	/// <inheritdoc />
 	protected override void ExecuteOnDispatcher(Action action, DispatcherPriority priority)
 	{
-		XamarinForms.Device.InvokeOnMainThreadAsync(action).AwaitResults();
+		using var task = XamarinForms.Device.InvokeOnMainThreadAsync(action);
+		task.AwaitResults();
 	}
 
 	/// <inheritdoc />
 	protected override T ExecuteOnDispatcher<T>(Func<T> action, DispatcherPriority priority)
 	{
-		return XamarinForms.Device.InvokeOnMainThreadAsync(action).AwaitResults();
+		using var task = XamarinForms.Device.InvokeOnMainThreadAsync(action);
+		var response = task.AwaitResults();
+		return response;
 	}
 
 	/// <inheritdoc />
