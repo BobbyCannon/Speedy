@@ -16,8 +16,8 @@ $productName = "Speedy"
 # $scriptPath = "C:\Workspaces\GitHub\$productName"
 # $BuildNumber = 1
 # $VersionSuffix = "RC7"
-# $Version = "11.2.0"
-# $nugetVersion = "11.2.0"
+# $Version = "11.3.0"
+# $nugetVersion = "11.3.0"
 
 if ($scriptPath.Length -le 0)
 {
@@ -45,7 +45,7 @@ try
 {
 	# Prepare the build for versioning!
 	# $newVersion = .\IncrementVersion.ps1 -Build +
-	$newVersion = .\IncrementVersion.ps1 -Major 11 -Minor 2 -Build $BuildNumber -Revision 0
+	$newVersion = .\IncrementVersion.ps1 -Major 11 -Minor 3 -Build $BuildNumber -Revision 0
 	$nugetVersion = ([Version] $newVersion).ToString(3)
 	
 	if ($VersionSuffix.Length -gt 0)

@@ -32,8 +32,8 @@ Start-WebAppPool -Name "Speedy"
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 2 -Build 0
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 2 -Build +
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 3 -Build 0
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 3 -Build +
 
 #
 # Need to add readme to all packages

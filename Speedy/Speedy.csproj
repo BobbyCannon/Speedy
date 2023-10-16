@@ -24,9 +24,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.xml</DocumentationFile>
-		<AssemblyVersion>11.2.0.0</AssemblyVersion>
-		<FileVersion>11.2.0.0</FileVersion>
-		<Version>11.2.0</Version>
+		<AssemblyVersion>11.3.0.0</AssemblyVersion>
+		<FileVersion>11.3.0.0</FileVersion>
+		<Version>11.3.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
