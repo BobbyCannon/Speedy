@@ -56,14 +56,14 @@ public class Setting<T, T2> : Setting<T2>
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool HasChanges(params string[] exclusions)
+	public override bool HasChanges()
 	{
 		if (Data is IChangeable changeable && changeable.HasChanges())
 		{
 			return true;
 		}
 
-		return base.HasChanges(exclusions);
+		return base.HasChanges();
 	}
 
 	/// <inheritdoc />

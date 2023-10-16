@@ -296,36 +296,6 @@ public class SyncClientTests : SpeedyUnitTest
 	}
 
 	[TestMethod]
-	public void GetCorrectionShouldBeProcessWithConverter()
-	{
-		var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false))
-		{
-			OutgoingConverter = null,
-			IncomingConverter = new SyncClientIncomingConverter(new SyncObjectIncomingConverter<ClientAddress, long, AddressEntity, long>())
-		};
-
-		AddressEntity address;
-
-		using (var database = client.GetDatabase<IContosoDatabase>())
-		{
-			address = EntityFactory.GetAddress(line1: "Home", state: "SC");
-			database.Addresses.Add(address);
-			database.SaveChanges();
-		}
-
-		var issue = new SyncIssue { Id = address.SyncId, IssueType = SyncIssueType.RelationshipConstraint, Message = "Errors", TypeName = typeof(ClientAddress).ToAssemblyName() };
-		var request = new ServiceRequest<SyncIssue>(issue);
-		var options = new SyncOptions();
-		var sessionId = Guid.NewGuid();
-		client.BeginSync(sessionId, options);
-
-		var corrections = client.GetCorrections(sessionId, request);
-		Assert.AreEqual(1, corrections.Collection.Count);
-		Assert.AreEqual(typeof(AddressEntity).ToAssemblyName(), corrections.Collection[0].TypeName);
-		Assert.AreEqual(SyncObjectStatus.Added, corrections.Collection[0].Status);
-	}
-
-	[TestMethod]
 	public void IncomingConverterShouldNotProcessNonDefinedObjects()
 	{
 		var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false))

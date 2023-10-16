@@ -130,7 +130,10 @@ public abstract class Entity : Notifiable, IEntity
 	/// </summary>
 	protected Entity()
 	{
-		
+		SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(GetRealType(),
+			_ => new HashSet<string>(GetDefaultExclusionsForChangeTracking()));
+		SyncEntity.ExclusionCacheForUpdatableExclusions.GetOrAdd(GetRealType(),
+			_ => new HashSet<string>(GetDefaultExclusionsForUpdatableExclusions()));
 	}
 
 	#endregion

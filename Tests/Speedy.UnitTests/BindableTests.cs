@@ -42,8 +42,8 @@ public class BindableTests : SpeedyUnitTest
 		actual.Name = "Fred";
 		IsTrue(actual.HasChanges);
 
-		actual.GetChangedProperties();
 		actual.ResetHasChanges();
+		IsFalse(actual.HasChanges);
 	}
 
 	[TestMethod]

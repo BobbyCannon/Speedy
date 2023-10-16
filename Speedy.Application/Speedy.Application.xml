@@ -511,9 +511,6 @@
         <member name="P:Speedy.Application.Settings.Setting`2.Value">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Settings.Setting`2.HasChanges(System.String[])">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Application.Settings.Setting`2.ResetHasChanges">
             <inheritdoc />
         </member>
@@ -595,9 +592,6 @@
             </summary>
             <param name="category"> The category name. </param>
             <param name="dispatcher"> The optional dispatcher to use. </param>
-        </member>
-        <member name="M:Speedy.Application.Settings.SettingsManager`2.HasChanges(System.String[])">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Settings.SettingsManager`2.Load(Speedy.IRepository{`0,`1})">
             <summary>

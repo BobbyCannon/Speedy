@@ -8512,23 +8512,10 @@
             Represents an object that can track changes for properties.
             </summary>
         </member>
-        <member name="M:Speedy.IChangeable.GetChangedProperties">
-            <summary>
-            Get the list of changed properties.
-            </summary>
-            <returns> The list of changed property in a read only set. </returns>
-        </member>
         <member name="M:Speedy.IChangeable.HasChanges">
             <summary>
             Determines if the object has changes.
             </summary>
-            <returns> True if the object has changes otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.IChangeable.HasChanges(System.String[])">
-            <summary>
-            Determines if the object has changes.
-            </summary>
-            <param name="exclusions"> An optional set of exclusions. </param>
             <returns> True if the object has changes otherwise false. </returns>
         </member>
         <member name="M:Speedy.IChangeable.ResetHasChanges">
@@ -10430,18 +10417,12 @@
         <member name="M:Speedy.Notifiable.EnablePropertyChangeNotifications">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Notifiable.GetChangedProperties">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Notifiable.GetRealType">
             <summary>
             Cached version of the "real" type, meaning not EF proxy but rather root type
             </summary>
         </member>
         <member name="M:Speedy.Notifiable.HasChanges">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Notifiable.HasChanges(System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Notifiable.IsPropertyChangeNotificationsEnabled">

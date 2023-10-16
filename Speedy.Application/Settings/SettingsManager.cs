@@ -45,11 +45,9 @@ public abstract class SettingsManager<T, T2> : Bindable
 	#region Methods
 
 	/// <inheritdoc />
-	public override bool HasChanges(params string[] exclusions)
+	public override bool HasChanges()
 	{
-		return exclusions.Any()
-			? _settings.Values.Where(x => !exclusions.Contains(x.Name)).Any(x => x.HasChanges(exclusions))
-			: _settings.Values.Any(x => x.HasChanges());
+		return _settings.Values.Any(x => x.HasChanges());
 	}
 
 	/// <summary>

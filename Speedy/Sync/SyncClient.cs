@@ -191,68 +191,6 @@ namespace Speedy.Sync
 
 			var response = new ServiceResult<SyncObject>();
 
-			if (issues == null)
-			{
-				return response;
-			}
-
-			using var database = DatabaseProvider.GetSyncableDatabase();
-
-			foreach (var item in issues.Collection)
-			{
-				var issue = IncomingConverter == null ? item : IncomingConverter.Convert(item);
-
-				switch (issue?.IssueType)
-				{
-					case SyncIssueType.Unknown:
-					case SyncIssueType.ConstraintException:
-					default:
-					{
-						// Do not process these issues
-						break;
-					}
-					case SyncIssueType.RelationshipConstraint:
-					{
-						var type = Type.GetType(issue.TypeName);
-
-						if (SyncOptions.ShouldExcludeRepository(type))
-						{
-							// Do not process this issue because we have filters and the repository is not in the filters.
-							continue;
-						}
-
-						// Assuming this is because this entity or a relationship it depends on was deleted but then used 
-						// in another client or server. This means we should sync it again.
-						var repository = database.GetSyncableRepository(type);
-						if (repository == null)
-						{
-							// todo: How would we communicate this error back to the request?
-							continue;
-						}
-
-						var entity = repository.Read(issue.Id);
-						if (entity == null)
-						{
-							// todo: How would we communicate this error back to the request?
-							break;
-						}
-
-						var syncObject = entity.ToSyncObject();
-
-						if (OutgoingConverter != null)
-						{
-							syncObject = OutgoingConverter.Convert(syncObject);
-						}
-
-						if (!syncObject.Equals(SyncObjectExtensions.Empty))
-						{
-							response.Collection.Add(syncObject);
-						}
-						break;
-					}
-				}
-			}
-
 			Statistics.Corrections += response.Collection.Count;
 
 			return response;

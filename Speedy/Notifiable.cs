@@ -1,13 +1,10 @@
 ﻿#region References
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Speedy.Collections;
 using Speedy.Extensions;
-using Speedy.Sync;
 
 #endregion
 
@@ -20,10 +17,9 @@ public abstract class Notifiable : INotifiable, IUpdateable
 {
 	#region Fields
 
-	private readonly ConcurrentDictionary<string, DateTime> _changedProperties;
 	private bool _notificationsEnabled;
 	private Type _realType;
-	private readonly ReadOnlySet<string> _writableProperties;
+	private bool _hasChanges;
 
 	#endregion
 
@@ -34,25 +30,6 @@ public abstract class Notifiable : INotifiable, IUpdateable
 	/// </summary>
 	protected Notifiable()
 	{
-		if (this is Entity entity)
-		{
-			SyncEntity.ExclusionCacheForUpdatableExclusions.GetOrAdd(GetRealType(),
-				_ => new HashSet<string>(entity.GetDefaultExclusionsForUpdatableExclusions()));
-
-			var exclusions = SyncEntity.ExclusionCacheForChangeTracking.GetOrAdd(GetRealType(),
-				_ => new HashSet<string>(entity.GetDefaultExclusionsForChangeTracking()));
-
-			_writableProperties = Cache.GetSettableProperties(this)
-				.Select(x => x.Name)
-				.Except(exclusions)
-				.AsReadOnly();
-		}
-		else
-		{
-			_writableProperties = Cache.GetSettableProperties(this).Select(x => x.Name).AsReadOnly();
-		}
-
-		_changedProperties = new ConcurrentDictionary<string, DateTime>();
 		_notificationsEnabled = true;
 	}
 
@@ -72,12 +49,6 @@ public abstract class Notifiable : INotifiable, IUpdateable
 		_notificationsEnabled = true;
 	}
 
-	/// <inheritdoc />
-	public ReadOnlySet<string> GetChangedProperties()
-	{
-		return new ReadOnlySet<string>(_changedProperties.Keys);
-	}
-
 	/// <summary>
 	/// Cached version of the "real" type, meaning not EF proxy but rather root type
 	/// </summary>
@@ -87,15 +58,9 @@ public abstract class Notifiable : INotifiable, IUpdateable
 	}
 
 	/// <inheritdoc />
-	public bool HasChanges()
+	public virtual bool HasChanges()
 	{
-		return HasChanges(Array.Empty<string>());
-	}
-
-	/// <inheritdoc />
-	public virtual bool HasChanges(params string[] exclusions)
-	{
-		return _changedProperties.Keys.Any(x => !exclusions.Contains(x));
+		return _hasChanges;
 	}
 
 	/// <inheritdoc />
@@ -117,9 +82,9 @@ public abstract class Notifiable : INotifiable, IUpdateable
 			return;
 		}
 
-		if (_writableProperties?.Contains(propertyName) == true)
+		if (propertyName != nameof(HasChanges))
 		{
-			_changedProperties.AddOrUpdate(propertyName, () => DateTime.UtcNow, _ => DateTime.UtcNow);
+			_hasChanges = true;
 		}
 
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -128,7 +93,7 @@ public abstract class Notifiable : INotifiable, IUpdateable
 	/// <inheritdoc />
 	public virtual void ResetHasChanges()
 	{
-		_changedProperties.Clear();
+		_hasChanges = false;
 	}
 
 	/// <inheritdoc />

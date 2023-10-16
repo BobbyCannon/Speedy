@@ -87,13 +87,6 @@ namespace Speedy.Storage
 
 		#region Methods
 
-		public IEnumerable<PropertyInfo> GetChangedProperties()
-		{
-			var properties = _type.GetCachedProperties();
-			var changedProperties = Entity.GetChangedProperties();
-			return properties.Where(x => changedProperties.Contains(x.Name)).ToList();
-		}
-
 		public void Reset()
 		{
 			UpdateEntity(Entity, OldEntity);
