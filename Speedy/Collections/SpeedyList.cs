@@ -297,7 +297,10 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 			return;
 		}
 
-		InternalRemoveRange(0, Count);
+		while (_list.Count > 0)
+		{
+			InternalRemoveAt(0);
+		}
 	}
 
 	/// <inheritdoc />
@@ -605,7 +608,10 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <param name="length"> The number of items to remove. </param>
 	public void RemoveRange(int index, int length)
 	{
-		InternalRemoveRange(index, length);
+		for (var i = 0; i < length; i++)
+		{
+			InternalRemoveAt(index);
+		}
 	}
 
 	/// <summary>
@@ -939,39 +945,6 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 		{
 			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
 			OnPropertyChanged(nameof(Count));
-		});
-	}
-
-	private void InternalRemoveRange(int index, int length)
-	{
-		List<T> itemsRemoved = null;
-
-		UpgradeableReadLock(() =>
-		{
-			WriteLock(() =>
-			{
-				var remaining = _list.Count - index;
-				var itemsToRemoved = Math.Min(length, remaining);
-				var until = index + itemsToRemoved;
-				itemsRemoved = new List<T>(itemsToRemoved);
-
-				for (var i = index; i < until; i++)
-				{
-					itemsRemoved.Add(_list[i]);
-				}
-
-				_list.RemoveRange(index, length);
-			});
-
-			Dispatch(() =>
-			{
-				foreach (var item in itemsRemoved)
-				{
-					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
-				}
-
-				OnPropertyChanged(nameof(Count));
-			});
 		});
 	}
 

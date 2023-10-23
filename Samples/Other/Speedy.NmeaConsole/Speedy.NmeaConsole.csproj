@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-		<AssemblyVersion>11.3.0.0</AssemblyVersion>
-		<FileVersion>11.3.0.0</FileVersion>
-		<Version>11.3.0.0</Version>
+		<AssemblyVersion>11.3.1.0</AssemblyVersion>
+		<FileVersion>11.3.1.0</FileVersion>
+		<Version>11.3.1.0</Version>
 		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 	</PropertyGroup>
 	<ItemGroup>
