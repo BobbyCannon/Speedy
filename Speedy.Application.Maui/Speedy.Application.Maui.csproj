@@ -39,9 +39,9 @@
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
-		<AssemblyVersion>11.3.1.0</AssemblyVersion>
-		<FileVersion>11.3.1.0</FileVersion>
-		<Version>11.3.1</Version>
+		<AssemblyVersion>11.3.2.0</AssemblyVersion>
+		<FileVersion>11.3.2.0</FileVersion>
+		<Version>11.3.2</Version>
 		<PublishReadyToRun>false</PublishReadyToRun>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<NoWarn>1701;1702;8002;CS8002;NU1701</NoWarn>
@@ -63,7 +63,7 @@
 		<None Include="Speedy.snk" />
 	</ItemGroup>
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
-		<PackageReference Include="Xamarin.GooglePlayServices.Location" Version="120.0.0" />
+		<PackageReference Include="Xamarin.GooglePlayServices.Location" Version="121.0.1.1" />
 		<Compile Include="**/Platforms/Android/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup Condition="$(TargetFramework.Contains('-ios'))">

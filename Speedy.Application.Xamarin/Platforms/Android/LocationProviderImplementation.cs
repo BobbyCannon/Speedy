@@ -43,7 +43,7 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 	#region Fields
 
 	private FusedLocationProviderCallback _fusedCallback;
-	private FusedLocationProviderClient _fusedListener;
+	private IFusedLocationProviderClient _fusedListener;
 	private GeolocationContinuousListener<TLocation, THorizontal, TVertical> _listener;
 	private LocationManager _locationManager;
 	private readonly object _positionSync;
@@ -271,13 +271,11 @@ public class LocationProviderImplementation<TLocation, THorizontal, TVertical, T
 			&& _sourceProviders[LocationManager.FusedProvider].IsEnabled)
 		{
 			_fusedListener = LocationServices.GetFusedLocationProviderClient(XamarinPlatform.MainActivity);
-			var locationRequest = LocationRequest.Create();
-			locationRequest.SetPriority(Priority.PriorityHighAccuracy);
-			locationRequest.SetInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
-			locationRequest.SetFastestInterval((long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
-			locationRequest.SetSmallestDisplacement(LocationProviderSettings.MinimumDistance);
+			var builder = new LocationRequest.Builder(Priority.PriorityHighAccuracy, (long) LocationProviderSettings.MinimumTime.TotalMilliseconds);
+			builder.SetMinUpdateDistanceMeters(LocationProviderSettings.MinimumDistance);
+			builder.SetMinUpdateIntervalMillis(LocationProviderSettings.MinimumTime.Milliseconds);
 			_fusedCallback = new FusedLocationProviderCallback(FusedLocationProviderLocationChanged);
-			_fusedListener.RequestLocationUpdates(locationRequest, _fusedCallback, looper);
+			_fusedListener.RequestLocationUpdates(builder.Build(), _fusedCallback, looper);
 			_sourceProviders[LocationManager.FusedProvider].IsMonitoring = true;
 		}
 
