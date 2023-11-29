@@ -956,12 +956,17 @@
             <summary>
             Enable to allow parent and child collections to be managed.
             Ex. Removing a child will clear its parent.
-            	Adding a child to a parent assigns the parent to the child.
-            	Adding a child to a different parent will remove child from old parent.
+            Adding a child to a parent assigns the parent to the child.
+            Adding a child to a different parent will remove child from old parent.
             </summary>
         </member>
         <member name="M:Speedy.Collections.FlattenHierarchicalList.CleanupEventSubscriptions">
             <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.FlattenHierarchicalList.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
         </member>
         <member name="M:Speedy.Collections.FlattenHierarchicalList.Refresh">
             <summary>
@@ -969,7 +974,10 @@
             </summary>
         </member>
         <member name="M:Speedy.Collections.FlattenHierarchicalList.Dispose(System.Boolean)">
-            <inheritdoc />
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="M:Speedy.Collections.FlattenHierarchicalList.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <inheritdoc />
@@ -1279,17 +1287,17 @@
             Dispatch safe, limit, orderable, and filterable settings are optional.
             </summary>
             <typeparam name="T"> The type of items in the list. </typeparam>
+            <remarks>
+            https://github.com/dotnet/wpf/issues/52
+            https://github.com/dotnet/runtime/issues/18087
+            https://github.com/dotnet/runtime/pull/65101#issue-1128955996
+            https://github.com/dotnet/wpf/pull/6097
+            </remarks>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.#ctor">
             <summary>
             Create an instance of the list.
             </summary>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
-            <summary>
-            Create an instance of the list.
-            </summary>
-            <param name="items"> An optional set. </param>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.#ctor(`0[])">
             <summary>
@@ -1303,39 +1311,11 @@
             </summary>
             <param name="orderBy"> The optional set of order by settings. </param>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(System.Collections.Generic.IEnumerable{`0},Speedy.Collections.OrderBy{`0}[])">
-            <summary>
-            Create an instance of the list.
-            </summary>
-            <param name="items"> An optional set. </param>
-            <param name="orderBy"> The optional set of order by settings. </param>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(`0[],Speedy.Collections.OrderBy{`0}[])">
-            <summary>
-            Create an instance of the list.
-            </summary>
-            <param name="items"> An optional set. </param>
-            <param name="orderBy"> The optional set of order by settings. </param>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.Collections.OrderBy{`0}[],`0[])">
-            <summary>
-            Create an instance of the list.
-            </summary>
-            <param name="orderBy"> The optional set of order by settings. </param>
-            <param name="items"> An optional set. </param>
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher)">
             <summary>
             Create an instance of the list.
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,System.Collections.Generic.IEnumerable{`0})">
-            <summary>
-            Create an instance of the list.
-            </summary>
-            <param name="dispatcher"> The optional dispatcher to use. </param>
-            <param name="items"> An optional set. </param>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,`0[])">
             <summary>
@@ -1344,6 +1324,13 @@
             <param name="dispatcher"> The optional dispatcher to use. </param>
             <param name="items"> An optional set. </param>
         </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="readerWriterLock"> An optional lock. Defaults to <see cref="T:Speedy.Threading.ReaderWriterLockTiny" /> if not provided. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[])">
             <summary>
             Create an instance of the list.
@@ -1351,18 +1338,11 @@
             <param name="dispatcher"> The optional dispatcher to use. </param>
             <param name="orderBy"> The optional set of order by settings. </param>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,`0[],Speedy.Collections.OrderBy{`0}[])">
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[],`0[])">
             <summary>
             Create an instance of the list.
             </summary>
-            <param name="dispatcher"> The optional dispatcher to use. </param>
-            <param name="items"> An optional set. </param>
-            <param name="orderBy"> The optional set of order by settings. </param>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[],`0[])">
-            <summary>
-            Create an instance of the list.
-            </summary>
+            <param name="readerWriterLock"> An optional lock. Defaults to <see cref="T:Speedy.Threading.ReaderWriterLockTiny" /> if not provided. </param>
             <param name="dispatcher"> The optional dispatcher to use. </param>
             <param name="orderBy"> The optional set of order by settings. </param>
             <param name="items"> An optional set. </param>
@@ -1386,13 +1366,17 @@
             </summary>
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.IsFiltering">
-            <inheritdoc />
+            <summary>
+            True if the list is currently filtering items.
+            </summary>
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.IsFixedSize">
             <inheritdoc />
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.IsLoading">
-            <inheritdoc />
+            <summary>
+            True if the list is currently loading items.
+            </summary>
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.IsOrdering">
             <summary>
@@ -1593,17 +1577,24 @@
             <param name="item"> The item retrieved or default. </param>
             <returns> True if the item was available and retrieved otherwise false. </returns>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.InternalLoad(`0[])">
-            <summary>
-            Loads the items into the list. All existing items will be cleared.
-            </summary>
-            <param name="items"> The items to be loaded. </param>
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <summary>
             Raises the <see cref="E:Speedy.Collections.SpeedyList`1.CollectionChanged" /> event.
             </summary>
             <param name="e"> A <see cref="T:System.Collections.Specialized.NotifyCollectionChangedEventArgs" /> describing the event arguments. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.OnListUpdated(`0[],`0[])">
+            <summary>
+            Used to invoke the <see cref="E:Speedy.Collections.SpeedyList`1.ListUpdated" /> event.
+            </summary>
+            <param name="added"> The items added. </param>
+            <param name="removed"> The items removed. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.OnListUpdated(Speedy.Collections.SpeedyListUpdatedEventArg)">
+            <summary>
+            Used to invoke the <see cref="E:Speedy.Collections.SpeedyList`1.ListUpdated" /> event.
+            </summary>
+            <param name="e"> The changed event args with the details. </param>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.OnPropertyChangedInDispatcher(System.String)">
             <inheritdoc />
@@ -1617,6 +1608,12 @@
         <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IEnumerable#GetEnumerator">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.InternalLoad(`0[])">
+            <summary>
+            Loads the items into the list. All existing items will be cleared.
+            </summary>
+            <param name="items"> The items to be loaded. </param>
+        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Speedy#Collections#ISpeedyList#ShouldOrder">
             <summary>
             Determine if the list should order.
@@ -1624,7 +1621,20 @@
             <returns> True if the list should order or false otherwise. </returns>
         </member>
         <member name="E:Speedy.Collections.SpeedyList`1.CollectionChanged">
-            <inheritdoc />
+            <summary>
+            Used for notifying presentation layers the collection changed.
+            Note: There is a few gotchas with CollectionChanged. Not all change
+            notifications provide the changes with the notification. Ex. When
+            the list is cleared the items are not provided but rather it's just
+            a Reset event. This is due to limitations with the
+            <see cref="T:System.Collections.Specialized.INotifyCollectionChanged" /> interface. See links in the
+            class description.
+            </summary>
+        </member>
+        <member name="E:Speedy.Collections.SpeedyList`1.ListUpdated">
+            <summary>
+            Used to notify when items are added or removed.
+            </summary>
         </member>
         <member name="T:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1">
             <summary>
@@ -1660,19 +1670,9 @@
         <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Collections.ISpeedyList`1">
-            <summary>
-            Represents a speedy list.
-            </summary>
-        </member>
         <member name="T:Speedy.Collections.ISpeedyList">
             <summary>
             Represents a speedy list.
-            </summary>
-        </member>
-        <member name="P:Speedy.Collections.ISpeedyList.IsDisposed">
-            <summary>
-            True if the list has been disposed.
             </summary>
         </member>
         <member name="P:Speedy.Collections.ISpeedyList.IsFiltering">
@@ -1702,9 +1702,39 @@
         <member name="M:Speedy.Collections.SpeedyListProfiler.#ctor(Speedy.IDispatcher)">
             <inheritdoc />
         </member>
+        <member name="P:Speedy.Collections.SpeedyListProfiler.AddedCount">
+            <summary>
+            The number of items added to the list.
+            </summary>
+        </member>
         <member name="P:Speedy.Collections.SpeedyListProfiler.OrderCount">
             <summary>
             The amount of times the list was ordered.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyListProfiler.RemovedCount">
+            <summary>
+            The number of items removed the list.
+            </summary>
+        </member>
+        <member name="T:Speedy.Collections.SpeedyListUpdatedEventArg">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyListUpdatedEventArg.#ctor(System.Collections.IList,System.Collections.IList)">
+            <summary>
+            Represents changes to a SpeedyList.
+            </summary>
+            <param name="added"> The items added. </param>
+            <param name="removed"> The items removed. </param>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyListUpdatedEventArg.Added">
+            <summary>
+            The items added.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyListUpdatedEventArg.Removed">
+            <summary>
+            The items removed.
             </summary>
         </member>
         <member name="T:Speedy.Commands.RelayCommand">
@@ -11303,6 +11333,51 @@
             The value being apply.
             </summary>
         </member>
+        <member name="T:Speedy.Presentation.ReaderWriterLockBindable">
+            <summary>
+            Represents a bindable that is also lockable (thread-safe).
+            </summary>
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher)">
+            <summary>
+            Initialize the bindable object.
+            </summary>
+            <param name="readerWriterLock"> An optional lock. Defaults to <see cref="T:Speedy.Threading.ReaderWriterLockTiny" /> if not provided. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Presentation.ReaderWriterLockBindable.IsAwaitingWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Presentation.ReaderWriterLockBindable.IsReadLockHeld">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Presentation.ReaderWriterLockBindable.IsWriteLockHeld">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.EnterReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.EnterUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.EnterWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.ExitReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.ExitUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.ExitWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Presentation.ReaderWriterLockBindable.UpdateLock(Speedy.Threading.IReaderWriterLock)">
+            <summary>
+            Update the lock provider.
+            </summary>
+            <param name="readerWriterLock"> The new lock.</param>
+        </member>
         <member name="T:Speedy.Profiling.AverageTimer">
             <summary>
             Average timer for tracking the average processing time of work.
@@ -11398,10 +11473,11 @@
             Represents a counter for profiling.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.Counter.#ctor(Speedy.IDispatcher)">
+        <member name="M:Speedy.Profiling.Counter.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher)">
             <summary>
             Instantiate the counter for profiling.
             </summary>
+            <param name="readerWriterLock"> An optional lock. Defaults to <see cref="T:Speedy.Threading.ReaderWriterLockTiny" /> if non provided. </param>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="P:Speedy.Profiling.Counter.Value">
@@ -11420,6 +11496,11 @@
             Increment the counter by a value or default(1) if not provided.
             </summary>
             <param name="increase"> The value to be incremented. </param>
+        </member>
+        <member name="M:Speedy.Profiling.Counter.Reset">
+            <summary>
+            Reset the counter to zero.
+            </summary>
         </member>
         <member name="T:Speedy.Profiling.DebounceService">
             <summary>
@@ -18937,26 +19018,168 @@
             Tracks the number of successful syncs.
             </summary>
         </member>
-        <member name="T:Speedy.ThreadSafe`1">
+        <member name="T:Speedy.Threading.IReaderWriterLock">
             <summary>
-            Making any call to an objects members thread safe.
+            Represents a reader writer lock.
             </summary>
         </member>
-        <member name="M:Speedy.ThreadSafe`1.#ctor(`0)">
+        <member name="P:Speedy.Threading.IReaderWriterLock.IsAwaitingWriteLock">
+            <summary>
+            Gets a value that indicates a thread is waiting to get a write lock.
+            </summary>
+        </member>
+        <member name="P:Speedy.Threading.IReaderWriterLock.IsReadLockHeld">
+            <summary>
+            Gets a value that indicates locked in read mode.
+            </summary>
+        </member>
+        <member name="P:Speedy.Threading.IReaderWriterLock.IsWriteLockHeld">
+            <summary>
+            Gets a value that indicates locked in write mode.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.IReaderWriterLock.EnterReadLock">
+            <summary>
+            Enter the lock in read mode.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.IReaderWriterLock.EnterUpgradeableReadLock">
+            <summary>
+            Enter the lock in read mode that is upgradable to write.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.IReaderWriterLock.EnterWriteLock">
+            <summary>
+            Enter the lock in write mode.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.IReaderWriterLock.ExitReadLock">
+            <summary>
+            Exit the read lock.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.IReaderWriterLock.ExitUpgradeableReadLock">
+            <summary>
+            Exit the upgradeable read lock.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.IReaderWriterLock.ExitWriteLock">
+            <summary>
+            Exit the write lock.
+            </summary>
+        </member>
+        <member name="T:Speedy.Threading.Lockable">
+            <summary>
+            Represents a object that is lockable (thread-safe).
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.Lockable.#ctor">
+            <summary>
+            Initializes a lockable object. Defaults to use <see cref="T:Speedy.Threading.ReaderWriterLockTiny" />.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.Lockable.#ctor(Speedy.Threading.IReaderWriterLock)">
+            <summary>
+            Initializes a lockable object.
+            </summary>
+            <param name="readerWriterLock"> An optional lock. Defaults to <see cref="T:Speedy.Threading.ReaderWriterLockTiny" /> if non provided. </param>
+        </member>
+        <member name="P:Speedy.Threading.Lockable.IsAwaitingWriteLock">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.ThreadSafe">
+        <member name="P:Speedy.Threading.Lockable.IsReadLockHeld">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Threading.Lockable.IsWriteLockHeld">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.Lockable.EnterReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.Lockable.EnterUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.Lockable.EnterWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.Lockable.ExitReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.Lockable.ExitUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.Lockable.ExitWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Threading.ReaderWriterLockSlimProxy">
+            <inheritdoc cref="T:Speedy.Threading.IReaderWriterLock" />
+        </member>
+        <member name="P:Speedy.Threading.ReaderWriterLockSlimProxy.IsAwaitingWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Threading.ReaderWriterLockTiny">
+            <inheritdoc />
+        </member>
+        <member name="F:Speedy.Threading.ReaderWriterLockTiny._writeLock">
+            <summary>
+            Represents a standard write lock.
+            </summary>
+        </member>
+        <member name="F:Speedy.Threading.ReaderWriterLockTiny._upgradedWriteLock">
+            <summary>
+            Represents an upgraded write lock.
+            </summary>
+        </member>
+        <member name="P:Speedy.Threading.ReaderWriterLockTiny.IsReadLockHeld">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Threading.ReaderWriterLockTiny.IsWriteLockHeld">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Threading.ReaderWriterLockTiny.IsAwaitingWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.ReaderWriterLockTiny.EnterReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.ReaderWriterLockTiny.EnterUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.ReaderWriterLockTiny.EnterWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.ReaderWriterLockTiny.ExitReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.ReaderWriterLockTiny.ExitUpgradeableReadLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.ReaderWriterLockTiny.ExitWriteLock">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Threading.ReaderWriterLockTiny.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Threading.ThreadSafe`1">
             <summary>
             Making any call to an objects members thread safe.
             </summary>
         </member>
-        <member name="M:Speedy.ThreadSafe.#ctor(System.Object)">
+        <member name="M:Speedy.Threading.ThreadSafe`1.#ctor(`0)">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Threading.ThreadSafe">
             <summary>
-            Initializes a new instance of the <see cref="T:Speedy.ThreadSafe" /> class.
+            Making any call to an objects members thread safe.
+            </summary>
+        </member>
+        <member name="M:Speedy.Threading.ThreadSafe.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Threading.ThreadSafe" /> class.
             </summary>
             <param name="instance"> The wrapped object whose operations will be made thread-safe. </param>
         </member>
-        <member name="M:Speedy.ThreadSafe.Decrement(System.Single@,System.Single)">
+        <member name="M:Speedy.Threading.ThreadSafe.Decrement(System.Single@,System.Single)">
             <summary>
             Decrement an float by a value or float.Epsilon if not provided.
             </summary>
@@ -18964,7 +19187,7 @@
             <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
         </member>
-        <member name="M:Speedy.ThreadSafe.Decrement(System.Double@,System.Double)">
+        <member name="M:Speedy.Threading.ThreadSafe.Decrement(System.Double@,System.Double)">
             <summary>
             Decrement an double by a value or double.Epsilon if not provided.
             </summary>
@@ -18972,14 +19195,14 @@
             <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
         </member>
-        <member name="M:Speedy.ThreadSafe.Decrement(System.Int32@,System.Int32)">
+        <member name="M:Speedy.Threading.ThreadSafe.Decrement(System.Int32@,System.Int32)">
             <summary>
             Increment an int by a value or default(1) if not provided.
             </summary>
             <param name="value"> The value to be incremented. </param>
             <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
         </member>
-        <member name="M:Speedy.ThreadSafe.Increment(System.Single@,System.Single)">
+        <member name="M:Speedy.Threading.ThreadSafe.Increment(System.Single@,System.Single)">
             <summary>
             Increment an float by a value or float.Epsilon if not provided.
             </summary>
@@ -18987,7 +19210,7 @@
             <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
         </member>
-        <member name="M:Speedy.ThreadSafe.Increment(System.Double@,System.Double)">
+        <member name="M:Speedy.Threading.ThreadSafe.Increment(System.Double@,System.Double)">
             <summary>
             Increment an double by a value or double.Epsilon if not provided.
             </summary>
@@ -18995,29 +19218,36 @@
             <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
             <returns> The incremented value. </returns>
         </member>
-        <member name="M:Speedy.ThreadSafe.Increment(System.Int32@,System.Int32)">
+        <member name="M:Speedy.Threading.ThreadSafe.Increment(System.Int32@,System.Int32)">
             <summary>
             Increment an int by a value or default(1) if not provided.
             </summary>
             <param name="value"> The value to be incremented. </param>
             <param name="increase"> An optional increase. The value defaults to the smallest possible value. </param>
         </member>
-        <member name="M:Speedy.ThreadSafe.TryGetIndex(System.Dynamic.GetIndexBinder,System.Object[],System.Object@)">
+        <member name="M:Speedy.Threading.ThreadSafe.Set(System.Int32@,System.Int32)">
+            <summary>
+            Set the value to new value.
+            </summary>
+            <param name="value"> The value to be updated. </param>
+            <param name="newValue"> The new value to be set. </param>
+        </member>
+        <member name="M:Speedy.Threading.ThreadSafe.TryGetIndex(System.Dynamic.GetIndexBinder,System.Object[],System.Object@)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.ThreadSafe.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
+        <member name="M:Speedy.Threading.ThreadSafe.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.ThreadSafe.TryInvokeMember(System.Dynamic.InvokeMemberBinder,System.Object[],System.Object@)">
+        <member name="M:Speedy.Threading.ThreadSafe.TryInvokeMember(System.Dynamic.InvokeMemberBinder,System.Object[],System.Object@)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.ThreadSafe.TrySetIndex(System.Dynamic.SetIndexBinder,System.Object[],System.Object)">
+        <member name="M:Speedy.Threading.ThreadSafe.TrySetIndex(System.Dynamic.SetIndexBinder,System.Object[],System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.ThreadSafe.TrySetMember(System.Dynamic.SetMemberBinder,System.Object)">
+        <member name="M:Speedy.Threading.ThreadSafe.TrySetMember(System.Dynamic.SetMemberBinder,System.Object)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.ThreadSafe.GetIndexedProperty">
+        <member name="M:Speedy.Threading.ThreadSafe.GetIndexedProperty">
             <summary>
             Attempts to find the indexer property.
             </summary>

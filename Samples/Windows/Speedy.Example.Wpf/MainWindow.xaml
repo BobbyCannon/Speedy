@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:core="clr-namespace:Speedy.Example.Core;assembly=Speedy.Example.Core"
 		mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=core:MainViewModel}"
-		Title="MainWindow" Height="800" Width="800"
+		Title="MainWindow" Height="800" Width="920"
 		Topmost="False" WindowStartupLocation="CenterScreen">
 	<DockPanel LastChildFill="True">
 		<StatusBar DockPanel.Dock="Bottom">
@@ -32,27 +32,30 @@
 			</StatusBarItem>
 		</StatusBar>
 		<StackPanel DockPanel.Dock="Top"
+				Height="32"
 				Orientation="Horizontal">
 			<TextBox Text="{Binding NumberOfItems, Mode=TwoWay}"
 					IsReadOnly="false"
 					TextAlignment="Center"
-					Padding="10,2"
-					/>
+					Padding="10,2" />
+
+			<ComboBox ItemsSource="{Binding TestLoopValues, Mode=OneTime}"
+					SelectedItem="{Binding SelectedTestLoopValue, Mode=TwoWay}"
+					DisplayMemberPath="Name"
+					MinWidth="100" />
+
 			<TextBox Text="{Binding NumberOfThreads, Mode=OneWay}"
 					IsReadOnly="True"
 					TextAlignment="Center"
-					Padding="10,2"
-					/>
+					Padding="10,2" />
 			<Button Content="+"
 					Command="{Binding NumberOfThreadsCommand, Mode=OneWay}"
 					CommandParameter="+"
-					Padding="10,2"
-					/>
+					Padding="10,2" />
 			<Button Content="-"
 					Command="{Binding NumberOfThreadsCommand, Mode=OneWay}"
 					CommandParameter="-"
-					Padding="10,2"
-					/>
+					Padding="10,2" />
 			<CheckBox Margin="10,2"
 					IsChecked="{Binding UseOrder, Mode=TwoWay}">
 				<Label Content="Order" />
@@ -65,16 +68,19 @@
 					IsReadOnly="false"
 					TextAlignment="Center"
 					Padding="10,2"
-					Margin="0,2,10,2"
-					/>
+					Margin="0,2,10,2" />
 			<ComboBox ItemsSource="{Binding ThrottleDelayValues, Mode=OneTime}"
-					SelectedItem="{Binding ThrottleDelay, Mode=TwoWay}"
-					DisplayMemberPath="Name">
-			</ComboBox>
+					SelectedItem="{Binding SelectedThrottleDelay, Mode=TwoWay}"
+					DisplayMemberPath="Name" />
 			<CheckBox Margin="10,2"
 					IsChecked="{Binding LoopTest, Mode=TwoWay}">
 				<Label Content="Loop Test" />
 			</CheckBox>
+
+			<ComboBox ItemsSource="{Binding ReaderWriterLockValues, Mode=OneTime}"
+					SelectedItem="{Binding SelectedReaderWriterLock, Mode=TwoWay}"
+					DisplayMemberPath="Name" />
+
 			<Button Command="{Binding RandomizeCommand, Mode=OneTime}"
 					Margin="10,0,0,0"
 					Padding="10,2">
@@ -83,14 +89,20 @@
 					<Label Content="Cancel" Visibility="{Binding IsRunning, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
 				</Grid>
 			</Button>
-			
+
+			<Button Command="{Binding ClearCommand, Mode=OneTime}"
+					Margin="10,0,0,0"
+					Padding="10,2"
+					IsEnabled="{Binding IsRunning, Converter={StaticResource InvertValueConverter}}">
+				<Label Content="Clear" />
+			</Button>
+
 		</StackPanel>
 		<ProgressBar DockPanel.Dock="Bottom"
 				Height="15"
 				Value="{Binding Progress, Mode=OneWay}"
 				Minimum="0"
-				Maximum="{Binding Maximum, Mode=OneWay}"
-				/>
+				Maximum="{Binding SelectedTestLoopValue.Id, Mode=OneWay}" />
 		<TextBox DockPanel.Dock="Bottom"
 				Text="{Binding Message, Mode=OneWay}"
 				Height="200"
@@ -112,7 +124,9 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-				<ListView Grid.Row="0" ItemsSource="{Binding LeftList, Mode=OneWay}"
+				<ListView Grid.Row="0"
+						x:Name="LeftList"
+						ItemsSource="{Binding LeftList, Mode=OneWay}"
 						VirtualizingStackPanel.IsVirtualizing="True">
 					<ListView.ItemTemplate>
 						<DataTemplate>
@@ -131,7 +145,10 @@
 				</ListView>
 				<StackPanel Grid.Row="1" Orientation="Horizontal">
 					<TextBlock Text="Count" />
-					<TextBlock Text="{Binding LeftList.Count, Mode=OneWay}" />
+					<TextBlock Text="{Binding LeftList.Count, Mode=OneWay}"
+							Visibility="{Binding ListFilterForLeft, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}" />
+					<TextBlock Text="{Binding LeftList.Filtered.Count, Mode=OneWay}"
+							Visibility="{Binding ListFilterForLeft, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
 				</StackPanel>
 				<TextBox Grid.Row="2" Text="{Binding ListFilterForLeft, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 			</Grid>
@@ -141,7 +158,9 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-				<ListView Grid.Row="0" ItemsSource="{Binding MiddleList, Mode=OneWay}"
+				<ListView Grid.Row="0"
+						x:Name="MiddleList"
+						ItemsSource="{Binding MiddleList, Mode=OneWay}"
 						VirtualizingStackPanel.IsVirtualizing="True">
 					<ListView.ItemTemplate>
 						<DataTemplate>
@@ -160,7 +179,10 @@
 				</ListView>
 				<StackPanel Grid.Row="1" Orientation="Horizontal">
 					<TextBlock Text="Count" />
-					<TextBlock Text="{Binding MiddleList.Count, Mode=OneWay}" />
+					<TextBlock Text="{Binding MiddleList.Count, Mode=OneWay}"
+							Visibility="{Binding ListFilterForMiddle, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}" />
+					<TextBlock Text="{Binding MiddleList.Filtered.Count, Mode=OneWay}"
+							Visibility="{Binding ListFilterForMiddle, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
 				</StackPanel>
 				<TextBox Grid.Row="2" Text="{Binding ListFilterForMiddle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 			</Grid>
@@ -170,7 +192,10 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-				<ListView Grid.Row="0" ItemsSource="{Binding RightList, Mode=OneWay}"
+				<ListView Grid.Row="0"
+						x:Name="RightList"
+						ItemsSource="{Binding RightList, Mode=OneWay}"
+						Visibility="{Binding ListFilterForRight, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}"
 						VirtualizingStackPanel.IsVirtualizing="True">
 					<ListView.ItemTemplate>
 						<DataTemplate>
@@ -178,13 +203,22 @@
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
-				<ListView Grid.Row="0" ItemsSource="{Binding RightList.Filtered, Mode=OneWay}"
+				<ListView Grid.Row="0" 
+						ItemsSource="{Binding RightList.Filtered, Mode=OneWay}"
 						Visibility="{Binding ListFilterForRight, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
-						VirtualizingStackPanel.IsVirtualizing="True"
-						/>
+						VirtualizingStackPanel.IsVirtualizing="True">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
 				<StackPanel Grid.Row="1" Orientation="Horizontal">
 					<TextBlock Text="Count" />
-					<TextBlock Text="{Binding RightList.Count, Mode=OneWay}" />
+					<TextBlock Text="{Binding RightList.Count, Mode=OneWay}"
+							Visibility="{Binding ListFilterForRight, Mode=OneWay, Converter={StaticResource InvertedVisibilityConverter}}" />
+					<TextBlock Text="{Binding RightList.Filtered.Count, Mode=OneWay}"
+							Visibility="{Binding ListFilterForRight, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
 				</StackPanel>
 				<TextBox Grid.Row="2" Text="{Binding ListFilterForRight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 			</Grid>

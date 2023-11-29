@@ -48,12 +48,6 @@ public class AddressView : Address
 		return ShowUtilities && base.ShouldShowChildren();
 	}
 
-	protected override void Dispose(bool disposing)
-	{
-		Utilities.Dispose();
-		base.Dispose(disposing);
-	}
-
 	/// <inheritdoc />
 	protected override void OnPropertyChangedInDispatcher(string propertyName)
 	{

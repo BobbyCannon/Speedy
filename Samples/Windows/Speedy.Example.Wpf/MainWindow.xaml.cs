@@ -1,6 +1,7 @@
 ﻿#region References
 
 using System.ComponentModel;
+using System.Windows;
 using Speedy.Application.Wpf;
 using Speedy.Example.Core;
 using Speedy.Extensions;
@@ -25,6 +26,8 @@ public partial class MainWindow
 
 		ViewModel = new MainViewModel(runtimeInformation, dispatcher);
 		DataContext = ViewModel;
+
+		Loaded += OnLoaded;
 	}
 
 	#endregion
@@ -40,8 +43,12 @@ public partial class MainWindow
 	protected override void OnClosing(CancelEventArgs e)
 	{
 		ViewModel.CancellationPending = true;
-		UtilityExtensions.WaitUntil(() => !ViewModel.IsRunning, 1000, 10);
+		ViewModel.WaitUntil(x => !x.IsRunning, 1000, 10);
 		base.OnClosing(e);
+	}
+
+	private void OnLoaded(object sender, RoutedEventArgs e)
+	{
 	}
 
 	#endregion

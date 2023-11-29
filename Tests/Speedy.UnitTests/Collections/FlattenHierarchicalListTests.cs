@@ -19,7 +19,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void AddingChildToAnotherParentShouldRemoveFromOriginalParent()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
 		actualList.ManageRelationships = true;
 
@@ -30,7 +30,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 		accountList.Add(account1);
 		account1.Addresses.Add(address);
 		accountList.Add(account2);
-		
+
 		AreEqual(new IHierarchyListItem[] { account2, account1, address }, actualList.ToArray());
 		AreEqual(1, account1.Addresses.Count);
 		AreEqual(0, account2.Addresses.Count);
@@ -48,14 +48,14 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ChildrenShouldBeRemovedWhenRemovedFromParent()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var list = new FlattenHierarchicalList(accountList);
 
 		var account = Activator.CreateInstance<AccountView>();
 		var address = Activator.CreateInstance<AddressView>();
 		account.Addresses.Add(address);
 		accountList.Add(account);
-		
+
 		AreEqual(2, list.Count);
 		AreEqual(new IHierarchyListItem[] { account, address }, list.ToArray());
 
@@ -68,7 +68,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ChildrenShouldSortEvenIfAllParentsNotShown()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
 
 		var account1 = Activator.CreateInstance<AccountView>(x =>
@@ -97,7 +97,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void CollectionShouldResortOnValueChanges()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
 
 		var account1 = Activator.CreateInstance<AccountView>();
@@ -120,7 +120,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ParentCanHideWhileStillShowingChildren()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
 
 		var account = Activator.CreateInstance<AccountView>();
@@ -140,7 +140,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ReassignParent()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
 		actualList.ManageRelationships = true;
 
@@ -183,7 +183,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ShouldAllowChildrenToBeAdded()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var list = new FlattenHierarchicalList(accountList);
 
 		var account = Activator.CreateInstance<AccountView>();
@@ -202,7 +202,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ShouldAllowChildrenToToBeHidden()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var list = new FlattenHierarchicalList(accountList);
 
 		var account = Activator.CreateInstance<AccountView>();
@@ -222,7 +222,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ShouldBeAddedWhenShown()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var list = new FlattenHierarchicalList(accountList);
 
 		var account = Activator.CreateInstance<AccountView>();
@@ -240,7 +240,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ShouldBeRemovedWhenHidden()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var actualList = new FlattenHierarchicalList(accountList);
 
 		var account = Activator.CreateInstance<AccountView>();
@@ -257,7 +257,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ShouldDisposeChildren()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		var eventInfo = typeof(SpeedyList<AccountView>).GetCachedEventField(nameof(accountList.CollectionChanged));
 		var eventValue = eventInfo.GetValue(accountList);
 		IsNull(eventValue);
@@ -278,7 +278,7 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 	[TestMethod]
 	public void ShowingManyChildrenShouldOnlyOrderOnce()
 	{
-		using var accountList = GetAccountsList();
+		var accountList = GetAccountsList();
 		using var list = new FlattenHierarchicalList(accountList);
 		list.ManageRelationships = true;
 
@@ -307,7 +307,10 @@ public class FlattenHierarchicalListTests : BaseCollectionTests
 
 	private SpeedyList<AccountView> GetAccountsList()
 	{
-		return new SpeedyList<AccountView>(new OrderBy<AccountView>(x => x.Name));
+		return new SpeedyList<AccountView>
+		{
+			OrderBy = new[] { new OrderBy<AccountView>(x => x.Name) }
+		};
 	}
 
 	#endregion

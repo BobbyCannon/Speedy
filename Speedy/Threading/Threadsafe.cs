@@ -8,7 +8,7 @@ using Speedy.Extensions;
 
 #endregion
 
-namespace Speedy;
+namespace Speedy.Threading;
 
 /// <summary>
 /// Making any call to an objects members thread safe.
@@ -72,7 +72,7 @@ public class ThreadSafe : DynamicObject
 	{
 		lock (_doubleLock)
 		{
-			value = FloatExtensions.Decrement(value, decrease);
+			value = value.Decrement(decrease);
 		}
 	}
 
@@ -97,7 +97,7 @@ public class ThreadSafe : DynamicObject
 	/// <param name="decrease"> An optional decrease. The value defaults to the smallest possible value. </param>
 	public static void Decrement(ref int value, int decrease = 1)
 	{
-		Interlocked.Add(ref value, decrease);
+		Interlocked.Add(ref value, decrease * -1);
 	}
 
 	/// <summary>
@@ -110,7 +110,7 @@ public class ThreadSafe : DynamicObject
 	{
 		lock (_floatLock)
 		{
-			value = FloatExtensions.Increment(value, increase);
+			value = value.Increment(increase);
 		}
 	}
 
@@ -136,6 +136,16 @@ public class ThreadSafe : DynamicObject
 	public static void Increment(ref int value, int increase = 1)
 	{
 		Interlocked.Add(ref value, increase);
+	}
+
+	/// <summary>
+	/// Set the value to new value.
+	/// </summary>
+	/// <param name="value"> The value to be updated. </param>
+	/// <param name="newValue"> The new value to be set. </param>
+	public static void Set(ref int value, int newValue)
+	{
+		Interlocked.Exchange(ref value, newValue);
 	}
 
 	/// <inheritdoc />

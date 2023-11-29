@@ -17,7 +17,7 @@ namespace Speedy.Collections;
 /// - still need to fix ordering
 /// - optimize pause ordering while other sub list is ordering
 /// </remarks>
-public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSubscriber
+public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSubscriber, IDisposable
 {
 	#region Fields
 
@@ -49,8 +49,8 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 	/// <summary>
 	/// Enable to allow parent and child collections to be managed.
 	/// Ex. Removing a child will clear its parent.
-	///		Adding a child to a parent assigns the parent to the child.
-	///		Adding a child to a different parent will remove child from old parent.
+	/// Adding a child to a parent assigns the parent to the child.
+	/// Adding a child to a different parent will remove child from old parent.
 	/// </summary>
 	public bool ManageRelationships { get; set; }
 
@@ -62,6 +62,15 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 	public void CleanupEventSubscriptions()
 	{
 		_rootList.CollectionChanged -= RootListOnCollectionChanged;
+	}
+
+	/// <summary>
+	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+	/// </summary>
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
 	}
 
 	/// <summary>
@@ -79,11 +88,13 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 		});
 	}
 
-	/// <inheritdoc />
-	protected override void Dispose(bool disposing)
+	/// <summary>
+	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+	/// </summary>
+	/// <param name="disposing"> True if disposing and false if otherwise. </param>
+	protected virtual void Dispose(bool disposing)
 	{
 		CleanupEventSubscriptions();
-		base.Dispose(disposing);
 	}
 
 	/// <inheritdoc />
@@ -279,13 +290,9 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 
 		var childList = hierarchyItem.GetChildren();
 
-		// Make sure the child list is not a disposed child
-		if (childList is not ISpeedyList { IsDisposed: true })
+		foreach (var child in childList)
 		{
-			foreach (var child in childList)
-			{
-				RequestRemove(child);
-			}
+			RequestRemove(child);
 		}
 
 		// Finally remove, do this last because the item may dispose of itself and child resources (list, etc).

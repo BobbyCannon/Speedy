@@ -27,7 +27,6 @@ public class ActivatorTests : SpeedyUnitTest
 		var scenarios = new List<(object expected, Type type)>
 		{
 			(new SpeedyList<int>(), typeof(SpeedyList<int>)),
-			(new SpeedyList<int>(), typeof(ISpeedyList<int>)),
 			(new List<int>(), typeof(ICollection<int>)),
 			(new List<int>(), typeof(IEnumerable<int>)),
 			(new List<int>(), typeof(IList<int>)),

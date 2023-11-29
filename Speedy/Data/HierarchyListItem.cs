@@ -295,10 +295,7 @@ public class HierarchyListItem : Bindable, IHierarchyListItem
 	/// <inheritdoc />
 	void IHierarchyListItem.RemoveChild(IHierarchyListItem child)
 	{
-		if (_children?.IsDisposed == false)
-		{
-			_children?.Remove(child);
-		}
+		_children?.Remove(child);
 	}
 
 	/// <inheritdoc />

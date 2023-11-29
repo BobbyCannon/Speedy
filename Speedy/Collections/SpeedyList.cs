@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using PropertyChanged;
+using Speedy.Presentation;
+using Speedy.Threading;
 
 #endregion
 
@@ -16,7 +19,13 @@ namespace Speedy.Collections;
 /// Dispatch safe, limit, orderable, and filterable settings are optional.
 /// </summary>
 /// <typeparam name="T"> The type of items in the list. </typeparam>
-public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
+/// <remarks>
+/// https://github.com/dotnet/wpf/issues/52
+/// https://github.com/dotnet/runtime/issues/18087
+/// https://github.com/dotnet/runtime/pull/65101#issue-1128955996
+/// https://github.com/dotnet/wpf/pull/6097
+/// </remarks>
+public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 {
 	#region Fields
 
@@ -30,7 +39,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <summary>
 	/// Create an instance of the list.
 	/// </summary>
-	public SpeedyList() : this(null, null, Array.Empty<T>())
+	public SpeedyList() : this(Array.Empty<T>())
 	{
 	}
 
@@ -38,15 +47,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// Create an instance of the list.
 	/// </summary>
 	/// <param name="items"> An optional set. </param>
-	public SpeedyList(IEnumerable<T> items) : this(null, null, items.ToArray())
-	{
-	}
-
-	/// <summary>
-	/// Create an instance of the list.
-	/// </summary>
-	/// <param name="items"> An optional set. </param>
-	public SpeedyList(params T[] items) : this(null, null, items)
+	public SpeedyList(params T[] items) : this(null, null, null, items)
 	{
 	}
 
@@ -54,34 +55,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// Create an instance of the list.
 	/// </summary>
 	/// <param name="orderBy"> The optional set of order by settings. </param>
-	public SpeedyList(params OrderBy<T>[] orderBy) : this(null, orderBy, null)
-	{
-	}
-
-	/// <summary>
-	/// Create an instance of the list.
-	/// </summary>
-	/// <param name="items"> An optional set. </param>
-	/// <param name="orderBy"> The optional set of order by settings. </param>
-	public SpeedyList(IEnumerable<T> items, params OrderBy<T>[] orderBy) : this(null, orderBy, items.ToArray())
-	{
-	}
-
-	/// <summary>
-	/// Create an instance of the list.
-	/// </summary>
-	/// <param name="items"> An optional set. </param>
-	/// <param name="orderBy"> The optional set of order by settings. </param>
-	public SpeedyList(T[] items, params OrderBy<T>[] orderBy) : this(null, orderBy, items)
-	{
-	}
-
-	/// <summary>
-	/// Create an instance of the list.
-	/// </summary>
-	/// <param name="orderBy"> The optional set of order by settings. </param>
-	/// <param name="items"> An optional set. </param>
-	public SpeedyList(OrderBy<T>[] orderBy, params T[] items) : this(null, orderBy, items)
+	public SpeedyList(OrderBy<T>[] orderBy) : this(null, null, orderBy)
 	{
 	}
 
@@ -89,7 +63,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// Create an instance of the list.
 	/// </summary>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public SpeedyList(IDispatcher dispatcher) : this(dispatcher, null, Array.Empty<T>())
+	public SpeedyList(IDispatcher dispatcher) : this(null, dispatcher, Array.Empty<OrderBy<T>>())
 	{
 	}
 
@@ -98,35 +72,16 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// </summary>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="items"> An optional set. </param>
-	public SpeedyList(IDispatcher dispatcher, IEnumerable<T> items) : this(dispatcher, null, items.ToArray())
+	public SpeedyList(IDispatcher dispatcher, params T[] items) : this(null, dispatcher, Array.Empty<OrderBy<T>>(), items)
 	{
 	}
 
 	/// <summary>
 	/// Create an instance of the list.
 	/// </summary>
+	/// <param name="readerWriterLock"> An optional lock. Defaults to <see cref="ReaderWriterLockTiny" /> if not provided. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	/// <param name="items"> An optional set. </param>
-	public SpeedyList(IDispatcher dispatcher, params T[] items) : this(dispatcher, null, items)
-	{
-	}
-
-	/// <summary>
-	/// Create an instance of the list.
-	/// </summary>
-	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	/// <param name="orderBy"> The optional set of order by settings. </param>
-	public SpeedyList(IDispatcher dispatcher, params OrderBy<T>[] orderBy) : this(dispatcher, orderBy, Array.Empty<T>())
-	{
-	}
-
-	/// <summary>
-	/// Create an instance of the list.
-	/// </summary>
-	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	/// <param name="items"> An optional set. </param>
-	/// <param name="orderBy"> The optional set of order by settings. </param>
-	public SpeedyList(IDispatcher dispatcher, T[] items, params OrderBy<T>[] orderBy) : this(dispatcher, orderBy, items)
+	public SpeedyList(IReaderWriterLock readerWriterLock, IDispatcher dispatcher) : this(readerWriterLock, dispatcher, Array.Empty<OrderBy<T>>())
 	{
 	}
 
@@ -135,8 +90,19 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// </summary>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="orderBy"> The optional set of order by settings. </param>
+	public SpeedyList(IDispatcher dispatcher, params OrderBy<T>[] orderBy) : this(null, dispatcher, orderBy)
+	{
+	}
+
+	/// <summary>
+	/// Create an instance of the list.
+	/// </summary>
+	/// <param name="readerWriterLock"> An optional lock. Defaults to <see cref="ReaderWriterLockTiny" /> if not provided. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	/// <param name="orderBy"> The optional set of order by settings. </param>
 	/// <param name="items"> An optional set. </param>
-	public SpeedyList(IDispatcher dispatcher, OrderBy<T>[] orderBy, params T[] items) : base(dispatcher)
+	public SpeedyList(IReaderWriterLock readerWriterLock, IDispatcher dispatcher, OrderBy<T>[] orderBy, params T[] items)
+		: base(readerWriterLock, dispatcher)
 	{
 		_filtered = new FilteredObservableCollection<T>();
 		_list = new List<T>();
@@ -172,13 +138,17 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// </summary>
 	public ReadOnlyObservableCollection<T> Filtered => new ReadOnlyObservableCollection<T>(_filtered);
 
-	/// <inheritdoc />
+	/// <summary>
+	/// True if the list is currently filtering items.
+	/// </summary>
 	public bool IsFiltering { get; private set; }
 
 	/// <inheritdoc />
 	public bool IsFixedSize => false;
 
-	/// <inheritdoc />
+	/// <summary>
+	/// True if the list is currently loading items.
+	/// </summary>
 	public bool IsLoading { get; private set; }
 
 	/// <summary>
@@ -193,6 +163,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	public bool IsSynchronized => true;
 
 	/// <inheritdoc />
+	[SuppressPropertyChangedWarnings]
 	public T this[int index]
 	{
 		get
@@ -202,33 +173,39 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 				throw new ArgumentOutOfRangeException(nameof(index));
 			}
 
-			return ReadLock(() =>
+			try
 			{
-				if ((index < 0) || (index > (_list.Count - 1)))
+				EnterReadLock();
+
+				if (index >= _list.Count)
 				{
 					throw new ArgumentOutOfRangeException(nameof(index));
 				}
 
 				return _list[index];
-			});
+			}
+			finally
+			{
+				ExitReadLock();
+			}
 		}
 		set
 		{
-			UpgradeableReadLock(() =>
-			{
-				var oldItem = WriteLock(() =>
-				{
-					var oldItem = _list[index];
-					_list[index] = value;
-					return oldItem;
-				});
+			T oldItem;
 
-				Dispatch(() =>
-				{
-					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem, index));
-					OnPropertyChanged(nameof(Count));
-				});
-			});
+			try
+			{
+				EnterWriteLock();
+
+				oldItem = _list[index];
+				_list[index] = value;
+			}
+			finally
+			{
+				ExitWriteLock();
+			}
+
+			Dispatch(() => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem, index)));
 		}
 	}
 
@@ -256,6 +233,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	public object SyncRoot { get; }
 
 	/// <inheritdoc />
+	[SuppressPropertyChangedWarnings]
 	object IList.this[int index]
 	{
 		get => this[index];
@@ -280,13 +258,19 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 			throw new ArgumentException("The item is the incorrect value type.", nameof(item));
 		}
 
-		return UpgradeableReadLock(() =>
+		try
 		{
+			EnterUpgradeableReadLock();
+
 			var limitFromStart = !ShouldOrder();
 			var response = InternalAdd(value);
 			InternalEnforceLimit(limitFromStart);
 			return response;
-		});
+		}
+		finally
+		{
+			ExitUpgradeableReadLock();
+		}
 	}
 
 	/// <inheritdoc cref="IList" />
@@ -297,34 +281,92 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 			return;
 		}
 
-		while (_list.Count > 0)
+		try
 		{
-			InternalRemoveAt(0);
+			EnterUpgradeableReadLock();
+
+			var removedItems = _list.ToArray();
+
+			try
+			{
+				EnterWriteLock();
+
+				_list.Clear();
+
+				Profiler?.RemovedCount.Increment(removedItems.Length);
+			}
+			finally
+			{
+				ExitWriteLock();
+			}
+
+			Dispatch(() =>
+			{
+				OnListUpdated(null, removedItems);
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+				OnPropertyChanged(nameof(Count));
+			});
+		}
+		finally
+		{
+			ExitUpgradeableReadLock();
 		}
 	}
 
 	/// <inheritdoc />
 	public bool Contains(object item)
 	{
-		return ReadLock(() => InternalContains((T) item));
+		try
+		{
+			EnterReadLock();
+			return InternalContains((T) item);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc />
 	public bool Contains(T item)
 	{
-		return ReadLock(() => InternalContains(item));
+		try
+		{
+			EnterReadLock();
+			return InternalContains(item);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc />
 	public void CopyTo(Array array, int arrayIndex)
 	{
-		ReadLock(() => Array.Copy(_list.ToArray(), 0, array, arrayIndex, _list.Count));
+		try
+		{
+			EnterReadLock();
+			Array.Copy(_list.ToArray(), 0, array, arrayIndex, _list.Count);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc />
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		ReadLock(() => _list.CopyTo(array, arrayIndex));
+		try
+		{
+			EnterReadLock();
+			_list.CopyTo(array, arrayIndex);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -333,7 +375,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The first item. </returns>
 	public T First()
 	{
-		return ReadLock(() => _list.First());
+		try
+		{
+			EnterReadLock();
+			return _list.First();
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -343,7 +393,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The first item. </returns>
 	public T First(Func<T, bool> predicate)
 	{
-		return ReadLock(() => _list.First(predicate));
+		try
+		{
+			EnterReadLock();
+			return _list.First(predicate);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -352,7 +410,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The first item or default. </returns>
 	public T FirstOrDefault()
 	{
-		return ReadLock(() => _list.FirstOrDefault());
+		try
+		{
+			EnterReadLock();
+			return _list.FirstOrDefault();
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -362,31 +428,63 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The first item or default. </returns>
 	public T FirstOrDefault(Func<T, bool> predicate)
 	{
-		return ReadLock(() => _list.FirstOrDefault(predicate));
+		try
+		{
+			EnterReadLock();
+			return _list.FirstOrDefault(predicate);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc />
 	public IEnumerator<T> GetEnumerator()
 	{
-		return ReadLock(() =>
+		try
 		{
+			EnterReadLock();
 			var list = _list.ToList();
 			return list.GetEnumerator();
-		});
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc />
 	public int IndexOf(object item)
 	{
-		return item is T value
-			? ReadLock(() => InternalIndexOf(value))
-			: -1;
+		if (item is not T value)
+		{
+			return -1;
+		}
+
+		try
+		{
+			EnterReadLock();
+			return InternalIndexOf(value);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc />
 	public int IndexOf(T item)
 	{
-		return ReadLock(() => InternalIndexOf(item));
+		try
+		{
+			EnterReadLock();
+			return InternalIndexOf(item);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -413,17 +511,23 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 			return;
 		}
 
-		UpgradeableReadLock(() =>
+		try
 		{
+			EnterUpgradeableReadLock();
+
 			if (!InternalInsert(index, item))
 			{
 				return;
 			}
 
-			InternalOrder();
+			InternalOrderWithoutLocking();
 			InternalEnforceLimit(false);
 			InternalFilter();
-		});
+		}
+		finally
+		{
+			ExitUpgradeableReadLock();
+		}
 	}
 
 	/// <summary>
@@ -432,7 +536,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The last item or default. </returns>
 	public T Last()
 	{
-		return ReadLock(() => _list.Last());
+		try
+		{
+			EnterReadLock();
+			return _list.Last();
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -442,7 +554,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The last item or default. </returns>
 	public T Last(Func<T, bool> predicate)
 	{
-		return ReadLock(() => _list.Last(predicate));
+		try
+		{
+			EnterReadLock();
+			return _list.Last(predicate);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -451,7 +571,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The last item or default. </returns>
 	public T LastOrDefault()
 	{
-		return ReadLock(() => _list.LastOrDefault());
+		try
+		{
+			EnterReadLock();
+			return _list.LastOrDefault();
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -461,7 +589,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> The last item or default. </returns>
 	public T LastOrDefault(Func<T, bool> predicate)
 	{
-		return ReadLock(() => _list.LastOrDefault(predicate));
+		try
+		{
+			EnterReadLock();
+			return _list.LastOrDefault(predicate);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <summary>
@@ -487,7 +623,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// </summary>
 	public void Order()
 	{
-		WriteLock(InternalOrder);
+		InternalOrder();
 	}
 
 	/// <summary>
@@ -540,7 +676,15 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// </summary>
 	public void RefreshFilter()
 	{
-		ReadLock(InternalFilter);
+		try
+		{
+			EnterReadLock();
+			InternalFilter();
+		}
+		finally
+		{
+			ExitReadLock();
+		}
 	}
 
 	/// <inheritdoc />
@@ -552,29 +696,38 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <inheritdoc />
 	public bool Remove(T item)
 	{
-		return UpgradeableReadLock(() =>
+		T removedItem;
+		int index;
+
+		try
 		{
-			var index = InternalIndexOf(item);
+			EnterWriteLock();
+
+			index = InternalIndexOf(item);
 			if (index < 0)
 			{
 				return false;
 			}
 
-			var removedItem = WriteLock(() =>
-			{
-				var removedItem = _list[index];
-				_list.RemoveAt(index);
-				return removedItem;
-			});
+			removedItem = _list[index];
 
-			Dispatch(() =>
-			{
-				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
-				OnPropertyChanged(nameof(Count));
-			});
+			_list.RemoveAt(index);
 
-			return true;
+			Profiler?.RemovedCount.Increment();
+		}
+		finally
+		{
+			ExitWriteLock();
+		}
+
+		Dispatch(() =>
+		{
+			OnListUpdated(null, [removedItem]);
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+			OnPropertyChanged(nameof(Count));
 		});
+
+		return true;
 	}
 
 	/// <summary>
@@ -583,8 +736,9 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <param name="predicate"> The predicate to find entries to remove. </param>
 	public void Remove(Predicate<T> predicate)
 	{
-		UpgradeableReadLock(() =>
+		try
 		{
+			EnterUpgradeableReadLock();
 			for (var i = _list.Count - 1; i >= 0; i--)
 			{
 				if (predicate.Invoke(_list[i]))
@@ -592,13 +746,17 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 					InternalRemoveAt(i);
 				}
 			}
-		});
+		}
+		finally
+		{
+			ExitUpgradeableReadLock();
+		}
 	}
 
 	/// <inheritdoc cref="IList" />
 	public void RemoveAt(int index)
 	{
-		UpgradeableReadLock(() => InternalRemoveAt(index));
+		InternalRemoveAt(index);
 	}
 
 	/// <summary>
@@ -608,9 +766,42 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <param name="length"> The number of items to remove. </param>
 	public void RemoveRange(int index, int length)
 	{
-		for (var i = 0; i < length; i++)
+		try
 		{
-			InternalRemoveAt(index);
+			EnterUpgradeableReadLock();
+
+			var start = (index + length) - 1;
+			if (start >= Count)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index));
+			}
+
+			var removed = new T[length];
+
+			try
+			{
+				EnterWriteLock();
+
+				_list.CopyTo(index, removed, 0, length);
+				_list.RemoveRange(index, length);
+
+				Profiler?.RemovedCount.Increment(length);
+			}
+			finally
+			{
+				ExitWriteLock();
+			}
+
+			Dispatch(() =>
+			{
+				OnListUpdated(null, removed);
+				OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed, index));
+				OnPropertyChanged(nameof(Count));
+			});
+		}
+		finally
+		{
+			ExitUpgradeableReadLock();
 		}
 	}
 
@@ -622,69 +813,24 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <returns> True if the item was available and retrieved otherwise false. </returns>
 	public bool TryGetAndRemoveAt(int index, out T item)
 	{
-		var result = UpgradeableReadLock(() =>
+		try
 		{
+			EnterUpgradeableReadLock();
+
 			if (!InternalHasIndex(index))
 			{
-				return (false, default);
+				item = default;
+				return false;
 			}
 
-			var item = _list[index];
+			item = _list[index];
 			InternalRemoveAt(index);
-			return (true, item);
-		});
-
-		item = result.Item2;
-		return result.Item1;
-	}
-
-	/// <summary>
-	/// Loads the items into the list. All existing items will be cleared.
-	/// </summary>
-	/// <param name="items"> The items to be loaded. </param>
-	protected virtual void InternalLoad(params T[] items)
-	{
-		IsLoading = true;
-
-		if (items is not { Length: > 0 })
-		{
-			Clear();
-			IsLoading = false;
-			return;
+			return true;
 		}
-
-		// Guarantee uniqueness of items if we have a comparer
-		IList<T> processedItems = DistinctCheck != null
-			? items.Distinct(new EqualityComparer<T>(DistinctCheck)).ToList()
-			: items.ToList();
-
-		// Order the collection if we have any OrderBy configuration
-		processedItems = OrderCollection(processedItems);
-
-		// See if we should limit the collection
-		if (processedItems.Count > Limit)
+		finally
 		{
-			// Limit to the set limit
-			processedItems = processedItems.Take(Limit).ToList();
+			ExitUpgradeableReadLock();
 		}
-
-		UpgradeableReadLock(() =>
-		{
-			Clear();
-			WriteLock(() => _list.AddRange(processedItems));
-			Dispatch(() =>
-			{
-				for (var index = 0; index < processedItems.Count; index++)
-				{
-					var item = processedItems[index];
-					OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
-				}
-
-				OnPropertyChanged(nameof(Count));
-			});
-		});
-
-		IsLoading = false;
 	}
 
 	/// <summary>
@@ -693,8 +839,27 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	/// <param name="e"> A <see cref="NotifyCollectionChangedEventArgs" /> describing the event arguments. </param>
 	protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
 	{
-		InternalUpdateFilter(e);
 		CollectionChanged?.Invoke(this, e);
+	}
+
+	/// <summary>
+	/// Used to invoke the <see cref="ListUpdated" /> event.
+	/// </summary>
+	/// <param name="added"> The items added. </param>
+	/// <param name="removed"> The items removed. </param>
+	protected void OnListUpdated(T[] added, T[] removed)
+	{
+		OnListUpdated(new SpeedyListUpdatedEventArg(added, removed));
+	}
+
+	/// <summary>
+	/// Used to invoke the <see cref="ListUpdated" /> event.
+	/// </summary>
+	/// <param name="e"> The changed event args with the details. </param>
+	protected virtual void OnListUpdated(SpeedyListUpdatedEventArg e)
+	{
+		InternalUpdateFilter(e);
+		ListUpdated?.Invoke(this, e);
 	}
 
 	/// <inheritdoc />
@@ -753,19 +918,21 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 	{
 		var removedItem = _list[oldIndex];
 
-		WriteLock(() =>
+		try
 		{
+			EnterWriteLock();
+
 			// Be sure that if the last item was select we insert at count instead of the
 			// requested new index because it will be (Count + 1) instead of Count (end).
 			_list.RemoveAt(oldIndex);
 			_list.Insert(newIndex > _list.Count ? _list.Count : newIndex, removedItem);
-		});
-
-		Dispatch(() =>
+		}
+		finally
 		{
-			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex));
-			OnPropertyChanged(nameof(Count));
-		});
+			ExitWriteLock();
+		}
+
+		Dispatch(() => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex)));
 	}
 
 	internal virtual void InternalOrder()
@@ -775,30 +942,14 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 			return;
 		}
 
-		IsOrdering = true;
-
 		try
 		{
-			Profiler?.OrderCount.Increment();
-
-			var firstOrder = OrderBy.First();
-			var thenBy = OrderBy.Skip(1).ToArray();
-			var ordered = firstOrder.Process(_list.AsQueryable(), thenBy).ToList();
-
-			for (var i = 0; i < ordered.Count; i++)
-			{
-				var currentItem = ordered[i];
-				var index = InternalIndexOf(currentItem);
-
-				if ((index != -1) && (index != i))
-				{
-					InternalMove(index, i);
-				}
-			}
+			EnterUpgradeableReadLock();
+			InternalOrderWithoutLocking();
 		}
 		finally
 		{
-			IsOrdering = false;
+			ExitUpgradeableReadLock();
 		}
 	}
 
@@ -846,7 +997,7 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 		if (ShouldOrder())
 		{
 			// This is a custom order
-			InternalOrder();
+			InternalOrderWithoutLocking();
 		}
 
 		return index;
@@ -868,39 +1019,50 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 	private void InternalFilter()
 	{
-		if (FilterCheck == null)
+		var filterCheck = FilterCheck;
+		if ((filterCheck == null) || IsFiltering)
 		{
 			return;
 		}
 
 		IsFiltering = true;
 
+		var previousDisableOrdering = _filtered.DisableOrdering;
+		_filtered.DisableOrdering = true;
+
 		try
 		{
 			var toRemove = _filtered.Where(x =>
 				!InternalContains(x)
-				|| !FilterCheck(x)
+				|| !filterCheck(x)
 			).ToList();
 
-			foreach (var item in toRemove)
+			Dispatch(() =>
 			{
-				_filtered.Remove(item);
-			}
+				foreach (var item in toRemove)
+				{
+					_filtered.Remove(item);
+				}
+			});
 
-			var toAdd = _list.Where(x =>
-				FilterCheck(x)
-				&& !_filtered.Contains(x)
-			).ToList();
-
-			foreach (var item in toAdd)
+			var toAdd = _list
+				.Where(x =>
+					filterCheck(x) && !_filtered.Contains(x)).ToList();
+			
+			Dispatch(() =>
 			{
-				_filtered.Add(item);
-			}
+				foreach (var item in toAdd)
+				{
+					_filtered.Add(item);
+				}
 
-			_filtered.Order();
+				_filtered.DisableOrdering = false;
+				_filtered.Order();
+			});
 		}
 		finally
 		{
+			_filtered.DisableOrdering = previousDisableOrdering;
 			IsFiltering = false;
 		}
 	}
@@ -921,10 +1083,22 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 			}
 		}
 
-		WriteLock(() => _list.Insert(index, item));
+		try
+		{
+			EnterWriteLock();
+
+			_list.Insert(index, item);
+
+			Profiler?.AddedCount.Increment();
+		}
+		finally
+		{
+			ExitWriteLock();
+		}
 
 		Dispatch(() =>
 		{
+			OnListUpdated([item], null);
 			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
 			OnPropertyChanged(nameof(Count));
 		});
@@ -932,23 +1106,121 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 		return true;
 	}
 
-	private void InternalRemoveAt(int index)
+	/// <summary>
+	/// Loads the items into the list. All existing items will be cleared.
+	/// </summary>
+	/// <param name="items"> The items to be loaded. </param>
+	private void InternalLoad(params T[] items)
 	{
-		var oldItem = WriteLock(() =>
+		IsLoading = true;
+
+		if (items is not { Length: > 0 })
 		{
-			var oldItem = _list[index];
-			_list.RemoveAt(index);
-			return oldItem;
-		});
+			Clear();
+			IsLoading = false;
+			return;
+		}
+
+		// Guarantee uniqueness of items if we have a comparer
+		IList<T> processedItems = DistinctCheck != null
+			? items.Distinct(new EqualityComparer<T>(DistinctCheck)).ToList()
+			: items.ToList();
+
+		// Order the collection if we have any OrderBy configuration
+		processedItems = OrderCollection(processedItems);
+
+		// See if we should limit the collection
+		if (processedItems.Count > Limit)
+		{
+			// Limit to the set limit
+			processedItems = processedItems.Take(Limit).ToList();
+		}
+
+		Clear();
+
+		try
+		{
+			EnterWriteLock();
+
+			_list.AddRange(processedItems);
+
+			Profiler?.AddedCount.Increment(processedItems.Count);
+		}
+		finally
+		{
+			ExitWriteLock();
+		}
 
 		Dispatch(() =>
 		{
-			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+			OnListUpdated(processedItems.ToArray(), null);
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+			OnPropertyChanged(nameof(Count));
+		});
+
+		IsLoading = false;
+	}
+
+	private void InternalOrderWithoutLocking()
+	{
+		if (!ShouldOrder())
+		{
+			return;
+		}
+
+		try
+		{
+			IsOrdering = true;
+			Profiler?.OrderCount.Increment();
+
+			var firstOrder = OrderBy.First();
+			var thenBy = OrderBy.Skip(1).ToArray();
+			var ordered = firstOrder.Process(_list.AsQueryable(), thenBy).ToList();
+
+			for (var i = 0; i < ordered.Count; i++)
+			{
+				var currentItem = ordered[i];
+				var index = InternalIndexOf(currentItem);
+
+				if ((index != -1) && (index != i))
+				{
+					InternalMove(index, i);
+				}
+			}
+		}
+		finally
+		{
+			IsOrdering = false;
+		}
+	}
+
+	private void InternalRemoveAt(int index)
+	{
+		T removedItem;
+
+		try
+		{
+			EnterWriteLock();
+
+			removedItem = _list[index];
+			_list.RemoveAt(index);
+
+			Profiler?.RemovedCount.Increment();
+		}
+		finally
+		{
+			ExitWriteLock();
+		}
+
+		Dispatch(() =>
+		{
+			OnListUpdated(null, [removedItem]);
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
 			OnPropertyChanged(nameof(Count));
 		});
 	}
 
-	private void InternalUpdateFilter(NotifyCollectionChangedEventArgs e)
+	private void InternalUpdateFilter(SpeedyListUpdatedEventArg e)
 	{
 		if (FilterCheck == null)
 		{
@@ -956,9 +1228,9 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 		}
 
 		// Need to determine if our collection has changed.
-		var oldItems = e.OldItems?.Cast<T>().ToList();
-		var newItems = e.NewItems?.Cast<T>().Where(FilterCheck.Invoke).ToList();
-		var hasChanged = oldItems is { Count: > 0 } || newItems is { Count: > 0 };
+		var removed = e.Removed?.Cast<T>().ToList();
+		var added = e.Added?.Cast<T>().Where(FilterCheck.Invoke).ToList();
+		var hasChanged = removed is { Count: > 0 } || added is { Count: > 0 };
 
 		if (!hasChanged)
 		{
@@ -969,17 +1241,20 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 		try
 		{
-			switch (e.Action)
+			removed?.ForEach(x => _filtered.Remove(x));
+
+			if (added != null)
 			{
-				case NotifyCollectionChangedAction.Add:
+				var previousDisableOrdering = _filtered.DisableOrdering;
+				try
 				{
-					newItems?.ForEach(_filtered.Add);
-					break;
+					_filtered.DisableOrdering = true;
+					added.ForEach(_filtered.Add);
 				}
-				case NotifyCollectionChangedAction.Remove:
+				finally
 				{
-					oldItems?.ForEach(x => _filtered.Remove(x));
-					break;
+					_filtered.DisableOrdering = previousDisableOrdering;
+					_filtered.Order();
 				}
 			}
 		}
@@ -1015,8 +1290,21 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 
 	#region Events
 
-	/// <inheritdoc />
+	/// <summary>
+	/// Used for notifying presentation layers the collection changed.
+	/// Note: There is a few gotchas with CollectionChanged. Not all change
+	/// notifications provide the changes with the notification. Ex. When
+	/// the list is cleared the items are not provided but rather it's just
+	/// a Reset event. This is due to limitations with the
+	/// <see cref="INotifyCollectionChanged" /> interface. See links in the
+	/// class description.
+	/// </summary>
 	public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+	/// <summary>
+	/// Used to notify when items are added or removed.
+	/// </summary>
+	public event EventHandler<SpeedyListUpdatedEventArg> ListUpdated;
 
 	#endregion
 
@@ -1138,21 +1426,9 @@ public class SpeedyList<T> : LockableBindable, ISpeedyList<T>
 /// <summary>
 /// Represents a speedy list.
 /// </summary>
-public interface ISpeedyList<T> : ISpeedyList, IList<T>
-{
-}
-
-/// <summary>
-/// Represents a speedy list.
-/// </summary>
-public interface ISpeedyList : IList, INotifyCollectionChanged, IDisposable
+public interface ISpeedyList : IList, INotifyCollectionChanged
 {
 	#region Properties
-
-	/// <summary>
-	/// True if the list has been disposed.
-	/// </summary>
-	bool IsDisposed { get; }
 
 	/// <summary>
 	/// True if the list is currently filtering items.

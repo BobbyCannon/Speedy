@@ -50,12 +50,6 @@ public class AccountView : Account
 		return ShowChildren && base.ShouldShowChildren();
 	}
 
-	protected override void Dispose(bool disposing)
-	{
-		Addresses.Dispose();
-		base.Dispose(disposing);
-	}
-
 	/// <inheritdoc />
 	protected override void OnPropertyChangedInDispatcher(string propertyName)
 	{

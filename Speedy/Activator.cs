@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Speedy.Collections;
 using Speedy.Data;
 using Speedy.Extensions;
 
@@ -177,10 +176,6 @@ public static class Activator
 			||(type.GetGenericTypeDefinition() == typeof(IList<>)))
 		{
 			type = typeof(List<>).GetCachedMakeGenericType(type.GenericTypeArguments);
-		}
-		else if (type.GetGenericTypeDefinition() == typeof(ISpeedyList<>))
-		{
-			type = typeof(SpeedyList<>).GetCachedMakeGenericType(type.GenericTypeArguments);
 		}
 		else if (type.GetGenericTypeDefinition() == typeof(ISet<>))
 		{

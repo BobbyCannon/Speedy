@@ -1,9 +1,12 @@
-﻿namespace Speedy.Profiling;
+﻿using Speedy.Presentation;
+using Speedy.Threading;
+
+namespace Speedy.Profiling;
 
 /// <summary>
 /// Represents a counter for profiling.
 /// </summary>
-public class Counter : LockableBindable
+public class Counter : ReaderWriterLockBindable
 {
 	#region Fields
 
@@ -16,8 +19,9 @@ public class Counter : LockableBindable
 	/// <summary>
 	/// Instantiate the counter for profiling.
 	/// </summary>
+	/// <param name="readerWriterLock"> An optional lock. Defaults to <see cref="ReaderWriterLockTiny" /> if non provided. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public Counter(IDispatcher dispatcher) : base(dispatcher)
+	public Counter(IReaderWriterLock readerWriterLock = null, IDispatcher dispatcher = null) : base(readerWriterLock, dispatcher)
 	{
 	}
 
@@ -51,6 +55,15 @@ public class Counter : LockableBindable
 	public void Increment(int increase = 1)
 	{
 		ThreadSafe.Increment(ref _count, increase);
+		OnPropertyChanged(nameof(Value));
+	}
+
+	/// <summary>
+	/// Reset the counter to zero.
+	/// </summary>
+	public void Reset()
+	{
+		ThreadSafe.Set(ref _count, 0);
 		OnPropertyChanged(nameof(Value));
 	}
 

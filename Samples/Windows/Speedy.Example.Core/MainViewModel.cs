@@ -12,6 +12,7 @@ using Speedy.Collections;
 using Speedy.Commands;
 using Speedy.Data;
 using Speedy.Extensions;
+using Speedy.Threading;
 
 #endregion
 
@@ -28,23 +29,40 @@ public class MainViewModel : ViewModel
 		MiddleList = new SpeedyList<SelectionOption<int>>(GetDispatcher());
 		RightList = new SpeedyList<SelectionOption<int>>(GetDispatcher());
 
-		ThrottleDelayValues = new SpeedyList<SelectionOption<int>>(dispatcher)
+		ReaderWriterLockValues = new SpeedyList<SelectionOption<int>>(null, dispatcher)
 		{
-			new SelectionOption<int>(0, "No Delay"),
-			new SelectionOption<int>(5, "5 ms"),
-			new SelectionOption<int>(50, "50 ms"),
-			new SelectionOption<int>(500, "500 ms"),
-			new SelectionOption<int>(1000, "1000 ms"),
+			new(0, "Tiny"),
+			new(1, "Slim")
+		};
+
+		TestLoopValues = new SpeedyList<SelectionOption<int>>(null, dispatcher)
+		{
+			new(100, "100 (tiny)"),
+			new(1000, "1000 (small)"),
+			new(10000, "10k (medium)"),
+			new(100000, "100k (large)"),
+			new(1000000, "1m (x-large)")
+		};
+
+		ThrottleDelayValues = new SpeedyList<SelectionOption<int>>(null, dispatcher)
+		{
+			new(0, "No Delay"),
+			new(5, "5 ms"),
+			new(50, "50 ms"),
+			new(500, "500 ms"),
+			new(1000, "1000 ms")
 		};
 
 		Limit = 100;
 		NumberOfItems = 1000;
 		NumberOfThreads = 32;
-		ThrottleDelay = ThrottleDelayValues[1];
+		SelectedReaderWriterLock = ReaderWriterLockValues[0];
+		SelectedTestLoopValue = TestLoopValues[1];
+		SelectedThrottleDelay = ThrottleDelayValues[1];
 		Progress = 0;
-		Maximum = 100000;
 
 		// Commands
+		ClearCommand = new RelayCommand(_ => Clear());
 		NumberOfThreadsCommand = new RelayCommand(ChangeNumberOfThreads);
 		RandomizeCommand = new RelayCommand(_ => Randomize());
 	}
@@ -54,6 +72,8 @@ public class MainViewModel : ViewModel
 	#region Properties
 
 	public bool CancellationPending { get; set; }
+
+	public ICommand ClearCommand { get; }
 
 	public bool IsRunning { get; private set; }
 
@@ -69,8 +89,6 @@ public class MainViewModel : ViewModel
 
 	public bool LoopTest { get; set; }
 
-	public int Maximum { get; set; }
-
 	public string Message { get; private set; }
 
 	public SpeedyList<SelectionOption<int>> MiddleList { get; }
@@ -85,24 +103,33 @@ public class MainViewModel : ViewModel
 
 	public ICommand RandomizeCommand { get; }
 
+	public SpeedyList<SelectionOption<int>> ReaderWriterLockValues { get; }
+
 	public SpeedyList<SelectionOption<int>> RightList { get; }
+
+	public TimeSpan RunElapsed { get; private set; }
 
 	public RuntimeInformation RuntimeInformation { get; }
 
-	public SelectionOption<int> ThrottleDelay { get; set; }
+	public SelectionOption<int> SelectedReaderWriterLock { get; set; }
+
+	public SelectionOption<int> SelectedTestLoopValue { get; set; }
+
+	public SelectionOption<int> SelectedThrottleDelay { get; set; }
+
+	public SpeedyList<SelectionOption<int>> TestLoopValues { get; }
+
+	public SpeedyList<SelectionOption<int>> ThrottleDelayValues { get; }
 
 	public bool UseLimit { get; set; }
 
 	public bool UseOrder { get; set; }
-	
-	public SpeedyList<SelectionOption<int>> ThrottleDelayValues { get; }
-	
-	public TimeSpan RunElapsed { get; private set; }
 
 	#endregion
 
 	#region Methods
 
+	/// <inheritdoc />
 	protected override void OnPropertyChangedInDispatcher(string propertyName)
 	{
 		switch (propertyName)
@@ -111,7 +138,7 @@ public class MainViewModel : ViewModel
 			{
 				LeftList.FilterCheck = string.IsNullOrWhiteSpace(ListFilterForLeft)
 					? null
-					: x => x.ToString().Contains(ListFilterForLeft);
+					: x => x.Name?.Contains(ListFilterForLeft) ?? false;
 				LeftList.RefreshFilter();
 				break;
 			}
@@ -119,7 +146,7 @@ public class MainViewModel : ViewModel
 			{
 				MiddleList.FilterCheck = string.IsNullOrWhiteSpace(ListFilterForMiddle)
 					? null
-					: x => x.ToString().Contains(ListFilterForMiddle);
+					: x => x.Name?.Contains(ListFilterForMiddle) ?? false;
 				MiddleList.RefreshFilter();
 				break;
 			}
@@ -127,7 +154,7 @@ public class MainViewModel : ViewModel
 			{
 				RightList.FilterCheck = string.IsNullOrWhiteSpace(ListFilterForRight)
 					? null
-					: x => x.ToString().Contains(ListFilterForRight);
+					: x => x.Name?.Contains(ListFilterForRight) ?? false;
 				RightList.RefreshFilter();
 				break;
 			}
@@ -154,6 +181,22 @@ public class MainViewModel : ViewModel
 		}
 	}
 
+	private void Clear()
+	{
+		LeftList.Clear();
+		MiddleList.Clear();
+		RightList.Clear();
+	}
+
+	private IReaderWriterLock GetLockable()
+	{
+		return SelectedReaderWriterLock.Id switch
+		{
+			1 => new ReaderWriterLockSlimProxy(),
+			_ => new ReaderWriterLockTiny()
+		};
+	}
+
 	private void Randomize()
 	{
 		if (IsRunning)
@@ -177,13 +220,15 @@ public class MainViewModel : ViewModel
 		IsRunning = true;
 		CancellationPending = false;
 		Message = "Starting...\r\n";
-		Message += $"\tThrottle Delay: {ThrottleDelay.Id} ms";
+		Message += $"\tThrottle Delay: {SelectedThrottleDelay.Id} ms";
 		Progress = 0;
 
 		var watch = Stopwatch.StartNew();
+		var maximum = SelectedTestLoopValue.Id;
 
 		try
 		{
+			LeftList.UpdateLock(GetLockable());
 			LeftList.Clear();
 			LeftList.Limit = UseLimit ? Limit : int.MaxValue;
 			LeftList.OrderBy = UseOrder ? new[] { new OrderBy<SelectionOption<int>>(x => x.Id) } : null;
@@ -209,15 +254,15 @@ public class MainViewModel : ViewModel
 				{ MiddleList, new[] { LeftList, RightList } },
 				{ RightList, new[] { LeftList, MiddleList } }
 			};
-			
+
 			try
 			{
 				var options = new ParallelOptions
 				{
-					MaxDegreeOfParallelism = 32
+					MaxDegreeOfParallelism = NumberOfThreads
 				};
 
-				Parallel.For(0, Maximum, options, _ =>
+				Parallel.For(0, maximum, options, _ =>
 				{
 					if (CancellationPending)
 					{
@@ -235,14 +280,15 @@ public class MainViewModel : ViewModel
 						{
 							switch (action)
 							{
-								case ListAction.Add:
-								{
-									destination.Add(item);
-									break;
-								}
 								case ListAction.Insert:
 								{
 									destination.Insert(0, item);
+									break;
+								}
+								case ListAction.Add:
+								default:
+								{
+									destination.Add(item);
 									break;
 								}
 							}
@@ -251,9 +297,9 @@ public class MainViewModel : ViewModel
 
 					Progress++;
 
-					if (ThrottleDelay.Id > 0)
+					if (SelectedThrottleDelay.Id > 0)
 					{
-						Thread.Sleep(ThrottleDelay.Id);
+						Thread.Sleep(SelectedThrottleDelay.Id);
 					}
 				});
 			}
@@ -266,10 +312,14 @@ public class MainViewModel : ViewModel
 		{
 			RunElapsed = watch.Elapsed;
 			Message += $"\r\nDone {RunElapsed}";
-			Progress = Maximum;
+			Progress = maximum;
 			IsRunning = false;
 		}
 	}
+
+	#endregion
+
+	#region Enumerations
 
 	public enum ListAction
 	{

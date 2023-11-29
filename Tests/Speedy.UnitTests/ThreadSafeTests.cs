@@ -3,12 +3,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Threading;
 
 #endregion
 
 namespace Speedy.UnitTests
 {
-	[TestClass]
+    [TestClass]
 	public class ThreadSafeTests : SpeedyUnitTest
 	{
 		#region Methods
