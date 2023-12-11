@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1;net48;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net48;netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
 		<Configurations>Debug;Release</Configurations>
 		<AssemblyTitle>Speedy.Application</AssemblyTitle>
 		<AssemblyName>Speedy.Application</AssemblyName>
@@ -45,7 +45,7 @@
 		<None Include="Speedy.snk" />
 		<None Include="Speedy.Application.xml" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0'">
 		<Compile Include="**/Internal/Windows/**/*.cs" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

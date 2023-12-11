@@ -31,11 +31,19 @@ namespace Speedy.Website.Services
 
 		#region Constructors
 
+		#if (NET8_0_OR_GREATER)
+		public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, AccountService accountService)
+			: base(options, logger, encoder)
+		{
+			_accountService = accountService;
+		}
+		#else
 		public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, AccountService accountService)
 			: base(options, logger, encoder, clock)
 		{
 			_accountService = accountService;
 		}
+		#endif
 
 		#endregion
 

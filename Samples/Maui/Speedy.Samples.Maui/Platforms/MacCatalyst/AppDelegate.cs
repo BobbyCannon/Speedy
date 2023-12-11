@@ -1,16 +1,23 @@
-﻿using Foundation;
+﻿#region References
+
+using Foundation;
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 
-namespace Speedy.Samples.Maui
+#endregion
+
+// ReSharper disable once CheckNamespace
+namespace Speedy.Samples.Maui;
+
+[Register("AppDelegate")]
+public class AppDelegate : MauiUIApplicationDelegate
 {
-	[Register("AppDelegate")]
-	public class AppDelegate : MauiUIApplicationDelegate
+	#region Methods
+
+	protected override MauiApp CreateMauiApp()
 	{
-		#region Methods
-
-		protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
-
-		#endregion
+		return MauiProgram.CreateMauiApp();
 	}
+
+	#endregion
 }

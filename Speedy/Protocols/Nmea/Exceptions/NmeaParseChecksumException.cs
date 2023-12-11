@@ -36,12 +36,5 @@ public class NmeaParseChecksumException : Exception
 	{
 	}
 
-	/// <summary>
-	/// Instantiates an instance of the exception.
-	/// </summary>
-	protected NmeaParseChecksumException(SerializationInfo info, StreamingContext context) : base(info, context)
-	{
-	}
-
 	#endregion
 }

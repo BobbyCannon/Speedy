@@ -7,11 +7,10 @@ using Speedy.Application;
 using Speedy.Application.Maui;
 using Speedy.Collections;
 using Speedy.Commands;
-using Speedy.Data;
 using Speedy.Data.Location;
-using Speedy.Extensions;
 using Speedy.Logging;
 using Location = Speedy.Data.Location.Location;
+using RuntimeInformation = Speedy.Data.RuntimeInformation;
 
 #endregion
 

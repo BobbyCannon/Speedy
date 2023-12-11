@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0;net8.0-windows10.0.19041.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>

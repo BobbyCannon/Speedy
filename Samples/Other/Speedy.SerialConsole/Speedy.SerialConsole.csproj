@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0;net8.0-windows10.0.19041.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<AssemblyVersion>11.3.3.0</AssemblyVersion>
 		<FileVersion>11.3.3.0</FileVersion>
@@ -10,7 +10,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-		<PackageReference Include="System.IO.Ports" Version="7.0.0" />
+		<PackageReference Include="System.IO.Ports" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Speedy.ServiceHosting\Speedy.ServiceHosting.csproj" />

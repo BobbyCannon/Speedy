@@ -5456,6 +5456,11 @@
             The base exception for the Speedy framework.
             </summary>
         </member>
+        <member name="F:Speedy.Exceptions.SpeedyException.ClientNotSupported">
+            <summary>
+            Represents message for invalid sync clients.
+            </summary>
+        </member>
         <member name="F:Speedy.Exceptions.SpeedyException.KeyNotFound">
             <summary>
             Represents message for key not found.
@@ -5471,11 +5476,6 @@
             Represents message for invalid sync entity type.
             </summary>
         </member>
-        <member name="F:Speedy.Exceptions.SpeedyException.ClientNotSupported">
-            <summary>
-            Represents message for invalid sync clients.
-            </summary>
-        </member>
         <member name="M:Speedy.Exceptions.SpeedyException.#ctor">
             <summary>
             Instantiates an instance of the speedy exception.
@@ -5487,11 +5487,6 @@
             </summary>
         </member>
         <member name="M:Speedy.Exceptions.SpeedyException.#ctor(System.String,System.Exception)">
-            <summary>
-            Instantiates an instance of the speedy exception.
-            </summary>
-        </member>
-        <member name="M:Speedy.Exceptions.SpeedyException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>
             Instantiates an instance of the speedy exception.
             </summary>
@@ -5512,11 +5507,6 @@
             </summary>
         </member>
         <member name="M:Speedy.Exceptions.SyncIssueException.#ctor(Speedy.Sync.SyncIssueType,System.String,System.Exception,Speedy.Sync.SyncIssue[])">
-            <summary>
-            Instantiates an instance of the exception.
-            </summary>
-        </member>
-        <member name="M:Speedy.Exceptions.SyncIssueException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>
             Instantiates an instance of the exception.
             </summary>
@@ -5551,11 +5541,6 @@
             Instantiates an instance of the update exception.
             </summary>
         </member>
-        <member name="M:Speedy.Exceptions.UpdateException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
-            <summary>
-            Instantiates an instance of the update exception.
-            </summary>
-        </member>
         <member name="T:Speedy.Exceptions.ValidationException">
             <summary>
             Represents an validation issue.
@@ -5572,11 +5557,6 @@
             </summary>
         </member>
         <member name="M:Speedy.Exceptions.ValidationException.#ctor(System.String,System.Exception)">
-            <summary>
-            Instantiates an instance of the validation exception.
-            </summary>
-        </member>
-        <member name="M:Speedy.Exceptions.ValidationException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>
             Instantiates an instance of the validation exception.
             </summary>
@@ -5610,11 +5590,6 @@
             </summary>
         </member>
         <member name="M:Speedy.Exceptions.WebClientException.#ctor(System.Net.HttpStatusCode,System.String,System.Exception)">
-            <summary>
-            Instantiates an instance of the exception.
-            </summary>
-        </member>
-        <member name="M:Speedy.Exceptions.WebClientException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>
             Instantiates an instance of the exception.
             </summary>
@@ -12703,11 +12678,6 @@
             </summary>
         </member>
         <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException.#ctor(System.String,System.Exception)">
-            <summary>
-            Instantiates an instance of the exception.
-            </summary>
-        </member>
-        <member name="M:Speedy.Protocols.Nmea.Exceptions.NmeaParseChecksumException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>
             Instantiates an instance of the exception.
             </summary>
