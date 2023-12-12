@@ -115,7 +115,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.IntegrationTests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.AutomationTests", "Tests\Speedy.AutomationTests\Speedy.AutomationTests.csproj", "{6E622481-2989-469F-B8C1-D671EA2CA6F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speedy.Samples.Maui", "Samples\Maui\Speedy.Samples.Maui\Speedy.Samples.Maui.csproj", "{768CAB63-7CF5-4FB3-A556-ED60A0577D57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Speedy.Samples.Maui", "Samples\Maui\Speedy.Samples.Maui\Speedy.Samples.Maui.csproj", "{768CAB63-7CF5-4FB3-A556-ED60A0577D57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

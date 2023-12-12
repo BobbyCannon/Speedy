@@ -5,6 +5,7 @@
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Speedy.ico</ApplicationIcon>
 		<LangVersion>latest</LangVersion>
+		<NoWarn>NETSDK1206</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="Speedy.ico">
