@@ -141,7 +141,7 @@ namespace Speedy.UnitTests.Protocols.Osc
 			var actual = time.Value;
 			var dateTime = time.ToDateTime();
 
-			#if NET6_0_OR_GREATER
+			#if NET7_0_OR_GREATER
 			AreEqual(5302394395u, actual);
 			AreEqual(1234.5599, dateTime.TimeOfDay.TotalMilliseconds);
 			#else
