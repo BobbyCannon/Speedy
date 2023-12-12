@@ -27,21 +27,22 @@ Start-WebAppPool -Name "Speedy"
 # Other server frameworks
 #
 
+& 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug"
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net6.0'
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'netcoreapp3.1'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 3 -Build 1
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 11 -Minor 3 -Build +
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build 0
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build +
 # Open-File "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1"
 
 #
 # Need to add readme to all packages
 # https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
 #
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 3 -Verbose
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 3 -VersionSuffix 'RC'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -Verbose
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 0 -VersionSuffix 'RC'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 
@@ -58,7 +59,7 @@ ii 'C:\Workspaces\Nuget\Development'
 ii 'C:\Workspaces\Nuget\Release'
 
 # Build a final release
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -BuildNumber 2 -Configuration Release
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration Release -BuildNumber 0
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 
 

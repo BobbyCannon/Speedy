@@ -8,6 +8,7 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
+		<NoWarn>NETSDK1206</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CompareNETObjects" Version="4.79.0" />

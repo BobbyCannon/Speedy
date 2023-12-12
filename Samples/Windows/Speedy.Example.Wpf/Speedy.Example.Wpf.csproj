@@ -4,6 +4,7 @@
 		<TargetFrameworks>net48;net6.0-windows10.0.19041.0;net7.0-windows10.0.19041.0;net8.0-windows10.0.19041.0</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<LangVersion>latest</LangVersion>
+		<NoWarn>NETSDK1206</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
