@@ -16,15 +16,13 @@ if ($Framework -eq $null) {
 	$Framework = "netstandard2.0"
 }
 
-Clear-Host
-
 $ErrorActionPreference = "STOP"
 $scriptPath = $PSScriptRoot.Replace("\Scripts", "")
 
 # $Rollback = $true
 # $scriptPath = "C:\Workspaces\EpicCoders\Speedy"
 # $scriptPath = "C:\Workspaces\GitHub\Speedy"
-# $Version = "11.0.0.0"
+# $Version = "12.0.0.0"
 # $VersionSuffix = "RC2"
 # $Framework = "netstandard2.0"
 
@@ -82,8 +80,10 @@ $projects = "Speedy",
 	"Speedy.Application",
 	"Speedy.Application.Maui",
 	"Speedy.Application.Uwp",
+	"Speedy.Application.Web",
 	"Speedy.Application.Wpf",
 	"Speedy.Application.Xamarin",
+	"Speedy.Automation",
 	"Speedy.EntityFramework",
 	"Speedy.ServiceHosting"
 	
@@ -94,7 +94,7 @@ $directReferences = @()
 $directReferencesMarked = @()
 $platformReferences = @()
 
-for ($i = 0; $i -le $projects.Length; $i++)
+for ($i = 0; $i -lt $projects.Length; $i++)
 {
 	$project = $projects[$i]
 	$packageReferences += "<PackageReference Include=`"$project`" Version=`"$version`" />"
@@ -125,11 +125,13 @@ for ($i = 0; $i -le $projects.Length; $i++)
 	$directReferencesMarked += "<Reference Include=`"$project`" PackageConfig=`"true`"><HintPath>$scriptPath\$project\bin\Debug\$Framework\$project.dll</HintPath></Reference>"
 }
 
-$platformReferences[0]
-$platformReferences[0][0]
+#$platformReferences[0]
+#$platformReferences[0][0]
 
 foreach ($file in $files)
 {
+	Write-Host $file.FullName -ForegroundColor Cyan
+	
 	$directory = [System.IO.Path]::GetDirectoryName($file.FullName)
 	$data = Get-Content $file.FullName -Raw | Format-XmlContent
 	
@@ -141,7 +143,7 @@ foreach ($file in $files)
 	
 	# todo: need to support a different Framework when setting Maui, WPF, etc, add framework detection
 	
-	for ($i = 0; $i -le $packageReferences.Length; $i++)
+	for ($i = 0; $i -lt $packageReferences.Length; $i++)
 	{
 		if ($Rollback.IsPresent)
 		{
@@ -196,6 +198,11 @@ foreach ($file in $files)
 				$data = $data.Replace("Speedy.EntityFramework\bin\Debug\netstandard2.0\Speedy.EntityFramework.dll", `
 					"Speedy.EntityFramework\bin\Debug\net8.0\Speedy.EntityFramework.dll")
 				
+				$data = $data.Replace("Speedy.Application.Web\bin\Debug\netstandard2.0\Speedy.Application.Web.dll", `
+					"Speedy.Application.Web\bin\Debug\net8.0-windows10.0.19041.0\Speedy.Application.Web.dll")
+				$data = $data.Replace("Speedy.Application.Web\bin\Debug\netstandard2.1\Speedy.Application.Web.dll", `
+					"Speedy.Application.Web\bin\Debug\net8.0-windows10.0.19041.0\Speedy.Application.Web.dll")
+					
 				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.0\Speedy.Application.Wpf.dll", `
 					"Speedy.Application.Wpf\bin\Debug\net8.0-windows10.0.19041.0\Speedy.Application.Wpf.dll")
 				$data = $data.Replace("Speedy.Application.Wpf\bin\Debug\netstandard2.1\Speedy.Application.Wpf.dll", `
@@ -230,8 +237,7 @@ foreach ($file in $files)
 	}
 	
 	$data = Format-XmlContent -xmlcontent $data -indented
-	$file.FullName
-	
+		
 	#Set-Content $file.FullName -Value $data -Encoding UTF8
 	$Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
 	[System.IO.File]::WriteAllLines($file.FullName, $data, $Utf8NoBomEncoding)

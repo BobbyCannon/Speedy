@@ -97,16 +97,14 @@ public class DatabaseProvider<T> : IDatabaseProvider<T> where T : IDatabase
 			{
 				process(i, database);
 
-				if ((i % iterationSize) == 0)
+				if ((i % iterationSize) != 0 || i >= total)
 				{
-					database.SaveChanges();
-					database.Dispose();
-
-					if (i < total)
-					{
-						database = getDatabase();
-					}
+					continue;
 				}
+
+				database.SaveChanges();
+				database.Dispose();
+				database = getDatabase();
 			}
 
 			database.SaveChanges();

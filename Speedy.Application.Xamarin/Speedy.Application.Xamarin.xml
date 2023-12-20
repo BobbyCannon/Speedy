@@ -209,7 +209,7 @@
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.#ctor(Speedy.IDispatcher)">
             <summary>
-            Constructor for implementation
+            Constructor for Implementation
             </summary>
         </member>
         <member name="P:Speedy.Application.Xamarin.LocationProviderImplementation`4.HasPermission">
@@ -233,26 +233,31 @@
             <returns> ProviderLocation </returns>
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.StartMonitoringAsync">
-            <summary>
-            Start listening for changes
-            </summary>
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.StopMonitoringAsync">
             <summary>
             Stop listening
             </summary>
         </member>
-        <member name="M:Speedy.Application.Xamarin.LocationProviderImplementation`4.OnLocationProviderError(Speedy.Data.Location.LocationProviderError)">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Application.Xamarin.PlatformExtensions">
             <summary>
-            iOS Platform extensions
+            Extension for the Windows platform.
             </summary>
         </member>
-        <member name="M:Speedy.Application.Xamarin.PlatformExtensions.ToDateTime(Foundation.NSDate)">
+        <member name="M:Speedy.Application.Xamarin.PlatformExtensions.AsTask``1(Windows.Foundation.IAsyncOperation{``0},System.Boolean)">
             <summary>
-            Converts NSDate to DateTime.
+            Converts an IAsyncOperation to a ConfigurableTaskAwaitable.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.PlatformExtensions.ToAltitudeReferenceSystem(Speedy.Data.Location.AltitudeReferenceType)">
+            <summary>
+            Convert altitude reference type to system.
+            </summary>
+        </member>
+        <member name="M:Speedy.Application.Xamarin.PlatformExtensions.ToAltitudeReferenceType(Windows.Devices.Geolocation.AltitudeReferenceSystem)">
+            <summary>
+            Convert altitude reference system to type.
             </summary>
         </member>
     </members>
