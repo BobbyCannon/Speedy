@@ -116,8 +116,8 @@ namespace Speedy.Storage
 			}
 
 			// If we have never synced, meaning we are syncing from DateTime.MinValue, and
-			// the repository has a filter that say we should skip deleted item on initial sync.
-			// The "SyncEntity.IsDeleted" is a soft deleted flag that suggest an item is deleted
+			// the repository has a filter that says we should skip deleted items on initial sync.
+			// The "SyncEntity.IsDeleted" is a soft deleted flag that states an item is deleted
 			// but it still exist in the database. If an item is "soft deleted" we will normally
 			// still sync the item to allow the clients (non-server) to have the opportunity to
 			// hard delete the item on their end.

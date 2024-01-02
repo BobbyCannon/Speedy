@@ -68,6 +68,8 @@ public abstract class SpeedyTest
 	{
 		// Default start date
 		StartDateTime = new DateTime(2022, 01, 02, 03, 04, 00, DateTimeKind.Utc);
+		WaitTimeout = TimeSpan.FromMilliseconds(IsDebugging ? 1000000 : 1000);
+
 		RegisterTypeActivators();
 	}
 
@@ -97,7 +99,7 @@ public abstract class SpeedyTest
 	/// <summary>
 	/// The timeout to use when waiting for a test state to be hit.
 	/// </summary>
-	public static TimeSpan WaitTimeout => TimeSpan.FromMilliseconds(IsDebugging ? 1000000 : 1000);
+	public static TimeSpan WaitTimeout { get; set; }
 
 	#endregion
 
