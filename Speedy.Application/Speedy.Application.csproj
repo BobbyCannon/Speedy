@@ -25,9 +25,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.xml</DocumentationFile>
-		<AssemblyVersion>12.0.3.0</AssemblyVersion>
-		<FileVersion>12.0.3.0</FileVersion>
-		<Version>12.0.3</Version>
+		<AssemblyVersion>12.0.4.0</AssemblyVersion>
+		<FileVersion>12.0.4.0</FileVersion>
+		<Version>12.0.4</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 	</PropertyGroup>
@@ -54,7 +54,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
-		<PackageReference Include="System.Management" Version="7.0.2" />
+		<PackageReference Include="System.Management" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
