@@ -9,3 +9,4 @@ TestResults
 /Binaries/
 _ReSharper.Caches/
 **/AppPackages/
+hs_err_pid*.log

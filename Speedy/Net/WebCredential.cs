@@ -1,6 +1,8 @@
 ﻿#region References
 
+using System;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Security;
 using Speedy.Extensions;
 
@@ -39,7 +41,7 @@ public class WebCredential : Credential, IUpdateable<WebCredential>
 	/// <param name="password"> The password of the credential. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	public WebCredential(string username, string password, IDispatcher dispatcher = null)
-		: this(username, password.ToSecureString(), dispatcher)
+		: this(username, password?.ToSecureString(), dispatcher)
 	{
 	}
 
@@ -49,10 +51,9 @@ public class WebCredential : Credential, IUpdateable<WebCredential>
 	/// <param name="username"> The username of the credential. </param>
 	/// <param name="password"> The password of the credential. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public WebCredential(string username, SecureString password, IDispatcher dispatcher = null) : base(dispatcher)
+	public WebCredential(string username, SecureString password, IDispatcher dispatcher = null)
+		: base(username, password, dispatcher)
 	{
-		UserName = username ?? string.Empty;
-		SecurePassword = password;
 	}
 
 	#endregion
@@ -67,6 +68,21 @@ public class WebCredential : Credential, IUpdateable<WebCredential>
 	#endregion
 
 	#region Methods
+
+	/// <summary>
+	/// Gets the credential from an authentication header value.
+	/// </summary>
+	public static WebCredential FromAuthenticationHeaderValue(AuthenticationHeaderValue headerValue)
+	{
+		if (!string.Equals(headerValue.Scheme, "Basic", StringComparison.OrdinalIgnoreCase))
+		{
+			throw new SecurityException("The authentication header is incorrect schema.");
+		}
+
+		var response = new WebCredential();
+		response.Load(headerValue);
+		return response;
+	}
 
 	/// <summary>
 	/// Reset the web credential.
@@ -102,18 +118,14 @@ public class WebCredential : Credential, IUpdateable<WebCredential>
 
 		if (exclusions.Length <= 0)
 		{
-			Password = update.Password;
 			RememberMe = update.RememberMe;
-			UserName = update.UserName;
 		}
 		else
 		{
-			this.IfThen(_ => !exclusions.Contains(nameof(Password)), x => x.Password = update.Password);
 			this.IfThen(_ => !exclusions.Contains(nameof(RememberMe)), x => x.RememberMe = update.RememberMe);
-			this.IfThen(_ => !exclusions.Contains(nameof(UserName)), x => x.UserName = update.UserName);
 		}
 
-		return true;
+		return base.UpdateWith(update, exclusions);
 	}
 
 	/// <inheritdoc />
@@ -121,8 +133,7 @@ public class WebCredential : Credential, IUpdateable<WebCredential>
 	{
 		return update switch
 		{
-			WebCredential webCredential => UpdateWith(webCredential),
-			Credential credential => UpdateWith(credential),
+			WebCredential credential => UpdateWith(credential, exclusions),
 			_ => base.UpdateWith(update, exclusions)
 		};
 	}

@@ -39,9 +39,9 @@
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Maui.xml</DocumentationFile>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<AssemblyVersion>12.0.2.0</AssemblyVersion>
-		<FileVersion>12.0.2.0</FileVersion>
-		<Version>12.0.2</Version>
+		<AssemblyVersion>12.0.3.0</AssemblyVersion>
+		<FileVersion>12.0.3.0</FileVersion>
+		<Version>12.0.3</Version>
 		<PublishReadyToRun>false</PublishReadyToRun>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<NoWarn>1701;1702;8002;CS0101;CA1416;CS8002;NU1701</NoWarn>

@@ -35,15 +35,15 @@ namespace Speedy.Sync
 		/// </summary>
 		public SyncClient(string name, ISyncableDatabaseProvider provider)
 		{
-			DatabaseProvider = provider;
-			Name = name;
-			Options = new SyncClientOptions();
-			Profiler = new SyncClientProfiler(name);
-			Statistics = new SyncStatistics();
-			SyncOptions = new SyncOptions();
+		_changeCount = -1;
 
-			_changeCount = -1;
-		}
+		DatabaseProvider = provider;
+		Name = name;
+		Options = new SyncClientOptions();
+		Profiler = new SyncClientProfiler(name);
+		Statistics = new SyncStatistics();
+		SyncOptions = new SyncOptions();
+	}
 
 		#endregion
 
@@ -433,6 +433,10 @@ namespace Speedy.Sync
 							// this is because it's possibly the sync entity is blocking updating of the sync ID so it 
 							// will need to be set manually being that it will be filtered on update.
 							foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
+							if (foundEntity == null)
+							{
+								throw new SyncIssueException(SyncIssueType.Unknown, "Failed to create a new instance.");
+							}
 							foundEntity.SyncId = syncObject.SyncId;
 
 							if (UpdateEntity(database, syncObject, syncEntity, foundEntity, syncStatus, issues))
@@ -617,6 +621,23 @@ namespace Speedy.Sync
 
 					issues.Add(issue);
 				}
+				catch (ValidationException ex)
+				{
+					var issue = new SyncIssue
+					{
+						Id = syncObject.SyncId,
+						IssueType = SyncIssueType.ValidationException,
+						Message = ex.Message,
+						TypeName = syncObject.TypeName
+					};
+
+					if (SyncOptions.IncludeIssueDetails)
+					{
+						issue.Message += Environment.NewLine + ex.ToDetailedString();
+					}
+
+					issues.Add(issue);
+				}
 				catch (Exception ex)
 				{
 					var details = ex.ToDetailedString();
@@ -684,7 +705,9 @@ namespace Speedy.Sync
 				return IncomingConverter.Update(source, destination, status);
 			}
 
-			if ((destination != null) && (source != null) && (destination != source))
+			if ((destination != null)
+				&& (source != null)
+				&& !Equals(destination, source))
 			{
 				destination.UpdateSyncEntity(source, false, false, true);
 			}

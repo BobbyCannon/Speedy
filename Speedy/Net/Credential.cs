@@ -16,14 +16,15 @@ namespace Speedy.Net;
 /// <summary>
 /// Represents a credential for a client.
 /// </summary>
-public class Credential : Bindable, IDisposable, IUpdateable<Credential>
+public class Credential : Bindable, IDisposable, IUpdateable<ICredential>, ICredential
 {
 	#region Constructors
 
 	/// <summary>
 	/// Creates an instance of the credential.
 	/// </summary>
-	public Credential() : this(string.Empty, string.Empty)
+	public Credential()
+		: this(string.Empty, (SecureString) null)
 	{
 	}
 
@@ -31,7 +32,8 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 	/// Creates an instance of the credential.
 	/// </summary>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public Credential(IDispatcher dispatcher) : this(string.Empty, string.Empty, dispatcher)
+	public Credential(IDispatcher dispatcher)
+		: this(string.Empty, (SecureString) null, dispatcher)
 	{
 	}
 
@@ -41,10 +43,22 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 	/// <param name="username"> The username of the credential. </param>
 	/// <param name="password"> The password of the credential. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public Credential(string username, string password, IDispatcher dispatcher = null) : base(dispatcher)
+	public Credential(string username, string password, IDispatcher dispatcher = null)
+		: this(username, password?.ToSecureString(), dispatcher)
+	{
+	}
+
+	/// <summary>
+	/// Creates an instance of the credential.
+	/// </summary>
+	/// <param name="username"> The username of the credential. </param>
+	/// <param name="password"> The password of the credential. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	public Credential(string username, SecureString password, IDispatcher dispatcher = null)
+		: base(dispatcher)
 	{
 		UserName = username ?? string.Empty;
-		SecurePassword = password?.ToSecureString();
+		SecurePassword = password?.Copy();
 	}
 
 	#endregion
@@ -73,7 +87,7 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 	public SecureString SecurePassword { get; set; }
 
 	/// <summary>
-	/// Represents the user name for the credential.
+	/// Represents the username for the credential.
 	/// </summary>
 	public string UserName { get; set; }
 
@@ -88,21 +102,6 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 	{
 		Dispose(true);
 		GC.SuppressFinalize(this);
-	}
-
-	/// <summary>
-	/// Gets the credential from an authentication header value.
-	/// </summary>
-	public static Credential FromAuthenticationHeaderValue(AuthenticationHeaderValue headerValue)
-	{
-		if (!string.Equals(headerValue.Scheme, "Basic", StringComparison.OrdinalIgnoreCase))
-		{
-			throw new SecurityException("The authentication header is incorrect schema.");
-		}
-
-		var response = new Credential();
-		response.Load(headerValue);
-		return response;
 	}
 
 	/// <summary>
@@ -142,7 +141,8 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 	public virtual void Reset()
 	{
 		UserName = string.Empty;
-		SecurePassword.Clear();
+		SecurePassword?.Dispose();
+		SecurePassword = null;
 
 		// Not required as Password is just an unsecure version of SecurePassword
 		//Password = string.Empty;
@@ -151,19 +151,19 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 	}
 
 	/// <inheritdoc />
-	public bool ShouldUpdate(Credential update)
+	public bool ShouldUpdate(ICredential update)
 	{
 		return true;
 	}
 
 	/// <inheritdoc />
-	public bool TryUpdateWith(Credential update, params string[] exclusions)
+	public bool TryUpdateWith(ICredential update, params string[] exclusions)
 	{
 		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
 	}
 
 	/// <inheritdoc />
-	public bool UpdateWith(Credential update, params string[] exclusions)
+	public bool UpdateWith(ICredential update, params string[] exclusions)
 	{
 		// If the update is null then there is nothing to do.
 		if (update == null)
@@ -175,12 +175,12 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 
 		if (exclusions.Length <= 0)
 		{
-			SecurePassword = update.SecurePassword;
+			SecurePassword = update.SecurePassword?.Copy();
 			UserName = update.UserName;
 		}
 		else
 		{
-			this.IfThen(_ => !exclusions.Contains(nameof(SecurePassword)), x => x.SecurePassword = update.SecurePassword);
+			this.IfThen(_ => !exclusions.Contains(nameof(SecurePassword)), x => x.SecurePassword = update.SecurePassword?.Copy());
 			this.IfThen(_ => !exclusions.Contains(nameof(UserName)), x => x.UserName = update.UserName);
 		}
 
@@ -195,6 +195,7 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 			TokenCredential credential => UpdateWith(credential, exclusions),
 			WebCredential credential => UpdateWith(credential, exclusions),
 			Credential credential => UpdateWith(credential, exclusions),
+			ICredential credential => UpdateWith(credential, exclusions),
 			_ => base.UpdateWith(update, exclusions)
 		};
 	}
@@ -210,8 +211,50 @@ public class Credential : Bindable, IDisposable, IUpdateable<Credential>
 			return;
 		}
 
-		SecurePassword?.Dispose();
+		Reset();
 	}
 
 	#endregion
+}
+
+/// <summary>
+/// Represents a credential.
+/// </summary>
+public interface ICredential
+{
+	/// <summary>
+	/// Represents the password for the credential.
+	/// </summary>
+	string Password { get; set; }
+
+	/// <summary>
+	/// Represents the secure password for the credential.
+	/// </summary>
+	SecureString SecurePassword { get; set; }
+
+	/// <summary>
+	/// Represents the username for the credential.
+	/// </summary>
+	string UserName { get; set; }
+
+	/// <summary>
+	/// Gets the credential as an authentication header value.
+	/// </summary>
+	AuthenticationHeaderValue GetAuthenticationHeaderValue();
+
+	/// <summary>
+	/// Determines if the credentials have been provided.
+	/// </summary>
+	/// <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
+	bool HasCredentials();
+
+	/// <summary>
+	/// Load the credential from an authentication header value.
+	/// </summary>
+	void Load(AuthenticationHeaderValue value);
+
+	/// <summary>
+	/// Reset the credential.
+	/// </summary>
+	void Reset();
 }

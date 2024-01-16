@@ -14,9 +14,26 @@ public class TokenCredentialTests : SpeedyUnitTest
 	#region Methods
 
 	[TestMethod]
-	public void Reset()
+	public void Dispose()
 	{
-		var credential = new TokenCredential("password");
+		var actual = new TokenCredential("password");
+		IsTrue(actual.HasCredentials());
+		AreEqual(string.Empty, actual.UserName);
+		AreEqual("password", actual.Password);
+		AreEqual(8, actual.SecurePassword.Length);
+		AreEqual("password", actual.SecurePassword.ToUnsecureString());
+
+		actual.Dispose();
+		AreEqual(string.Empty, actual.UserName);
+		AreEqual(string.Empty, actual.Password);
+		AreEqual(null, actual.SecurePassword);
+	}
+
+
+	[TestMethod]
+	public void ResetCredential()
+	{
+		using var credential = new TokenCredential("password");
 		IsTrue(credential.HasCredentials());
 
 		credential.Reset();
@@ -26,7 +43,7 @@ public class TokenCredentialTests : SpeedyUnitTest
 	[TestMethod]
 	public void ToAndFromHeaderValue()
 	{
-		var credential = new TokenCredential("password");
+		using var credential = new TokenCredential("password");
 		var headerValue = credential.GetAuthenticationHeaderValue();
 		AreEqual("Bearer", headerValue.Scheme);
 		AreEqual("cGFzc3dvcmQ=", headerValue.Parameter);
@@ -34,7 +51,7 @@ public class TokenCredentialTests : SpeedyUnitTest
 		var token = headerValue.Parameter.FromBase64String();
 		AreEqual("password", token);
 
-		var actualCredential = TokenCredential.FromAuthenticationHeaderValue(headerValue);
+		using var actualCredential = TokenCredential.FromAuthenticationHeaderValue(headerValue);
 		AreEqual(credential, actualCredential);
 		AreEqual("password", actualCredential.Password);
 	}
@@ -42,10 +59,10 @@ public class TokenCredentialTests : SpeedyUnitTest
 	[TestMethod]
 	public void UpdateWith()
 	{
-		var credential = new TokenCredential("password");
+		using var credential = new TokenCredential("password");
 		IsTrue(credential.HasCredentials());
 
-		var actual = new TokenCredential();
+		using var actual = new TokenCredential();
 		AreNotEqual(credential, actual);
 		AreEqual(string.Empty, actual.UserName);
 		AreEqual(string.Empty, actual.Password);

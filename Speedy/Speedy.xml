@@ -9598,6 +9598,14 @@
             <param name="password"> The password of the credential. </param>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
+        <member name="M:Speedy.Net.Credential.#ctor(System.String,System.Security.SecureString,Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+            <param name="username"> The username of the credential. </param>
+            <param name="password"> The password of the credential. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
         <member name="P:Speedy.Net.Credential.Password">
             <summary>
             Represents the password for the credential.
@@ -9610,17 +9618,12 @@
         </member>
         <member name="P:Speedy.Net.Credential.UserName">
             <summary>
-            Represents the user name for the credential.
+            Represents the username for the credential.
             </summary>
         </member>
         <member name="M:Speedy.Net.Credential.Dispose">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-        </member>
-        <member name="M:Speedy.Net.Credential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
-            <summary>
-            Gets the credential from an authentication header value.
             </summary>
         </member>
         <member name="M:Speedy.Net.Credential.GetAuthenticationHeaderValue">
@@ -9644,13 +9647,13 @@
             Reset the credential.
             </summary>
         </member>
-        <member name="M:Speedy.Net.Credential.ShouldUpdate(Speedy.Net.Credential)">
+        <member name="M:Speedy.Net.Credential.ShouldUpdate(Speedy.Net.ICredential)">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Net.Credential.TryUpdateWith(Speedy.Net.Credential,System.String[])">
+        <member name="M:Speedy.Net.Credential.TryUpdateWith(Speedy.Net.ICredential,System.String[])">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Net.Credential.UpdateWith(Speedy.Net.Credential,System.String[])">
+        <member name="M:Speedy.Net.Credential.UpdateWith(Speedy.Net.ICredential,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Net.Credential.UpdateWith(System.Object,System.String[])">
@@ -9661,6 +9664,47 @@
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
             <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
+        <member name="T:Speedy.Net.ICredential">
+            <summary>
+            Represents a credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.ICredential.Password">
+            <summary>
+            Represents the password for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.ICredential.SecurePassword">
+            <summary>
+            Represents the secure password for the credential.
+            </summary>
+        </member>
+        <member name="P:Speedy.Net.ICredential.UserName">
+            <summary>
+            Represents the username for the credential.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.ICredential.GetAuthenticationHeaderValue">
+            <summary>
+            Gets the credential as an authentication header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.ICredential.HasCredentials">
+            <summary>
+            Determines if the credentials have been provided.
+            </summary>
+            <returns> Returns true if both UserName and Password both is not null or whitespace. </returns>
+        </member>
+        <member name="M:Speedy.Net.ICredential.Load(System.Net.Http.Headers.AuthenticationHeaderValue)">
+            <summary>
+            Load the credential from an authentication header value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.ICredential.Reset">
+            <summary>
+            Reset the credential.
+            </summary>
         </member>
         <member name="T:Speedy.Net.FileDownloader">
             <summary>
@@ -10030,6 +10074,13 @@
             <param name="password"> The token of the credential. </param>
             <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
+        <member name="M:Speedy.Net.TokenCredential.#ctor(System.Security.SecureString,Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the credential.
+            </summary>
+            <param name="password"> The token of the credential. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
         <member name="M:Speedy.Net.TokenCredential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
             <summary>
             Gets the credential from an authentication header value.
@@ -10047,18 +10098,6 @@
             <returns> Returns true if the Password is not null or whitespace. </returns>
         </member>
         <member name="M:Speedy.Net.TokenCredential.Load(System.Net.Http.Headers.AuthenticationHeaderValue)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Net.TokenCredential.ShouldUpdate(Speedy.Net.TokenCredential)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Net.TokenCredential.TryUpdateWith(Speedy.Net.TokenCredential,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Net.TokenCredential.UpdateWith(Speedy.Net.TokenCredential,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Net.TokenCredential.UpdateWith(System.Object,System.String[])">
             <inheritdoc />
         </member>
         <member name="T:Speedy.Net.WebClient">
@@ -10298,6 +10337,11 @@
         <member name="P:Speedy.Net.WebCredential.RememberMe">
             <summary>
             Gets or sets a flag indicating to remember the user.
+            </summary>
+        </member>
+        <member name="M:Speedy.Net.WebCredential.FromAuthenticationHeaderValue(System.Net.Http.Headers.AuthenticationHeaderValue)">
+            <summary>
+            Gets the credential from an authentication header value.
             </summary>
         </member>
         <member name="M:Speedy.Net.WebCredential.Reset">
@@ -18000,6 +18044,16 @@
         <member name="F:Speedy.Sync.SyncIssueType.ClientNotSupported">
             <summary>
             The client is not supported by this server.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncIssueType.ValidationException">
+            <summary>
+            The item could not be stored due to a validation exception.
+            </summary>
+        </member>
+        <member name="F:Speedy.Sync.SyncIssueType.ServiceUnavailable">
+            <summary>
+            The sync client was not able to access the server.
             </summary>
         </member>
         <member name="T:Speedy.Sync.SyncManager`1">

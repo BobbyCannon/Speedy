@@ -41,10 +41,26 @@ Start-WebAppPool -Name "Speedy"
 # Need to add readme to all packages
 # https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
 #
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 1 -Verbose
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 1 -VersionSuffix 'RC'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 3 -Verbose
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 3 -VersionSuffix 'RC'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
+
+#
+# Remove local dev build cached
+#
+
+$packages = @("speedy", "speedy.application", "speedy.application.uwp", "speedy.application.web",
+	"speedy.application.wpf", "speedy.application.xamarin", "speedy.automation", "speedy.entityframework",
+	"speedy.servicehosting"
+)
+
+foreach ($package in $packages)
+{
+	Remove-Item "C:\Users\bobby\.nuget\packages\$package" -Recurse -ErrorAction Ignore
+}
+
+ii C:\Users\bobby\.nuget\packages
 
 #
 # Releasing / Nugets

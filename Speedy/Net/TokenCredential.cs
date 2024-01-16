@@ -14,7 +14,7 @@ namespace Speedy.Net;
 /// <summary>
 /// Represents a bearer credential for a client.
 /// </summary>
-public class TokenCredential : Credential, IUpdateable<TokenCredential>
+public class TokenCredential : Credential
 {
 	#region Constructors
 
@@ -38,9 +38,19 @@ public class TokenCredential : Credential, IUpdateable<TokenCredential>
 	/// </summary>
 	/// <param name="password"> The token of the credential. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public TokenCredential(string password, IDispatcher dispatcher = null) : base(dispatcher)
+	public TokenCredential(string password, IDispatcher dispatcher = null)
+		: this(password?.ToSecureString(), dispatcher)
 	{
-		SecurePassword = password?.ToSecureString();
+	}
+
+	/// <summary>
+	/// Creates an instance of the credential.
+	/// </summary>
+	/// <param name="password"> The token of the credential. </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	public TokenCredential(SecureString password, IDispatcher dispatcher = null)
+		: base(string.Empty, password, dispatcher)
+	{
 	}
 
 	#endregion
@@ -50,7 +60,7 @@ public class TokenCredential : Credential, IUpdateable<TokenCredential>
 	/// <summary>
 	/// Gets the credential from an authentication header value.
 	/// </summary>
-	public new static TokenCredential FromAuthenticationHeaderValue(AuthenticationHeaderValue headerValue)
+	public static TokenCredential FromAuthenticationHeaderValue(AuthenticationHeaderValue headerValue)
 	{
 		if (!string.Equals(headerValue.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase))
 		{
@@ -83,55 +93,6 @@ public class TokenCredential : Credential, IUpdateable<TokenCredential>
 	public override void Load(AuthenticationHeaderValue value)
 	{
 		Password = value?.Parameter.FromBase64String();
-	}
-
-	/// <inheritdoc />
-	public bool ShouldUpdate(TokenCredential update)
-	{
-		return true;
-	}
-
-	/// <inheritdoc />
-	public bool TryUpdateWith(TokenCredential update, params string[] exclusions)
-	{
-		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
-	}
-
-	/// <inheritdoc />
-	public bool UpdateWith(TokenCredential update, params string[] exclusions)
-	{
-		// If the update is null then there is nothing to do.
-		if (update == null)
-		{
-			return false;
-		}
-
-		// ****** You can use CodeGeneratorTests.GenerateUpdateWith to update this ******
-
-		if (exclusions.Length <= 0)
-		{
-			UserName = update.UserName;
-			SecurePassword = update.SecurePassword;
-		}
-		else
-		{
-			this.IfThen(_ => !exclusions.Contains(nameof(UserName)), x => x.UserName = update.UserName);
-			this.IfThen(_ => !exclusions.Contains(nameof(SecurePassword)), x => x.SecurePassword = update.SecurePassword);
-		}
-
-		return true;
-	}
-
-	/// <inheritdoc />
-	public override bool UpdateWith(object update, params string[] exclusions)
-	{
-		return update switch
-		{
-			TokenCredential credential => UpdateWith(credential, exclusions),
-			WebCredential credential => UpdateWith(credential, exclusions),
-			Credential credential => UpdateWith(credential, exclusions),
-			_ => base.UpdateWith(update, exclusions)
-		};
 	}
 
 	#endregion
