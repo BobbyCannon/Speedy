@@ -248,7 +248,6 @@ namespace Speedy.Sync
 		{
 			var issues = new ServiceRequest<SyncIssue>();
 			var request = new SyncRequest { Since = since, Until = until, Skip = 0 };
-			var response = new Dictionary<Guid, DateTime>();
 			bool hasMore;
 
 			UpdateSyncState($"{sourceClient.Name} to {destinationClient.Name}.");
@@ -276,7 +275,7 @@ namespace Speedy.Sync
 				// Capture all items that were synced without issue
 				foreach (var syncObject in request.Collection.Where(x => issues.Collection.All(i => i.Id != x.SyncId)))
 				{
-					response.AddOrUpdate(syncObject.SyncId, syncObject.ModifiedOn);
+					exclude.AddOrUpdate(syncObject.SyncId, syncObject.ModifiedOn);
 				}
 
 				UpdateSyncState(count: request.Skip, total: changes.TotalCount);
@@ -373,7 +372,7 @@ namespace Speedy.Sync
 				State.Total = total.Value;
 			}
 
-			SyncStateChanged?.Invoke(this, (SyncEngineState) State.DeepClone());
+			SyncStateChanged?.Invoke(this, State.DeepClone());
 		}
 
 		private void WaitForRunToStop(TimeSpan? timeout)

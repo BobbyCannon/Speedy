@@ -49,3 +49,9 @@ _handler.ServerCertificateCustomValidationCallback += OnServerCertificateCustomV
 
 - https://lvcharts.com/
 -
+
+# Research
+
+Xamarin / Maui memory leaks
+
+https://github.com/dotnet/maui/issues/12039

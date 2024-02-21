@@ -29,21 +29,21 @@
 		<ProjectReference Include="..\..\Website\Speedy.Website.Data.Sql\Speedy.Website.Data.Sql.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows10.0.19041.0' or '$(TargetFramework)' == 'net7.0-windows10.0.19041.0'">
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.15">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.16">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.15">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.16">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041.0'">
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.1">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

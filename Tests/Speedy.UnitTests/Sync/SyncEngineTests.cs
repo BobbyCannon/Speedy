@@ -9,113 +9,133 @@ using Speedy.Website.Data.Entities;
 
 #endregion
 
-namespace Speedy.UnitTests.Sync
+namespace Speedy.UnitTests.Sync;
+
+[TestClass]
+public class SyncEngineTests : SpeedyUnitTest
 {
-	[TestClass]
-	public class SyncEngineTests : SpeedyUnitTest
+	#region Methods
+
+	[TestMethod]
+	public void PullDownShouldNotPushClientContent()
 	{
-		#region Methods
+		var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+		var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
 
-		[TestMethod]
-		public void PullDownShouldNotPushClientContent()
-		{
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
+		client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
 
-			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
+		var options = new SyncOptions { SyncDirection = SyncDirection.PullDown };
+		using var engine = SyncEngine.Run(client, server, options);
+		var issues = engine.SyncIssues;
+		Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
 
-			var options = new SyncOptions { SyncDirection = SyncDirection.PullDown };
-			using var engine = SyncEngine.Run(client, server, options);
-			var issues = engine.SyncIssues;
-			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+		using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+		using var serverDatabase = server.GetDatabase<IContosoDatabase>();
 
-			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
-			using var serverDatabase = server.GetDatabase<IContosoDatabase>();
-
-			var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			Assert.AreEqual(1, addresses1.Count);
-			Assert.AreEqual(0, addresses2.Count);
-		}
-
-		[TestMethod]
-		public void PullDownShouldSuccessButShouldNotPushClientContent()
-		{
-			TimeService.Reset();
-
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
-
-			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Hello World"));
-			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Foo Bar"));
-
-			var options = new SyncOptions { SyncDirection = SyncDirection.PullDown };
-			using var engine = SyncEngine.Run(client, server, options);
-			var issues = engine.SyncIssues;
-			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-
-			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
-			using var serverDatabase = server.GetDatabase<IContosoDatabase>();
-
-			var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			Assert.AreEqual(2, addresses1.Count);
-			Assert.AreEqual(1, addresses2.Count);
-
-			Assert.AreNotEqual(addresses1[0].Line1, addresses2[0].Line1);
-			Assert.AreEqual(addresses1[1].Line1, addresses2[0].Line1);
-		}
-
-		[TestMethod]
-		public void PushUpShouldNotPullServerContent()
-		{
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
-
-			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
-
-			var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
-			using var engine = SyncEngine.Run(client, server, options);
-			var issues = engine.SyncIssues;
-			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-
-			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
-			using var serverDatabase = server.GetDatabase<IContosoDatabase>();
-
-			var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			Assert.AreEqual(0, addresses1.Count);
-			Assert.AreEqual(1, addresses2.Count);
-		}
-
-		[TestMethod]
-		public void PushUpShouldSuccessButShouldNotPullServerContent()
-		{
-			TimeService.Reset();
-
-			var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
-			var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
-
-			client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Hello World"));
-			server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Foo Bar"));
-
-			var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
-			using var engine = SyncEngine.Run(client, server, options);
-			var issues = engine.SyncIssues;
-			Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
-
-			using var clientDatabase = client.GetDatabase<IContosoDatabase>();
-			using var serverDatabase = server.GetDatabase<IContosoDatabase>();
-
-			var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
-			Assert.AreEqual(1, addresses1.Count);
-			Assert.AreEqual(2, addresses2.Count);
-
-			Assert.AreNotEqual(addresses1[0].Line1, addresses2[0].Line1);
-			Assert.AreEqual(addresses1[0].Line1, addresses2[1].Line1);
-		}
-
-		#endregion
+		var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		Assert.AreEqual(1, addresses1.Count);
+		Assert.AreEqual(0, addresses2.Count);
 	}
+
+	[TestMethod]
+	public void PullDownShouldSuccessButShouldNotPushClientContent()
+	{
+		TimeService.Reset();
+
+		var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+		var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
+
+		client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Hello World"));
+		server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Foo Bar"));
+
+		var options = new SyncOptions { SyncDirection = SyncDirection.PullDown };
+		using var engine = SyncEngine.Run(client, server, options);
+		var issues = engine.SyncIssues;
+		Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+		using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+		using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+
+		var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		Assert.AreEqual(2, addresses1.Count);
+		Assert.AreEqual(1, addresses2.Count);
+
+		Assert.AreNotEqual(addresses1[0].Line1, addresses2[0].Line1);
+		Assert.AreEqual(addresses1[1].Line1, addresses2[0].Line1);
+	}
+
+	[TestMethod]
+	public void PushUpShouldNotPullServerContent()
+	{
+		var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+		var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
+
+		server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
+
+		var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
+		using var engine = SyncEngine.Run(client, server, options);
+		var issues = engine.SyncIssues;
+		Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+		using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+		using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+
+		var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		Assert.AreEqual(0, addresses1.Count);
+		Assert.AreEqual(1, addresses2.Count);
+	}
+
+	[TestMethod]
+	public void PushUpShouldSuccessButShouldNotPullServerContent()
+	{
+		TimeService.Reset();
+
+		var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+		var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
+
+		client.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Hello World"));
+		server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress(line1: "Foo Bar"));
+
+		var options = new SyncOptions { SyncDirection = SyncDirection.PushUp };
+		using var engine = SyncEngine.Run(client, server, options);
+		var issues = engine.SyncIssues;
+		Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+		using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+		using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+
+		var addresses1 = clientDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		var addresses2 = serverDatabase.Addresses.OrderBy(x => x.Id).ToList();
+		Assert.AreEqual(1, addresses1.Count);
+		Assert.AreEqual(2, addresses2.Count);
+
+		Assert.AreNotEqual(addresses1[0].Line1, addresses2[0].Line1);
+		Assert.AreEqual(addresses1[0].Line1, addresses2[1].Line1);
+	}
+
+	[TestMethod]
+	public void SyncShouldNotSendItemsBackUp()
+	{
+		var client = new SyncClient("Client", TestHelper.GetSyncableMemoryProvider(initialize: false));
+		var server = new SyncClient("Server", TestHelper.GetSyncableMemoryProvider(initialize: false));
+
+		server.GetDatabase<IContosoDatabase>().AddSaveAndCleanup<AddressEntity, long>(EntityFactory.GetAddress());
+
+		IncrementTime(seconds: 1);
+
+		using var engine = SyncEngine.Run(client, server, new SyncOptions());
+		var issues = engine.SyncIssues;
+		Assert.AreEqual(0, issues.Count, string.Join(",", issues.Select(x => x.Message)));
+
+		using var clientDatabase = client.GetDatabase<IContosoDatabase>();
+		using var serverDatabase = server.GetDatabase<IContosoDatabase>();
+
+		AreEqual("1,0,1,0,0", engine.Client.Statistics.ToString());
+		AreEqual("1,0,0,0,0", engine.Server.Statistics.ToString());
+	}
+
+	#endregion
 }

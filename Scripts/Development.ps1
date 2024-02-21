@@ -17,7 +17,7 @@ Clear-Host
 Stop-WebAppPool -Name "Speedy" -ErrorAction Ignore
 Get-Process vbcs* | Stop-Process
 
-& 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net7.0'
+& 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net8.0'
 
 Start-WebAppPool -Name "Speedy"
 
@@ -28,21 +28,22 @@ Start-WebAppPool -Name "Speedy"
 #
 
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug"
+& 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net7.0'
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'net6.0'
 & 'C:\Workspaces\GitHub\Speedy\Deploy.ps1' -Configuration "Debug" -TargetFramework 'netcoreapp3.1'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 1 -Build 0
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 1 -Build +
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build 5
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build +
 # Open-File "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1"
 
 #
 # Need to add readme to all packages
 # https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
 #
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 4 -Verbose
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 4 -VersionSuffix 'RC'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 5 -Verbose
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 5 -VersionSuffix 'RC'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 

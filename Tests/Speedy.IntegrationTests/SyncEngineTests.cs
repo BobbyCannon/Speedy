@@ -315,7 +315,7 @@ namespace Speedy.IntegrationTests
 
 				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
-				var expected = client.Name.Contains("WEB") ? 18 : server.Name.Contains("WEB") ? 10 : 16;
+				var expected = client.Name.Contains("WEB") ? 18 : server.Name.Contains("WEB") ? 10 : 14;
 				Assert.AreEqual(expected, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
 
 				using var clientDatabase = client.GetDatabase<IContosoDatabase>();
@@ -371,7 +371,7 @@ namespace Speedy.IntegrationTests
 
 				Assert.AreEqual(0, engine.SyncIssues.Count, string.Join(",", engine.SyncIssues.Select(x => x.Message)));
 
-				var expected = client.Name.Contains("WEB") ? 18 : server.Name.Contains("WEB") ? 10 : 16;
+				var expected = client.Name.Contains("WEB") ? 18 : server.Name.Contains("WEB") ? 10 : 14;
 				Assert.AreEqual(expected, listener.Events.Count, string.Join("\r\n", listener.Events.Select(x => x.GetMessage())));
 
 				using var clientDatabase = client.GetDatabase<IContosoDatabase>();

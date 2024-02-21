@@ -19000,6 +19000,9 @@
             Allows resetting of the sync statistics.
             </summary>
         </member>
+        <member name="M:Speedy.Sync.SyncStatistics.ToString">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Sync.SyncStatistics.UpdateWith(Speedy.Sync.SyncStatistics,System.String[])">
             <summary>
             Update the SyncStatistics with an update.

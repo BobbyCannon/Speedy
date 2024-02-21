@@ -54,13 +54,13 @@ namespace Speedy.AutomationTests.Web
 				var email = browser.First<TextInput>("email");
 				email.SendKeys("user", true);
 
-				var expected = "ng-valid-parse ng-untouched ng-scope ng-invalid ng-not-empty ng-dirty ng-invalid-email ng-valid-required".Split(' ');
+				var expected = "ng-valid-parse ng-untouched ng-scope ng-invalid ng-not-empty ng-dirty ng-invalid-email ng-valid-required".Split(' ').OrderBy(x => x);
 				var actual = email.GetAttributeValue("class", true).Split(' ');
 				AreEqual("user", email.Text);
 				AreEqual(expected, actual);
 
 				email.SendKeys("@domain.com");
-				expected = "ng-valid-parse ng-untouched ng-scope ng-not-empty ng-dirty ng-valid-required ng-valid ng-valid-email".Split(' ');
+				expected = "ng-valid-parse ng-untouched ng-scope ng-not-empty ng-dirty ng-valid-required ng-valid ng-valid-email".Split(' ').OrderBy(x => x);
 				actual = email.GetAttributeValue("class", true).Split(' ');
 				AreEqual("user@domain.com", email.Text);
 				AreEqual(expected, actual);
