@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Speedy.Extensions;
 
 #endregion
@@ -35,9 +34,8 @@ public class OrderBy<T>
 	/// </summary>
 	/// <param name="keySelector"> The </param>
 	/// <param name="descending"> True to order descending and otherwise sort ascending. Default value is false for ascending order. </param>
-	public OrderBy(Expression<Func<T, object>> keySelector, bool descending = false)
+	public OrderBy(Func<T, object> keySelector, bool descending = false)
 	{
-		CompiledKeySelector = keySelector.Compile();
 		KeySelector = keySelector;
 		Descending = descending;
 	}
@@ -54,12 +52,7 @@ public class OrderBy<T>
 	/// <summary>
 	/// A function to extract a key from an element.
 	/// </summary>
-	public Expression<Func<T, object>> KeySelector { get; set; }
-
-	/// <summary>
-	/// The compiled function for extracting a key from an element.
-	/// </summary>
-	internal Func<T, object> CompiledKeySelector { get; }
+	public Func<T, object> KeySelector { get; set; }
 
 	#endregion
 
@@ -125,38 +118,6 @@ public class OrderBy<T>
 	/// <returns> The ordered queryable for the provided query. </returns>
 	public IOrderedEnumerable<T> Process(IEnumerable<T> query, params OrderBy<T>[] thenBys)
 	{
-		var response = Descending
-			? query.OrderByDescending(CompiledKeySelector)
-			: query.OrderBy(CompiledKeySelector);
-
-		if (thenBys is not { Length: > 0 })
-		{
-			return response;
-		}
-
-		foreach (var thenBy in thenBys)
-		{
-			response = thenBy.Descending
-				? response.ThenByDescending(thenBy.CompiledKeySelector)
-				: response.ThenBy(thenBy.CompiledKeySelector);
-		}
-
-		return response;
-	}
-
-	/// <summary>
-	/// Processes a query through the "order by" that will return the query ordered base on the value.
-	/// </summary>
-	/// <param name="query"> The query to order. </param>
-	/// <param name="thenBys"> An optional set of subsequent orderings. </param>
-	/// <returns> The ordered queryable for the provided query. </returns>
-	public IOrderedQueryable<T> Process(IQueryable<T> query, params OrderBy<T>[] thenBys)
-	{
-		if (KeySelector == null)
-		{
-			return (IOrderedQueryable<T>) query;
-		}
-
 		var response = Descending
 			? query.OrderByDescending(KeySelector)
 			: query.OrderBy(KeySelector);

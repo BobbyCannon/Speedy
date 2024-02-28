@@ -1084,7 +1084,7 @@
             </summary>
             <param name="descending"> True to order descending and otherwise sort ascending. Default value is false for ascending order. </param>
         </member>
-        <member name="M:Speedy.Collections.OrderBy`1.#ctor(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Boolean)">
+        <member name="M:Speedy.Collections.OrderBy`1.#ctor(System.Func{`0,System.Object},System.Boolean)">
             <summary>
             Instantiate an instance of the order by value.
             </summary>
@@ -1099,11 +1099,6 @@
         <member name="P:Speedy.Collections.OrderBy`1.KeySelector">
             <summary>
             A function to extract a key from an element.
-            </summary>
-        </member>
-        <member name="P:Speedy.Collections.OrderBy`1.CompiledKeySelector">
-            <summary>
-            The compiled function for extracting a key from an element.
             </summary>
         </member>
         <member name="M:Speedy.Collections.OrderBy`1.GetInsertIndex``1(System.Collections.Generic.IList{``0},``0,Speedy.Collections.OrderBy{``0}[])">
@@ -1126,14 +1121,6 @@
             <returns> The ordered list. </returns>
         </member>
         <member name="M:Speedy.Collections.OrderBy`1.Process(System.Collections.Generic.IEnumerable{`0},Speedy.Collections.OrderBy{`0}[])">
-            <summary>
-            Processes a query through the "order by" that will return the query ordered base on the value.
-            </summary>
-            <param name="query"> The query to order. </param>
-            <param name="thenBys"> An optional set of subsequent orderings. </param>
-            <returns> The ordered queryable for the provided query. </returns>
-        </member>
-        <member name="M:Speedy.Collections.OrderBy`1.Process(System.Linq.IQueryable{`0},Speedy.Collections.OrderBy{`0}[])">
             <summary>
             Processes a query through the "order by" that will return the query ordered base on the value.
             </summary>
@@ -7303,7 +7290,7 @@
             <param name="tranform"> The function to transform the results. </param>
             <returns> The paged results. </returns>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResults``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Func{``0,System.Object})">
             <summary>
             Gets paged results. Transform is executed as part of the query.
             </summary>
@@ -7339,7 +7326,7 @@
             <param name="transform"> The function to transfer the results. </param>
             <returns> The paged results. </returns>
         </member>
-        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResultsClientTransform``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},System.Linq.Expressions.Expression{System.Func{``0,System.Object}})">
+        <member name="M:Speedy.Extensions.QueryableExtensions.GetPagedResultsClientTransform``2(System.Linq.IQueryable{``0},Speedy.PagedRequest,System.Func{``0,``1},System.Func{``0,System.Object})">
             <summary>
             Gets paged results. Transform is executed on the client after the results are queried.
             </summary>

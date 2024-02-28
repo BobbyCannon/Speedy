@@ -67,7 +67,7 @@ public static class QueryableExtensions
 	/// <param name="tranform"> The function to transfer the results. </param>
 	/// <param name="order"> An optional order of the collection. </param>
 	/// <returns> The paged results. </returns>
-	public static PagedResults<T2> GetPagedResults<T1, T2>(this IQueryable<T1> query, PagedRequest request, Expression<Func<T1, T2>> tranform, Expression<Func<T1, object>> order)
+	public static PagedResults<T2> GetPagedResults<T1, T2>(this IQueryable<T1> query, PagedRequest request, Expression<Func<T1, T2>> tranform, Func<T1, object> order)
 	{
 		return GetPagedResults(query, request, tranform, order == null ? null : new OrderBy<T1>(order));
 	}
@@ -85,7 +85,7 @@ public static class QueryableExtensions
 	/// <returns> The paged results. </returns>
 	public static PagedResults<T2> GetPagedResults<T1, T2>(this IQueryable<T1> query, PagedRequest request, Expression<Func<T1, T2>> transform, OrderBy<T1> order, params OrderBy<T1>[] thenBys)
 	{
-		var orderedQuery = order?.Process(query, thenBys) ?? query;
+		var orderedQuery = order?.Process(query, thenBys).AsQueryable() ?? query;
 		var total = query.Count();
 		var results = orderedQuery
 			.Skip((request.Page - 1) * request.PerPage)
@@ -130,7 +130,7 @@ public static class QueryableExtensions
 	/// <param name="transform"> The function to transfer the results. </param>
 	/// <param name="order"> An optional order of the collection. </param>
 	/// <returns> The paged results. </returns>
-	public static PagedResults<T2> GetPagedResultsClientTransform<T1, T2>(this IQueryable<T1> query, PagedRequest request, Func<T1, T2> transform, Expression<Func<T1, object>> order)
+	public static PagedResults<T2> GetPagedResultsClientTransform<T1, T2>(this IQueryable<T1> query, PagedRequest request, Func<T1, T2> transform, Func<T1, object> order)
 	{
 		return GetPagedResultsClientTransform(query, request, transform, order == null ? null : new OrderBy<T1>(order));
 	}
@@ -148,7 +148,7 @@ public static class QueryableExtensions
 	/// <returns> The paged results. </returns>
 	public static PagedResults<T2> GetPagedResultsClientTransform<T1, T2>(this IQueryable<T1> query, PagedRequest request, Func<T1, T2> transform, OrderBy<T1> order, params OrderBy<T1>[] thenBys)
 	{
-		var orderedQuery = order?.Process(query, thenBys) ?? query;
+		var orderedQuery = order?.Process(query, thenBys).AsQueryable() ?? query;
 		var total = query.Count();
 		var results = orderedQuery
 			.Skip((request.Page - 1) * request.PerPage)
