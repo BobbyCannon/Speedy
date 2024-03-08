@@ -1,25 +1,11 @@
-﻿# Speedy, Speedy.EntityFramework
+﻿# Speedy is no longer active
 
-Speedy is a simple easy to use Entity Framework unit testing framework, sync framework, and all around data framework.
+```
+This repository has been soft archived by the owner on March 8, 2024. It is now read-only except for small bug fixes.
+```
 
-# Speedy.Application
+# Cornerstone
 
-Speedy Application is a simple easy to use framework that helps solve some of the repetitive task when creating applications. Below are the included sub platforms.
+Cornerstone is the replacement for Speedy.
 
-- Speedy.Application.Maui
-- Speedy.Application.Uwp
-- Speedy.Application.Web
-- Speedy.Application.Wpf
-
-#### Could not load file or assembly Microsoft.Management.Infrastructure
-
-Some deployment require "Win7-x64" instead of "Win-x64", https://stackoverflow.com/questions/56352672
-
-# Speedy.Automation
-
-Integration testing framework for developers. Speedy.Automation allows automating testing of desktop and web applications.
-
-# Speedy.ServiceHosting
-
-Speedy is a simple easy to use service hosting framework.
-
+https://github.com/BobbyCannon/Cornerstone
