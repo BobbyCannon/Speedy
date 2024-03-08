@@ -1,7 +1,8 @@
 ﻿# Speedy is no longer active
 
 ```
-This repository has been soft archived by the owner on March 8, 2024. It is now read-only except for small bug fixes.
+This repository has been soft archived by the owner on March 8, 2024.
+It is now read-only except for small bug fixes.
 ```
 
 # Cornerstone
