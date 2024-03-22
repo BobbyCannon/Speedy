@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Speedy.Extensions;
 
 #endregion
@@ -105,6 +104,7 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 		Expression<Func<T, bool>> incomingFilter = null,
 		Func<T, Expression<Func<T, bool>>> lookupFilter = null,
 		bool skipDeletedItemsOnInitialSync = true)
+		where T : ISyncEntity
 	{
 		AddSyncableFilter(new SyncRepositoryFilter<T>(outgoingFilter, incomingFilter, lookupFilter, skipDeletedItemsOnInitialSync));
 	}
@@ -272,10 +272,11 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 		}
 
 		// Find the "ShouldFilterEntity" method so we can invoke it
-		var methods = filter.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
+		//var methods = filter.GetType().GetCachedMethods(BindingFlags.Public | BindingFlags.Instance);
 		// todo: cache this method, why keep reflecting...
-		var method = methods.First(x => x.Name == nameof(ShouldFilterIncomingEntity));
-		return (bool) method.Invoke(filter, new object[] { entity });
+		//var method = methods.First(x => x.Name == nameof(ShouldFilterIncomingEntity));
+		//return (bool) method.Invoke(filter, new object[] { entity });
+		return filter.ShouldFilterIncomingEntity(entity);
 	}
 
 	/// <summary>

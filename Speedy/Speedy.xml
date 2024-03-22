@@ -1311,19 +1311,20 @@
             <param name="dispatcher"> The optional dispatcher to use. </param>
             <param name="items"> An optional set. </param>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher)">
-            <summary>
-            Create an instance of the list.
-            </summary>
-            <param name="readerWriterLock"> An optional lock. Defaults to <see cref="T:Speedy.Threading.ReaderWriterLockTiny" /> if not provided. </param>
-            <param name="dispatcher"> The optional dispatcher to use. </param>
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[])">
             <summary>
             Create an instance of the list.
             </summary>
             <param name="dispatcher"> The optional dispatcher to use. </param>
             <param name="orderBy"> The optional set of order by settings. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[],`0[])">
+            <summary>
+            Create an instance of the list.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+            <param name="orderBy"> The optional set of order by settings. </param>
+            <param name="items"> An optional set. </param>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher,Speedy.Collections.OrderBy{`0}[],`0[])">
             <summary>
@@ -1406,21 +1407,16 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Add(`0)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.Add(System.Object)">
-            <inheritdoc />
+            <summary>
+            Add an item to the list.
+            </summary>
+            <param name="item"> The item to add. </param>
+            <returns> The index where the item exist after add. </returns>
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Clear">
             <inheritdoc cref="T:System.Collections.IList" />
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.Contains(System.Object)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Contains(`0)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.CopyTo(System.Array,System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.CopyTo(`0[],System.Int32)">
@@ -1455,9 +1451,6 @@
         <member name="M:Speedy.Collections.SpeedyList`1.GetEnumerator">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.IndexOf(System.Object)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.IndexOf(`0)">
             <inheritdoc />
         </member>
@@ -1465,9 +1458,6 @@
             <summary>
             Initialize the profiler to allow tracking of list events.
             </summary>
-        </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.Insert(System.Int32,System.Object)">
-            <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Insert(System.Int32,`0)">
             <inheritdoc />
@@ -1534,9 +1524,6 @@
             Refresh the filter.
             </summary>
         </member>
-        <member name="M:Speedy.Collections.SpeedyList`1.Remove(System.Object)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Remove(`0)">
             <inheritdoc />
         </member>
@@ -1592,7 +1579,25 @@
             </summary>
             <returns> True if the list should order or false otherwise. </returns>
         </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#Generic#ICollection{T}#Add(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IList#Add(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IList#Contains(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#ICollection#CopyTo(System.Array,System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IList#IndexOf(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IList#Insert(System.Int32,System.Object)">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.InternalLoad(`0[])">
@@ -1600,6 +1605,9 @@
             Loads the items into the list. All existing items will be cleared.
             </summary>
             <param name="items"> The items to be loaded. </param>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyList`1.System#Collections#IList#Remove(System.Object)">
+            <inheritdoc />
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.Speedy#Collections#ISpeedyList#ShouldOrder">
             <summary>
@@ -1631,7 +1639,7 @@
         </member>
         <member name="M:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.#ctor">
             <summary>
-            Instantiates an instance of the collection.
+            Initializes an instance of the collection.
             </summary>
         </member>
         <member name="P:Speedy.Collections.SpeedyList`1.FilteredObservableCollection`1.DisableOrdering">
@@ -18745,6 +18753,9 @@
             <param name="entity"> The entity to be tested. </param>
             <returns> True if the entity matches the incoming filter or false if otherwise. </returns>
         </member>
+        <member name="M:Speedy.Sync.SyncRepositoryFilter`1.ShouldFilterIncomingEntity(Speedy.Sync.ISyncEntity)">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.Sync.SyncRepositoryFilter">
             <summary>
             Represents a repository filter
@@ -18794,6 +18805,13 @@
             <summary>
             The option to skipped SyncEntity.IsDeleted on initial sync.
             </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncRepositoryFilter.ShouldFilterIncomingEntity(Speedy.Sync.ISyncEntity)">
+            <summary>
+            A test to validate if an incoming entity should be filtered.
+            </summary>
+            <param name="entity"> The entity to be tested. </param>
+            <returns> True if the entity matches the incoming filter or false if otherwise. </returns>
         </member>
         <member name="T:Speedy.Sync.SyncRequest">
             <summary>

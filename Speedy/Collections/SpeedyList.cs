@@ -79,9 +79,10 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 	/// <summary>
 	/// Create an instance of the list.
 	/// </summary>
-	/// <param name="readerWriterLock"> An optional lock. Defaults to <see cref="ReaderWriterLockTiny" /> if not provided. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public SpeedyList(IReaderWriterLock readerWriterLock, IDispatcher dispatcher) : this(readerWriterLock, dispatcher, Array.Empty<OrderBy<T>>())
+	/// <param name="orderBy"> The optional set of order by settings. </param>
+	public SpeedyList(IDispatcher dispatcher, params OrderBy<T>[] orderBy)
+		: this(null, dispatcher, orderBy)
 	{
 	}
 
@@ -90,7 +91,9 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 	/// </summary>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
 	/// <param name="orderBy"> The optional set of order by settings. </param>
-	public SpeedyList(IDispatcher dispatcher, params OrderBy<T>[] orderBy) : this(null, dispatcher, orderBy)
+	/// <param name="items"> An optional set. </param>
+	public SpeedyList(IDispatcher dispatcher, OrderBy<T>[] orderBy, params T[] items)
+		: this(null, dispatcher, orderBy, items)
 	{
 	}
 
@@ -244,33 +247,15 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 
 	#region Methods
 
-	/// <inheritdoc />
-	public void Add(T item)
+	/// <summary>
+	/// Add an item to the list.
+	/// </summary>
+	/// <param name="item"> The item to add. </param>
+	/// <returns> The index where the item exist after add. </returns>
+	public T Add(T item)
 	{
-		Add(item as object);
-	}
-
-	/// <inheritdoc />
-	public int Add(object item)
-	{
-		if (item is not T value)
-		{
-			throw new ArgumentException("The item is the incorrect value type.", nameof(item));
-		}
-
-		try
-		{
-			EnterUpgradeableReadLock();
-
-			var limitFromStart = !ShouldOrder();
-			var response = InternalAdd(value);
-			InternalEnforceLimit(limitFromStart);
-			return response;
-		}
-		finally
-		{
-			ExitUpgradeableReadLock();
-		}
+		AddWithLock(item);
+		return item;
 	}
 
 	/// <inheritdoc cref="IList" />
@@ -314,40 +299,12 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 	}
 
 	/// <inheritdoc />
-	public bool Contains(object item)
-	{
-		try
-		{
-			EnterReadLock();
-			return InternalContains((T) item);
-		}
-		finally
-		{
-			ExitReadLock();
-		}
-	}
-
-	/// <inheritdoc />
 	public bool Contains(T item)
 	{
 		try
 		{
 			EnterReadLock();
 			return InternalContains(item);
-		}
-		finally
-		{
-			ExitReadLock();
-		}
-	}
-
-	/// <inheritdoc />
-	public void CopyTo(Array array, int arrayIndex)
-	{
-		try
-		{
-			EnterReadLock();
-			Array.Copy(_list.ToArray(), 0, array, arrayIndex, _list.Count);
 		}
 		finally
 		{
@@ -455,25 +412,6 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 	}
 
 	/// <inheritdoc />
-	public int IndexOf(object item)
-	{
-		if (item is not T value)
-		{
-			return -1;
-		}
-
-		try
-		{
-			EnterReadLock();
-			return InternalIndexOf(value);
-		}
-		finally
-		{
-			ExitReadLock();
-		}
-	}
-
-	/// <inheritdoc />
 	public int IndexOf(T item)
 	{
 		try
@@ -493,12 +431,6 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 	public void InitializeProfiler()
 	{
 		Profiler ??= new SpeedyListProfiler(GetDispatcher());
-	}
-
-	/// <inheritdoc />
-	public void Insert(int index, object value)
-	{
-		Insert(index, (T) value);
 	}
 
 	/// <inheritdoc />
@@ -685,12 +617,6 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 		{
 			ExitReadLock();
 		}
-	}
-
-	/// <inheritdoc />
-	public void Remove(object value)
-	{
-		Remove((T) value);
 	}
 
 	/// <inheritdoc />
@@ -954,9 +880,96 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 	}
 
 	/// <inheritdoc />
+	void ICollection<T>.Add(T item)
+	{
+		AddWithLock(item);
+	}
+
+	/// <inheritdoc />
+	int IList.Add(object item)
+	{
+		if (item is not T value)
+		{
+			throw new ArgumentException("The item is the incorrect value type.", nameof(item));
+		}
+
+		return AddWithLock(value);
+	}
+
+	private int AddWithLock(T item)
+	{
+		try
+		{
+			EnterUpgradeableReadLock();
+
+			var limitFromStart = !ShouldOrder();
+			var response = InternalAdd(item);
+			InternalEnforceLimit(limitFromStart);
+			return response;
+		}
+		finally
+		{
+			ExitUpgradeableReadLock();
+		}
+	}
+
+	/// <inheritdoc />
+	bool IList.Contains(object item)
+	{
+		try
+		{
+			EnterReadLock();
+			return InternalContains((T) item);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
+	}
+
+	/// <inheritdoc />
+	void ICollection.CopyTo(Array array, int arrayIndex)
+	{
+		try
+		{
+			EnterReadLock();
+			Array.Copy(_list.ToArray(), 0, array, arrayIndex, _list.Count);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
+	}
+
+	/// <inheritdoc />
 	IEnumerator IEnumerable.GetEnumerator()
 	{
 		return GetEnumerator();
+	}
+
+	/// <inheritdoc />
+	int IList.IndexOf(object item)
+	{
+		if (item is not T value)
+		{
+			return -1;
+		}
+
+		try
+		{
+			EnterReadLock();
+			return InternalIndexOf(value);
+		}
+		finally
+		{
+			ExitReadLock();
+		}
+	}
+
+	/// <inheritdoc />
+	void IList.Insert(int index, object value)
+	{
+		Insert(index, (T) value);
 	}
 
 	private int InternalAdd(T item)
@@ -1048,7 +1061,7 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 			var toAdd = _list
 				.Where(x =>
 					filterCheck(x) && !_filtered.Contains(x)).ToList();
-			
+
 			Dispatch(() =>
 			{
 				foreach (var item in toAdd)
@@ -1277,6 +1290,12 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 		return ordered;
 	}
 
+	/// <inheritdoc />
+	void IList.Remove(object value)
+	{
+		Remove((T) value);
+	}
+
 	/// <summary>
 	/// Determine if the list should order.
 	/// </summary>
@@ -1325,7 +1344,7 @@ public class SpeedyList<T> : ReaderWriterLockBindable, ISpeedyList, IList<T>
 		#region Constructors
 
 		/// <summary>
-		/// Instantiates an instance of the collection.
+		/// Initializes an instance of the collection.
 		/// </summary>
 		public FilteredObservableCollection()
 		{

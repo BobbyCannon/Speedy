@@ -5,13 +5,20 @@ $dnsname = "speedy.local"
 
 $cert = Get-ChildItem cert:\LocalMachine\Root -Recurse | Where { $_.FriendlyName -eq $dnsname }
 
-if ($cert -eq $null)
+if ($cert -eq $null -or $cert.NotAfter -le [DateTime]::UtcNow)
 {
+	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "root", "LocalMachine"
+	$store.Open("ReadWrite")
+	
+	if ($cert -ne $null)
+	{
+		Write-Host "Removing old certificate to root"
+		$store.Remove($cert)
+	}
+
 	Write-Host "Adding new self signed certificate to root"
 
 	$cert = New-SelfSignedCertificate -FriendlyName $dnsname -KeyFriendlyName $dnsname -Subject $dnsname -DnsName $dnsname
-	$store = New-Object System.Security.Cryptography.X509Certificates.X509Store "root", "LocalMachine"
-	$store.Open("ReadWrite")
 	$store.Add($cert)
 	$store.Close()
 	$cert.GetCertHashString()

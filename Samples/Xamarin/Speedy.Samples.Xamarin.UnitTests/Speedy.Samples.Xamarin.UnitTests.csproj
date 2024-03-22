@@ -10,11 +10,11 @@
 		<PackageReference Include="CompareNETObjects" Version="4.79.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
 		<PackageReference Include="Moq" Version="4.20.70" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.2.1" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.2.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="LiveChartsCore.SkiaSharpView.XamarinForms" Version="2.0.0-beta.516" />
-		<PackageReference Include="SkiaSharp.Views.Forms" Version="2.88.5" />
+		<PackageReference Include="SkiaSharp.Views.Forms" Version="2.88.7" />
 		<PackageReference Include="Xamarin.Forms" Version="5.0.0.2612" />
 		<PackageReference Include="Xamarin.Essentials" Version="1.8.0" />
 	</ItemGroup>

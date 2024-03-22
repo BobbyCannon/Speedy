@@ -19,7 +19,7 @@
 				@RenderBody()
 			</div>
 			<footer class="text-center">
-			<p>&copy; @(TimeService.Now.Year) - Speedy (@(System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription))</p>
+			<p>&copy; @(TimeService.Now.Year) - Speedy @(typeof(Speedy.Activator).Assembly.GetName().Version.ToString(3)) (@(System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription))</p>
 			</footer>
 		</div>
 

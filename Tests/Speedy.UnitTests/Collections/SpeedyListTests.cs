@@ -30,11 +30,11 @@ public class SpeedyListTests : BaseCollectionTests
 		AreEqual(0, list.Count);
 
 		list.Add(1);
-		list.Add((object) 2);
+		((IList) list).Add(2);
 
 		AreEqual(new[] { 1, 2 }, list.ToArray());
 
-		ExpectedException<ArgumentException>(() => list.Add("boom"), "The item is the incorrect value type.");
+		ExpectedException<ArgumentException>(() => ((IList) list).Add("boom"), "The item is the incorrect value type.");
 	}
 
 	[TestMethod]
@@ -265,9 +265,9 @@ public class SpeedyListTests : BaseCollectionTests
 		IsTrue(list.Contains(2));
 		IsFalse(list.Contains(9));
 
-		// Cast as object
-		IsTrue(list.Contains((object) 2));
-		IsFalse(list.Contains((object) 9));
+		// Cast as IList
+		IsTrue(((IList) list).Contains(2));
+		IsFalse(((IList) list).Contains(9));
 	}
 
 	[TestMethod]
@@ -282,7 +282,7 @@ public class SpeedyListTests : BaseCollectionTests
 		);
 
 		var array2 = (Array) new int[10];
-		list.CopyTo(array2, 4);
+		((IList) list).CopyTo(array2, 4);
 		AreEqual(new[] { 0, 0, 0, 0, 1, 2, 3, 4, 0, 0 }, array2);
 	}
 
@@ -467,12 +467,12 @@ public class SpeedyListTests : BaseCollectionTests
 		var list = new SpeedyList<string>("a", "b", "c");
 
 		AreEqual(1, list.IndexOf("b"));
-		AreEqual(1, list.IndexOf((object) "b"));
+		AreEqual(1, ((IList) list).IndexOf("b"));
 
 		AreEqual(-1, list.IndexOf("z"));
 		AreEqual(-1, list.IndexOf(string.Empty));
 		AreEqual(-1, list.IndexOf(null));
-		AreEqual(-1, list.IndexOf(CurrentTime));
+		AreEqual(-1, ((IList) list).IndexOf(CurrentTime));
 
 		list.DistinctCheck = Equals;
 
@@ -489,7 +489,7 @@ public class SpeedyListTests : BaseCollectionTests
 		AreEqual(1, list.Count);
 		AreEqual(42, list[0]);
 
-		list.Insert(0, (object) 44);
+		((IList) list).Insert(0, 44);
 
 		AreEqual(2, list.Count);
 		AreEqual(44, list[0]);
@@ -497,7 +497,7 @@ public class SpeedyListTests : BaseCollectionTests
 
 		// This insert should not duplicate because 44 already in list
 		list.DistinctCheck = (x, y) => x.Equals(y);
-		list.Insert(1, (object) 44);
+		((IList) list).Insert(1, 44);
 
 		AreEqual(2, list.Count);
 		AreEqual(44, list[0]);
@@ -918,7 +918,7 @@ public class SpeedyListTests : BaseCollectionTests
 		list.Remove(2);
 		AreEqual(new[] { 1, 3, 4 }, list.ToArray());
 
-		list.Remove((object) 3);
+		((IList) list).Remove(3);
 		AreEqual(new[] { 1, 4 }, list.ToArray());
 
 		list.Remove(3);

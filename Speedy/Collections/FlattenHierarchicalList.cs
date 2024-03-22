@@ -315,11 +315,6 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 				{
 					RequestRemove(hierarchyItem);
 				}
-				else
-				{
-					// Will always remove due to not being able to determine state or detect changes in state.
-					Remove(item);
-				}
 			}
 		}
 
@@ -330,11 +325,6 @@ public class FlattenHierarchicalList : SpeedyList<IHierarchyListItem>, IEventSub
 				if (item is IHierarchyListItem hierarchyItem)
 				{
 					RequestAdd(hierarchyItem);
-				}
-				else
-				{
-					// Will always show due to not being able to determine state or detect changes in state.
-					Add(item);
 				}
 			}
 		}

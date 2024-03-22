@@ -29,13 +29,13 @@ public class MainViewModel : ViewModel
 		MiddleList = new SpeedyList<SelectionOption<int>>(GetDispatcher());
 		RightList = new SpeedyList<SelectionOption<int>>(GetDispatcher());
 
-		ReaderWriterLockValues = new SpeedyList<SelectionOption<int>>(null, dispatcher)
+		ReaderWriterLockValues = new SpeedyList<SelectionOption<int>>(dispatcher)
 		{
 			new(0, "Tiny"),
 			new(1, "Slim")
 		};
 
-		TestLoopValues = new SpeedyList<SelectionOption<int>>(null, dispatcher)
+		TestLoopValues = new SpeedyList<SelectionOption<int>>(dispatcher)
 		{
 			new(100, "100 (tiny)"),
 			new(1000, "1000 (small)"),
@@ -44,7 +44,7 @@ public class MainViewModel : ViewModel
 			new(1000000, "1m (x-large)")
 		};
 
-		ThrottleDelayValues = new SpeedyList<SelectionOption<int>>(null, dispatcher)
+		ThrottleDelayValues = new SpeedyList<SelectionOption<int>>(dispatcher)
 		{
 			new(0, "No Delay"),
 			new(5, "5 ms"),
