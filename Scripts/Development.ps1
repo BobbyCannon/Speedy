@@ -42,8 +42,8 @@ Start-WebAppPool -Name "Speedy"
 # Need to add readme to all packages
 # https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
 #
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 6 -Verbose
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 6 -VersionSuffix 'RC'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 7 -Verbose
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 7 -VersionSuffix 'RC'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 
@@ -76,7 +76,7 @@ ii 'C:\Workspaces\Nuget\Development'
 ii 'C:\Workspaces\Nuget\Release'
 
 # Build a final release
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration Release -BuildNumber 0
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration Release -BuildNumber 7
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 
 
