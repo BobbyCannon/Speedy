@@ -43,15 +43,10 @@
 		<None Include="**/Internal/Windows/**/*.cs" />
 		<None Include="Speedy.snk" />
 		<None Include="Speedy.Application.xml" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0'">
 		<Compile Include="**/Internal/Windows/**/*.cs" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<Compile Include="**/Internal/Windows/**/*.cs" />
-		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.Management" Version="8.0.0" />
 	</ItemGroup>

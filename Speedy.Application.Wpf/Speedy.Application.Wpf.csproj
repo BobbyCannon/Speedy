@@ -49,6 +49,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 		<PackageReference Include="NAudio" Version="2.2.1" />
 		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" PrivateAssets="All" />
 		<PackageReference Include="System.Management" Version="8.0.0" />

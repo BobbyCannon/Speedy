@@ -11905,14 +11905,14 @@
         </member>
         <member name="M:Speedy.Profiling.Tracker.AddPath(System.String,Speedy.Profiling.TrackerPathValue[])">
             <summary>
-            Adds an path to the tracking session.
+            Adds a path to the tracking session.
             </summary>
             <param name="name"> The name of the path. </param>
             <param name="values"> Optional values for this path. </param>
         </member>
         <member name="M:Speedy.Profiling.Tracker.AddPath(System.String,System.TimeSpan,Speedy.Profiling.TrackerPathValue[])">
             <summary>
-            Adds an path with an existing timespan to the tracking session.
+            Adds a path with an existing timespan to the tracking session.
             </summary>
             <param name="name"> The name of the path. </param>
             <param name="elapsedTime"> The elapsed time of the path. </param>
@@ -11949,7 +11949,7 @@
             </summary>
             <param name="name"> The name of the path. </param>
             <param name="values"> Optional values for this path. </param>
-            <returns> The path for tracking an path. </returns>
+            <returns> The path for tracking a path. </returns>
         </member>
         <member name="M:Speedy.Profiling.Tracker.Dispose(System.Boolean)">
             <summary>
@@ -11982,7 +11982,7 @@
         </member>
         <member name="T:Speedy.Profiling.TrackerPath">
             <summary>
-            Represents an tracker path.
+            Represents a tracker path.
             </summary>
         </member>
         <member name="M:Speedy.Profiling.TrackerPath.#ctor">
@@ -12045,6 +12045,11 @@
             Gets or sets the values.
             </summary>
         </member>
+        <member name="M:Speedy.Profiling.TrackerPath.Abort">
+            <summary>
+            Completes the path and adds it to the path or tracker.
+            </summary>
+        </member>
         <member name="M:Speedy.Profiling.TrackerPath.AddException(System.Exception,Speedy.Profiling.TrackerPathValue[])">
             <summary>
             Adds an exception to this path.
@@ -12082,7 +12087,7 @@
             </summary>
             <param name="name"> The name of the path. </param>
             <param name="values"> Optional values for this path. </param>
-            <returns> The path for tracking an path. </returns>
+            <returns> The path for tracking a path. </returns>
         </member>
         <member name="M:Speedy.Profiling.TrackerPath.TrackAction(System.Func{System.String},System.Action{Speedy.Profiling.TrackerPath})">
             <summary>
@@ -12111,9 +12116,9 @@
             Starts a new path including an exception. The path will need to be completed or disposed before it will be added to the tracker.
             </summary>
             <param name="parentId"> The ID of the parent for this path. </param>
-            <param name="ex"> The exception to be turned into an path. </param>
+            <param name="ex"> The exception to be turned into a path. </param>
             <param name="values"> Optional values for this path. </param>
-            <returns> The path for tracking an path. </returns>
+            <returns> The path for tracking a path. </returns>
         </member>
         <member name="E:Speedy.Profiling.TrackerPath.Completed">
             <summary>

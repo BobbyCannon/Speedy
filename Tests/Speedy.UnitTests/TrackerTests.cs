@@ -53,6 +53,58 @@ namespace Speedy.UnitTests
 			Assert.AreEqual(new TrackerPathValue("Application Version", application.Version?.ToString()), repository.Paths[0].Values[3]);
 		}
 
+		[TestMethod]
+		public void StartNewPathAbort()
+		{
+			var repository = new MemoryTrackerPathRepository();
+			var tracker = new Tracker(repository, new KeyValueMemoryRepositoryProvider<TrackerPath>());
+			tracker.Initialize();
+			Assert.AreEqual(0, repository.Paths.Count);
+
+			var value = tracker.StartNewPath("Test", new TrackerPathValue("Foo", "Bar"));
+			value.Abort();
+			value.Dispose();
+			tracker.Dispose();
+
+			Assert.AreEqual(1, repository.Paths.Count);
+			Assert.AreEqual("Session", repository.Paths[0].Name);
+		}
+		
+		[TestMethod]
+		public void StartNewPathComplete()
+		{
+			var repository = new MemoryTrackerPathRepository();
+			var tracker = new Tracker(repository, new KeyValueMemoryRepositoryProvider<TrackerPath>());
+			tracker.Initialize();
+			Assert.AreEqual(0, repository.Paths.Count);
+
+			var value = tracker.StartNewPath("Test", new TrackerPathValue("Foo", "Bar"));
+			value.Complete();
+			value.Dispose();
+			tracker.Dispose();
+
+			Assert.AreEqual(2, repository.Paths.Count);
+			Assert.AreEqual("Session", repository.Paths[0].Name);
+			Assert.AreEqual("Test", repository.Paths[1].Name);
+		}
+		
+		[TestMethod]
+		public void StartNewPathDisposeOnly()
+		{
+			var repository = new MemoryTrackerPathRepository();
+			var tracker = new Tracker(repository, new KeyValueMemoryRepositoryProvider<TrackerPath>());
+			tracker.Initialize();
+			Assert.AreEqual(0, repository.Paths.Count);
+
+			var value = tracker.StartNewPath("Test", new TrackerPathValue("Foo", "Bar"));
+			value.Dispose();
+			tracker.Dispose();
+
+			Assert.AreEqual(2, repository.Paths.Count);
+			Assert.AreEqual("Session", repository.Paths[0].Name);
+			Assert.AreEqual("Test", repository.Paths[1].Name);
+		}
+
 		#endregion
 	}
 }
