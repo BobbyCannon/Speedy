@@ -1,10 +1,12 @@
 ﻿#region References
 
 using System.Collections.Generic;
+using Speedy.Runtime;
 
 #endregion
 
-namespace Speedy.Application.Internal;
+
+namespace Speedy.Internal;
 
 /// <summary>
 /// Provides a method to combine a number of component values into a single device identifier string.

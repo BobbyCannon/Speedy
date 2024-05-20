@@ -4,9 +4,9 @@ using System.Runtime.Versioning;
 
 #endregion
 
-namespace Speedy.Application.Internal.Windows;
+namespace Speedy.Internal.Windows;
 
-#if (NET6_0_OR_GREATER)
+#if (!NETSTANDARD)
 [SupportedOSPlatform("windows")]
 #endif
 internal class DeviceModelWmiComponent : WmiComponent

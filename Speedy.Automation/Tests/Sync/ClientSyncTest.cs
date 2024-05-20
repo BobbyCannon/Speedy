@@ -1,7 +1,7 @@
 ﻿#region References
 
 using System;
-using Speedy.Data;
+using Speedy.Runtime;
 using Speedy.Sync;
 
 #endregion

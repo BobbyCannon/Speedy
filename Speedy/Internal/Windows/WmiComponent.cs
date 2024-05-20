@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using System.Runtime.Versioning;
+using Speedy.Runtime;
 
 #endregion
 
-namespace Speedy.Application.Internal.Windows;
+namespace Speedy.Internal.Windows;
 
-#if (NET6_0_OR_GREATER)
+#if (!NETSTANDARD)
 [SupportedOSPlatform("windows")]
 #endif
 internal class WmiComponent : IDeviceIdComponent

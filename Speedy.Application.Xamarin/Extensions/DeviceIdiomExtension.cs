@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using Xamarin.Essentials;
-using DeviceType = Speedy.Data.DeviceType;
+using DeviceType = Speedy.Runtime.DeviceType;
 
 #endregion
 

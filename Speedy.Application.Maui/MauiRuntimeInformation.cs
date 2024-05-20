@@ -1,9 +1,9 @@
 ﻿#region References
 
 using Speedy.Application.Maui.Extensions;
-using Speedy.Data;
-using DevicePlatform = Speedy.Data.DevicePlatform;
-using DeviceType = Speedy.Data.DeviceType;
+using Speedy.Runtime;
+using DevicePlatform = Speedy.Runtime.DevicePlatform;
+using DeviceType = Speedy.Runtime.DeviceType;
 
 #endregion
 

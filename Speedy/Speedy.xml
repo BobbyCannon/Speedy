@@ -3293,96 +3293,6 @@
             Sqlite Database
             </summary>
         </member>
-        <member name="T:Speedy.Data.Bitness">
-            <summary>
-            Represents the bitness of a platform, application, etc
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.Bitness.Unknown">
-            <summary>
-            Unknown
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.Bitness.X86">
-            <summary>
-            Represents x86 or 32 bitness.
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.Bitness.X64">
-            <summary>
-            Represents x64 or 64 bitness.
-            </summary>
-        </member>
-        <member name="T:Speedy.Data.DevicePlatform">
-            <summary>
-            Represents the platform of device
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DevicePlatform.Unknown">
-            <summary>
-            Unknown
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DevicePlatform.Windows">
-            <summary>
-            Windows
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DevicePlatform.Android">
-            <summary>
-            Android
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DevicePlatform.IOS">
-            <summary>
-            iOS
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DevicePlatform.MacOS">
-            <summary>
-            Mac OS
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DevicePlatform.Linux">
-            <summary>
-            Linux
-            </summary>
-        </member>
-        <member name="T:Speedy.Data.DeviceType">
-            <summary>
-            Represents the type of device
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DeviceType.Unknown">
-            <summary>
-            Unknown
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DeviceType.Desktop">
-            <summary>
-            Desktop
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DeviceType.Phone">
-            <summary>
-            Phone
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DeviceType.Watch">
-            <summary>
-            Watch
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DeviceType.Tablet">
-            <summary>
-            Tablet
-            </summary>
-        </member>
-        <member name="F:Speedy.Data.DeviceType.TV">
-            <summary>
-            TV
-            </summary>
-        </member>
         <member name="T:Speedy.Data.HierarchyListItem">
             <summary>
             Represents a sync model in a hierarchy list.
@@ -4799,224 +4709,6 @@
             The reference type for the altitude value.
             </summary>
         </member>
-        <member name="T:Speedy.Data.RuntimeInformation">
-            <summary>
-            Gets information about the current runtime.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.#ctor">
-            <summary>
-            Creates an instance of the runtime information.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.#ctor(Speedy.IDispatcher)">
-            <summary>
-            Creates an instance of the runtime information.
-            </summary>
-            <param name="dispatcher"> The optional dispatcher to use. </param>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.ApplicationBitness">
-            <summary>
-            The bitness of the application.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.ApplicationDataLocation">
-            <summary>
-            The location of the application.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.ApplicationIsDevelopmentBuild">
-            <summary>
-            Flag indicating if the application is a development build.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.ApplicationIsElevated">
-            <summary>
-            Flag indicating if the application is elevated.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.ApplicationLocation">
-            <summary>
-            The location of the application.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.ApplicationName">
-            <summary>
-            The name of the application.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.ApplicationVersion">
-            <summary>
-            The version of the application.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DeviceId">
-            <summary>
-            The ID of the device.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DeviceManufacturer">
-            <summary>
-            The name of the device manufacturer.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DeviceModel">
-            <summary>
-            The model of the device.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DeviceName">
-            <summary>
-            The name of the device.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DevicePlatform">
-            <summary>
-            The name of the platform.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DevicePlatformBitness">
-            <summary>
-            The bitness of the platform.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DevicePlatformVersion">
-            <summary>
-            The version of the device OS.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.DeviceType">
-            <summary>
-            The type of the device.
-            </summary>
-        </member>
-        <member name="P:Speedy.Data.RuntimeInformation.Instance">
-            <summary>
-            The global instance of the runtime information.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationAssembly">
-            <summary>
-            Gets the entry / calling assembly.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.IsWindows">
-            <summary>
-            Determines if the platform is Windows.
-            </summary>
-            <returns> True if the platform is Windows otherwise false. </returns>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.Refresh">
-            <summary>
-            Loads all properties.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.ResetCache">
-            <summary>
-            Reset the cache.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.SetApplicationName(System.String)">
-            <summary>
-            Override the application name provided by the runtime information.
-            </summary>
-            <param name="name"> The name to use as an override. </param>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationBitness">
-            <summary>
-            The bitness of the application.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationDataLocation">
-            <summary>
-            The data location of the application.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationIsDevelopmentBuild">
-            <summary>
-            Get flag indicating if the application is a development build.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationIsElevated">
-            <summary>
-            Get flag indicating if the application is elevated.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationLocation">
-            <summary>
-            The location of the application.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationName">
-            <summary>
-            The name of the application.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetApplicationVersion">
-            <summary>
-            The version of the application.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDeviceId">
-            <summary>
-            The ID of the device.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDeviceManufacturer">
-            <summary>
-            The name of the device manufacturer.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDeviceModel">
-            <summary>
-            The model of the device.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDeviceName">
-            <summary>
-            The name of the device.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDevicePlatform">
-            <summary>
-            The name of the platform.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDevicePlatformBitness">
-            <summary>
-            The bitness of the platform.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDevicePlatformVersion">
-            <summary>
-            The version of the device platform version.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetDeviceType">
-            <summary>
-            The type of the device.
-            </summary>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.GetOrCache``1(System.String)">
-            <summary>
-            Get or cache the value.
-            </summary>
-            <typeparam name="T"> </typeparam>
-            <param name="name"> </param>
-            <returns> </returns>
-        </member>
-        <member name="M:Speedy.Data.RuntimeInformation.SetOverride``1(System.String,``0)">
-            <summary>
-            Set an override for the value.
-            </summary>
-            <typeparam name="T"> </typeparam>
-            <param name="name"> </param>
-            <param name="value"> </param>
-            <returns> </returns>
-        </member>
         <member name="T:Speedy.Data.SelectionOption`1">
             <summary>
             Represents a option for selection.
@@ -6111,6 +5803,66 @@
             </summary>
             <param name="dateTime"> </param>
             <returns> </returns>
+        </member>
+        <member name="T:Speedy.Extensions.DeviceIdExtensions">
+            <summary>
+            Extension methods for <see cref="T:Speedy.Runtime.DeviceId" />.
+            </summary>
+        </member>
+        <member name="M:Speedy.Extensions.DeviceIdExtensions.AddMacAddress(Speedy.Runtime.DeviceId,System.Boolean,System.Boolean)">
+            <summary>
+            Adds the MAC address to the device identifier, optionally excluding wireless adapters and/or non-physical adapters.
+            </summary>
+            <param name="builder"> The builder to add the component to. </param>
+            <param name="excludeWireless"> A value indicating whether wireless adapters should be excluded. </param>
+            <param name="excludeNonPhysical"> A value indicating whether non-physical adapters should be excluded. </param>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DeviceIdExtensions.AddMachineGuid(Speedy.Runtime.DeviceId)">
+            <summary>
+            Adds the Machine GUID (from HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MachineGuid) to the device identifier.
+            </summary>
+            <param name="builder"> The builder to add the component to. </param>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DeviceIdExtensions.AddMotherboardSerialNumber(Speedy.Runtime.DeviceId)">
+            <summary>
+            Adds the motherboard serial number to the device identifier.
+            </summary>
+            <param name="builder"> The builder to add the component to. </param>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DeviceIdExtensions.AddProcessorId(Speedy.Runtime.DeviceId)">
+            <summary>
+            Adds the processor ID to the device identifier.
+            </summary>
+            <param name="builder"> The builder to add the component to. </param>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DeviceIdExtensions.AddRegistryValue(Speedy.Runtime.DeviceId,System.String,Microsoft.Win32.RegistryView,Microsoft.Win32.RegistryHive,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.Windows.RegistryComponent" /> class.
+            </summary>
+            <param name="builder"> The builder to add the component to. </param>
+            <param name="componentName"> The name of the component. </param>
+            <param name="registryView"> The registry view. </param>
+            <param name="registryHive"> The registry hive. </param>
+            <param name="registryKeyName"> The name of the registry key. </param>
+            <param name="registryValueName"> The name of the registry value. </param>
+        </member>
+        <member name="M:Speedy.Extensions.DeviceIdExtensions.AddSystemDriveSerialNumber(Speedy.Runtime.DeviceId)">
+            <summary>
+            Adds the system serial drive number to the device identifier.
+            </summary>
+            <param name="builder"> The builder to add the component to. </param>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.DeviceIdExtensions.AddSystemUuid(Speedy.Runtime.DeviceId)">
+            <summary>
+            Adds the system UUID to the device identifier.
+            </summary>
+            <param name="builder"> The builder to add the component to. </param>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
         </member>
         <member name="T:Speedy.Extensions.DictionaryExtensions">
             <summary>
@@ -8849,6 +8601,284 @@
             <inheritdoc />
         </member>
         <member name="M:Speedy.IncludableQueryable`2.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Internal.Base32ByteArrayEncoder">
+            <summary>
+            An implementation of <see cref="T:Speedy.Internal.IByteArrayEncoder" /> that encodes byte arrays as Base32 strings.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.Base32ByteArrayEncoder._alphabet">
+            <summary>
+            Gets the alphabet in use.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.Base32ByteArrayEncoder.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.Base32ByteArrayEncoder" /> class.
+            </summary>
+            <param name="alphabet"> The alphabet to use. </param>
+        </member>
+        <member name="P:Speedy.Internal.Base32ByteArrayEncoder.CrockfordAlphabet">
+            <summary>
+            Gets the Crockford Base32 alphabet.
+            </summary>
+            <remarks>
+            See https://www.crockford.com/base32.html
+            </remarks>
+        </member>
+        <member name="P:Speedy.Internal.Base32ByteArrayEncoder.Rfc4648Alphabet">
+            <summary>
+            Gets the RFC-4648 Base32 alphabet.
+            </summary>
+            <remarks>
+            See https://datatracker.ietf.org/doc/html/rfc4648#section-6
+            </remarks>
+        </member>
+        <member name="M:Speedy.Internal.Base32ByteArrayEncoder.Encode(System.Byte[])">
+            <summary>
+            Encodes the specified byte array as a string.
+            </summary>
+            <param name="bytes"> The byte array to encode. </param>
+            <returns> The byte array encoded as a string. </returns>
+        </member>
+        <member name="T:Speedy.Internal.ByteArrayHasher">
+            <summary>
+            An implementation of <see cref="T:Speedy.Internal.IByteArrayHasher" /> that uses an arbitrary <see cref="T:System.Security.Cryptography.HashAlgorithm" />.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.ByteArrayHasher._hashAlgorithmFactory">
+            <summary>
+            A function that returns a new <see cref="T:System.Security.Cryptography.HashAlgorithm" /> instance.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.ByteArrayHasher.#ctor(System.Func{System.Security.Cryptography.HashAlgorithm})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.ByteArrayHasher" /> class.
+            </summary>
+            <param name="hashAlgorithmFactory"> A function that returns a new <see cref="T:System.Security.Cryptography.HashAlgorithm" /> instance. </param>
+        </member>
+        <member name="M:Speedy.Internal.ByteArrayHasher.Hash(System.Byte[])">
+            <summary>
+            Returns a hash of the specified byte array.
+            </summary>
+            <param name="bytes"> The byte array to hash. </param>
+            <returns> A hash of the specified byte array. </returns>
+        </member>
+        <member name="T:Speedy.Internal.HashCodeCalculator">
+            <summary>
+            Generate hashcode for many items
+            </summary>
+        </member>
+        <member name="T:Speedy.Internal.HashDeviceIdFormatter">
+            <summary>
+            An implementation of <see cref="T:Speedy.Internal.IDeviceIdFormatter" /> that combines the components into a hash.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.HashDeviceIdFormatter._byteArrayEncoder">
+            <summary>
+            The <see cref="T:Speedy.Internal.IByteArrayEncoder" /> to use to encode the resulting hash.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.HashDeviceIdFormatter._byteArrayHasher">
+            <summary>
+            The <see cref="T:Speedy.Internal.IByteArrayHasher" /> to use to hash the device ID.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.HashDeviceIdFormatter.#ctor(Speedy.Internal.IByteArrayHasher,Speedy.Internal.IByteArrayEncoder)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.HashDeviceIdFormatter" /> class.
+            </summary>
+            <param name="byteArrayHasher"> The <see cref="T:Speedy.Internal.IByteArrayHasher" /> to use to hash the device ID. </param>
+            <param name="byteArrayEncoder"> The <see cref="T:Speedy.Internal.IByteArrayEncoder" /> to use to encode the resulting hash. </param>
+        </member>
+        <member name="M:Speedy.Internal.HashDeviceIdFormatter.#ctor(System.Func{System.Security.Cryptography.HashAlgorithm},Speedy.Internal.IByteArrayEncoder)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.HashDeviceIdFormatter" /> class.
+            </summary>
+            <param name="hashAlgorithm"> A function that returns the hash algorithm to use. </param>
+            <param name="byteArrayEncoder"> The <see cref="T:Speedy.Internal.IByteArrayEncoder" /> to use to encode the resulting hash. </param>
+        </member>
+        <member name="M:Speedy.Internal.HashDeviceIdFormatter.GetDeviceId(System.Collections.Generic.IDictionary{System.String,Speedy.Runtime.IDeviceIdComponent})">
+            <summary>
+            Returns the device identifier string created by combining the specified components.
+            </summary>
+            <param name="components"> A dictionary containing the components. </param>
+            <returns> The device identifier string. </returns>
+        </member>
+        <member name="T:Speedy.Internal.IByteArrayEncoder">
+            <summary>
+            Provides functionality to encode a byte array as a string.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.IByteArrayEncoder.Encode(System.Byte[])">
+            <summary>
+            Encodes the specified byte array as a string.
+            </summary>
+            <param name="bytes"> The byte array to encode. </param>
+            <returns> The byte array encoded as a string. </returns>
+        </member>
+        <member name="T:Speedy.Internal.IByteArrayHasher">
+            <summary>
+            Provides functionality to hash a byte array.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.IByteArrayHasher.Hash(System.Byte[])">
+            <summary>
+            Returns a hash of the specified byte array.
+            </summary>
+            <param name="bytes"> The byte array to hash. </param>
+            <returns> A hash of the specified byte array. </returns>
+        </member>
+        <member name="T:Speedy.Internal.IDeviceIdFormatter">
+            <summary>
+            Provides a method to combine a number of component values into a single device identifier string.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.IDeviceIdFormatter.GetDeviceId(System.Collections.Generic.IDictionary{System.String,Speedy.Runtime.IDeviceIdComponent})">
+            <summary>
+            Returns the device identifier string created by combining the specified components.
+            </summary>
+            <param name="components"> A dictionary containing the components. </param>
+            <returns> The device identifier string. </returns>
+        </member>
+        <member name="T:Speedy.Internal.MacAddressDeviceIdComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Runtime.IDeviceIdComponent" /> that uses the MAC Address of the PC.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.MacAddressDeviceIdComponent._excludeWireless">
+            <summary>
+            A value determining whether wireless devices should be excluded.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.MacAddressDeviceIdComponent.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.MacAddressDeviceIdComponent" /> class.
+            </summary>
+            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
+        </member>
+        <member name="M:Speedy.Internal.MacAddressDeviceIdComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Internal.MacAddressFormatter">
+            <summary>
+            Provides functionality to format MAC addresses.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.MacAddressFormatter.FormatMacAddress(System.String)">
+            <summary>
+            Formats the specified MAC address.
+            </summary>
+            <param name="input"> The MAC address to format. </param>
+            <returns> The formatted MAC address. </returns>
+        </member>
+        <member name="T:Speedy.Internal.Windows.MacAddressComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Runtime.IDeviceIdComponent" /> that uses the MAC Address of the PC.
+            This improves upon the basic <see cref="T:Speedy.Internal.MacAddressDeviceIdComponent" /> by using WMI
+            to get better information from either MSFT_NetAdapter or Win32_NetworkAdapter.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.Windows.MacAddressComponent._excludeNonPhysical">
+            <summary>
+            A value determining whether non-physical devices should be excluded.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.Windows.MacAddressComponent._excludeWireless">
+            <summary>
+            A value determining whether wireless devices should be excluded.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.Windows.MacAddressComponent.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.Windows.MacAddressComponent" /> class.
+            </summary>
+            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
+            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
+        </member>
+        <member name="M:Speedy.Internal.Windows.MacAddressComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="M:Speedy.Internal.Windows.MacAddressComponent.GetValueUsingMsftNetAdapter(System.Boolean,System.Boolean)">
+            <summary>
+            Gets the component value using MSFT_NetAdapter.
+            </summary>
+            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
+            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
+            <returns> The component value. </returns>
+        </member>
+        <member name="M:Speedy.Internal.Windows.MacAddressComponent.GetValueUsingWin32NetworkAdapter(System.Boolean,System.Boolean)">
+            <summary>
+            Gets the component value using Win32_NetworkAdapter.
+            </summary>
+            <param name="excludeWireless"> A value determining whether wireless devices should be excluded. </param>
+            <param name="excludeNonPhysical"> A value determining whether non-physical devices should be excluded. </param>
+            <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Internal.Windows.RegistryComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Runtime.IDeviceIdComponent" /> that retrieves its value from the Windows registry.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.Windows.RegistryComponent._keyName">
+            <summary>
+            The name of the registry key.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.Windows.RegistryComponent._registryHive">
+            <summary>
+            The registry hive.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.Windows.RegistryComponent._registryView">
+            <summary>
+            The registry views.
+            </summary>
+        </member>
+        <member name="F:Speedy.Internal.Windows.RegistryComponent._valueName">
+            <summary>
+            The name of the registry value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.Windows.RegistryComponent.#ctor(Microsoft.Win32.RegistryView,Microsoft.Win32.RegistryHive,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.Windows.RegistryComponent" /> class.
+            </summary>
+            <param name="registryView"> The registry view. </param>
+            <param name="registryHive"> The registry hive. </param>
+            <param name="keyName"> The name of the registry key. </param>
+            <param name="valueName"> The name of the registry value. </param>
+        </member>
+        <member name="M:Speedy.Internal.Windows.RegistryComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Internal.Windows.SystemDriveSerialNumberComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Runtime.IDeviceIdComponent" /> that uses the system drive's serial number.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.Windows.SystemDriveSerialNumberComponent.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Internal.Windows.SystemDriveSerialNumberComponent" /> class.
+            </summary>
+        </member>
+        <member name="M:Speedy.Internal.Windows.SystemDriveSerialNumberComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="M:Speedy.Internal.Windows.WmiComponent.GetValue">
             <inheritdoc />
         </member>
         <member name="T:Speedy.IProvider">
@@ -14419,6 +14449,517 @@
             <typeparam name="T"> The type of the items in the list. </typeparam>
             <param name="list"> The list of items. </param>
             <returns> The shuffled list. </returns>
+        </member>
+        <member name="T:Speedy.Runtime.Bitness">
+            <summary>
+            Represents the bitness of a platform, application, etc
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.Bitness.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.Bitness.X86">
+            <summary>
+            Represents x86 or 32 bitness.
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.Bitness.X64">
+            <summary>
+            Represents x64 or 64 bitness.
+            </summary>
+        </member>
+        <member name="T:Speedy.Runtime.DeviceId">
+            <summary>
+            Provides unique device identifiers.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceId.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Runtime.DeviceId" /> class.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.DeviceId.Components">
+            <summary>
+            A dictionary containing the components that will make up the device identifier.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.DeviceId.Formatter">
+            <summary>
+            Gets or sets the formatter to use.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceId.AddComponent(System.String,Speedy.Runtime.IDeviceIdComponent)">
+            <summary>
+            Adds a component to the device identifier.
+            If a component with the specified name already exists, it will be replaced with this newly added component.
+            </summary>
+            <param name="name"> The component name. </param>
+            <param name="component"> The component to add. </param>
+            <returns> The builder instance. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceId.AddMachineName">
+            <summary>
+            Adds the machine name to the device identifier.
+            </summary>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceId.AddOsVersion">
+            <summary>
+            Adds the operating system version to the device identifier.
+            </summary>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceId.AddUserName">
+            <summary>
+            Adds the current username to the device identifier.
+            </summary>
+            <returns> The <see cref="T:Speedy.Runtime.DeviceId" /> instance. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceId.ToString">
+            <summary>
+            Returns a string representation of the device identifier.
+            </summary>
+            <returns> A string representation of the device identifier. </returns>
+        </member>
+        <member name="T:Speedy.Runtime.DeviceIdComponent">
+            <summary>
+            An implementation of <see cref="T:Speedy.Runtime.IDeviceIdComponent" /> that uses either a specified value
+            or the result of a specified function as its component value.
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DeviceIdComponent._valueFactory">
+            <summary>
+            A function that returns the component value.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceIdComponent.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Runtime.DeviceIdComponent" /> class.
+            </summary>
+            <param name="value"> The component value. </param>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceIdComponent.#ctor(System.Func{System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Runtime.DeviceIdComponent" /> class.
+            </summary>
+            <param name="valueFactory"> A function that returns the component value. </param>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceIdComponent.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speedy.Runtime.DeviceIdComponent" /> class.
+            </summary>
+            <param name="value"> A function that returns the component value. </param>
+        </member>
+        <member name="M:Speedy.Runtime.DeviceIdComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Runtime.IDeviceIdComponent">
+            <summary>
+            Represents a component that forms part of a device identifier.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.IDeviceIdComponent.GetValue">
+            <summary>
+            Gets the component value.
+            </summary>
+            <returns> The component value. </returns>
+        </member>
+        <member name="T:Speedy.Runtime.DevicePlatform">
+            <summary>
+            Represents the platform of device
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DevicePlatform.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DevicePlatform.Windows">
+            <summary>
+            Windows
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DevicePlatform.Android">
+            <summary>
+            Android
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DevicePlatform.IOS">
+            <summary>
+            iOS
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DevicePlatform.MacOS">
+            <summary>
+            Mac OS
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DevicePlatform.Linux">
+            <summary>
+            Linux
+            </summary>
+        </member>
+        <member name="T:Speedy.Runtime.DeviceType">
+            <summary>
+            Represents the type of device
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DeviceType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DeviceType.Desktop">
+            <summary>
+            Desktop
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DeviceType.Phone">
+            <summary>
+            Phone
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DeviceType.Watch">
+            <summary>
+            Watch
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DeviceType.Tablet">
+            <summary>
+            Tablet
+            </summary>
+        </member>
+        <member name="F:Speedy.Runtime.DeviceType.TV">
+            <summary>
+            TV
+            </summary>
+        </member>
+        <member name="T:Speedy.Runtime.RuntimeInformation">
+            <summary>
+            Gets information about the current runtime.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.#ctor">
+            <summary>
+            Creates an instance of the runtime information.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Creates an instance of the runtime information.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationBitness">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationDataLocation">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationFileName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationFilePath">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationIsDevelopmentBuild">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationIsElevated">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationLocation">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.ApplicationVersion">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DeviceId">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DeviceManufacturer">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DeviceModel">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DeviceName">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DevicePlatform">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DevicePlatformBitness">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DevicePlatformVersion">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DeviceType">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.DotNetRuntimeVersion">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.Instance">
+            <summary>
+            The global instance of the runtime information.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.IsShuttingDown">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.Item(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.Keys">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Runtime.RuntimeInformation.Values">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.ContainsKey(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationAssembly">
+            <summary>
+            Gets the entry / calling assembly.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.Initialize">
+            <summary>
+            Initialize the runtime information state. Ex. Ensure the paths exists.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.IsWindows">
+            <summary>
+            Determines if the platform is Windows.
+            </summary>
+            <returns> True if the platform is Windows otherwise false. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.Refresh">
+            <summary>
+            Loads all properties.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.ResetCache">
+            <summary>
+            Reset the cache.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.ResetCache(System.String)">
+            <summary>
+            Reset the cache.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.SetOverride``1(System.String,``0)">
+            <summary>
+            Set an override for the value.
+            </summary>
+            <typeparam name="T"> </typeparam>
+            <param name="name"> </param>
+            <param name="value"> </param>
+            <returns> </returns>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.Shutdown">
+            <summary>
+            Mark the runtime as shutting down.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.TryGetValue(System.String,System.Object@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationBitness">
+            <summary>
+            The bitness of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationDataLocation">
+            <summary>
+            The data location of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationFileName">
+            <summary>
+            The file name of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationFilePath">
+            <summary>
+            The file path of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationIsDevelopmentBuild">
+            <summary>
+            Get flag indicating if the application is a development build.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationIsElevated">
+            <summary>
+            The elevated status of an application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationLocation">
+            <summary>
+            The location of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationName">
+            <summary>
+            The name of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetApplicationVersion">
+            <summary>
+            The version of the application.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDeviceId">
+            <summary>
+            The ID of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDeviceManufacturer">
+            <summary>
+            The name of the device manufacturer.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDeviceModel">
+            <summary>
+            The model of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDeviceName">
+            <summary>
+            The name of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDevicePlatform">
+            <summary>
+            The name of the platform.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDevicePlatformBitness">
+            <summary>
+            The bitness of the platform.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDevicePlatformVersion">
+            <summary>
+            The version of the device platform version.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDeviceType">
+            <summary>
+            The type of the device.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetDotNetRuntimeVersion">
+            <summary>
+            The version of the dotnet runtime version.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetOrCache``1(System.String)">
+            <summary>
+            Get or cache the value from the factory.
+            </summary>
+            <typeparam name="T"> The type to process. </typeparam>
+            <param name="name"> The name to represent the value. </param>
+            <returns> The value by the name provided. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.GetOrCache``1(System.String,System.Func{``0})">
+            <summary>
+            Get or cache the value from the factory.
+            </summary>
+            <typeparam name="T"> The type to process. </typeparam>
+            <param name="name"> The name to represent the value. </param>
+            <param name="valueFactory"> The factory to create the value. </param>
+            <returns> The value by the name provided. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.RuntimeInformation.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Runtime.IRuntimeInformation">
+            <summary>
+            Gets information about the current runtime.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.ApplicationBitness">
+            <summary>
+            The bitness of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.ApplicationDataLocation">
+            <summary>
+            The location of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.ApplicationFileName">
+            <summary>
+            The file name of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.ApplicationFilePath">
+            <summary>
+            The file path of the application.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.ApplicationIsDevelopmentBuild">
+            <summary>
+            Flag indicating if the application is a development build.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.ApplicationIsElevated">
+            <summary>
+            Flag indicating if the application is elevated.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.ApplicationLocation">
+            <summary>
+            The directory of where the application is located.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.DeviceManufacturer">
+            <summary>
+            The name of the device manufacturer.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.DeviceModel">
+            <summary>
+            The model of the device.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.DevicePlatformBitness">
+            <summary>
+            The bitness of the platform.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.DotNetRuntimeVersion">
+            <summary>
+            The DotNet runtime version.
+            </summary>
+        </member>
+        <member name="P:Speedy.Runtime.IRuntimeInformation.IsShuttingDown">
+            <summary>
+            The flag to track when the application is shutting down.
+            </summary>
         </member>
         <member name="T:Speedy.Serialization.Converters.IsoDateTimeConverter">
             <summary>

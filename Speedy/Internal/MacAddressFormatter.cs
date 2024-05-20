@@ -4,7 +4,7 @@ using System.Linq;
 
 #endregion
 
-namespace Speedy.Application.Internal;
+namespace Speedy.Internal;
 
 /// <summary>
 /// Provides functionality to format MAC addresses.

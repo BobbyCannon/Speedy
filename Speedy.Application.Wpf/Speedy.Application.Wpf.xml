@@ -4,66 +4,6 @@
         <name>Speedy.Application.Wpf</name>
     </assembly>
     <members>
-        <member name="T:Speedy.Application.Wpf.Extensions.DeviceIdExtensions">
-            <summary>
-            Extension methods for <see cref="T:Speedy.Application.DeviceId" />.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddMacAddress(Speedy.Application.DeviceId,System.Boolean,System.Boolean)">
-            <summary>
-            Adds the MAC address to the device identifier, optionally excluding wireless adapters and/or non-physical adapters.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <param name="excludeWireless"> A value indicating whether wireless adapters should be excluded. </param>
-            <param name="excludeNonPhysical"> A value indicating whether non-physical adapters should be excluded. </param>
-            <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddMachineGuid(Speedy.Application.DeviceId)">
-            <summary>
-            Adds the Machine GUID (from HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\MachineGuid) to the device identifier.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddMotherboardSerialNumber(Speedy.Application.DeviceId)">
-            <summary>
-            Adds the motherboard serial number to the device identifier.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddProcessorId(Speedy.Application.DeviceId)">
-            <summary>
-            Adds the processor ID to the device identifier.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddRegistryValue(Speedy.Application.DeviceId,System.String,Microsoft.Win32.RegistryView,Microsoft.Win32.RegistryHive,System.String,System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Speedy.Application.Internal.Windows.RegistryComponent" /> class.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <param name="componentName"> The name of the component. </param>
-            <param name="registryView"> The registry view. </param>
-            <param name="registryHive"> The registry hive. </param>
-            <param name="registryKeyName"> The name of the registry key. </param>
-            <param name="registryValueName"> The name of the registry value. </param>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddSystemDriveSerialNumber(Speedy.Application.DeviceId)">
-            <summary>
-            Adds the system serial drive number to the device identifier.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
-        <member name="M:Speedy.Application.Wpf.Extensions.DeviceIdExtensions.AddSystemUuid(Speedy.Application.DeviceId)">
-            <summary>
-            Adds the system UUID to the device identifier.
-            </summary>
-            <param name="builder"> The builder to add the component to. </param>
-            <returns> The <see cref="T:Speedy.Application.DeviceId" /> instance. </returns>
-        </member>
         <member name="T:Speedy.Application.Wpf.Security.WindowsCredential">
             <summary>
             Represents a credential for windows.
@@ -302,59 +242,12 @@
         <member name="M:Speedy.Application.Wpf.WpfMediaPlayer.Speak(System.String)">
             <inheritdoc />
         </member>
-        <member name="T:Speedy.Application.Wpf.WpfRuntimeInformation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.#ctor">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.#ctor(Speedy.IDispatcher)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationDataLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationIsElevated">
-            <summary>
-            The elevated status of an application.
-            </summary>
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationName">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetApplicationVersion">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDeviceId">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDeviceManufacturer">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDeviceModel">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDeviceName">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDevicePlatform">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDevicePlatformVersion">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Wpf.WpfRuntimeInformation.GetDeviceType">
-            <inheritdoc />
-        </member>
         <member name="T:Speedy.Application.Wpf.WpfSecureVault">
             <summary>
             A secure vault for WPF applications.
             </summary>
         </member>
-        <member name="M:Speedy.Application.Wpf.WpfSecureVault.#ctor(Speedy.Data.RuntimeInformation,Speedy.IDispatcher)">
+        <member name="M:Speedy.Application.Wpf.WpfSecureVault.#ctor(Speedy.Runtime.RuntimeInformation,Speedy.IDispatcher)">
             <summary>
             Create an instance of the WPF secure vault.
             </summary>

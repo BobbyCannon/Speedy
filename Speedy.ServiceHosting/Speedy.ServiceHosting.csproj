@@ -23,9 +23,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.ServiceHosting.xml</DocumentationFile>
-		<AssemblyVersion>12.0.8.0</AssemblyVersion>
-		<FileVersion>12.0.8.0</FileVersion>
-		<Version>12.0.8</Version>
+		<AssemblyVersion>12.0.9.0</AssemblyVersion>
+		<FileVersion>12.0.9.0</FileVersion>
+		<Version>12.0.9</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>

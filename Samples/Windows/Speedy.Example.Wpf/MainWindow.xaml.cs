@@ -5,6 +5,7 @@ using System.Windows;
 using Speedy.Application.Wpf;
 using Speedy.Example.Core;
 using Speedy.Extensions;
+using Speedy.Runtime;
 
 #endregion
 
@@ -22,7 +23,7 @@ public partial class MainWindow
 		InitializeComponent();
 
 		var dispatcher = new WpfDispatcher(Dispatcher);
-		var runtimeInformation = new WpfRuntimeInformation(dispatcher);
+		var runtimeInformation = new RuntimeInformation(dispatcher);
 
 		ViewModel = new MainViewModel(runtimeInformation, dispatcher);
 		DataContext = ViewModel;

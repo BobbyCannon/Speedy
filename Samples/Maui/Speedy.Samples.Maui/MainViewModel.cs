@@ -10,7 +10,7 @@ using Speedy.Commands;
 using Speedy.Data.Location;
 using Speedy.Logging;
 using Location = Speedy.Data.Location.Location;
-using RuntimeInformation = Speedy.Data.RuntimeInformation;
+using RuntimeInformation = Speedy.Runtime.RuntimeInformation;
 
 #endregion
 

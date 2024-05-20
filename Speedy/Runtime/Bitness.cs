@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 #endregion
 
-namespace Speedy.Data;
+namespace Speedy.Runtime;
 
 /// <summary>
 /// Represents the bitness of a platform, application, etc

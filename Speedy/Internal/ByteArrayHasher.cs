@@ -5,7 +5,8 @@ using System.Security.Cryptography;
 
 #endregion
 
-namespace Speedy.Application.Internal;
+
+namespace Speedy.Internal;
 
 /// <summary>
 /// An implementation of <see cref="IByteArrayHasher" /> that uses an arbitrary <see cref="HashAlgorithm" />.

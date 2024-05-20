@@ -2,15 +2,16 @@
 
 using System.Runtime.Versioning;
 using Microsoft.Win32;
+using Speedy.Runtime;
 
 #endregion
 
-namespace Speedy.Application.Internal.Windows;
+namespace Speedy.Internal.Windows;
 
 /// <summary>
 /// An implementation of <see cref="IDeviceIdComponent" /> that retrieves its value from the Windows registry.
 /// </summary>
-#if (NET6_0_OR_GREATER)
+#if (!NETSTANDARD)
 [SupportedOSPlatform("windows")]
 #endif
 internal class RegistryComponent : IDeviceIdComponent

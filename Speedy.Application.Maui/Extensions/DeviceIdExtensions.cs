@@ -1,12 +1,13 @@
 ﻿#region References
 
+using Speedy.Runtime;
 #if ANDROID
 using Android.Provider;
 #elif IOS || __MACCATALYST__
 using UIKit;
 #elif WINDOWS
 using System.Runtime.InteropServices.WindowsRuntime;
-using Speedy.Application.Internal;
+using Speedy.Internal;
 using Windows.System.Profile;
 #endif
 

@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Speedy.Application;
+namespace Speedy.Runtime;
 
 /// <summary>
 /// An implementation of <see cref="IDeviceIdComponent" /> that uses either a specified value

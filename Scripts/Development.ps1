@@ -34,7 +34,7 @@ Start-WebAppPool -Name "Speedy"
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Deploy.ps1'
 
-& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build 7
+& "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build 9
 & "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1" -Major 12 -Minor 0 -Build +
 # Open-File "C:\Workspaces\GitHub\Speedy\IncrementVersion.ps1"
 
@@ -42,8 +42,8 @@ Start-WebAppPool -Name "Speedy"
 # Need to add readme to all packages
 # https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices#readme
 #
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 8 -Verbose
-& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 8 -VersionSuffix 'RC'
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 9 -Verbose
+& 'C:\Workspaces\GitHub\Speedy\Build.ps1' -Configuration "Release" -BuildNumber 9 -VersionSuffix 'RC'
 
 # Open-File 'C:\Workspaces\GitHub\Speedy\Build.ps1'
 

@@ -2,9 +2,7 @@
 
 using Android.Locations;
 using Android.OS;
-using Android.Runtime;
 using Speedy.Application.Internal;
-using System.Diagnostics.CodeAnalysis;
 using Speedy.Data;
 using Speedy.Data.Location;
 using Location = Android.Locations.Location;

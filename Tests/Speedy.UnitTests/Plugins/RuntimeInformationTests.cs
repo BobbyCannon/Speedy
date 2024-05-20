@@ -1,10 +1,8 @@
-﻿#if NET6_0_OR_GREATER
-
-#region References
+﻿#region References
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Application.Wpf;
 using Speedy.Automation.Tests;
+using Speedy.Runtime;
 
 #endregion
 
@@ -18,12 +16,10 @@ public class RuntimeInformationTests
 	[TestMethod]
 	public void WindowsRuntimeInformation()
 	{
-		var runtimeInformation = new WpfRuntimeInformation();
+		var runtimeInformation = new RuntimeInformation();
 		runtimeInformation.Refresh();
 		runtimeInformation.Dump();
 	}
 
 	#endregion
 }
-
-#endif

@@ -4,15 +4,16 @@ using System;
 using System.Linq;
 using System.Management;
 using System.Runtime.Versioning;
+using Speedy.Runtime;
 
 #endregion
 
-namespace Speedy.Application.Internal.Windows;
+namespace Speedy.Internal.Windows;
 
 /// <summary>
 /// An implementation of <see cref="IDeviceIdComponent" /> that uses the system drive's serial number.
 /// </summary>
-#if (NET6_0_OR_GREATER)
+#if (!NETSTANDARD)
 [SupportedOSPlatform("windows")]
 #endif
 internal class SystemDriveSerialNumberComponent : IDeviceIdComponent

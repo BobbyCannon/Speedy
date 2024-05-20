@@ -4,9 +4,9 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Speedy.Data;
 using Speedy.Extensions;
 using Speedy.Net;
+using Speedy.Runtime;
 using Speedy.Serialization;
 using Speedy.Storage;
 

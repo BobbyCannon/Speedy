@@ -10,6 +10,7 @@ using Windows.System.Profile;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Speedy.Data;
 using Speedy.Extensions;
+using Speedy.Runtime;
 
 #endregion
 

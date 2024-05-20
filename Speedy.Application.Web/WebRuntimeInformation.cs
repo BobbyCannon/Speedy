@@ -1,12 +1,13 @@
 ﻿#region References
 
-using System;
 using System.IO;
 using System.Security.Principal;
-using Speedy.Application.Internal.Windows;
-using Speedy.Data;
+using Speedy.Runtime;
+
 #if (NETFRAMEWORK)
 using System.Web;
+#else
+using System;
 #endif
 
 #endregion
@@ -58,25 +59,6 @@ public class WebRuntimeInformation : RuntimeInformation
 	}
 
 	/// <inheritdoc />
-	protected override string GetApplicationLocation()
-	{
-		var location = GetApplicationAssembly().Location;
-		return Path.GetDirectoryName(location);
-	}
-
-	/// <inheritdoc />
-	protected override string GetApplicationName()
-	{
-		return GetApplicationAssembly()?.GetName().Name;
-	}
-
-	/// <inheritdoc />
-	protected override Version GetApplicationVersion()
-	{
-		return GetApplicationAssembly()?.GetName().Version;
-	}
-
-	/// <inheritdoc />
 	protected override string GetDeviceId()
 	{
 		return new DeviceId()
@@ -86,35 +68,9 @@ public class WebRuntimeInformation : RuntimeInformation
 	}
 
 	/// <inheritdoc />
-	protected override string GetDeviceManufacturer()
-	{
-		return new DeviceManufacturerRegistryComponent().GetValue()
-			?? new DeviceManufacturerWmiComponent().GetValue();
-	}
-
-	/// <inheritdoc />
-	protected override string GetDeviceModel()
-	{
-		return new DeviceModelRegistryComponent().GetValue()
-			?? new DeviceModelWmiComponent().GetValue();
-	}
-
-	/// <inheritdoc />
-	protected override string GetDeviceName()
-	{
-		return Environment.MachineName;
-	}
-
-	/// <inheritdoc />
 	protected override DevicePlatform GetDevicePlatform()
 	{
 		return DevicePlatform.Windows;
-	}
-
-	/// <inheritdoc />
-	protected override Version GetDevicePlatformVersion()
-	{
-		return Environment.OSVersion.Version;
 	}
 
 	/// <inheritdoc />

@@ -3,11 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using Speedy.Application.Internal;
+using Speedy.Internal;
 
 #endregion
 
-namespace Speedy.Application;
+namespace Speedy.Runtime;
 
 /// <summary>
 /// Provides unique device identifiers.
@@ -57,16 +57,6 @@ public class DeviceId
 	}
 
 	/// <summary>
-	/// Adds the MAC address to the device identifier, optionally excluding wireless adapters.
-	/// </summary>
-	/// <param name="excludeWireless"> A value indicating whether wireless adapters should be excluded. </param>
-	/// <returns> The <see cref="DeviceId" /> instance. </returns>
-	public DeviceId AddMacAddress(bool excludeWireless = false)
-	{
-		return AddComponent("MACAddress", new MacAddressDeviceIdComponent(excludeWireless));
-	}
-
-	/// <summary>
 	/// Adds the machine name to the device identifier.
 	/// </summary>
 	/// <returns> The <see cref="DeviceId" /> instance. </returns>
@@ -85,7 +75,7 @@ public class DeviceId
 	}
 
 	/// <summary>
-	/// Adds the current user name to the device identifier.
+	/// Adds the current username to the device identifier.
 	/// </summary>
 	/// <returns> The <see cref="DeviceId" /> instance. </returns>
 	public DeviceId AddUserName()

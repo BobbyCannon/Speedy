@@ -2,10 +2,21 @@
 
 using System.Linq;
 using System.Net.NetworkInformation;
+using Speedy.Runtime;
+
+/* Unmerged change from project 'Cornerstone (netstandard2.0)'
+Before:
+using Cornerstone.Runtime;
+After:
+using Cornerstone;
+using Cornerstone.Internal;
+using Cornerstone.Internal;
+using Cornerstone.Runtime;
+*/
 
 #endregion
 
-namespace Speedy.Application.Internal;
+namespace Speedy.Internal;
 
 /// <summary>
 /// An implementation of <see cref="IDeviceIdComponent" /> that uses the MAC Address of the PC.

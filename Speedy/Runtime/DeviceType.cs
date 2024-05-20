@@ -1,4 +1,4 @@
-﻿namespace Speedy.Data;
+﻿namespace Speedy.Runtime;
 
 /// <summary>
 /// Represents the type of device

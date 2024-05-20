@@ -1,12 +1,14 @@
 ﻿#region References
 
+using Speedy.Runtime;
+
 #if MONOANDROID
 using Android.Provider;
 #elif XAMARIN_IOS
 using UIKit;
 #elif WINDOWS_UWP || NETCOREAPP
 using System.Runtime.InteropServices.WindowsRuntime;
-using Speedy.Application.Internal;
+using Speedy.Internal;
 using Windows.System.Profile;
 #endif
 

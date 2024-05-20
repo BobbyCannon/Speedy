@@ -5,7 +5,8 @@ using System.Text;
 
 #endregion
 
-namespace Speedy.Application.Internal;
+
+namespace Speedy.Internal;
 
 /// <summary>
 /// An implementation of <see cref="IByteArrayEncoder" /> that encodes byte arrays as Base32 strings.

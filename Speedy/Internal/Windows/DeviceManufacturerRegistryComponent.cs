@@ -1,15 +1,13 @@
 ﻿#region References
 
-using Microsoft.Win32;
-#if (NET6_0_OR_GREATER)
 using System.Runtime.Versioning;
-#endif
+using Microsoft.Win32;
 
 #endregion
 
-namespace Speedy.Application.Internal.Windows;
+namespace Speedy.Internal.Windows;
 
-#if (NET6_0_OR_GREATER)
+#if (!NETSTANDARD)
 [SupportedOSPlatform("windows")]
 #endif
 internal class DeviceManufacturerRegistryComponent : RegistryComponent

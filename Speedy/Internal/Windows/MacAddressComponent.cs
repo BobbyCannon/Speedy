@@ -3,17 +3,18 @@
 using System.Collections.Generic;
 using System.Management;
 using System.Runtime.Versioning;
+using Speedy.Runtime;
 
 #endregion
 
-namespace Speedy.Application.Internal.Windows;
+namespace Speedy.Internal.Windows;
 
 /// <summary>
 /// An implementation of <see cref="IDeviceIdComponent" /> that uses the MAC Address of the PC.
 /// This improves upon the basic <see cref="MacAddressDeviceIdComponent" /> by using WMI
 /// to get better information from either MSFT_NetAdapter or Win32_NetworkAdapter.
 /// </summary>
-#if (NET6_0_OR_GREATER)
+#if (!NETSTANDARD)
 [SupportedOSPlatform("windows")]
 #endif
 internal class MacAddressComponent : IDeviceIdComponent

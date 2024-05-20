@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Speedy.Runtime;
 
 #endregion
 
-namespace Speedy.Application.Internal;
+
+namespace Speedy.Internal;
 
 /// <summary>
 /// An implementation of <see cref="IDeviceIdFormatter" /> that combines the components into a hash.

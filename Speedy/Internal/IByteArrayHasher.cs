@@ -1,4 +1,5 @@
-﻿namespace Speedy.Application.Internal;
+﻿
+namespace Speedy.Internal;
 
 /// <summary>
 /// Provides functionality to hash a byte array.

@@ -1,4 +1,5 @@
-﻿namespace Speedy.Application.Internal;
+﻿
+namespace Speedy.Internal;
 
 /// <summary>
 /// Provides functionality to encode a byte array as a string.

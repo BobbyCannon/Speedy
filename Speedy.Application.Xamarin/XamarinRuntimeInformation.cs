@@ -2,10 +2,10 @@
 
 using System;
 using Speedy.Application.Xamarin.Extensions;
-using Speedy.Data;
+using Speedy.Runtime;
 using Xamarin.Essentials;
-using DevicePlatform = Speedy.Data.DevicePlatform;
-using DeviceType = Speedy.Data.DeviceType;
+using DevicePlatform = Speedy.Runtime.DevicePlatform;
+using DeviceType = Speedy.Runtime.DeviceType;
 
 #endregion
 

@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedy.Application;
 using Speedy.Automation.Tests;
 using Speedy.Configuration.CommandLine;
 using Speedy.Data.Location;
 using Speedy.EntityFramework;
 using Speedy.Extensions;
+using Speedy.Runtime;
 using Speedy.Serialization;
 using Speedy.UnitTests.Factories;
 using Speedy.Website.Data.Entities;
@@ -31,24 +31,25 @@ public class UpdateableExtensionsTests : SpeedyUnitTest
 		{
 			typeof(Database).Assembly,
 			typeof(EntityFrameworkDatabase).Assembly,
-			typeof(DeviceId).Assembly
+			typeof(Application.ViewModel).Assembly
 		};
 		var exclusions = new[]
 		{
 			// Will get back to these later
-			typeof(CommandLineParser)
+			typeof(CommandLineParser),
+			typeof(RuntimeInformation)
 		};
 		var typeExclusions = new Dictionary<Type, string[]>
 		{
 			//{ typeof(Location), new[] { nameof(Location.HorizontalFlags), nameof(Location.VerticalFlags) } },
-			{ typeof(SerializerSettings), new[] { nameof(SerializerSettings.JsonSettings) } },
+			{ typeof(SerializerSettings), [nameof(SerializerSettings.JsonSettings)] },
 			{
-				typeof(CommandLineArgument), new[]
-				{
+				typeof(CommandLineArgument), 
+				[
 					nameof(CommandLineArgument.DefaultValue),
 					nameof(CommandLineArgument.HasDefaultValue),
 					nameof(CommandLineArgument.WasFound)
-				}
+				]
 			}
 		};
 		var types = assemblies

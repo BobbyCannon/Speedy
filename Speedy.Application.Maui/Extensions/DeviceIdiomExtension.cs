@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Maui.Devices;
-using DeviceType = Speedy.Data.DeviceType;
+using DeviceType = Speedy.Runtime.DeviceType;
 
 #endregion
 

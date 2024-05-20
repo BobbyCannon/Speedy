@@ -468,7 +468,8 @@ namespace Speedy.Sync
 					{
 						Profiler.ProcessSyncObjectDeleted.Time(() =>
 						{
-							if (foundEntity == null)
+							var entityNotFound = foundEntity == null;
+							if (entityNotFound)
 							{
 								// Check to see if we are permanently deleting sync entity
 								if (SyncOptions.PermanentDeletions)
@@ -483,7 +484,6 @@ namespace Speedy.Sync
 								// Insert the "soft deleted" item into the database "IsDeleted" will be handled below.
 								foundEntity = (ISyncEntity) Activator.CreateInstance(syncEntity.GetType());
 								foundEntity.SyncId = syncObject.SyncId;
-								repository.Add(foundEntity);
 							}
 
 							if (!UpdateEntity(database, syncObject, syncEntity, foundEntity, syncStatus, issues))
@@ -495,10 +495,14 @@ namespace Speedy.Sync
 							if (SyncOptions.PermanentDeletions)
 							{
 								repository.Remove(foundEntity);
+								return;
 							}
-							else
+
+							foundEntity.IsDeleted = true;
+
+							if (entityNotFound)
 							{
-								foundEntity.IsDeleted = true;
+								repository.Add(foundEntity);
 							}
 						});
 						break;

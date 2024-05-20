@@ -1,11 +1,12 @@
 ﻿#region References
 
 using Microsoft.Win32;
-using Speedy.Application.Internal.Windows;
+using Speedy.Internal.Windows;
+using Speedy.Runtime;
 
 #endregion
 
-namespace Speedy.Application.Wpf.Extensions;
+namespace Speedy.Extensions;
 
 /// <summary>
 /// Extension methods for <see cref="DeviceId" />.

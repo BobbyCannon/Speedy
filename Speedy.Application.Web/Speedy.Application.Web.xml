@@ -21,31 +21,10 @@
             The elevated status of an application.
             </summary>
         </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationLocation">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationName">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetApplicationVersion">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDeviceId">
             <inheritdoc />
         </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDeviceManufacturer">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDeviceModel">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDeviceName">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDevicePlatform">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDevicePlatformVersion">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Application.Web.WebRuntimeInformation.GetDeviceType">
