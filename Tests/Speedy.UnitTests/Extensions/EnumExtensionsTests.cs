@@ -1,7 +1,9 @@
 ﻿#if NET6_0_OR_GREATER
+
 #region References
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -86,6 +88,46 @@ namespace Speedy.UnitTests.Extensions
 			Assert.AreEqual("1", ((Enum) FullValues.Value1).GetDisplayShortName());
 			Assert.AreEqual("2", ((Enum) FullValues.Value2).GetDisplayShortName());
 			Assert.AreEqual("Value3", ((Enum) FullValues.Value3).GetDisplayShortName());
+		}
+
+		[TestMethod]
+		public void GetFlaggedString()
+		{
+			var scenarios = new Dictionary<FlaggedSample, string>
+			{
+				{ FlaggedSample.Unknown, "Unknown" },
+				{ FlaggedSample.One, "One" },
+				{ FlaggedSample.Two, "Two" },
+				{ FlaggedSample.Four, "Four" },
+				{ FlaggedSample.Eight, "Eight" },
+				{ FlaggedSample.All, "One, Two, Four, Eight" },
+				{ FlaggedSample.One | FlaggedSample.Four, "One, Four" },
+				{ FlaggedSample.Eight | FlaggedSample.Two, "Two, Eight" }
+			};
+
+			foreach (var scenario in scenarios)
+			{
+				AreEqual(scenario.Value, scenario.Key.ToFlagsString());
+			}
+		}
+
+		[TestMethod]
+		public void GetFlaggedValueOfInstance()
+		{
+			var scenarios = new Dictionary<FlaggedSample, FlaggedSample[]>
+			{
+				{ FlaggedSample.Unknown, [] },
+				{ FlaggedSample.One, [FlaggedSample.One] },
+				{ FlaggedSample.Two, [FlaggedSample.Two] },
+				{ FlaggedSample.Four, [FlaggedSample.Four] },
+				{ FlaggedSample.Eight, [FlaggedSample.Eight] },
+				{ FlaggedSample.All, [FlaggedSample.One, FlaggedSample.Two, FlaggedSample.Four, FlaggedSample.Eight] }
+			};
+
+			foreach (var scenario in scenarios)
+			{
+				AreEqual(scenario.Value, scenario.Key.GetFlaggedValues());
+			}
 		}
 
 		[TestMethod]
@@ -266,6 +308,17 @@ namespace Speedy.UnitTests.Extensions
 		#endregion
 
 		#region Enumerations
+
+		[Flags]
+		public enum FlaggedSample
+		{
+			Unknown = 0,
+			One = 0b0001,
+			Two = 0b0010,
+			Four = 0b0100,
+			Eight = 0b1000,
+			All = 0b1111
+		}
 
 		public enum FullValues
 		{

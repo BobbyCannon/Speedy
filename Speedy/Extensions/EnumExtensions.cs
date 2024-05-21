@@ -209,8 +209,8 @@ public static class EnumExtensions
 	public static EnumDetails GetEnumDetails(this Enum value)
 	{
 		var allDetails = GetAllEnumDetails(value.GetType());
-		return allDetails.ContainsKey(value)
-			? allDetails[value]
+		return allDetails.TryGetValue(value, out var detail)
+			? detail
 			: new EnumDetails
 			{
 				Description = value.ToString(),
@@ -240,7 +240,7 @@ public static class EnumExtensions
 	/// <returns> The individual values for the enum. </returns>
 	public static T[] GetFlaggedValues<T>(this T value) where T : Enum
 	{
-		var values = GetValues<T>();
+		var values = GetFlagValues<T>();
 		return values.Where(x => value?.HasFlag(x) == true).ToArray();
 	}
 
@@ -287,6 +287,25 @@ public static class EnumExtensions
 	public static T SetFlag<T>(this T value, T flag) where T : Enum
 	{
 		return value.SetFlag(flag, true);
+	}
+
+	/// <summary>
+	/// Get a string with the flagged values joined.
+	/// </summary>
+	/// <typeparam name="T"> The enum value type. </typeparam>
+	/// <param name="value"> The value containing the flags. </param>
+	/// <param name="separator"> The separator to combine flags with </param>
+	/// <returns> The string value. </returns>
+	public static string ToFlagsString<T>(this T value, string separator = ", ") where T : Enum
+	{
+		var values = value
+			.GetFlaggedValues()
+			.Select(x => x.ToString())
+			.ToList();
+
+		return values.Count > 0
+			? string.Join(separator, values)
+			: value.ToString();
 	}
 
 	/// <summary>

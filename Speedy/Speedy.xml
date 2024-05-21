@@ -6273,6 +6273,15 @@
             <param name="flag"> The flag to be set. </param>
             <returns> The value with the flagged set. </returns>
         </member>
+        <member name="M:Speedy.Extensions.EnumExtensions.ToFlagsString``1(``0,System.String)">
+            <summary>
+            Get a string with the flagged values joined.
+            </summary>
+            <typeparam name="T"> The enum value type. </typeparam>
+            <param name="value"> The value containing the flags. </param>
+            <param name="separator"> The separator to combine flags with </param>
+            <returns> The string value. </returns>
+        </member>
         <member name="M:Speedy.Extensions.EnumExtensions.UpdateFlag``1(``0,``0,``0)">
             <summary>
             Set the "flagged" enum value based on the provided update value state.
