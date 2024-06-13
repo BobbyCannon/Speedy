@@ -28,9 +28,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Application.Xamarin.xml</DocumentationFile>
-		<AssemblyVersion>12.1.0.0</AssemblyVersion>
-		<FileVersion>12.1.0.0</FileVersion>
-		<Version>12.1.0</Version>
+		<AssemblyVersion>12.1.1.0</AssemblyVersion>
+		<FileVersion>12.1.1.0</FileVersion>
+		<Version>12.1.1</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<NoWarn>1701;1702;MSB3277;CS8002</NoWarn>
 	</PropertyGroup>

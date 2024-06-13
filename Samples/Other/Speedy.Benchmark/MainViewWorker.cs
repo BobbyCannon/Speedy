@@ -37,8 +37,8 @@ namespace Speedy.Benchmark
 
 		static MainViewWorker()
 		{
-			DefaultConnection = "server=localhost;database=Speedy;integrated security=true;";
-			DefaultConnection2 = "server=localhost;database=Speedy2;integrated security=true;";
+			DefaultConnection = "server=localhost;database=Speedy;integrated security=true;encrypt=false;";
+			DefaultConnection2 = "server=localhost;database=Speedy2;integrated security=true;encrypt=false;";
 			DefaultSqliteConnection = "Data Source=Speedy.db";
 			DefaultSqliteConnection2 = "Data Source=Speedy2.db";
 		}

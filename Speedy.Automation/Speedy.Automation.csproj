@@ -21,9 +21,9 @@
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.Automation.xml</DocumentationFile>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
-		<AssemblyVersion>12.1.0.0</AssemblyVersion>
-		<FileVersion>12.1.0.0</FileVersion>
-		<Version>12.1.0</Version>
+		<AssemblyVersion>12.1.1.0</AssemblyVersion>
+		<FileVersion>12.1.1.0</FileVersion>
+		<Version>12.1.1</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>

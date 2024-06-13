@@ -23,9 +23,9 @@
 		<Authors>Bobby Cannon</Authors>
 		<LangVersion>latest</LangVersion>
 		<DocumentationFile>Speedy.EntityFramework.xml</DocumentationFile>
-		<AssemblyVersion>12.1.0.0</AssemblyVersion>
-		<FileVersion>12.1.0.0</FileVersion>
-		<Version>12.1.0</Version>
+		<AssemblyVersion>12.1.1.0</AssemblyVersion>
+		<FileVersion>12.1.1.0</FileVersion>
+		<Version>12.1.1</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
@@ -52,16 +52,16 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.32" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'">
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.19" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.19" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.19" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.19" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="7.0.20" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.20" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.20" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.20" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.5" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.6" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.6" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Speedy\Speedy.csproj" />
