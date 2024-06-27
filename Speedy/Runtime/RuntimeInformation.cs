@@ -350,7 +350,9 @@ public class RuntimeInformation : Bindable, IReadOnlyDictionary<string, object>,
 	/// </summary>
 	protected virtual bool GetApplicationIsElevated()
 	{
+		#pragma warning disable CA1416
 		return IsWindows() && (WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) ?? false);
+		#pragma warning restore CA1416
 	}
 
 	/// <summary>
@@ -399,8 +401,10 @@ public class RuntimeInformation : Bindable, IReadOnlyDictionary<string, object>,
 	{
 		if (IsWindows())
 		{
+			#pragma warning disable CA1416
 			return new DeviceManufacturerRegistryComponent().GetValue()
 				?? new DeviceManufacturerWmiComponent().GetValue();
+			#pragma warning restore CA1416
 		}
 
 		return string.Empty;
@@ -413,8 +417,10 @@ public class RuntimeInformation : Bindable, IReadOnlyDictionary<string, object>,
 	{
 		if (IsWindows())
 		{
+			#pragma warning disable CA1416
 			return new DeviceModelRegistryComponent().GetValue()
 				?? new DeviceModelWmiComponent().GetValue();
+			#pragma warning restore CA1416
 		}
 
 		return string.Empty;

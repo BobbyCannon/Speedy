@@ -138,7 +138,7 @@ public class MemoryCache : Bindable, ICollection<MemoryCacheItem>, ICollection, 
 	{
 		lock (SyncRoot)
 		{
-			return _dictionary.ContainsValue(item);
+			return item != null && TryGet(item.Key, out _);
 		}
 	}
 
@@ -191,7 +191,7 @@ public class MemoryCache : Bindable, ICollection<MemoryCacheItem>, ICollection, 
 	{
 		lock (SyncRoot)
 		{
-			return _dictionary.ContainsKey(key);
+			return TryGet(key, out _);
 		}
 	}
 

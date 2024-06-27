@@ -16,6 +16,17 @@ public abstract class ClientEntity<T> : SyncModel<T>, IClientEntity
 	public DateTime LastClientUpdate { get; set; }
 
 	#endregion
+
+	#region Methods
+
+	/// <inheritdoc />
+	public override void EntityAddedDeletedOrModified()
+	{
+		LastClientUpdate = TimeService.UtcNow;
+		base.EntityAddedDeletedOrModified();
+	}
+
+	#endregion
 }
 
 /// <summary>

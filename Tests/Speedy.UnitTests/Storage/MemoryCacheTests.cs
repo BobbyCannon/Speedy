@@ -282,6 +282,7 @@ public class MemoryCacheTests : SpeedyUnitTest
 		AreEqual(0, cache.Count);
 
 		cache.Set("foo", "bar");
+		IsTrue(cache.HasKey("foo"));
 		IsTrue(cache.TryGet("foo", out var item));
 		AreEqual("bar", (string) item.Value);
 		AreEqual(new DateTime(2022, 09, 17, 09, 36, 10), item.ExpirationDate);
@@ -289,13 +290,15 @@ public class MemoryCacheTests : SpeedyUnitTest
 
 		// Accessing the value should not bump expiration
 		IncrementTime(seconds: 5);
-		cache.TryGet("foo", out item);
+		IsTrue(cache.HasKey("foo"));
+		IsTrue(cache.TryGet("foo", out item));
 		AreEqual(new DateTime(2022, 09, 17, 09, 36, 10), item.ExpirationDate);
 		IsFalse(item.HasExpired);
 		AreEqual(1, cache.Count);
 
 		// Bump to expiration date
 		IncrementTime(seconds: 5);
+		IsFalse(cache.HasKey("foo"));
 		IsFalse(cache.TryGet("foo", out item));
 		IsNull(item);
 		AreEqual(0, cache.Count);

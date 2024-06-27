@@ -13,7 +13,7 @@ namespace Speedy.Sync;
 /// <summary>
 /// Represents options to be used during a sync.
 /// </summary>
-public class SyncOptions : CloneableBindable<SyncOptions>
+public class SyncOptions : CloneableBindable<SyncOptions>, ISyncTimes
 {
 	#region Constants
 
@@ -68,14 +68,10 @@ public class SyncOptions : CloneableBindable<SyncOptions>
 	/// </summary>
 	public int ItemsPerSyncRequest { get; set; }
 
-	/// <summary>
-	/// Gets or sets the client was last synced on date and time.
-	/// </summary>
+	/// <inheritdoc />
 	public DateTime LastSyncedOnClient { get; set; }
 
-	/// <summary>
-	/// Gets or sets the server was last synced on date and time.
-	/// </summary>
+	/// <inheritdoc />
 	public DateTime LastSyncedOnServer { get; set; }
 
 	/// <summary>

@@ -286,6 +286,9 @@
         <member name="P:Speedy.ClientEntity`1.LastClientUpdate">
             <inheritdoc />
         </member>
+        <member name="M:Speedy.ClientEntity`1.EntityAddedDeletedOrModified">
+            <inheritdoc />
+        </member>
         <member name="T:Speedy.IClientEntity">
             <summary>
             Represents a client entity.
@@ -19168,14 +19171,10 @@
             </summary>
         </member>
         <member name="P:Speedy.Sync.SyncOptions.LastSyncedOnClient">
-            <summary>
-            Gets or sets the client was last synced on date and time.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncOptions.LastSyncedOnServer">
-            <summary>
-            Gets or sets the server was last synced on date and time.
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:Speedy.Sync.SyncOptions.PermanentDeletions">
             <summary>
@@ -19603,6 +19602,44 @@
         <member name="P:Speedy.Sync.SyncTimer.SuccessfulSyncs">
             <summary>
             Tracks the number of successful syncs.
+            </summary>
+        </member>
+        <member name="T:Speedy.Sync.SyncTimes">
+            <summary>
+            Client / Server Sync Times
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncTimes.#ctor">
+            <summary>
+            Instantiates an instance of the class.
+            </summary>
+        </member>
+        <member name="M:Speedy.Sync.SyncTimes.#ctor(System.DateTime,System.DateTime)">
+            <summary>
+            Instantiates an instance of the class.
+            </summary>
+            <param name="client"> The date and time for the client. </param>
+            <param name="server"> The date and time for the server. </param>
+        </member>
+        <member name="P:Speedy.Sync.SyncTimes.LastSyncedOnClient">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Sync.SyncTimes.LastSyncedOnServer">
+            <inheritdoc />
+        </member>
+        <member name="T:Speedy.Sync.ISyncTimes">
+            <summary>
+            Client / Server Sync Times
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncTimes.LastSyncedOnClient">
+            <summary>
+            Gets or sets the last synced on date and time for the client.
+            </summary>
+        </member>
+        <member name="P:Speedy.Sync.ISyncTimes.LastSyncedOnServer">
+            <summary>
+            Gets or sets the last synced on date and time for the server.
             </summary>
         </member>
         <member name="T:Speedy.Threading.IReaderWriterLock">
