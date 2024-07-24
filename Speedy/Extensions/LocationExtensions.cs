@@ -12,6 +12,32 @@ using static System.Math;
 namespace Speedy.Extensions;
 
 /// <summary>
+/// Distance unit.
+/// </summary>
+public enum DistanceUnit
+{
+	/// <summary>
+	/// Miles.
+	/// </summary>
+	Miles,
+
+	/// <summary>
+	/// Nautical miles.
+	/// </summary>
+	NauticalMiles,
+
+	/// <summary>
+	/// Kilometers.
+	/// </summary>
+	Kilometers,
+
+	/// <summary>
+	/// Meters.
+	/// </summary>
+	Meters
+}
+
+/// <summary>
 /// Extensions for location related code.
 /// </summary>
 public static class LocationExtensions
@@ -22,6 +48,16 @@ public static class LocationExtensions
 	/// Radius of the earth.
 	/// </summary>
 	public const double EarthRadius = 6378137.0;
+
+	#endregion
+
+	#region Fields
+
+	private static readonly double EarthRadiusInKilometers = 6371.0;
+	private static readonly double EarthRadiusInMeters = 6371000.0;
+
+	private static readonly double EarthRadiusInMiles = 3959.0;
+	private static readonly double EarthRadiusInNauticalMiles = 3440.0;
 
 	#endregion
 
@@ -183,33 +219,65 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
-	/// Calculates the distance between two locations in meters.
+	/// Calculates the distance between two locations. Defaults to meters.
 	/// </summary>
 	/// <param name="latitudeStart"> Latitude start. </param>
 	/// <param name="longitudeStart"> Longitude start. </param>
 	/// <param name="latitudeEnd"> Latitude end. </param>
 	/// <param name="longitudeEnd"> Longitude end. </param>
-	/// <returns> The distance in meters. </returns>
-	public static double DistanceBetween(double latitudeStart, double longitudeStart, double latitudeEnd, double longitudeEnd)
+	/// <param name="decimalPlaces"> The decimal places to return. </param>
+	/// <param name="distanceUnit"> The unit of the distance to return. </param>
+	/// <returns> The distance in unit requested. </returns>
+	public static double DistanceBetween(double latitudeStart, double longitudeStart, double latitudeEnd, double longitudeEnd,
+		int decimalPlaces = 7, DistanceUnit distanceUnit = DistanceUnit.Meters)
 	{
-		var dLon = ToRadians(longitudeEnd - longitudeStart);
-		var theta1 = ToRadians(latitudeStart);
-		var theta2 = ToRadians(latitudeEnd);
-		var s1 = Sin(theta2 - theta1);
-		var s2 = Sin(dLon / 2.0);
-		var a = (s1 * s1) + (Cos(theta1) * Cos(theta2) * s2 * s2);
+		if (!Validate(latitudeStart, longitudeStart))
+		{
+			throw new ArgumentException("Invalid origin coordinates supplied.");
+		}
+		if (!Validate(latitudeEnd, longitudeEnd))
+		{
+			throw new ArgumentException("Invalid destination coordinates supplied.");
+		}
 
-		var distanceInMeters = EarthRadius * 2 * Atan2(Sqrt(a), Sqrt(1.0 - a));
-		return distanceInMeters;
+		var radius = GetRadius(distanceUnit);
+		return Round(
+			radius * 2 *
+			Asin(Min(1,
+				Sqrt(
+					Pow(Sin(latitudeStart.DiffRadian(latitudeEnd) / 2.0), 2.0) +
+					(Cos(latitudeStart.ToRadian()) * Cos(latitudeEnd.ToRadian()) *
+						Pow(Sin(longitudeStart.DiffRadian(longitudeEnd) / 2.0),
+							2.0))))), decimalPlaces);
 	}
 
 	/// <summary>
-	/// Calculates the distance between two locations in meters.
+	/// Calculates the distance between two locations. Defaults to meters.
 	/// </summary>
 	/// <param name="start"> Start. </param>
 	/// <param name="end"> End. </param>
-	/// <returns> The distance in meters. </returns>
-	public static double DistanceBetween(this Location start, Location end)
+	/// <param name="decimalPlaces"> The decimal places to return. </param>
+	/// <param name="distanceUnit"> The unit of the distance to return. </param>
+	/// <returns> The distance in unit requested. </returns>
+	public static double DistanceBetween(this IBasicLocation start, IBasicLocation end,
+		int decimalPlaces = 7, DistanceUnit distanceUnit = DistanceUnit.Meters)
+	{
+		return DistanceBetween(start.Latitude, start.Longitude, start.Altitude,
+			end.Latitude, end.Longitude, end.Altitude,
+			decimalPlaces, distanceUnit
+		);
+	}
+	
+	/// <summary>
+	/// Calculates the distance between two locations. Defaults to meters.
+	/// </summary>
+	/// <param name="start"> Start. </param>
+	/// <param name="end"> End. </param>
+	/// <param name="decimalPlaces"> The decimal places to return. </param>
+	/// <param name="distanceUnit"> The unit of the distance to return. </param>
+	/// <returns> The distance in unit requested. </returns>
+	public static double DistanceBetween(this Location start, Location end,
+		int decimalPlaces = 7, DistanceUnit distanceUnit = DistanceUnit.Meters)
 	{
 		if (!start.VerticalLocation.HasValue
 			|| !end.VerticalLocation.HasValue)
@@ -218,7 +286,9 @@ public static class LocationExtensions
 				start.HorizontalLocation.Latitude,
 				start.HorizontalLocation.Longitude,
 				end.HorizontalLocation.Latitude,
-				end.HorizontalLocation.Longitude
+				end.HorizontalLocation.Longitude,
+				decimalPlaces,
+				distanceUnit
 			);
 		}
 
@@ -228,12 +298,14 @@ public static class LocationExtensions
 			start.VerticalLocation.Altitude,
 			end.HorizontalLocation.Latitude,
 			end.HorizontalLocation.Longitude,
-			end.VerticalLocation.Altitude
+			end.VerticalLocation.Altitude,
+			decimalPlaces,
+			distanceUnit
 		);
 	}
 
 	/// <summary>
-	/// Calculates the distance between two locations in meters.
+	/// Calculates the distance between two locations. Defaults to meters.
 	/// </summary>
 	/// <param name="latitudeStart"> Latitude start. </param>
 	/// <param name="longitudeStart"> Longitude start. </param>
@@ -241,23 +313,22 @@ public static class LocationExtensions
 	/// <param name="latitudeEnd"> Latitude end. </param>
 	/// <param name="longitudeEnd"> Longitude end. </param>
 	/// <param name="altitudeEnd"> Altitude end. </param>
-	/// <returns> The distance in meters. </returns>
-	public static double DistanceBetween(double latitudeStart, double longitudeStart, double altitudeStart, double latitudeEnd, double longitudeEnd, double altitudeEnd)
+	/// <param name="decimalPlaces"> The decimal places to return. </param>
+	/// <param name="distanceUnit"> The unit of the distance to return. </param>
+	/// <returns> The distance in unit requested. </returns>
+	public static double DistanceBetween(double latitudeStart, double longitudeStart, double altitudeStart,
+		double latitudeEnd, double longitudeEnd, double altitudeEnd,
+		int decimalPlaces = 7, DistanceUnit distanceUnit = DistanceUnit.Meters)
 	{
-		const double earthRadius = 6378137.0;
-
-		var dLon = ToRadians(longitudeEnd - longitudeStart);
-		var theta1 = ToRadians(latitudeStart);
-		var theta2 = ToRadians(latitudeEnd);
-		var s1 = Sin(theta2 - theta1);
-		var s2 = Sin(dLon / 2.0);
-		var a = (s1 * s1) + (Cos(theta1) * Cos(theta2) * s2 * s2);
-
 		// Lateral distance:
-		s2 = earthRadius * 2 * Atan2(Sqrt(a), Sqrt(1.0 - a));
+		var s2 = DistanceBetween(
+			latitudeStart, longitudeStart,
+			latitudeEnd, longitudeEnd,
+			decimalPlaces, distanceUnit
+		);
 
 		// Vertical distance (ignoring distortion - it'll be minor as the points are very close in this use case):
-		s1 = altitudeEnd - altitudeStart;
+		var s1 = altitudeEnd - altitudeStart;
 
 		// Sqrt for the distance:
 		s1 = Sqrt((s2 * s2) + (s1 * s1));
@@ -372,7 +443,7 @@ public static class LocationExtensions
 	}
 
 	/// <summary>
-	/// Check a information to determine if a location device information has a heading.
+	/// Check an information to determine if a location device information has a heading.
 	/// </summary>
 	/// <param name="information"> The information to validate. </param>
 	/// <returns> True if the heading is available otherwise false. </returns>
@@ -734,6 +805,32 @@ public static class LocationExtensions
 		return true;
 	}
 
+	/// <summary>
+	/// Diffs the radian.
+	/// </summary>
+	/// <param name="val1"> First value. </param>
+	/// <param name="val2"> Second value. </param>
+	/// <returns> Double. </returns>
+	private static double DiffRadian(this double val1, double val2)
+	{
+		return val2.ToRadian() - val1.ToRadian();
+	}
+
+	private static double GetRadius(DistanceUnit distanceUnit)
+	{
+		switch (distanceUnit)
+		{
+			case DistanceUnit.Kilometers:
+				return EarthRadiusInKilometers;
+			case DistanceUnit.Meters:
+				return EarthRadiusInMeters;
+			case DistanceUnit.NauticalMiles:
+				return EarthRadiusInNauticalMiles;
+			default:
+				return EarthRadiusInMiles;
+		}
+	}
+
 	private static bool InternalGreaterThan(this IMinimalVerticalLocation left, IMinimalVerticalLocation right, bool inclusive)
 	{
 		if (left.AltitudeReference == right.AltitudeReference)
@@ -769,9 +866,39 @@ public static class LocationExtensions
 		return (ToDegrees(radians) + 360) % 360;
 	}
 
+	/// <summary>
+	/// Gets the radian.
+	/// </summary>
+	/// <param name="d"> The double. </param>
+	/// <returns> Double. </returns>
+	private static double ToRadian(this double d)
+	{
+		return d * (PI / 180);
+	}
+
 	private static double ToRadians(double degrees)
 	{
 		return 0.017453292519943295 * degrees;
+	}
+
+	/// <summary>
+	/// Validates the coordinate.
+	/// </summary>
+	/// <param name="latitude"> The latitude. </param>
+	/// <param name="longitude"> The longitude. </param>
+	/// <returns> True, if the coordinate is valid, false otherwise. </returns>
+	private static bool Validate(double latitude, double longitude)
+	{
+		if ((latitude < -90) || (latitude > 90))
+		{
+			return false;
+		}
+		if ((longitude < -180) || (longitude > 180))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	#endregion

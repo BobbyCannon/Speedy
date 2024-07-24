@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Speedy;
+namespace Speedy.Runtime;
 
 /// <summary>
 /// Represents a time provider
@@ -13,48 +13,49 @@ public class DateTimeProvider : IDateTimeProvider
 {
 	#region Fields
 
-	private Func<DateTime> _getCurrentTime;
-	private readonly Guid _provider;
+	private bool _locked;
+	private Func<DateTime> _provider;
+	private readonly Guid _providerId;
 
 	#endregion
 
 	#region Constructors
 
 	/// <summary>
-	/// Instantiate an provider for date time.
+	/// Initialize a provider for date time.
 	/// </summary>
 	public DateTimeProvider() : this(Guid.NewGuid(), null)
 	{
 	}
 
 	/// <summary>
-	/// Instantiate an provider for date time.
+	/// Initialize a provider for date time.
 	/// </summary>
 	public DateTimeProvider(DateTime currentTime) : this(Guid.NewGuid(), () => currentTime)
 	{
 	}
 
 	/// <summary>
-	/// Instantiate an provider for date time.
+	/// Initialize a provider for date time.
 	/// </summary>
-	public DateTimeProvider(Guid providerId, DateTime currentTime) : this(providerId, () => currentTime)
+	public DateTimeProvider(Guid providerIdId, DateTime currentTime) : this(providerIdId, () => currentTime)
 	{
 	}
 
 	/// <summary>
-	/// Instantiate an provider for date time.
+	/// Initialize a provider for date time.
 	/// </summary>
-	public DateTimeProvider(Func<DateTime> getCurrentTime) : this(Guid.NewGuid(), getCurrentTime)
+	public DateTimeProvider(Func<DateTime> provider) : this(Guid.NewGuid(), provider)
 	{
 	}
 
 	/// <summary>
-	/// Instantiate an provider for date time.
+	/// Initialize a provider for date time.
 	/// </summary>
-	public DateTimeProvider(Guid providerId, Func<DateTime> getCurrentTime)
+	public DateTimeProvider(Guid providerIdId, Func<DateTime> provider)
 	{
-		_getCurrentTime = getCurrentTime;
-		_provider = providerId;
+		_provider = provider;
+		_providerId = providerIdId;
 	}
 
 	#endregion
@@ -64,19 +65,28 @@ public class DateTimeProvider : IDateTimeProvider
 	/// <inheritdoc />
 	public DateTime GetDateTime()
 	{
-		return _getCurrentTime?.Invoke().ToLocalTime() ?? DateTime.Now;
+		return _provider?.Invoke().ToLocalTime() ?? DateTime.Now;
 	}
 
 	/// <inheritdoc />
 	public Guid GetProviderId()
 	{
-		return _provider;
+		return _providerId;
 	}
 
 	/// <inheritdoc />
 	public DateTime GetUtcDateTime()
 	{
-		return _getCurrentTime?.Invoke().ToUniversalTime() ?? DateTime.UtcNow;
+		return _provider?.Invoke().ToUniversalTime() ?? DateTime.UtcNow;
+	}
+
+	/// <summary>
+	/// Lock the provider to not allow the time service to change. Once locked
+	/// the provider can no longer be changes or updated.
+	/// </summary>
+	public void LockProvider()
+	{
+		_locked = true;
 	}
 
 	/// <summary>
@@ -85,14 +95,19 @@ public class DateTimeProvider : IDateTimeProvider
 	/// <param name="time"> </param>
 	public void UpdateDateTime(DateTime time)
 	{
-		_getCurrentTime = () => time;
+		if (_locked)
+		{
+			throw new InvalidOperationException("The DateTime provider is locked.");
+		}
+
+		_provider = () => time;
 	}
 
 	#endregion
 }
 
 /// <summary>
-/// Represents a time provider
+/// Represents the service to provide time. Allows control for when the system is being tested.
 /// </summary>
 public interface IDateTimeProvider : IProvider
 {

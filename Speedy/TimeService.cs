@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Speedy.Extensions;
+using Speedy.Runtime;
 
 #endregion
 
@@ -12,13 +13,13 @@ namespace Speedy;
 /// <summary>
 /// Represents the service to provide time. Allows control for when the system is being tested.
 /// </summary>
-public class TimeService : IDateTimeProvider
+public class TimeService
 {
 	#region Fields
 
+	private static readonly DateTimeProvider _defaultProvider;
 	private static readonly List<IDateTimeProvider> _providers;
 	private static bool _serviceLocked;
-	private static readonly TimeService _defaultProvider;
 
 	#endregion
 
@@ -27,7 +28,8 @@ public class TimeService : IDateTimeProvider
 	static TimeService()
 	{
 		_providers = new List<IDateTimeProvider>();
-		_defaultProvider = new TimeService();
+		_defaultProvider = new DateTimeProvider(Guid.Parse("48E21BDA-9E7A-4767-8E3B-B218203C9A71"), () => DateTime.UtcNow);
+		_defaultProvider.LockProvider();
 
 		Reset();
 	}
@@ -41,7 +43,7 @@ public class TimeService : IDateTimeProvider
 	#region Properties
 
 	/// <summary>
-	/// Gets the ID of the Now provider.
+	/// Gets the current DateTime provider.
 	/// </summary>
 	public static IDateTimeProvider CurrentProvider => _providers.LastOrDefault() ?? _defaultProvider;
 
@@ -49,6 +51,11 @@ public class TimeService : IDateTimeProvider
 	/// Gets the ID of the Now provider.
 	/// </summary>
 	public static Guid CurrentProviderId => CurrentProvider.GetProviderId();
+
+	/// <summary>
+	/// Gets the default DateTime provider.
+	/// </summary>
+	public static IDateTimeProvider DefaultProvider => _defaultProvider;
 
 	/// <summary>
 	/// Gets the date time in the format of the current time zone.

@@ -16,7 +16,7 @@ namespace Speedy;
 /// Represents a Speedy entity.
 /// </summary>
 /// <typeparam name="T"> The type of the entity primary ID. </typeparam>
-public abstract class Entity<T> : Entity, IUpdateable<T>
+public abstract class Entity<T> : Entity
 {
 	#region Properties
 
@@ -59,12 +59,6 @@ public abstract class Entity<T> : Entity, IUpdateable<T>
 	}
 
 	/// <inheritdoc />
-	public bool ShouldUpdate(T update)
-	{
-		return true;
-	}
-
-	/// <inheritdoc />
 	public override bool TrySetId(string id)
 	{
 		try
@@ -76,18 +70,6 @@ public abstract class Entity<T> : Entity, IUpdateable<T>
 		{
 			return false;
 		}
-	}
-
-	/// <inheritdoc />
-	public bool TryUpdateWith(T update, params string[] exclusions)
-	{
-		return UpdateableExtensions.TryUpdateWith(this, update, exclusions);
-	}
-
-	/// <inheritdoc />
-	public virtual bool UpdateWith(T update, params string[] exclusions)
-	{
-		return this.UpdateWithUsingReflection(update, exclusions);
 	}
 
 	/// <inheritdoc />

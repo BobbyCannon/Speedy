@@ -8,6 +8,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Speedy.Extensions;
 using Speedy.Protocols.Osc;
+using Speedy.Serialization.Converters;
 
 #endregion
 
@@ -613,13 +614,23 @@ public static class ObjectConverter
 	internal static bool TryGetObject(JObject jObject, Type type, out object value)
 	{
 		var directProperties = type.GetCachedProperties();
-		var response = Activator.CreateInstance(type);
+		var response = type == typeof(object)
+			? new Dictionary<string, object>()
+			: Activator.CreateInstance(type);
+
+		var responseDictionary = response as Dictionary<string, object>;
 
 		foreach (var jValue in jObject)
 		{
 			var p = directProperties.FirstOrDefault(x => string.Equals(x.Name, jValue.Key, StringComparison.OrdinalIgnoreCase));
 			if (p == null)
 			{
+				responseDictionary?.AddOrUpdate(jValue.Key,
+					jValue.Value != null
+					&& TryGetValue(jValue.Value, PartialUpdateConverter.ConvertType(jValue.Value.Type), out var jValueValue)
+						? jValueValue
+						: jValue.Value
+				);
 				continue;
 			}
 

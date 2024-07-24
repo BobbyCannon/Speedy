@@ -1735,6 +1735,95 @@
             The items removed.
             </summary>
         </member>
+        <member name="T:Speedy.Collections.SpeedyQueue`1">
+            <inheritdoc cref="T:Speedy.Collections.ISpeedyQueue`1" />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.#ctor">
+            <summary>
+            Create an instance of the queue.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the queue.
+            </summary>
+            <param name="readerWriterLock"> An optional lock. Defaults to <see cref="T:Speedy.Threading.ReaderWriterLockTiny" /> if not provided. </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Collections.SpeedyQueue`1.Count">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyQueue`1.IsEmpty">
+            <inheritdoc />
+        </member>
+        <member name="P:Speedy.Collections.SpeedyQueue`1.Limit">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.Enqueue(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.TryDequeue(`0@)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.OnQueueChanged">
+            <summary>
+            Triggers the QueueChanged event.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.SpeedyQueue`1.System#Collections#IEnumerable#GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="E:Speedy.Collections.SpeedyQueue`1.QueueChanged">
+            <summary>
+            The queue has changed.
+            </summary>
+        </member>
+        <member name="T:Speedy.Collections.ISpeedyQueue`1">
+            <summary>
+            A thread-safe, dispatch safe, and limitable queue.
+            Dispatch safe and limit settings are optional.
+            </summary>
+            <typeparam name="T"> The type of items in the queue. </typeparam>
+        </member>
+        <member name="P:Speedy.Collections.ISpeedyQueue`1.Count">
+            <summary>
+            Gets the number of elements contained in the queue.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.ISpeedyQueue`1.IsEmpty">
+            <summary>
+            Gets a value that indicates whether the queue is empty.
+            </summary>
+        </member>
+        <member name="P:Speedy.Collections.ISpeedyQueue`1.Limit">
+            <summary>
+            The maximum limit for this queue
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.ISpeedyQueue`1.Clear">
+            <summary>
+            Clear the queue.
+            </summary>
+        </member>
+        <member name="M:Speedy.Collections.ISpeedyQueue`1.Enqueue(`0)">
+            <summary>
+            Adds an object to the queue.
+            </summary>
+            <param name="value"> The value to be added. </param>
+        </member>
+        <member name="M:Speedy.Collections.ISpeedyQueue`1.TryDequeue(`0@)">
+            <summary>
+            Tries to remove and return the object at the beginning of the concurrent queue.
+            </summary>
+            <param name="value"> The value that was dequeued. </param>
+            <returns> Returns true if a value was dequeued otherwise false. </returns>
+        </member>
         <member name="T:Speedy.Commands.RelayCommand">
             <summary>
             A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default return value for the CanExecute method is 'true'.
@@ -4797,68 +4886,6 @@
             <param name="arguments"> The value of the arguments. </param>
             <returns> The new instances of the type. </returns>
         </member>
-        <member name="T:Speedy.DateTimeProvider">
-            <summary>
-            Represents a time provider
-            </summary>
-        </member>
-        <member name="M:Speedy.DateTimeProvider.#ctor">
-            <summary>
-            Instantiate an provider for date time.
-            </summary>
-        </member>
-        <member name="M:Speedy.DateTimeProvider.#ctor(System.DateTime)">
-            <summary>
-            Instantiate an provider for date time.
-            </summary>
-        </member>
-        <member name="M:Speedy.DateTimeProvider.#ctor(System.Guid,System.DateTime)">
-            <summary>
-            Instantiate an provider for date time.
-            </summary>
-        </member>
-        <member name="M:Speedy.DateTimeProvider.#ctor(System.Func{System.DateTime})">
-            <summary>
-            Instantiate an provider for date time.
-            </summary>
-        </member>
-        <member name="M:Speedy.DateTimeProvider.#ctor(System.Guid,System.Func{System.DateTime})">
-            <summary>
-            Instantiate an provider for date time.
-            </summary>
-        </member>
-        <member name="M:Speedy.DateTimeProvider.GetDateTime">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.DateTimeProvider.GetProviderId">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.DateTimeProvider.GetUtcDateTime">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.DateTimeProvider.UpdateDateTime(System.DateTime)">
-            <summary>
-            Update the time for the provider.
-            </summary>
-            <param name="time"> </param>
-        </member>
-        <member name="T:Speedy.IDateTimeProvider">
-            <summary>
-            Represents a time provider
-            </summary>
-        </member>
-        <member name="M:Speedy.IDateTimeProvider.GetDateTime">
-            <summary>
-            Gets the DateTime in the current time zone.
-            </summary>
-            <returns> The current UTC date and time for the sync client. </returns>
-        </member>
-        <member name="M:Speedy.IDateTimeProvider.GetUtcDateTime">
-            <summary>
-            Gets the DateTime in UTC.
-            </summary>
-            <returns> The current UTC date and time for the sync client. </returns>
-        </member>
         <member name="T:Speedy.DefaultDispatcher">
             <summary>
             Represents a default dispatcher
@@ -4992,16 +5019,7 @@
             <param name="currentKey"> The current version of the key. </param>
             <returns> The new key to be used in. </returns>
         </member>
-        <member name="M:Speedy.Entity`1.ShouldUpdate(`0)">
-            <inheritdoc />
-        </member>
         <member name="M:Speedy.Entity`1.TrySetId(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity`1.TryUpdateWith(`0,System.String[])">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Entity`1.UpdateWith(`0,System.String[])">
             <inheritdoc />
         </member>
         <member name="M:Speedy.Entity`1.UpdateWith(System.Object,System.String[])">
@@ -6371,20 +6389,20 @@
         </member>
         <member name="M:Speedy.Extensions.ExpressionExtensions.AndAlso``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
             <summary>
-            Creates a expression that represents a conditional AND operation that evaluates the second operand only if the first operand evaluates to true.
+            Creates an expression that represents a conditional AND operation that evaluates the second operand only if the first operand evaluates to true.
             </summary>
             <typeparam name="T"> The type used in the expression. </typeparam>
-            <param name="left"> A Expression to set the Left property equal to. </param>
-            <param name="right"> A Expression to set the Right property equal to. </param>
+            <param name="left"> An Expression to set the Left property equal to. </param>
+            <param name="right"> An Expression to set the Right property equal to. </param>
             <returns> The updated expression. </returns>
         </member>
         <member name="M:Speedy.Extensions.ExpressionExtensions.Or``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
             <summary>
-            Creates a expression that represents a conditional OR operation.
+            Creates an expression that represents a conditional OR operation.
             </summary>
             <typeparam name="T"> The type used in the expression. </typeparam>
-            <param name="left"> A Expression to set the Left property equal to. </param>
-            <param name="right"> A Expression to set the Right property equal to. </param>
+            <param name="left"> An Expression to set the Left property equal to. </param>
+            <param name="right"> An Expression to set the Right property equal to. </param>
             <returns> The updated expression. </returns>
         </member>
         <member name="M:Speedy.Extensions.ExpressionExtensions.ThenInclude``3(Speedy.IIncludableQueryable{``0,System.Collections.Generic.ICollection{``1}},System.Linq.Expressions.Expression{System.Func{``1,``2}})">
@@ -6397,6 +6415,15 @@
             <param name="source"> The source query. </param>
             <param name="include"> A lambda expression representing the navigation property to be included (<c> t =&gt; t.Property1 </c>). </param>
             <returns> A new query with the related data included. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ExpressionExtensions.TryGetPropertyName``1(System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.String@)">
+            <summary>
+            Try to get the name of an expression where the expression must be a property.
+            </summary>
+            <typeparam name="T"> The type passed into the expression. </typeparam>
+            <param name="expression"> The expression to process. </param>
+            <param name="name"> The name of the expression. </param>
+            <returns> True if the property name was found otherwise false. </returns>
         </member>
         <member name="T:Speedy.Extensions.FileExtensions">
             <summary>
@@ -6592,6 +6619,31 @@
             <param name="value"> The value to be checked. </param>
             <returns> True if value is an odd integer otherwise false. </returns>
         </member>
+        <member name="T:Speedy.Extensions.DistanceUnit">
+            <summary>
+            Distance unit.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.DistanceUnit.Miles">
+            <summary>
+            Miles.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.DistanceUnit.NauticalMiles">
+            <summary>
+            Nautical miles.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.DistanceUnit.Kilometers">
+            <summary>
+            Kilometers.
+            </summary>
+        </member>
+        <member name="F:Speedy.Extensions.DistanceUnit.Meters">
+            <summary>
+            Meters.
+            </summary>
+        </member>
         <member name="T:Speedy.Extensions.LocationExtensions">
             <summary>
             Extensions for location related code.
@@ -6684,27 +6736,41 @@
             <param name="circlePoints"> The amount of points for the circle. </param>
             <returns> The points for the circle. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(System.Double,System.Double,System.Double,System.Double)">
+        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(System.Double,System.Double,System.Double,System.Double,System.Int32,Speedy.Extensions.DistanceUnit)">
             <summary>
-            Calculates the distance between two locations in meters.
+            Calculates the distance between two locations. Defaults to meters.
             </summary>
             <param name="latitudeStart"> Latitude start. </param>
             <param name="longitudeStart"> Longitude start. </param>
             <param name="latitudeEnd"> Latitude end. </param>
             <param name="longitudeEnd"> Longitude end. </param>
-            <returns> The distance in meters. </returns>
+            <param name="decimalPlaces"> The decimal places to return. </param>
+            <param name="distanceUnit"> The unit of the distance to return. </param>
+            <returns> The distance in unit requested. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(Speedy.Data.Location.Location,Speedy.Data.Location.Location)">
+        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(Speedy.Data.Location.IBasicLocation,Speedy.Data.Location.IBasicLocation,System.Int32,Speedy.Extensions.DistanceUnit)">
             <summary>
-            Calculates the distance between two locations in meters.
+            Calculates the distance between two locations. Defaults to meters.
             </summary>
             <param name="start"> Start. </param>
             <param name="end"> End. </param>
-            <returns> The distance in meters. </returns>
+            <param name="decimalPlaces"> The decimal places to return. </param>
+            <param name="distanceUnit"> The unit of the distance to return. </param>
+            <returns> The distance in unit requested. </returns>
         </member>
-        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double)">
+        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(Speedy.Data.Location.Location,Speedy.Data.Location.Location,System.Int32,Speedy.Extensions.DistanceUnit)">
             <summary>
-            Calculates the distance between two locations in meters.
+            Calculates the distance between two locations. Defaults to meters.
+            </summary>
+            <param name="start"> Start. </param>
+            <param name="end"> End. </param>
+            <param name="decimalPlaces"> The decimal places to return. </param>
+            <param name="distanceUnit"> The unit of the distance to return. </param>
+            <returns> The distance in unit requested. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Int32,Speedy.Extensions.DistanceUnit)">
+            <summary>
+            Calculates the distance between two locations. Defaults to meters.
             </summary>
             <param name="latitudeStart"> Latitude start. </param>
             <param name="longitudeStart"> Longitude start. </param>
@@ -6712,7 +6778,9 @@
             <param name="latitudeEnd"> Latitude end. </param>
             <param name="longitudeEnd"> Longitude end. </param>
             <param name="altitudeEnd"> Altitude end. </param>
-            <returns> The distance in meters. </returns>
+            <param name="decimalPlaces"> The decimal places to return. </param>
+            <param name="distanceUnit"> The unit of the distance to return. </param>
+            <returns> The distance in unit requested. </returns>
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.DistanceBetween(Speedy.Data.Location.IMinimalHorizontalLocation,Speedy.Data.Location.IMinimalHorizontalLocation)">
             <summary>
@@ -6760,7 +6828,7 @@
         </member>
         <member name="M:Speedy.Extensions.LocationExtensions.HasHeading(Speedy.Data.Location.ILocationInformation)">
             <summary>
-            Check a information to determine if a location device information has a heading.
+            Check an information to determine if a location device information has a heading.
             </summary>
             <param name="information"> The information to validate. </param>
             <returns> True if the heading is available otherwise false. </returns>
@@ -6947,6 +7015,29 @@
             <param name="location"> The location to update. </param>
             <param name="update"> The update to be applied. </param>
             <param name="exclusions"> An optional set of properties to exclude. </param>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.DiffRadian(System.Double,System.Double)">
+            <summary>
+            Diffs the radian.
+            </summary>
+            <param name="val1"> First value. </param>
+            <param name="val2"> Second value. </param>
+            <returns> Double. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.ToRadian(System.Double)">
+            <summary>
+            Gets the radian.
+            </summary>
+            <param name="d"> The double. </param>
+            <returns> Double. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.LocationExtensions.Validate(System.Double,System.Double)">
+            <summary>
+            Validates the coordinate.
+            </summary>
+            <param name="latitude"> The latitude. </param>
+            <param name="longitude"> The longitude. </param>
+            <returns> True, if the coordinate is valid, false otherwise. </returns>
         </member>
         <member name="T:Speedy.Extensions.LoggingExtensions">
             <summary>
@@ -7550,6 +7641,15 @@
             </summary>
             <param name="info"> The info to process. </param>
             <returns> True if the accessor is virtual. </returns>
+        </member>
+        <member name="M:Speedy.Extensions.ReflectionExtensions.SetMemberValue``1(``0,System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.Object)">
+            <summary>
+            Gets the public or private member using reflection.
+            </summary>
+            <param name="obj"> The target object. </param>
+            <param name="lookup"> The name lookup of the property to be updated. </param>
+            <param name="newValue"> The new value to be set. </param>
+            <returns> Old Value </returns>
         </member>
         <member name="M:Speedy.Extensions.ReflectionExtensions.SetMemberValue(System.Object,System.String,System.Object)">
             <summary>
@@ -11558,17 +11658,140 @@
             Reset the counter to zero.
             </summary>
         </member>
+        <member name="T:Speedy.Profiling.DebounceOrThrottleService`1">
+            <summary>
+            The service to debounce or throttle work that supports cancellation.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0},Speedy.Runtime.IDateTimeProvider,Speedy.IDispatcher)">
+            <summary>
+            Create an instance of the service for throttling an action.
+            </summary>
+            <param name="interval"> The amount of time between each trigger. </param>
+            <param name="action"> The action to throttle. </param>
+            <param name="timeService"> An optional TimeService instead of DateTime. Defaults to new instance of TimeService (DateTime). </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.AllowTriggerDuringProcessing">
+            <summary>
+            Allow triggering during processing.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.Interval">
+            <summary>
+            The amount of time between each trigger.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.IsActive">
+            <summary>
+            The service has been trigger or is processing.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.IsProcessing">
+            <summary>
+            True if the action is processing.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.IsReadyToProcess">
+            <summary>
+            Is triggered and enough time has passed to process.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.IsTriggered">
+            <summary>
+            True if the throttle service has been triggered.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.IsTriggeredAndReadyToProcess">
+            <summary>
+            The throttle is triggered and the delay has expired, so it is ready to process.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.LastProcessedOn">
+            <summary>
+            The Date / Time the service was last processed on.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.QueueCount">
+            <summary>
+            Number of items in the queue.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.QueueTriggers">
+            <summary>
+            If true trigger will queue and be processed. Be careful because queueing on a delay could
+            end with a never processed queue. Defaults to false, meaning only last trigger processes.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.TimeToNextTrigger">
+            <summary>
+            The timespan until next trigger
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.TriggeredOn">
+            <summary>
+            The Date / Time the service was triggered on.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.CurrentTime">
+            <summary>
+            The current time for the throttle.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.Lock">
+            <summary>
+            Lock for tracking worker / reset process.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.NextTriggerDate">
+            <summary>
+            The next Date / Time to trigger on.
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceOrThrottleService`1.Queue">
+            <summary>
+            The queue for the data.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleService`1.Cancel">
+            <summary>
+            Cancel the current InProcess work.
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleService`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleService`1.Reset">
+            <summary>
+            Reset the throttle service
+            </summary>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleService`1.Trigger(`0,System.Boolean)">
+            <summary>
+            Trigger the service. Will be trigger after the timespan.
+            </summary>
+            <param name="value"> The value to trigger with. </param>
+            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
+        </member>
+        <member name="M:Speedy.Profiling.DebounceOrThrottleService`1.Dispose(System.Boolean)">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+            <param name="disposing"> True if disposing and false if otherwise. </param>
+        </member>
         <member name="T:Speedy.Profiling.DebounceService">
             <summary>
             The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken})">
+        <member name="M:Speedy.Profiling.DebounceService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken},Speedy.Runtime.IDateTimeProvider,Speedy.IDispatcher)">
             <summary>
             Create an instance of the service for debouncing an action.
             </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="interval"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to debounce. </param>
+            <param name="timeService"> An optional TimeService instead of DateTime. Defaults to new instance of TimeService (DateTime). </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="M:Speedy.Profiling.DebounceService.Trigger(System.Boolean)">
             <summary>
@@ -11581,28 +11804,22 @@
             The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0})">
+        <member name="M:Speedy.Profiling.DebounceService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0},Speedy.Runtime.IDateTimeProvider,Speedy.IDispatcher)">
             <summary>
-            Create an instance of the service for debouncing an action.
+            Create an instance of the service for throttling an action.
             </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
-            <param name="action"> The action to debounce. </param>
+            <param name="interval"> The amount of time between each trigger. </param>
+            <param name="action"> The action to throttle. </param>
+            <param name="timeService"> An optional TimeService instead of DateTime. Defaults to new instance of TimeService (DateTime). </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.Dispose">
+        <member name="P:Speedy.Profiling.DebounceService`1.TimeToNextTrigger">
+            <summary>
+            The timespan until next trigger
+            </summary>
+        </member>
+        <member name="P:Speedy.Profiling.DebounceService`1.NextTriggerDate">
             <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.Trigger(`0,System.Boolean)">
-            <summary>
-            Trigger the service. Will be trigger after the timespan.
-            </summary>
-            <param name="value"> The value to trigger with. </param>
-            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
-        </member>
-        <member name="M:Speedy.Profiling.DebounceService`1.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="T:Speedy.Profiling.ITrackerPathRepository">
             <summary>
@@ -11676,13 +11893,14 @@
             The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken},System.Boolean)">
+        <member name="M:Speedy.Profiling.ThrottleService.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken},Speedy.Runtime.IDateTimeProvider,Speedy.IDispatcher)">
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="interval"> The amount of time before the action will trigger. </param>
             <param name="action"> The action to throttle. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
+            <param name="timeService"> An optional TimeService instead of DateTime. Defaults to new instance of TimeService (DateTime). </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="M:Speedy.Profiling.ThrottleService.Trigger(System.Boolean)">
             <summary>
@@ -11695,60 +11913,24 @@
             The service to throttle work that supports cancellation.
             </summary>
         </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0},System.Boolean)">
+        <member name="M:Speedy.Profiling.ThrottleService`1.#ctor(System.TimeSpan,System.Action{System.Threading.CancellationToken,`0},Speedy.Runtime.IDateTimeProvider,Speedy.IDispatcher)">
             <summary>
             Create an instance of the service for throttling an action.
             </summary>
-            <param name="delay"> The amount of time before the action will trigger. </param>
+            <param name="interval"> The amount of time between each trigger. </param>
             <param name="action"> The action to throttle. </param>
-            <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-        </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggered">
-            <summary>
-            True if the throttle service has been triggered.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.IsTriggeredAndReadyToProcess">
-            <summary>
-            The throttle is triggered and the delay has expired so it is ready to process.
-            </summary>
-        </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.QueueTriggers">
-            <summary>
-            If true trigger will queue and be processed. Be careful because queueing on a delay could
-            end with a never processed queue. Defaults to false, meaning only last trigger processes.
-            </summary>
+            <param name="timeService"> An optional TimeService instead of DateTime. Defaults to new instance of TimeService (DateTime). </param>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
         </member>
         <member name="P:Speedy.Profiling.ThrottleService`1.TimeToNextTrigger">
             <summary>
             The timespan until next trigger
             </summary>
         </member>
-        <member name="P:Speedy.Profiling.ThrottleService`1.CurrentTime">
+        <member name="P:Speedy.Profiling.ThrottleService`1.NextTriggerDate">
             <summary>
-            The current time for the throttle.
+            Calculate the next trigger date.
             </summary>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Reset">
-            <summary>
-            Reset the throttle service
-            </summary>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Trigger(`0,System.Boolean)">
-            <summary>
-            Trigger the service. Will be trigger after the timespan.
-            </summary>
-            <param name="value"> The value to trigger with. </param>
-            <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
-        </member>
-        <member name="M:Speedy.Profiling.ThrottleService`1.Dispose(System.Boolean)">
-            <summary>
-            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            </summary>
-            <param name="disposing"> True if disposing and false if otherwise. </param>
         </member>
         <member name="T:Speedy.Profiling.Timer">
             <summary>
@@ -14481,6 +14663,74 @@
             <summary>
             Represents x64 or 64 bitness.
             </summary>
+        </member>
+        <member name="T:Speedy.Runtime.DateTimeProvider">
+            <summary>
+            Represents a time provider
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.#ctor">
+            <summary>
+            Initialize a provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.#ctor(System.DateTime)">
+            <summary>
+            Initialize a provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.#ctor(System.Guid,System.DateTime)">
+            <summary>
+            Initialize a provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.#ctor(System.Func{System.DateTime})">
+            <summary>
+            Initialize a provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.#ctor(System.Guid,System.Func{System.DateTime})">
+            <summary>
+            Initialize a provider for date time.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.GetDateTime">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.GetProviderId">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.GetUtcDateTime">
+            <inheritdoc />
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.LockProvider">
+            <summary>
+            Lock the provider to not allow the time service to change. Once locked
+            the provider can no longer be changes or updated.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.DateTimeProvider.UpdateDateTime(System.DateTime)">
+            <summary>
+            Update the time for the provider.
+            </summary>
+            <param name="time"> </param>
+        </member>
+        <member name="T:Speedy.Runtime.IDateTimeProvider">
+            <summary>
+            Represents the service to provide time. Allows control for when the system is being tested.
+            </summary>
+        </member>
+        <member name="M:Speedy.Runtime.IDateTimeProvider.GetDateTime">
+            <summary>
+            Gets the DateTime in the current time zone.
+            </summary>
+            <returns> The current UTC date and time for the sync client. </returns>
+        </member>
+        <member name="M:Speedy.Runtime.IDateTimeProvider.GetUtcDateTime">
+            <summary>
+            Gets the DateTime in UTC.
+            </summary>
+            <returns> The current UTC date and time for the sync client. </returns>
         </member>
         <member name="T:Speedy.Runtime.DeviceId">
             <summary>
@@ -19887,12 +20137,17 @@
         </member>
         <member name="P:Speedy.TimeService.CurrentProvider">
             <summary>
-            Gets the ID of the Now provider.
+            Gets the current DateTime provider.
             </summary>
         </member>
         <member name="P:Speedy.TimeService.CurrentProviderId">
             <summary>
             Gets the ID of the Now provider.
+            </summary>
+        </member>
+        <member name="P:Speedy.TimeService.DefaultProvider">
+            <summary>
+            Gets the default DateTime provider.
             </summary>
         </member>
         <member name="P:Speedy.TimeService.Now">
@@ -19929,7 +20184,7 @@
             Add a new DateTime provider onto the stack.
             </summary>
         </member>
-        <member name="M:Speedy.TimeService.PushProvider(Speedy.IDateTimeProvider)">
+        <member name="M:Speedy.TimeService.PushProvider(Speedy.Runtime.IDateTimeProvider)">
             <summary>
             Add a new DateTime provider onto the stack.
             </summary>
@@ -19939,7 +20194,7 @@
             Remove the provider from the stack
             </summary>
         </member>
-        <member name="M:Speedy.TimeService.RemoveProvider(Speedy.DateTimeProvider)">
+        <member name="M:Speedy.TimeService.RemoveProvider(Speedy.Runtime.DateTimeProvider)">
             <summary>
             Remove the provider from the stack
             </summary>

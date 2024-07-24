@@ -4,6 +4,7 @@
 		xmlns:wpf="clr-namespace:Speedy.Example.Wpf"
 		StartupUri="MainWindow.xaml">
 	<Application.Resources>
+		<wpf:InvertValueConverter x:Key="InvertValueConverter" />
 		<wpf:VisibilityConverter x:Key="VisibilityConverter" />
 		<wpf:VisibilityConverter x:Key="InvertedVisibilityConverter" Inverted="True" />
 	</Application.Resources>

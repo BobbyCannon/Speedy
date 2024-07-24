@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedy.Automation.Tests;
 using Speedy.Data.Location;
 using Speedy.Extensions;
 
@@ -13,6 +14,18 @@ namespace Speedy.UnitTests.Extensions;
 public class LocationExtensionsTests : SpeedyUnitTest
 {
 	#region Methods
+
+	[TestMethod]
+	public void DistanceBetween()
+	{
+		LocationExtensions.DistanceBetween(0.0, 0.0, 0.0, 0.1).Dump();
+		LocationExtensions.DistanceBetween(0.0, 0.0, 0.0, -0.1).Dump();
+		LocationExtensions.DistanceBetween(0.0, 0.0, 0.05, 0.0).Dump();
+		LocationExtensions.DistanceBetween(0.0, 0.0, -0.05, 0.0).Dump();
+		LocationExtensions.DistanceBetween(32, -75, 32, -75.05).Dump();
+
+		LocationExtensions.DistanceBetween(0.0, 0.0, 0.0, 0.0, 0.0, 1).Dump("Altitude up distance meters");
+	}
 
 	[TestMethod]
 	public void GetEllipsoidValue()

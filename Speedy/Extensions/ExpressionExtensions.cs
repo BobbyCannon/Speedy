@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 #endregion
 
@@ -16,11 +17,11 @@ public static class ExpressionExtensions
 	#region Methods
 
 	/// <summary>
-	/// Creates a expression that represents a conditional AND operation that evaluates the second operand only if the first operand evaluates to true.
+	/// Creates an expression that represents a conditional AND operation that evaluates the second operand only if the first operand evaluates to true.
 	/// </summary>
 	/// <typeparam name="T"> The type used in the expression. </typeparam>
-	/// <param name="left"> A Expression to set the Left property equal to. </param>
-	/// <param name="right"> A Expression to set the Right property equal to. </param>
+	/// <param name="left"> An Expression to set the Left property equal to. </param>
+	/// <param name="right"> An Expression to set the Right property equal to. </param>
 	/// <returns> The updated expression. </returns>
 	public static Expression<Func<T, bool>> AndAlso<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
 	{
@@ -33,11 +34,11 @@ public static class ExpressionExtensions
 	}
 
 	/// <summary>
-	/// Creates a expression that represents a conditional OR operation.
+	/// Creates an expression that represents a conditional OR operation.
 	/// </summary>
 	/// <typeparam name="T"> The type used in the expression. </typeparam>
-	/// <param name="left"> A Expression to set the Left property equal to. </param>
-	/// <param name="right"> A Expression to set the Right property equal to. </param>
+	/// <param name="left"> An Expression to set the Left property equal to. </param>
+	/// <param name="right"> An Expression to set the Right property equal to. </param>
 	/// <returns> The updated expression. </returns>
 	public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
 	{
@@ -61,6 +62,32 @@ public static class ExpressionExtensions
 	public static IIncludableQueryable<T, TProperty> ThenInclude<T, TPreviousProperty, TProperty>(this IIncludableQueryable<T, ICollection<TPreviousProperty>> source, Expression<Func<TPreviousProperty, TProperty>> include) where T : class
 	{
 		return source.ThenInclude(include);
+	}
+
+	/// <summary>
+	/// Try to get the name of an expression where the expression must be a property.
+	/// </summary>
+	/// <typeparam name="T"> The type passed into the expression. </typeparam>
+	/// <param name="expression"> The expression to process. </param>
+	/// <param name="name"> The name of the expression. </param>
+	/// <returns> True if the property name was found otherwise false. </returns>
+	public static bool TryGetPropertyName<T>(this Expression<Func<T, object>> expression, out string name)
+	{
+		var exp = expression.Body;
+
+		if (exp is UnaryExpression cast)
+		{
+			exp = cast.Operand;
+		}
+
+		if (exp is MemberExpression { Member.MemberType: MemberTypes.Property } member)
+		{
+			name = member.Member.Name;
+			return true;
+		}
+
+		name = null;
+		return false;
 	}
 
 	#endregion

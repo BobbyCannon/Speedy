@@ -157,6 +157,55 @@ public class PartialUpdateTests : SpeedyUnitTest
 	}
 
 	[TestMethod]
+	public void DeepJsonTest()
+	{
+		var json = "{\"Age\":21,\"Child\":{\"Age\":12}}";
+		var update = PartialUpdate.FromJson(json);
+		AreEqual(2, update.Updates.Count);
+		AreEqual(21, update.Updates["Age"].Value);
+		AreEqual(new Dictionary<string, object>
+			{
+				{ "Age", 12 }
+			},
+			update.Updates["Child"].Value
+		);
+
+		var actual = update.ToRawJson();
+		AreEqual(json, actual);
+	}
+
+	[TestMethod]
+	public void DeepJsonTestWithType()
+	{
+		var scenarios = new (string data, Action<MyClassWithChildren> before, Action<MyClassWithChildren, PartialUpdate<MyClassWithChildren>> after)[]
+		{
+			(
+				"{\"Age\":21,\"Child\":{\"Age\":12}}",
+				before =>
+				{
+					Assert.IsNull(before.Name);
+					Assert.AreEqual(0, before.Age);
+				},
+				(after, update) =>
+				{
+					Assert.AreEqual(2, update.Updates.Count);
+					Assert.AreEqual(21, after.Age);
+					Assert.AreEqual(12, after.Child.Age);
+				}
+			)
+		};
+
+		foreach (var scenario in scenarios)
+		{
+			var update = PartialUpdate.FromJson<MyClassWithChildren>(scenario.data);
+			var actual = new MyClassWithChildren();
+			scenario.before(actual);
+			update.Apply(actual);
+			scenario.after(actual, update);
+		}
+	}
+
+	[TestMethod]
 	public void EmptyJson()
 	{
 		var scenarios = new[] { "{}", "[]", " { } ", " [ ] ", null, "", " ", "[{}]" };
@@ -753,10 +802,10 @@ public class PartialUpdateTests : SpeedyUnitTest
 	public void ValidateDefaultEnumValue()
 	{
 		var json = "{ \"LogLevel\":0 }";
-		var update = json.FromJson<PartialUpdate<MyEntity>>();	
+		var update = json.FromJson<PartialUpdate<MyEntity>>();
 		AreEqual(1, update.Updates.Count);
-		
-		update = json.FromJson<MyEntityUpdate>();	
+
+		update = json.FromJson<MyEntityUpdate>();
 		AreEqual(1, update.Updates.Count);
 	}
 
@@ -847,6 +896,15 @@ public class PartialUpdateTests : SpeedyUnitTest
 		public LogLevel Level { get; set; }
 
 		public string Name { get; set; }
+
+		#endregion
+	}
+
+	public class MyClassWithChildren : MyClass
+	{
+		#region Properties
+
+		public MyClassWithChildren Child { get; set; }
 
 		#endregion
 	}

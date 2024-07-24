@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Speedy.Data;
 using Speedy.Data.Location;
 using Speedy.Extensions;
+using Speedy.Runtime;
 using Speedy.Serialization;
 
 #endregion
@@ -53,7 +54,7 @@ public abstract class SpeedyTest<T> : SpeedyTest where T : new()
 /// <summary>
 /// Represents a Speedy test.
 /// </summary>
-public abstract class SpeedyTest
+public abstract class SpeedyTest : IDateTimeProvider
 {
 	#region Fields
 

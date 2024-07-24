@@ -959,6 +959,24 @@ public static class ReflectionExtensions
 	/// Gets the public or private member using reflection.
 	/// </summary>
 	/// <param name="obj"> The target object. </param>
+	/// <param name="lookup"> The name lookup of the property to be updated. </param>
+	/// <param name="newValue"> The new value to be set. </param>
+	/// <returns> Old Value </returns>
+	public static T SetMemberValue<T>(this T obj, Expression<Func<T, object>> lookup, object newValue)
+	{
+		if (!lookup.TryGetPropertyName(out var name))
+		{
+			return obj;
+		}
+
+		obj.SetMemberValue(name, newValue);
+		return obj;
+	}
+
+	/// <summary>
+	/// Gets the public or private member using reflection.
+	/// </summary>
+	/// <param name="obj"> The target object. </param>
 	/// <param name="memberName"> Name of the field or property. </param>
 	/// <param name="newValue"> The new value to be set. </param>
 	/// <returns> Old Value </returns>

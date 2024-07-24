@@ -1,10 +1,8 @@
 ﻿#region References
 
 using System;
-using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Threading;
-using Speedy.Extensions;
+using Speedy.Runtime;
 
 #endregion
 
@@ -20,11 +18,12 @@ public class ThrottleService : ThrottleService<object>
 	/// <summary>
 	/// Create an instance of the service for throttling an action.
 	/// </summary>
-	/// <param name="delay"> The amount of time before the action will trigger. </param>
+	/// <param name="interval"> The amount of time before the action will trigger. </param>
 	/// <param name="action"> The action to throttle. </param>
-	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-	public ThrottleService(TimeSpan delay, Action<CancellationToken> action, bool useTimeService = false)
-		: base(delay, (x, _) => action(x), useTimeService)
+	/// <param name="timeService"> An optional TimeService instead of DateTime. Defaults to new instance of TimeService (DateTime). </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	public ThrottleService(TimeSpan interval, Action<CancellationToken> action, IDateTimeProvider timeService = null, IDispatcher dispatcher = null)
+		: base(interval, (x, _) => action(x), timeService, dispatcher)
 	{
 	}
 
@@ -47,45 +46,20 @@ public class ThrottleService : ThrottleService<object>
 /// <summary>
 /// The service to throttle work that supports cancellation.
 /// </summary>
-public class ThrottleService<T> : IDisposable
+public class ThrottleService<T> : DebounceOrThrottleService<T>
 {
-	#region Fields
-
-	private readonly Action<CancellationToken, T> _action;
-	private readonly TimeSpan _delay;
-	private bool _force;
-	private DateTime _lastRequestProcessedOn;
-	private readonly ConcurrentQueue<T> _queue;
-	private DateTime _requestedFor;
-	private readonly bool _useTimeService;
-	private BackgroundWorker _worker;
-	private readonly object _workerLock;
-
-	#endregion
-
 	#region Constructors
 
 	/// <summary>
 	/// Create an instance of the service for throttling an action.
 	/// </summary>
-	/// <param name="delay"> The amount of time before the action will trigger. </param>
+	/// <param name="interval"> The amount of time between each trigger. </param>
 	/// <param name="action"> The action to throttle. </param>
-	/// <param name="useTimeService"> An optional flag to use the TimeService instead of DateTime. Defaults to false to use DateTime. </param>
-	public ThrottleService(TimeSpan delay, Action<CancellationToken, T> action, bool useTimeService = false)
+	/// <param name="timeService"> An optional TimeService instead of DateTime. Defaults to new instance of TimeService (DateTime). </param>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	public ThrottleService(TimeSpan interval, Action<CancellationToken, T> action, IDateTimeProvider timeService = null, IDispatcher dispatcher = null)
+		: base(interval, action, timeService, dispatcher)
 	{
-		_delay = delay;
-		_action = action;
-		_useTimeService = useTimeService;
-		_lastRequestProcessedOn = DateTime.MinValue;
-		_queue = new ConcurrentQueue<T>();
-		_workerLock = true;
-		_worker = new BackgroundWorker();
-		_worker.RunWorkerCompleted += WorkerOnRunWorkerCompleted;
-		_worker.DoWork += WorkerOnDoWork;
-		_worker.WorkerSupportsCancellation = true;
-
-		// Defaults for the trigger service.
-		QueueTriggers = false;
 	}
 
 	#endregion
@@ -93,187 +67,68 @@ public class ThrottleService<T> : IDisposable
 	#region Properties
 
 	/// <summary>
-	/// True if the throttle service has been triggered.
-	/// </summary>
-	public bool IsTriggered => _requestedFor > _lastRequestProcessedOn;
-
-	/// <summary>
-	/// The throttle is triggered and the delay has expired so it is ready to process.
-	/// </summary>
-	public bool IsTriggeredAndReadyToProcess =>
-		(_requestedFor > _lastRequestProcessedOn)
-		&& (_requestedFor <= CurrentTime);
-
-	/// <summary>
-	/// If true trigger will queue and be processed. Be careful because queueing on a delay could
-	/// end with a never processed queue. Defaults to false, meaning only last trigger processes.
-	/// </summary>
-	public bool QueueTriggers { get; set; }
-
-	/// <summary>
 	/// The timespan until next trigger
 	/// </summary>
-	public TimeSpan TimeToNextTrigger =>
-		IsTriggered
-			? _requestedFor - CurrentTime
-			: TimeSpan.Zero;
-
-	/// <summary>
-	/// The current time for the throttle.
-	/// </summary>
-	protected DateTime CurrentTime =>
-		_useTimeService
-			? TimeService.UtcNow
-			: DateTime.UtcNow;
-
-	#endregion
-
-	#region Methods
-
-	/// <inheritdoc />
-	public void Dispose()
+	public override TimeSpan TimeToNextTrigger
 	{
-		Dispose(true);
-		GC.SuppressFinalize(this);
-	}
-
-	/// <summary>
-	/// Reset the throttle service
-	/// </summary>
-	public void Reset()
-	{
-		lock (_workerLock)
+		get
 		{
-			_worker?.CancelAsync();
-
-			#if (NETSTANDARD2_0)
-			while (!_queue.IsEmpty)
+			if (TriggeredOn == DateTime.MinValue)
 			{
-				_queue.TryDequeue(out _);
+				return TimeSpan.Zero;
 			}
-			#else
-			_queue.Clear();
-			#endif
 
-			_force = false;
-			_requestedFor = DateTime.MinValue;
-			_lastRequestProcessedOn = DateTime.MinValue;
+			// Edge case that probably will never happen unless time is being
+			// controlled but if trigger on is exactly current time then the delay
+			// and the queue is empty then we should consider the trigger processed
+			if ((TriggeredOn == CurrentTime) && Queue.IsEmpty)
+			{
+				return Interval;
+			}
+
+			var e = TriggeredOn - CurrentTime;
+			if (e <= TimeSpan.Zero)
+			{
+				return TimeSpan.Zero;
+			}
+
+			return e;
 		}
 	}
 
 	/// <summary>
-	/// Trigger the service. Will be trigger after the timespan.
+	/// Calculate the next trigger date.
 	/// </summary>
-	/// <param name="value"> The value to trigger with. </param>
-	/// <param name="force"> An optional flag to immediately trigger if true. Defaults to false. </param>
-	public void Trigger(T value, bool force = false)
+	protected override DateTime NextTriggerDate
 	{
-		if (!QueueTriggers && !_queue.IsEmpty)
+		get
 		{
-			_queue.Empty();
-		}
-
-		// Optionally turn on force
-		_force |= force;
-		_queue.Enqueue(value);
-
-		if (!IsTriggered || force)
-		{
-			// Queue up the next run
-			_requestedFor = _force
-				? CurrentTime
-				: CurrentTime + _delay;
-		}
-
-		StartWorker();
-	}
-
-	/// <summary>
-	/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-	/// </summary>
-	/// <param name="disposing"> True if disposing and false if otherwise. </param>
-	protected virtual void Dispose(bool disposing)
-	{
-		lock (_workerLock)
-		{
-			var worker = _worker;
-
-			if (!disposing || (worker == null))
+			if (TriggeredOn == DateTime.MinValue)
 			{
-				return;
+				return CurrentTime;
 			}
 
-			if (worker.IsBusy)
+			if ((TriggeredOn > CurrentTime)
+				|| (LastProcessedOn < TriggeredOn))
 			{
-				worker.CancelAsync();
+				return TriggeredOn;
 			}
 
-			worker.RunWorkerCompleted -= WorkerOnRunWorkerCompleted;
-			worker.DoWork -= WorkerOnDoWork;
+			var timeSinceLastTrigger = CurrentTime - TriggeredOn;
+			if ((timeSinceLastTrigger == TimeSpan.Zero)
+				&& (LastProcessedOn == TriggeredOn))
+			{
+				return LastProcessedOn + Interval;
+			}
 
-			_worker = null;
+			if (timeSinceLastTrigger < Interval)
+			{
+				// todo: need test for this
+				return CurrentTime + (Interval - timeSinceLastTrigger);
+			}
+
+			return CurrentTime;
 		}
-	}
-
-	private void StartWorker()
-	{
-		lock (_workerLock)
-		{
-			// Start the worker if it's not running
-			if (_worker?.IsBusy != true)
-			{
-				_worker?.RunWorkerAsync();
-			}
-		}
-	}
-
-	private void WorkerOnDoWork(object sender, DoWorkEventArgs e)
-	{
-		var worker = (BackgroundWorker) sender;
-
-		while (!worker.CancellationPending)
-		{
-			var now = CurrentTime;
-
-			if (!((_requestedFor > _lastRequestProcessedOn)
-					&& (_requestedFor <= now))
-				&& !_force)
-			{
-				// Nothing to do...
-				Thread.Sleep(10);
-				continue;
-			}
-
-			_force = false;
-
-			if (!_queue.TryDequeue(out var data))
-			{
-				_lastRequestProcessedOn = _requestedFor;
-				continue;
-			}
-
-			using var cancellationTokenSource = new CancellationTokenSource();
-
-			_action(cancellationTokenSource.Token, data);
-			_lastRequestProcessedOn = _requestedFor;
-
-			// See if we need to re-trigger due to queued data
-			if (_queue.Count > 0)
-			{
-				// Queue up the next run
-				_requestedFor = now + _delay;
-			}
-		}
-	}
-
-	private void WorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-	{
-		if ((_requestedFor < CurrentTime) && _queue.IsEmpty)
-		{
-			return;
-		}
-
-		StartWorker();
 	}
 
 	#endregion
