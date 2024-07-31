@@ -19,9 +19,17 @@ public class Counter : ReaderWriterLockBindable
 	/// <summary>
 	/// Instantiate the counter for profiling.
 	/// </summary>
+	/// <param name="dispatcher"> The optional dispatcher to use. </param>
+	public Counter(IDispatcher dispatcher = null) : base(new ReaderWriterLockTiny(), dispatcher)
+	{
+	}
+
+	/// <summary>
+	/// Instantiate the counter for profiling.
+	/// </summary>
 	/// <param name="readerWriterLock"> An optional lock. Defaults to <see cref="ReaderWriterLockTiny" /> if non provided. </param>
 	/// <param name="dispatcher"> The optional dispatcher to use. </param>
-	public Counter(IReaderWriterLock readerWriterLock = null, IDispatcher dispatcher = null) : base(readerWriterLock, dispatcher)
+	public Counter(IReaderWriterLock readerWriterLock, IDispatcher dispatcher = null) : base(readerWriterLock, dispatcher)
 	{
 	}
 

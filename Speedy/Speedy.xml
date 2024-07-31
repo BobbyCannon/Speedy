@@ -11629,6 +11629,12 @@
             Represents a counter for profiling.
             </summary>
         </member>
+        <member name="M:Speedy.Profiling.Counter.#ctor(Speedy.IDispatcher)">
+            <summary>
+            Instantiate the counter for profiling.
+            </summary>
+            <param name="dispatcher"> The optional dispatcher to use. </param>
+        </member>
         <member name="M:Speedy.Profiling.Counter.#ctor(Speedy.Threading.IReaderWriterLock,Speedy.IDispatcher)">
             <summary>
             Instantiate the counter for profiling.
@@ -18941,6 +18947,14 @@
             <summary>
             The type of the sync.
             </summary>
+        </member>
+        <member name="P:Speedy.Sync.SyncManager`1.ItemsPerSyncRequest">
+            <summary>
+            Items to sync per sync options.
+            </summary>
+            <remarks>
+            Note this is only used when creating the sync options for the first time.
+            </remarks>
         </member>
         <member name="M:Speedy.Sync.SyncManager`1.CancelSync">
             <summary>

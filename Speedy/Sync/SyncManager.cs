@@ -132,6 +132,14 @@ public abstract class SyncManager<T> : Bindable where T : Enum
 	/// </summary>
 	public T SyncType { get; private set; }
 
+	/// <summary>
+	/// Items to sync per sync options.
+	/// </summary>
+	/// <remarks>
+	/// Note this is only used when creating the sync options for the first time.
+	/// </remarks>
+	protected virtual int ItemsPerSyncRequest => 600;
+
 	#endregion
 
 	#region Methods
@@ -334,7 +342,7 @@ public abstract class SyncManager<T> : Bindable where T : Enum
 				// has the options to override. Ex: you may request 600 items then the sync
 				// client may reduce it to only 100 items.
 				PermanentDeletions = false,
-				ItemsPerSyncRequest = 600,
+				ItemsPerSyncRequest = ItemsPerSyncRequest,
 				IncludeIssueDetails = false
 			};
 
